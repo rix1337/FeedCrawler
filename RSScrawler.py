@@ -1,21 +1,60 @@
 # -*- coding: utf-8 -*-
+
+"""RSScrawler.
+
+Usage:
+  RSScrawler.py [--ontime]
+                [--log-level=<LOGLEVEL>]
+
+Options:
+  --ontime                  Run once and exit
+  --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+"""
+
 # Requires PyCurl, Feedparser, BeautifulSoup, PyQt4
+from rssconfig import RssConfig
+from rssdb import RssDb
+from timer import RepeatableTimer
+from docopt import docopt
 import feedparser
 import re
 import urllib
 import urllib2
-import httplib
 import codecs
 import base64
-from module.network.RequestFactory import getURL 
 from BeautifulSoup import BeautifulSoup
 import pycurl
 import time
+import sys
+import signal
+import logging
 
 try:
     import simplejson as json
 except ImportError:
     import json
+
+CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
+                  ("patternfile", "str", "File to search for tv-shows, movies...", "config/Filme.txt"),
+                  ("destination", "queue;collector", "Link destination", "collector"),
+                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
+                  ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
+                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj"),
+                  ("quiethours","str","Quite hours (comma seperated)",""),
+                  ("crawljob_directory","str","crawljob_directory","out"),
+                  ("db_file","str","db_file","db/mb_database.db")]
+
+CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruecke behandeln", "False"),
+                  ("quality", """480p;720p;1080p""", "480p, 720p oder 1080p", "720p"),
+                  ("file", "str", "Datei mit Seriennamen", "config/Serien.txt"),
+                  ("rejectlist", "str", "Titel ablehnen mit (; getrennt)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
+                  ("language", """DEUTSCH;ENGLISCH""", "Sprache", "DEUTSCH"),
+                  ("interval", "int", "Interval", "15"),
+                  ("hoster", """ul;so;fm;cz;alle""", "ul.to, filemonkey, cloudzer, share-online oder alle", "ul"),
+                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj"),
+                  ("crawljob_directory","str","crawljob_directory","out"),
+                  ("db_file","str","db_file","db/sj_database.db")]
+
 
 # Jdownloader
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
@@ -29,7 +68,8 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     file.write('packageName=%s\n' % package_name.replace(' ', ''))
     file.write('text=%s\n' % link_text)
     file.close()
-    
+
+
 # MovieBlog
 def notifyPushbulletMB(apikey,text):
     if apikey == "0" or apikey == "":
@@ -44,28 +84,44 @@ def notifyPushbulletMB(apikey,text):
     c.setopt(pycurl.POSTFIELDS, postData)
     c.perform()
 
+
+def _restart_timer(func):
+    def wrapper(self):
+        func(self)
+        if self._periodical_active:
+            self.periodical.cancel()
+            self.periodical.start()
+
+    return wrapper
+
 class MovieblogFeed():
-    __config__ = [("interval", "int", "Execution interval in minutes", "15"),
-                  ("patternfile", "str", "File to search for tv-shows, movies...", "/config/Filme.txt"),
-                  ("destination", "queue;collector", "Link destination", "collector"),
-                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
-                  ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
-                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj"),
-                  ("quiethours","str","Quite hours (comma seperated)","")]
-   
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
-    
+
+    def __init__(self, config):
+        self.config = config
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.db = RssDb(self.config.get('db_file'))
+        self._periodical_active = False
+        self.periodical = RepeatableTimer(
+            int(self.config.get('interval')) * 60,
+            self.periodical_task
+        )
+
     def activate(self):
-        self.periodical.start(self.config.get('interval') * 60)
-        
+        self._periodical_active = True
+        self.periodical.start()
+        return self
+
     def readInput(self):
         try:
             f = codecs.open(self.config.get("patternfile"), "rb")
             return f.read().splitlines()
         except:
             self.log_error("Inputfile not found")
-            
+
     def getPatterns(self):
         out = {}
         for line in self.mypatterns:
@@ -77,21 +133,21 @@ class MovieblogFeed():
                 r = line.split(",")[2]
             except:
                 self.log_error("Syntax error in [%s] detected, please take corrective action" %self.config.get("patternfile"))
-            
+
             try:
                 d = line.split(",")[3]
             except:
                 d = ""
-            
+
             if q == "":
                 q = r'.*'
-                
+
             if r == "":
                 r = r'.*'
 
             out[n] = [q,r,d]
         return out
-        
+
     def searchLinks(self):
         ignore = self.config.get("ignore").lower().replace(",","|") if not self.config.get("ignore") == "" else "^unmatchable$"
         for key in self.allInfos:
@@ -126,28 +182,28 @@ class MovieblogFeed():
                                 self.log_debug("TV-Series detected, will shorten its name to [%s]" %episode)
                                 self.dictWithNamesAndLinks[episode] = [post.link, destination]
                             except:
-                                self.dictWithNamesAndLinks[post.title] = [post.link, destination]        
-    
-    
+                                self.dictWithNamesAndLinks[post.title] = [post.link, destination]
+
     def quietHours(self):
-        hours = self.config.get("quiethours").split(",")        
+        hours = self.config.get("quiethours").split(",")
         if str(time.localtime()[3]) in hours:
             self.log_debug("Quiet hour, nothing to do!")
             return True
         else:
             return False
-    
+
+    @_restart_timer
     def periodical_task(self):
         if self.quietHours():
             return
-            
+
         urls = []
         text = []
         self.mypatterns = self.readInput()
-        
+
         self.dictWithNamesAndLinks = {}
         self.allInfos = self.getPatterns()
-        
+
         if self.config.get("historical"):
             for xline in self.mypatterns:
                 if len(xline) == 0 or xline.startswith("#"):
@@ -165,7 +221,7 @@ class MovieblogFeed():
             if not self.db.retrieve(key) == 'added':
                 self.db.store(key, 'added')
                 write_crawljob_file(key, key, [self.dictWithNamesAndLinks[key][0]],
-                    config.crawljob_directory)
+                    self.config.get("crawljob_directory"))
                 text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
@@ -185,12 +241,12 @@ def getSeriesList(file):
         f.close()
         return titles
     except UnicodeError:
-        self.core.log.error("Abbruch, es befinden sich ungueltige Zeichen in der Suchdatei!")
+        logging.error("Abbruch, es befinden sich ungueltige Zeichen in der Suchdatei!")
     except IOError:
-        self.core.log.error("Abbruch, Suchdatei wurde nicht gefunden!")
+        logging.error("Abbruch, Suchdatei wurde nicht gefunden!")
     except Exception, e:
-        self.core.log.error("Unbekannter Fehler: %s" %e)
-   
+        logging.error("Unbekannter Fehler: %s" %e)
+
 def notifyPushbulletSJ(api='', msg=''):
     data = urllib.urlencode({
         'type': 'note',
@@ -211,21 +267,42 @@ def notifyPushbulletSJ(api='', msg=''):
     else:
         print 'Pushbullet Fail'
 
-class SJ():
-    __config__ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruecke behandeln", "False"),
-                  ("quality", """480p;720p;1080p""", "480p, 720p oder 1080p", "720p"),
-                  ("file", "str", "Datei mit Seriennamen", "/config/Serien.txt"),
-                  ("rejectlist", "str", "Titel ablehnen mit (; getrennt)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
-                  ("language", """DEUTSCH;ENGLISCH""", "Sprache", "DEUTSCH"),
-                  ("interval", "int", "Interval", "15"),
-                  ("hoster", """ul;so;fm;cz;alle""", "ul.to, filemonkey, cloudzer, share-online oder alle", "ul"),
-                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj")]
 
+def getURL(url):
+    try:
+        req = urllib2.Request(
+            url,
+            None,
+            {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5'}
+        )
+        return urllib2.urlopen(req).read()
+    except urllib2.HTTPError as e:
+        raise
+
+def str2bool(v):
+    return v.lower() in ("yes", "true", "t", "1")
+
+
+class SJ():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
 
-    def activate(self):
-        self.periodical.start(self.config.get('interval') * 60)
+    def __init__(self, config):
+        self.config = config
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.db = RssDb(self.config.get('db_file'))
+        self._periodical_active = False
+        self.periodical = RepeatableTimer(
+            int(self.config.get('interval')) * 60,
+            self.periodical_task
+        )
 
+    def activate(self):
+        self._periodical_active = True
+        self.periodical.start()
+
+    @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
         self.pattern = "|".join(getSeriesList(self.config.get("file"))).lower()
@@ -235,12 +312,12 @@ class SJ():
         if self.hoster == "alle":
             self.hoster = "."
         self.added_items = []
-        
+
         for post in feed.entries:
             link = post.link
             title = post.title
-            
-            if self.config.get("regex"):
+
+            if str2bool(self.config.get("regex")):
                 m = re.search(self.pattern,title.lower())
                 if not m and not "720p" in title and not "1080p" in title:
                     m = re.search(self.pattern.replace("480p","."),title.lower())
@@ -254,7 +331,7 @@ class SJ():
                         continue
                     title = re.sub('\[.*\] ', '', post.title)
                     self.range_checkr(link,title)
-                                
+
             else:
                 if self.config.get("quality") != '480p':
                     m = re.search(self.pattern,title.lower())
@@ -268,7 +345,7 @@ class SJ():
                                     continue
                                 title = re.sub('\[.*\] ', '', post.title)
                                 self.range_checkr(link,title)
-        
+
                 else:
                     m = re.search(self.pattern,title.lower())
                     if m:
@@ -284,7 +361,7 @@ class SJ():
 
         if len(self.config.get('pushbulletapi')) > 2:
             notifyPushbulletSJ(self.config.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
-                    
+
     def range_checkr(self, link, title):
         pattern = re.match(".*S\d{2}E\d{2}-\w?\d{2}.*", title)
         if pattern is not None:
@@ -303,21 +380,22 @@ class SJ():
         else:
             self.parse_download(link, title)
 
-
     def range_parse(self,series_url, search_title):
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
+
         titles = soup.findAll(text=re.compile(search_title))
         for title in titles:
-           if self.quality !='480p' and self.quality in title: 
+           if self.quality !='480p' and self.quality in title:
                self.parse_download(series_url, title)
-           if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):               
+           if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
                self.parse_download(series_url, title)
 
 
     def parse_download(self,series_url, search_title):
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
+
         title = soup.find(text=re.compile(search_title))
         if title:
             items = []
@@ -332,14 +410,41 @@ class SJ():
     def send_package(self, title, link):
         try:
             storage = self.db.retrieve(title)
-        except Exception:
-            self.log_debug("db.retrieve got exception, title: %s" % title)                 
+        except Exception as e:
+            self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
         if storage == 'downloaded':
             self.log_debug(title + " already downloaded")
         else:
             self.log_info("NEW EPISODE: " + title)
             self.db.store(title, 'downloaded')
-        write_crawljob_file(title, title, link,
-                                config.crawljob_directory)
-        self.added_items.append(title.encode("utf-8"))
+            write_crawljob_file(title, title, link,
+                                self.config.get('crawljob_directory'))
+            self.added_items.append(title.encode("utf-8"))
 
+if __name__ == "__main__":
+    arguments = docopt(__doc__, version='RSScrawler')
+
+    if arguments['--log-level']:
+        logging.basicConfig(
+            level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+        )
+
+    pool = [
+        MovieblogFeed(RssConfig(CONFIG_MB)),
+        SJ(RssConfig(CONFIG_SJ)),
+    ]
+
+    def signal_handler(signal, frame):
+        list([el.periodical.cancel() for el in pool])
+        print('Bye.')
+        sys.exit(0)
+    signal.signal(signal.SIGINT, signal_handler)
+    print('Press Ctrl+C for exit')
+
+    for el in pool:
+        if not arguments['--ontime']:
+            el.activate()
+        el.periodical_task()
+
+    if not arguments['--ontime']:
+        signal.pause()
