@@ -28,6 +28,8 @@ import time
 import sys
 import signal
 import logging
+import os
+import errno
 
 try:
     import simplejson as json
@@ -58,7 +60,9 @@ CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruec
 
 # Jdownloader
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % package_name.replace(' ', '')
+    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+        re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
+    )
 
     file = open(crawljob_file, 'w')
     file.write('enabled=TRUE\n')
@@ -87,6 +91,17 @@ def notifyPushbulletMB(apikey,text):
     c.perform()
 
 
+def _mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            logging.error("Cannot create directory: %s" % path)
+            raise
+
+
 def _restart_timer(func):
     def wrapper(self):
         func(self)
@@ -105,6 +120,8 @@ class MovieblogFeed():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
+        _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
@@ -118,6 +135,8 @@ class MovieblogFeed():
         return self
 
     def readInput(self):
+        if not os.path.isfile(self.config.get("patternfile")):
+            open(self.config.get("patternfile"), "a").close()
         try:
             f = codecs.open(self.config.get("patternfile"), "rb")
             return f.read().splitlines()
@@ -233,6 +252,8 @@ class MovieblogFeed():
 
 # Serienjunkies
 def getSeriesList(file):
+    if not os.path.isfile(file):
+        open(file, "a").close()
     try:
         titles = []
         f = codecs.open(file, "rb", "utf-8")
@@ -294,6 +315,8 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'file']])
+        _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
@@ -387,12 +410,15 @@ class SJ():
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
 
-        titles = soup.findAll(text=re.compile(search_title))
-        for title in titles:
-           if self.quality !='480p' and self.quality in title:
-               self.parse_download(series_url, title)
-           if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
-               self.parse_download(series_url, title)
+        try:
+            titles = soup.findAll(text=re.compile(search_title))
+            for title in titles:
+               if self.quality !='480p' and self.quality in title:
+                   self.parse_download(series_url, title)
+               if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                   self.parse_download(series_url, title)
+        except re.error as e:
+            self.log_error('sre_constants.error: %s' % e)
 
 
     def parse_download(self,series_url, search_title):
