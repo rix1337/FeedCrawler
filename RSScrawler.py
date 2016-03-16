@@ -39,7 +39,7 @@ CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
                   ("destination", "queue;collector", "Link destination", "collector"),
                   ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
                   ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
-                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj"),
+                  ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("quiethours","str","Quite hours (comma seperated)",""),
                   ("crawljob_directory","str","crawljob_directory","out"),
                   ("db_file","str","db_file","db/mb_database.db")]
@@ -51,7 +51,7 @@ CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruec
                   ("language", """DEUTSCH;ENGLISCH""", "Sprache", "DEUTSCH"),
                   ("interval", "int", "Interval", "15"),
                   ("hoster", """ul;so;fm;cz;alle""", "ul.to, filemonkey, cloudzer, share-online oder alle", "ul"),
-                  ("pushbulletapi","str","Your Pushbullet-API key","o.kfJEpgOLWs4a9htnBzI29d9vEaRieFZj"),
+                  ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("crawljob_directory","str","crawljob_directory","out"),
                   ("db_file","str","db_file","db/sj_database.db")]
 
