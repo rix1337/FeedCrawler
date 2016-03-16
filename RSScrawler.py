@@ -64,6 +64,8 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     file.write('enabled=TRUE\n')
     file.write('autoStart=TRUE\n')
     file.write('extractAfterDownload=TRUE\n')
+    file.write('forcedStart=TRUE\n')
+    file.write('autoConfirm=TRUE\n')
     file.write('downloadFolder=%s\n' % folder_name)
     file.write('packageName=%s\n' % package_name.replace(' ', ''))
     file.write('text=%s\n' % link_text)
