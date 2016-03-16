@@ -28,6 +28,8 @@ import time
 import sys
 import signal
 import logging
+import os
+import errno
 
 try:
     import simplejson as json
@@ -87,6 +89,17 @@ def notifyPushbulletMB(apikey,text):
     c.perform()
 
 
+def _mkdir_p(path):
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno == errno.EEXIST and os.path.isdir(path):
+            pass
+        else:
+            logging.error("Cannot create directory: %s" % path)
+            raise
+
+
 def _restart_timer(func):
     def wrapper(self):
         func(self)
@@ -105,6 +118,7 @@ class MovieblogFeed():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
@@ -119,7 +133,10 @@ class MovieblogFeed():
 
     def readInput(self):
         try:
-            f = codecs.open(self.config.get("patternfile"), "rb")
+            f = codecs.open(
+                self.config.get("patternfile"),
+                "rb" if os.path.isfile(file) else "wb+"
+            )
             return f.read().splitlines()
         except:
             self.log_error("Inputfile not found")
@@ -235,7 +252,11 @@ class MovieblogFeed():
 def getSeriesList(file):
     try:
         titles = []
-        f = codecs.open(file, "rb", "utf-8")
+        f = codecs.open(
+            file,
+            "rb" if os.path.isfile(file) else "wb+",
+            "utf-8"
+        )
         for title in f.read().splitlines():
             if len(title) == 0:
                 continue
@@ -294,6 +315,7 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
