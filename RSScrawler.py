@@ -410,12 +410,15 @@ class SJ():
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
 
-        titles = soup.findAll(text=re.compile(search_title))
-        for title in titles:
-           if self.quality !='480p' and self.quality in title:
-               self.parse_download(series_url, title)
-           if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
-               self.parse_download(series_url, title)
+        try:
+            titles = soup.findAll(text=re.compile(search_title))
+            for title in titles:
+               if self.quality !='480p' and self.quality in title:
+                   self.parse_download(series_url, title)
+               if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                   self.parse_download(series_url, title)
+        except re.error as e:
+            self.log_error('sre_constants.error: %s' % e)
 
 
     def parse_download(self,series_url, search_title):
