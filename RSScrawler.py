@@ -11,7 +11,7 @@ Options:
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-# Requires PyCurl, Feedparser, BeautifulSoup, PyQt4
+# Requires PyCurl, Feedparser, BeautifulSoup, docopt
 from rssconfig import RssConfig
 from rssdb import RssDb
 from timer import RepeatableTimer
@@ -222,6 +222,7 @@ class MovieblogFeed():
         for key in self.dictWithNamesAndLinks:
             if not self.db.retrieve(key) == 'added':
                 self.db.store(key, 'added')
+                self.log_info("NEW RELEASE: " + key)
                 write_crawljob_file(key, key, [self.dictWithNamesAndLinks[key][0]],
                     self.config.get("crawljob_directory"))
                 text.append(key)
@@ -417,7 +418,7 @@ class SJ():
         if storage == 'downloaded':
             self.log_debug(title + " already downloaded")
         else:
-            self.log_info("NEW EPISODE: " + title)
+            self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
             write_crawljob_file(title, title, link,
                                 self.config.get('crawljob_directory'))
