@@ -39,7 +39,7 @@ except ImportError:
 CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
                   ("patternfile", "str", "File to search for tv-shows, movies...", "/config/config/Filme.txt"),
                   ("destination", "queue;collector", "Link destination", "collector"),
-                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
+                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
                   ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("quiethours","str","Quite hours (comma seperated)",""),
