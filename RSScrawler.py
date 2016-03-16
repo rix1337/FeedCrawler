@@ -119,6 +119,7 @@ class MovieblogFeed():
         self.log_error = logging.error
         self.log_debug = logging.debug
         list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
+        _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
@@ -132,11 +133,10 @@ class MovieblogFeed():
         return self
 
     def readInput(self):
+        if not os.path.isfile(self.config.get("patternfile")):
+            open(self.config.get("patternfile"), "a").close()
         try:
-            f = codecs.open(
-                self.config.get("patternfile"),
-                "rb" if os.path.isfile(file) else "wb+"
-            )
+            f = codecs.open(self.config.get("patternfile"), "rb")
             return f.read().splitlines()
         except:
             self.log_error("Inputfile not found")
@@ -250,13 +250,11 @@ class MovieblogFeed():
 
 # Serienjunkies
 def getSeriesList(file):
+    if not os.path.isfile(file):
+        open(file, "a").close()
     try:
         titles = []
-        f = codecs.open(
-            file,
-            "rb" if os.path.isfile(file) else "wb+",
-            "utf-8"
-        )
+        f = codecs.open(file, "rb", "utf-8")
         for title in f.read().splitlines():
             if len(title) == 0:
                 continue
@@ -315,7 +313,8 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
+        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'file']])
+        _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
         self._periodical_active = False
         self.periodical = RepeatableTimer(
