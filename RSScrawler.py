@@ -35,25 +35,25 @@ except ImportError:
     import json
 
 CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
-                  ("patternfile", "str", "File to search for tv-shows, movies...", "config/Filme.txt"),
+                  ("patternfile", "str", "File to search for tv-shows, movies...", "/config/config/Filme.txt"),
                   ("destination", "queue;collector", "Link destination", "collector"),
                   ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
                   ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("quiethours","str","Quite hours (comma seperated)",""),
                   ("crawljob_directory","str","crawljob_directory","out"),
-                  ("db_file","str","db_file","db/mb_database.db")]
+                  ("db_file","str","db_file","/config/db/mb_database.db")]
 
 CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruecke behandeln", "False"),
                   ("quality", """480p;720p;1080p""", "480p, 720p oder 1080p", "720p"),
-                  ("file", "str", "Datei mit Seriennamen", "config/Serien.txt"),
+                  ("file", "str", "Datei mit Seriennamen", "/config/config/Serien.txt"),
                   ("rejectlist", "str", "Titel ablehnen mit (; getrennt)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
                   ("language", """DEUTSCH;ENGLISCH""", "Sprache", "DEUTSCH"),
                   ("interval", "int", "Interval", "15"),
                   ("hoster", """ul;so;fm;cz;alle""", "ul.to, filemonkey, cloudzer, share-online oder alle", "ul"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("crawljob_directory","str","crawljob_directory","out"),
-                  ("db_file","str","db_file","db/sj_database.db")]
+                  ("db_file","str","db_file","/config/db/sj_database.db")]
 
 
 # Jdownloader
