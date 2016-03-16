@@ -60,7 +60,9 @@ CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruec
 
 # Jdownloader
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % package_name.replace(' ', '')
+    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+        re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
+    )
 
     file = open(crawljob_file, 'w')
     file.write('enabled=TRUE\n')
