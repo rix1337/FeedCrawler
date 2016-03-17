@@ -6,7 +6,9 @@ Version 0.5
 This project relies heavily on these three projects:
 
 https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
+
 https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
+
 https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 Description:
