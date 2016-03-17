@@ -67,7 +67,7 @@ CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
 
 CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
                   ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
-                  ("file", "str", "List of shows", "/config/config/list_shows.txt"),
+                  ("file", "str", "List of shows", "/config/settings/list_shows.txt"),
                   ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
                   ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
                   ("interval", "int", "Execution interval in minutes", "10"),
