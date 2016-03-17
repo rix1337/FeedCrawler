@@ -10,4 +10,5 @@ https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 Description:
+
 This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
