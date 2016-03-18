@@ -308,7 +308,11 @@ def getURL(url):
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
-        raise
+        logging.error('During query execution we got an exception: Code: %s Reason: %s' % (e.code, e.reason))
+        return ''
+    except urllib2.URLError as e:
+        logging.error('During query execution we got an exception: Reason: %s' %  e.reason)
+        return ''
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
