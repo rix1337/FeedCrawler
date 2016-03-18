@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.6.2
+# Version 0.6.3
+# Known Bugs:
+# -Currently, if a Site spawns a 404 Error the script will crash.
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
@@ -45,13 +47,16 @@ except ImportError:
     import json
 
 # Adjust all settings below!
+# If your Lists are blank, all links from MB/SJ will be crawled!
+# Set the lists up before starting this script for the first time.
 
 # MB List items are made up of lines containing: Title,Resolution,ReleaseGroup,
-# Example: Funny Movie,720p,RIPZ0RS,
+# Example: Funny Movie,720p,GR0UP,
 # The file is invalid if one comma is missing!
+# Leaving Resolution or Release Group blank is also valid
 # The database file prevents duplicate crawljobs
 
-CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
+CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
                   ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/Movies.txt"),
                   ("destination", "queue;collector", "Deprecated Option", "collector"),
                   ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
@@ -70,7 +75,7 @@ CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions",
                   ("file", "str", "List of shows", "/config/settings/Shows.txt"),
                   ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
                   ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-                  ("interval", "int", "Execution interval in minutes", "15"),
+                  ("interval", "int", "Execution interval in minutes", "10"),
                   ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
