@@ -65,22 +65,30 @@ except ImportError:
 # crawljobs need to be placed in the folderwatch subdir of JDownloader
 # Enable the Watch-Folder feature (experimental) for links to be picked up automatically
 
+
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
     )
-
-    file = open(crawljob_file, 'w')
-    file.write('enabled=TRUE\n')
-    file.write('autoStart=TRUE\n')
-    file.write('extractAfterDownload=TRUE\n')
-    file.write('forcedStart=TRUE\n')
-    file.write('autoConfirm=TRUE\n')
-    file.write('downloadFolder=%s\n' % folder_name)
-    file.write('packageName=%s\n' % package_name.replace(' ', ''))
-    file.write('text=%s\n' % link_text)
-    file.close()
-
+    try:
+        file = open(crawljob_file, 'w')
+        file.write('enabled=TRUE\n')
+        file.write('autoStart=TRUE\n')
+        file.write('extractAfterDownload=TRUE\n')
+        file.write('forcedStart=TRUE\n')
+        file.write('autoConfirm=TRUE\n')
+        file.write('downloadFolder=%s\n' % folder_name)
+        file.write('packageName=%s\n' % package_name.replace(' ', ''))
+        file.write('text=%s\n' % link_text)
+        file.close()
+        return True
+    except UnicodeEncodeError as e:
+        file.close()
+        logging.error("While writing in the file: %s the error occurred: %s" %(crawljob_file, e.message))
+        if os.path.isfile(crawljob_file):
+            logging.info("Removing broken file: %s" % crawljob_file)
+            os.remove(crawljob_file)
+        return False
 
 # MovieBlog
 def notifyPushbulletMB(apikey,text):
@@ -250,8 +258,7 @@ class MovieblogFeed():
                 self.db.store(key, 'added')
                 self.log_info("NEW RELEASE: " + key)
                 write_crawljob_file(key, key, [self.dictWithNamesAndLinks[key][0]],
-                    self.config.get("crawljob_directory"))
-                text.append(key)
+                    self.config.get("crawljob_directory")) and text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
         if len(text) > 0:
@@ -462,8 +469,7 @@ class SJ():
             self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
             write_crawljob_file(title, title, link,
-                                self.config.get('crawljob_directory'))
-            self.added_items.append(title.encode("utf-8"))
+                                self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
