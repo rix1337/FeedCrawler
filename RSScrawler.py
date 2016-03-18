@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.6.2
+# Version 0.5.1 (rolled back)
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
@@ -9,9 +9,11 @@
 # This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
 
 """RSScrawler.
+
 Usage:
   RSScrawler.py [--ontime]
                 [--log-level=<LOGLEVEL>]
+
 Options:
   --ontime                  Run once and exit
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
@@ -42,39 +44,29 @@ try:
 except ImportError:
     import json
 
-# Adjust all settings below!
-# MB List items are made up of lines containing: Title,Resolution,ReleaseGroup,
-# Example: Funny Movie,720p,RIPZ0RS,
-# The file is invalid if one comma is missing!
-# The database file prevents duplicate crawljobs
-CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
-                  ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/list_movies.txt"),
-                  ("destination", "queue;collector", "Deprecated Option", "collector"),
+CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
+                  ("patternfile", "str", "File to search for tv-shows, movies...", "/config/settings/movies.txt"),
+                  ("destination", "queue;collector", "Link destination", "collector"),
                   ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
-                  ("historical","bool","Use the search function in order to match older entries","False"),
+                  ("historical","bool","Use the movie-blog.org search in order to match older entries","False"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("quiethours","str","Quiet hours (comma seperated)",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
+                  ("quiethours","str","Quite hours (comma seperated)",""),
+                  ("crawljob_directory","str","crawljob_directory","/jd2"),
                   ("db_file","str","db_file","/config/settings/rix.db")]
 
-# SJ List items are made up of lines containing: Title
-# Example: Funny TV-Show
-# The database file prevents duplicate crawljobs
-CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
-                  ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
-                  ("file", "str", "List of shows", "/config/config/list_shows.txt"),
-                  ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
-                  ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-                  ("interval", "int", "Execution interval in minutes", "10"),
-                  ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
+CONFIG_SJ = [("regex","bool","Eintraege aus der Suchdatei als regulaere Ausdruecke behandeln", "False"),
+                  ("quality", """480p;720p;1080p""", "480p, 720p oder 1080p", "720p"),
+                  ("file", "str", "Datei mit Seriennamen", "/config/settings/shows.txt"),
+                  ("rejectlist", "str", "Titel ablehnen mit (; getrennt)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
+                  ("language", """DEUTSCH;ENGLISCH""", "Sprache", "DEUTSCH"),
+                  ("interval", "int", "Interval", "15"),
+                  ("hoster", """ul;so;fm;cz;alle""", "ul.to, filemonkey, cloudzer, share-online oder alle", "ul"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
+                  ("crawljob_directory","str","crawljob_directory","/jd2"),
                   ("db_file","str","db_file","/config/settings/rix.db")]
 
 
-# JDownloader
-# crawljobs need to be placed in the folderwatch subdir of JDownloader
-# Enable the Watch-Folder feature (experimental) for links to be picked up automatically
+# Jdownloader
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
