@@ -56,30 +56,9 @@ except ImportError:
 # Leaving Resolution or Release Group blank is also valid
 # The database file prevents duplicate crawljobs
 
-CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
-                  ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/Movies.txt"),
-                  ("destination", "queue;collector", "Deprecated Option", "collector"),
-                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
-                  ("historical","bool","Use the search function in order to match older entries","False"),
-                  ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("quiethours","str","Quiet hours (comma seperated)",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Downloads.db")]
-
 # SJ List items are made up of lines containing: Title
 # Example: Funny TV-Show
 # The database file prevents duplicate crawljobs
-
-CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
-                  ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
-                  ("file", "str", "List of shows", "/config/settings/Shows.txt"),
-                  ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
-                  ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-                  ("interval", "int", "Execution interval in minutes", "10"),
-                  ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
-                  ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Downloads.db")]
 
 # JDownloader
 
@@ -141,9 +120,10 @@ def _restart_timer(func):
 class MovieblogFeed():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
+    _INTERNAL_NAME='MB'
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -336,9 +316,10 @@ def str2bool(v):
 
 class SJ():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
+    _INTERNAL_NAME = 'SJ'
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -486,8 +467,8 @@ if __name__ == "__main__":
         )
 
     pool = [
-        MovieblogFeed(RssConfig(CONFIG_MB)),
-        SJ(RssConfig(CONFIG_SJ)),
+        MovieblogFeed(),
+        SJ(),
     ]
 
     def signal_handler(signal, frame):
