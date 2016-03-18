@@ -56,52 +56,39 @@ except ImportError:
 # Leaving Resolution or Release Group blank is also valid
 # The database file prevents duplicate crawljobs
 
-CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
-                  ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/Movies.txt"),
-                  ("destination", "queue;collector", "Deprecated Option", "collector"),
-                  ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
-                  ("historical","bool","Use the search function in order to match older entries","False"),
-                  ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("quiethours","str","Quiet hours (comma seperated)",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Downloads.db")]
-
 # SJ List items are made up of lines containing: Title
 # Example: Funny TV-Show
 # The database file prevents duplicate crawljobs
-
-CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
-                  ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
-                  ("file", "str", "List of shows", "/config/settings/Shows.txt"),
-                  ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
-                  ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-                  ("interval", "int", "Execution interval in minutes", "10"),
-                  ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
-                  ("pushbulletapi","str","Your Pushbullet-API key",""),
-                  ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Downloads.db")]
 
 # JDownloader
 
 # crawljobs need to be placed in the folderwatch subdir of JDownloader
 # Enable the Watch-Folder feature (experimental) for links to be picked up automatically
 
+
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
     )
-
-    file = open(crawljob_file, 'w')
-    file.write('enabled=TRUE\n')
-    file.write('autoStart=TRUE\n')
-    file.write('extractAfterDownload=TRUE\n')
-    file.write('forcedStart=TRUE\n')
-    file.write('autoConfirm=TRUE\n')
-    file.write('downloadFolder=%s\n' % folder_name)
-    file.write('packageName=%s\n' % package_name.replace(' ', ''))
-    file.write('text=%s\n' % link_text)
-    file.close()
-
+    try:
+        file = open(crawljob_file, 'w')
+        file.write('enabled=TRUE\n')
+        file.write('autoStart=TRUE\n')
+        file.write('extractAfterDownload=TRUE\n')
+        file.write('forcedStart=TRUE\n')
+        file.write('autoConfirm=TRUE\n')
+        file.write('downloadFolder=%s\n' % folder_name)
+        file.write('packageName=%s\n' % package_name.replace(' ', ''))
+        file.write('text=%s\n' % link_text)
+        file.close()
+        return True
+    except UnicodeEncodeError as e:
+        file.close()
+        logging.error("While writing in the file: %s the error occurred: %s" %(crawljob_file, e.message))
+        if os.path.isfile(crawljob_file):
+            logging.info("Removing broken file: %s" % crawljob_file)
+            os.remove(crawljob_file)
+        return False
 
 # MovieBlog
 def notifyPushbulletMB(apikey,text):
@@ -141,9 +128,10 @@ def _restart_timer(func):
 class MovieblogFeed():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
+    _INTERNAL_NAME='MB'
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -270,8 +258,7 @@ class MovieblogFeed():
                 self.db.store(key, 'added')
                 self.log_info("NEW RELEASE: " + key)
                 write_crawljob_file(key, key, [self.dictWithNamesAndLinks[key][0]],
-                    self.config.get("crawljob_directory"))
-                text.append(key)
+                    self.config.get("crawljob_directory")) and text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
         if len(text) > 0:
@@ -328,7 +315,11 @@ def getURL(url):
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
-        raise
+        logging.error('During query execution we got an exception: Code: %s Reason: %s' % (e.code, e.reason))
+        return ''
+    except urllib2.URLError as e:
+        logging.error('During query execution we got an exception: Reason: %s' %  e.reason)
+        return ''
 
 def str2bool(v):
     return v.lower() in ("yes", "true", "t", "1")
@@ -336,9 +327,10 @@ def str2bool(v):
 
 class SJ():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
+    _INTERNAL_NAME = 'SJ'
 
-    def __init__(self, config):
-        self.config = config
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -422,14 +414,17 @@ class SJ():
             number1 = re.sub(r"(\d{2})-\d{2}",r"\1", range0)
             number2 = re.sub(r"\d{2}-(\d{2})",r"\1", range0)
             title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)",title)
-            for count in range(int(number1),(int(number2)+1)):
-                NR = re.match("d\{2}", str(count))
-                if NR is not None:
-                    title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
-                    self.range_parse(link, title1)
-                else:
-                    title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
-                    self.range_parse(link, title1)
+            try:
+                for count in range(int(number1),(int(number2)+1)):
+                    NR = re.match("d\{2}", str(count))
+                    if NR is not None:
+                        title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+                    else:
+                        title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+            except ValueError as e:
+                logging.error("Raised ValueError exception: %s" %e.message)
         else:
             self.parse_download(link, title)
 
@@ -474,8 +469,7 @@ class SJ():
             self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
             write_crawljob_file(title, title, link,
-                                self.config.get('crawljob_directory'))
-            self.added_items.append(title.encode("utf-8"))
+                                self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
@@ -486,8 +480,8 @@ if __name__ == "__main__":
         )
 
     pool = [
-        MovieblogFeed(RssConfig(CONFIG_MB)),
-        SJ(RssConfig(CONFIG_SJ)),
+        MovieblogFeed(),
+        SJ(),
     ]
 
     def signal_handler(signal, frame):
