@@ -51,7 +51,7 @@ except ImportError:
 # The file is invalid if one comma is missing!
 # The database file prevents duplicate crawljobs
 
-CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
+CONFIG_MB = [("interval", "int", "Execution interval in minutes", "15"),
                   ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/Movies.txt"),
                   ("destination", "queue;collector", "Deprecated Option", "collector"),
                   ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
@@ -59,7 +59,7 @@ CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("quiethours","str","Quiet hours (comma seperated)",""),
                   ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Movies.db")]
+                  ("db_file","str","db_file","/config/settings/Downloads.db")]
 
 # SJ List items are made up of lines containing: Title
 # Example: Funny TV-Show
@@ -70,11 +70,11 @@ CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions",
                   ("file", "str", "List of shows", "/config/settings/Shows.txt"),
                   ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
                   ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-                  ("interval", "int", "Execution interval in minutes", "10"),
+                  ("interval", "int", "Execution interval in minutes", "15"),
                   ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
                   ("pushbulletapi","str","Your Pushbullet-API key",""),
                   ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
-                  ("db_file","str","db_file","/config/settings/Shows.db")]
+                  ("db_file","str","db_file","/config/settings/Downloads.db")]
 
 # JDownloader
 
