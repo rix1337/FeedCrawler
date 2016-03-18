@@ -407,14 +407,17 @@ class SJ():
             number1 = re.sub(r"(\d{2})-\d{2}",r"\1", range0)
             number2 = re.sub(r"\d{2}-(\d{2})",r"\1", range0)
             title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)",title)
-            for count in range(int(number1),(int(number2)+1)):
-                NR = re.match("d\{2}", str(count))
-                if NR is not None:
-                    title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
-                    self.range_parse(link, title1)
-                else:
-                    title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
-                    self.range_parse(link, title1)
+            try:
+                for count in range(int(number1),(int(number2)+1)):
+                    NR = re.match("d\{2}", str(count))
+                    if NR is not None:
+                        title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+                    else:
+                        title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+            except ValueError as e:
+                logging.error("Raised ValueError exception: %s" %e.message)
         else:
             self.parse_download(link, title)
 
