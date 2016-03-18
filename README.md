@@ -1,7 +1,7 @@
 # RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-Version 0.6.2
+Version 0.6.3
 
 Known Bugs:
 
