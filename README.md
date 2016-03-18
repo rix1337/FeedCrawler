@@ -1,11 +1,7 @@
 # RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-Version 0.6.3
-
-Known Bugs:
-
--Currently, if a Site spawns a 404 Error the script will crash.
+Version 0.7.0
 
 This project relies heavily on these three projects:
 
