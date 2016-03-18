@@ -3,6 +3,10 @@ Main code by https://github.com/dmitryint commissioned by https://github.com/rix
 
 Version 0.6.2
 
+Known Bugs:
+
+-Currently, if a Site spawns a 404 Error the script will crash.
+
 This project relies heavily on these three projects:
 
 https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
