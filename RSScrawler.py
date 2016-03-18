@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.6.1
+# Version 0.6.2
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
@@ -43,12 +43,10 @@ except ImportError:
     import json
 
 # Adjust all settings below!
-
 # MB List items are made up of lines containing: Title,Resolution,ReleaseGroup,
 # Example: Funny Movie,720p,RIPZ0RS,
 # The file is invalid if one comma is missing!
 # The database file prevents duplicate crawljobs
-
 CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
                   ("patternfile", "str", "List of Movies (use SJ for shows)", "/config/settings/list_movies.txt"),
                   ("destination", "queue;collector", "Deprecated Option", "collector"),
@@ -62,7 +60,6 @@ CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
 # SJ List items are made up of lines containing: Title
 # Example: Funny TV-Show
 # The database file prevents duplicate crawljobs
-
 CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
                   ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
                   ("file", "str", "List of shows", "/config/config/list_shows.txt"),
@@ -74,11 +71,10 @@ CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions",
                   ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
                   ("db_file","str","db_file","/config/settings/rix.db")]
 
-# JDownloader
 
+# JDownloader
 # crawljobs need to be placed in the folderwatch subdir of JDownloader
 # Enable the Watch-Folder feature (experimental) for links to be picked up automatically
-
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
