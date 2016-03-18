@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.6
+# Version 0.6.1
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
@@ -9,11 +9,9 @@
 # This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
 
 """RSScrawler.
-
 Usage:
   RSScrawler.py [--ontime]
                 [--log-level=<LOGLEVEL>]
-
 Options:
   --ontime                  Run once and exit
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
@@ -67,7 +65,7 @@ CONFIG_MB = [("interval", "int", "Execution interval in minutes", "10"),
 
 CONFIG_SJ = [("regex","bool","Treat entries of the List as regular expressions", "False"),
                   ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
-                  ("file", "str", "List of shows", "/config/settings/list_shows.txt"),
+                  ("file", "str", "List of shows", "/config/config/list_shows.txt"),
                   ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
                   ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
                   ("interval", "int", "Execution interval in minutes", "10"),
@@ -102,7 +100,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
 def notifyPushbulletMB(apikey,text):
     if apikey == "0" or apikey == "":
         return
-    postData = '{"type":"note", "title":"(RSScrawler) NEW RELEASE:", "body":"%s"}' %" ### ".join(text).encode("utf-8")
+    postData = '{"type":"note", "title":"FeedRss: Link hinzugefügt", "body":"%s"}' %" ### ".join(text).encode("utf-8")
     c = pycurl.Curl()
     c.setopt(pycurl.WRITEFUNCTION, lambda x: None)
     c.setopt(pycurl.URL, 'https://api.pushbullet.com/v2/pushes')
@@ -287,16 +285,16 @@ def getSeriesList(file):
         f.close()
         return titles
     except UnicodeError:
-        logging.error("STOPPED, invalid character in list!")
+        logging.error("Abbruch, es befinden sich ungueltige Zeichen in der Suchdatei!")
     except IOError:
-        logging.error("STOPPED, list not found!")
+        logging.error("Abbruch, Suchdatei wurde nicht gefunden!")
     except Exception, e:
-        logging.error("Unknown error: %s" %e)
+        logging.error("Unbekannter Fehler: %s" %e)
 
 def notifyPushbulletSJ(api='', msg=''):
     data = urllib.urlencode({
         'type': 'note',
-        'title': '(RSScrawler) NEW RELEASE:',
+        'title': 'FeedRss: Link hinzugefügt',
         'body': "\n\n".join(msg)
     })
     auth = base64.encodestring('%s:' %api).replace('\n', '')
@@ -375,7 +373,7 @@ class SJ():
                     if "1080p" in title.lower(): self.quality = "1080p"
                     m = re.search(reject,title.lower())
                     if m:
-                        self.log_debug("Rejected: " + title)
+                        self.log_debug("Abgelehnt: " + title)
                         continue
                     title = re.sub('\[.*\] ', '', post.title)
                     self.range_checkr(link,title)
@@ -389,7 +387,7 @@ class SJ():
                             if mm:
                                 mmm = re.search(reject,title.lower())
                                 if mmm:
-                                    self.log_debug("Rejected: " + title)
+                                    self.log_debug("Abgelehnt: " + title)
                                     continue
                                 title = re.sub('\[.*\] ', '', post.title)
                                 self.range_checkr(link,title)
@@ -402,7 +400,7 @@ class SJ():
                                 continue
                             mm = re.search(reject,title.lower())
                             if mm:
-                                self.log_debug("Rejected: " + title)
+                                self.log_debug("Abgelehnt: " + title)
                                 continue
                             title = re.sub('\[.*\] ', '', post.title)
                             self.range_checkr(link,title)
