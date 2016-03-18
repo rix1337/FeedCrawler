@@ -4,7 +4,7 @@ import logging
 
 
 class RssConfig(object):
-    _CONFIG_FILES = ['settings.conf']
+    _CONFIG_FILES = ['/config/settings/settings.conf']
     _DEFAULT_CONFIG = {
         'MB': [
             ("interval", "int", "Execution interval in minutes", "10"),
