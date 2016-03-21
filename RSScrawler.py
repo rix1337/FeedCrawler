@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.7.0
-# Known Bugs:
-# -Currently, if a Site spawns a 404 Error the script will crash.
+# Version 0.7.1
+# Requires PyCurl, Feedparser, BeautifulSoup, docopt
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
@@ -21,7 +20,6 @@ Options:
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-# Requires PyCurl, Feedparser, BeautifulSoup, docopt
 from rssconfig import RssConfig
 from rssdb import RssDb
 from timer import RepeatableTimer
@@ -45,26 +43,6 @@ try:
     import simplejson as json
 except ImportError:
     import json
-
-# Adjust all settings below!
-# If your Lists are blank, all links from MB/SJ will be crawled!
-# Set the lists up before starting this script for the first time.
-
-# MB List items are made up of lines containing: Title,Resolution,ReleaseGroup,
-# Example: Funny Movie,720p,GR0UP,
-# The file is invalid if one comma is missing!
-# Leaving Resolution or Release Group blank is also valid
-# The database file prevents duplicate crawljobs
-
-# SJ List items are made up of lines containing: Title
-# Example: Funny TV-Show
-# The database file prevents duplicate crawljobs
-
-# JDownloader
-
-# crawljobs need to be placed in the folderwatch subdir of JDownloader
-# Enable the Watch-Folder feature (experimental) for links to be picked up automatically
-
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
@@ -315,10 +293,10 @@ def getURL(url):
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
-        logging.error('During query execution we got an exception: Code: %s Reason: %s' % (e.code, e.reason))
+        logging.debug('During query execution we got an exception: Code: %s Reason: %s' % (e.code, e.reason))
         return ''
     except urllib2.URLError as e:
-        logging.error('During query execution we got an exception: Reason: %s' %  e.reason)
+        logging.debug('During query execution we got an exception: Reason: %s' %  e.reason)
         return ''
 
 def str2bool(v):
