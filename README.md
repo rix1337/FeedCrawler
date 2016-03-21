@@ -15,16 +15,26 @@ https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
 
+## TLDR:
+
+1. Adjust ```settings.conf``` path in ```rssconfig.py``` and run the script once. Stop it afterwards.
+2. Set up ```settings.conf```completely.
+3. Run the script as you wish.
+
 ## Settings:
 *Your settings.conf must be placed at a location your python instance can write to.*
+
 Thus, adjust line 7 of ```rssconfig.py``` to ensure your settings will be saved.
 
 On the first run settings.conf will be created with default values set. Hints as to what settings mean are found in ```rssconfig.py```.
+
 Feel free to adjust those defaults to your liking, but again ensure paths inside the file are valid.
 
 Namely: ```patternfile```, ```db_file```, and ```crawljob_directory``` must be valid.
 
+
 **Again: set up both MB/SJ completely before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
+
 
 ### patternfile:
 
@@ -48,18 +58,14 @@ SJ List items are made up of lines containing: Title
 
 Example: ```Funny TV-Show```
 
+
 ### db_file:
 
 The database file prevents duplicate crawljobs
+
 
 ### crawljob_directoy:
 
 Enable the Watch-Folder feature (experimental) in JDownloader first!
 
 JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the settings.conf
-
-## TLDR:
-
-1. Adjust ```settings.conf``` path in ```rssconfig.py``` and run the script once. Stop it afterwards.
-2. Set up ```settings.conf```completely.
-3. Run the script as you wish.
