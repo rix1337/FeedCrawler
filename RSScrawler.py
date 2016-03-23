@@ -454,7 +454,10 @@ if __name__ == "__main__":
 
     if arguments['--log-level']:
         logging.basicConfig(
-            stream=sys.stdout, filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+            level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+        )
+        logging.basicConfig(
+            filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
         )
 
     pool = [
