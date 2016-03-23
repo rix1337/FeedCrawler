@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 0.7.2
+## Version 0.8.0
 
 This project relies heavily on these three projects:
 
@@ -17,23 +17,21 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 
 ## TLDR:
 
-1. Adjust ```settings.conf``` path in ```rssconfig.py``` and run the script once. Stop it afterwards.
-2. Set up ```settings.conf```completely.
+1. Adjust ```Settings.conf``` path in ```rssconfig.py``` and run the script once. Stop it afterwards.
+2. Set up ```Settings.conf``` and your Lists completely.
 3. Run the script as you wish.
 
 ## Settings:
-*Your settings.conf must be placed at a location your python instance can write to.*
+*Your Settings.conf is placed in the ```Settings``` subdir
 
-Thus, adjust line 7 of ```rssconfig.py``` to ensure your settings will be saved.
-
-On the first run settings.conf will be created with default values set. Hints as to what settings mean are found in ```rssconfig.py```.
+On the first run Settings.conf will be created with default values set. Hints as to what Settings mean are found in ```rssconfig.py```.
 
 Feel free to adjust those defaults to your liking, but again ensure paths inside the file are valid.
 
 Namely: ```patternfile```, ```db_file```, and ```crawljob_directory``` must be valid.
 
 
-**Again: set up both MB/SJ completely before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
+**Again: set up both MB/SJ Lists completely before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
 
 
 ### patternfile:
@@ -42,7 +40,7 @@ A .txt list the script will use to crawl rss feeds.
 
 If your Lists are blank, all links from MB/SJ will be added!
 
-Set the lists up before starting this script for the first time with a valid settings.conf!
+Set the lists up before starting this script for the first time with a valid Settings.conf!
 
 MB List items are made up of lines containing: ```Title,Resolution,ReleaseGroup,```
 
@@ -51,8 +49,6 @@ Example: ```Funny Movie,720p,GR0UP,```
 The file is invalid if one comma is missing!
 
 Leaving Resolution or Release Group blank is also valid
-
-The database file prevents duplicate crawljobs
 
 SJ List items are made up of lines containing: Title
 
@@ -68,4 +64,4 @@ The database file prevents duplicate crawljobs
 
 Enable the Watch-Folder feature (experimental) in JDownloader first!
 
-JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the settings.conf
+JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the Settings.conf
