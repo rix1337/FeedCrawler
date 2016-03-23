@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.8.0
+# Version 0.8.1
 # Requires PyCurl, Feedparser, BeautifulSoup, docopt
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
@@ -456,6 +456,11 @@ if __name__ == "__main__":
         logging.basicConfig(
             filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), format='%(asctime)s %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
         )
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s %(message)s')
+        console.setFormatter(formatter)
+        logging.getLogger('').addHandler(console)
 
     pool = [
         MovieblogFeed(),
