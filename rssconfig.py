@@ -14,8 +14,6 @@ class RssConfig(object):
             ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
             ("interval", "int", "Execution interval in minutes", "10"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
-            ("quiethours","str","Quiet hours (comma seperated)",""),
-            ("destination", "queue;collector", "Deprecated Option", "collector"),
             ("historical","bool","Use the search function in order to match older entries","False")
         ],
         'SJ': [

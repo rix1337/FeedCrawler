@@ -188,29 +188,17 @@ class MovieblogFeed():
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
                         if found:
-                            destination = self.allInfos[key][2].lower()
                             try:
                                 episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*',post.title.lower()).group(1)
                                 if "repack" in post.title.lower():
                                     episode = episode + "-repack"
                                 self.log_debug("TV-Series detected, will shorten its name to [%s]" %episode)
-                                self.dictWithNamesAndLinks[episode] = [post.link, destination]
+                                self.dictWithNamesAndLinks[episode] = [post.link]
                             except:
-                                self.dictWithNamesAndLinks[post.title] = [post.link, destination]
-
-    def quietHours(self):
-        hours = self.config.get("quiethours").split(",")
-        if str(time.localtime()[3]) in hours:
-            self.log_debug("Quiet hour, nothing to do!")
-            return True
-        else:
-            return False
+                                self.dictWithNamesAndLinks[post.title] = [post.link]
 
     @_restart_timer
     def periodical_task(self):
-        if self.quietHours():
-            return
-
         urls = []
         text = []
         self.mypatterns = self.readInput()
