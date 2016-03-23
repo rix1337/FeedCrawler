@@ -15,7 +15,7 @@ class RssConfig(object):
             ("historical","bool","Use the search function in order to match older entries","False"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
             ("quiethours","str","Quiet hours (comma seperated)",""),
-            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
+            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
             ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db"))
         ],
         'SJ': {
@@ -27,7 +27,7 @@ class RssConfig(object):
             ("interval", "int", "Execution interval in minutes", "10"),
             ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
-            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2"),
+            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
             ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db"))
         }
     }
