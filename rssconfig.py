@@ -18,7 +18,7 @@ class RssConfig(object):
             ("destination", "queue;collector", "Deprecated Option", "collector"),
             ("historical","bool","Use the search function in order to match older entries","False")
         ],
-        'SJ': {
+        'SJ': [
             ("file", "str", "List of shows", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
@@ -29,7 +29,7 @@ class RssConfig(object):
             ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
             ("regex","bool","Treat entries of the List as regular expressions", "False")
-        }
+        ]
     }
     __config__ = []
 
