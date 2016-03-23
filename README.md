@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 0.8.1
+## Version 0.8.2
 
 This project relies heavily on these three projects:
 
@@ -21,8 +21,20 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 2. Set up ```Settings.conf``` and your Lists completely.
 3. Run the script as you wish.
 
+## Launching the Script
+
+Run RSScrawler.py
+
+## Options
+
+  ```--ontime```                  Run once and exit
+  
+  ```--log-level=<LOGLEVEL>```    Level which program should log messages to RSScrawler.log (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+
+The console defaults to INFO LOGLEVEL
+
 ## Settings:
-*Your Settings.conf is placed in the ```Settings``` subdir
+*Your Settings.conf is placed in the ```Settings``` subdir*
 
 On the first run Settings.conf will be created with default values set. Hints as to what Settings mean are found in ```rssconfig.py```.
 
