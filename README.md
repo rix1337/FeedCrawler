@@ -29,9 +29,7 @@ Run RSScrawler.py
 
   ```--ontime```                  Run once and exit
   
-  ```--log-level=<LOGLEVEL>```    Level which program should log messages to RSScrawler.log (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
-
-The console defaults to INFO LOGLEVEL
+  ```--log-level=<LOGLEVEL>```    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 
 ## Settings:
 *Your Settings.conf is placed in the ```Settings``` subdir*
