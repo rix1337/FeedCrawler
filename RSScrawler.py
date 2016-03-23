@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.7.1
+# Version 0.7.2
 # Requires PyCurl, Feedparser, BeautifulSoup, docopt
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
@@ -454,7 +454,7 @@ if __name__ == "__main__":
 
     if arguments['--log-level']:
         logging.basicConfig(
-            level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+            filename='/config/settings/RSScrawler.log', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
         )
 
     pool = [
