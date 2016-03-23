@@ -312,6 +312,7 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        logging.basicConfig(filename='settings/RSScrawler.log',level=logging.DEBUG)
         list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'file']])
         _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
