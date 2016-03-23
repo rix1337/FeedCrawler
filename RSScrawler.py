@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.8.2
+# Version 0.8.3
 # Requires PyCurl, Feedparser, BeautifulSoup, docopt
 # This project relies heavily on these three projects:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
