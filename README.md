@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 0.8.2
+## Version 0.8.3
 
 This project relies heavily on these three projects:
 
