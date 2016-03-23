@@ -8,27 +8,27 @@ class RssConfig(object):
     _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Settings/Settings.conf')]
     _DEFAULT_CONFIG = {
         'MB': [
-            ("interval", "int", "Execution interval in minutes", "10"),
             ("patternfile", "str", "List of Movies (use SJ for shows)", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
-            ("destination", "queue;collector", "Deprecated Option", "collector"),
+            ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
+            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
             ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
-            ("historical","bool","Use the search function in order to match older entries","False"),
+            ("interval", "int", "Execution interval in minutes", "10"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
             ("quiethours","str","Quiet hours (comma seperated)",""),
-            ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
-            ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db"))
+            ("destination", "queue;collector", "Deprecated Option", "collector"),
+            ("historical","bool","Use the search function in order to match older entries","False")
         ],
         'SJ': {
-            ("regex","bool","Treat entries of the List as regular expressions", "False"),
-            ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("file", "str", "List of shows", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
-            ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;NCIS.New.Orleans;NCIS.Los.Angeles;LEGO"),
-            ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
-            ("interval", "int", "Execution interval in minutes", "10"),
-            ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
-            ("pushbulletapi","str","Your Pushbullet-API key",""),
+            ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
-            ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db"))
+            ("rejectlist", "str", "Ignore pattern (semicolon-separated)", "XviD;Subbed;HDTV"),
+            ("interval", "int", "Execution interval in minutes", "10"),
+            ("pushbulletapi","str","Your Pushbullet-API key",""),
+            ("language", """DEUTSCH;ENGLISCH""", "Language", "DEUTSCH"),
+            ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
+            ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from", "ul"),
+            ("regex","bool","Treat entries of the List as regular expressions", "False")
         }
     }
     __config__ = []
