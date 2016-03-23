@@ -17,8 +17,8 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 
 ## TLDR:
 
-1. Adjust ```Settings.conf``` path in ```rssconfig.py``` and run the script once. Stop it afterwards.
-2. Set up ```Settings.conf``` and your Lists completely.
+1. Run the script once. Stop it afterwards.
+2. Set up ```Settings.conf``` and your Lists completely, found in the ```Settings``` subdir.
 3. Run the script as you wish.
 
 ## Launching the Script
@@ -41,7 +41,7 @@ Feel free to adjust those defaults to your liking, but again ensure paths inside
 Namely: ```patternfile```, ```db_file```, and ```crawljob_directory``` must be valid.
 
 
-**Again: set up both MB/SJ Lists completely before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
+**Again: set up both the ```Movies.txt``` and ```Shows.txt``` Lists completely before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
 
 
 ### patternfile:
