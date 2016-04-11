@@ -137,30 +137,7 @@ class MovieblogFeed():
             self.log_error("Inputfile not found")
 
     def getPatterns(self):
-        out = {}
-        for line in self.mypatterns:
-            if len(line) == 0 or line.startswith("#"):
-                continue
-            try:
-                n = line.split(",")[0]
-                q = line.split(",")[1]
-                r = line.split(",")[2]
-            except:
-                self.log_error("Syntax error in [%s] detected, please take corrective action" %self.config.get("patternfile"))
-
-            try:
-                d = line.split(",")[3]
-            except:
-                d = ""
-
-            if q == "":
-                q = r'.*'
-
-            if r == "":
-                r = r'.*'
-
-            out[n] = [q,r,d]
-        return out
+        return {line: [self.config.get('quality'), '.*', ''] for line in self.mypatterns}
 
     def searchLinks(self):
         ignore = self.config.get("ignore").lower().replace(",","|") if not self.config.get("ignore") == "" else "^unmatchable$"

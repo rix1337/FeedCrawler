@@ -13,6 +13,7 @@ class RssConfig(object):
             ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
             ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
             ("interval", "int", "Execution interval in minutes", "10"),
+            ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
             ("historical","bool","Use the search function in order to match older entries","False")
         ],
