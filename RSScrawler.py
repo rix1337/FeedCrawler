@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 0.8.3
-# Requires PyCurl, Feedparser, BeautifulSoup, docopt
-# This project relies heavily on these three projects:
+# Version 0.9.0
+# Requires PyCurl, Feedparser, BeautifulSoup, docopt, lxml
+# Code used:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
