@@ -20,10 +20,9 @@ Options:
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-from rssconfig import RssConfig
-from rssdb import RssDb
-from timer import RepeatableTimer
 from docopt import docopt
+from lxml import html
+import requests
 import feedparser
 import re
 import urllib
@@ -38,6 +37,11 @@ import signal
 import logging
 import os
 import errno
+
+from rssconfig import RssConfig
+from rssdb import RssDb
+from timer import RepeatableTimer
+import common
 
 try:
     import simplejson as json
@@ -116,6 +120,7 @@ class MovieblogFeed():
         list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
         _mkdir_p(self.config.get('crawljob_directory'))
         self.db = RssDb(self.config.get('db_file'))
+        self._hosters_pattern = self.config.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
             int(self.config.get('interval')) * 60,
@@ -174,6 +179,11 @@ class MovieblogFeed():
                             except:
                                 self.dictWithNamesAndLinks[post.title] = [post.link]
 
+    def _get_download_links(self, url, hosters_pattern=None):
+        tree = html.fromstring(requests.get(url).content)
+        xpath = '//*[@id="content"]/span/div/div[2]/p//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
+        return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
+
     @_restart_timer
     def periodical_task(self):
         urls = []
@@ -200,8 +210,14 @@ class MovieblogFeed():
             if not self.db.retrieve(key) == 'added':
                 self.db.store(key, 'added')
                 self.log_info("NEW RELEASE: " + key)
-                write_crawljob_file(key, key, [self.dictWithNamesAndLinks[key][0]],
-                    self.config.get("crawljob_directory")) and text.append(key)
+                download_link = [common.get_first(self._get_download_links(self.dictWithNamesAndLinks[key][0], self._hosters_pattern))]
+                if download_link:
+                    write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        self.config.get("crawljob_directory")
+                    ) and text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
         if len(text) > 0:
