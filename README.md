@@ -1,9 +1,9 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 0.8.3
+## Version 0.9.0
 
-This project relies heavily on these three projects:
+Code used:
 
 https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 
@@ -52,17 +52,8 @@ If your Lists are blank, all links from MB/SJ will be added!
 
 Set the lists up before starting this script for the first time with a valid Settings.conf!
 
-MB List items are made up of lines containing: ```Title,Resolution,ReleaseGroup,```
-
-Example: ```Funny Movie,720p,GR0UP,```
-
-The file is invalid if one comma is missing!
-
-Leaving Resolution or Release Group blank is also valid
-
-SJ List items are made up of lines containing: Title
-
-Example: ```Funny TV-Show```
+Each line in Movies.txt should contain the title of a movie.
+Each line in Shows.txt should contain the title of a show.
 
 
 ### db_file:
