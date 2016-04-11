@@ -2,3 +2,4 @@ docopt
 feedparser
 BeautifulSoup
 pycurl
+lxml
