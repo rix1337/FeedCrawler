@@ -15,7 +15,7 @@ class RssConfig(object):
             ("interval", "int", "Execution interval in minutes", "10"),
             ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
-            ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from", "OBOOM;Uploaded;Share-Online;Zippyshare"),
+            ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from", "Uploaded"),
             ("historical","bool","Use the search function in order to match older entries","False")
         ],
         'SJ': [
