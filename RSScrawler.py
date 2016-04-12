@@ -145,7 +145,8 @@ class MovieblogFeed():
         return {line: [self.config.get('quality'), '.*', ''] for line in self.mypatterns}
 
     def searchLinks(self):
-        ignore = self.config.get("ignore").lower().replace(",","|") if not self.config.get("ignore") == "" else "^unmatchable$"
+        ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')]) \
+            if not self.config.get("ignore") == "" else "^unmatchable$"
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in self.feed.entries:
