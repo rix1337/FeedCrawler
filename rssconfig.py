@@ -11,7 +11,7 @@ class RssConfig(object):
             ("patternfile", "str", "List of Movies (use SJ for shows)", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
             ("db_file","str","db_file",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory","/jd2/folderwatch"),
-            ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,3d"),
+            ("ignore","str","Ignore pattern (comma seperated)","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic"),
             ("interval", "int", "Execution interval in minutes", "10"),
             ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
