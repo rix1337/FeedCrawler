@@ -163,7 +163,7 @@ class MovieblogFeed():
                     ss = self.allInfos[key][0].lower()
 
                     if self.config.get('crawl3d'):
-                        if '3d' in post.title.lower() and "1080p" in post.title.lower():
+                        if '3d' in post.title.lower() and "1080p" in post.title.lower() or "1080i" in post.title.lower():
                             found = True
                     else:
                         if '3d' in post.title.lower():
