@@ -16,7 +16,7 @@ class RssConfig(object):
             ("quality", """480p;720p;1080p""", "480p, 720p or 1080p", "720p"),
             ("pushbulletapi","str","Your Pushbullet-API key",""),
             ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from", "Uploaded"),
-            ("historical","bool","Use the search function in order to match older entries","False"),
+            ("historical","bool","Use the search function in order to match older entries","True"),
             ("crawl3d","bool","Crawl for 3D version","False")
         ],
         'SJ': [
@@ -60,11 +60,10 @@ class RssConfig(object):
 
     def _get_from_config(self, scope, key):
         res = [param[3] for param in scope if param[0] == key]
-        return res[0] if len(res) > 0 else False
+        if [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
+            return True if res[0].strip('\'"').lower() == 'true' else False
+        else:
+            return res[0].strip('\'"') if len(res) > 0 else False
 
     def get(self, key):
-        return (
-            self._get_from_config(self.__config__, key)
-            or
-            self._get_from_config(self._DEFAULT_CONFIG[self._section], key)
-        ).strip('\'"')
+        return self._get_from_config(self.__config__, key) or self._get_from_config(self._DEFAULT_CONFIG[self._section], key)

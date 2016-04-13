@@ -162,19 +162,18 @@ class MovieblogFeed():
                     """Search for quality"""
                     ss = self.allInfos[key][0].lower()
 
-                    if self.config.get('crawl3d'):
-                        if '3d' in post.title.lower() and "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                    if '.3d.' in post.title.lower():
+                        if self.config.get('crawl3d') and ("1080p" in post.title.lower() or "1080i" in post.title.lower()):
                             found = True
-                    else:
-                        if '3d' in post.title.lower():
+                        else:
                             continue
-
-                    if ss == "480p":
-                        if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
-                            continue
-                        found = True
                     else:
-                        found = re.search(ss,post.title.lower())
+                        if ss == "480p":
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                                continue
+                            found = True
+                        else:
+                            found = re.search(ss,post.title.lower())
                     if found:
                         """Search for releasegroup"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
@@ -455,7 +454,7 @@ if __name__ == "__main__":
 
     pool = [
         MovieblogFeed(),
-        SJ(),
+        # SJ(),
     ]
 
     def signal_handler(signal, frame):
