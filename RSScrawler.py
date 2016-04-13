@@ -145,7 +145,8 @@ class MovieblogFeed():
         return {line: [self.config.get('quality'), '.*', ''] for line in self.mypatterns}
 
     def searchLinks(self):
-        ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')]) \
+        ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
+                           if not self.config.get('crawl3d') or p != '3d']) \
             if not self.config.get("ignore") == "" else "^unmatchable$"
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
@@ -160,6 +161,14 @@ class MovieblogFeed():
                         continue
                     """Search for quality"""
                     ss = self.allInfos[key][0].lower()
+
+                    if self.config.get('crawl3d'):
+                        if '3d' in post.title.lower() and "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                            found = True
+                    else:
+                        if '3d' in post.title.lower():
+                            continue
+
                     if ss == "480p":
                         if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
                             continue
