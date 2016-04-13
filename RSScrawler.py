@@ -452,6 +452,9 @@ if __name__ == "__main__":
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)
 
+    # This muting 'Starting new HTTP connection (1)' from info log
+    logging.getLogger("requests").setLevel(logging.WARNING)
+
     pool = [
         MovieblogFeed(),
         SJ(),
