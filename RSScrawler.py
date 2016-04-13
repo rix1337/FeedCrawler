@@ -454,7 +454,7 @@ if __name__ == "__main__":
 
     pool = [
         MovieblogFeed(),
-        # SJ(),
+        SJ(),
     ]
 
     def signal_handler(signal, frame):
