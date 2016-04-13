@@ -289,10 +289,6 @@ def getURL(url):
         logging.debug('During query execution we got an exception: Reason: %s' %  e.reason)
         return ''
 
-def str2bool(v):
-    return v.lower() in ("yes", "true", "t", "1")
-
-
 class SJ():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
     _INTERNAL_NAME = 'SJ'
@@ -330,7 +326,7 @@ class SJ():
             link = post.link
             title = post.title
 
-            if str2bool(self.config.get("regex")):
+            if self.config.get("regex"):
                 m = re.search(self.pattern,title.lower())
                 if not m and not "720p" in title and not "1080p" in title:
                     m = re.search(self.pattern.replace("480p","."),title.lower())
