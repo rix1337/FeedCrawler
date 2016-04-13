@@ -67,7 +67,9 @@ Enable the Watch-Folder feature (experimental) in JDownloader first!
 
 JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the Settings.conf
 
+### crawl3d:
 
+Enable this option if (regardless of quality settings) you also want 3D versions of your Movies.txt to be added (in 1080p). If you want to ignore a certain type of 3D (HSBS/HOU) add the according string to your ignore list.
 
 ### Docker Setup:
 https://github.com/rix1337/docker-rsscrawler
