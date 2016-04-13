@@ -66,3 +66,8 @@ The database file prevents duplicate crawljobs
 Enable the Watch-Folder feature (experimental) in JDownloader first!
 
 JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the Settings.conf
+
+
+
+### Docker Setup:
+https://github.com/rix1337/docker-rsscrawler
