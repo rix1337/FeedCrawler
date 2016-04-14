@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 0.9.0
+## Version 1.0.0
 
 Code used:
 
@@ -70,6 +70,11 @@ JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDown
 ### crawl3d:
 
 Enable this option if (regardless of quality settings) you also want 3D versions of your Movies.txt to be added (in 1080p). If you want to ignore a certain type of 3D (HSBS/HOU) add the according string to your ignore list.
+
+### crawlseasons
+
+Enable this option if you want to crawl MB for complete seasons (retail).
+```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for retail seasons.
 
 ### Docker Setup:
 https://github.com/rix1337/docker-rsscrawler
