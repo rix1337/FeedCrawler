@@ -107,6 +107,7 @@ def _restart_timer(func):
 
     return wrapper
 
+
 class MovieblogFeed():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
