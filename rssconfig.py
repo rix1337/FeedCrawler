@@ -18,7 +18,7 @@ class RssConfig(object):
             ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from", "Uploaded"),
             ("historical","bool","Use the search function in order to match older entries","True"),
             ("crawl3d","bool","Crawl for 3D version","False"),
-            ("crawlseasons", "bool", "Crawl for 3D version", "False"),
+            ("crawlseasons", "bool", "Crawl seasons", "False"),
             ("seasonslist", "str", "List of shows", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("seasonsquality", "str", "480p, 720p or 1080p", "720p")
         ],
