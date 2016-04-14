@@ -132,17 +132,17 @@ class MovieblogFeed():
         self.periodical.start()
         return self
 
-    def readInput(self):
-        if not os.path.isfile(self.config.get("patternfile")):
-            open(self.config.get("patternfile"), "a").close()
+    def readInput(self, file):
+        if not os.path.isfile(file):
+            open(file, "a").close()
         try:
-            f = codecs.open(self.config.get("patternfile"), "rb")
+            f = codecs.open(file, "rb")
             return f.read().splitlines()
         except:
             self.log_error("Inputfile not found")
 
-    def getPatterns(self):
-        return {line: [self.config.get('quality'), '.*', ''] for line in self.mypatterns}
+    def getPatterns(self, patterns, quality):
+        return {line: [quality, '.*', ''] for line in patterns}
 
     def searchLinks(self):
         ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
@@ -197,17 +197,18 @@ class MovieblogFeed():
     def periodical_task(self):
         urls = []
         text = []
-        self.mypatterns = self.readInput()
-
         self.dictWithNamesAndLinks = {}
-        self.allInfos = self.getPatterns()
+
+        self.allInfos = self.getPatterns(
+            self.readInput(self.config.get("patternfile")),
+            self.config.get('quality')
+        )
 
         if self.config.get("historical"):
-            for xline in self.mypatterns:
-                if len(xline) == 0 or xline.startswith("#"):
-                    continue
-                xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
-                urls.append('http://www.movie-blog.org/search/%s/feed/rss2/' %xn)
+            for xline in self.allInfos.keys():
+                if len(xline) > 0 and not xline.startswith("#"):
+                    xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
+                    urls.append('http://www.movie-blog.org/search/%s/feed/rss2/' %xn)
         else:
             urls.append(self.FEED_URL)
 
