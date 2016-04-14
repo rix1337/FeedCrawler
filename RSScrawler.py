@@ -141,8 +141,8 @@ class MovieblogFeed():
         except:
             self.log_error("Inputfile not found")
 
-    def getPatterns(self, patterns, quality):
-        return {line: [quality, '.*', ''] for line in patterns}
+    def getPatterns(self, patterns, quality, rg, sf):
+        return {line: (quality, rg, sf) for line in patterns}
 
     def searchLinks(self):
         ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
@@ -178,6 +178,10 @@ class MovieblogFeed():
                         """Search for releasegroup"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
+
+                        if self.allInfos[key][2]:
+                            found = True if self.allInfos[key][2] in post.title.lower() else False
+
                         if found:
                             try:
                                 episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*',post.title.lower()).group(1)
@@ -199,9 +203,20 @@ class MovieblogFeed():
         text = []
         self.dictWithNamesAndLinks = {}
 
-        self.allInfos = self.getPatterns(
-            self.readInput(self.config.get("patternfile")),
-            self.config.get('quality')
+        self.allInfos = dict(
+            set(self.getPatterns(
+                    self.readInput(self.config.get("patternfile")),
+                    self.config.get('quality'),
+                    '.*',
+                    None
+                ).items()
+            ) |
+            set(self.getPatterns(
+                self.readInput(self.config.get("seasonslist")),
+                self.config.get('seasonsquality'),
+                '.*',
+                '.complete.'
+            ).items() if self.config.get('crawlseasons') else [])
         )
 
         if self.config.get("historical"):
