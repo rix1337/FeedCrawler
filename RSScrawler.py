@@ -239,7 +239,7 @@ class MovieblogFeed():
                 self.log_info("NEW RELEASE: " + key)
                 download_link = [common.get_first(self._get_download_links(self.dictWithNamesAndLinks[key][0], self._hosters_pattern))]
                 if download_link:
-                    if "none" in str(download_link).lower
+                    if "none" in download_link.lower:
                         self.log_debug("[%s] no link found for hoster" %key)
                         continue
                     write_crawljob_file(
