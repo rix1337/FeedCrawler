@@ -180,7 +180,8 @@ class MovieblogFeed():
                         found = re.search(sss,post.title.lower())
 
                         if self.allInfos[key][2]:
-                            found = True if self.allInfos[key][2] in post.title.lower() else False
+                            # If all True, then found = True
+                            found = all([word in post.title.lower() for word in self.allInfos[key][2]])
 
                         if found:
                             try:
@@ -215,8 +216,7 @@ class MovieblogFeed():
                 self.readInput(self.config.get("seasonslist")),
                 self.config.get('seasonsquality'),
                 '.*',
-                '.complete.',
-                '.bluray.'
+                ('.complete.','.bluray.')
             ).items() if self.config.get('crawlseasons') else [])
         )
 
