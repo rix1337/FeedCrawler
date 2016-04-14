@@ -132,17 +132,17 @@ class MovieblogFeed():
         self.periodical.start()
         return self
 
-    def readInput(self):
-        if not os.path.isfile(self.config.get("patternfile")):
-            open(self.config.get("patternfile"), "a").close()
+    def readInput(self, file):
+        if not os.path.isfile(file):
+            open(file, "a").close()
         try:
-            f = codecs.open(self.config.get("patternfile"), "rb")
+            f = codecs.open(file, "rb")
             return f.read().splitlines()
         except:
             self.log_error("Inputfile not found")
 
-    def getPatterns(self):
-        return {line: [self.config.get('quality'), '.*', ''] for line in self.mypatterns}
+    def getPatterns(self, patterns, quality, rg, sf):
+        return {line: (quality, rg, sf) for line in patterns}
 
     def searchLinks(self):
         ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
@@ -178,6 +178,10 @@ class MovieblogFeed():
                         """Search for releasegroup"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
+
+                        if self.allInfos[key][2]:
+                            found = True if self.allInfos[key][2] in post.title.lower() else False
+
                         if found:
                             try:
                                 episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*',post.title.lower()).group(1)
@@ -197,17 +201,29 @@ class MovieblogFeed():
     def periodical_task(self):
         urls = []
         text = []
-        self.mypatterns = self.readInput()
-
         self.dictWithNamesAndLinks = {}
-        self.allInfos = self.getPatterns()
+
+        self.allInfos = dict(
+            set(self.getPatterns(
+                    self.readInput(self.config.get("patternfile")),
+                    self.config.get('quality'),
+                    '.*',
+                    None
+                ).items()
+            ) |
+            set(self.getPatterns(
+                self.readInput(self.config.get("seasonslist")),
+                self.config.get('seasonsquality'),
+                '.*',
+                '.complete.'
+            ).items() if self.config.get('crawlseasons') else [])
+        )
 
         if self.config.get("historical"):
-            for xline in self.mypatterns:
-                if len(xline) == 0 or xline.startswith("#"):
-                    continue
-                xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
-                urls.append('http://www.movie-blog.org/search/%s/feed/rss2/' %xn)
+            for xline in self.allInfos.keys():
+                if len(xline) > 0 and not xline.startswith("#"):
+                    xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
+                    urls.append('http://www.movie-blog.org/search/%s/feed/rss2/' %xn)
         else:
             urls.append(self.FEED_URL)
 
