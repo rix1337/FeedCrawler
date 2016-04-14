@@ -215,8 +215,7 @@ class MovieblogFeed():
                 self.readInput(self.config.get("seasonslist")),
                 self.config.get('seasonsquality'),
                 '.*',
-                '.complete.',
-                '.bluray.'
+                '.complete.'
             ).items() if self.config.get('crawlseasons') else [])
         )
 
