@@ -20,7 +20,8 @@ class RssConfig(object):
             ("crawl3d","bool","Crawl for 3D version","False"),
             ("crawlseasons", "bool", "Crawl seasons", "False"),
             ("seasonslist", "str", "List of shows", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
-            ("seasonsquality", "str", "480p, 720p or 1080p", "720p")
+            ("seasonsquality", "str", "480p, 720p or 1080p", "720p"),
+            ("seasonssource", "str", "bluray, web-dl or hdtv", "bluray")
         ],
         'SJ': [
             ("file", "str", "List of shows", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
