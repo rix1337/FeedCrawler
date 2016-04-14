@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.0.1
+## Version 1.0.2
 
 Code used:
 
@@ -74,7 +74,7 @@ Enable this option if (regardless of quality settings) you also want 3D versions
 ### crawlseasons
 
 Enable this option if you want to crawl MB for complete seasons (bluray retail).
-```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for retail seasons.
+```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
 
 ### Docker Setup:
 https://github.com/rix1337/docker-rsscrawler
