@@ -45,3 +45,4 @@ target/
 *.db
 *.log
 *.crawljob
+*.ini
