@@ -46,3 +46,4 @@ target/
 *.log
 *.crawljob
 *.ini
+*.txt
