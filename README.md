@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.0.4
+## Version 1.0.5
 
 Code used:
 
@@ -18,8 +18,9 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 ## TLDR:
 
 0. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
-1. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
-2. Run the script!
+1. Run the script once. It will automatically generate the Settings subdir with all the necessary files. Close the Script.
+2. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
+3. Run the script!
 
 ## Launching the Script
 
