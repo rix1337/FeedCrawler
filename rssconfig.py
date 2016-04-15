@@ -5,7 +5,7 @@ import os
 
 
 class RssConfig(object):
-    _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Settings/Settings.conf')]
+    _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Settings/Settings.ini')]
     _DEFAULT_CONFIG = {
         'MB': [
             ("patternfile", "str", "List of Movies (use SJ for shows)", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
