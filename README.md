@@ -50,7 +50,7 @@ A .txt list the script will use to crawl rss feeds.
 
 If your Lists are blank, all links from MB/SJ will be added! For this reason 2 placeholder files are added in your Settings subfolder. If you fail to point your Settings.ini towards those lists, then the same rule as with blank lists applies.
 
-**Set the lists up before starting this script for the first time with a valid Settings.ini!***
+**Set the lists up before starting this script for the first time with a valid Settings.ini!**
 
 Each line in Movies.txt should contain the title of a movie.
 Each line in Shows.txt should contain the title of a show.
