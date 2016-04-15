@@ -17,10 +17,10 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 
 ## TLDR:
 
-0. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
-1. Run and close the script once. It will automatically generate the ```Settings``` subdir with all the necessary files inside.
-2. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
-3. Run the script!
+1. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
+2. Run and close the script once. It will automatically generate the ```Settings``` subdir with all the necessary files inside.
+3. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
+4. Run the script!
 
 ## Launching the Script
 
