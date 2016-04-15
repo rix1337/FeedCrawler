@@ -136,6 +136,9 @@ class MovieblogFeed():
     def readInput(self, file):
         if not os.path.isfile(file):
             open(file, "a").close()
+            placeholder = open(file, 'w')
+            placeholder.write('ADD ALL MOVIES YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\n')
+            placeholder.close()
         try:
             f = codecs.open(file, "rb")
             return f.read().splitlines()
@@ -257,6 +260,9 @@ class MovieblogFeed():
 def getSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
+        placeholder = open(file, 'w')
+        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\n')
+        placeholder.close()
     try:
         titles = []
         f = codecs.open(file, "rb", "utf-8")

@@ -34,27 +34,19 @@ Run RSScrawler.py
 ## Settings:
 *Your Settings.ini is located in the ```Settings``` subdir and will be recreated when removed*
 
-Descriptions of the settings are found inside the file.
-
 Feel free to adjust the defaults to your liking, but ensure the paths inside the file are valid.
 
-Namely: ```patternfile```,  ```seasonslist```, ```file```, ```db_file```, and ```crawljob_directory``` must **ALL** be valid.
-
-
-**Set up both the paths to and the content of ```Movies.txt``` and ```Shows.txt``` Lists, before you let the script run. Else your ```db_file``` and JDownloader will be flooded by links!** 
+**```crawljob_directory``` should be the folderwatch subdir of your JDownloader 2.**
 
 
 ### patternfile/seasonslist/file:
 
 A .txt list the script will use to crawl rss feeds.
 
-If your Lists are blank, all links from MB/SJ will be added! For this reason 2 placeholder files are added in your Settings subfolder. If you fail to point your Settings.ini towards those lists, then the same rule as with blank lists applies.
-
-**Set the lists up before starting this script for the first time with a valid Settings.ini!**
-
 Each line in Movies.txt should contain the title of a movie.
 Each line in Shows.txt should contain the title of a show.
 
+**These lists are set up with a placeholder line on the first run. To actually start crawling you need to fill the lists yourself**
 
 ### db_file:
 
