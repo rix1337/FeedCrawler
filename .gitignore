@@ -43,7 +43,5 @@ target/
 
 # RSScrawler files
 *.db
-*.conf
 *.log
-*.txt
 *.crawljob
