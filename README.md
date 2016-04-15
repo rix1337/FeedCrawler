@@ -18,7 +18,7 @@ This script scrapes MB/SJ for titles stored in .txt files and passes them on to 
 ## TLDR:
 
 0. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
-1. Run the script once. It will automatically generate the Settings subdir with all the necessary files. Close the Script.
+1. Run the script once. It will automatically generate the ```Settings``` subdir with all the necessary files inside. Close the Script.
 2. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
 3. Run the script!
 
@@ -37,9 +37,6 @@ Run RSScrawler.py
 
 Feel free to adjust the defaults to your liking, but ensure the paths inside the file are valid.
 
-**```crawljob_directory``` should be the folderwatch subdir of your JDownloader 2.**
-
-
 ### patternfile/seasonslist/file:
 
 A .txt list the script will use to crawl rss feeds.
@@ -51,8 +48,7 @@ Each line in Shows.txt should contain the title of a show.
 
 ### db_file:
 
-The database file prevents duplicate crawljobs
-
+The database file prevents duplicate crawljobs.
 
 ### crawljob_directoy:
 
@@ -71,5 +67,5 @@ Enable this option if you want to crawl MB for complete seasons.
 
 ```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
 
-### Docker Setup:
+### Docker Container for RSScrawler:
 https://github.com/rix1337/docker-rsscrawler
