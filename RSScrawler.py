@@ -241,7 +241,7 @@ class MovieblogFeed():
                 self.db.store(key, 'added')
                 self.log_info("NEW RELEASE: " + key)
                 download_link = [common.get_first(self._get_download_links(self.dictWithNamesAndLinks[key][0], self._hosters_pattern))]
-                if download_link:
+                if any(download_link):
                     write_crawljob_file(
                         key,
                         key,
