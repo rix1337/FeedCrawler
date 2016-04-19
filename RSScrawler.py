@@ -245,12 +245,13 @@ class MovieblogFeed():
                     if all(x is None for x in download_link):
                         self.log_debug("[%s] no link found for hoster" %key)
                         break
+                    else:
                     write_crawljob_file(
-                        key,
-                        key,
-                        download_link,
-                        self.config.get("crawljob_directory")
-                    ) and text.append(key)
+                          key,
+                          key,
+                          download_link,
+                          self.config.get("crawljob_directory")
+                      ) and text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
         if len(text) > 0:
