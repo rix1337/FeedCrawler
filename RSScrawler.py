@@ -242,12 +242,12 @@ class MovieblogFeed():
                 self.log_info("NEW RELEASE: " + key)
                 download_link = [common.get_first(self._get_download_links(self.dictWithNamesAndLinks[key][0], self._hosters_pattern))]
                 if download_link:
-                        write_crawljob_file(
-                            key,
-                            key,
-                            download_link,
-                            self.config.get("crawljob_directory")
-                        ) and text.append(key)
+                    write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        self.config.get("crawljob_directory")
+                    ) and text.append(key)
             else:
                 self.log_debug("[%s] has already been added" %key)
         if len(text) > 0:
