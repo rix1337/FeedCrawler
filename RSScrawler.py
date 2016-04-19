@@ -244,7 +244,7 @@ class MovieblogFeed():
                 if download_link:
                     if all(x is None for x in download_link):
                         self.log_debug("[%s] no link found for hoster" %key)
-                        raise
+                        break
                     write_crawljob_file(
                         key,
                         key,
