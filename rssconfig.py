@@ -9,7 +9,7 @@ class RssConfig(object):
     _DEFAULT_CONFIG = {
         'MB': [
             ("patternfile", "str", "List of Movies - Each line should contain one Movie title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
-            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
+            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_MB.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!","/jd2/folderwatch"),
             ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,xxx,hou"),
             ("interval", "int", "Execution interval of the script in minutes", "10"),
@@ -25,7 +25,7 @@ class RssConfig(object):
         ],
         'SJ': [
             ("file", "str", "List of Shows - Each line should contain one Show title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
-            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Database/Downloads.db")),
+            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_SJ.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!","/jd2/folderwatch"),
             ("rejectlist", "str", "Reject list - Semicolon seperated list of Release tags to ignore", "XviD;Subbed;HDTV"),
             ("interval", "int", "Execution interval of the script in minutes", "10"),
