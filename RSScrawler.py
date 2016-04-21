@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 1.1.0
+# Version 1.1.1
 # Requires PyCurl, Feedparser, BeautifulSoup, docopt, lxml
 # Code used:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
@@ -49,64 +49,12 @@ except ImportError:
     import json
 
 def SettingsFile():
-    # Workaround to create a commented Settings.ini
+    # Ugly Workaround to create a commented Settings.ini
     settings = os.path.join(os.path.dirname(__file__), "Settings/Settings.ini")
     if not os.path.isfile(settings):
-        open(settings, "a").close()
+        open(settings, "a.close()
         settingsfile = open(settings, "w")
-        settingsfile.write("[MB]\n")
-        settingsfile.write("# List of Movies - Each line should contain one Movie title\n")
-        settingsfile.write("patternfile = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt\n")
-        settingsfile.write("# Database used to ignore already downloaded Releases in the future\n")
-        settingsfile.write("db_file = ", os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_MB.db\n")
-        settingsfile.write("# JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!\n")
-        settingsfile.write("crawljob_directory = /jd2/folderwatch\n")
-        settingsfile.write("# Ignore pattern - Comma seperated list of Release tags to ignore\n")
-        settingsfile.write("ignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,hou,xxx\n")
-        settingsfile.write("# Execution interval of the script in minutes\n")
-        settingsfile.write("interval = 15\n")
-        settingsfile.write("# Quality to look for in Release titles - 480p, 720p or 1080p\n")
-        settingsfile.write("quality = 720p\n")
-        settingsfile.write("# Add your Pushbullet-API key if you want to be notified\n")
-        settingsfile.write("pushbulletapi = \n")
-        settingsfile.write("# Hoster to load from on MB - OBOOM, Uploaded, Share-Online or Zippyshare\n")
-        settingsfile.write("hoster = Uploaded\n")
-        settingsfile.write("# Use search function - Disable if you only want current Releases to be added\n")
-        settingsfile.write("historical = True\n")
-        settingsfile.write("# Crawl for 3D versions of Movies - in 1080p, regardles of quality set above\n")
-        settingsfile.write("crawl3d = False\n")
-        settingsfile.write("# If release without DL tag is added, look for DL release - ignoring quality setting\n")
-        settingsfile.write("enforcedl = False\n")
-        settingsfile.write("# Crawl complete Seasons on MB\n")
-        settingsfile.write("crawlseasons = False\n")
-        settingsfile.write("# List of shows, to crawl for complete seasons - May be equal to SJ file\n")
-        settingsfile.write("seasonslist = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt\n")
-        settingsfile.write("# Quality of complete seasons to crawl for - 480p, 720p or 1080p\n")
-        settingsfile.write("seasonsquality = 720p\n")
-        settingsfile.write("# Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv\n")
-        settingsfile.write("seasonssource = bluray\n")
-        settingsfile.write("\n")
-        settingsfile.write("[SJ]\n")
-        settingsfile.write("# List of Shows - Each line should contain one Show title\n")
-        settingsfile.write("file = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt\n")
-        settingsfile.write("# Database used to ignore already downloaded Releases in the future\n")
-        settingsfile.write("db_file = ", os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_SJ.db\n")
-        settingsfile.write("# JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!\n")
-        settingsfile.write("crawljob_directory = /jd2/folderwatch\n")
-        settingsfile.write("# Reject list - Semicolon seperated list of Release tags to ignore\n")
-        settingsfile.write("rejectlist = XviD;Subbed;HDTV\n")
-        settingsfile.write("# Execution interval of the script in minutes\n")
-        settingsfile.write("interval = 15\n")
-        settingsfile.write("# Add your Pushbullet-API key if you want to be notified\n")
-        settingsfile.write("pushbulletapi = \n")
-        settingsfile.write("# Language to load Shows in - DEUTSCH or ENGLISCH\n")
-        settingsfile.write("language = DEUTSCH\n")
-        settingsfile.write("# Quality to look for in Release titles - 480p, 720p or 1080p\n")
-        settingsfile.write("quality = 720p\n")
-        settingsfile.write("# Hoster to load from on SJ - ul, so, fm, cz, alle\n")
-        settingsfile.write("hoster = ul\n")
-        settingsfile.write("# Treat entries of the List as regular expressions - for advanced use cases\n")
-        settingsfile.write("regex = False\n")
+        settingsfile.write("[MB]\n# List of Movies - Each line should contain one Movie title\npatternfile = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt\n# Database used to ignore already downloaded Releases in the future\ndb_file = ", os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_MB.db\n# JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!\ncrawljob_directory = /jd2/folderwatch\n# Ignore pattern - Comma seperated list of Release tags to ignore\nignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,hou,xxx\n# Execution interval of the script in minutes\ninterval = 15\n# Quality to look for in Release titles - 480p, 720p or 1080p\nquality = 720p\n# Add your Pushbullet-API key if you want to be notified\npushbulletapi = \n# Hoster to load from on MB - OBOOM, Uploaded, Share-Online or Zippyshare\nhoster = Uploaded\n# Use search function - Disable if you only want current Releases to be added\nhistorical = True\n# Crawl for 3D versions of Movies - in 1080p, regardles of quality set above\ncrawl3d = False\n# If release without DL tag is added, look for DL release - ignoring quality setting\nenforcedl = False\n# Crawl complete Seasons on MB\ncrawlseasons = False\n# List of shows, to crawl for complete seasons - May be equal to SJ file\nseasonslist = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt\n# Quality of complete seasons to crawl for - 480p, 720p or 1080p\nseasonsquality = 720p\n# Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv\nseasonssource = bluray\n\n[SJ]\n# List of Shows - Each line should contain one Show title\nfile = ", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt\n# Database used to ignore already downloaded Releases in the future\ndb_file = ", os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_SJ.db\n# JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!\ncrawljob_directory = /jd2/folderwatch\n# Reject list - Semicolon seperated list of Release tags to ignore\nrejectlist = XviD;Subbed;HDTV\n# Execution interval of the script in minutes\ninterval = 15\n# Add your Pushbullet-API key if you want to be notified\npushbulletapi = \n# Language to load Shows in - DEUTSCH or ENGLISCH\nlanguage = DEUTSCH\n# Quality to look for in Release titles - 480p, 720p or 1080p\nquality = 720p\n# Hoster to load from on SJ - ul, so, fm, cz, alle\nhoster = ul\n# Treat entries of the List as regular expressions - for advanced use cases\nregex = False\n
         settingsfile.close()
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):

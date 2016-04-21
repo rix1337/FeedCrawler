@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.1.0
+## Version 1.1.1
 
 Code used:
 
@@ -36,6 +36,8 @@ Run RSScrawler.py
 *Your Settings.ini is located in the ```Settings``` subdir and will be recreated when removed*
 
 Feel free to adjust the defaults to your liking, but ensure the paths inside the file are valid.
+
+**The comments should help you in setting this up**
 
 ### patternfile/seasonslist/file:
 
