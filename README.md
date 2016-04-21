@@ -61,19 +61,19 @@ JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDown
 Enable this option if (regardless of quality settings) you also want 3D versions of your Movies.txt to be added (in 1080p). 
 By default HOU 3D-versions are blocked through the ignore option.
 
-### crawlseasons
-
-Enable this option if you want to crawl MB for complete seasons.
-
-```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
-
 ### enforcedl
 
 Enable this option if you want to keep your collection DL (dual language).
 
 If the script adds a Release that does not contain the DL tag it will start looking for another release that has two audio tracks, disregarding quality set.
 
-For example: If 720p is your default resolution and a non-dl release is added, the script will also download a 1080p release if it has the DL tag.
+For example: If 720p is your default resolution and a non-dl release is added, the script will also download a 1080p release if it has the DL tag (even though 1080p would otherwise be ignored).
+
+### crawlseasons
+
+Enable this option if you want to crawl MB for complete seasons.
+
+```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
 
 ### Docker Container for RSScrawler:
 https://github.com/rix1337/docker-rsscrawler
