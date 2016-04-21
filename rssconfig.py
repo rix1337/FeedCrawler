@@ -17,12 +17,12 @@ class RssConfig(object):
             ("pushbulletapi","str","Add your Pushbullet-API key if you want to be notified",""),
             ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from on MB - OBOOM, Uploaded, Share-Online or Zippyshare", "Uploaded"),
             ("historical","bool","Use search function - Disable if you only want current Releases to be added","True"),
-            ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","True"),
-            ("crawlseasons", "bool", "Crawl complete Seasons on MB", "True"),
+            ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","False"),
+            ("enforcedl", "bool", "Enforce DL", "False"),
+            ("crawlseasons", "bool", "Crawl complete Seasons on MB", "False"),
             ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
-            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray"),
-            ("enforcedl", "bool", "Enforce DL", "True"),
+            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
         ],
         'SJ': [
             ("file", "str", "List of Shows - Each line should contain one Show title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
