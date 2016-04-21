@@ -18,7 +18,7 @@ class RssConfig(object):
             ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from on MB - OBOOM, Uploaded, Share-Online or Zippyshare", "Uploaded"),
             ("historical","bool","Use search function - Disable if you only want current Releases to be added","True"),
             ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","False"),
-            ("enforcedl", "bool", "Download any quality DL Release if one without DL tag is added", "False"),
+            ("enforcedl", "bool", "If release without DL tag is added, look for DL release - ignoring quality setting", "False"),
             ("crawlseasons", "bool", "Crawl complete Seasons on MB", "False"),
             ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
