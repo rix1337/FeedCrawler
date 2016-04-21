@@ -21,7 +21,8 @@ class RssConfig(object):
             ("crawlseasons", "bool", "Crawl complete Seasons on MB", "True"),
             ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
-            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
+            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray"),
+            ("enforcedl", "bool", "Enforce DL", "False"),
         ],
         'SJ': [
             ("file", "str", "List of Shows - Each line should contain one Show title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
