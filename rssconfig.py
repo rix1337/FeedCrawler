@@ -11,7 +11,7 @@ class RssConfig(object):
             ("patternfile", "str", "List of Movies - Each line should contain one Movie title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
             ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_MB.db")),
             ("crawljob_directory","str","JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!","/jd2/folderwatch"),
-            ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,pal,md,ac3md,mic,xxx,hou"),
+            ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou"),
             ("interval", "int", "Execution interval of the script in minutes", "15"),
             ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
             ("pushbulletapi","str","Add your Pushbullet-API key if you want to be notified",""),
