@@ -480,10 +480,10 @@ if __name__ == "__main__":
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     # Workaround to create a commented Settings.ini
-    setfile = os.path.join(os.path.dirname(__file__), "Settings/Settings.ini")
-    if not os.path.isfile(setfile):
-        open(setfile, "a").close()
-        settingsfile = open(setfile, 'w')
+    settings = os.path.join(os.path.dirname(__file__), "Settings/Settings.ini"
+    if not os.path.isfile(settings):
+        open(settings, "a").close()
+        settingsfile = open(settings, 'w')
         settingsfile.write('[MB]\n')
         settingsfile.write('# List of Movies - Each line should contain one Movie title\n')
         settingsfile.write('patternfile = ', os.path.join(os.path.dirname(__file__), 'Settings/Lists/Movies.txt\n')
