@@ -480,7 +480,7 @@ if __name__ == "__main__":
     logging.getLogger("requests").setLevel(logging.WARNING)
 
     # Workaround to create a commented Settings.ini
-    setfile = os.path.join(os.path.dirname(__file__), "Settings/Settings.ini"
+    setfile = os.path.join(os.path.dirname(__file__), "Settings/Settings.ini")
     if not os.path.isfile(setfile):
         open(setfile, "a").close()
         settingsfile = open(setfile, 'w')
