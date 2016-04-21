@@ -21,7 +21,8 @@ class RssConfig(object):
             ("crawlseasons", "bool", "Crawl complete Seasons on MB", "True"),
             ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
-            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
+            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray"),
+            ("enforcedl", "bool", "Enforce DL", "False"),
         ],
         'SJ': [
             ("file", "str", "List of Shows - Each line should contain one Show title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
@@ -65,7 +66,7 @@ class RssConfig(object):
     def _get_from_config(self, scope, key):
         res = [param[3] for param in scope if param[0] == key]
         if [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
-            return True if res[0].strip('\'"').lower() == 'true' else False
+            return True if len(res) and res[0].strip('\'"').lower() == 'true' else False
         else:
             return res[0].strip('\'"') if len(res) > 0 else False
 

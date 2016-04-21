@@ -127,6 +127,7 @@ class MovieblogFeed():
             int(self.config.get('interval')) * 60,
             self.periodical_task
         )
+        self.dictWithNamesAndLinks = {}
 
     def activate(self):
         self._periodical_active = True
@@ -148,13 +149,13 @@ class MovieblogFeed():
     def getPatterns(self, patterns, quality, rg, sf):
         return {line: (quality, rg, sf) for line in patterns}
 
-    def searchLinks(self):
+    def searchLinks(self, feed):
         ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
                            if not self.config.get('crawl3d') or p != '3d']) \
             if not self.config.get("ignore") == "" else "^unmatchable$"
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
-            for post in self.feed.entries:
+            for post in feed.entries:
                 """Search for title"""
                 found = re.search(s,post.title.lower())
                 if found:
@@ -193,9 +194,10 @@ class MovieblogFeed():
                                 if "repack" in post.title.lower():
                                     episode = episode + "-repack"
                                 self.log_debug("TV-Series detected, will shorten its name to [%s]" %episode)
-                                self.dictWithNamesAndLinks[episode] = [post.link]
+                                yield (episode, [post.link], key)
                             except:
-                                self.dictWithNamesAndLinks[post.title] = [post.link]
+                                yield (post.title, [post.link], key)
+
 
     def _get_download_links(self, url, hosters_pattern=None):
         tree = html.fromstring(requests.get(url).content)
@@ -206,21 +208,22 @@ class MovieblogFeed():
     def periodical_task(self):
         urls = []
         text = []
-        self.dictWithNamesAndLinks = {}
+
+        dl = {key:('.*', '.*', ('.dl.',)) for key in self.db.get_patterns('notdl')}
 
         self.allInfos = dict(
-            set(self.getPatterns(
+            set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
                     self.readInput(self.config.get("patternfile")),
                     self.config.get('quality'),
                     '.*',
                     None
-                ).items()
+                ).items()}.items()
             ) |
             set(self.getPatterns(
-                self.readInput(self.config.get("seasonslist")),
-                self.config.get('seasonsquality'),
-                '.*',
-                ('.complete.','.' + self.config.get('seasonssource') + '.')
+                    self.readInput(self.config.get("seasonslist")),
+                    self.config.get('seasonsquality'),
+                    '.*',
+                    ('.complete.','.' + self.config.get('seasonssource') + '.')
             ).items() if self.config.get('crawlseasons') else [])
         )
 
@@ -233,23 +236,24 @@ class MovieblogFeed():
             urls.append(self.FEED_URL)
 
         for url in urls:
-            self.feed = feedparser.parse(url)
-            self.searchLinks()
-
-        for key in self.dictWithNamesAndLinks:
-            if not self.db.retrieve(key) == 'added':
-                self.db.store(key, 'added')
-                self.log_info("NEW RELEASE: " + key)
-                download_link = [common.get_first(self._get_download_links(self.dictWithNamesAndLinks[key][0], self._hosters_pattern))]
-                if any(download_link):
-                    write_crawljob_file(
+            for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
+                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                    self.log_debug("[%s] has already been added" % key)
+                else:
+                    self.db.store(
                         key,
-                        key,
-                        download_link,
-                        self.config.get("crawljob_directory")
-                    ) and text.append(key)
-            else:
-                self.log_debug("[%s] has already been added" %key)
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                        pattern
+                    )
+                    self.log_info("NEW RELEASE: " + key)
+                    download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
+                    if any(download_link):
+                        write_crawljob_file(
+                            key,
+                            key,
+                            download_link,
+                            self.config.get("crawljob_directory")
+                        ) and text.append(key)
         if len(text) > 0:
             notifyPushbulletMB(self.config.get("pushbulletapi"),text)
 

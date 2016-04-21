@@ -2,4 +2,4 @@
 
 
 def get_first(iterable):
-    return iterable and iterable[:1].pop() or None
+    return iterable and list(iterable[:1]).pop() or None
