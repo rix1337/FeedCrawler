@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.0.5
+## Version 1.1.0
 
 Code used:
 
@@ -60,6 +60,14 @@ JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDown
 
 Enable this option if (regardless of quality settings) you also want 3D versions of your Movies.txt to be added (in 1080p). 
 By default HOU 3D-versions are blocked through the ignore option.
+
+### enforcedl
+
+Enable this option if you want to keep your collection DL (dual language).
+
+If the script adds a Release that does not contain the DL tag it will start looking for another release that has two audio tracks, disregarding quality set.
+
+For example: If 720p is your default resolution and a non-dl release is added, the script will also download a 1080p release if it has the DL tag (even though 1080p would otherwise be ignored).
 
 ### crawlseasons
 
