@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.0.5
+## Version 1.1.0
 
 Code used:
 
@@ -66,6 +66,14 @@ By default HOU 3D-versions are blocked through the ignore option.
 Enable this option if you want to crawl MB for complete seasons.
 
 ```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
+
+### enforcedl
+
+Enable this option if you want to keep your collection DL (dual language).
+
+If the script adds a Release that does not contain the DL tag it will start looking for another release that has two audio tracks, disregarding quality set.
+
+For example: If 720p is your default resolution and a non-dl release is added, the script will also download a 1080p release if it has the DL tag.
 
 ### Docker Container for RSScrawler:
 https://github.com/rix1337/docker-rsscrawler
