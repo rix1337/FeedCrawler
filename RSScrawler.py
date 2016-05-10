@@ -201,7 +201,7 @@ class MovieblogFeed():
 
     def _get_download_links(self, url, hosters_pattern=None):
         tree = html.fromstring(requests.get(url).content)
-        xpath = '//*[@id="content"]/span/div/div[2]/p//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
+        xpath = '//*[@id="content"]/span/div/div[2]//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
         return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
 
     @_restart_timer
