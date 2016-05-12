@@ -61,7 +61,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
         file.write('autoConfirm=TRUE\n')
         file.write('downloadFolder=%s\n' % folder_name)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
-        file.write('text=%s\n' % link_text)
+        file.write('text=%s\n' % link_text[0])
         file.close()
         return True
     except UnicodeEncodeError as e:
