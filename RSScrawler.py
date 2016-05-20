@@ -476,9 +476,11 @@ if __name__ == "__main__":
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)
 
-    # This muting 'Starting new HTTP connection (1)' from info log
+    # This mutes 'Starting new HTTP connection (1)' from info log
     logging.getLogger("requests").setLevel(logging.WARNING)
-
+    #  Add info to the console
+    print("RSScrawler by https://github.com/rix1337 - v.1.2.1")
+    
     pool = [
         MovieblogFeed(),
         SJ(),
