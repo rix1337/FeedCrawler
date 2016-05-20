@@ -68,10 +68,8 @@ By default HOU 3D-versions are blocked through the ignore option.
 ### enforcedl
 
 Enable this option if you want to keep your collection DL (dual language).
-
-If the script adds a Release that does not contain the DL tag it will start looking for another release that has two audio tracks, disregarding quality set.
-
-For example: If 720p is your default resolution and a non-dl release is added, the script will also download a 1080p release if it has the DL tag (even though 1080p would otherwise be ignored).
+If at any point a release is added that does not contain the DL tag, future releases (that do contain the DL tag) will be added in 1080p/720p quality even if quality is set to 720p.
+This is useful only if you do not mind the additional traffic.
 
 ### crawlseasons
 
