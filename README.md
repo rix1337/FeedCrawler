@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.2.0
+## Version 1.2.1
 
 Code used:
 
@@ -15,7 +15,7 @@ https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
 
-**If you want to contribute to the project feel free to add pull requests!**
+**If you want a problem to be solved or a feature to be added please do so through a pull request!**
 
 ## TLDR:
 
