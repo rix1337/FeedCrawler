@@ -15,6 +15,8 @@ https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
 
+**If you want to contribute to the project feel free to add pull requests!**
+
 ## TLDR:
 
 1. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
