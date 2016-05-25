@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 1.2.1
+# Version 1.3.0
 # Requires PyCurl, Feedparser, BeautifulSoup, docopt, lxml
 # Code used:
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
@@ -19,6 +19,8 @@ Options:
   --ontime                  Run once and exit
   --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
+
+version = "v.1.3.0"
 
 from docopt import docopt
 from lxml import html
@@ -107,7 +109,6 @@ def _restart_timer(func):
 
     return wrapper
 
-
 class MovieblogFeed():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
@@ -138,7 +139,7 @@ class MovieblogFeed():
         if not os.path.isfile(file):
             open(file, "a").close()
             placeholder = open(file, 'w')
-            placeholder.write('ADD ALL MOVIES YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\n')
+            placeholder.write('ADD ALL MOVIES YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Movie Title')
             placeholder.close()
         try:
             f = codecs.open(file, "rb")
@@ -246,6 +247,9 @@ class MovieblogFeed():
                         pattern
                     )
                     self.log_info("NEW RELEASE: " + key)
+                    if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                        if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                            write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
                     download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
                     if any(download_link):
                         write_crawljob_file(
@@ -262,7 +266,30 @@ def getSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\n')
+        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Show Title')
+        placeholder.close()
+    try:
+        titles = []
+        f = codecs.open(file, "rb", "utf-8")
+        for title in f.read().splitlines():
+            if len(title) == 0:
+                continue
+            title = title.replace(" ", ".")
+            titles.append(title)
+        f.close()
+        return titles
+    except UnicodeError:
+        logging.error("STOPPED, invalid character in list!")
+    except IOError:
+        logging.error("STOPPED, list not found!")
+    except Exception, e:
+        logging.error("Unknown error: %s" %e)
+
+def getRegexSeriesList(file):
+    if not os.path.isfile(file):
+        open(file, "a").close()
+        placeholder = open(file, 'w')
+        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Show.Title.*.720p.*-GROUP')
         placeholder.close()
     try:
         titles = []
@@ -354,34 +381,18 @@ class SJ():
             link = post.link
             title = post.title
 
-            if self.config.get("regex"):
+            if self.config.get("quality") != '480p':
                 m = re.search(self.pattern,title.lower())
-                if not m and not "720p" in title and not "1080p" in title:
-                    m = re.search(self.pattern.replace("480p","."),title.lower())
-                    self.quality = "480p"
                 if m:
-                    if "720p" in title.lower(): self.quality = "720p"
-                    if "1080p" in title.lower(): self.quality = "1080p"
-                    m = re.search(reject,title.lower())
-                    if m:
-                        self.log_debug("Rejected: " + title)
-                        continue
-                    title = re.sub('\[.*\] ', '', post.title)
-                    self.range_checkr(link,title)
-
-            else:
-                if self.config.get("quality") != '480p':
-                    m = re.search(self.pattern,title.lower())
-                    if m:
-                        if self.config.get("language") in title:
-                            mm = re.search(self.quality,title.lower())
-                            if mm:
-                                mmm = re.search(reject,title.lower())
-                                if mmm:
-                                    self.log_debug("Rejected: " + title)
-                                    continue
-                                title = re.sub('\[.*\] ', '', post.title)
-                                self.range_checkr(link,title)
+                    if self.config.get("language") in title:
+                        mm = re.search(self.quality,title.lower())
+                        if mm:
+                            mmm = re.search(reject,title.lower())
+                            if mmm:
+                                self.log_debug("Rejected: " + title)
+                                continue
+                            title = re.sub('\[.*\] ', '', post.title)
+                            self.range_checkr(link,title)
 
                 else:
                     m = re.search(self.pattern,title.lower())
@@ -460,6 +471,135 @@ class SJ():
         else:
             self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
+            if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
+            write_crawljob_file(title, title, link,
+                                self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
+
+class SJregex():
+    MIN_CHECK_INTERVAL = 2 * 60 #2minutes
+    _INTERNAL_NAME = 'SJ'
+
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        if self.config.get("regex"):
+            list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'regex_file']])
+            _mkdir_p(self.config.get('crawljob_directory'))
+            self.db = RssDb(self.config.get('db_file'))
+            self._periodical_active = False
+            self.periodical = RepeatableTimer(
+                int(self.config.get('interval')) * 60,
+                self.periodical_task
+            )
+
+    def activate(self):
+        self._periodical_active = True
+        self.periodical.start()
+
+    @_restart_timer
+    def periodical_task(self):
+        feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
+        self.pattern = "|".join(getRegexSeriesList(self.config.get("regex_file"))).lower()
+        reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
+        self.quality = self.config.get("quality")
+        self.hoster = self.config.get("hoster")
+        if self.hoster == "alle":
+            self.hoster = "."
+        self.added_items = []
+
+        for post in feed.entries:
+            link = post.link
+            title = post.title
+
+            if self.config.get("regex"):
+                m = re.search(self.pattern,title.lower())
+                if not m and not "720p" in title and not "1080p" in title:
+                    m = re.search(self.pattern.replace("480p","."),title.lower())
+                    self.quality = "480p"
+                if m:
+                    if "720p" in title.lower(): self.quality = "720p"
+                    if "1080p" in title.lower(): self.quality = "1080p"
+                    m = re.search(reject,title.lower())
+                    if m:
+                        self.log_debug("Rejected: " + title)
+                        continue
+                    title = re.sub('\[.*\] ', '', post.title)
+                    self.range_checkr(link,title)
+
+            else:
+                continue
+            
+        if len(self.config.get('pushbulletapi')) > 2:
+            notifyPushbulletSJ(self.config.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
+
+    def range_checkr(self, link, title):
+        pattern = re.match(".*S\d{2}E\d{2}-\w?\d{2}.*", title)
+        if pattern is not None:
+            range0 = re.sub(r".*S\d{2}E(\d{2}-\w?\d{2}).*",r"\1", title).replace("E","")
+            number1 = re.sub(r"(\d{2})-\d{2}",r"\1", range0)
+            number2 = re.sub(r"\d{2}-(\d{2})",r"\1", range0)
+            title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)",title)
+            try:
+                for count in range(int(number1),(int(number2)+1)):
+                    NR = re.match("d\{2}", str(count))
+                    if NR is not None:
+                        title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+                    else:
+                        title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+            except ValueError as e:
+                logging.error("Raised ValueError exception: %s" %e.message)
+        else:
+            self.parse_download(link, title)
+
+    def range_parse(self,series_url, search_title):
+        req_page = getURL(series_url)
+        soup = BeautifulSoup(req_page)
+
+        try:
+            titles = soup.findAll(text=re.compile(search_title))
+            for title in titles:
+               if self.quality !='480p' and self.quality in title:
+                   self.parse_download(series_url, title)
+               if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                   self.parse_download(series_url, title)
+        except re.error as e:
+            self.log_error('sre_constants.error: %s' % e)
+
+
+    def parse_download(self,series_url, search_title):
+        req_page = getURL(series_url)
+        soup = BeautifulSoup(req_page)
+
+        title = soup.find(text=re.compile(search_title))
+        if title:
+            items = []
+            links = title.parent.parent.findAll('a')
+            for link in links:
+                url = link['href']
+                pattern = '.*%s_.*' % self.hoster
+                if re.match(pattern, url):
+                    items.append(url)
+            self.send_package(title,items) if len(items) > 0 else True
+
+    def send_package(self, title, link):
+        try:
+            storage = self.db.retrieve(title)
+        except Exception as e:
+            self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
+        if storage == 'downloaded':
+            self.log_debug(title + " already downloaded")
+        else:
+            self.log_info("NEW RELEASE: " + title)
+            self.db.store(title, 'downloaded')
+            if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
             write_crawljob_file(title, title, link,
                                 self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
 
@@ -479,11 +619,13 @@ if __name__ == "__main__":
     # This mutes 'Starting new HTTP connection (1)' from info log
     logging.getLogger("requests").setLevel(logging.WARNING)
     #  Add info to the console
-    print("RSScrawler by https://github.com/rix1337 - v.1.2.1")
-    
+    print("RSScrawler by rix - " + version)
+    print("Project Page: https://github.com/rix1337/RSScrawler/")
+	
     pool = [
         MovieblogFeed(),
         SJ(),
+        SJregex(),
     ]
 
     def signal_handler(signal, frame):

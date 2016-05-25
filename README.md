@@ -1,7 +1,7 @@
 #  RSScrawler
 Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
 
-## Version 1.2.1
+## Version 1.3.0
 
 Code used:
 
@@ -76,6 +76,16 @@ This is useful only if you do not mind the additional traffic.
 Enable this option if you want to crawl MB for complete seasons.
 
 ```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
+
+### regex
+
+Enable this option if you want to crawl SJ with more specific queries. Using the seperate Shows_Regex.txt
+
+Use this format: ```Show.Title.*.720p.*-GROUP``` which enables you to only crawl for releases of a certain group. 
+
+Other query types (only crawl for the first season of a show ```Show.Title.*.S01.*.720p.*-GROUP```) may be mixed in. 
+
+**Please be aware, that the regex search will not apply your reject/quality settings!**
 
 ### Docker Container for RSScrawler:
 https://github.com/rix1337/docker-rsscrawler
