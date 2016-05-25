@@ -34,7 +34,7 @@ class RssConfig(object):
             ("language", """DEUTSCH;ENGLISCH""", "Language to load Shows in - DEUTSCH or ENGLISCH", "DEUTSCH"),
             ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
             ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from on SJ - ul, so, fm, cz, alle", "ul"),
-            ("regex","bool","Treat entries of the List as regular expressions - for advanced use cases", "True"),
+            ("regex","bool","Treat entries of the List as regular expressions - for advanced use cases", "Fals"),
             ("regex_file", "str", "List of Shows in RegEx scheme. Use this to crawl more precicely for Groups/Tags", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows_Regex.txt"))
         ]
     }
