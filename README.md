@@ -89,3 +89,6 @@ Other query types (only crawl for the first season of a show ```Show.Title.*.S01
 
 ### Docker Container for RSScrawler:
 https://github.com/rix1337/docker-rsscrawler
+
+### Synology Package by https://github.com/neutron666
+http://www.synology-forum.de/showthread.html?76211-RSScrawler-(noarch)-Paketzentrum-(JDownloader-Add-on)
