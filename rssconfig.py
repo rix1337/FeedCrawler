@@ -20,7 +20,7 @@ class RssConfig(object):
             ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","False"),
             ("enforcedl", "bool", "If release without DL tag is added, look for DL release - ignoring quality setting", "False"),
             ("crawlseasons", "bool", "Crawl complete Seasons on MB", "False"),
-            ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
+            ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows_Retail.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
             ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
         ],

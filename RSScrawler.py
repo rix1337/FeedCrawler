@@ -525,8 +525,7 @@ class SJregex():
                     if "1080p" in title.lower(): self.quality = "1080p"
                     m = re.search(reject,title.lower())
                     if m:
-                        self.log_debug("Rejected: " + title)
-                        continue
+                        self.log_debug("Regex did not Reject: " + title)
                     title = re.sub('\[.*\] ', '', post.title)
                     self.range_checkr(link,title)
 
