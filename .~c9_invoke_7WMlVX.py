@@ -122,7 +122,7 @@ class MovieblogFeed():
         self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/MB_Downloads.db"))
         self.filme = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')
         self.staffeln = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt')
-        self._hosters_pattern = rsscrawler.get('hoster').replace(';','|')
+        self._hosters_pattern = self.config.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
             int(rsscrawler.get('interval')) * 60,
@@ -139,7 +139,7 @@ class MovieblogFeed():
         if not os.path.isfile(file):
             open(file, "a").close()
             placeholder = open(file, 'w')
-            placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+            placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX')
             placeholder.close()
         try:
             f = codecs.open(file, "rb")
@@ -214,14 +214,14 @@ class MovieblogFeed():
 
         self.allInfos = dict(
             set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
-                    self.readInput(self.filme),
+                    self.filme,
                     self.config.get('quality'),
                     '.*',
                     None
                 ).items()}.items()
             ) |
             set(self.getPatterns(
-                    self.readInput(self.staffeln),
+                    self.staffeln,
                     self.config.get('seasonsquality'),
                     '.*',
                     ('.complete.','.' + self.config.get('seasonssource') + '.')
@@ -247,16 +247,16 @@ class MovieblogFeed():
                         pattern
                     )
                     self.log_info("NEW RELEASE: " + key)
-                    if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                        if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
-                            write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], rsscrawler.get("jdownloader") + "/folderwatch")
+                    if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                        if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                            write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
                     download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
                     if any(download_link):
                         write_crawljob_file(
                             key,
                             key,
                             download_link,
-                            rsscrawler.get("jdownloader") + "/folderwatch"
+                            self.config.get("crawljob_directory")
                         ) and text.append(key)
         if len(text) > 0:
             notifyPushbulletMB(rsscrawler.get("pushbulletapi"),text)
@@ -266,7 +266,7 @@ def getSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+        placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX')
         placeholder.close()
     try:
         titles = []
@@ -289,7 +289,7 @@ def getRegexSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
+        placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX - BEACHTE DAS REGEX FORMAT')
         placeholder.close()
     try:
         titles = []
@@ -385,7 +385,7 @@ class SJ():
             if self.config.get("quality") != '480p':
                 m = re.search(self.pattern,title.lower())
                 if m:
-                    if '[DEUTSCH]' in title:
+                    if self.config.get("language") in title:
                         mm = re.search(self.quality,title.lower())
                         if mm:
                             mmm = re.search(reject,title.lower())
@@ -398,7 +398,7 @@ class SJ():
                 else:
                     m = re.search(self.pattern,title.lower())
                     if m:
-                        if '[DEUTSCH]' in title:
+                        if self.config.get("language") in title:
                             if "720p" in title.lower() or "1080p" in title.lower():
                                 continue
                             mm = re.search(reject,title.lower())
@@ -472,11 +472,11 @@ class SJ():
         else:
             self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
-            if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
-                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], rsscrawler.get("jdownloader") + "/folderwatch")
+            if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
             write_crawljob_file(title, title, link,
-                                rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
+                                self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
 
 class SJregex():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
@@ -502,7 +502,7 @@ class SJregex():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
-        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
+        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
@@ -597,11 +597,11 @@ class SJregex():
         else:
             self.log_info("NEW RELEASE: " + title)
             self.db.store(title, 'downloaded')
-            if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
-                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], rsscrawler.get("jdownloader") + "/folderwatch")
+            if not os.path.exists(self.config.get("crawljob_directory") + '/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(self.config.get("crawljob_directory") + '/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], self.config.get("crawljob_directory"))
             write_crawljob_file(title, title, link,
-                                rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
+                                self.config.get('crawljob_directory')) and self.added_items.append(title.encode("utf-8"))
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
@@ -625,31 +625,7 @@ if __name__ == "__main__":
     # Erstelle Einstellungen Ordner
     if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen')):
         _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen'))
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads')):
-        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads'))
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen')):
-        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen'))
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
-        placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
-        placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
-        placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
-        placeholder.close()
-            
+    
     # Setze relativen Dateinamen der Einstellungsdatei    
     einstellungen = os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')
     # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
