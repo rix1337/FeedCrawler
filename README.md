@@ -30,7 +30,7 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 
 ## Startparameter:
 
-  ```--ontime```                  Einmalige Ausführung von RSScrawler
+  ```--testlauf```                  Einmalige Ausführung von RSScrawler
   
   ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen)
 
