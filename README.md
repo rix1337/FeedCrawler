@@ -51,11 +51,13 @@ Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinr
 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:
 
 ```
-Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p 
+DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p auf Deutsch
 
 Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)
 
 Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel
+
+ENGLISCH.*Serien.Titel.*.1080p.* sucht nach englischen Releases in Full-HD von Serien Titel
 ```
 
 Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
