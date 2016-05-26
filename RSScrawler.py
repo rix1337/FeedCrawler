@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.4.0
+# RSScrawler - Version 1.4.1
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -22,7 +22,7 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-version = "v.1.4.0"
+version = "v.1.4.1"
 
 from docopt import docopt
 from lxml import html
