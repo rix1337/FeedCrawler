@@ -254,16 +254,16 @@ class MovieblogFeed():
                         pattern
                     )
                     self.log_info("RSScrawler: " + key)
-                    if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                        if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
-                            write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
+                    if not os.path.exists(jdownloaderpath + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
+                        if not os.path.exists(jdownloaderpath + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
+                            write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], jdownloaderpath + "/folderwatch")
                     download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
                     if any(download_link):
                         write_crawljob_file(
                             key,
                             key,
                             download_link,
-                            rsscrawler.get("jdownloader") + "/folderwatch"
+                            jdownloaderpath + "/folderwatch"
                         ) and text.append(key)
         if len(text) > 0:
             notifyPushbulletMB(rsscrawler.get("pushbulletapi"),text)
@@ -483,11 +483,11 @@ class SJ():
         else:
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
-            if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
-                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
+            if not os.path.exists(jdownloaderpath + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(jdownloaderpath + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], jdownloaderpath + "/folderwatch")
             write_crawljob_file(title, title, link,
-                                rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
+                                jdownloaderpath + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
 
 class SJregex():
     MIN_CHECK_INTERVAL = 2 * 60 #2minutes
@@ -608,11 +608,11 @@ class SJregex():
         else:
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
-            if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
-                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
+            if not os.path.exists(jdownloaderpath + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(jdownloaderpath + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
+                    write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], jdownloaderpath + "/folderwatch")
             write_crawljob_file(title, title, link,
-                                rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
+                                jdownloaderpath + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
@@ -684,15 +684,21 @@ if __name__ == "__main__":
             sys.exit(0)
     # Definiere die allgemeinen Einstellungen global
     rsscrawler = RssConfig('RSScrawler')
-    
+
+    # Wenn JDPFAD als Argument vergeben wurde, ignoriere Konfigurationseintrag
+    if arguments['--jd-pfad']:
+    	jdownloaderpath = arguments['--jd-pfad']
+    else:
+    	jdownloaderpath = rsscrawler.get("jdownloader")
+
     # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
-    if rsscrawler.get('jdownloader') == 'Muss unbedingt vergeben werden!':
+    if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
         print('Beende RSScrawler!')
         sys.exit(0)
         
     # Abbrechen, wenn JDownloader Pfad nicht existiert
-    if not os.path.exists(rsscrawler.get('jdownloader')):
+    if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
         print('Beende RSScrawler!')
         sys.exit(0)
