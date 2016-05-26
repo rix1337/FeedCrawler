@@ -1,9 +1,8 @@
-#  RSScrawler
-Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
+#  RSScrawler - Version 1.4.0
+Projekt von https://github.com/rix1337
 
-## Version 1.3.0
-
-Code used:
+## Enthaltener Code
+https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 
 https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 
@@ -11,81 +10,84 @@ https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
 https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
-## Description:
+## Beschreibung:
 
-This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
+RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
-**If you want a problem to be solved or a feature to be added please do so through a pull request!**
+**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request eröffnet werden!**
 
 ## TLDR:
 
-1. Enable folderwatch in JDownloader 2, then Download this script and install its prerequisites
-2. Run and close the script once. It will automatically generate the ```Settings``` subdir with all the necessary files inside.
-3. Set up the ```Settings.ini``` and your Lists completely, found in the ```Settings``` subdir.
-4. Run the script!
+1. Aktiviere Folder Watch im JDownloader 2
+2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
+3. Starte RSScrawler einmalig, dies erstellt die RSScrawler.ini im Einstellungen-Ordner
+4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
+5. Nutze RSScrawler!
 
-## Launching the Script
+Zur automatischen Captcha-Lösung empfehle ich:
 
-Run RSScrawler.py
+https://www.9kw.eu/register_87296.html
 
-## Options
+Des weiteren empfehle ich einen Premium-Account bei Uploaded:
 
-  ```--ontime```                  Run once and exit
+http://ul.to/ref/14406819
+
+## RSScrawler starten:
+
+```python RSScrawler.py``` führt RSScrawler aus
+
+## Startparameter
+
+  ```--ontime```                  Einmalige Ausführung von RSScrawler
   
-  ```--log-level=<LOGLEVEL>```    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+  ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 
-## Settings:
-*Your Settings.ini is located in the ```Settings``` subdir and will be recreated when removed*
+## Einstellungen:
+*Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird beim Start automatisch generiert*
 
-Feel free to adjust the defaults to your liking, but ensure the paths inside the file are valid.
+**Der JDownloader-Pfad muss korrekt hinterlegt werden!**
 
-**The comments in rsconfig.py should help you in setting this up**
+Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
-### patternfile/seasonslist/file:
+### Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:
 
-A .txt list the script will use to crawl rss feeds.
+1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen
+2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
+3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen
+4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:
 
-Each line in Movies.txt should contain the title of a movie.
-Each line in Shows.txt should contain the title of a show.
+```
+Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p 
 
-**These lists are set up with a placeholder line on the first run. To actually start crawling you need to fill the lists yourself**
+Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)
 
-### db_file:
+Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel
+```
 
-The database file prevents duplicate crawljobs.
+Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
 
-### crawljob_directoy:
-
-Enable the Watch-Folder feature (experimental) in JDownloader first!
-
-JDownloader crawljobs need to be placed in the ```folderwatch``` subdir of JDownloader, so adjust the Settings.ini accordingly.
+**Die Listen werden automatisch mit Platzhalterzeilen generiert und sind danach anzupassen. Platzhalter verhindern, dass unerwünschte Releases beim ersten Start hinzugefügt werden.**
 
 ### crawl3d:
 
-Enable this option if (regardless of quality settings) you also want 3D versions of your Movies.txt to be added (in 1080p). 
-By default HOU 3D-versions are blocked through the ignore option.
+Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität. Standartmäßig werden HOU-Releases aussortiert (ignore).
 
 ### enforcedl
 
-Enable this option if you want to keep your collection DL (dual language).
-If at any point a release is added that does not contain the DL tag, future releases (that do contain the DL tag) will be added in 1080p/720p quality even if quality is set to 720p.
-This is useful only if you do not mind the additional traffic.
+Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein DL-Tag enthalten, wird es hinzugefügt.
+Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt,
+solange der Film auf der MB_Filme Liste steht. Diese Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.
 
 ### crawlseasons
 
-Enable this option if you want to crawl MB for complete seasons.
-
-```seasonslist``` should thus be pointed to your list of Shows and ```seasonsquality``` should be your desired quality for seasons. ```seasonssource``` can also be defined (default: bluray).
+Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche.
 
 ### regex
 
-Enable this option if you want to crawl SJ with more specific queries. Using the seperate Shows_Regex.txt
+Wenn aktiviert werden in Serien aus der SJ_Serien_Regex.txt gesucht
 
-Use this format: ```Show.Title.*.720p.*-GROUP``` which enables you to only crawl for releases of a certain group. 
-
-Other query types (only crawl for the first season of a show ```Show.Title.*.S01.*.720p.*-GROUP```) may be mixed in. 
-
-**Please be aware, that the regex search will not apply your reject/quality settings!**
-
-### Docker Container for RSScrawler:
+### Offizieller Docker Container (https://github.com/rix1337):
 https://github.com/rix1337/docker-rsscrawler
+
+### Offizielles Synology Packet (https://github.com/neutron666)
+http://www.synology-forum.de/showthread.html?76211-RSScrawler-(noarch)-Paketzentrum-(JDownloader-Add-on)

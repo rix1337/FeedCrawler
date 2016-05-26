@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-# Main code by https://github.com/dmitryint commissioned by https://github.com/rix1337
-# Version 1.3.0
-# Requires PyCurl, Feedparser, BeautifulSoup, docopt, lxml
-# Code used:
+# RSScrawler - Version 1.4.0
+# Projekt von https://github.com/rix1337
+# Enthaltener Code
+# https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
-# Description:
-# This script scrapes MB/SJ for titles stored in .txt files and passes them on to JDownloader via the .crawljob format
+# Beschreibung:
+# RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
 """RSScrawler.
 
@@ -16,11 +16,11 @@ Usage:
                 [--log-level=<LOGLEVEL>]
 
 Options:
-  --ontime                  Run once and exit
-  --log-level=<LOGLEVEL>    Level which program should log messages (eg. CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+  --ontime                  Einmalige Ausführung von RSScrawler
+  --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-version = "v.1.3.0"
+version = "v.1.4.0"
 
 from docopt import docopt
 from lxml import html
@@ -78,7 +78,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
 def notifyPushbulletMB(apikey,text):
     if apikey == "0" or apikey == "":
         return
-    postData = '{"type":"note", "title":"(RSScrawler) NEW RELEASE:", "body":"%s"}' %" ### ".join(text).encode("utf-8")
+    postData = '{"type":"note", "title":"RSScrawler:", "body":"%s"}' %" ### ".join(text).encode("utf-8")
     c = pycurl.Curl()
     c.setopt(pycurl.WRITEFUNCTION, lambda x: None)
     c.setopt(pycurl.URL, 'https://api.pushbullet.com/v2/pushes')
@@ -119,13 +119,13 @@ class MovieblogFeed():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'patternfile']])
-        _mkdir_p(self.config.get('crawljob_directory'))
-        self.db = RssDb(self.config.get('db_file'))
+        self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.filme = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')
+        self.staffeln = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt')
         self._hosters_pattern = self.config.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
-            int(self.config.get('interval')) * 60,
+            int(rsscrawler.get('interval')) * 60,
             self.periodical_task
         )
         self.dictWithNamesAndLinks = {}
@@ -139,7 +139,7 @@ class MovieblogFeed():
         if not os.path.isfile(file):
             open(file, "a").close()
             placeholder = open(file, 'w')
-            placeholder.write('ADD ALL MOVIES YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Movie Title')
+            placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX')
             placeholder.close()
         try:
             f = codecs.open(file, "rb")
@@ -214,14 +214,14 @@ class MovieblogFeed():
 
         self.allInfos = dict(
             set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
-                    self.readInput(self.config.get("patternfile")),
+                    self.filme,
                     self.config.get('quality'),
                     '.*',
                     None
                 ).items()}.items()
             ) |
             set(self.getPatterns(
-                    self.readInput(self.config.get("seasonslist")),
+                    self.staffeln,
                     self.config.get('seasonsquality'),
                     '.*',
                     ('.complete.','.' + self.config.get('seasonssource') + '.')
@@ -259,14 +259,14 @@ class MovieblogFeed():
                             self.config.get("crawljob_directory")
                         ) and text.append(key)
         if len(text) > 0:
-            notifyPushbulletMB(self.config.get("pushbulletapi"),text)
+            notifyPushbulletMB(rsscrawler.get("pushbulletapi"),text)
 
 # Serienjunkies
 def getSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Show Title')
+        placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX')
         placeholder.close()
     try:
         titles = []
@@ -289,7 +289,7 @@ def getRegexSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('ADD ALL SHOWS YOU WANT TO CRAWL FOR AS NEW LINES IN THIS FILE\nUSE THIS FORMAT: Show.Title.*.720p.*-GROUP')
+        placeholder.write('BEARBEITE DIESE LISTE - RSSCRAWLER VON RIX - BEACHTE DAS REGEX FORMAT')
         placeholder.close()
     try:
         titles = []
@@ -311,7 +311,7 @@ def getRegexSeriesList(file):
 def notifyPushbulletSJ(api='', msg=''):
     data = urllib.urlencode({
         'type': 'note',
-        'title': '(RSScrawler) NEW RELEASE:',
+        'title': 'RSScrawler:',
         'body': "\n\n".join(msg)
     })
     auth = base64.encodestring('%s:' %api).replace('\n', '')
@@ -353,12 +353,11 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'file']])
-        _mkdir_p(self.config.get('crawljob_directory'))
-        self.db = RssDb(self.config.get('db_file'))
+        self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.serien = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
-            int(self.config.get('interval')) * 60,
+            int(rsscrawler.get('interval')) * 60,
             self.periodical_task
         )
 
@@ -369,12 +368,14 @@ class SJ():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
-        self.pattern = "|".join(getSeriesList(self.config.get("file"))).lower()
+        self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
-        self.hoster = self.config.get("hoster")
-        if self.hoster == "alle":
-            self.hoster = "."
+        self.hoster = rsscrawler.get("hoster")
+        if self.hoster == "Uploaded":
+            self.hoster = "ul"
+        if self.hoster == "Share-Online":
+            self.hoster = "so"
         self.added_items = []
 
         for post in feed.entries:
@@ -407,8 +408,8 @@ class SJ():
                             title = re.sub('\[.*\] ', '', post.title)
                             self.range_checkr(link,title)
 
-        if len(self.config.get('pushbulletapi')) > 2:
-            notifyPushbulletSJ(self.config.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
+        if len(rsscrawler.get('pushbulletapi')) > 2:
+            notifyPushbulletSJ(rsscrawler.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
 
     def range_checkr(self, link, title):
         pattern = re.match(".*S\d{2}E\d{2}-\w?\d{2}.*", title)
@@ -487,12 +488,10 @@ class SJregex():
         self.log_error = logging.error
         self.log_debug = logging.debug
         if self.config.get("regex"):
-            list([_mkdir_p(os.path.dirname(self.config.get(f))) for f in ['db_file', 'regex_file']])
-            _mkdir_p(self.config.get('crawljob_directory'))
-            self.db = RssDb(self.config.get('db_file'))
+            self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/SJ_Downloads.db"))
             self._periodical_active = False
             self.periodical = RepeatableTimer(
-                int(self.config.get('interval')) * 60,
+                int(rsscrawler.get('interval')) * 60,
                 self.periodical_task
             )
 
@@ -503,12 +502,14 @@ class SJregex():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
-        self.pattern = "|".join(getRegexSeriesList(self.config.get("regex_file"))).lower()
+        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
-        self.hoster = self.config.get("hoster")
-        if self.hoster == "alle":
-            self.hoster = "."
+        self.hoster = rsscrawler.get("hoster")
+        if self.hoster == "Uploaded":
+            self.hoster = "ul"
+        if self.hoster == "Share-Online":
+            self.hoster = "so"
         self.added_items = []
 
         for post in feed.entries:
@@ -532,8 +533,8 @@ class SJregex():
             else:
                 continue
             
-        if len(self.config.get('pushbulletapi')) > 2:
-            notifyPushbulletSJ(self.config.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
+        if len(rsscrawler.get('pushbulletapi')) > 2:
+            notifyPushbulletSJ(rsscrawler.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
 
     def range_checkr(self, link, title):
         pattern = re.match(".*S\d{2}E\d{2}-\w?\d{2}.*", title)
@@ -618,9 +619,33 @@ if __name__ == "__main__":
     # This mutes 'Starting new HTTP connection (1)' from info log
     logging.getLogger("requests").setLevel(logging.WARNING)
     #  Add info to the console
-    print("RSScrawler by rix - " + version)
-    print("Project Page: https://github.com/rix1337/RSScrawler/")
-	
+    print("RSScrawler " + version + " von rix")
+    print("Originalseite: https://github.com/rix1337/RSScrawler/")
+    
+    # Erstelle Einstellungen Ordner
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen')):
+        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen'))
+    
+    # Setze relativen Dateinamen der Einstellungsdatei    
+    einstellungen = os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')
+    # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
+    if not os.path.exists(einstellungen):
+        open(einstellungen, "a").close()
+        einsteller = open(einstellungen, 'w')
+        einsteller.write('# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Folder Watch im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n# Zur automatischen Captcha-Lösung empfehle ich:\n# https://www.9kw.eu/register_87296.html\n# Des weiteren empfehle ich einen Premium-Account bei Uploaded:\n# http://ul.to/ref/14406819\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = Muss unbedingt vergeben werden!\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein\n# DL-Tag enthalten, wird es hinzugefügt. Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden\n# Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt, solange der Film auf der MB_Filme Liste steht. Diese\n# Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = True\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel')
+        einsteller.close()
+        print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+        print('Viel Spaß! Beende RSScrawler!')
+        sys.exit(0)
+    # Definiere die allgemeinen Einstellungen global
+    rsscrawler = RssConfig('RSScrawler')
+    
+    # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
+    if rsscrawler.get('jdownloader') == 'Muss unbedingt vergeben werden!':
+        print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+        print('Beende RSScrawler!')
+        sys.exit(0)
+        
     pool = [
         MovieblogFeed(),
         SJ(),
@@ -629,10 +654,10 @@ if __name__ == "__main__":
 
     def signal_handler(signal, frame):
         list([el.periodical.cancel() for el in pool])
-        print('Bye.')
+        print('Beende...')
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
-    print('Press Ctrl+C for exit')
+    print('Drücke Strg+C zum Beenden')
 
     for el in pool:
         if not arguments['--ontime']:

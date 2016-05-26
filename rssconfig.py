@@ -5,37 +5,28 @@ import os
 
 
 class RssConfig(object):
-    _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Settings/Settings.ini')]
+    _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')]
     _DEFAULT_CONFIG = {
-        'MB': [
-            ("patternfile", "str", "List of Movies - Each line should contain one Movie title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Movies.txt")),
-            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_MB.db")),
-            ("crawljob_directory","str","JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!","/jd2/folderwatch"),
-            ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou"),
-            ("interval", "int", "Execution interval of the script in minutes", "15"),
-            ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
+        'RSScrawler': [
+            ("jdownloader", "str", "Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!", "/jd2"),
+            ("interval", "int", "Execution interval of the script in minutes", "10"),
             ("pushbulletapi","str","Add your Pushbullet-API key if you want to be notified",""),
-            ("hoster", """OBOOM;Uploaded;Share-Online;Zippyshare""", "Hoster to load from on MB - OBOOM, Uploaded, Share-Online or Zippyshare", "Uploaded"),
+            ("hoster", """Uploaded,Share-Online""", "Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)", "Uploaded")
+        ],
+        'MB': [
+            ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
+            ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou"),
             ("historical","bool","Use search function - Disable if you only want current Releases to be added","True"),
             ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","False"),
             ("enforcedl", "bool", "If release without DL tag is added, look for DL release - ignoring quality setting", "False"),
             ("crawlseasons", "bool", "Crawl complete Seasons on MB", "False"),
-            ("seasonslist", "str", "List of shows, to crawl for complete seasons - May be equal to SJ file", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows_Retail.txt")),
             ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
             ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
         ],
         'SJ': [
-            ("file", "str", "List of Shows - Each line should contain one Show title", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows.txt")),
-            ("db_file","str","Database used to ignore already downloaded Releases in the future",os.path.join(os.path.dirname(__file__), "Settings/Databases/Downloads_SJ.db")),
-            ("crawljob_directory","str","JDownloaders folderwatch directory for automatic link adding - Enable folderwatch!","/jd2/folderwatch"),
-            ("rejectlist", "str", "Reject list - Semicolon seperated list of Release tags to ignore", "XviD;Subbed;HDTV"),
-            ("interval", "int", "Execution interval of the script in minutes", "15"),
-            ("pushbulletapi","str","Add your Pushbullet-API key if you want to be notified",""),
-            ("language", """DEUTSCH;ENGLISCH""", "Language to load Shows in - DEUTSCH or ENGLISCH", "DEUTSCH"),
             ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
-            ("hoster", """ul;so;fm;cz;alle""", "Hoster to load from on SJ - ul, so, fm, cz, alle", "ul"),
-            ("regex","bool","Treat entries of the List as regular expressions - for advanced use cases", "True"),
-            ("regex_file", "str", "List of Shows in RegEx scheme. Use this to crawl more precicely for Groups/Tags", os.path.join(os.path.dirname(__file__), "Settings/Lists/Shows_Regex.txt"))
+            ("rejectlist", "str", "Reject list - Semicolon seperated list of Release tags to ignore", "XviD;Subbed;HDTV"),
+            ("regex","bool","Treat entries of the List as regular expressions - for advanced use cases", "True")
         ]
     }
     __config__ = []
