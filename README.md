@@ -18,7 +18,7 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 
 ## TLDR:
 
-1. Aktiviere Folder Watch im JDownloader 2
+1. Aktiviere Ordnerüberwachung im JDownloader 2
 2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
 3. Starte RSScrawler einmalig, dies erstellt die RSScrawler.ini im Einstellungen-Ordner
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
