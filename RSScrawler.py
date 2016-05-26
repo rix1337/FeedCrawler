@@ -11,12 +11,12 @@
 
 """RSScrawler.
 
-Nutzung:
+Usage:
   RSScrawler.py [--testlauf]
                 [--jd-pfad=<JDPATH>]
                 [--log-level=<LOGLEVEL>]
 
-Startparameter:
+Options:
   --testlauf                Einmalige Ausführung von RSScrawler
   --jd-pfad=<JDPFAD>        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen)
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
