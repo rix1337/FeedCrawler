@@ -47,3 +47,6 @@ target/
 *.crawljob
 *.ini
 *.txt
+
+# c9.io Files
+*c9_invoke_*.py
