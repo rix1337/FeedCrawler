@@ -24,14 +24,6 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
 5. Nutze RSScrawler!
 
-Zur automatischen Captcha-Lösung empfehle ich:
-
-https://www.9kw.eu/register_87296.html
-
-Des weiteren empfehle ich einen Premium-Account bei Uploaded:
-
-http://ul.to/ref/14406819
-
 ## RSScrawler starten:
 
 ```python RSScrawler.py``` führt RSScrawler aus
