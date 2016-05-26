@@ -1,7 +1,7 @@
 #  RSScrawler - Version 1.4.0
 Projekt von https://github.com/rix1337
 
-## Enthaltener Code
+## Enthaltener Code:
 https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 
 https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
@@ -28,7 +28,7 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 
 ```python RSScrawler.py``` führt RSScrawler aus
 
-## Startparameter
+## Startparameter:
 
   ```--ontime```                  Einmalige Ausführung von RSScrawler
   
@@ -64,17 +64,17 @@ Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
 
 Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität. Standartmäßig werden HOU-Releases aussortiert (ignore).
 
-### enforcedl
+### enforcedl:
 
 Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein DL-Tag enthalten, wird es hinzugefügt.
 Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt,
 solange der Film auf der MB_Filme Liste steht. Diese Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.
 
-### crawlseasons
+### crawlseasons:
 
 Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche.
 
-### regex
+### regex:
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
