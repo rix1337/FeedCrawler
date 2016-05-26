@@ -84,7 +84,7 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 
 ### regex
 
-Wenn aktiviert werden in Serien aus der SJ_Serien_Regex.txt gesucht
+Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
 ### Offizieller Docker Container (https://github.com/rix1337):
 https://github.com/rix1337/docker-rsscrawler
