@@ -241,7 +241,7 @@ class MovieblogFeed():
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
-                    self.log_debug("[%s] wurde bereits hinzugefügt" % key)
+                    self.log_debug("[%s] wurde bereits hinzugefuegt" % key)
                 else:
                     self.db.store(
                         key,
@@ -470,7 +470,7 @@ class SJ():
         except Exception as e:
             self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
         if storage == 'downloaded':
-            self.log_debug(title + " wurde bereits hinzugefügt")
+            self.log_debug(title + " wurde bereits hinzugefuegt")
         else:
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
@@ -595,7 +595,7 @@ class SJregex():
         except Exception as e:
             self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
         if storage == 'downloaded':
-            self.log_debug(title + " wurde bereits hinzugefügt")
+            self.log_debug(title + " wurde bereits hinzugefuegt")
         else:
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
