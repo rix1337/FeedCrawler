@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.4.1
+# RSScrawler - Version 1.4.2
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -22,7 +22,7 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-version = "v.1.4.1"
+version = "v.1.4.2"
 
 from docopt import docopt
 from lxml import html
@@ -150,6 +150,11 @@ class MovieblogFeed():
             self.log_error("Inputfile not found")
 
     def getPatterns(self, patterns, quality, rg, sf):
+        if patterns == ["RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md"]:
+            if sf == None:
+                self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Filme!")
+            else:
+                self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Staffeln!")
         return {line: (quality, rg, sf) for line in patterns}
 
     def searchLinks(self, feed):
@@ -250,7 +255,7 @@ class MovieblogFeed():
                     )
                     self.log_info("RSScrawler: " + key)
                     if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                        if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                        if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
                             write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
                     download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
                     if any(download_link):
@@ -279,6 +284,8 @@ def getSeriesList(file):
             title = title.replace(" ", ".")
             titles.append(title)
         f.close()
+        if titles[0] == "RSSCRAWLER.VON.RIX.-.Ein.Titel.Pro.Zeile.-.BEACHTE.DIE.README.md":
+            logging.debug("Liste enthält Platzhalter. Stoppe Suche für SJ_Serien!")
         return titles
     except UnicodeError:
         logging.error("STOPPED, invalid character in list!")
@@ -302,6 +309,8 @@ def getRegexSeriesList(file):
             title = title.replace(" ", ".")
             titles.append(title)
         f.close()
+        if titles[0] == "RSSCRAWLER.VON.RIX.-.Ein.Titel.Pro.Zeile.-.BEACHTE.DAS.REGEX.FORMAT.UND.DIE.README.md":
+            logging.debug("Liste enthält Platzhalter. Stoppe Suche für SJ_Serien_Regex!")
         return titles
     except UnicodeError:
         logging.error("STOPPED, invalid character in list!")
@@ -475,7 +484,7 @@ class SJ():
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
             if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
                     write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
             write_crawljob_file(title, title, link,
                                 rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
@@ -600,7 +609,7 @@ class SJregex():
             self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
             if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
-                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
+                if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
                     write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], rsscrawler.get("jdownloader") + "/folderwatch")
             write_crawljob_file(title, title, link,
                                 rsscrawler.get("jdownloader") + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
