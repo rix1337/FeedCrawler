@@ -8,25 +8,25 @@ class RssConfig(object):
     _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')]
     _DEFAULT_CONFIG = {
         'RSScrawler': [
-            ("jdownloader", "str", "Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!", "/jd2"),
-            ("interval", "int", "Execution interval of the script in minutes", "10"),
-            ("pushbulletapi","str","Add your Pushbullet-API key if you want to be notified",""),
-            ("hoster", """Uploaded,Share-Online""", "Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)", "Uploaded")
+            ("jdownloader", "str", "", "/jd2"),
+            ("interval", "int", "", "10"),
+            ("pushbulletapi","str","",""),
+            ("hoster", """Uploaded,Share-Online""", "", "Uploaded")
         ],
         'MB': [
-            ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
-            ("ignore","str","Ignore pattern - Comma seperated list of Release tags to ignore","ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou"),
-            ("historical","bool","Use search function - Disable if you only want current Releases to be added","True"),
-            ("crawl3d","bool","Crawl for 3D versions of Movies - in 1080p, regardles of quality set above","False"),
-            ("enforcedl", "bool", "If release without DL tag is added, look for DL release - ignoring quality setting", "False"),
-            ("crawlseasons", "bool", "Crawl complete Seasons on MB", "False"),
-            ("seasonsquality", "str", "Quality of complete seasons to crawl for - 480p, 720p or 1080p", "720p"),
-            ("seasonssource", "str", "Source tag to look for in complete seasons - e.g. bluray, web-dl or hdtv", "bluray")
+            ("quality", """480p;720p;1080p""", "", "720p"),
+            ("ignore","str","","ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou"),
+            ("historical","bool","","True"),
+            ("crawl3d","bool","","False"),
+            ("enforcedl", "bool", "", "False"),
+            ("crawlseasons", "bool", "", "False"),
+            ("seasonsquality", "str", "", "720p"),
+            ("seasonssource", "str", "", "bluray")
         ],
         'SJ': [
-            ("quality", """480p;720p;1080p""", "Quality to look for in Release titles - 480p, 720p or 1080p", "720p"),
-            ("rejectlist", "str", "Reject list - Semicolon seperated list of Release tags to ignore", "XviD;Subbed;HDTV"),
-            ("regex","bool","Treat entries of the List as regular expressions - for advanced use cases", "True")
+            ("quality", """480p;720p;1080p""", "", "720p"),
+            ("rejectlist", "str", "", "XviD;Subbed;HDTV"),
+            ("regex","bool","", "True")
         ]
     }
     __config__ = []
@@ -39,10 +39,10 @@ class RssConfig(object):
             self._config.has_section(self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except ConfigParser.DuplicateSectionError:
-            logging.error('Config file has duplicate section.')
+            logging.error('Doppelte Sektion in der Konfigurationsdatei.')
             raise
         except ConfigParser.Error:
-            logging.error('An unknown error occurred while reading the configuration file.')
+            logging.error('Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
     def _set_default_config(self, section):

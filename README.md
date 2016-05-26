@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.4.0
+#  RSScrawler - Version 1.4.1
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code
@@ -32,6 +32,8 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 
   ```--ontime```                  Einmalige Ausführung von RSScrawler
   
+  ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen)
+
   ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 
 ## Einstellungen:

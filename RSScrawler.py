@@ -11,12 +11,14 @@
 
 """RSScrawler.
 
-Usage:
-  RSScrawler.py [--ontime]
+Nutzung:
+  RSScrawler.py [--testlauf]
+                [--jd-pfad=<JDPATH>]
                 [--log-level=<LOGLEVEL>]
 
-Options:
-  --ontime                  Einmalige Ausführung von RSScrawler
+Startparameter:
+  --testlauf                Einmalige Ausführung von RSScrawler
+  --jd-pfad=<JDPFAD>        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen)
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
@@ -239,14 +241,14 @@ class MovieblogFeed():
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
-                    self.log_debug("[%s] has already been added" % key)
+                    self.log_debug("[%s] wurde bereits hinzugefügt" % key)
                 else:
                     self.db.store(
                         key,
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                         pattern
                     )
-                    self.log_info("NEW RELEASE: " + key)
+                    self.log_info("RSScrawler: " + key)
                     if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
                         if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
                             write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://raw.githubusercontent.com/rix1337/RSScrawler/master/README.md"], rsscrawler.get("jdownloader") + "/folderwatch")
@@ -468,9 +470,9 @@ class SJ():
         except Exception as e:
             self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
         if storage == 'downloaded':
-            self.log_debug(title + " already downloaded")
+            self.log_debug(title + " wurde bereits hinzugefügt")
         else:
-            self.log_info("NEW RELEASE: " + title)
+            self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
             if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
                 if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
@@ -593,9 +595,9 @@ class SJregex():
         except Exception as e:
             self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
         if storage == 'downloaded':
-            self.log_debug(title + " already downloaded")
+            self.log_debug(title + " wurde bereits hinzugefügt")
         else:
-            self.log_info("NEW RELEASE: " + title)
+            self.log_info("RSScrawler: " + title)
             self.db.store(title, 'downloaded')
             if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
                 if not os.path.exists(rsscrawler.get("jdownloader") + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob'):
@@ -653,20 +655,36 @@ if __name__ == "__main__":
     # Setze relativen Dateinamen der Einstellungsdatei    
     einstellungen = os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')
     # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
-    if not os.path.exists(einstellungen):
-        open(einstellungen, "a").close()
-        einsteller = open(einstellungen, 'w')
-        einsteller.write('# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Folder Watch im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n# Zur automatischen Captcha-Lösung empfehle ich:\n# https://www.9kw.eu/register_87296.html\n# Des weiteren empfehle ich einen Premium-Account bei Uploaded:\n# http://ul.to/ref/14406819\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = Muss unbedingt vergeben werden!\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein\n# DL-Tag enthalten, wird es hinzugefügt. Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden\n# Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt, solange der Film auf der MB_Filme Liste steht. Diese\n# Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = True\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel')
-        einsteller.close()
-        print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-        print('Viel Spaß! Beende RSScrawler!')
-        sys.exit(0)
+    if not arguments['--jd-pfad']:
+        if not os.path.exists(einstellungen):
+            open(einstellungen, "a").close()
+            einsteller = open(einstellungen, 'w')
+            einsteller.write('# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Folder Watch im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n# Zur automatischen Captcha-Lösung empfehle ich:\n# https://www.9kw.eu/register_87296.html\n# Des weiteren empfehle ich einen Premium-Account bei Uploaded:\n# http://ul.to/ref/14406819\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = Muss unbedingt vergeben werden!\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein\n# DL-Tag enthalten, wird es hinzugefügt. Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden\n# Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt, solange der Film auf der MB_Filme Liste steht. Diese\n# Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = True\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel')
+            einsteller.close()
+            print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+            print('Viel Spaß! Beende RSScrawler!')
+            sys.exit(0)
+    else:
+        if not os.path.exists(einstellungen):
+            open(einstellungen, "a").close()
+            einsteller = open(einstellungen, 'w')
+            einsteller.write('# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Folder Watch im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n# Zur automatischen Captcha-Lösung empfehle ich:\n# https://www.9kw.eu/register_87296.html\n# Des weiteren empfehle ich einen Premium-Account bei Uploaded:\n# http://ul.to/ref/14406819\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = ' + arguments['--jd-pfad'] + '\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = ts,cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein\n# DL-Tag enthalten, wird es hinzugefügt. Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden\n# Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt, solange der Film auf der MB_Filme Liste steht. Diese\n# Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = True\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel')
+            einsteller.close()
+            print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+            print('Viel Spaß! Beende RSScrawler!')
+            sys.exit(0)
     # Definiere die allgemeinen Einstellungen global
     rsscrawler = RssConfig('RSScrawler')
     
     # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
     if rsscrawler.get('jdownloader') == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+        print('Beende RSScrawler!')
+        sys.exit(0)
+        
+    # Abbrechen, wenn JDownloader Pfad nicht existiert
+    if not os.path.exists(rsscrawler.get('jdownloader')):
+        print('Der Pfad des JDownloaders existiert nicht.')
         print('Beende RSScrawler!')
         sys.exit(0)
         
@@ -684,9 +702,9 @@ if __name__ == "__main__":
     print('Drücke Strg+C zum Beenden')
 
     for el in pool:
-        if not arguments['--ontime']:
+        if not arguments['--testlauf']:
             el.activate()
         el.periodical_task()
 
-    if not arguments['--ontime']:
+    if not arguments['--testlauf']:
         signal.pause()
