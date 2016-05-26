@@ -86,8 +86,8 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
-### Offizieller Docker Container (https://github.com/rix1337):
+### Docker Container:
 https://github.com/rix1337/docker-rsscrawler
 
-### Offizielles Synology Packet (https://github.com/neutron666)
+### Synology Addon-Paket:
 http://www.synology-forum.de/showthread.html?76211-RSScrawler-(noarch)-Paketzentrum-(JDownloader-Add-on)
