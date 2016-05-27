@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.4.2
+# RSScrawler - Version 1.4.3
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -22,7 +22,12 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-version = "v.1.4.2"
+version = "v.1.4.3"
+
+placeholder_filme = False
+placeholder_staffeln = False
+placeholder_serien = False
+placeholder_regex = False
 
 from docopt import docopt
 from lxml import html
@@ -150,11 +155,15 @@ class MovieblogFeed():
             self.log_error("Inputfile not found")
 
     def getPatterns(self, patterns, quality, rg, sf):
+        global placeholder_filme
+        global placeholder_staffeln
         if patterns == ["RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md"]:
             if sf == None:
                 self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Filme!")
+                placeholder_filme = True
             else:
                 self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Staffeln!")
+                placeholder_staffeln = True
         return {line: (quality, rg, sf) for line in patterns}
 
     def searchLinks(self, feed):
@@ -235,6 +244,10 @@ class MovieblogFeed():
             ).items() if self.config.get('crawlseasons') else [])
         )
 
+        # Stoppe Suche wenn Platzhalter aktiv
+        if placeholder_filme and placeholder_staffeln:
+            return
+
         if self.config.get("historical"):
             for xline in self.allInfos.keys():
                 if len(xline) > 0 and not xline.startswith("#"):
@@ -270,6 +283,7 @@ class MovieblogFeed():
 
 # Serienjunkies
 def getSeriesList(file):
+    global placeholder_serien
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
@@ -286,6 +300,7 @@ def getSeriesList(file):
         f.close()
         if titles[0] == "RSSCRAWLER.VON.RIX.-.Ein.Titel.Pro.Zeile.-.BEACHTE.DIE.README.md":
             logging.debug("Liste enthält Platzhalter. Stoppe Suche für SJ_Serien!")
+            placeholder_serien = True
         return titles
     except UnicodeError:
         logging.error("STOPPED, invalid character in list!")
@@ -295,6 +310,7 @@ def getSeriesList(file):
         logging.error("Unknown error: %s" %e)
 
 def getRegexSeriesList(file):
+    global placeholder_regex
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
@@ -311,6 +327,7 @@ def getRegexSeriesList(file):
         f.close()
         if titles[0] == "RSSCRAWLER.VON.RIX.-.Ein.Titel.Pro.Zeile.-.BEACHTE.DAS.REGEX.FORMAT.UND.DIE.README.md":
             logging.debug("Liste enthält Platzhalter. Stoppe Suche für SJ_Serien_Regex!")
+            placeholder_regex = True
         return titles
     except UnicodeError:
         logging.error("STOPPED, invalid character in list!")
@@ -380,6 +397,9 @@ class SJ():
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
         self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
+        # Stoppe Suche wenn Platzhalter aktiv
+        if placeholder_serien:
+            return
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
@@ -514,6 +534,9 @@ class SJregex():
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
         self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
+        # Stoppe Suche wenn Platzhalter aktiv
+        if placeholder_regex:
+            return
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
