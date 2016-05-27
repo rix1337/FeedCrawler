@@ -32,12 +32,12 @@ RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht d
 
   ```--testlauf```                  Einmalige Ausführung von RSScrawler
   
-  ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen)
+  ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader fest (nützlich bei headless-Systemen)
 
   ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 
 ## Einstellungen:
-*Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird beim Start automatisch generiert*
+*Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
 **Der JDownloader-Pfad muss korrekt hinterlegt werden!**
 
@@ -46,16 +46,18 @@ Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinr
 ### Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:
 
 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen
-2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
+2. MB_Staffeln enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen
 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:
 
 ```
-Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p 
+DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p auf Deutsch
 
 Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)
 
 Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel
+
+ENGLISCH.*Serien.Titel.*.1080p.* sucht nach englischen Releases in Full-HD von Serien Titel
 ```
 
 Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
