@@ -9,6 +9,7 @@
 # Beschreibung:
 # RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
+# Startparameter/Hilfetext für docopt (nicht verändern!)
 """RSScrawler.
 
 Usage:
@@ -22,13 +23,14 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
+# Globale Variablen
 version = "v.1.4.3"
-
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
 placeholder_regex = False
 
+# Externe Importe
 from docopt import docopt
 from lxml import html
 import requests
@@ -47,45 +49,74 @@ import logging
 import os
 import errno
 
+# Interne Importe
 from rssconfig import RssConfig
 from rssdb import RssDb
 from timer import RepeatableTimer
 import common
 
+# Importiere SimpleJson oder Json (nach Verfügbarkeit)
 try:
     import simplejson as json
 except ImportError:
     import json
 
+# Schreibe Crawljob für JDownloader (inkl. Parameter aus MB/SJ Funktionen)
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
+    # Crawljobs enden auf .crawljob
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+        # Windows-inkompatible Sonderzeichen/Leerzeichen werden ersetzt
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
     )
+    # Versuche .crawljob zu schreiben
     try:
+        # Öffne Crawljob mit Schreibzugriff
         file = open(crawljob_file, 'w')
+        # Optionen für Paketeigenschaften im JDownloader:
+        # Paket ist aktiviert
         file.write('enabled=TRUE\n')
+        # Download startet automatisch
         file.write('autoStart=TRUE\n')
+        # Archive automatisch entpacken
         file.write('extractAfterDownload=TRUE\n')
+        # Erzwinge automatischen Start
         file.write('forcedStart=TRUE\n')
+        # Bestätige Fragen des JDownloaders automatisch
         file.write('autoConfirm=TRUE\n')
+        # Unterverzeichnis des Downloads ist folder_name
         file.write('downloadFolder=%s\n' % folder_name)
+        # Name des Pakets im JDownloader ist package_name (ohne Leerzeichen!)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
+        # Nutze ersten Eintrag (lt. Code einzigen!) des link_text Arrays als Downloadlink
         file.write('text=%s\n' % link_text[0])
+        # Beende Schreibvorgang
         file.close()
+        # Bestätige erfolgreichen Schreibvorgang
         return True
+    # Bei Fehlern:
     except UnicodeEncodeError as e:
+        # Beende Schreibvorgang
         file.close()
+        # Erläutere den Fehler im Log inkl. Dateipfad des Crawljobs und Fehlerbericht
         logging.error("While writing in the file: %s the error occurred: %s" %(crawljob_file, e.message))
+        # Wenn hiernach ein fehlerhafter Crawljob zurück bleibt
         if os.path.isfile(crawljob_file):
+            # Logge das weitere Vorgehen
             logging.info("Removing broken file: %s" % crawljob_file)
+            # Entferne den Crawljob
             os.remove(crawljob_file)
+        # Vermerke fehlgeschlagenen Schreibvorgang
         return False
 
 # MovieBlog
 def notifyPushbulletMB(apikey,text):
+    # Wenn kein API-Key vergeben wurde:
     if apikey == "0" or apikey == "":
+        # Beende vorzeitig
         return
+    # Definiere Typ (note), Titel (RSScrawler), und Textinhalt (den Releasetitel) der Pushbullet-Nachricht
     postData = '{"type":"note", "title":"RSScrawler:", "body":"%s"}' %" ### ".join(text).encode("utf-8")
+    # Vorgang erfolgt über pycurl an die pushbuan die pushbullet API
     c = pycurl.Curl()
     c.setopt(pycurl.WRITEFUNCTION, lambda x: None)
     c.setopt(pycurl.URL, 'https://api.pushbullet.com/v2/pushes')
@@ -95,25 +126,28 @@ def notifyPushbulletMB(apikey,text):
     c.setopt(pycurl.POSTFIELDS, postData)
     c.perform()
 
-
+# Versuche Ordner anzulegen um Ordner zu erstellen (mit Fehlererkennung)
 def _mkdir_p(path):
+    # Versuche Ordner anzulegen:
     try:
         os.makedirs(path)
     except OSError as e:
+        # Kein Fehler, wenn Pfad bereits existiert
         if e.errno == errno.EEXIST and os.path.isdir(path):
             pass
+        # Ansonsten logge den Fehler
         else:
-            logging.error("Cannot create directory: %s" % path)
+            logging.error("Kann Pfad nicht anlegen: %s" % path)
             raise
 
-
+# Funktion für das wiederholte Ausführen des Scriptes
 def _restart_timer(func):
     def wrapper(self):
         func(self)
+        # Wenn testlauf inaktiv ist wurde dies aktiviert. Der folgende Code führt das Script in Intervallen aus
         if self._periodical_active:
             self.periodical.cancel()
             self.periodical.start()
-
     return wrapper
 
 class MovieblogFeed():
@@ -152,18 +186,26 @@ class MovieblogFeed():
             f = codecs.open(file, "rb")
             return f.read().splitlines()
         except:
-            self.log_error("Inputfile not found")
+            self.log_error("Liste nicht gefunden!")
 
     def getPatterns(self, patterns, quality, rg, sf):
+        # Importiere globale Parameter (sollten beide Falsch sein)
         global placeholder_filme
         global placeholder_staffeln
+        # Wenn Liste exakt die Platzhalterzeile enthält:
         if patterns == ["RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md"]:
+            # Wenn keine Information zur Quellart weitergegeben wurde (gilt nur bei Staffeln, Standard ist: BluRay):
             if sf == None:
+                # Logge vorhandenen Platzhalter, der in der Filme-Liste stehen muss (da keine Quellart angegeben)
                 self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Filme!")
+                # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
                 placeholder_filme = True
             else:
+                # Logge vorhandenen Platzhalter, der in der Staffeln-Liste stehen muss (da Quellart angegeben)
                 self.log_debug("Liste enthält Platzhalter. Stoppe Suche für MB_Staffeln!")
+                # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
                 placeholder_staffeln = True
+        # Ansonsten gib die Zeilen einzeln als Zeilen in patters zurück
         return {line: (quality, rg, sf) for line in patterns}
 
     def searchLinks(self, feed):
@@ -173,22 +215,28 @@ class MovieblogFeed():
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in feed.entries:
-                """Search for title"""
+                """Suche nach Titel"""
                 found = re.search(s,post.title.lower())
                 if found:
-                    """Check if we have to ignore it"""
+                    """Prüfe ob Release ignoriert werden soll"""
                     found = re.search(ignore,post.title.lower())
                     if found:
-                        self.log_debug("Ignoring [%s]" %post.title)
+                        # Wenn zu ignorierender Eintrag, logge diesen
+                        self.log_debug("Ignoriere [%s]" %post.title)
                         continue
-                    """Search for quality"""
+                    """Suche nach Qualität"""
                     ss = self.allInfos[key][0].lower()
 
+                    # Crawl3d Funktion gilt wenn 3D im Titel enthalten ist
                     if '.3d.' in post.title.lower():
+                        # Wenn crawl3d aktiv ist und 1080p/1080i zusätzlich zu 3D im Titel steht:
                         if self.config.get('crawl3d') and ("1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                            # Release gilt als gefunden
                             found = True
+                        # Ansonsten ignoriere das Release mit 3D im Titel (weil es bspw. in 720p released wurde)
                         else:
                             continue
+                    # Obsolete Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
                     else:
                         if ss == "480p":
                             if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
@@ -197,38 +245,50 @@ class MovieblogFeed():
                         else:
                             found = re.search(ss,post.title.lower())
                     if found:
-                        """Search for releasegroup"""
+                        # Obsolete Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
+                        """Suche nach Release-Gruppe"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
 
                         if self.allInfos[key][2]:
-                            # If all True, then found = True
+                            # Wenn alles True, dann found = True (also gilt Release nur als gefunden, wenn alle Parameter wahr sind)
                             found = all([word in post.title.lower() for word in self.allInfos[key][2]])
 
                         if found:
+                            # Check, ob das Release zu einer Serie gehört
                             try:
                                 episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*',post.title.lower()).group(1)
                                 if "repack" in post.title.lower():
                                     episode = episode + "-repack"
-                                self.log_debug("TV-Series detected, will shorten its name to [%s]" %episode)
+                                self.log_debug("Serie entdeckt. Kuerze Titel: [%s]" %episode)
                                 yield (episode, [post.link], key)
                             except:
+                                # Gebe den Link (der alle obigen Checks bestandend hat) weiter
                                 yield (post.title, [post.link], key)
 
 
+    # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
+        # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
+        # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
         xpath = '//*[@id="content"]/span/div/div[2]//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
+        # Jeder link wird zurück gegeben, wenn kein Wunschhoster festgelegt wurde. Ansonsten werden nur Links zum Wunschhoster weitergegeben.
         return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
 
+    # Periodische Aufgabe
     @_restart_timer
     def periodical_task(self):
+        # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
 
+        # Suche nach bereits geladenen Releases, welche als nicht zweisprachig markiert wurden (gilt nur bei aktiver enforcedl Option)
         dl = {key:('.*', '.*', ('.dl.',)) for key in self.db.get_patterns('notdl')}
 
+        # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
+            # Füge der Suche Releases mit notdl (aus der MB_Downloads.db) und sämtliche Titel aus der MB_Filme Liste hinzu
             set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
                     self.readInput(self.filme),
                     self.config.get('quality'),
@@ -236,6 +296,7 @@ class MovieblogFeed():
                     None
                 ).items()}.items()
             ) |
+            # Füge weiterhin alle Titel aus der MB_Staffeln Liste (inklusive der Qulitäts-/Quell-Optionen) hinzu
             set(self.getPatterns(
                     self.readInput(self.staffeln),
                     self.config.get('seasonsquality'),
@@ -248,29 +309,47 @@ class MovieblogFeed():
         if placeholder_filme and placeholder_staffeln:
             return
 
+        # Wenn historical aktiv ist nutzt RSScrawler die Suchfunktion von MB, statt nur den (zeitlich begrenzten) Feed zu nutzen. Dies dauert etwas länger, durchsucht aber den kompletten MB!
         if self.config.get("historical"):
+            # Suche nach jeder Zeile in der internen Suchliste
             for xline in self.allInfos.keys():
+                # Wenn die Zeile nicht leer ist bzw. keine Raute (für Kommentare) enthält:
                 if len(xline) > 0 and not xline.startswith("#"):
+                    # Entferne Zusatzinfos der obsoleten Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
+                    # Die Suche Benötigt nur den Titel vor dem ersten Komma. Ersetze Weiterhin Punkte durch Leerzeichen und diese für die Suche durch ein +
                     xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
+                    # Generiere aus diesen Suchurl-kompatiblen String als Seitenaufruf (entspricht einer Suche auf MB nach dem entsprechenden Titel) eine Liste an Suchanfragen-URLs (Anzahl entspricht Einträgen der internen Suchliste)
                     urls.append('http://www.movie-blog.org/search/%s/feed/rss2/' %xn)
+        # Nutze ansonsten den Feed (und dessen Inhalt) als Grundlage zur Suche
         else:
+            # Hierfür wird nur eine einzelne URL (die oben vergebene) benötigt
             urls.append(self.FEED_URL)
 
+        # Suchfunktion für valide Releases (und deren Downloadlinks) wird für jede URL durchgeführt:
         for url in urls:
+            # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
+                # Wenn das Release als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
                     self.log_debug("[%s] wurde bereits hinzugefuegt" % key)
+                # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     self.db.store(
                         key,
+                        # Vermerke Releases, die nicht zweisprachig sind in der Datenbank (falls enforcedl aktiv ist). Speichere jedes gefundene Release
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                         pattern
                     )
+                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info("RSScrawler: " + key)
+                    # Prüfe ob bereits für die aktuelle Version ein Readme im JDownloader hinterlegt/heruntergeladen wurde:
                     if not os.path.exists(jdownloaderpath + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
                         if not os.path.exists(jdownloaderpath + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
+                            # Erzeuge Crawljob um Readme über JDownloader zur Verfügung zu stellen (einmaliger Vorgang pro Version, solange .crawljob nicht gelöscht wird). Diese Zeilen dürfen nicht entfernt werden!
                             write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], jdownloaderpath + "/folderwatch")
+                    # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
                     download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
+                    # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                     if any(download_link):
                         write_crawljob_file(
                             key,
@@ -278,7 +357,9 @@ class MovieblogFeed():
                             download_link,
                             jdownloaderpath + "/folderwatch"
                         ) and text.append(key)
+        # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
         if len(text) > 0:
+            # Löse Pushbullet-Benachrichtigung aus
             notifyPushbulletMB(rsscrawler.get("pushbulletapi"),text)
 
 # Serienjunkies
@@ -373,7 +454,7 @@ def getURL(url):
         return ''
 
 class SJ():
-    MIN_CHECK_INTERVAL = 2 * 60 #2minutes
+    MIN_CHECK_INTERVAL = 2 * 60 # Minimales Intervall: 2 Minuten
     _INTERNAL_NAME = 'SJ'
 
     def __init__(self):
@@ -403,10 +484,14 @@ class SJ():
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
+        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
         if self.hoster == "Uploaded":
+            # Auf SJ wird Uploaded als Teil der url geführt: ul
             self.hoster = "ul"
         if self.hoster == "Share-Online":
+            # Auf SJ wird Uploaded als Teil der url geführt: so
             self.hoster = "so"
+        # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
         for post in feed.entries:
@@ -510,7 +595,7 @@ class SJ():
                                 jdownloaderpath + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
 
 class SJregex():
-    MIN_CHECK_INTERVAL = 2 * 60 #2minutes
+    MIN_CHECK_INTERVAL = 2 * 60 # Minimales Intervall: 2 Minuten
     _INTERNAL_NAME = 'SJ'
 
     def __init__(self):
@@ -540,10 +625,14 @@ class SJregex():
         reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
+        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
         if self.hoster == "Uploaded":
+            # Auf SJ wird Uploaded als Teil der url geführt: ul
             self.hoster = "ul"
         if self.hoster == "Share-Online":
+            # Auf SJ wird Uploaded als Teil der url geführt: so
             self.hoster = "so"
+        # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
         for post in feed.entries:
@@ -637,9 +726,11 @@ class SJregex():
             write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch") and self.added_items.append(title.encode("utf-8"))
 
+## Hauptsektion
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
+    # Lege loglevel über Startparameter fest
     if arguments['--log-level']:
         logging.basicConfig(
             filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), format='%(asctime)s %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
@@ -650,19 +741,22 @@ if __name__ == "__main__":
         console.setFormatter(formatter)
         logging.getLogger('').addHandler(console)
 
-    # This mutes 'Starting new HTTP connection (1)' from info log
+    # Deaktiviere 'Starting new HTTP connection (1)' im info log
     logging.getLogger("requests").setLevel(logging.WARNING)
-    #  Add info to the console
+    #  Zeige Programminformationen in der Konsole
     print("RSScrawler " + version + " von rix")
     print("Originalseite: https://github.com/rix1337/RSScrawler/")
     
-    # Erstelle Einstellungen Ordner
+    # Erstelle fehlenden Einstellungen Ordner
     if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen')):
         _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen'))
+    # Erstelle fehlenden Downloads Ordner
     if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads')):
         _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads'))
+    # Erstelle fehlenden Listen Ordner
     if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen')):
         _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen'))
+    # Erstelle fehlenden Listen mit Platzhaltertexten (diese werden in separaten Funktionen abgefragt!)
     if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')):
         open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), 'w')
@@ -681,12 +775,14 @@ if __name__ == "__main__":
     if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt')):
         open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'w')
+    # Platzhalterzeile weicht bei Regex Liste ab
         placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
         placeholder.close()
             
     # Setze relativen Dateinamen der Einstellungsdatei    
     einstellungen = os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')
     # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
+    # Wenn jd-pfad Startparameter existiert, erstelle ini mit diesem Parameter
     if not arguments['--jd-pfad']:
         if not os.path.exists(einstellungen):
             open(einstellungen, "a").close()
@@ -697,6 +793,7 @@ if __name__ == "__main__":
             print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
             print('Viel Spaß! Beende RSScrawler!')
             sys.exit(0)
+    # Ansonsten erstelle ini ohne vergebenen JDownloader Pfad
     else:
         if not os.path.exists(einstellungen):
             open(einstellungen, "a").close()
@@ -707,6 +804,7 @@ if __name__ == "__main__":
             print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
             print('Viel Spaß! Beende RSScrawler!')
             sys.exit(0)
+            
     # Definiere die allgemeinen Einstellungen global
     rsscrawler = RssConfig('RSScrawler')
 
@@ -728,13 +826,15 @@ if __name__ == "__main__":
         print('Der Pfad des JDownloaders existiert nicht.')
         print('Beende RSScrawler...')
         sys.exit(0)
-        
+    
+    # Diese Klassen werden periodisch ausgeführt    
     pool = [
         MovieblogFeed(),
         SJ(),
         SJregex(),
     ]
 
+    # Sauberes Beenden (über STRG+C) ermöglichen
     def signal_handler(signal, frame):
         list([el.periodical.cancel() for el in pool])
         print('Beende RSScrawler...')
@@ -742,10 +842,14 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
     print('Drücke Strg+C zum Beenden')
 
+    # Wenn testlauf gesetzt ist, führe RSScrawler einmalig aus:
     for el in pool:
+        # Wenn also testlauf nicht gesetzt ist, aktiviere die wiederholte Ausführung
         if not arguments['--testlauf']:
             el.activate()
+        # Starte unabhängig von testlauf das Script
         el.periodical_task()
 
+    # Pausiere das Script für die festgelegte Zeit, nachdem es ausgeführt werde (bis zur nächsten Ausführung)
     if not arguments['--testlauf']:
         signal.pause()
