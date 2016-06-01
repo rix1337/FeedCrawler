@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.4.3
+#  RSScrawler - Version 1.4.4
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
