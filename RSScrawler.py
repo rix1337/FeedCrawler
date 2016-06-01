@@ -29,6 +29,7 @@ placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
 placeholder_regex = False
+dl_list = []
 
 # Externe Importe
 from docopt import docopt
@@ -166,7 +167,7 @@ class MovieblogFeed():
         self._hosters_pattern = rsscrawler.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
-            int(rsscrawler.get('interval')) * 60,
+            int(rsscrawler.get('interval')) * 10,
             self.periodical_task
         )
         self.dictWithNamesAndLinks = {}
@@ -283,14 +284,23 @@ class MovieblogFeed():
         urls = []
         text = []
 
-        # Suche nach bereits geladenen Releases, welche als nicht zweisprachig markiert wurden (gilt nur bei aktiver enforcedl Option)
-        dl = {key:('.*', '.*', ('.dl.',)) for key in self.db.get_patterns('notdl')}
-
+        # Gröbere DL Suchmethode: Suche nach bereits geladenen Releases, welche als nicht zweisprachig markiert wurden (gilt nur bei aktiver enforcedl Option)
+        # Gröbere DL Suchmethode: dl = {key:('.*', '.*', ('.dl.',)) for key in self.db.get_patterns('notdl')}
+        
+        # Füge Sucheinträge nach zweisprachigen Releases zu den nicht-zweisprachigen Releases die im Vorigen Durchlauf heruntergeladen wurden
+        dl = ""
+        global dl_list
+        for x in dl_list:
+            if x == None:
+                continue
+            self.log_debug("%s - wurde der Suchliste hinzugefuegt)" % x)
+            dl = {key:('.*', '.*', '.*',) for key in dl_list}
+        print(dl)
+            
         # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
             # Füge der Suche Releases mit notdl (aus der MB_Downloads.db) und sämtliche Titel aus der MB_Filme Liste hinzu
-            # Gröbere DL Suchmethode: set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
-            set({key: value for (key, value) in self.getPatterns(
+            set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
                     self.readInput(self.filme),
                     self.config.get('quality'),
                     '.*',
@@ -305,7 +315,7 @@ class MovieblogFeed():
                     ('.complete.','.' + self.config.get('seasonssource') + '.')
             ).items() if self.config.get('crawlseasons') else [])
         )
-
+        
         # Stoppe Suche wenn Platzhalter aktiv
         if placeholder_filme and placeholder_staffeln:
             return
@@ -343,8 +353,9 @@ class MovieblogFeed():
                     )
                     # Füge angepassten Titel der Suchliste hinzu
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                        newdl = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").split('.x264-', 1)[0]
-                        print(newdl)
+                        newdl = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+                        global dl_list
+                        dl_list.append(newdl)
                     
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(key + " - Release hinzugefuegt")
