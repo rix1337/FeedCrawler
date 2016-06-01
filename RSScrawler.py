@@ -289,7 +289,8 @@ class MovieblogFeed():
         # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
             # Füge der Suche Releases mit notdl (aus der MB_Downloads.db) und sämtliche Titel aus der MB_Filme Liste hinzu
-            set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
+            # Gröbere DL Suchmethode: set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
+            set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filme),
                     self.config.get('quality'),
                     '.*',
@@ -340,6 +341,11 @@ class MovieblogFeed():
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                         pattern
                     )
+                    # Füge angepassten Titel der Suchliste hinzu
+                    if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                        newdl = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").split('.x264-', 1)[0]
+                        print(newdl)
+                    
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(key + " - Release hinzugefuegt")
                     # Prüfe ob bereits für die aktuelle Version ein Readme im JDownloader hinterlegt/heruntergeladen wurde:
