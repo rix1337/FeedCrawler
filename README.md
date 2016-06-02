@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.5.1
+#  RSScrawler - Version 1.5.2
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:

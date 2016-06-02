@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.1
+# RSScrawler - Version 1.5.2
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.5.1"
+version = "v.1.5.2"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -279,7 +279,7 @@ class MB():
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
             # Wenn das Release als bereits hinzugefuegt in der Datenbank vermerkt wurde, logge dies und breche ab
-            if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+            if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                 self.log_debug("%s - zweisprachiges Release ignoriert (bereits hinzugefuegt)" % key)
             # Ansonsten speichere das Release als hinzugefuegt in der Datenbank
             else:
@@ -391,6 +391,13 @@ class MB():
         for url in urls:
             # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
+                # Suche nach zweisprachigem Release, sollte das aktuelle nicht zweisprachig sein:
+                if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                    # Wenn die Suche für zweisprachige Releases nichts findet (wird zugleich ausgeführt)
+                    if not self.download_dl(key):
+                        # Logge nicht gefundenes zweisprachiges Release
+                        self.log_info("%s - Kein zweisprachiges Release gefunden" %key)
+                            
                 # Wenn das Release als bereits hinzugefuegt in der Datenbank vermerkt wurde, logge dies und breche ab
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
                     self.log_debug("%s - Release ignoriert (bereits hinzugefuegt)" % key)
@@ -402,12 +409,6 @@ class MB():
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                         pattern
                     )
-                    # Füge angepassten Titel der Suchliste hinzu
-                    if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                        # Wenn die Suche für zweisprachige Releases nichts findet (wird zugleich ausgeführt)
-                        if not self.download_dl(key):
-                            # Logge nicht gefundenes zweisprachiges Release
-                            self.log_info("%s - Kein zweisprachiges Release gefunden" %key)
                     
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(key + " - Release hinzugefuegt")
