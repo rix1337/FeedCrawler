@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.0
+# RSScrawler - Version 1.5.1
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -635,8 +635,11 @@ class SJ():
     def parse_download(self,series_url, search_title):
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
+        
+        # Da das beautifulsoup per Regex sucht, darf der Suchstring keine Klammern enthalten. Ersetze diese entsprechend durch Wildcard
+        escape_brackets = search_title.replace("(", ".*").replace(")", ".*")
 
-        title = soup.find(text=re.compile(search_title))
+        title = soup.find(text=re.compile(escape_brackets))
         if title:
             items = []
             links = title.parent.parent.findAll('a')
@@ -767,8 +770,11 @@ class SJregex():
     def parse_download(self,series_url, search_title):
         req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
-
-        title = soup.find(text=re.compile(search_title))
+        
+        # Da das beautifulsoup per Regex sucht, darf der Suchstring keine Klammern enthalten. Ersetze diese entsprechend durch Wildcard
+        escape_brackets = search_title.replace("(", ".*").replace(")", ".*")
+        
+        title = soup.find(text=re.compile(escape_brackets))
         if title:
             items = []
             links = title.parent.parent.findAll('a')
