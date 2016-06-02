@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.4.4
+#  RSScrawler - Version 1.5.0
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -70,9 +70,8 @@ Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der
 
 ### enforcedl:
 
-Wenn aktiviert, erzwingt das Script zweisprachige Releases. Sollte ein Release allen Regeln entsprechen, aber kein DL-Tag enthalten, wird es hinzugefügt.
-Ab diesem Zeitpunkt gilt aber die Quality-Regel nicht mehr für den entsprechenden Film. Solange ein Release *DL* im Titel trägt wird es hinzugefügt,
-solange der Film auf der MB_Filme Liste steht. Diese Option empfiehlt sich nur bei ausreichender Bandbreite, wenn man bspw. Filme in 720p und DL sammeln möchte.
+Wenn aktiviert sucht das Script zu jedem nicht-zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release in 1080p mit DL Tag.
+Findet das Script kein Release wird dies im Log vermerkt. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu halten.
 
 ### crawlseasons:
 

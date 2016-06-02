@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.4.4
+# RSScrawler - Version 1.5.0
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,12 +24,11 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.4.4"
+version = "v.1.5.0"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
 placeholder_regex = False
-dl_list = []
 
 # Externe Importe
 from docopt import docopt
@@ -167,7 +166,7 @@ class MovieblogFeed():
         self._hosters_pattern = rsscrawler.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
-            int(rsscrawler.get('interval')) * 10,
+            int(rsscrawler.get('interval')) * 60,
             self.periodical_task
         )
         self.dictWithNamesAndLinks = {}
@@ -237,7 +236,7 @@ class MovieblogFeed():
                         # Ansonsten ignoriere das Release mit 3D im Titel (weil es bspw. in 720p released wurde)
                         else:
                             continue
-                    # Obsolete Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
+                    # Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
                     else:
                         if ss == "480p":
                             if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
@@ -246,7 +245,7 @@ class MovieblogFeed():
                         else:
                             found = re.search(ss,post.title.lower())
                     if found:
-                        # Obsolete Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
+                        # Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
                         """Suche nach Release-Gruppe"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
@@ -268,6 +267,71 @@ class MovieblogFeed():
                                 yield (post.title, [post.link], key)
 
 
+    def download_dl(self, title):
+        # Schreibe den nicht-zweisprachigen Titel für die folgende Suche um
+        text = []
+        # Dies generiert den in die Suche einfügbaren String (+ statt Leerzeichen)
+        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        search_url = "http://www.movie-blog.org/search/" + search_title + "/feed/rss2/"
+        # Nach diesem String (also Releasetitel) wird schlussendlich in den Suchergebnissen gesucht (. statt Leerzeichen)
+        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+        
+        # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
+        for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
+            # Wenn das Release als bereits hinzugefuegt in der Datenbank vermerkt wurde, logge dies und breche ab
+            if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                self.log_debug("%s - zweisprachiges Release ignoriert (bereits hinzugefuegt)" % key)
+            # Ansonsten speichere das Release als hinzugefuegt in der Datenbank
+            else:
+                self.db.store(
+                    key,
+                    # Vermerke zweisprachiges Release entsprechend in der Datenbank
+                    'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
+                    pattern
+                    )
+                
+                # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
+                self.log_info(key + " - zweisprachiges Release hinzugefuegt")
+                # Prüfe ob bereits für die aktuelle Version ein Readme im JDownloader hinterlegt/heruntergeladen wurde:
+                if not os.path.exists(jdownloaderpath + '/folderwatch/rsscrawler.' + version + '.readme-rix.crawljob'):
+                    if not os.path.exists(jdownloaderpath + '/folderwatch/added/rsscrawler.' + version + '.readme-rix.crawljob.1'):
+                        # Erzeuge Crawljob um Readme über JDownloader zur Verfügung zu stellen (einmaliger Vorgang pro Version, solange .crawljob nicht gelöscht wird). Diese Zeilen dürfen nicht entfernt werden!
+                        write_crawljob_file("rsscrawler." + version + ".readme-rix", "RSSCrawler." + version + ".README-RiX", ["https://github.com/rix1337/RSScrawler/archive/master.zip"], jdownloaderpath + "/folderwatch")
+                # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+                download_link = [common.get_first(self._get_download_links(value[0], self._hosters_pattern))]
+                # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
+                if any(download_link):
+                    write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch"
+                    ) and text.append(key)
+            # Wenn zuvor ein key dem Text hinzugefuegt wurde (also ein Release gefunden wurde):
+            if len(text) > 0:
+                # Löse Pushbullet-Benachrichtigung aus
+                notifyPushbulletMB(rsscrawler.get("pushbulletapi"),text)
+                return True
+                
+    def dl_search(self, feed, title, notdl_title):
+        ignore = "|".join(["\.%s\." % p for p in self.config.get("ignore").lower().split(',')
+                           if not self.config.get('crawl3d') or p != '3d']) \
+            if not self.config.get("ignore") == "" else "^unmatchable$"
+            
+        s = re.sub(self.SUBSTITUTE,".",title).lower()
+        for post in feed.entries:
+            """Suche nach Titel"""
+            found = re.search(s,post.title.lower())
+            if found:
+                """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
+                found = re.search(ignore,post.title.lower())
+                if found:
+                    # Wenn zu ignorierender Eintrag, logge diesen
+                    self.log_debug("%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
+                    continue
+                yield (post.title, [post.link], title)
+                                
+
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
@@ -283,24 +347,11 @@ class MovieblogFeed():
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
-
-        # Gröbere DL Suchmethode: Suche nach bereits geladenen Releases, welche als nicht zweisprachig markiert wurden (gilt nur bei aktiver enforcedl Option)
-        # Gröbere DL Suchmethode: dl = {key:('.*', '.*', ('.dl.',)) for key in self.db.get_patterns('notdl')}
-        
-        # Füge Sucheinträge nach zweisprachigen Releases zu den nicht-zweisprachigen Releases die im Vorigen Durchlauf heruntergeladen wurden
-        dl = ""
-        global dl_list
-        for x in dl_list:
-            if x == None:
-                continue
-            self.log_debug("%s - wurde der Suchliste hinzugefuegt)" % x)
-            dl = {key:('.*', '.*', '.*',) for key in dl_list}
-        print(dl)
             
         # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
             # Füge der Suche Releases mit notdl (aus der MB_Downloads.db) und sämtliche Titel aus der MB_Filme Liste hinzu
-            set({key: dl[key] if key in dl else value for (key, value) in self.getPatterns(
+            set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filme),
                     self.config.get('quality'),
                     '.*',
@@ -353,9 +404,10 @@ class MovieblogFeed():
                     )
                     # Füge angepassten Titel der Suchliste hinzu
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                        newdl = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
-                        global dl_list
-                        dl_list.append(newdl)
+                        # Wenn die Suche für zweisprachige Releases nichts findet (wird zugleich ausgeführt)
+                        if not self.download_dl(key):
+                            # Logge nicht gefundenes zweisprachiges Release
+                            self.log_info("%s - Kein zweisprachiges Release gefunden" %key)
                     
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(key + " - Release hinzugefuegt")
@@ -401,11 +453,11 @@ def getSeriesList(file):
             placeholder_serien = True
         return titles
     except UnicodeError:
-        logging.error("STOPPED, invalid character in list!")
+        logging.error("ANGEHALTEN, ungueltiges Zeichen in SJ_Serien Liste!")
     except IOError:
-        logging.error("STOPPED, list not found!")
+        logging.error("ANGEHALTEN, SJ_Serien nicht gefunden!")
     except Exception, e:
-        logging.error("Unknown error: %s" %e)
+        logging.error("Unbekannter Fehler: %s" %e)
 
 def getRegexSeriesList(file):
     global placeholder_regex
@@ -428,11 +480,11 @@ def getRegexSeriesList(file):
             placeholder_regex = True
         return titles
     except UnicodeError:
-        logging.error("STOPPED, invalid character in list!")
+        logging.error("ANGEHALTEN, ungueltiges Zeichen in SJ_Serien_Regex Liste!")
     except IOError:
-        logging.error("STOPPED, list not found!")
+        logging.error("ANGEHALTEN, SJ_Serien_Regex nicht gefunden!")
     except Exception, e:
-        logging.error("Unknown error: %s" %e)
+        logging.error("Unbekannter Fehler: %s" %e)
 
 def notifyPushbulletSJ(api='', msg=''):
     data = urllib.urlencode({
@@ -446,13 +498,13 @@ def notifyPushbulletSJ(api='', msg=''):
         req.add_header('Authorization', 'Basic %s' % auth)
         response = urllib2.urlopen(req)
     except urllib2.HTTPError:
-        print 'Failed much'
+        logging.debug('FEHLER - Konnte Pushbullet API nicht erreichen')
         return False
     res = json.load(response)
     if res['sender_name']:
-        print 'Pushbullet Success'
+        logging.debug('Pushbullet Erfolgreich versendet')
     else:
-        print 'Pushbullet Fail'
+        logging.debug('FEHLER - Konnte nicht an Pushbullet Senden')
 
 
 def getURL(url):
@@ -464,10 +516,10 @@ def getURL(url):
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
-        logging.debug('During query execution we got an exception: Code: %s Reason: %s' % (e.code, e.reason))
+        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
         return ''
     except urllib2.URLError as e:
-        logging.debug('During query execution we got an exception: Reason: %s' %  e.reason)
+        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' %  e.reason)
         return ''
 
 class SJ():
@@ -577,7 +629,7 @@ class SJ():
                if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
                    self.parse_download(series_url, title)
         except re.error as e:
-            self.log_error('sre_constants.error: %s' % e)
+            self.log_error('Konstantenfehler: %s' % e)
 
 
     def parse_download(self,series_url, search_title):
@@ -599,7 +651,7 @@ class SJ():
         try:
             storage = self.db.retrieve(title)
         except Exception as e:
-            self.log_debug("db.retrieve got exception: %s, title: %s" % (e,title))
+            self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e,title))
         if storage == 'downloaded':
             self.log_debug(title + " - Release ignoriert (bereits hinzugefuegt)")
         else:
@@ -731,7 +783,7 @@ class SJregex():
         try:
             storage = self.db.retrieve(title)
         except Exception as e:
-            self.log_debug("db.retrieve Fehler in Datenbankzugriff: %s, title: %s" % (e,title))
+            self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e,title))
         if storage == 'downloaded':
             self.log_debug(title + " - Release ignoriert (bereits hinzugefuegt)")
         else:
