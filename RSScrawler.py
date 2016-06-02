@@ -150,7 +150,7 @@ def _restart_timer(func):
             self.periodical.start()
     return wrapper
 
-class MovieblogFeed():
+class MB():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
     _INTERNAL_NAME='MB'
@@ -350,7 +350,7 @@ class MovieblogFeed():
             
         # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
-            # Füge der Suche Releases mit notdl (aus der MB_Downloads.db) und sämtliche Titel aus der MB_Filme Liste hinzu
+            # Füge der Suche sämtliche Titel aus der MB_Filme Liste hinzu
             set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filme),
                     self.config.get('quality'),
@@ -898,7 +898,7 @@ if __name__ == "__main__":
     
     # Diese Klassen werden periodisch ausgeführt    
     pool = [
-        MovieblogFeed(),
+        MB(),
         SJ(),
         SJregex(),
     ]
