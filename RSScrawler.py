@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.5.0"
+version = "v.1.5.1"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
