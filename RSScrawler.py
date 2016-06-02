@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.3 (final)
+# RSScrawler - Version 1.5.4 (final)
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.5.3"
+version = "v.1.5.4f"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -275,6 +275,9 @@ class MB():
         search_url = "http://www.movie-blog.org/search/" + search_title + "/feed/rss2/"
         # Nach diesem String (also Releasetitel) wird schlussendlich in den Suchergebnissen gesucht (. statt Leerzeichen)
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+        if not '.dl.' in feedsearch_title.lower():
+            self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
+            return
         
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
