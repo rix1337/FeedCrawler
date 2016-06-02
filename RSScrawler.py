@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.2
+# RSScrawler - Version 1.5.3 (final)
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.5.2"
+version = "v.1.5.3"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -396,7 +396,7 @@ class MB():
                     # Wenn die Suche für zweisprachige Releases nichts findet (wird zugleich ausgeführt)
                     if not self.download_dl(key):
                         # Logge nicht gefundenes zweisprachiges Release
-                        self.log_info("%s - Kein zweisprachiges Release gefunden" %key)
+                        self.log_debug("%s - Kein zweisprachiges Release gefunden" %key)
                             
                 # Wenn das Release als bereits hinzugefuegt in der Datenbank vermerkt wurde, logge dies und breche ab
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':

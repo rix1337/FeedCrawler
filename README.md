@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.5.2
+#  RSScrawler - Version 1.5.3 (final)
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -13,6 +13,10 @@ https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 ## Beschreibung:
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
+
+Diese Version ist final (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
+
+Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) müssen in dessen Entwicklerforum gelöst werden.
 
 **Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request eröffnet werden!**
 
