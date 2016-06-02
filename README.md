@@ -75,7 +75,7 @@ Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der
 ### enforcedl:
 
 Wenn aktiviert sucht das Script zu jedem nicht-zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release in 1080p mit DL Tag.
-Findet das Script kein Release wird dies im Log vermerkt. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu halten.
+Findet das Script kein Release wird dies im Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu halten.
 
 ### crawlseasons:
 
