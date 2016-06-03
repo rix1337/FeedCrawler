@@ -936,5 +936,4 @@ if __name__ == "__main__":
         except AttributeError:
             # signal.pause() fehlt in Windows. Schlafe daher für eine Millisekunde
             while True:
-            time.sleep(1)
-
+              time.sleep(1)
