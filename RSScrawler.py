@@ -810,15 +810,14 @@ if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
     # Lege loglevel ueber Startparameter fest
-    if arguments['--log-level']:
-        logging.basicConfig(
-            filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), format='RSScrawler: %(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
-        )
-        console = logging.StreamHandler()
-        console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
-        formatter = logging.Formatter('RSScrawler: %(asctime)s - %(message)s')
-        console.setFormatter(formatter)
-        logging.getLogger('').addHandler(console)
+    logging.basicConfig(
+        filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), format='RSScrawler: %(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+    )
+    console = logging.StreamHandler()
+    console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
+    formatter = logging.Formatter('RSScrawler: %(asctime)s - %(message)s')
+    console.setFormatter(formatter)
+    logging.getLogger('').addHandler(console)
 
     # Deaktiviere 'Starting new HTTP connection (1)' im info log
     logging.getLogger("requests").setLevel(logging.WARNING)
