@@ -1,0 +1,25 @@
+
+1 VERSIONINFO
+FILEVERSION 1,6,1,0
+PRODUCTVERSION 1,0,0,1
+FILEOS 0x40004
+FILETYPE 0x1
+{
+BLOCK "StringFileInfo"
+{
+	BLOCK "040704B0"
+	{
+		VALUE "FileDescription", "RSScrawler"
+		VALUE "FileVersion", "1.6.1.0"
+		VALUE "OriginalFilename", "RSScrawler.exe"
+		VALUE "ProductName", "RSScrawler"
+		VALUE "ProductVersion", "1.6.1.0"
+		VALUE "LegalCopyright", "Copyright © 2016 RiX"
+	}
+}
+
+BLOCK "VarFileInfo"
+{
+	VALUE "Translation", 0x0407 0x04B0
+}
+}
