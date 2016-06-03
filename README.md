@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.5.6f
+#  RSScrawler - Version 1.6.0
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -24,9 +24,11 @@ Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) 
 
 1. Aktiviere Ordnerüberwachung im JDownloader 2
 2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml, requests (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
-3. Starte RSScrawler einmalig, dies erstellt die RSScrawler.ini im Einstellungen-Ordner
+3. Starte RSScrawler einmalig, dies erstellt den Einstellungen-Ordner inklusive aller benötigter Dateien
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
 5. Nutze RSScrawler!
+
+Optional stehen [fertige Builds](#windows-build) zur Verfügung!
 
 ## RSScrawler starten:
 
@@ -36,18 +38,18 @@ Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) 
 
   ```--testlauf```                  Einmalige Ausführung von RSScrawler
   
-  ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader fest (nützlich bei headless-Systemen)
+  ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader fest (nützlich bei headless-Systemen), diese Option darf keine Leerzeichen enthalten
 
   ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 
 ## Einstellungen:
 *Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
-**Der JDownloader-Pfad muss korrekt hinterlegt werden! Beachte den [Hinweis zu Windows](#wichtiger-hinweis-für-den-windows-build)**
+**Der JDownloader-Pfad muss korrekt hinterlegt werden! Sollte dieser ein Leerzeichen enthalten muss zwingend die RSScrawler.ini bearbeitet werden.**
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
-### Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:
+### Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex):
 
 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen
 2. MB_Staffeln enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
@@ -84,10 +86,6 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 ### regex:
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
-
-### Wichtiger Hinweis für den Windows Build:
-
-Der Pfad zum JDownloader muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
 
 ### Windows Build:
 https://github.com/rix1337/RSScrawler/releases

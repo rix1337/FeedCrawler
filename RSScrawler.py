@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.6f
+# RSScrawler - Version 1.6.0
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -19,12 +19,12 @@ Usage:
 
 Options:
   --testlauf                Einmalige Ausfuehrung von RSScrawler
-  --jd-pfad=<JDPFAD>        Legt den Pfad von JDownloader vorab fest (nuetzlich bei headless-Systemen)
+  --jd-pfad=<JDPFAD>        Legt den Pfad von JDownloader vorab fest (nuetzlich bei headless-Systemen), diese Option darf keine Leerzeichen enthalten
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
 # Globale Variablen
-version = "v.1.5.6f"
+version = "v.1.6.0"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -822,7 +822,7 @@ if __name__ == "__main__":
     # Deaktiviere 'Starting new HTTP connection (1)' im info log
     logging.getLogger("requests").setLevel(logging.WARNING)
     #  Zeige Programminformationen in der Konsole
-    print("RSScrawler " + version + " von rix")
+    print("RSScrawler " + version + " von RiX")
     print("Originalseite: https://github.com/rix1337/RSScrawler/")
     
     # Erstelle fehlenden Einstellungen Ordner
@@ -869,6 +869,8 @@ if __name__ == "__main__":
             einsteller.close()
             print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
             print('Weiterhin sollten die Listen entsprechend der README.md gefuellt werden!')
+            # Warte 10 Sekunden, damit Windows-Nutzer die Warnung lesen können
+            time.sleep(10)
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
     # Ansonsten erstelle ini ohne vergebenen JDownloader Pfad
@@ -880,6 +882,8 @@ if __name__ == "__main__":
             einsteller.close()
             print('Die Einstellungsdatei wurde erstellt. Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
             print('Weiterhin sollten die Listen entsprechend der README.md gefuellt werden!')
+            # Warte 10 Sekunden, damit Windows-Nutzer die Warnung lesen können
+            time.sleep(10)
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
             
@@ -891,17 +895,26 @@ if __name__ == "__main__":
     	jdownloaderpath = arguments['--jd-pfad']
     else:
     	jdownloaderpath = rsscrawler.get("jdownloader")
+    # Ersetze Backslash durch Slash (für Windows)
+    jdownloaderpath = jdownloaderpath.replace("\\", "/")
+    # Entferne Slash, wenn jdownloaderpath darauf endet
+    jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
+    print(jdownloaderpath)
 
     # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
         print('Weiterhin sollten die Listen entsprechend der README.md gefuellt werden!')
+        # Warte 5 Sekunden, damit Windows-Nutzer die Warnung lesen können
+        time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
         
     # Abbrechen, wenn JDownloader Pfad nicht existiert
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
+        # Warte 5 Sekunden, damit Windows-Nutzer die Warnung lesen können
+        time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
     
@@ -934,6 +947,6 @@ if __name__ == "__main__":
             while True:
                 signal.pause()
         except AttributeError:
-            # signal.pause() fehlt in Windows. Schlafe daher für eine Millisekunde
+            # signal.pause() fehlt in Windows. Schlafe daher für eine Sekunde
             while True:
               time.sleep(1)
