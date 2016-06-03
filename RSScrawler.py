@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.6.0
+# RSScrawler - Version 1.6.1
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.6.0"
+version = "v.1.6.1"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -899,7 +899,7 @@ if __name__ == "__main__":
     jdownloaderpath = jdownloaderpath.replace("\\", "/")
     # Entferne Slash, wenn jdownloaderpath darauf endet
     jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
-    print(jdownloaderpath)
+    logging.debug("Nutze das folderwatch Unterverzeichnis von " + jdownloaderpath + " für Crawljobs")
 
     # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':

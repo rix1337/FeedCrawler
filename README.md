@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.6.0
+#  RSScrawler - Version 1.6.1
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -36,7 +36,7 @@ Optional stehen [fertige Builds](#windows-build) zur Verfügung!
 
 ## Startparameter:
 
-  ```--testlauf```                  Einmalige Ausführung von RSScrawler
+  ```--testlauf```                Einmalige Ausführung von RSScrawler
   
   ```--jd-pfad=<JDPFAD>```        Legt den Pfad von JDownloader fest (nützlich bei headless-Systemen), diese Option darf keine Leerzeichen enthalten
 
@@ -45,7 +45,8 @@ Optional stehen [fertige Builds](#windows-build) zur Verfügung!
 ## Einstellungen:
 *Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
-**Der JDownloader-Pfad muss korrekt hinterlegt werden! Sollte dieser ein Leerzeichen enthalten muss zwingend die RSScrawler.ini bearbeitet werden.**
+**Der JDownloader-Pfad muss korrekt hinterlegt werden!**
+Für Pfade mit Leerzeichen kann nicht der jd-pfad Parameter verwendet werden. Pfade mit Leerzeichen müssen direkt in der RSScrawler.ini hinterlegt werden.
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
