@@ -3,3 +3,4 @@ feedparser
 BeautifulSoup
 pycurl
 lxml
+requests

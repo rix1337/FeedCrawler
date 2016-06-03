@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 import ConfigParser
 import logging
-import os
+import os, sys
 
 
 class RssConfig(object):
-    _CONFIG_FILES = [os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')]
+    _CONFIG_FILES = [os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')]
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", "", "/jd2"),

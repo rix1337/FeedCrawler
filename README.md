@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.5.4 (final)
+#  RSScrawler - Version 1.5.6f
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -18,12 +18,12 @@ Diese Version ist final (bekannte Fehler sind behoben/keine vom Author gewünsch
 
 Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) müssen in dessen Entwicklerforum gelöst werden.
 
-**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request eröffnet werden!**
+**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request (mit Code) eröffnet werden! Issues dienen nur der Fehlermeldung.**
 
 ## TLDR:
 
 1. Aktiviere Ordnerüberwachung im JDownloader 2
-2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
+2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml, requests (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
 3. Starte RSScrawler einmalig, dies erstellt die RSScrawler.ini im Einstellungen-Ordner
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
 5. Nutze RSScrawler!
@@ -43,7 +43,7 @@ Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) 
 ## Einstellungen:
 *Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
-**Der JDownloader-Pfad muss korrekt hinterlegt werden!**
+**Der JDownloader-Pfad muss korrekt hinterlegt werden! Beachte den [Hinweis zu Windows](#wichtiger-hinweis-für-den-windows-build)**
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
@@ -84,6 +84,13 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 ### regex:
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
+
+### Wichtiger Hinweis für den Windows Build:
+
+Der Pfad zum JDownloader muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
+
+### Windows Build:
+https://github.com/rix1337/RSScrawler/releases
 
 ### Docker Container:
 https://github.com/rix1337/docker-rsscrawler
