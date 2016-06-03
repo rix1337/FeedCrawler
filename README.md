@@ -87,7 +87,7 @@ Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
 ### Wichtiger Hinweis für den Windows Build:
 
-Der Pfad zum JDownlaoder muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
+Der Pfad zum JDownloader muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
 
 ### Windows Build:
 https://github.com/rix1337/RSScrawler/releases
