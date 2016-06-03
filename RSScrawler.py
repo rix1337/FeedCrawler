@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.5.5f
+# RSScrawler - Version 1.5.6f
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.5.5f"
+version = "v.1.5.6f"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -160,9 +160,9 @@ class MB():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/MB_Downloads.db"))
-        self.filme = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')
-        self.staffeln = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt')
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.filme = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt')
+        self.staffeln = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')
         self._hosters_pattern = rsscrawler.get('hoster').replace(';','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
@@ -535,8 +535,8 @@ class SJ():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/SJ_Downloads.db"))
-        self.serien = os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt')
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.serien = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
             int(rsscrawler.get('interval')) * 60,
@@ -550,7 +550,7 @@ class SJ():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
-        self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
+        self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
         # Stoppe Suche wenn Platzhalter aktiv
         if placeholder_serien:
             return
@@ -680,7 +680,7 @@ class SJregex():
         self.log_error = logging.error
         self.log_debug = logging.debug
         if self.config.get("regex"):
-            self.db = RssDb(os.path.join(os.path.dirname(__file__), "Einstellungen/Downloads/SJ_Downloads.db"))
+            self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
             self._periodical_active = False
             self.periodical = RepeatableTimer(
                 int(rsscrawler.get('interval')) * 60,
@@ -694,7 +694,7 @@ class SJregex():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('http://serienjunkies.org/xml/feeds/episoden.xml')
-        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(__file__), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
+        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
         # Stoppe Suche wenn Platzhalter aktiv
         if placeholder_regex:
             return
@@ -811,7 +811,7 @@ if __name__ == "__main__":
 
     # Lege loglevel ueber Startparameter fest
     logging.basicConfig(
-        filename=os.path.join(os.path.dirname(__file__), 'RSScrawler.log'), format='RSScrawler: %(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+        filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format='RSScrawler: %(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     )
     console = logging.StreamHandler()
     console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
@@ -826,39 +826,39 @@ if __name__ == "__main__":
     print("Originalseite: https://github.com/rix1337/RSScrawler/")
     
     # Erstelle fehlenden Einstellungen Ordner
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen')):
-        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen'))
+    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
+        _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen'))
     # Erstelle fehlenden Downloads Ordner
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads')):
-        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Downloads'))
+    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads')):
+        _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads'))
     # Erstelle fehlenden Listen Ordner
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen')):
-        _mkdir_p(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen'))
+    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen')):
+        _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen'))
     # Erstelle fehlenden Listen mit Platzhaltertexten (diese werden in separaten Funktionen abgefragt!)
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Filme.txt'), 'w')
+    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt')):
+        open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
+        placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'w')
         placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
         placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/MB_Staffeln.txt'), 'w')
+    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')):
+        open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), "a").close()
+        placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), 'w')
         placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
         placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien.txt'), 'w')
+    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt')):
+        open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), "a").close()
+        placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'w')
         placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
         placeholder.close()
-    if not os.path.isfile(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt')):
-        open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), "a").close()
-        placeholder = open(os.path.join(os.path.dirname(__file__), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'w')
+    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt')):
+        open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), "a").close()
+        placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'w')
     # Platzhalterzeile weicht bei Regex Liste ab
         placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
         placeholder.close()
             
     # Setze relativen Dateinamen der Einstellungsdatei    
-    einstellungen = os.path.join(os.path.dirname(__file__), 'Einstellungen/RSScrawler.ini')
+    einstellungen = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
     # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
     # Wenn jd-pfad Startparameter existiert, erstelle ini mit diesem Parameter
     if not arguments['--jd-pfad']:
