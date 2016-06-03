@@ -931,4 +931,11 @@ if __name__ == "__main__":
 
     # Pausiere das Script fuer die festgelegte Zeit, nachdem es ausgefuehrt werde (bis zur naechsten Ausfuehrung)
     if not arguments['--testlauf']:
-        signal.pause()
+        try:
+            while True:
+                signal.pause()
+        except AttributeError:
+            # signal.pause() fehlt in Windows. Schlafe daher für eine Millisekunde
+            while True:
+            time.sleep(1)
+
