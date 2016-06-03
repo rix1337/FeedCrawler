@@ -43,7 +43,7 @@ Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) 
 ## Einstellungen:
 *Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
-**Der JDownloader-Pfad muss korrekt hinterlegt werden! Beachte den [#wichtiger-hinweis-für-den-windows-build](Hinweis zu Windows)**
+**Der JDownloader-Pfad muss korrekt hinterlegt werden! Beachte den [Hinweis zu Windows](#wichtiger-hinweis-für-den-windows-build)**
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
