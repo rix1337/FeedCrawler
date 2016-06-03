@@ -85,6 +85,10 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
+### Wichtiger Hinweis für den Windows Build:
+
+Der Pfad zum JDownlaoder muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
+
 ### Docker Container:
 https://github.com/rix1337/docker-rsscrawler
 
