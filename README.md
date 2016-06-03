@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.5.4 (final)
+#  RSScrawler - Version 1.5.5f
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -18,12 +18,12 @@ Diese Version ist final (bekannte Fehler sind behoben/keine vom Author gewünsch
 
 Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) müssen in dessen Entwicklerforum gelöst werden.
 
-**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request eröffnet werden!**
+**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request (mit Code) eröffnet werden! Issues dienen nur der Fehlermeldung.**
 
 ## TLDR:
 
 1. Aktiviere Ordnerüberwachung im JDownloader 2
-2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
+2. Installiere Python 2.7 und die Zusatzpakete: docopt, feedparser, BeautifulSoup, pycurl, lxml, requests (Alternativ stehen ein docker-image, sowie ein Synology-Paket zur Verfügung)
 3. Starte RSScrawler einmalig, dies erstellt die RSScrawler.ini im Einstellungen-Ordner
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
 5. Nutze RSScrawler!
