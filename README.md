@@ -43,7 +43,7 @@ Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) 
 ## Einstellungen:
 *Die RSScrawler.ini liegt im ```Einstellungen``` Ordner und wird (inklusive der Listen) beim ersten Start automatisch generiert*
 
-**Der JDownloader-Pfad muss korrekt hinterlegt werden!**
+**Der JDownloader-Pfad muss korrekt hinterlegt werden! Beachte den [#wichtiger-hinweis-für-den-windows-build](Hinweis zu Windows)**
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
@@ -88,6 +88,9 @@ Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 ### Wichtiger Hinweis für den Windows Build:
 
 Der Pfad zum JDownlaoder muss Python-kompatibel vergeben werden: nur `/`-Schrägstriche sind erlaubt!
+
+### Windows Build:
+https://github.com/rix1337/RSScrawler/releases
 
 ### Docker Container:
 https://github.com/rix1337/docker-rsscrawler
