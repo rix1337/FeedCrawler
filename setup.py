@@ -11,7 +11,7 @@ setup(
 	}
 	],
 	name = 'RSScrawler',
-    version = '1.6.0.0',
+    version = '1.6.1.0',
     description = 'RSScrawler',
     author = 'RiX',
     options = {'py2exe': {'bundle_files': 1, 'compressed': True, 'packages': ['docopt', 'feedparser', 'BeautifulSoup', 'pycurl', 'lxml', 'requests'], 'dll_excludes': ['MSVFW32.dll', 'AVIFIL32.dll', 'AVICAP32.dll', 'ADVAPI32.dll', 'CRYPT32.dll', 'WLDAP32.dll', 'w9xpopen.exe']}},
