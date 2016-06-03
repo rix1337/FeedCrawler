@@ -70,7 +70,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
     )
     # Versuche .crawljob zu schreiben
     try:
-        # oeffne Crawljob mit Schreibzugriff
+        # Oeffne Crawljob mit Schreibzugriff
         file = open(crawljob_file, 'w')
         # Optionen fuer Paketeigenschaften im JDownloader:
         # Paket ist aktiviert
