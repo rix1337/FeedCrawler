@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.6.2
+# RSScrawler - Version 1.6.3
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.6.2"
+version = "v.1.6.3"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -84,7 +84,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir):
         # Bestaetige Fragen des JDownloaders automatisch
         file.write('autoConfirm=TRUE\n')
         # Unterverzeichnis des Downloads ist folder_name
-        file.write('downloadFolder=%s\n' % folder_name)
+        file.write('downloadFolder=RSScrawler/%s\n' % folder_name)
         # Name des Pakets im JDownloader ist package_name (ohne Leerzeichen!)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
         # Nutze ersten Eintrag (lt. Code einzigen!) des link_text Arrays als Downloadlink
