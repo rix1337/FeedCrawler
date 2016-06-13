@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.6.3
+#  RSScrawler - Version 1.6.4
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -47,6 +47,8 @@ Optional stehen [fertige Builds für docker, Windows und Synology](#windows-buil
 
 **Der JDownloader-Pfad muss korrekt hinterlegt werden!**
 Für Pfade mit Leerzeichen kann nicht der jd-pfad Parameter verwendet werden. Pfade mit Leerzeichen müssen direkt in der RSScrawler.ini hinterlegt werden.
+
+Zur besseren Übersicht und automatisierbarkeit (bspw. durch Filebot) werden Releases explizit im RSScrawler heruntergeladen. Zweisprachige Releases (zum automatischen Remuxen) landen im Remux Ordner.
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
