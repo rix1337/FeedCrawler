@@ -48,7 +48,7 @@ Optional stehen [fertige Builds für docker, Windows und Synology](#windows-buil
 **Der JDownloader-Pfad muss korrekt hinterlegt werden!**
 Für Pfade mit Leerzeichen kann nicht der jd-pfad Parameter verwendet werden. Pfade mit Leerzeichen müssen direkt in der RSScrawler.ini hinterlegt werden.
 
-Zur besseren Übersicht und automatisierbarkeit (bspw. durch Filebot) werden Releases explizit im RSScrawler heruntergeladen. Zweisprachige Releases (zum automatischen Remuxen) landen im Remux Ordner.
+Zur besseren Übersicht und Automatisierbarkeit (bspw. durch Filebot) werden Releases explizit in das RSScrawler-Verzeichnis heruntergeladen. Über enforcedl gefundene, zweisprachige Releases landen davon getrennt im Remux-Verzeichnis (zum automatischen Remuxen).
 
 Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinreichend erklärt. Im Folgenden nur einige wichtige Hinweise:
 
