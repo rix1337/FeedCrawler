@@ -97,4 +97,4 @@ https://github.com/rix1337/RSScrawler/releases
 https://github.com/rix1337/docker-rsscrawler
 
 ### Synology Addon-Paket:
-http://www.synology-forum.de/showthread.html?76211-RSScrawler-(noarch)-Paketzentrum-(JDownloader-Add-on)
+https://spk.netzbaer.de/rsscrawler
