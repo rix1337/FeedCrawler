@@ -311,7 +311,7 @@ class MB():
                         key,
                         download_link,
                         jdownloaderpath + "/folderwatch",
-                        "Remux"
+                        "RSScrawler/Remux"
                     ) and text.append(key)
             # Wenn zuvor ein key dem Text hinzugefuegt wurde (also ein Release gefunden wurde):
             if len(text) > 0:
