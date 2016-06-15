@@ -86,6 +86,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         # Unterverzeichnis des Downloads ist folder_name & subdir wird wenn es nicht leer ist mit angegeben. Subdir hilft bei der Automatisierung (bspw. ueber Filebot).
         if not subdir == "":
             file.write('downloadFolder=' + subdir + "/" + '%s\n' % folder_name)
+            file.write('priority=Lower')
         else:
             file.write('downloadFolder=' + '%s\n' % folder_name)
         # Name des Pakets im JDownloader ist package_name (ohne Leerzeichen!)
