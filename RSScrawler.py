@@ -903,7 +903,7 @@ if __name__ == "__main__":
     jdownloaderpath = jdownloaderpath.replace("\\", "/")
     # Entferne Slash, wenn jdownloaderpath darauf endet
     jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
-    logging.debug("Nutze das folderwatch Unterverzeichnis von " + jdownloaderpath + " fuer Crawljobs")
+    print("Nutze das folderwatch Unterverzeichnis von " + jdownloaderpath + " fuer Crawljobs")
 
     # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
