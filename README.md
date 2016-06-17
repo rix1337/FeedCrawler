@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.6.4
+#  RSScrawler - Version 1.6.5
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -18,7 +18,9 @@ Diese Version ist final (bekannte Fehler sind behoben/keine vom Author gewünsch
 
 Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) müssen in dessen Entwicklerforum gelöst werden.
 
-**Um ein Problem zu lösen, oder das Projekt zu erweitern muss ein entsprechender Pull Request (mit Code) eröffnet werden! Issues dienen nur der Fehlermeldung.**
+**Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
+
+Zum automatischen Lösen von Captchas empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)
 
 ## TLDR:
 
@@ -67,6 +69,8 @@ Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man s
 Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel
 
 ENGLISCH.*Serien.Titel.*.1080p.* sucht nach englischen Releases in Full-HD von Serien Titel
+
+(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP) sucht nach Serie (aber nicht Diese Serie oder Andere Serie), zweisprachig und in 720p und ausschließlich nach Releases von GROUP oder ANDEREGROUP
 ```
 
 Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
