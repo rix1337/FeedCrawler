@@ -12,15 +12,16 @@ https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 ## Beschreibung:
 
-RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
+**RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.**
 
-Diese Version ist final (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
+Diese **Version ist final** (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
 
-Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, etc.) müssen in dessen Entwicklerforum gelöst werden.
+Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)!
+
+**Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, Link ist angeblich offline, etc.) müssen in dessen Entwicklerforum gelöst werden.**
 
 **Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
-Zum automatischen Lösen von Captchas empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)
 
 ## TLDR:
 
