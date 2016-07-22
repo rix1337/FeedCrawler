@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.6.5
+# RSScrawler - Version 1.6.6
 # Projekt von https://github.com/rix1337
 # Enthaltener Code
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.6.5"
+version = "v.1.6.6"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -48,6 +48,7 @@ import signal
 import logging
 import os
 import errno
+import socket
 
 # Interne Importe
 from rssconfig import RssConfig
@@ -529,6 +530,9 @@ def getURL(url):
         return ''
     except urllib2.URLError as e:
         logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' %  e.reason)
+        return ''
+    except socket.error as e:
+        logging.debug('Die HTTP-Anfrage wurde unterbrochen: Grund: %s' %  e.reason)
         return ''
 
 class SJ():

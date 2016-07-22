@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.6.5
+#  RSScrawler - Version 1.6.6
 Projekt von https://github.com/rix1337
 
 ## Enthaltener Code:
@@ -101,5 +101,5 @@ https://github.com/rix1337/RSScrawler/releases
 ### Docker Container:
 https://github.com/rix1337/docker-rsscrawler
 
-### Synology Addon-Paket:
+### Inoffizielles Synology Addon-Paket (Veraltet):
 https://spk.netzbaer.de/rsscrawler
