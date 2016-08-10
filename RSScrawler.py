@@ -532,7 +532,7 @@ def getURL(url):
         logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' %  e.reason)
         return ''
     except socket.error as e:
-        logging.debug('Die HTTP-Anfrage wurde unterbrochen: Grund: %s' %  e.reason)
+        logging.debug('Die HTTP-Anfrage wurde unterbrochen.)
         return ''
 
 class SJ():
