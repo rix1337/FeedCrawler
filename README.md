@@ -33,6 +33,12 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 Optional stehen [fertige Builds für docker, Windows und Synology](#windows-build) zur Verfügung!
 
+Für Mac OS X/macOS bitte beachten:
+
+Die fehlenden Module müssen mit:
+
+```python -m pip install [MODULNAME]``` installiert werden
+
 ## RSScrawler starten:
 
 ```python RSScrawler.py``` führt RSScrawler aus
@@ -57,10 +63,10 @@ Alle weiteren Einstellungen können nach Belieben angepasst werden und sind hinr
 
 ### Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex):
 
-1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen
-2. MB_Staffeln enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
-3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen
-4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:
+1. ```MB_Filme.txt``` enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen
+2. ```MB_Staffeln.txt``` enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen
+3. ```SJ_Serien.txt``` enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen
+4. ```SJ_Serien_Regex.txt``` enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:
 
 ```
 DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p auf Deutsch
@@ -78,6 +84,8 @@ Generell sollten keine Sonderzeichen in den Listen hinterlegt werden!
 
 **Die Listen werden automatisch mit Platzhalterzeilen generiert und sind danach anzupassen. Platzhalter verhindern, dass unerwünschte Releases beim ersten Start hinzugefügt werden.**
 
+## [MB]:
+
 ### crawl3d:
 
 Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität. Standartmäßig werden HOU-Releases aussortiert (ignore).
@@ -91,15 +99,17 @@ Findet das Script kein Release wird dies im Log vermerkt. Bei der nächsten Ausf
 
 Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche.
 
+## [SJ]:
+
 ### regex:
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
-### Windows Build:
+## Windows Build:
 https://github.com/rix1337/RSScrawler/releases
 
-### Docker Container:
+## Docker Container:
 https://github.com/rix1337/docker-rsscrawler
 
-### Inoffizielles Synology Addon-Paket (Veraltet):
+## Inoffizielles Synology Addon-Paket (Veraltet):
 https://spk.netzbaer.de/rsscrawler
