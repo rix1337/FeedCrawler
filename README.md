@@ -1,5 +1,15 @@
-#  RSScrawler - Version 1.6.6
+#  RSScrawler - Version 1.6.7
 Projekt von https://github.com/rix1337
+
+RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
+
+Diese **Version ist final** (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
+
+Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)!
+
+**Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, Link ist angeblich offline, etc.) müssen in dessen Entwicklerforum gelöst werden.**
+
+**Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
 ## Enthaltener Code:
 https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -9,18 +19,6 @@ https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/Movieblog
 https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
 https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
-
-## Beschreibung:
-
-**RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.**
-
-Diese **Version ist final** (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
-
-Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)!
-
-**Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, Link ist angeblich offline, etc.) müssen in dessen Entwicklerforum gelöst werden.**
-
-**Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
 ## Bitcoin senden:
 
