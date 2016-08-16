@@ -845,6 +845,7 @@ if __name__ == "__main__":
     print("| Captchas loesen: https://www.9kw.eu/register_87296.html |")
     print("| Bitcoin senden:  32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26     |")
     print("|_________________________________________________________|")
+    print("")
     
     # Erstelle fehlenden Einstellungen Ordner
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
@@ -962,7 +963,7 @@ if __name__ == "__main__":
         print('Beende RSScrawler...')
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
-    print('Druecke Strg+C zum Beenden')
+    print('Druecke [Strg] + [C] zum Beenden')
 
     # Wenn testlauf gesetzt ist, fuehre RSScrawler einmalig aus:
     for el in pool:
