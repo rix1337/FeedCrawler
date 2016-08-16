@@ -845,6 +845,7 @@ if __name__ == "__main__":
     print("| Captchas loesen: https://www.9kw.eu/register_87296.html |")
     print("| Bitcoin senden:  32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26     |")
     print("|_________________________________________________________|")
+    print("")
     
     # Erstelle fehlenden Einstellungen Ordner
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
