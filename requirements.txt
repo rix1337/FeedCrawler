@@ -1,6 +1,6 @@
+BeautifulSoup
 docopt
 feedparser
-BeautifulSoup
-pycurl
 lxml
+pycurl
 requests
