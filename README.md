@@ -22,8 +22,11 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 **Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
-### Bitcoin:
+## Bitcoin senden:
+
 32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26
+
+![32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26](https://raw.githubusercontent.com/rix1337/donate/master/donate.png "32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26")
 
 ## TLDR:
 
