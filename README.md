@@ -1,5 +1,5 @@
 #  RSScrawler - Version 1.6.7
-Projekt von [https://github.com/rix1337](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
+Projekt von [rix1337](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
@@ -10,7 +10,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 **Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
 ## Credits:
-[dmitryint](https://github.com/rix1337/RSScrawler/commits?author=dmitryint) (im Auftrag von https://github.com/rix1337)
+[dmitryint](https://github.com/rix1337/RSScrawler/commits?author=dmitryint) (im Auftrag von [rix1337](https://github.com/rix1337))
 
 [zapp-brannigan](https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py)
 
@@ -107,7 +107,13 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
 ## Releases:
-[Windows](https://github.com/rix1337/RSScrawler/releases) | [Docker](https://github.com/rix1337/docker-rsscrawler) | [Synology](http://www.synology-forum.de/showthread.html?77382-RSScrawler-1-6-5-(noarch)-Paketzentrum-(JDownloader-Add-on))
---- |---|---
-[offiziell](https://github.com/rix1337)  | [offiziell](https://github.com/rix1337) | [inoffiziell](https://github.com/neutron666) |
+
+Plattform | Author | Status
+---|---|---
+[Windows](https://github.com/rix1337/RSScrawler/releases) | [rix1337](https://github.com/rix1337) | Offiziell
+[Docker](https://hub.docker.com/r/rix1337/docker-rsscrawler/) | [rix1337](https://github.com/rix1337) | Offiziell
+[Synology](https://spk.netzbaer.de/rsscrawler) | [neutron666](https://github.com/neutron666) | Inoffiziell*
+
+*eventuell nicht auf aktuellem Stand
+
 
