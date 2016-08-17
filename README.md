@@ -32,7 +32,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 4. Passe die ```Einstellungen.ini``` und die .txt Listen komplett an.
 5. Nutze RSScrawler!
 
-Optional stehen [fertige Builds für docker, Windows und Synology](#windows-build) zur Verfügung!
+Optional stehen [fertige Builds für docker, Windows und Synology](#releases) zur Verfügung!
 
 Für Mac OS X/macOS bitte beachten:
 
