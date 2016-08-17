@@ -3,8 +3,6 @@ Projekt von https://github.com/rix1337
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
-Diese **Version ist final** (bekannte Fehler sind behoben/keine vom Author gewünschten Features fehlen).
-
 Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9kw.eu/register_87296.html)!
 
 **Den JDownloader betreffende Probleme (ReCaptcha benötigt Browserfenster, Link ist angeblich offline, etc.) müssen in dessen Entwicklerforum gelöst werden.**
