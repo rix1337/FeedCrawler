@@ -1,5 +1,5 @@
 #  RSScrawler - Version 1.6.7
-Projekt von https://github.com/rix1337
+Projekt von [https://github.com/rix1337](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
@@ -9,14 +9,14 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 **Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
-## Enthaltener Code:
-https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
+## Credits:
+[dmitryint](https://github.com/rix1337/RSScrawler/commits?author=dmitryint) (im Auftrag von https://github.com/rix1337)
 
-https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
+[zapp-brannigan](https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py)
 
-https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
+[Gutz-Pilz](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py)
 
-https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
+[bharnett](https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py)
 
 ## Bitcoin senden:
 
@@ -106,11 +106,8 @@ Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Opt
 
 Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
-## Windows Build:
-https://github.com/rix1337/RSScrawler/releases
+## Releases:
+[Windows](https://github.com/rix1337/RSScrawler/releases) | [Docker](https://github.com/rix1337/docker-rsscrawler) | [Synology](http://www.synology-forum.de/showthread.html?77382-RSScrawler-1-6-5-(noarch)-Paketzentrum-(JDownloader-Add-on))
+--- |---|---
+[offiziell](https://github.com/rix1337)  | [offiziell](https://github.com/rix1337) | [inoffiziell](https://github.com/neutron666) |
 
-## Docker Container:
-https://github.com/rix1337/docker-rsscrawler
-
-## Inoffizielles Synology Addon-Paket (Veraltet):
-https://spk.netzbaer.de/rsscrawler
