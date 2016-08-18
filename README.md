@@ -1,4 +1,4 @@
-#  RSScrawler - Version 1.6.7
+#  RSScrawler - Version 1.7.0
 Projekt von [rix1337](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
