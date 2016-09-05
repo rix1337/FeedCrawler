@@ -842,7 +842,7 @@ if __name__ == "__main__":
     print("│ Projektseite: https://github.com/rix1337/RSScrawler     │")
     print("├─────────────────────────────────────────────────────────┤")
     print("│ Captchas loesen: https://www.9kw.eu/register_87296.html │")
-    print("│ Bitcoin senden:  32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26     │")
+    print("│ Bedanken:        https://github.com/rix1337/donate      │")
     print("└─────────────────────────────────────────────────────────┘")
     
     # Erstelle fehlenden Einstellungen Ordner
