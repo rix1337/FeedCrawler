@@ -18,7 +18,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 [bharnett](https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py)
 
-## Bitcoin senden:
+## Bedanken:
 
 **Das Projekt nimmt keine Spenden an.** Um sich für den aktuellen Stand von RSScrawler zu bedanken können Bitcoin gesendet werden. Features und Support werden hier nicht verkauft.
 
