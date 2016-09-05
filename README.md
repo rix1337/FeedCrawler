@@ -20,9 +20,9 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 ## Bitcoin senden:
 
-32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26
+**Das Projekt nimmt keine Spenden an.** Um sich für den aktuellen Stand von RSScrawler zu bedanken können Bitcoin gesendet werden. Features und Support werden hier nicht verkauft.
 
-![32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26](https://raw.githubusercontent.com/rix1337/donate/master/donate.png "32TwQSAaRjeVAN4FVs7ZKiyAKtTepcmY26")
+[rix1337/donate](https://github.com/rix1337/donate)
 
 ## TLDR:
 
