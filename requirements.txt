@@ -1,0 +1,6 @@
+BeautifulSoup
+docopt
+feedparser
+lxml
+pycurl
+requests
