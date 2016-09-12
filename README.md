@@ -1,5 +1,5 @@
-#  RSScrawler - Version 1.9.0
-Projekt von [rix1337](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
+#  RSScrawler - Version 1.9.1
+Projekt von [RiX](https://github.com/rix1337/RSScrawler/commits?author=rix1337)
 
 RSScrawler durchsucht MB/SJ nach in .txt Listen hinterlegten Titeln und reicht diese im .crawljob Format an JDownloader weiter.
 
@@ -10,7 +10,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 **Um das Projekt zu erweitern muss entsprechender Code als Pull-Request eingereicht werden! Issues dienen nur der Fehlermeldung.**
 
 ## Credits:
-[dmitryint](https://github.com/rix1337/RSScrawler/commits?author=dmitryint) (im Auftrag von [rix1337](https://github.com/rix1337))
+[dmitryint](https://github.com/dmitryint/RSScrawler/) (im Auftrag von [rix1337](https://github.com/rix1337))
 
 [zapp-brannigan](https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py)
 
@@ -22,7 +22,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 **Das Projekt nimmt keine Spenden an.** Um sich für den aktuellen Stand von RSScrawler zu bedanken können Bitcoin gesendet werden. Features und Support werden hier nicht verkauft.
 
-[rix1337/thanks](https://github.com/rix1337/thanks)
+[Danke!](https://github.com/rix1337/thanks)
 
 ## TLDR:
 
@@ -34,7 +34,7 @@ Zum **automatischen Lösen von Captchas** empfiehlt sich [9kw.eu](https://www.9k
 
 Optional stehen [fertige Builds für docker, Windows und Synology](#releases) zur Verfügung!
 
-Für Mac OS X/macOS bitte beachten:
+Für OS X bitte beachten:
 
 Die fehlenden Module müssen mit:
 
@@ -108,12 +108,10 @@ Wenn aktiviert werden die Serien aus der SJ_Serien_Regex.txt gesucht
 
 ## Releases:
 
-Plattform | Author | Status
+Plattform | Autor | Status
 ---|---|---
 [Windows](https://github.com/rix1337/RSScrawler/releases) | [rix1337](https://github.com/rix1337) | Offiziell
 [Docker](https://hub.docker.com/r/rix1337/docker-rsscrawler/) | [rix1337](https://github.com/rix1337) | Offiziell
 [Synology](https://spk.netzbaer.de/rsscrawler) | [neutron666](https://github.com/neutron666) | Inoffiziell*
 
 *eventuell nicht auf aktuellem Stand
-
-

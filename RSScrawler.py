@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.9.0
+# RSScrawler - Version 1.9.1
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.9.0"
+version = "v.1.9.1"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -581,6 +581,10 @@ class SJ():
         self.added_items = []
 
         for post in feed.entries:
+            # Seltenen Fehler, bei dem ein Feedeintrag (noch) keinen Link enthält umgehen:
+            if post.link == None:
+              continue
+          
             link = post.link
             title = post.title
 
