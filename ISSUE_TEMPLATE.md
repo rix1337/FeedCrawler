@@ -10,7 +10,6 @@ Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein
 
 -Version des RSScrawlers (mindestens 1.9.x)
 
-
 ### Logauszug:
 
 Die Logzeilen (DEBUG) zum Fehler
