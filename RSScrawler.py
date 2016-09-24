@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.9.1
+# RSScrawler - Version 1.9.2
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -24,7 +24,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.1.9.1"
+version = "v.1.9.2"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -581,7 +581,7 @@ class SJ():
         self.added_items = []
 
         for post in feed.entries:
-            # Seltenen Fehler, bei dem ein Feedeintrag (noch) keinen Link enthält umgehen:
+            # Seltenen Fehler, bei dem ein Feedeintrag (noch) keinen Link enthält, umgehen:
             if post.link == None:
               continue
           
@@ -626,7 +626,7 @@ class SJ():
             title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)",title)
             try:
                 for count in range(int(number1),(int(number2)+1)):
-                    NR = re.match("d\{2}", str(count))
+                    NR = re.match("\d{2}", str(count))
                     if NR is not None:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1)
@@ -764,7 +764,7 @@ class SJregex():
             title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)",title)
             try:
                 for count in range(int(number1),(int(number2)+1)):
-                    NR = re.match("d\{2}", str(count))
+                    NR = re.match("\d{2}", str(count))
                     if NR is not None:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1)
