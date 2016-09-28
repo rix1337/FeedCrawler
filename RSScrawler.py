@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.9.2
+# RSScrawler - Version 2.0.0
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -14,17 +14,19 @@
 
 Usage:
   RSScrawler.py [--testlauf]
+                [--port=<PORT>]
                 [--jd-pfad=<JDPATH>]
                 [--log-level=<LOGLEVEL>]
 
 Options:
   --testlauf                Einmalige Ausführung von RSScrawler
+  --port=<PORT>             Legt den Port des Webservers fest
   --jd-pfad=<JDPFAD>        Legt den Pfad von JDownloader vorab fest (nützlich bei headless-Systemen), diese Option darf keine Leerzeichen enthalten
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
 # Globale Variablen
-version = "v.1.9.2"
+version = "v.2.0.0"
 placeholder_filme = False
 placeholder_staffeln = False
 placeholder_serien = False
@@ -49,12 +51,14 @@ import logging
 import os
 import errno
 import socket
+from multiprocessing import Process
 
 # Interne Importe
 from rssconfig import RssConfig
 from rssdb import RssDb
 from timer import RepeatableTimer
 import common
+import cherry
 
 # Importiere SimpleJson oder Json (nach Verfügbarkeit)
 try:
@@ -115,6 +119,29 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         # Vermerke fehlgeschlagenen Schreibvorgang
         return False
 
+# Prüffunktion ob Punkte, Sonderzeichen und falsche Trennzeichen vorhanden sind
+def checkFiles():
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'r+') as f:
+        content = f.read()
+        f.seek(0)
+        f.truncate()
+        f.write(content.replace(';', ','))
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'r+') as f:
+        content = f.read()
+        f.seek(0)
+        f.truncate()
+        f.write(content.replace(';', ',').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß', 'ss'))
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), 'r+') as f:
+        content = f.read()
+        f.seek(0)
+        f.truncate()
+        f.write(content.replace(';', ',').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß', 'ss'))
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'r+') as f:
+        content = f.read()
+        f.seek(0)
+        f.truncate()
+        f.write(content.replace('.', ' ').replace(';', ',').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß', 'ss'))
+
 # MovieBlog
 def notifyPushbulletMB(apikey,text):
     # Wenn kein API-Key vergeben wurde:
@@ -156,7 +183,7 @@ def _restart_timer(func):
             self.periodical.cancel()
             self.periodical.start()
     return wrapper
-
+		
 class MB():
     FEED_URL = "http://www.movie-blog.org/feed/"
     SUBSTITUTE = "[&#\s/]"
@@ -170,7 +197,7 @@ class MB():
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
         self.filme = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt')
         self.staffeln = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')
-        self._hosters_pattern = rsscrawler.get('hoster').replace(';','|')
+        self._hosters_pattern = rsscrawler.get('hoster').replace(',','|')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
             int(rsscrawler.get('interval')) * 60,
@@ -187,7 +214,7 @@ class MB():
         if not os.path.isfile(file):
             open(file, "a").close()
             placeholder = open(file, 'w')
-            placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+            placeholder.write('Ein Titel Pro Zeile - BEACHTE DIE HINWEISE')
             placeholder.close()
         try:
             f = codecs.open(file, "rb")
@@ -200,7 +227,7 @@ class MB():
         global placeholder_filme
         global placeholder_staffeln
         # Wenn Liste exakt die Platzhalterzeile enthält:
-        if patterns == ["RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md"]:
+        if patterns == ["Ein Titel Pro Zeile - BEACHTE DIE HINWEISE"]:
             # Wenn keine Information zur Quellart weitergegeben wurde (gilt nur bei Staffeln, Standard ist: BluRay):
             if sf == None:
                 # Logge vorhandenen Platzhalter, der in der Filme-Liste stehen muss (da keine Quellart angegeben)
@@ -449,7 +476,7 @@ def getSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DIE HINWEISE')
         placeholder.close()
     try:
         titles = []
@@ -476,7 +503,7 @@ def getRegexSeriesList(file):
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE HINWEISE')
         placeholder.close()
     try:
         titles = []
@@ -524,7 +551,7 @@ def getURL(url):
         req = urllib2.Request(
             url,
             None,
-            {'User-agent' : 'Mozilla/5.0 (Windows; U; Windows NT 5.1; de; rv:1.9.1.5) Gecko/20091102 Firefox/3.5.5'}
+            {'User-agent' : 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'}
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
@@ -565,7 +592,7 @@ class SJ():
         # Stoppe Suche wenn Platzhalter aktiv
         if placeholder_serien:
             return
-        reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
+        reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
         # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
@@ -716,7 +743,7 @@ class SJregex():
         # Stoppe Suche wenn Platzhalter aktiv
         if placeholder_regex:
             return
-        reject = self.config.get("rejectlist").replace(";","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
+        reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
         # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
@@ -830,10 +857,10 @@ class SJregex():
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
-    # Deaktiviere HTTP requests im log
-    urllib3_logger = logging.getLogger('urllib3')
-    urllib3_logger.setLevel(logging.CRITICAL)
-    
+    # Deaktiviere requests Log
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     # Lege loglevel über Startparameter fest
     logging.basicConfig(
         filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format='%(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
@@ -866,35 +893,39 @@ if __name__ == "__main__":
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt')):
         open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DIE HINWEISE')
         placeholder.close()
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')):
         open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DIE HINWEISE')
         placeholder.close()
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt')):
         open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'w')
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DIE HINWEISE')
         placeholder.close()
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt')):
         open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), "a").close()
         placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'w')
     # Platzhalterzeile weicht bei Regex Liste ab
-        placeholder.write('RSSCRAWLER VON RIX - Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE README.md')
+        placeholder.write('Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE HINWEISE')
         placeholder.close()
             
     # Setze relativen Dateinamen der Einstellungsdatei    
     einstellungen = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
     # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
-    # Wenn jd-pfad Startparameter existiert, erstelle ini mit diesem Parameter
+    # Wenn jd-pfad Startparameter nicht existiert, erstelle ini ohne diesen Parameter
     if not arguments['--jd-pfad']:
         if not os.path.exists(einstellungen):
             open(einstellungen, "a").close()
             einsteller = open(einstellungen, 'w')
-            einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Ordnerüberwachung im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n\n# Zum automatischen Lösen von Captchas empfiehlt sich https://www.9kw.eu/register_87296.html\n# Bedanken: https://github.com/rix1337/thanks\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = Muss unbedingt vergeben werden!\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert sucht das Script zu jedem nicht-zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release\n# in 1080p mit DL Tag. Findet das Script kein Release wird dies im Log vermerkt. Bei der nächsten Ausführung versucht\n# das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine\n# zweisprachige Bibliothek in 720p zu halten.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = False\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p auf Deutsch\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel\n#    ENGLISCH.*Serien.Titel.*.1080p.* sucht nach englischen Releases in Full-HD von Serien Titel\n#    (?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP) sucht nach Serie (aber nicht Diese Serie oder Andere Serie), zweisprachig und in 720p und ausschließlich nach Releases von GROUP oder ANDEREGROUP')
-            einsteller.close()
+            if arguments['--port']:
+                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = Muss unbedingt vergeben werden!\nport = ' + arguments['--port'] + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+                einsteller.close()
+            else:
+                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = Muss unbedingt vergeben werden!\nport = 9090\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+                einsteller.close()
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print('Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
             print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
@@ -902,13 +933,19 @@ if __name__ == "__main__":
             time.sleep(10)
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
-    # Ansonsten erstelle ini ohne vergebenen JDownloader Pfad
+    # Ansonsten erstelle ini mit angegebenem Pfad
     else:
         if not os.path.exists(einstellungen):
             open(einstellungen, "a").close()
             einsteller = open(einstellungen, 'w')
-            einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n# Hier werden sämtliche Einstellungen von RSScrawler hinterlegt\n# Dieses Script funktioniert nur sinnvoll, wenn Ordnerüberwachung im JDownloader aktiviert ist.\n# Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!\n\n# Zum automatischen Lösen von Captchas empfiehlt sich https://www.9kw.eu/register_87296.html\n# Bedanken: https://github.com/rix1337/thanks\n\n# Diese allgemeinen Einstellungen müssen korrekt sein:\n[RSScrawler]\n# Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!\njdownloader = ' + arguments['--jd-pfad'] + '\n# Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden um keinen Ban zu riskieren\ninterval = 10\n# Um über hinzugefügte Releases informiert zu werden hier den Pushbullet API-Key eintragen\npushbulletapi = \n# Hier den gewünschten Hoster eintragen (Uploaded oder Share-Online)\nhoster = Uploaded\n\n# Dieser Bereich ist für die Suche auf Movie-Blog.org zuständig:\n[MB]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommas getrennt)\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\n# Wenn aktiviert wird die MB-Suchfunktion genutzt (langsamer), da der Feed nur wenige Stunden abbildet\nhistorical = True\n# Wenn aktiviert sucht das Script nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Qualität\ncrawl3d = False\n# Wenn aktiviert sucht das Script zu jedem nicht-zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release\n# in 1080p mit DL Tag. Findet das Script kein Release wird dies im Log vermerkt. Bei der nächsten Ausführung versucht\n# das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine\n# zweisprachige Bibliothek in 720p zu halten.\nenforcedl = False\n# Komplette Staffeln von Serien landen zuverlässiger auf MB als auf SJ. Diese Option erlaubt die entsprechende Suche\ncrawlseasons = True\n# Die Qualität, nach der Staffeln gesucht werden (1080p, 720p oder 480p)\nseasonsquality = 720p\n# Der Staffel-Releasetyp nach dem gesucht wird\nseasonssource = bluray\n\n# Dieser Bereich ist für die Suche auf Serienjunkies.org zuständig:\n[SJ]\n# Die Qualität, nach der Gesucht wird (1080p, 720p oder 480p)\nquality = 720p\n# Releases mit diesen Begriffen werden nicht hinzugefügt (durch Semikola getrennt)\nrejectlist = XviD;Subbed;HDTV\n# Wenn aktiviert werden in einer zweiten Suchdatei Serien nach Regex-Regeln gesucht\nregex = False\n\n# Die Listen (MB_Filme, MB_Serien, SJ_Serien, SJ_Serien_Regex:\n# 1. MB_Filme enthält pro Zeile den Titel eines Films (Film Titel), um auf MB nach Filmen zu suchen\n# 2. MB_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf MB nach kompletten Staffeln zu suchen\n# 3. SJ_Serien enthält pro Zeile den Titel einer Serie (Serien Titel), um auf SJ nach Serien zu suchen\n# 4. SJ_Serien_Regex enthält pro Zeile den Titel einer Serie in einem speziellen Format, wobei die Filter ignoriert werden:\n#    DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP sucht nach Releases der Gruppe GROUP von Staffel 1 der Serien Titel in 720p auf Deutsch\n#    Serien.Titel.* sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV aussortiert)\n#    Serien.Titel.*.DL.*.720p.* sucht nach zweisprachigen Releases in 720p von Serien Titel\n#    ENGLISCH.*Serien.Titel.*.1080p.* sucht nach englischen Releases in Full-HD von Serien Titel\n#    (?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP) sucht nach Serie (aber nicht Diese Serie oder Andere Serie), zweisprachig und in 720p und ausschließlich nach Releases von GROUP oder ANDEREGROUP')
-            einsteller.close()
+            # Prüfe weiterhin ob Port angegeben wurde
+            if arguments['--port']:
+                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + arguments['--jd-pfad'] + '\nport = ' + arguments['--port'] + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+                einsteller.close()
+            # Wenn nicht, vergebe nur Pfadangabe
+            else:
+                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + arguments['--jd-pfad'] + '\nport = 9090\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+                einsteller.close()
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print('Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
             print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
@@ -957,7 +994,22 @@ if __name__ == "__main__":
         time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
-    
+        
+    # Lege Port und Pfad der Webanwendung entsprechend der RSScrawler.ini bzw. des Startparameters fest
+    if arguments['--port']:
+    	port = int(arguments['--port'])
+    else:
+    	port = port = int(rsscrawler.get("port"))
+    prefix = rsscrawler.get("prefix")
+    print('Der Webserver ist erreichbar unter ' + socket.gethostbyname(socket.gethostname()) +':' + str(port) + '/' + prefix)
+    def f(port, prefix):
+        starten = cherry.Server()
+        starten.start(port, prefix)
+    p = Process(target=f, args=(port, prefix))
+    # Starte Webanwendung
+    p.start()
+    checkFiles()
+
     # Diese Klassen werden periodisch ausgeführt    
     pool = [
         MB(),
@@ -965,15 +1017,18 @@ if __name__ == "__main__":
         SJregex(),
     ]
 
+    # Hinweis, wie RSScrawler beendet werden kann
+    print('Drücke [Strg] + [C] zum Beenden')
+    
     # Sauberes Beenden (über STRG+C) ermöglichen
     def signal_handler(signal, frame):
         list([el.periodical.cancel() for el in pool])
         print('Beende RSScrawler...')
+        p.terminate()
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
-    print('Drücke [Strg] + [C] zum Beenden')
 
-    # Wenn testlauf gesetzt ist, führe RSScrawler einmalig aus:
+    # Wenn testlauf gesetzt ist, führe RSScrawler nur einmalig aus:
     for el in pool:
         # Wenn also testlauf nicht gesetzt ist, aktiviere die wiederholte Ausführung
         if not arguments['--testlauf']:

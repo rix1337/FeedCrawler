@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 1.9.2
+# RSScrawler - Version 2.0.0
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -14,6 +14,8 @@ class RssConfig(object):
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", "", "/jd2"),
+            ("port", "9090", "int", "9090"),
+            ("prefix", "str", "", ""),
             ("interval", "int", "", "10"),
             ("pushbulletapi","str","",""),
             ("hoster", """Uploaded,Share-Online""", "", "Uploaded")
@@ -30,7 +32,7 @@ class RssConfig(object):
         ],
         'SJ': [
             ("quality", """480p;720p;1080p""", "", "720p"),
-            ("rejectlist", "str", "", "XviD;Subbed;HDTV"),
+            ("rejectlist", "str", "", "XviD,Subbed,HDTV"),
             ("regex","bool","", "True")
         ]
     }
