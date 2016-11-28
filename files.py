@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.2.8
+# RSScrawler - Version 2.3.0
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -91,3 +91,9 @@ def startup():
     # Platzhalterzeile weicht bei Regex Liste ab
         cherryconf.write("[global]\nserver.socket_host: '0.0.0.0'\nlog.screen: False\n\nlog.access_file: ''\nlog.error_file: ''\n\n[/]\ntools.gzip.on: True")
         cherryconf.close()
+
+def einsteller(einstellungen, version, jdpfad, port):
+    open(einstellungen, "a").close()
+    einsteller = open(einstellungen, 'w')
+    einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + jdpfad + '\nport = ' + port + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+    einsteller.close()

@@ -1,5 +1,5 @@
 #!/bin/bash
-# RSScrawler - Version 2.2.8
+# RSScrawler - Version 2.3.0
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
@@ -26,22 +26,8 @@ git clone https://github.com/rix1337/RSScrawler.git
 cd RSScrawler
 git remote add rss https://github.com/rix1337/RSScrawler.git
 
-# Starte RSSCrawler einmalig (erstellt Einstellungdateien)
-python RSScrawler.py
-
 # Konsole zur Übersicht leeren
 clear
 
-# Ausgeben des Hinweis der Pfade
-echo "--------------------"
-echo "Der RSScrawler-Pfad lautet: $rsspath"
-echo "Der JDownloader-Pfad lautet: $jdpath"
-echo "Der Webinterface-Port lautet: $rssport"
-echo "-------------"
-
-
-# Port anpassen
-sed s/9090/$rssport/g -i $rsspath/RSScrawler/Einstellungen/RSScrawler.ini 
-
-# Erneutes Starten von RSSCrawler
-python RSScrawler.py --jd-pfad=$jdpath &
+# Starte RSSCrawler
+python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &

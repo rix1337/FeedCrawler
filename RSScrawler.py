@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.2.8
+# RSScrawler - Version 2.3.0
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -27,7 +27,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.2.2.8"
+version = "v.2.3.0"
 placeholder_filme = False
 placeholder_3d = False
 placeholder_staffeln = False
@@ -1450,36 +1450,26 @@ if __name__ == "__main__":
     # Wenn jd-pfad Startparameter nicht existiert, erstelle ini ohne diesen Parameter
     if not arguments['--jd-pfad']:
         if not os.path.exists(einstellungen):
-            open(einstellungen, "a").close()
-            einsteller = open(einstellungen, 'w')
             if arguments['--port']:
-                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = Muss unbedingt vergeben werden!\nport = ' + arguments['--port'] + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
-                einsteller.close()
+                files.einsteller(einstellungen, version, "Muss unbedingt vergeben werden!", arguments['--port'])
             else:
-                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = Muss unbedingt vergeben werden!\nport = 9090\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
-                einsteller.close()
+                files.einsteller(einstellungen, version, "Muss unbedingt vergeben werden!", "9090")
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print('Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-            print('Die Einstellungen und Listen sind beim nächsten Start im Webinterface bearbeitbar!')
-            # Warte 10 Sekunden, damit Windows-Nutzer die Warnung lesen können
-            time.sleep(10)
+            print('Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
     # Ansonsten erstelle ini mit angegebenem Pfad
     else:
         if not os.path.exists(einstellungen):
-            open(einstellungen, "a").close()
-            einsteller = open(einstellungen, 'w')
             # Prüfe weiterhin ob Port angegeben wurde
             if arguments['--port']:
-                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + arguments['--jd-pfad'] + '\nport = ' + arguments['--port'] + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
-                einsteller.close()
+                files.einsteller(einstellungen, version, arguments['--jd-pfad'], arguments['--port'])
             # Wenn nicht, vergebe nur Pfadangabe
             else:
-                einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + arguments['--jd-pfad'] + '\nport = 9090\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
-                einsteller.close()
+                files.einsteller(einstellungen, version, arguments['--jd-pfad'], "9090")
             print('Der Ordner "Einstellungen" wurde erstellt.')
-            print('Die Einstellungen und Listen sind jetzt im Webinterface bearbeitbar!')
+            print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
     
     # Prüfe, ob neue Einstellungen in RSScrawler vorhanden sind
     configfile = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
@@ -1515,8 +1505,6 @@ if __name__ == "__main__":
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
         print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
-        # Warte 5 Sekunden, damit Windows-Nutzer die Warnung lesen können
-        time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
     
@@ -1526,16 +1514,12 @@ if __name__ == "__main__":
     # Abbrechen, wenn JDownloader Pfad nicht existiert
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
-        # Warte 5 Sekunden, damit Windows-Nutzer die Warnung lesen können
-        time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
 
     # Abbrechen, wenn folderwatch Pfad im JDownloader Pfad nicht existiert
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print('Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-        # Warte 5 Sekunden, damit Windows-Nutzer die Warnung lesen können
-        time.sleep(5)
         print('Beende RSScrawler...')
         sys.exit(0)
         

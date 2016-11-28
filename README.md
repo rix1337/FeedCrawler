@@ -1,4 +1,4 @@
-#  RSScrawler - Version 2.2.8
+#  RSScrawler - Version 2.3.0
 Projekt von [RiX](https://github.com/rix1337/RSScrawler/commits)
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
