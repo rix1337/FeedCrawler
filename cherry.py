@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.2.7
+# RSScrawler - Version 2.2.8
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # http://codepen.io/colorlib/pen/KVoZyv
@@ -14,7 +14,7 @@ import common
 import files
 
 # Globale Variable
-version = "v.2.2.7"
+version = "v.2.2.8"
 
 class Server:
   # Zeige Konfigurationsseite

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.2.7
+# RSScrawler - Version 2.2.8
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -27,7 +27,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.2.2.7"
+version = "v.2.2.8"
 placeholder_filme = False
 placeholder_3d = False
 placeholder_staffeln = False
@@ -471,7 +471,7 @@ class MB3d():
                         key,
                         download_link,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler/Remux"
+                        "RSScrawler/3Dcrawler"
                     ) and text.append(key)
                     self.db.store(
                         key,
@@ -592,7 +592,7 @@ class MB3d():
                             key,
                             download_link,
                             jdownloaderpath + "/folderwatch",
-                            "RSScrawler"
+                            "RSScrawler/3Dcrawler"
                         ) and text.append(key)
                         self.db.store(
                             key,

@@ -1,5 +1,5 @@
 #!/bin/bash
-# RSScrawler - Version 2.2.7
+# RSScrawler - Version 2.2.8
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
