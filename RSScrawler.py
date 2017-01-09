@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.3.0
+# RSScrawler - Version 2.3.1
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -27,7 +27,7 @@ Options:
 """
 
 # Globale Variablen
-version = "v.2.3.0"
+version = "v.2.3.1"
 placeholder_filme = False
 placeholder_3d = False
 placeholder_staffeln = False
