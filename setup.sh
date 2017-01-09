@@ -47,9 +47,10 @@ select opt in $OPTIONS; do
     exit
    elif [ "$opt" = "Synology" ]; then
     # Setup
-    echo "Es müssen Python 2.7.x + Python Module und Jdownloader 2 + Java 8 installiert sein!"
+    echo "Es müssen Python 2.7, JDownloader 2 und Java 8 installiert sein!"
     read -rsp $'Durch Tastendruck bestätigen...\n' -n 1 key
-    /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/ python easy_install.py pip
+    cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
+    python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
     pip install docopt feedparser lxml requests cherrypy BeautifulSoup
     cd /volume1/@appstore/
