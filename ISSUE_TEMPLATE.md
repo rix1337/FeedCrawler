@@ -2,13 +2,11 @@
 
 ### Fehlerbeschreibung:
 
-Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein.
+Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein. Nur Fehler des aktuellen Releases werden berücksichtigt.
 
 ### Informationen:
 
 -Betriebssystem
-
--Version des RSScrawlers (muss immer dem aktuellsten Release entsprechen: v.2.3.1)
 
 ### Logauszug:
 

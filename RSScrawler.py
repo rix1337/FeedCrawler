@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler - Version 2.3.1
+# RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
@@ -27,7 +27,8 @@ Options:
 """
 
 # Globale Variablen
-version = "v.2.3.1"
+import version
+version = version.getVersion()
 placeholder_filme = False
 placeholder_3d = False
 placeholder_staffeln = False
@@ -1130,7 +1131,6 @@ def getURL(url):
         return ''
 
 class SJ():
-    MIN_CHECK_INTERVAL = 2 * 60 # Minimales Intervall: 2 Minuten
     _INTERNAL_NAME = 'SJ'
 
     def __init__(self):
@@ -1149,15 +1149,19 @@ class SJ():
     def activate(self):
         self._periodical_active = True
         self.periodical.start()
+        return self
 
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
         self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
         
+        # Die folgende Logik enthält einen Bug und muss gefixt werden.
+        # Symptom: Suche wir nicht periodisch erneut ausgeführt
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        if placeholder_serien:
-            return
+        #
+        # if placeholder_serien:
+        #    return
 
         reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
@@ -1279,7 +1283,6 @@ class SJ():
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
 class SJregex():
-    MIN_CHECK_INTERVAL = 2 * 60 # Minimales Intervall: 2 Minuten
     _INTERNAL_NAME = 'SJ'
 
     def __init__(self):
@@ -1298,15 +1301,19 @@ class SJregex():
         self._periodical_active = True
         if self.config.get("regex"):
           self.periodical.start()
+        return self
 
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
         self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
         
+        # Die folgende Logik enthält einen Bug und muss gefixt werden.
+        # Symptom: Suche wir nicht periodisch erneut ausgeführt
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        if placeholder_regex:
-            return
+        #
+        # if placeholder_regex:
+        #    return
         # Stoppe Suche, wenn Option deaktiviert ist.
         if not self.config.get('regex'):
             return
