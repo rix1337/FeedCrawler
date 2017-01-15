@@ -1,9 +1,8 @@
-#  RSScrawler - Version 2.3.1
-Projekt von [RiX](https://github.com/rix1337/RSScrawler/commits)
+#  RSScrawler
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
 
-## Credits:
+## Credits
 
 [dmitryint](https://github.com/dmitryint/) | [zapp-brannigan](https://github.com/zapp-brannigan/) | [Gutz-Pilz](https://github.com/Gutz-Pilz/) | [bharnett](https://github.com/bharnett/) | [colorlib](http://codepen.io/colorlib/) | [cbracco](http://codepen.io/cbracco/) | [jaysonwm](https://github.com/jaysonwm/) | [Itsie](https://github.com/Itsie) | [sweatcher](https://github.com/sweatcher)
 ---|---|---|---|---|---|---|---|---
@@ -11,11 +10,11 @@ RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDown
 
 *Im Auftrag des Projekteigners
 
-## Installation:
+## Installation
 
 Hinweise zur Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/RSScrawler/wiki)!
 
-## RSScrawler starten:
+## RSScrawler starten
 
 ```python RSScrawler.py``` führt RSScrawler aus
 
