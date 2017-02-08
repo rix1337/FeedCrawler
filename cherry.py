@@ -21,7 +21,7 @@ class Server:
   # Zeige Konfigurationsseite
   @cherrypy.expose
   def index(self):
-    jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -76,6 +76,8 @@ class Server:
           <textarea name="sjserien">''' + self.getListe('SJ_Serien') + '''</textarea>
           <div style='display:''' + srdiv +''';' id='dsjr'><div hinweis="Pro Zeile ein Serientitel im RegEx-Format. Die Filterliste wird hierbei ignoriert!">Serien (RegEx)</div>
           <textarea name="sjregex">''' + self.getListe('SJ_Serien_Regex') + '''</textarea></div>
+          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name eines YouTube-Kanals.">YouTube Kanäle</div>
+          <textarea name="channels">''' + self.getListe('YT_Channels') + '''</textarea></div>
           <button type="submit" onclick="popup.alert({content:'<h1>Listen gespeichert</h1><br />Um sofort nach neuen Titeln zu suchen, muss neu gestartet werden.'},function(a){a.proceed&&window.location.reload()});">Speichern</button>
     </form>
     <form id="rsscrawler" action="https://www.9kw.eu/register_87296.html" target="_blank">
@@ -88,14 +90,14 @@ class Server:
           <div hinweis="Hier werden sämtliche Einstellungen von RSScrawler hinterlegt. Dieses Script funktioniert nur sinnvoll, wenn Ordnerüberwachung im JDownloader aktiviert ist. Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!">
           <h1>Einstellungen</h1></div>
           <div hinweis="Diese allgemeinen Einstellungen müssen korrekt sein!"><h3>Allgemein</h3></div>
-          Pfad des JDownloaders:<div hinweis="''' + dockerhint +'''Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!"><input type="text" value="''' + jdownloader +'''" name="jdownloader"''' + dockerblocker +'''></div>
+          <p>Pfad des JDownloaders:<div hinweis="''' + dockerhint +'''Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!"><input type="text" value="''' + jdownloader +'''" name="jdownloader"''' + dockerblocker +'''></div>
           Port:<div hinweis="''' + dockerhint +'''Hier den Port des Webservers wählen."><input type="text" name="port" value="''' + port +'''"''' + dockerblocker +'''></div>
           Prefix:<div hinweis="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."><input type="text" name="prefix" value="''' + prefix.replace("/", "") +'''"></div>
           Suchintervall:<div hinweis="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren. Minimum sind 3 Minuten!"><input type="text" name="interval" value="''' + interval +'''"></div>
           Pushbullet Token:<div hinweis="Um über hinzugefügte Releases informiert zu werden, hier den Pushbullet API-Token eintragen."><input type="text" name="pushbulletapi" value="''' + pushbulletapi +'''"></div>
-          Hoster:<div hinweis="Hier den gewünschten Hoster wählen."><select name="hoster"><option value="Uploaded"''' + hosterul + '''>Uploaded.net</option><option value="Share-Online"''' + hosterso + '''>Share-Online.biz</option></select></div>
+          Hoster:<div hinweis="Hier den gewünschten Hoster wählen."><select name="hoster"><option value="Uploaded"''' + hosterul + '''>Uploaded.net</option><option value="Share-Online"''' + hosterso + '''>Share-Online.biz</option></select></div></p>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' zuständig."><h3>''' + "TW92aWUtQmxvZw==".decode('base64') + '''</h3></div>
-          Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="mbquality"><option value="1080p"''' + mbq1080 + '''>Full-HD</option><option value="720p"''' + mbq720 + '''>HD</option><option value="480p"''' + mbq480 + '''>SD</option></select></div>
+          <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="mbquality"><option value="1080p"''' + mbq1080 + '''>Full-HD</option><option value="720p"''' + mbq720 + '''>HD</option><option value="480p"''' + mbq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ignore" value="''' + ignore +'''"></div>
           Suchfunktion, statt Feed nutzen:<div hinweis="Wenn aktiviert, wird die Suchfunktion des ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' genutzt, da der Feed nur wenige Stunden abbildet."><select name="historical"><option value="True"''' + historicaltrue + '''>Aktiviert</option><option value="False"''' + historicalfalse + '''>Deaktiviert</option></select></div>
           Zweisprachige Releases suchen:<div hinweis="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."><select name="enforcedl"><option value="True"''' + enforcedltrue + '''>Aktiviert</option><option value="False"''' + enforcedlfalse + '''>Deaktiviert</option></select></div>
@@ -104,11 +106,13 @@ class Server:
           Staffeln suchen:<div hinweis="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste auf ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' gesucht."><select id="smbs" name="crawlseasons"><option value="True"''' + crawlseasonstrue + '''>Aktiviert</option><option value="False"''' + crawlseasonsfalse + '''>Deaktiviert</option></select></div>
           <div style='display:''' + ssdiv +''';' id='dmbss'>Auflösung der Staffeln:<div hinweis="Die Release-Auflösung der Staffeln, nach der gesucht wird."><select name="seasonsquality"><option value="1080p"''' + msq1080 + '''>Full-HD</option><option value="720p"''' + msq720 + '''>HD</option><option value="480p"''' + msq480 + '''>SD</option></select></div>
           Quellart der Staffeln:<div hinweis="Die Quellart der Staffeln, nach der gesucht wird (BluRay, WEB, HDTV, ...)."><input type="text" name="seasonssource" value="''' + seasonssource +'''"></div></div>
-          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div>
+          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div></p>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="sjquality"><option value="1080p"''' + sjq1080 + '''>Full-HD</option><option value="720p"''' + sjq720 + '''>HD</option><option value="480p"''' + sjq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="rejectlist" value="''' + rejectlist +'''"></div>
-          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="ssjr" name="sjregex"><option value="True"''' + sjregextrue + '''>Aktiviert</option><option value="False"''' + sjregexfalse + '''>Deaktiviert</option></select></div>
+          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="ssjr" name="sjregex"><option value="True"''' + sjregextrue + '''>Aktiviert</option><option value="False"''' + sjregexfalse + '''>Deaktiviert</option></select></div></p>
+          <div hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
+          <p>YouTube-Uploads suchen:<div hinweis="Wenn aktiviert, werden Videos aus der YouTube-Kanäle-Liste gesucht."><select id="ytopt" name="youtube"><option value="True"''' + youtubetrue + '''>Aktiviert</option><option value="False"''' + youtubefalse + '''>Deaktiviert</option></select></div></p>
           <button type="submit" onclick="popup.alert({content:'<h1>Einstellungen gespeichert</h1><br />Um einige Änderungen anzunehmen, muss neu gestartet werden.'},function(a){a.proceed&&window.location.reload()});">Speichern</button>
     </form>
     <form id="rsscrawler" name="neustart" enctype="multipart/form-data" target="speichernFrame" method="post" action="neustart?wert=1">
@@ -121,7 +125,7 @@ class Server:
 
   @cherrypy.expose
   def legacy(self):
-    jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -166,6 +170,8 @@ class Server:
           <textarea name="sjserien">''' + self.getListe('SJ_Serien') + '''</textarea>
           <div style='display:''' + srdiv +''';' id='dsjr'><div hinweis="Pro Zeile ein Serientitel im RegEx-Format. Die Filterliste wird hierbei ignoriert!">Serien (RegEx)</div>
           <textarea name="sjregex">''' + self.getListe('SJ_Serien_Regex') + '''</textarea></div>
+          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name eines YouTube-Kanals.">YouTube Kanäle</div>
+          <textarea name="channels">''' + self.getListe('YT_Channels') + '''</textarea></div>
           <button type="submit">Speichern</button>
     </form>
     <form id="rsscrawler" action="https://www.9kw.eu/register_87296.html" target="_blank">
@@ -177,14 +183,14 @@ class Server:
           <div hinweis="Hier werden sämtliche Einstellungen von RSScrawler hinterlegt. Dieses Script funktioniert nur sinnvoll, wenn Ordnerüberwachung im JDownloader aktiviert ist. Es muss weiterhin unten der richtige JDownloader Pfad gesetzt werden!">
           <h1>Einstellungen</h1></div>
           <div hinweis="Diese allgemeinen Einstellungen müssen korrekt sein!"><h3>Allgemein</h3></div>
-          Pfad des JDownloaders:<div hinweis="''' + dockerhint +'''Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!"><input type="text" value="''' + jdownloader +'''" name="jdownloader"''' + dockerblocker +'''></div>
+          <p>Pfad des JDownloaders:<div hinweis="''' + dockerhint +'''Dieser Pfad muss das exakte Verzeichnis des JDownloaders sein, sonst funktioniert das Script nicht!"><input type="text" value="''' + jdownloader +'''" name="jdownloader"''' + dockerblocker +'''></div>
           Port:<div hinweis="''' + dockerhint +'''Hier den Port des Webservers wählen."><input type="text" name="port" value="''' + port +'''"''' + dockerblocker +'''></div>
           Prefix:<div hinweis="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."><input type="text" name="prefix" value="''' + prefix.replace("/", "") +'''"></div>
           Suchintervall:<div hinweis="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren. Minimum sind 3 Minuten!"><input type="text" name="interval" value="''' + interval +'''"></div>
           Pushbullet Token:<div hinweis="Um über hinzugefügte Releases informiert zu werden, hier den Pushbullet API-Token eintragen."><input type="text" name="pushbulletapi" value="''' + pushbulletapi +'''"></div>
-          Hoster:<div hinweis="Hier den gewünschten Hoster wählen."><select name="hoster"><option value="Uploaded"''' + hosterul + '''>Uploaded.net</option><option value="Share-Online"''' + hosterso + '''>Share-Online.biz</option></select></div>
+          Hoster:<div hinweis="Hier den gewünschten Hoster wählen."><select name="hoster"><option value="Uploaded"''' + hosterul + '''>Uploaded.net</option><option value="Share-Online"''' + hosterso + '''>Share-Online.biz</option></select></div></p>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' zuständig."><h3>''' + "TW92aWUtQmxvZw==".decode('base64') + '''</h3></div>
-          Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="mbquality"><option value="1080p"''' + mbq1080 + '''>Full-HD</option><option value="720p"''' + mbq720 + '''>HD</option><option value="480p"''' + mbq480 + '''>SD</option></select></div>
+          <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="mbquality"><option value="1080p"''' + mbq1080 + '''>Full-HD</option><option value="720p"''' + mbq720 + '''>HD</option><option value="480p"''' + mbq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ignore" value="''' + ignore +'''"></div>
           Suchfunktion, statt Feed nutzen:<div hinweis="Wenn aktiviert, wird die Suchfunktion des ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' genutzt, da der Feed nur wenige Stunden abbildet."><select name="historical"><option value="True"''' + historicaltrue + '''>Aktiviert</option><option value="False"''' + historicalfalse + '''>Deaktiviert</option></select></div>
           Zweisprachige Releases suchen:<div hinweis="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel) ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."><select name="enforcedl"><option value="True"''' + enforcedltrue + '''>Aktiviert</option><option value="False"''' + enforcedlfalse + '''>Deaktiviert</option></select></div>
@@ -193,11 +199,13 @@ class Server:
           Staffeln suchen:<div hinweis="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste auf ''' + "TW92aWUtQmxvZw==".decode('base64') + ''' gesucht."><select id="smbs" name="crawlseasons"><option value="True"''' + crawlseasonstrue + '''>Aktiviert</option><option value="False"''' + crawlseasonsfalse + '''>Deaktiviert</option></select></div>
           <div style='display:''' + ssdiv +''';' id='dmbss'>Auflösung der Staffeln:<div hinweis="Die Release-Auflösung der Staffeln, nach der gesucht wird."><select name="seasonsquality"><option value="1080p"''' + msq1080 + '''>Full-HD</option><option value="720p"''' + msq720 + '''>HD</option><option value="480p"''' + msq480 + '''>SD</option></select></div>
           Quellart der Staffeln:<div hinweis="Die Quellart der Staffeln, nach der gesucht wird (BluRay, WEB, HDTV, ...)."><input type="text" name="seasonssource" value="''' + seasonssource +'''"></div></div>
-          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div>
+          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div></p>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="sjquality"><option value="1080p"''' + sjq1080 + '''>Full-HD</option><option value="720p"''' + sjq720 + '''>HD</option><option value="480p"''' + sjq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="rejectlist" value="''' + rejectlist +'''"></div>
-          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="ssjr" name="sjregex"><option value="True"''' + sjregextrue + '''>Aktiviert</option><option value="False"''' + sjregexfalse + '''>Deaktiviert</option></select></div>
+          Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="ssjr" name="sjregex"><option value="True"''' + sjregextrue + '''>Aktiviert</option><option value="False"''' + sjregexfalse + '''>Deaktiviert</option></select></div></p>
+          <div hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
+          <p>YouTube-Uploads suchen:<div hinweis="Wenn aktiviert, werden Videos aus der YouTube-Kanäle-Liste gesucht."><select id="ytopt" name="youtube"><option value="True"''' + youtubetrue + '''>Aktiviert</option><option value="False"''' + youtubefalse + '''>Deaktiviert</option></select></div></p>
           <button type="submit">Speichern</button>
     </form>
     <form id="rsscrawler" enctype="multipart/form-data" method="post" action="..''' + prefix +'''/neustart?wert=1">
@@ -228,7 +236,7 @@ class Server:
       return output.getvalue()
 
   @cherrypy.expose
-  def speichern(self, jdownloader, port, prefix, interval, pushbulletapi, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex):
+  def speichern(self, jdownloader, port, prefix, interval, pushbulletapi, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
       # RSScrawler Section:
       f.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n')
@@ -260,6 +268,9 @@ class Server:
       f.write("quality = " + sjquality.encode('utf-8') + "\n")
       f.write("rejectlist = " + rejectlist.encode('utf-8').lower() + "\n")
       f.write("regex = " + sjregex.encode('utf-8') + "\n")
+      # YT Section:
+      f.write("\n[YT]\n")
+      f.write("youtube = " + youtube.encode('utf-8') + "\n")
       files.check()
       return '''<!DOCTYPE html>
 <html>
@@ -290,7 +301,7 @@ class Server:
 </html>'''
 
   @cherrypy.expose
-  def listenspeichern(self, mbfilme, mb3d, mbstaffeln, mbregex, sjserien, sjregex):
+  def listenspeichern(self, mbfilme, mb3d, mbstaffeln, mbregex, sjserien, sjregex, channels):
     main = RssConfig('RSScrawler')
     prefix = main.get("prefix")
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'wb') as f:
@@ -305,6 +316,8 @@ class Server:
       f.write(sjserien.encode('utf-8'))
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'wb') as f:
       f.write(sjregex.encode('utf-8'))
+    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt'), 'wb') as f:
+      f.write(channels.encode('utf-8'))
     files.check()
     return '''<!DOCTYPE html>
 <html>

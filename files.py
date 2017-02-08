@@ -19,7 +19,7 @@ def check():
         f.truncate()
         f.write(content.replace(';', ','))
 		
-	lists_nonregex = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien"]
+	lists_nonregex = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien", "YT_Channels"]
 	lists_regex = ["MB_Regex", "SJ_Serien_Regex"]
 	
     for nrlist in lists_nonregex:
@@ -75,7 +75,7 @@ def startup():
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen')):
         _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen'))
     # Erstelle fehlenden Listen mit Platzhaltertexten (diese werden in separaten Funktionen abgefragt!)
-    lists = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien", "MB_Regex", "SJ_Serien_Regex"]
+    lists = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien", "MB_Regex", "SJ_Serien_Regex", "YT_Channels"]
     for l in lists:
         if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt')):
             open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()

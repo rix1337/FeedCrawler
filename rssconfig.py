@@ -36,6 +36,9 @@ class RssConfig(object):
             ("quality", """480p;720p;1080p""", "", ""),
             ("rejectlist", "str", "", ""),
             ("regex","bool","", "")
+        ],
+        'YT': [
+            ("youtube","bool","","")
         ]
     }
     __config__ = []

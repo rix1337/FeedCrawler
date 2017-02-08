@@ -3,4 +3,4 @@
 # Projekt von https://github.com/rix1337
 
 def getVersion():
-    return "v.2.3.2"
+    return "v.2.4.0"

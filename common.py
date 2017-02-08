@@ -170,6 +170,9 @@ def load(dockerglobal):
     sjquality = sj.get("quality")
     rejectlist = sj.get("rejectlist")
     sjregex = str(sj.get("regex"))
+    # YT-Bereich
+    yt = RssConfig('YT')
+    youtube = str(yt.get("youtube"))
     # Wandle Werte für HTML um
     if hoster == 'Share-Online':
       hosterso = ' selected'
@@ -273,4 +276,12 @@ def load(dockerglobal):
     else:
       dockerblocker = ''
       dockerhint = ''
-    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, dockerhint)
+    if youtube == 'True':
+      youtubetrue = ' selected'
+      youtubefalse = ''
+      ytdiv = "block"
+    else:
+      youtubetrue = ''
+      youtubefalse = ' selected'
+      ytdiv = "none"
+    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, dockerhint)

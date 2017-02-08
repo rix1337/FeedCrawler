@@ -76,7 +76,7 @@ def _restart_timer(func):
             self.periodical.cancel()
             self.periodical.start()
     return wrapper
-		
+
 class MB():
     FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     SUBSTITUTE = "[&#\s/]"
@@ -189,7 +189,7 @@ class MB():
         
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
-			# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+            # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
             download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
             # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
             if not download_link == None:
@@ -223,7 +223,7 @@ class MB():
                         pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
             return True
@@ -299,7 +299,7 @@ class MB():
         for url in urls:
             # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-				# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+                # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
                 download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
                 # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                 if not download_link == None:
@@ -342,7 +342,7 @@ class MB():
                             pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
@@ -450,7 +450,7 @@ class MB3d():
         
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
-			# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+            # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
             download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
             # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
             if not download_link == None:
@@ -481,7 +481,7 @@ class MB3d():
                         pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
             return True
@@ -521,7 +521,7 @@ class MB3d():
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
-		
+        
         # Definiere interne Suchliste auf Basis der MB_Serien, MB_Staffeln (und notdl) Listen
         self.allInfos = dict(
             # Füge der Suche sämtliche Titel aus der MB_Filme Liste hinzu
@@ -562,7 +562,7 @@ class MB3d():
         for url in urls:
             # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-				# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+                # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
                 download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
                 # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                 if not download_link == None:
@@ -602,7 +602,7 @@ class MB3d():
                             pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
@@ -721,7 +721,7 @@ class MBstaffeln():
         
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
-			# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+            # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
             download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
             # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
             if not download_link == None:
@@ -822,7 +822,7 @@ class MBstaffeln():
         for url in urls:
             # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-				# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+                # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
                 download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
                 # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                 if not download_link == None:
@@ -856,7 +856,7 @@ class MBstaffeln():
                             pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
@@ -931,7 +931,7 @@ class MBregex():
         
         # Suche nach title im Ergebnisfeed der obigen Suche (nicht nach dem für die suche genutzten search_title)
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title, title):
-			# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+            # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
             download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
             # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
             if not download_link == None:
@@ -958,7 +958,7 @@ class MBregex():
                         pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
             return True
@@ -1020,7 +1020,7 @@ class MBregex():
         for url in urls:
             # Führe für jeden Eintrag auf der URL eine Suche nach Releases durch:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-				# Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
+                # Nimm nur den ersten validen Downloadlink der auf der Unterseite eines jeden Releases gefunden wurde
                 download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
                 # Füge Release nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                 if not download_link == None:
@@ -1054,7 +1054,7 @@ class MBregex():
                             pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
-        if len(text) > 0:
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
@@ -1424,6 +1424,108 @@ class SJregex():
             common.write_crawljob_file(title, title, link[0],
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
+class YouTube():
+    _INTERNAL_NAME='YT'
+
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/YT_Downloads.db"))
+        self.youtube = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
+        self._periodical_active = False
+        self.periodical = RepeatableTimer(
+            int(rsscrawler.get('interval')) * 60,
+            self.periodical_task
+        )
+        self.dictWithNamesAndLinks = {}
+
+    def activate(self):
+        self._periodical_active = True
+        self.periodical.start()
+        return self
+
+    def readInput(self, file):
+        if not os.path.isfile(file):
+            open(file, "a").close()
+            placeholder = open(file, 'w')
+            placeholder.write('XXXXXXXXXX')
+            placeholder.close()
+        try:
+            f = codecs.open(file, "rb")
+            return f.read().splitlines()
+        except:
+            self.log_error("Liste nicht gefunden!")
+
+    # Periodische Aufgabe
+    @_restart_timer
+    def periodical_task(self):
+        # Leere/Definiere interne URL/Text-Arrays
+        channels = []
+        text = []
+        videos = []
+        key = ""
+        download_link = ""
+        # Definiere interne Suchliste auf Basis der YT_Channels Liste
+        self.allInfos = self.readInput(self.youtube)
+
+        # Suche nach jeder Zeile in der internen Suchliste
+        for xline in self.allInfos:
+            # Wenn die Zeile nicht leer ist bzw. keine Raute (für Kommentare) enthält:
+            if len(xline) > 0 and not xline.startswith("#"):
+                if xline.startswith("XXXXXXXXXX") or self.config.get("youtube") == False:
+                    self.log_debug("Liste enthält Platzhalter. Stoppe Suche für YouTube!")
+                    return
+                # Generiere aus diesen Suchurl-kompatiblen String als Seitenaufruf (entspricht einer Suche auf MB nach dem entsprechenden Titel) eine Liste an Suchanfragen-URLs (Anzahl entspricht Einträgen der internen Suchliste)
+                channels.append(xline)
+
+        for channel in channels:
+            htmlParser = "lxml"
+            url = 'https://www.youtube.com/user/' + channel + '/videos'
+            try:
+                html = urllib2.urlopen(url)
+            except urllib2.HTTPError, e:
+                self.log_debug("Der YouTube Kanal " + channel + " wurde nicht gefunden.")
+            else:
+                response = html.read()
+                soup = BeautifulSoup(response)
+                links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
+                for link in links:
+                    link = link.get("href")
+                    # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
+                    if len(link) > 10:
+                        videos.append(link)
+                for video in videos:
+                    key = video.replace("/watch?v=", channel + ".")
+                    download_link = 'https://www.youtube.com' + video
+                    # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
+                    if not download_link == None:
+                        # Wenn das Video als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
+                        if self.db.retrieve(key) == 'added':
+                            self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
+                        # Ansonsten speichere das Video als hinzugefügt in der Datenbank
+                        else:
+                            # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
+                            self.log_info(key)
+                            # Schreibe Crawljob  
+                            common.write_crawljob_file(
+                                key,
+                                "YouTube/" + channel,
+                                download_link,
+                                jdownloaderpath + "/folderwatch",
+                                "RSScrawler"
+                            ) and text.append(key)
+                            self.db.store(
+                                key,
+                                'added',
+                                download_link
+                        )
+        # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Video gefunden wurde):
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
+            # Löse Pushbullet-Benachrichtigung aus
+            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
+
 ## Hauptsektion
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
@@ -1493,10 +1595,10 @@ if __name__ == "__main__":
 
     # Wenn JDPFAD als Argument vergeben wurde, ignoriere Konfigurationseintrag
     if arguments['--jd-pfad']:
-    	jdownloaderpath = arguments['--jd-pfad']
+        jdownloaderpath = arguments['--jd-pfad']
     else:
-    	jdownloaderpath = rsscrawler.get("jdownloader")
-    # Sperre Pfad, wenn	als Docker gestartet wurde
+        jdownloaderpath = rsscrawler.get("jdownloader")
+    # Sperre Pfad, wenn    als Docker gestartet wurde
     if arguments['--docker']:
        jdownloaderpath = '/jd2'
     # Ersetze Backslash durch Slash (für Windows)
@@ -1532,10 +1634,10 @@ if __name__ == "__main__":
         
     # Lege Port und Pfad der Webanwendung entsprechend der RSScrawler.ini bzw. des Startparameters fest
     if arguments['--port']:
-    	port = int(arguments['--port'])
+        port = int(arguments['--port'])
     else:
-    	port = port = int(rsscrawler.get("port"))
-    # Sperre Port, wenn	als Docker gestartet wurde
+        port = port = int(rsscrawler.get("port"))
+    # Sperre Port, wenn    als Docker gestartet wurde
     docker = '0'
     if arguments['--docker']:
        port = int('9090')
@@ -1544,7 +1646,7 @@ if __name__ == "__main__":
     prefix = rsscrawler.get("prefix")
     print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + '/' + prefix)
     
-	# Starte Webanwendung
+    # Starte Webanwendung
     p = Process(target=cherry_server, args=(port, prefix, docker))
     p.daemon = True
     p.start()
@@ -1558,6 +1660,7 @@ if __name__ == "__main__":
         MBregex(),
         SJ(),
         SJregex(),
+        YouTube()
     ]
 
     # Hinweis, wie RSScrawler beendet werden kann
