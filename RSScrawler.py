@@ -1486,7 +1486,7 @@ class YouTube():
             try:
                 html = urllib2.urlopen(url)
             except urllib2.HTTPError, e:
-                self.log_debug("Der YouTube Kanal " + channel + " wurde nicht gefunden.")
+                self.log_debug(url + " existiert nicht")
             else:
                 response = html.read()
                 soup = BeautifulSoup(response)
@@ -1497,7 +1497,7 @@ class YouTube():
                     if len(link) > 10:
                         videos.append(link)
                 for video in videos:
-                    key = video.replace("/watch?v=", channel + ".")
+                    key = video.replace("/watch?v=", "")
                     download_link = 'https://www.youtube.com' + video
                     # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                     if not download_link == None:
@@ -1507,7 +1507,7 @@ class YouTube():
                         # Ansonsten speichere das Video als hinzugefügt in der Datenbank
                         else:
                             # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                            self.log_info(key)
+                            self.log_info(key + " (" + channel + ")")
                             # Schreibe Crawljob  
                             common.write_crawljob_file(
                                 key,
@@ -1519,7 +1519,7 @@ class YouTube():
                             self.db.store(
                                 key,
                                 'added',
-                                download_link
+                                channel
                         )
         # Alternative Suche, falls Kanal keinen Namen, sondern eine ID hat.        
         for channel in channels:
@@ -1528,7 +1528,7 @@ class YouTube():
             try:
                 html = urllib2.urlopen(url)
             except urllib2.HTTPError, e:
-                self.log_debug("Der YouTube Kanal " + channel + " wurde nicht gefunden.")
+                self.log_debug(url + " existiert nicht")
             else:
                 response = html.read()
                 soup = BeautifulSoup(response)
@@ -1539,7 +1539,7 @@ class YouTube():
                     if len(link) > 10:
                         videos.append(link)
                 for video in videos:
-                    key = video.replace("/watch?v=", channel + ".")
+                    key = video.replace("/watch?v=", "")
                     download_link = 'https://www.youtube.com' + video
                     # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
                     if not download_link == None:
@@ -1549,7 +1549,7 @@ class YouTube():
                         # Ansonsten speichere das Video als hinzugefügt in der Datenbank
                         else:
                             # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                            self.log_info(key)
+                            self.log_info(key + " (" + channel + ")")
                             # Schreibe Crawljob  
                             common.write_crawljob_file(
                                 key,
@@ -1561,7 +1561,7 @@ class YouTube():
                             self.db.store(
                                 key,
                                 'added',
-                                download_link
+                                channel
                         )
                         
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Video gefunden wurde):
