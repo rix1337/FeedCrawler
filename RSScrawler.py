@@ -37,6 +37,7 @@ placeholder_regex = False
 
 from docopt import docopt
 from lxml import html
+from lxml import etree
 import requests
 import feedparser
 import re
@@ -1483,87 +1484,60 @@ class YouTube():
         for channel in channels:
             htmlParser = "lxml"
             url = 'https://www.youtube.com/user/' + channel + '/videos'
+            urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
+            cnotfound = False
             try:
                 html = urllib2.urlopen(url)
             except urllib2.HTTPError, e:
-                self.log_debug(url + " existiert nicht")
-            else:
-                response = html.read()
-                soup = BeautifulSoup(response)
-                links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
-                for link in links:
-                    link = link.get("href")
-                    # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
-                    if len(link) > 10:
-                        videos.append(link)
-                for video in videos:
-                    key = video.replace("/watch?v=", "")
-                    download_link = 'https://www.youtube.com' + video
-                    # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
-                    if not download_link == None:
-                        # Wenn das Video als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
-                        if self.db.retrieve(key) == 'added':
-                            self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
-                        # Ansonsten speichere das Video als hinzugefügt in der Datenbank
-                        else:
-                            # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                            self.log_info(key + " (" + channel + ")")
-                            # Schreibe Crawljob  
-                            common.write_crawljob_file(
-                                key,
-                                "YouTube/" + channel,
-                                download_link,
-                                jdownloaderpath + "/folderwatch",
-                                "RSScrawler"
-                            ) and text.append(key)
-                            self.db.store(
-                                key,
-                                'added',
-                                channel
-                        )
-        # Alternative Suche, falls Kanal keinen Namen, sondern eine ID hat.        
-        for channel in channels:
-            htmlParser = "lxml"
-            url = 'https://www.youtube.com/channel/' + channel + '/videos'
-            try:
-                html = urllib2.urlopen(url)
-            except urllib2.HTTPError, e:
-                self.log_debug(url + " existiert nicht")
-            else:
-                response = html.read()
-                soup = BeautifulSoup(response)
-                links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
-                for link in links:
-                    link = link.get("href")
-                    # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
-                    if len(link) > 10:
-                        videos.append(link)
-                for video in videos:
-                    key = video.replace("/watch?v=", "")
-                    download_link = 'https://www.youtube.com' + video
-                    # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
-                    if not download_link == None:
-                        # Wenn das Video als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
-                        if self.db.retrieve(key) == 'added':
-                            self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
-                        # Ansonsten speichere das Video als hinzugefügt in der Datenbank
-                        else:
-                            # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                            self.log_info(key + " (" + channel + ")")
-                            # Schreibe Crawljob  
-                            common.write_crawljob_file(
-                                key,
-                                "YouTube/" + channel,
-                                download_link,
-                                jdownloaderpath + "/folderwatch",
-                                "RSScrawler"
-                            ) and text.append(key)
-                            self.db.store(
-                                key,
-                                'added',
-                                channel
-                        )
-                        
+                try:
+                    html = urllib2.urlopen(urlc)
+                except urllib2.HTTPError, e:
+                    cnotfound = True
+                if cnotfound:
+                    self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
+                    
+            response = html.read()
+            soup = BeautifulSoup(response)
+            links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
+            #TODO Dynamisch 1-50 Uploads berücksichtigen
+            for link in links[:10]:
+                link = link.get("href")
+                # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
+                if len(link) > 10:
+                    videos.append([link, channel])
+
+        for video in videos:
+            channel = video[1]
+            video = video[0]
+            key = video.replace("/watch?v=", "")
+            download_link = 'https://www.youtube.com' + video
+            title = ""
+            # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
+            if not download_link == None:
+                # Wenn das Video als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
+                if self.db.retrieve(key) == 'added':
+                    self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % key)
+                # Ansonsten speichere das Video als hinzugefügt in der Datenbank
+                else:
+                    # Finde den Titel des Video
+                    youtube = etree.HTML(urllib.urlopen(download_link).read())
+                    video_title = ''.join(youtube.xpath("//span[@id='eow-title']/@title"))
+                    # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
+                    self.log_info(video_title + " (" + channel + ") " + "[" + key + "]")
+                    # Schreibe Crawljob  
+                    common.write_crawljob_file(
+                        key,
+                        "YouTube/" + channel,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler"
+                    ) and text.append(video_title + "[" + key + "]")
+                    self.db.store(
+                        key,
+                        'added',
+                        channel
+                )
+                    
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Video gefunden wurde):
         if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
             # Löse Pushbullet-Benachrichtigung aus

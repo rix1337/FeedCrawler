@@ -12,7 +12,7 @@ echo "  Projektseite:    https://github.com/rix1337/RSScrawler"
 echo "└────────────────────────────────────────────────────────┘"
 echo "Hinweise im Wiki: https://github.com/rix1337/RSScrawler/wiki"
 echo "Bitte Plattform wählen:"
-OPTIONS="Ubuntu/Debian Synology Beenden"
+OPTIONS="Ubuntu/Debian Synology Update Beenden"
 select opt in $OPTIONS; do
    if [ "$opt" = "Beenden" ]; then
     exit
@@ -72,6 +72,14 @@ select opt in $OPTIONS; do
     
     # Starte RSSCrawler
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
+    exit
+   elif [ "$opt" = "Update" ]; then
+    # Update durchführen
+    read -rp "Wo ist RSScrawler installiert? Pfad ohne / am Ende: " rsspath
+    cd $rsspath/
+    git fetch --all
+    git reset --hard origin/master
+    git pull origin master
     exit
    else
     clear
