@@ -14,14 +14,14 @@ class RssConfig(object):
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", "", ""),
-            ("port", "9090", "int", ""),
+            ("port", "int", "", "9090"),
             ("prefix", "str", "", ""),
             ("interval", "int", "", ""),
             ("pushbulletapi","str","",""),
-            ("hoster", """Uploaded,Share-Online""", "", "")
+            ("hoster", "str", "", "")
         ],
         'MB': [
-            ("quality", """480p;720p;1080p""", "", ""),
+            ("quality", "str", "", ""),
             ("ignore","str","",""),
             ("historical","bool","",""),
             ("regex","bool","", ""),
@@ -33,12 +33,16 @@ class RssConfig(object):
             ("seasonssource", "str", "", "")
         ],
         'SJ': [
-            ("quality", """480p;720p;1080p""", "", ""),
+            ("quality", "str", "", ""),
             ("rejectlist", "str", "", ""),
             ("regex","bool","", "")
         ],
         'YT': [
             ("youtube","bool","","")
+        ],
+        'Crawljobs': [
+            ("autostart","str","","True"),
+            ("subdir","str","","True")
         ]
     }
     __config__ = []
@@ -61,7 +65,7 @@ class RssConfig(object):
         self._config.add_section(section)
         for (key,key_type,comment,value) in self._DEFAULT_CONFIG[section]:
             self._config.set(section,key,value)
-        with open(self._CONFIG_FILES.pop(), 'wb') as configfile:
+        with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
             self._config.write(configfile)
 
     def _read_config(self, section):

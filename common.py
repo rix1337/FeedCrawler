@@ -35,6 +35,15 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
     )
     # Versuche .crawljob zu schreiben
+    crawljobs = RssConfig('Crawljobs')
+    autostart = crawljobs.get("autostart")
+    usesubdir = crawljobs.get("subdir")
+    if usesubdir == "False":
+      subdir = ""
+    if autostart == "True":
+        autostart = "TRUE"
+    else:
+        autostart = "FALSE"
     try:
         # Öffne Crawljob mit Schreibzugriff
         file = open(crawljob_file, 'w')
@@ -42,13 +51,13 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         # Paket ist aktiviert
         file.write('enabled=TRUE\n')
         # Download startet automatisch
-        file.write('autoStart=TRUE\n')
+        file.write('autoStart=' + autostart + '\n')
         # Passwörter hinzufügen
         file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '"]\n')
         # Archive automatisch entpacken
         file.write('extractAfterDownload=TRUE\n')
         # Erzwinge automatischen Start
-        file.write('forcedStart=TRUE\n')
+        file.write('forcedStart=' + autostart + '\n')
         # Bestätige Fragen des JDownloaders automatisch
         file.write('autoConfirm=TRUE\n')
         # Unterverzeichnis des Downloads ist folder_name & subdir wird wenn es nicht leer ist mit angegeben. Subdir hilft bei der Automatisierung (bspw. über Filebot).

@@ -1257,7 +1257,7 @@ class SJ():
         soup = BeautifulSoup(req_page)
         
         # Da das beautifulsoup per Regex sucht, darf der Suchstring keine Klammern enthalten. Ersetze diese entsprechend durch Wildcard
-        escape_brackets = search_title.replace("(", ".*").replace(")", ".*")
+        escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
 
         title = soup.find(text=re.compile(escape_brackets))
         if title:
@@ -1399,7 +1399,7 @@ class SJregex():
         soup = BeautifulSoup(req_page)
         
         # Da das beautifulsoup per Regex sucht, darf der Suchstring keine Klammern enthalten. Ersetze diese entsprechend durch Wildcard
-        escape_brackets = search_title.replace("(", ".*").replace(")", ".*")
+        escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
         
         title = soup.find(text=re.compile(escape_brackets))
         if title:
