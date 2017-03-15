@@ -59,7 +59,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         # Erzwinge automatischen Start
         file.write('forcedStart=' + autostart + '\n')
         # Bestätige Fragen des JDownloaders automatisch
-        file.write('autoConfirm=TRUE\n')
+        file.write('autoConfirm=' + autostart + '\n')
         # Unterverzeichnis des Downloads ist folder_name & subdir wird wenn es nicht leer ist mit angegeben. Subdir hilft bei der Automatisierung (bspw. über Filebot).
         if not subdir == "":
             file.write('downloadFolder=' + subdir + "/" + '%s\n' % folder_name)
