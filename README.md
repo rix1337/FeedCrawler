@@ -1,3 +1,5 @@
+<img src="rsscrawler.png" align="left" height="64" width="64">
+
 #  RSScrawler
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
