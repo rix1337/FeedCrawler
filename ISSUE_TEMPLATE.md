@@ -1,5 +1,8 @@
 # [RSScrawler] Fehlermeldung
 
+Kontaktaufnahme/Chat ausschließlich über
+[![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ### Fehlerbeschreibung:
 
 Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein. Nur Fehler des aktuellen Releases werden berücksichtigt.
@@ -26,6 +29,6 @@ Auszug aus der README.md:
 
 -Bitte um Support nicht bereits aufgeführter Betriebssysteme/inoffizieller Builds
 
--Zur Kontaktaufnahme. Ausnahme: [Feedback #7](https://github.com/rix1337/RSScrawler/issues/7)
+-Zur Kontaktaufnahme. Hierfür dient ausschließlich Gitter!
 
 -Unvollständige Fehlermeldung
