@@ -4,6 +4,8 @@
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
 
+[![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## Credits
 
 [dmitryint](https://github.com/dmitryint/) | [zapp-brannigan](https://github.com/zapp-brannigan/) | [Gutz-Pilz](https://github.com/Gutz-Pilz/) | [bharnett](https://github.com/bharnett/) | [colorlib](http://codepen.io/colorlib/) | [cbracco](http://codepen.io/cbracco/) | [jaysonwm](https://github.com/jaysonwm/) | [Itsie](https://github.com/Itsie) | [sweatcher](https://github.com/sweatcher)
