@@ -620,6 +620,7 @@ class MBstaffeln():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.staffeln = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')
         self._hosters_pattern = rsscrawler.get('hoster').replace(',','|')
         self._periodical_active = False
@@ -856,6 +857,12 @@ class MBstaffeln():
                             key,
                             # Vermerke Releases, die nicht zweisprachig sind in der Datenbank (falls enforcedl aktiv ist). Speichere jedes gefundene Release
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern
+                        )
+                        # Speichere geladene Staffel auch in SJ Datenbank
+                        self.db_sj.store(
+                            key.replace(".COMPLETE", "").replace(".Complete", ""),
+                            'downloaded',
                             pattern
                         )
         # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Release gefunden wurde):
@@ -1410,6 +1417,137 @@ class SJregex():
             common.write_crawljob_file(title, title, link[0],
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
+class SJstaffeln():
+    _INTERNAL_NAME = 'MB'
+
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.staffeln = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt')
+        self.seasonssource = self.config.get('seasonssource').lower()
+        self._periodical_active = False
+        self.periodical = RepeatableTimer(
+            int(rsscrawler.get('interval')) * 60,
+            self.periodical_task
+        )
+
+    def activate(self):
+        self._periodical_active = True
+        self.periodical.start()
+        return self
+
+    @_restart_timer
+    def periodical_task(self):
+        feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
+        self.pattern = "|".join(getSeriesList(self.staffeln, 2)).lower()
+        
+        # Stoppe Suche, wenn Platzhalter aktiv ist.
+        if no_sj_staffeln:
+            return
+
+        reject = self.config.get("ignore").replace(",","|").lower() if len(self.config.get("ignore")) > 0 else "^unmatchable$"
+        self.quality = self.config.get("seasonsquality")
+        self.hoster = rsscrawler.get("hoster")
+        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
+        if self.hoster == "Uploaded":
+            # Auf SJ wird Uploaded als Teil der url geführt: ul
+            self.hoster = "ul"
+        elif self.hoster == "Share-Online":
+            # Auf SJ wird Uploaded als Teil der url geführt: so
+            self.hoster = "so"
+        else:
+            self.hoster = "."
+        # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
+        self.added_items = []
+
+        for post in feed.entries:
+            # Seltenen Fehler, bei dem ein Feedeintrag (noch) keinen Link enthält, umgehen:
+            if post.link == None:
+              continue
+          
+            link = post.link
+            title = post.title
+
+            if self.config.get("quality") != '480p':
+                m = re.search(self.pattern,title.lower())
+                if m:
+                    if '[DEUTSCH]' in title:
+                        mm = re.search(self.quality,title.lower())
+                        if mm:
+                            mmm = re.search(reject,title.lower())
+                            if mmm:
+                                self.log_debug(title +" - Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                continue
+                            title = re.sub('\[.*\] ', '', post.title)
+                            self.range_parse(link, title)
+
+                else:
+                    m = re.search(self.pattern,title.lower())
+                    if m:
+                        if '[DEUTSCH]' in title:
+                            if "720p" in title.lower() or "1080p" in title.lower():
+                                continue
+                            mm = re.search(reject,title.lower())
+                            if mm:
+                                self.log_debug(title +" Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                continue
+                            title = re.sub('\[.*\] ', '', post.title)
+                            self.range_parse(link, title)
+
+        if len(rsscrawler.get('pushbulletapi')) > 2:
+            common.Pushbullet(rsscrawler.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
+
+    def range_parse(self,series_url, search_title):
+        req_page = getURL(series_url)
+        soup = BeautifulSoup(req_page)
+
+        try:
+            titles = soup.findAll(text=re.compile(search_title))
+            for title in titles:
+                if self.seasonssource in title.lower():
+                    for title in titles:
+                       if self.quality !='480p' and self.quality in title:
+                           self.parse_download(series_url, title)
+                       if self.quality =='480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                           self.parse_download(series_url, title)
+                else:
+                    self.log_debug(title + " - Release hat falsche Quelle")
+        except re.error as e:
+            self.log_error('Konstantenfehler: %s' % e)
+
+
+    def parse_download(self,series_url, search_title):
+        req_page = getURL(series_url)
+        soup = BeautifulSoup(req_page)
+        
+        # Da das beautifulsoup per Regex sucht, darf der Suchstring keine Klammern enthalten. Ersetze diese entsprechend durch Wildcard
+        escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
+
+        title = soup.find(text=re.compile(escape_brackets))
+        if title:
+            items = []
+            links = title.parent.parent.findAll('a')
+            for link in links:
+                url = link['href']
+                items.append(url)
+            self.send_package(title,items) if len(items) > 0 else True
+
+    def send_package(self, title, link):
+        try:
+            storage = self.db.retrieve(title)
+            if storage == 'downloaded':
+                self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+            else:
+                self.log_info(title)
+                self.db.store(title, 'downloaded')
+                common.write_crawljob_file(title, title, link[0],
+                                    jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
+        except Exception as e:
+            self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e,title))
+
 class YouTube():
     _INTERNAL_NAME='YT'
 
@@ -1662,6 +1800,7 @@ if __name__ == "__main__":
         MBregex(),
         SJ(),
         SJregex(),
+        SJstaffeln(),
         YouTube()
     ]
 
