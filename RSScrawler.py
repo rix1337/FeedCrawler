@@ -521,6 +521,9 @@ class MB3d():
     # Periodische Aufgabe
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('crawl3d'):
+            return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
@@ -782,6 +785,9 @@ class MBstaffeln():
     # Periodische Aufgabe
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('crawlseasons'):
+            return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
@@ -1003,6 +1009,9 @@ class MBregex():
     # Periodische Aufgabe
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('regex'):
+            return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
         text = []
@@ -1301,14 +1310,14 @@ class SJregex():
 
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('regex'):
+            return
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
         self.pattern = "|".join(getSeriesList(self.regex, 1)).lower()
         
         # Stoppe Suche, wenn Liste Platzhalter enthält
         if no_sj_regex:
-            return
-        # Stoppe Suche, wenn Option deaktiviert ist.
-        if not self.config.get('regex'):
             return
         
         reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
@@ -1441,6 +1450,9 @@ class SJstaffeln():
 
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('crawlseasons'):
+            return
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
         self.pattern = "|".join(getSeriesList(self.staffeln, 2)).lower()
         
