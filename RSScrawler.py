@@ -29,11 +29,13 @@ Options:
 # Globale Variablen
 import version
 version = version.getVersion()
-placeholder_filme = False
-placeholder_3d = False
-placeholder_staffeln = False
-placeholder_serien = False
-placeholder_regex = False
+no_mb_filme = False
+no_mb_3d = False
+no_mb_regex = False
+no_mb_staffeln = False
+no_sj_serien = False
+no_sj_regex = False
+no_sj_staffeln = False
 
 from docopt import docopt
 from lxml import html
@@ -117,14 +119,14 @@ class MB():
 
     def getPatterns(self, patterns, quality, rg, sf):
         # Importiere globale Parameter (sollten beide Falsch sein)
-        global placeholder_filme
+        global no_mb_filme
         # Wenn Liste exakt die Platzhalterzeile enthält:
         if patterns == ["XXXXXXXXXX"]:
             # Wenn keine Information zur Quellart weitergegeben wurde (gilt nur bei Staffeln, Standard ist: BluRay):
             # Logge vorhandenen Platzhalter, der in der Filme-Liste stehen muss (da keine Quellart angegeben)
             self.log_debug("Liste enthält Platzhalter. Stoppe Suche für Filme!")
             # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
-            placeholder_filme = True
+            no_mb_filme = True
         # Ansonsten gib die Zeilen einzeln als Zeilen in patters zurück
         return {line: (quality, rg, sf) for line in patterns}
 
@@ -277,7 +279,7 @@ class MB():
         )
         
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        if placeholder_filme:
+        if no_mb_filme:
             return
 
         # Wenn historical aktiv ist nutzt RSScrawler die Suchfunktion von MB, statt nur den (zeitlich begrenzten) Feed zu nutzen. Dies dauert etwas länger, durchsucht aber den kompletten MB!
@@ -386,14 +388,14 @@ class MB3d():
 
     def getPatterns(self, patterns, quality, rg, sf):
         # Importiere globale Parameter (sollten beide Falsch sein)
-        global placeholder_3d
+        global no_mb_3d
         # Wenn Liste exakt die Platzhalterzeile enthält:
         if patterns == ["XXXXXXXXXX"]:
             # Wenn keine Information zur Quellart weitergegeben wurde (gilt nur bei Staffeln, Standard ist: BluRay):
             # Logge vorhandenen Platzhalter, der in der Filme-Liste stehen muss (da keine Quellart angegeben)
             self.log_debug("Liste enthält Platzhalter. Stoppe Suche für 3D-Filme!")
             # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
-            placeholder_3d = True
+            no_mb_3d = True
         # Ansonsten gib die Zeilen einzeln als Zeilen in patters zurück
         return {line: (quality, rg, sf) for line in patterns}
 
@@ -536,7 +538,7 @@ class MB3d():
         )
         
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        if placeholder_3d:
+        if no_mb_3d:
             return
         
         # Stoppe Suche, wenn Option deaktiviert ist.
@@ -646,14 +648,14 @@ class MBstaffeln():
 
     def getPatterns(self, patterns, quality, rg, sf):
         # Importiere globale Parameter (sollten beide Falsch sein)
-        global placeholder_staffeln
+        global no_mb_staffeln
         # Wenn Liste exakt die Platzhalterzeile enthält:
         if patterns == ["XXXXXXXXXX"]:
             # Wenn keine Information zur Quellart weitergegeben wurde (gilt nur bei Staffeln, Standard ist: BluRay):
             # Logge vorhandenen Platzhalter, der in der Filme-Liste stehen muss (da keine Quellart angegeben)
             self.log_debug("Liste enthält Platzhalter. Stoppe Suche für Staffeln!")
             # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
-            placeholder_staffeln = True
+            no_mb_staffeln = True
         # Ansonsten gib die Zeilen einzeln als Zeilen in patters zurück
         return {line: (quality, rg, sf) for line in patterns}
 
@@ -796,7 +798,7 @@ class MBstaffeln():
         )
         
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        if placeholder_staffeln:
+        if no_mb_staffeln:
             return
 
         # Stoppe Suche, wenn Option deaktiviert ist.
@@ -900,12 +902,12 @@ class MBregex():
 
     def getPatterns(self, patterns):
         # Importiere globale Parameter (sollten beide Falsch sein)
-        global placeholder_regex
+        global no_mb_regex
         # Wenn Liste exakt die Platzhalterzeile enthält:
         if patterns == ["XXXXXXXXXX"]:
             self.log_debug("Liste enthält Platzhalter. Stoppe Suche für Filme/Serien (RegEx)!")
             # Setze globale Variable auf wahr, um in der MB-Klasse die Suche abbrechen zu können
-            placeholder_regex = True
+            no_mb_regex = True
         # Ansonsten gib die Zeilen einzeln als Zeilen in patters zurück
         return {x: (x) for x in patterns}
 
@@ -1007,7 +1009,7 @@ class MBregex():
             ) if self.config.get('regex') else []
         )
         # Stoppe Suche, wenn Platzhalter aktiv ist ist.
-        if placeholder_regex:
+        if no_mb_regex:
             return
 
         # Stoppe Suche, wenn Option deaktiviert ist.
@@ -1059,8 +1061,17 @@ class MBregex():
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
-def getSeriesList(file):
-    global placeholder_serien
+def getSeriesList(file, type):
+    global no_sj_serien
+    global no_sj_regex
+    global no_sj_staffeln
+    
+    loginfo = ""
+    if type == 1:
+        loginfo = " (RegEx)"
+    elif type == 2:
+        loginfo = " (Staffeln)"
+    
     if not os.path.isfile(file):
         open(file, "a").close()
         placeholder = open(file, 'w')
@@ -1076,43 +1087,21 @@ def getSeriesList(file):
             titles.append(title)
         f.close()
         if titles[0] == "XXXXXXXXXX":
-            logging.debug("Liste enthält Platzhalter. Stoppe Suche für Serien!")
-            placeholder_serien = True
+            logging.debug("Liste enthält Platzhalter. Stoppe Suche für Serien!" + loginfo)
+            if type == 1:
+                no_sj_regex = True
+            elif type == 2:
+                no_sj_staffeln = True
+            else:
+                no_sj_serien = True
         return titles
     except UnicodeError:
-        logging.error("ANGEHALTEN, ungültiges Zeichen in Serien Liste!")
+        logging.error("ANGEHALTEN, ungültiges Zeichen in Serien" + loginfo + "Liste!")
     except IOError:
-        logging.error("ANGEHALTEN, Serien-Liste nicht gefunden!")
+        logging.error("ANGEHALTEN, Serien" + loginfo + "-Liste nicht gefunden!")
     except Exception, e:
         logging.error("Unbekannter Fehler: %s" %e)
-
-def getRegexSeriesList(file):
-    global placeholder_regex
-    if not os.path.isfile(file):
-        open(file, "a").close()
-        placeholder = open(file, 'w')
-        placeholder.write('XXXXXXXXXX')
-        placeholder.close()
-    try:
-        titles = []
-        f = codecs.open(file, "rb", "utf-8")
-        for title in f.read().splitlines():
-            if len(title) == 0:
-                continue
-            title = title.replace(" ", ".")
-            titles.append(title)
-        f.close()
-        if titles[0] == "XXXXXXXXXX":
-            logging.debug("Liste enthält Platzhalter. Stoppe Suche für Serien (RegEx)!")
-            placeholder_regex = True
-        return titles
-    except UnicodeError:
-        logging.error("ANGEHALTEN, ungültiges Zeichen in Serien (RegEx) Liste!")
-    except IOError:
-        logging.error("ANGEHALTEN, Serien (RegEx)-Liste nicht gefunden!")
-    except Exception, e:
-        logging.error("Unbekannter Fehler: %s" %e)
-
+        
 def getURL(url):
     try:
         req = urllib2.Request(
@@ -1155,14 +1144,12 @@ class SJ():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
-        self.pattern = "|".join(getSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien.txt"))).lower()
+        self.pattern = "|".join(getSeriesList(self.serien, 0)).lower()
         
-        # Die folgende Logik enthält einen Bug und muss gefixt werden.
-        # Symptom: Suche wir nicht periodisch erneut ausgeführt
+
         # Stoppe Suche, wenn Platzhalter aktiv ist.
-        #
-        # if placeholder_serien:
-        #    return
+        if no_sj_serien:
+            return
 
         reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
@@ -1292,6 +1279,7 @@ class SJregex():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.regex = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt')
         self._periodical_active = False
         self.periodical = RepeatableTimer(
             int(rsscrawler.get('interval')) * 60,
@@ -1307,14 +1295,11 @@ class SJregex():
     @_restart_timer
     def periodical_task(self):
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
-        self.pattern = "|".join(getRegexSeriesList(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Listen/SJ_Serien_Regex.txt"))).lower()
+        self.pattern = "|".join(getSeriesList(self.regex, 1)).lower()
         
-        # Die folgende Logik enthält einen Bug und muss gefixt werden.
-        # Symptom: Suche wir nicht periodisch erneut ausgeführt
-        # Stoppe Suche, wenn Platzhalter aktiv ist.
-        #
-        # if placeholder_regex:
-        #    return
+        # Stoppe Suche, wenn Liste Platzhalter enthält
+        if no_sj_regex:
+            return
         # Stoppe Suche, wenn Option deaktiviert ist.
         if not self.config.get('regex'):
             return
