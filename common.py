@@ -54,6 +54,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file.write('autoStart=' + autostart + '\n')
         # Passwörter hinzufügen
         file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '"]\n')
+        file.write('downloadPassword=' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
         # Archive automatisch entpacken
         file.write('extractAfterDownload=TRUE\n')
         # Erzwinge automatischen Start
