@@ -1463,15 +1463,7 @@ class SJstaffeln():
         reject = self.config.get("ignore").replace(",","|").lower() if len(self.config.get("ignore")) > 0 else "^unmatchable$"
         self.quality = self.config.get("seasonsquality")
         self.hoster = rsscrawler.get("hoster")
-        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
-        if self.hoster == "Uploaded":
-            # Auf SJ wird Uploaded als Teil der url geführt: ul
-            self.hoster = "ul"
-        elif self.hoster == "Share-Online":
-            # Auf SJ wird Uploaded als Teil der url geführt: so
-            self.hoster = "so"
-        else:
-            self.hoster = "."
+
         # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
