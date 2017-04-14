@@ -1173,15 +1173,7 @@ class SJ():
         reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
-        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
-        if self.hoster == "Uploaded":
-            # Auf SJ wird Uploaded als Teil der url geführt: ul
-            self.hoster = "ul"
-        elif self.hoster == "Share-Online":
-            # Auf SJ wird Uploaded als Teil der url geführt: so
-            self.hoster = "so"
-        else:
-            self.hoster = "."
+
         # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
@@ -1267,14 +1259,10 @@ class SJ():
 
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            items = []
-            links = title.parent.parent.findAll('a')
-            for link in links:
-                url = link['href']
-                pattern = '.*%s_.*' % self.hoster
-                if re.match(pattern, url):
-                    items.append(url)
-            self.send_package(title,items) if len(items) > 0 else True
+            url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+            for url_hoster in url_hosters:
+                if self.hoster.lower() in url_hoster[1]:
+                    self.send_package(title, url_hoster[0])
 
     def send_package(self, title, link):
         try:
@@ -1286,7 +1274,7 @@ class SJ():
         else:
             self.log_info(title)
             self.db.store(title, 'downloaded')
-            common.write_crawljob_file(title, title, link[0],
+            common.write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
 class SJregex():
@@ -1327,15 +1315,7 @@ class SJregex():
         reject = self.config.get("rejectlist").replace(",","|").lower() if len(self.config.get("rejectlist")) > 0 else "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
-        # Ersetze die Hosterbezeichnung für weitere Verwendung im Script
-        if self.hoster == "Uploaded":
-            # Auf SJ wird Uploaded als Teil der url geführt: ul
-            self.hoster = "ul"
-        elif self.hoster == "Share-Online":
-            # Auf SJ wird Uploaded als Teil der url geführt: so
-            self.hoster = "so"
-        else:
-            self.hoster = "."
+
         # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
@@ -1408,14 +1388,10 @@ class SJregex():
         
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            items = []
-            links = title.parent.parent.findAll('a')
-            for link in links:
-                url = link['href']
-                pattern = '.*%s_.*' % self.hoster
-                if re.match(pattern, url):
-                    items.append(url)
-            self.send_package(title,items) if len(items) > 0 else True
+            url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+            for url_hoster in url_hosters:
+                if self.hoster.lower() in url_hoster[1]:
+                    self.send_package(title, url_hoster[0])
 
     def send_package(self, title, link):
         try:
@@ -1427,7 +1403,7 @@ class SJregex():
         else:
             self.log_info(title)
             self.db.store(title, 'downloaded')
-            common.write_crawljob_file(title, title, link[0],
+            common.write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
 class SJstaffeln():
