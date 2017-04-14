@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
 # https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
+# https://github.com/fhenri (im Auftrag von https://github.com/rix1337)
 # https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 # Beschreibung:
