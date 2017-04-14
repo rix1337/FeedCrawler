@@ -1620,6 +1620,7 @@ class YouTube():
                     cnotfound = True
                 if cnotfound:
                     self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
+                    return
                     
             response = html.read()
             soup = BeautifulSoup(response)
