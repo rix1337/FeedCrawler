@@ -1532,12 +1532,10 @@ class SJstaffeln():
 
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            items = []
-            links = title.parent.parent.findAll('a')
-            for link in links:
-                url = link['href']
-                items.append(url)
-            self.send_package(title,items) if len(items) > 0 else True
+            url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+            for url_hoster in url_hosters:
+                if self.hoster.lower() in url_hoster[1]:
+                    self.send_package(title, url_hoster[0])
 
     def send_package(self, title, link):
         try:
@@ -1547,7 +1545,7 @@ class SJstaffeln():
             else:
                 self.log_info(title)
                 self.db.store(title, 'downloaded')
-                common.write_crawljob_file(title, title, link[0],
+                common.write_crawljob_file(title, title, link,
                                     jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
         except Exception as e:
             self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e,title))
