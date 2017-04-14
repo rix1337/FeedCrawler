@@ -1404,14 +1404,8 @@ class SJregex():
         
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            items = []
-            links = title.parent.parent.findAll('a')
-            for link in links:
-                url = link['href']
-                pattern = '.*%s_.*' % self.hoster
-                if re.match(pattern, url):
-                    items.append(url)
-            self.send_package(title,items) if len(items) > 0 else True
+            url = title.parent.parent.find('a')['href']
+            self.send_package(title,url) if url else True
 
     def send_package(self, title, link):
         try:
@@ -1423,7 +1417,7 @@ class SJregex():
         else:
             self.log_info(title)
             self.db.store(title, 'downloaded')
-            common.write_crawljob_file(title, title, link[0],
+            common.write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
 
 class SJstaffeln():
