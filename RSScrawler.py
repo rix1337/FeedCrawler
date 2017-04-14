@@ -251,7 +251,7 @@ class MB():
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
         # Verhindere Überforderung des Servers
-        time.sleep(0.5)
+        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -509,7 +509,7 @@ class MB3d():
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
         # Verhindere Überforderung des Servers
-        time.sleep(0.5)
+        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -523,6 +523,7 @@ class MB3d():
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('crawl3d'):
+            self.log_debug("Suche für Filme-3D deaktiviert!")
             return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
@@ -774,7 +775,7 @@ class MBstaffeln():
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
         # Verhindere Überforderung des Servers
-        time.sleep(0.5)
+        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -787,6 +788,7 @@ class MBstaffeln():
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('crawlseasons'):
+            self.log_debug("Suche für MB-Staffeln deaktiviert!")
             return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
@@ -998,7 +1000,7 @@ class MBregex():
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
         # Verhindere Überforderung des Servers
-        time.sleep(0.5)
+        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -1011,6 +1013,7 @@ class MBregex():
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('regex'):
+            self.log_debug("Suche für MB-Regex deaktiviert!")
             return
         # Leere/Definiere interne URL/Text-Arrays
         urls = []
@@ -1312,6 +1315,7 @@ class SJregex():
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('regex'):
+            self.log_debug("Suche für SJ-Regex deaktiviert!")
             return
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
         self.pattern = "|".join(getSeriesList(self.regex, 1)).lower()
@@ -1452,6 +1456,7 @@ class SJstaffeln():
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('crawlseasons'):
+            self.log_debug("Suche für SJ-Staffeln deaktiviert!")
             return
         feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
         self.pattern = "|".join(getSeriesList(self.staffeln, 2)).lower()
@@ -1587,6 +1592,10 @@ class YouTube():
     # Periodische Aufgabe
     @_restart_timer
     def periodical_task(self):
+        # Abbruch, bei Deaktivierter Suche
+        if not self.config.get('youtube'):
+            self.log_debug("Suche für YouTube deaktiviert!")
+            return
         # Leere/Definiere interne URL/Text-Arrays
         channels = []
         text = []
