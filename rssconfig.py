@@ -30,6 +30,7 @@ class RssConfig(object):
             ("enforcedl", "bool", "", ""),
             ("crawlseasons", "bool", "", ""),
             ("seasonsquality", "str", "", ""),
+            ("seasonspacks", "bool", "", ""),
             ("seasonssource", "str", "", "")
         ],
         'SJ': [
