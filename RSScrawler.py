@@ -661,6 +661,7 @@ class MBstaffeln():
                         # Wenn zu ignorierender Eintrag, logge diesen
                         self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
                         continue
+                    # Prüfe Quellart
                     validsource = re.search(self.config.get("seasonssource"),post.title.lower())
                     if not validsource:
                         self.log_debug(post.title + " - Release hat falsche Quelle")
@@ -1495,6 +1496,7 @@ class SJstaffeln():
         try:
             titles = soup.findAll(text=re.compile(search_title))
             for title in titles:
+                # Prüfe Quellart
                 validsource = re.search(self.seasonssource,title.lower())
                 if validsource:
                     for title in titles:
