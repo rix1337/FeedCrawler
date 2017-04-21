@@ -30,6 +30,7 @@ class RssConfig(object):
             ("enforcedl", "bool", "", ""),
             ("crawlseasons", "bool", "", ""),
             ("seasonsquality", "str", "", ""),
+            ("seasonspacks", "bool", "", ""),
             ("seasonssource", "str", "", "")
         ],
         'SJ': [
@@ -38,7 +39,9 @@ class RssConfig(object):
             ("regex","bool","", "")
         ],
         'YT': [
-            ("youtube","bool","","")
+            ("youtube","bool","",""),
+            ("maxvideos","int","",""),
+            ("ignore","str","","")
         ],
         'Crawljobs': [
             ("autostart","str","","True"),

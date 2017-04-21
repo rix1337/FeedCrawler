@@ -137,16 +137,13 @@ class MB():
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in feed.entries:
-                """Suche nach Titel"""
                 found = re.search(s,post.title.lower())
                 if found:
-                    """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                     found = re.search(ignore,post.title.lower())
                     if found:
                         # Wenn zu ignorierender Eintrag, logge diesen
                         self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
                         continue
-                    """Suche nach Qualität"""
                     ss = self.allInfos[key][0].lower()
 
 
@@ -158,7 +155,6 @@ class MB():
                         found = re.search(ss,post.title.lower())
                     if found:
                         # Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
-                        """Suche nach Release-Gruppe"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
 
@@ -237,10 +233,8 @@ class MB():
             
         s = re.sub(self.SUBSTITUTE,".",title).lower()
         for post in feed.entries:
-            """Suche nach Titel"""
             found = re.search(s,post.title.lower())
             if found:
-                """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                 found = re.search(ignore,post.title.lower())
                 if found:
                     # Wenn zu ignorierender Eintrag, logge diesen
@@ -251,8 +245,6 @@ class MB():
 
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
-        # Verhindere Überforderung des Servers
-        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -406,16 +398,13 @@ class MB3d():
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in feed.entries:
-                """Suche nach Titel"""
                 found = re.search(s,post.title.lower())
                 if found:
-                    """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                     found = re.search(ignore,post.title.lower())
                     if found:
                         # Wenn zu ignorierender Eintrag, logge diesen
                         self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
                         continue
-                    """Suche nach Qualität"""
                     ss = self.allInfos[key][0].lower()
 
                     # Crawl3d Funktion gilt wenn 3D im Titel enthalten ist
@@ -429,7 +418,6 @@ class MB3d():
                             continue
                     if found:
                         # Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
-                        """Suche nach Release-Gruppe"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
 
@@ -495,10 +483,8 @@ class MB3d():
             
         s = re.sub(self.SUBSTITUTE,".",title).lower()
         for post in feed.entries:
-            """Suche nach Titel"""
             found = re.search(s,post.title.lower())
             if found:
-                """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                 found = re.search(ignore,post.title.lower())
                 if found:
                     # Wenn zu ignorierender Eintrag, logge diesen
@@ -509,8 +495,6 @@ class MB3d():
 
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
-        # Verhindere Überforderung des Servers
-        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -671,21 +655,24 @@ class MBstaffeln():
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in feed.entries:
-                """Suche nach Titel"""
                 found = re.search(s,post.title.lower())
                 if found:
-                    """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                     found = re.search(ignore,post.title.lower())
                     if found:
                         # Wenn zu ignorierender Eintrag, logge diesen
                         self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
                         continue
-                    # Ignoriere Staffelpakete. Sind häufig Duplikate alter, inkl. soeben erschienener Staffeln und bis zu mehrere hundert GB groß
-                    staffelpack = re.search("s\d.*(-|\.).*s\d",post.title.lower())
-                    if staffelpack:
-                        self.log_debug("%s - Release ignoriert (Staffelpaket)" %post.title)
+                    # Prüfe Quellart
+                    validsource = re.search(self.config.get("seasonssource"),post.title.lower())
+                    if not validsource:
+                        self.log_debug(post.title + " - Release hat falsche Quelle")
                         continue
-                    """Suche nach Qualität"""
+                    # Ignoriere Staffelpakete. Sind häufig Duplikate alter, inkl. soeben erschienener Staffeln und bis zu mehrere hundert GB groß
+                    if self.config.get("seasonpacks") == "False":
+                        staffelpack = re.search("s\d.*(-|\.).*s\d",post.title.lower())
+                        if staffelpack:
+                            self.log_debug("%s - Release ignoriert (Staffelpaket)" %post.title)
+                            continue
                     ss = self.allInfos[key][0].lower()
 
                     if ss == "480p":
@@ -696,7 +683,6 @@ class MBstaffeln():
                         found = re.search(ss,post.title.lower())
                     if found:
                         # Funktion, die Listeneinträge wie folgt erwartet: Titel,Auflösung,Gruppe
-                        """Suche nach Release-Gruppe"""
                         sss = "[\.-]+"+self.allInfos[key][1].lower()
                         found = re.search(sss,post.title.lower())
 
@@ -762,10 +748,8 @@ class MBstaffeln():
             
         s = re.sub(self.SUBSTITUTE,".",title).lower()
         for post in feed.entries:
-            """Suche nach Titel"""
             found = re.search(s,post.title.lower())
             if found:
-                """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                 found = re.search(ignore,post.title.lower())
                 if found:
                     # Wenn zu ignorierender Eintrag, logge diesen
@@ -775,8 +759,6 @@ class MBstaffeln():
                                 
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
-        # Verhindere Überforderung des Servers
-        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -802,7 +784,7 @@ class MBstaffeln():
                     self.readInput(self.staffeln),
                     self.config.get('seasonsquality'),
                     '.*',
-                    ('.complete.','.' + self.config.get('seasonssource').lower() + '.')
+                    ('.complete.')
             ).items()}.items()
             )
         )
@@ -931,7 +913,6 @@ class MBregex():
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE,".",key).lower()
             for post in feed.entries:
-                """Suche nach Titel"""
                 found = re.search(s,post.title.lower())
                 if found:
                     yield (post.title, [post.link], key)
@@ -987,10 +968,8 @@ class MBregex():
             
         s = re.sub(self.SUBSTITUTE,".",title).lower()
         for post in feed.entries:
-            """Suche nach Titel"""
             found = re.search(s,post.title.lower())
             if found:
-                """Prüfe ob Release ignoriert werden soll (basierend auf ignore-Einstellung)"""
                 found = re.search(ignore,post.title.lower())
                 if found:
                     # Wenn zu ignorierender Eintrag, logge diesen
@@ -1000,8 +979,6 @@ class MBregex():
                 
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
-        # Verhindere Überforderung des Servers
-        time.sleep(0.1)
         # Definiere die zu durchsuchende Baumstruktur (auf Basis der Unterseite)
         tree = html.fromstring(requests.get(url).content)
         # Genaue Anweisung, wo die Links zu finden sind (Unterhalb des Download:/Mirror # Textes)
@@ -1468,7 +1445,7 @@ class SJstaffeln():
                                 self.log_debug(title +" - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                 continue
                             title = re.sub('\[.*\] ', '', post.title)
-                            self.range_parse(link, title)
+                            self.range_checkr(link, title)
 
                 else:
                     m = re.search(self.pattern,title.lower())
@@ -1481,10 +1458,37 @@ class SJstaffeln():
                                 self.log_debug(title +" Release ignoriert (basierend auf rejectlist-Einstellung)")
                                 continue
                             title = re.sub('\[.*\] ', '', post.title)
-                            self.range_parse(link, title)
+                            self.range_checkr(link, title)
 
         if len(rsscrawler.get('pushbulletapi')) > 2:
             common.Pushbullet(rsscrawler.get("pushbulletapi"),self.added_items) if len(self.added_items) > 0 else True
+
+    def range_checkr(self, link, title):
+        # Ignoriere Staffelpakete. Sind häufig Duplikate alter, inkl. soeben erschienener Staffeln und bis zu mehrere hundert GB groß
+        if self.config.get("seasonpacks") == "False":
+            staffelpack = re.search("s\d.*(-|\.).*s\d",title.lower())
+            if staffelpack:
+                self.log_debug("%s - Release ignoriert (Staffelpaket)" %title)
+                return
+        pattern = re.match(".*S\d{2}-\w?\d{2}.*", title)
+        if pattern is not None:
+            range0 = re.sub(r".*S(\d{2}-\w?\d{2}).*",r"\1", title).replace("S","")
+            number1 = re.sub(r"(\d{2})-\d{2}",r"\1", range0)
+            number2 = re.sub(r"\d{2}-(\d{2})",r"\1", range0)
+            title_cut = re.findall(r"(.*S)(\d{2}-\w?\d{2})(.*)",title)
+            try:
+                for count in range(int(number1),(int(number2)+1)):
+                    NR = re.match("\d{2}", str(count))
+                    if NR is not None:
+                        title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+                    else:
+                        title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
+                        self.range_parse(link, title1)
+            except ValueError as e:
+                logging.error("Fehler in Variablenwert: %s" %e.message)
+        else:
+            self.parse_download(link, title)
 
     def range_parse(self,series_url, search_title):
         req_page = getURL(series_url)
@@ -1493,7 +1497,9 @@ class SJstaffeln():
         try:
             titles = soup.findAll(text=re.compile(search_title))
             for title in titles:
-                if self.seasonssource in title.lower():
+                # Prüfe Quellart
+                validsource = re.search(self.seasonssource,title.lower())
+                if validsource:
                     for title in titles:
                        if self.quality !='480p' and self.quality in title:
                            self.parse_download(series_url, title)
@@ -1611,8 +1617,17 @@ class YouTube():
             response = html.read()
             soup = BeautifulSoup(response)
             links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
-            #TODO Dynamisch 1-50 Uploads berücksichtigen
-            for link in links[:10]:
+            
+            # Maximal hinzuzufügende Links
+            maxvideos = int(self.config.get("maxvideos"))
+            if maxvideos < 1:
+                self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu gering. Suche stattdessen 1 Video!")
+                maxvideos = 1
+            elif maxvideos > 50:
+                self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu hoch. Suche stattdessen maximal 50 Videos!")
+                maxvideos = 50
+
+            for link in links[:maxvideos]:
                 link = link.get("href")
                 # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
                 if len(link) > 10:
@@ -1634,6 +1649,14 @@ class YouTube():
                     # Finde den Titel des Video
                     youtube = etree.HTML(urllib.urlopen(download_link).read())
                     video_title = ''.join(youtube.xpath("//span[@id='eow-title']/@title"))
+                    
+                    # Ignoriere Titel entsprechend der Einstellungen
+                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
+                    ignorevideo = re.search(ignore,video_title.lower())
+                    if ignorevideo:
+                        self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
+                        continue
+                    
                     # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(video_title + " (" + channel + ") " + "[" + key + "]")
                     # Schreibe Crawljob  

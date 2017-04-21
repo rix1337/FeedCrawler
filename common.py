@@ -174,6 +174,7 @@ def load(dockerglobal):
     enforcedl = str(mb.get("enforcedl"))
     crawlseasons = str(mb.get("crawlseasons"))
     seasonsquality = mb.get("seasonsquality")
+    seasonpacks = str(mb.get("seasonpacks"))
     seasonssource = mb.get("seasonssource")
     # SJ-Bereich
     sj = RssConfig('SJ')
@@ -183,6 +184,8 @@ def load(dockerglobal):
     # YT-Bereich
     yt = RssConfig('YT')
     youtube = str(yt.get("youtube"))
+    maxvideos = str(yt.get("maxvideos"))
+    ytignore = str(yt.get("ignore"))
     # Wandle Werte für HTML um
     if hoster == 'Share-Online':
       hosterso = ' selected'
@@ -268,6 +271,61 @@ def load(dockerglobal):
       crawlseasonstrue = ''
       crawlseasonsfalse = ' selected'
       ssdiv = "none"
+    if seasonpacks == 'True':
+      spacktrue = ' selected'
+      spackfalse = ''
+    else:
+      spacktrue = ''
+      spackfalse = ' selected'
+    if seasonssource == "hdtv|hdtvrip|tvrip":
+      shdtv = ' selected'
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ''
+    elif seasonssource == "web-dl|webrip|webhd":
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ' selected'
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ''
+    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd":
+      shdtv = ''
+      shdtvweb = ' selected'
+      sweb = ''
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ''
+    elif seasonssource == "bluray|bd|bdrip":
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ' selected'
+      swebbluray = ''
+      shdtvwebbluray = ''
+    elif seasonssource == "web-dl|webrip|webhd|bluray|bd|bdrip":
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ''
+      swebbluray = ' selected'
+      shdtvwebbluray = ''
+    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|bluray|bd|bdrip":
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ' selected'
+    else:
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ' selected'
     if sjregex == 'True':
       sjregextrue = ' selected'
       sjregexfalse = ''
@@ -294,4 +352,4 @@ def load(dockerglobal):
       youtubetrue = ''
       youtubefalse = ' selected'
       ytdiv = "none"
-    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, dockerhint)
+    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint)
