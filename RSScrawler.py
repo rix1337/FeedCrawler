@@ -1610,8 +1610,17 @@ class YouTube():
             response = html.read()
             soup = BeautifulSoup(response)
             links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
-            #TODO Dynamisch 1-50 Uploads berücksichtigen
-            for link in links[:10]:
+            
+            # Maximal hinzuzufügende Links
+            maxvideos = int(self.config.get("maxvideos"))
+            if maxvideos < 1:
+                self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu gering. Suche stattdessen 1 Video!")
+                maxvideos = 1
+            elif maxvideos > 50:
+                self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu hoch. Suche stattdessen maximal 50 Videos!")
+                maxvideos = 50
+
+            for link in links[:maxvideos]:
                 link = link.get("href")
                 # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
                 if len(link) > 10:
@@ -1633,6 +1642,14 @@ class YouTube():
                     # Finde den Titel des Video
                     youtube = etree.HTML(urllib.urlopen(download_link).read())
                     video_title = ''.join(youtube.xpath("//span[@id='eow-title']/@title"))
+                    
+                    # Ignoriere Titel entsprechend der Einstellungen
+                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
+                    ignorevideo = re.search(ignore,video_title.lower())
+                    if ignorevideo:
+                        self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
+                        continue
+                    
                     # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(video_title + " (" + channel + ") " + "[" + key + "]")
                     # Schreibe Crawljob  

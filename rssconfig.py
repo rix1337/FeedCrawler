@@ -38,7 +38,9 @@ class RssConfig(object):
             ("regex","bool","", "")
         ],
         'YT': [
-            ("youtube","bool","","")
+            ("youtube","bool","",""),
+            ("maxvideos","int","",""),
+            ("ignore","str","","")
         ],
         'Crawljobs': [
             ("autostart","str","","True"),

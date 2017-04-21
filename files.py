@@ -27,9 +27,7 @@ def check():
                 content = f.read()
                 f.seek(0)
                 f.truncate()
-                # Aktualisiere Prä-v.2.2 Listen
-                if content == 'Ein Titel Pro Zeile - BEACHTE DIE HINWEISE':
-                    content = 'XXXXXXXXXX'
+
                 # Verhindere Leere Listen
                 if content == '':
                     content = 'XXXXXXXXXX'
@@ -41,9 +39,6 @@ def check():
                 content = f.read()
                 f.seek(0)
                 f.truncate()
-                # Aktualisiere Prä-v.2.2 Listen
-                if content == 'Ein Titel Pro Zeile - BEACHTE DAS REGEX FORMAT UND DIE HINWEISE':
-                    content = 'XXXXXXXXXX'
                 # Verhindere Leere Listen
                 if content == '':
                     content = 'XXXXXXXXXX'
@@ -95,5 +90,5 @@ def startup():
 def einsteller(einstellungen, version, jdpfad, port):
     open(einstellungen, "a").close()
     einsteller = open(einstellungen, 'w')
-    einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + jdpfad + '\nport = ' + port + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False')
+    einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + jdpfad + '\nport = ' + port + '\nprefix = \ninterval = 10\nhoster = Uploaded\npushbulletapi = \n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,pal,md,ac3md,mic,xxx,hou,h-ou\nhistorical = True\nregex = False\ncutoff = False\ncrawl3d = False\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonssource = bluray\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False\n\n[YT]\nyoutube = False\nmaxvideos = 10\nignore = \n\n[Crawljobs]\nautostart = True\nsubdir = True')
     einsteller.close()
