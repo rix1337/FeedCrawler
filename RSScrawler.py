@@ -198,7 +198,7 @@ class MB():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info(key + " [Zweisprachig]")
+                    self.log_info('[Film] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     
                     # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
                     if self.config.get('cutoff'):
@@ -311,7 +311,7 @@ class MB():
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info(key)
+                        self.log_info('[Film] - ' + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         
                         # Entferne normale Filme nur, wenn diese die DL-Kriterien erfüllen bzw. enforcedl inaktiv ist.
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get('enforcedl'):
@@ -451,7 +451,7 @@ class MB3d():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info(key + " [Zweisprachig]")
+                    self.log_info('[Film] - <b>3D/DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     
                     # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
                     if self.config.get('cutoff'):
@@ -570,7 +570,7 @@ class MB3d():
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info(key)
+                        self.log_info('[Film] - <b>3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         
                         # Entferne normale Filme nur, wenn diese die DL-Kriterien erfüllen bzw. enforcedl inaktiv ist.
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get('enforcedl'):
@@ -725,7 +725,7 @@ class MBstaffeln():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info(key + " [Zweisprachig]")
+                    self.log_info('[Staffel] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -833,7 +833,7 @@ class MBstaffeln():
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info(key)
+                        self.log_info('[Staffel] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                                     
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -940,7 +940,7 @@ class MBregex():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info(key + " [Zweisprachig]")
+                    self.log_info('[Film/Serie/RegEx] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -1036,7 +1036,7 @@ class MBregex():
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info(key)
+                        self.log_info('[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                                     
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -1249,7 +1249,7 @@ class SJ():
         if storage == 'downloaded':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.log_info(title)
+            self.log_info('[Episode] - ' + title + ' - [<a href="' + link + '" target="_blank">Link</a>]')
             self.db.store(title, 'downloaded')
             common.write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
@@ -1378,7 +1378,7 @@ class SJregex():
         if storage == 'downloaded':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.log_info(title)
+            self.log_info('[Episode/RegEx] - ' + title + ' - [<a href="' + link + '" target="_blank">Link</a>]')
             self.db.store(title, 'downloaded')
             common.write_crawljob_file(title, title, link,
                                 jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
@@ -1530,7 +1530,7 @@ class SJstaffeln():
             if storage == 'downloaded':
                 self.log_debug(title + " - Release ignoriert (bereits gefunden)")
             else:
-                self.log_info(title)
+                self.log_info('[Staffel] - ' + title + ' - [<a href="' + link + '" target="_blank">Link</a>]')
                 self.db.store(title, 'downloaded')
                 common.write_crawljob_file(title, title, link,
                                     jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(title.encode("utf-8"))
@@ -1657,7 +1657,7 @@ class YouTube():
                         continue
                     
                     # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info(video_title + " (" + channel + ") " + "[" + key + "]")
+                    self.log_info('[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + link + '" target="_blank">Link</a>]')
                     # Schreibe Crawljob  
                     common.write_crawljob_file(
                         key,

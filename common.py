@@ -128,7 +128,7 @@ def entfernen(retailtitel, identifier):
     # Leerzeilen und Eingabefehler entfernen
     files.check()
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
-    log_info(retail + (" [3D]" if identifier == "2" else "") + " [Retail]")
+    log_info("[Film] - <b>" + ("3D/" if identifier == "2" else "") + "Retail</b> - " + retail)
 
 def cutoff(key, identifier):
     retailfinder = re.search("(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*",key)
