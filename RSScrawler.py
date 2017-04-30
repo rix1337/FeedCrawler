@@ -198,15 +198,18 @@ class MB():
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
-                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Film] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                    
                     # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
+                    retail = False
                     if self.config.get('cutoff'):
                         if self.config.get('enforcedl'):
-                            common.cutoff(key, '1')
+                            if common.cutoff(key, '1'):
+                                retail = True
                         else:
-                            common.cutoff(key, '0')
+                            if common.cutoff(key, '0'):
+                                retail = True
+
+                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
+                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + 'DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -241,7 +244,6 @@ class MB():
                     self.log_debug("%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" %post.title)
                     continue
                 yield (post.title, [post.link], title)
-                                
 
     # Suchfunktion für Downloadlinks (auf der zuvor gefundenen Unterseite):
     def _get_download_links(self, url, hosters_pattern=None):
@@ -311,18 +313,21 @@ class MB():
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
-                        # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info('[Film] - ' + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                        
                         # Entferne normale Filme nur, wenn diese die DL-Kriterien erfüllen bzw. enforcedl inaktiv ist.
+                        retail = False
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get('enforcedl'):
                             # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
                             if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                                 if self.config.get('enforcedl'):
-                                    common.cutoff(key, '1')
+                                    if common.cutoff(key, '1'):
+                                        retail = True
                                 else:
-                                    common.cutoff(key, '0')
-                                    
+                                    if common.cutoff(key, '0'):
+                                        retail = True
+
+                        # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
+                        self.log_info('[Film] - ' + (' - <b>Retail</b> - ' if retail else "") + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
                             key,
@@ -451,12 +456,14 @@ class MB3d():
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
-                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Film] - <b>3D/DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                    
                     # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
+                    retail = False
                     if self.config.get('cutoff'):
-                        common.cutoff(key, '2')
+                        if common.cutoff(key, '2'):
+                            retail = True
+
+                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
+                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D/DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -570,14 +577,16 @@ class MB3d():
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
-                        # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info('[Film] - <b>3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                        
                         # Entferne normale Filme nur, wenn diese die DL-Kriterien erfüllen bzw. enforcedl inaktiv ist.
+                        retail = False
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get('enforcedl'):
                             # Cutofffunktion um bei Retail Release den Listeneintrag zu entfernen
                             if self.config.get('cutoff'):
-                                common.cutoff(key, '2')
+                                if common.cutoff(key, '2'):
+                                    retail = True
+
+                        # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
+                        self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                                     
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -1658,7 +1667,7 @@ class YouTube():
                         continue
                     
                     # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + link + '" target="_blank">Link</a>]')
+                    self.log_info('[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     # Schreibe Crawljob  
                     common.write_crawljob_file(
                         key,
@@ -1797,7 +1806,7 @@ if __name__ == "__main__":
        
     prefix = rsscrawler.get("prefix")
     print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + '/' + prefix)
-    
+
     # Starte Webanwendung
     p = Process(target=cherry_server, args=(port, prefix, docker))
     p.daemon = True

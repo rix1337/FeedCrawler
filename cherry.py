@@ -15,13 +15,16 @@ import files
 
 # Globale Variable
 import version
-version = version.getVersion()
+localversion = version.getVersion()
+updateready = False
+updateversion = ""
 
 class Server:
   # Zeige Konfigurationsseite
   @cherrypy.expose
   def index(self):
     jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint = common.load(dockerglobal)
+    global updateversion
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -50,7 +53,7 @@ class Server:
     <form id="rsscrawler" action="https://github.com/rix1337/thanks" target="_blank">
           <img src="data:image/png;base64,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" alt=""/>
           <h1>RSScrawler</h1>
-          ''' + version + ''' (Projekt von <a href="https://github.com/rix1337/RSScrawler/commits" target="_blank">RiX</a>)
+          ''' + localversion + ''' (Projekt von <a href="https://github.com/rix1337/RSScrawler/commits" target="_blank">RiX</a>)
           <button type="submit">Bedanken</button>
     </form>
     <form id="rsscrawler" name="log" enctype="multipart/form-data" target="speichernFrame" method="post" action="logleeren?wert=1">
@@ -124,6 +127,7 @@ class Server:
     <form id="rsscrawler" name="neustart" enctype="multipart/form-data" target="speichernFrame" method="post" action="neustart?wert=1">
           <button type="button" onclick="popup.confirm({content:'<h1>Neu starten?</h1>',default_btns:{cancel:'Abbrechen'}},function(a){a.proceed&&(document.forms.neustart.submit(),popup.alert({content:'<h1>Neu gestartet</h1>'},function(a){a.proceed&&window.location.reload()}))});">Neu starten</button>
     </form>
+    ''' + ('<div class="container" style="position:fixed;z-index:1000;bottom:0px;max-width:800px;width:50%;margin: 0 auto;box-shadow: 0px 0px 10px 1px rgba(0,0,0,1);background-color:#C73D36">Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">hier</a>.</div>' if updateready else "") + '''
   </div>
   <iframe name="speichernFrame" width="0" height="0" style="display: none;"></iframe>
   </body>
@@ -149,7 +153,7 @@ class Server:
     <form id="rsscrawler" action="https://github.com/rix1337/thanks" target="_blank">
           <img src="data:image/png;base64,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" alt=""/>
           <h1>RSScrawler</h1>
-          ''' + version + ''' (Projekt von <a href="https://github.com/rix1337/RSScrawler/commits" target="_blank">RiX</a>)
+          ''' + localversion + ''' (Projekt von <a href="https://github.com/rix1337/RSScrawler/commits" target="_blank">RiX</a>)
           <p>Legacy-Seite für Internet Explorer, Microsoft Edge, Safari, etc.</p>
           <button type="submit">Bedanken</button>
     </form>
@@ -223,6 +227,7 @@ class Server:
     <form id="rsscrawler" enctype="multipart/form-data" method="post" action="..''' + prefix +'''/neustart?wert=1">
           <button type="submit">Neu starten</button>
     </form>
+    ''' + ('<div class="container" style="position:fixed;z-index:1000;bottom:0px;max-width:800px;width:50%;margin: 0 auto;box-shadow: 0px 0px 10px 1px rgba(0,0,0,1);background-color:#C73D36">Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">hier</a>.</div>' if updateready else "") + '''
   </div>
   </body>
 </html>'''
@@ -251,7 +256,7 @@ class Server:
   def speichern(self, jdownloader, port, prefix, interval, pushbulletapi, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
       # RSScrawler Section:
-      f.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n')
+      f.write('# RSScrawler.ini (Stand: RSScrawler ' + localversion + ')\n')
       f.write("\n[RSScrawler]\n")
       f.write("jdownloader = " + jdownloader.encode('utf-8') + "\n")
       f.write("port = " + port + "\n")
@@ -491,5 +496,12 @@ class Server:
     cherrypy.log.access_log.propagate = False
     # Setze das Port entsprechend des Aufrufs
     cherrypy.config.update({'server.socket_port': port})
+    # Prüfe auf Updates
+    global updateready
+    global updateversion
+    if version.updateCheck()[0]:
+      updateready = True
+      updateversion = version.updateCheck()[1]
+      print('Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
     # Setzte den Pfad der Webanwendung entsprechend des Aufrufs
     self.run(prefix)
