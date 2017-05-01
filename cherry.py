@@ -24,7 +24,6 @@ class Server:
   @cherrypy.expose
   def index(self):
     jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint = common.load(dockerglobal)
-    global updateversion
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
