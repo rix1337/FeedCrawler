@@ -134,7 +134,7 @@ class MB():
         ignore = "|".join(["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
         
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE,".",key).lower()
+            s = re.sub(self.SUBSTITUTE,".","^" + key).lower()
             for post in feed.entries:
                 found = re.search(s,post.title.lower())
                 if found:
@@ -325,7 +325,7 @@ class MB():
                                         retail = True
 
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info('[Film] - ' + (' - <b>Retail</b> - ' if retail else "") + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        self.log_info('[Film] - ' + ('<b>Retail</b> - ' if retail else "") + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
 
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -400,7 +400,7 @@ class MB3d():
         ignore = "|".join(["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
         
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE,".",key).lower()
+            s = re.sub(self.SUBSTITUTE,".","^" + key).lower()
             for post in feed.entries:
                 found = re.search(s,post.title.lower())
                 if found:
@@ -661,7 +661,7 @@ class MBstaffeln():
         ignore = "|".join(["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
         
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE,".",key).lower()
+            s = re.sub(self.SUBSTITUTE,".","^" + key).lower()
             for post in feed.entries:
                 found = re.search(s,post.title.lower())
                 if found:
@@ -919,7 +919,7 @@ class MBregex():
 
     def searchLinks(self, feed):
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE,".",key).lower()
+            s = re.sub(self.SUBSTITUTE,".","^" + key).lower()
             for post in feed.entries:
                 found = re.search(s,post.title.lower())
                 if found:
@@ -1808,7 +1808,6 @@ if __name__ == "__main__":
 
     # Starte Webanwendung
     p = Process(target=cherry_server, args=(port, prefix, docker))
-    p.daemon = True
     p.start()
     files.check()
 
