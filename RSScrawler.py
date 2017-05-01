@@ -1656,8 +1656,7 @@ class YouTube():
                 # Ansonsten speichere das Video als hinzugefügt in der Datenbank
                 else:
                     # Finde den Titel des Video
-                    youtube = etree.HTML(urllib.urlopen(download_link).read())
-                    video_title = ''.join(youtube.xpath("//span[@id='eow-title']/@title"))
+                    video_title = re.findall(re.compile('<title>(.+?)</title>'),urllib2.urlopen(download_link).read())[0].replace(" - YouTube", "").decode("utf-8")
                     
                     # Ignoriere Titel entsprechend der Einstellungen
                     ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
