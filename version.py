@@ -5,7 +5,7 @@ import re
 import urllib2
 
 def getVersion():
-    return "v.2.7.2"
+    return "v.2.7.3"
 
 def updateCheck():
     # Prüfe, ob lokale Version der aktuellen Entspricht
