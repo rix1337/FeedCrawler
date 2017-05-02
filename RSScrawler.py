@@ -39,7 +39,6 @@ no_sj_staffeln = False
 
 from docopt import docopt
 from lxml import html
-from lxml import etree
 import requests
 import feedparser
 import re
@@ -208,7 +207,7 @@ class MB():
                                 retail = True
 
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + 'DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -324,8 +323,13 @@ class MB():
                                     if common.cutoff(key, '0'):
                                         retail = True
 
+                        englisch = False
+                        if "*englisch*" in key.lower():
+                            key = key.replace('*ENGLISCH*', '').replace("*Englisch*","")
+                            englisch = True
+
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info('[Film] - ' + ('<b>Retail</b> - ' if retail else "") + key.replace('*ENGLISCH*', '') + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
 
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -462,7 +466,7 @@ class MB3d():
                             retail = True
 
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D/DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                    self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -734,7 +738,7 @@ class MBstaffeln():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Staffel] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                    self.log_info('[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -842,7 +846,7 @@ class MBstaffeln():
                     # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                     else:
                         # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                        self.log_info('[Staffel] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        self.log_info('[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                                     
                         # Schreibe Crawljob  
                         common.write_crawljob_file(
@@ -949,7 +953,7 @@ class MBregex():
                 # Ansonsten speichere das Release als hinzugefügt in der Datenbank
                 else:
                     # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
-                    self.log_info('[Film/Serie/RegEx] - <b>DL</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                    self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                 
                     # Schreibe Crawljob            
                     common.write_crawljob_file(
@@ -1655,7 +1659,7 @@ class YouTube():
                 # Ansonsten speichere das Video als hinzugefügt in der Datenbank
                 else:
                     # Finde den Titel des Video
-                    video_title = re.findall(re.compile('<title>(.+?)</title>'),urllib2.urlopen(download_link).read())[0].replace(" - YouTube", "").decode("utf-8")
+                    video_title = re.findall(re.compile('<title>(.+?)</title>'),urllib2.urlopen(download_link).read())[0].replace(" - YouTube", "").decode("utf-8").replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace('&quot;', '"').replace("&#39;", "'")
                     
                     # Ignoriere Titel entsprechend der Einstellungen
                     ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
