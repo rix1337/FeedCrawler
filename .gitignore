@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 
 ### Python template
 # Byte-compiled / optimized / DLL files
@@ -31,12 +29,6 @@ var/
 .installed.cfg
 *.egg
 
-# PyInstaller
-#  Usually these files are written by a python script from a template
-#  before PyInstaller builds the exe, so as to inject date/other infos into it.
-*.manifest
-*.spec
-
 # Installer logs
 pip-log.txt
 pip-delete-this-directory.txt
@@ -56,10 +48,6 @@ target/
 
 # Cloud9
 *c9_invoke_*.py
-
-# Windows-Setupdateien
-setup.py
-setup.ico
 
 # Cherrypy
 *.conf
