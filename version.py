@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
+
 import re
 import urllib2
 
 def getVersion():
-    return "v.2.7.3"
+    return "v.2.9.0"
 
 def updateCheck():
     # Prüfe, ob lokale Version der aktuellen Entspricht
