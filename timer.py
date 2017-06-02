@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 
 from threading import Timer
 import time

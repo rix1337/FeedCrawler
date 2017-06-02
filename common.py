@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
-# https://github.com/dmitryint (im Auftrag von https://github.com/rix1337)
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 import base64
@@ -106,12 +105,14 @@ def checkIp():
 def entfernen(retailtitel, identifier):
     # Funktion um Listen einheitlich groß zu schreiben (vorraussetzung für einheitliches CutOff)
     def capitalize(line):
+        # Entferne Whitespace vom Stringende
+        line = line.rstrip()
         return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
     log_debug = logging.debug
     # Retail Titel auf Listenformat kürzen und Zusatztags entfernen
     simplified = retailtitel.replace(".", " ")
     # Abgefahrener RegEx-String, der Retail-Releases identifiziert
-    retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).\d{4}(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
+    retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
     # Obiger RegEx-String, der nicht das Jahr entfernt, falls in der Liste eine Jahreszahl angegeben wurde
     retailyear = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
     if identifier == '2':
@@ -121,7 +122,7 @@ def entfernen(retailtitel, identifier):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'r') as l:
         content = l.read()
         l.close()
-    # Inhalt der liste Schreiben, wobei der Retail-Titel entfernt wird    
+    # Inhalt der liste Schreiben, wobei der Retail-Titel entfernt wird
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
         w.write(content.replace(retailyear, "").replace(retail, "").replace(retailyear.lower(), "").replace(retail.lower(), "").replace(retailyear.upper(), "").replace(retail.upper(), "").replace(capitalize(retailyear), "").replace(capitalize(retail), ""))
     # Leerzeilen und Eingabefehler entfernen
