@@ -64,7 +64,7 @@ def _restart_timer(func):
         func(self)
         # Wenn testlauf inaktiv ist wurde dies aktiviert. Der folgende Code führt das Script in Intervallen aus
         if self._periodical_active:
-            self.periodical.cancel()
+            self.periodical.cancel() #FIXME stop breaking loop, if it takes too long
             self.periodical.start()
     return wrapper
 
@@ -384,6 +384,10 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
                 if not download_link == None:
+                    englisch = False
+                    if "*englisch*" in key.lower():
+                        key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
+                        englisch = True
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
@@ -400,10 +404,6 @@ class MB():
                                 else:
                                     if common.cutoff(key, '0'):
                                         retail = True
-                        englisch = False
-                        if "*englisch*" in key.lower():
-                            key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
-                            englisch = True
                         self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
                         '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
                                       '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
@@ -427,11 +427,6 @@ class MB():
                                 if self.config.get('enforcedl'):
                                     if common.cutoff(key, '2'):
                                         retail = True
-
-                        englisch = False
-                        if "*englisch*" in key.lower():
-                            key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
-                            englisch = True
                         self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
@@ -468,7 +463,6 @@ class MB():
                     else:
                         self.log_info(
                             '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                         # Schreibe Crawljob
                         common.write_crawljob_file(
                             key,
@@ -742,7 +736,7 @@ class SJ():
         except Exception, e:
             self.log_error("Unbekannter Fehler: %s" % e)
 
-class YouTube():
+class YT():
     _INTERNAL_NAME='YT'
 
     def __init__(self):
@@ -881,6 +875,7 @@ class YouTube():
             # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
+
 ## Hauptsektion
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
@@ -895,7 +890,7 @@ if __name__ == "__main__":
     )
     console = logging.StreamHandler()
     console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
-    formatter = logging.Formatter(time.strftime("%Y-%m-%d %H:%M:%S") + ' - %(message)s')
+    formatter = logging.Formatter(time.strftime("%Y-%m-%d %H:%M:%S") + ' - %(message)s') #FIXME always show current date/time
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
@@ -1015,7 +1010,7 @@ if __name__ == "__main__":
         SJ(filename='SJ_Serien', internal_name='SJ'),
         SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
         SJ(filename='MB_Staffeln', internal_name='MB'),
-        YouTube()
+        YT()
     ]
 
     # Hinweis, wie RSScrawler beendet werden kann
