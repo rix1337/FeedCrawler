@@ -286,14 +286,14 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ''
-    elif seasonssource == "web-dl|webrip|webhd":
+    elif seasonssource == "web-dl|webrip|webhd|netflix|amazon|itunes":
       shdtv = ''
       shdtvweb = ''
       sweb = ' selected'
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ''
-    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd":
+    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|netflix|amazon|itunes":
       shdtv = ''
       shdtvweb = ' selected'
       sweb = ''
@@ -307,14 +307,14 @@ def load(dockerglobal):
       sbluray = ' selected'
       swebbluray = ''
       shdtvwebbluray = ''
-    elif seasonssource == "web-dl|webrip|webhd|bluray|bd|bdrip":
+    elif seasonssource == "web-dl|webrip|webhd|netflix|amazon|itunes|bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
       sweb = ''
       sbluray = ''
       swebbluray = ' selected'
       shdtvwebbluray = ''
-    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|bluray|bd|bdrip":
+    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|netflix|amazon|itunes|bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
       sweb = ''

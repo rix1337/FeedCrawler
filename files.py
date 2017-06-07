@@ -25,19 +25,16 @@ def check():
                 content = f.read()
                 f.seek(0)
                 f.truncate()
-
-                # Verhindere Leere Listen
                 if content == '':
                     content = 'XXXXXXXXXX'
                 content = "".join([s for s in content.strip().splitlines(True) if s.strip()])
-                f.write(content.replace('.', ' ').replace(';', ',').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß', 'ss').replace('(', '').replace(')', '').replace('(', '').replace('*', '').replace('(', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace('  ', ' '))
+                f.write(content.replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' '))
 
     for rlist in lists_regex:
 	    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + rlist + '.txt'), 'r+') as f:
                 content = f.read()
                 f.seek(0)
                 f.truncate()
-                # Verhindere Leere Listen
                 if content == '':
                     content = 'XXXXXXXXXX'
                 content = "".join([s for s in content.strip().splitlines(True) if s.strip()])
@@ -45,14 +42,11 @@ def check():
                 
 # Versuche Ordner anzulegen um Ordner zu erstellen (mit Fehlererkennung)
 def _mkdir_p(path):
-    # Versuche Ordner anzulegen:
     try:
         os.makedirs(path)
     except OSError as e:
-        # Kein Fehler, wenn Pfad bereits existiert
         if e.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        # Ansonsten zeige Fehler in Konsole
         else:
             logging.error("Kann Pfad nicht anlegen: %s" % path)
             raise
