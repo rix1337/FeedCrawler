@@ -143,19 +143,13 @@ class MB():
                         if found:
                             sss = "[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
-
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
                             if found:
-                                try:
-                                    episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower()).group(
-                                        1)
-                                    if "repack" in post.title.lower():
-                                        episode = episode + "-repack"
-                                    self.log_debug("Serie entdeckt. Kürze Titel: [%s]" % episode)
-                                    yield (episode, [post.link], key)
-                                except:
-                                    yield (post.title, [post.link], key)
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                yield (post.title, [post.link], key)
                     elif self.filename == 'MB_3D':
                         if '.3d.' in post.title.lower():
                             if self.config.get('crawl3d') and (
@@ -166,17 +160,22 @@ class MB():
                         if found:
                             sss = "[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
-
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
-
                             if found:
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
                                 yield (post.title, [post.link], key)
 
                     elif self.filename == 'MB_Staffeln':
                         validsource = re.search(self.config.get("seasonssource"), post.title.lower())
                         if not validsource:
                             self.log_debug(post.title + " - Release hat falsche Quelle")
+                            continue
+                        season = re.search("\.s\d", post.title.lower())
+                        if not season:
+                            self.log_debug(post.title + " - Release ist keine Staffel")
                             continue
                         if self.config.get("seasonpacks") == "False":
                             staffelpack = re.search("s\d.*(-|\.).*s\d", post.title.lower())
@@ -198,15 +197,10 @@ class MB():
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
                             if found:
-                                try:
-                                    episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*',
-                                                        post.title.lower()).group(1)
-                                    if "repack" in post.title.lower():
-                                        episode = episode + "-repack"
-                                    self.log_debug("Serie entdeckt. Kürze Titel: [%s]" % episode)
-                                    yield (episode, [post.link], key)
-                                except:
-                                    yield (post.title, [post.link], key)
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                yield (post.title, [post.link], key)
                     else:
                         yield (post.title, [post.link], key)
 
@@ -621,6 +615,10 @@ class SJ():
 
     def range_checkr(self, link, title):
         if self.filename == 'MB_Staffeln':
+            season = re.search("\.s\d", title.lower())
+            if not season:
+                self.log_debug(title + " - Release ist keine Staffel")
+                return
             if self.config.get("seasonpacks") == "False":
                 staffelpack = re.search("s\d.*(-|\.).*s\d", title.lower())
                 if staffelpack:
@@ -651,20 +649,11 @@ class SJ():
         soup = BeautifulSoup(req_page)
         try:
             titles = soup.findAll(text=re.compile(search_title))
-
             for title in titles:
-                if self.filename == 'MB_Staffeln':
-                    valid = re.search(self.seasonssource, title.lower())
-                else:
-                    valid = True
-                if valid:
-
-                    if self.quality != '480p' and self.quality in title:
-                        self.parse_download(series_url, title)
-                    if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title)):
-                        self.parse_download(series_url, title)
-                else:
-                    self.log_debug(title + " - Release hat falsche Quelle")
+                if self.quality != '480p' and self.quality in title:
+                    self.parse_download(series_url, title)
+                if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                    self.parse_download(series_url, title)
         except re.error as e:
             self.log_error('Konstantenfehler: %s' % e)
 
@@ -674,10 +663,18 @@ class SJ():
         escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
-            for url_hoster in url_hosters:
-                if self.hoster.lower() in url_hoster[1]:
-                    self.send_package(title, url_hoster[0])
+            valid = False
+            if self.filename == 'MB_Staffeln':
+                valid = re.search(self.seasonssource, title.lower())
+            else:
+                valid = True
+            if valid:
+                url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+                for url_hoster in url_hosters:
+                    if self.hoster.lower() in url_hoster[1]:
+                        self.send_package(title, url_hoster[0])
+            else:
+                self.log_debug(title + " - Release hat falsche Quelle")
 
     def send_package(self, title, link):
         if self.filename == 'SJ_Serien_Regex':
@@ -886,11 +883,11 @@ if __name__ == "__main__":
 
     # Lege loglevel über Startparameter fest
     logging.basicConfig(
-        filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format=time.strftime("%Y-%m-%d %H:%M:%S") + ' - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+        filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format='%(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     )
     console = logging.StreamHandler()
     console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
-    formatter = logging.Formatter(time.strftime("%Y-%m-%d %H:%M:%S") + ' - %(message)s') #FIXME always show current date/time
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
@@ -1003,10 +1000,10 @@ if __name__ == "__main__":
 
     # Diese Klassen werden periodisch ausgeführt    
     pool = [
-        MB(filename='MB_Regex'),
-        MB(filename='MB_3D'),
         MB(filename='MB_Filme'),
         MB(filename='MB_Staffeln'),
+        MB(filename='MB_3D'),
+        MB(filename='MB_Regex'),
         SJ(filename='SJ_Serien', internal_name='SJ'),
         SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
         SJ(filename='MB_Staffeln', internal_name='MB'),
@@ -1026,10 +1023,8 @@ if __name__ == "__main__":
 
     # Wenn testlauf gesetzt ist, führe RSScrawler nur einmalig aus:
     for el in pool:
-        # Wenn also testlauf nicht gesetzt ist, aktiviere die wiederholte Ausführung
         if not arguments['--testlauf']:
             el.activate()
-        # Starte unabhängig von testlauf das Script
         el.periodical_task()
 
     # Pausiere das Script für die festgelegte Zeit, nachdem es ausgeführt werde (bis zur nächsten Ausführung)
@@ -1038,6 +1033,5 @@ if __name__ == "__main__":
             while True:
                 signal.pause()
         except AttributeError:
-            # signal.pause() fehlt in Windows. Schlafe daher für eine Sekunde
             while True:
               time.sleep(1)
