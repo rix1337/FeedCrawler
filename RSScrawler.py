@@ -489,8 +489,7 @@ class SJ():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
-        self.search_list = os.path.join(os.path.dirname(sys.argv[0]),
-                                         'Einstellungen/Listen/{}.txt'.format(self.filename))
+        self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._periodical_active = False
         self.empty_list = False
         if self.filename == 'MB_Staffeln':
@@ -521,9 +520,6 @@ class SJ():
             return ''
 
     def periodical_task(self):
-        if self.filename == 'SJ_Serien_Regex':
-            if self.config.get("regex"):
-                return
         if self.filename == "MB_Staffeln":
             feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
         else:
