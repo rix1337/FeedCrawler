@@ -61,17 +61,17 @@ def cherry_server(port, prefix, docker):
 # Funktion für das wiederholte Ausführen des Scriptes
 def crawler():
     log_debug = logging.debug
+    search_pool = [
+        SJ(filename='SJ_Serien', internal_name='SJ'),
+        SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(filename='MB_Staffeln', internal_name='MB'),
+        YT(),
+        MB(filename='MB_Regex'),
+        MB(filename='MB_Filme'),
+        MB(filename='MB_Staffeln'),
+        MB(filename='MB_3D')
+    ]
     if not arguments['--testlauf']:
-        search_pool = [
-            SJ(filename='SJ_Serien', internal_name='SJ'),
-            SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
-            SJ(filename='MB_Staffeln', internal_name='MB'),
-            YT(),
-            MB(filename='MB_Regex'),
-            MB(filename='MB_Filme'),
-            MB(filename='MB_Staffeln'),
-            MB(filename='MB_3D')
-        ]
         while True:
             for task in search_pool:
                 task.periodical_task()
@@ -79,11 +79,11 @@ def crawler():
             log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
-        else:
-            for task in search_pool:
-                task.periodical_task()
-                log_debug("-------------Suchfunktion ausgeführt-------------")
-            log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
+    else:
+        for task in search_pool:
+            task.periodical_task()
+            log_debug("-------------Suchfunktion ausgeführt-------------")
+        log_debug("-----------Testlauf ausgeführt!-----------")
 
 class MB():
     _INTERNAL_NAME = 'MB'

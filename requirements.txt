@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-#
-# cfscrape wird noch nicht aktiv genutzt. cfscrape benötigt nodejs!
 
 BeautifulSoup
 cherrypy
@@ -10,4 +8,3 @@ docopt
 feedparser
 lxml
 requests
-cfscrape
