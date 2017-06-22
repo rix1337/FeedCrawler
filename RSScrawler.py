@@ -59,22 +59,38 @@ def cherry_server(port, prefix, docker):
     starten.start(port, prefix, docker)
 
 # Funktion für das wiederholte Ausführen des Scriptes
-def _restart_timer(func):
-    def wrapper(self):
-        func(self)
-        # Wenn testlauf inaktiv ist wurde dies aktiviert. Der folgende Code führt das Script in Intervallen aus
-        if self._periodical_active:
-            self.periodical.cancel() #FIXME stop breaking loop, if it takes too long
-            self.periodical.start()
-    return wrapper
-
+def crawler():
+    log_debug = logging.debug
+    if not arguments['--testlauf']:
+        search_pool = [
+            SJ(filename='SJ_Serien', internal_name='SJ'),
+            SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
+            SJ(filename='MB_Staffeln', internal_name='MB'),
+            YT(),
+            MB(filename='MB_Regex'),
+            MB(filename='MB_Filme'),
+            MB(filename='MB_Staffeln'),
+            MB(filename='MB_3D')
+        ]
+        while True:
+            for task in search_pool:
+                task.periodical_task()
+                log_debug("-------------Suchfunktion ausgeführt-------------")
+            log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
+            time.sleep(int(rsscrawler.get('interval')) * 60)
+            log_debug("-------------Wartezeit verstrichen-------------")
+        else:
+            for task in search_pool:
+                task.periodical_task()
+                log_debug("-------------Suchfunktion ausgeführt-------------")
+            log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
 
 class MB():
     _INTERNAL_NAME = 'MB'
     FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     SUBSTITUTE = "[&#\s/]"
 
-    def __init__(self, filename):#mb
+    def __init__(self, filename):
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -86,17 +102,8 @@ class MB():
             self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
         self._periodical_active = False
-        self.periodical = RepeatableTimer(
-            int(rsscrawler.get('interval')) * 60,
-            self.periodical_task
-        )
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
-
-    def activate(self):
-        self._periodical_active = True
-        self.periodical.start()
-        return self
 
     def readInput(self, file):
         if not os.path.isfile(file):
@@ -330,7 +337,6 @@ class MB():
         # FIXME use beautiful soup to get link
         return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
 
-    @_restart_timer
     def periodical_task(self):
         if self.empty_list:
             return
@@ -486,10 +492,6 @@ class SJ():
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]),
                                          'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._periodical_active = False
-        self.periodical = RepeatableTimer(
-            int(rsscrawler.get('interval')) * 60,
-            self.periodical_task
-        )
         self.empty_list = False
         if self.filename == 'MB_Staffeln':
             self.seasonssource = self.config.get('seasonssource').lower()
@@ -518,17 +520,10 @@ class SJ():
             self.log_debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
             return ''
 
-    def activate(self):
-        self._periodical_active = True
+    def periodical_task(self):
         if self.filename == 'SJ_Serien_Regex':
             if self.config.get("regex"):
-                self.periodical.start()
-        else:
-            self.periodical.start()
-        return self
-
-    @_restart_timer
-    def periodical_task(self):
+                return
         if self.filename == "MB_Staffeln":
             feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
         else:
@@ -744,16 +739,7 @@ class YT():
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/YT_Downloads.db"))
         self.youtube = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
         self._periodical_active = False
-        self.periodical = RepeatableTimer(
-            int(rsscrawler.get('interval')) * 60,
-            self.periodical_task
-        )
         self.dictWithNamesAndLinks = {}
-
-    def activate(self):
-        self._periodical_active = True
-        self.periodical.start()
-        return self
 
     def readInput(self, file):
         if not os.path.isfile(file):
@@ -768,7 +754,6 @@ class YT():
             self.log_error("Liste nicht gefunden!")
 
     # Periodische Aufgabe
-    @_restart_timer
     def periodical_task(self):
         # Abbruch, bei Deaktivierter Suche
         if not self.config.get('youtube'):
@@ -996,36 +981,23 @@ if __name__ == "__main__":
     # Starte Webanwendung
     p = Process(target=cherry_server, args=(port, prefix, docker))
     p.start()
+    
     files.check()
-
-    # Diese Klassen werden periodisch ausgeführt    
-    pool = [
-        MB(filename='MB_Filme'),
-        MB(filename='MB_Staffeln'),
-        MB(filename='MB_3D'),
-        MB(filename='MB_Regex'),
-        SJ(filename='SJ_Serien', internal_name='SJ'),
-        SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(filename='MB_Staffeln', internal_name='MB'),
-        YT()
-    ]
+    
+    # Starte Crawler
+    c = Process(target=crawler, args=())
+    c.start()
 
     # Hinweis, wie RSScrawler beendet werden kann
     print('Drücke [Strg] + [C] zum Beenden')
     
     # Sauberes Beenden (über STRG+C) ermöglichen
     def signal_handler(signal, frame):
-        list([el.periodical.cancel() for el in pool])
         print('Beende RSScrawler...')
         p.terminate()
+        c.terminate()
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
-
-    # Wenn testlauf gesetzt ist, führe RSScrawler nur einmalig aus:
-    for el in pool:
-        if not arguments['--testlauf']:
-            el.activate()
-        el.periodical_task()
 
     # Pausiere das Script für die festgelegte Zeit, nachdem es ausgeführt werde (bis zur nächsten Ausführung)
     if not arguments['--testlauf']:
