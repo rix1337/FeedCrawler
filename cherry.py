@@ -13,14 +13,12 @@ from rssconfig import RssConfig
 import common
 import files
 
-# Globale Variable
 import version
 localversion = version.getVersion()
 updateready = False
 updateversion = ""
 
 class Server:
-  # Zeige Konfigurationsseite
   @cherrypy.expose
   def index(self):
     jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint = common.load(dockerglobal)
@@ -231,22 +229,15 @@ class Server:
   </body>
 </html>'''
 
-  # /log zeigt den Inhalt des RSScrawler.log
   @cherrypy.expose
   def log(self):
-    # Wenn Log (noch) nicht vorhanden, bleibe Leer
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')):
       return "<!DOCTYPE html>\n<html lang='de'>\n<head>\n<meta charset='utf-8'>\n<meta http-equiv='refresh' content='10'>\n<meta content='width=device-width,maximum-scale=1' name='viewport'>\n<meta content='noindex, nofollow' name='robots'>\n<title>RSScrawler</title>\n<link href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAwUExURUxpcQEBAQMDAwAAAAAAAAICAgAAAAAAAAAAAAEBAQQEBAEBAQMDAwEBAQICAgAAAHF9S8wAAAAPdFJOUwBkHuP2K8qzcEYVmzhVineWhWQAAAB4SURBVAjXY2CAAaabChAG4xdzIQjj//9vAiAGZ7L/f+8FINai2fb/q4A0z1uF4/9/g9XYae3/IgBWnLr8fxIDA2u7/zcd+x9AuTXC/x/s/76AgSml0N90yucABt7/nvUfF3+ZwMBqn9T/j+0/UNvBgIhO3o4AuCsAPDssr9goPWoAAABXelRYdFJhdyBwcm9maWxlIHR5cGUgaXB0YwAAeJzj8gwIcVYoKMpPy8xJ5VIAAyMLLmMLEyMTS5MUAxMgRIA0w2QDI7NUIMvY1MjEzMQcxAfLgEigSi4A6hcRdPJCNZUAAAAASUVORK5CYII=' rel='icon' type='image/png'>\n<style>\n@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);a,body{color:#000}body{font-family:Roboto,Helvetica,Arial,sans-serif;font-weight:100;font-size:14px;line-height:30px;background:#fff}\n</style>\n</head>\n<body>\n<p></p>\n</body>\n</html>"
     else:
-      # Deklariere Pfad der Logdatei (relativ)
       logfile = open(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'))
-      # Nutze String um Log in HTML anzuzeigen
       output = StringIO.StringIO()
-      #Füge Meta-Tag hinzu, damit Log regelmäßig neu geladen wird
       output.write("<!DOCTYPE html>\n<html lang='de'>\n<head>\n<meta charset='utf-8'>\n<meta http-equiv='refresh' content='10'>\n<meta content='width=device-width,maximum-scale=1' name='viewport'>\n<meta content='noindex, nofollow' name='robots'>\n<title>RSScrawler</title>\n<link href='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAwUExURUxpcQEBAQMDAwAAAAAAAAICAgAAAAAAAAAAAAEBAQQEBAEBAQMDAwEBAQICAgAAAHF9S8wAAAAPdFJOUwBkHuP2K8qzcEYVmzhVineWhWQAAAB4SURBVAjXY2CAAaabChAG4xdzIQjj//9vAiAGZ7L/f+8FINai2fb/q4A0z1uF4/9/g9XYae3/IgBWnLr8fxIDA2u7/zcd+x9AuTXC/x/s/76AgSml0N90yucABt7/nvUfF3+ZwMBqn9T/j+0/UNvBgIhO3o4AuCsAPDssr9goPWoAAABXelRYdFJhdyBwcm9maWxlIHR5cGUgaXB0YwAAeJzj8gwIcVYoKMpPy8xJ5VIAAyMLLmMLEyMTS5MUAxMgRIA0w2QDI7NUIMvY1MjEzMQcxAfLgEigSi4A6hcRdPJCNZUAAAAASUVORK5CYII=' rel='icon' type='image/png'>\n<style>\n@import url(https://fonts.googleapis.com/css?family=Roboto:400,300,600,400italic);a,body{color:#000}body{font-family:Roboto,Helvetica,Arial,sans-serif;font-weight:100;font-size:14px;line-height:30px;background:#fff}\n</style>\n</head>\n<body>\n<p>")
-      # Jede Zeile der RSScrawler.log wird eingelesen. Letzter Eintrag zuerst, zwecks Übersicht
       for lines in reversed(logfile.readlines()):
-        # Der Newline-Charakter \n wird um den HTML Newline-Tag <br> ergänzt
         output.write(lines.replace("\n", "</p>\n<p>"))
       output.write('</p>\n</body>\n</html>')
       return output.getvalue()
@@ -254,7 +245,6 @@ class Server:
   @cherrypy.expose
   def speichern(self, jdownloader, port, prefix, interval, pushbulletapi, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
-      # RSScrawler Section:
       f.write('# RSScrawler.ini (Stand: RSScrawler ' + localversion + ')\n')
       f.write("\n[RSScrawler]\n")
       f.write("jdownloader = " + jdownloader.encode('utf-8') + "\n")
@@ -267,7 +257,6 @@ class Server:
       f.write("interval = " + intervalchecked + "\n")
       f.write("pushbulletapi = " + pushbulletapi.encode('utf-8') + "\n")
       f.write("hoster = " + hoster.encode('utf-8') + "\n")
-      # MB Section:
       f.write("\n[MB]\n")
       f.write("quality = " + mbquality.encode('utf-8') + "\n")
       f.write("ignore = " + ignore.encode('utf-8').lower() + "\n")
@@ -280,12 +269,10 @@ class Server:
       f.write("seasonsquality = " + seasonsquality.encode('utf-8') + "\n")
       f.write("seasonpacks = " + seasonpacks.encode('utf-8') + "\n")
       f.write("seasonssource = " + seasonssource.encode('utf-8').lower() + "\n")
-      # SJ Section:
       f.write("\n[SJ]\n")
       f.write("quality = " + sjquality.encode('utf-8') + "\n")
       f.write("rejectlist = " + rejectlist.encode('utf-8').lower() + "\n")
       f.write("regex = " + sjregex.encode('utf-8') + "\n")
-      # YT Section:
       f.write("\n[YT]\n")
       f.write("youtube = " + youtube.encode('utf-8') + "\n")
       if int(maxvideos.encode('utf-8')) < 1:
@@ -477,7 +464,6 @@ class Server:
     else:
       file = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
       output = StringIO.StringIO()
-      # Ersetze Platzhalter für Webinterface durch Leer
       for line in file.readlines():
         output.write(line.replace("XXXXXXXXXX",""))
       return output.getvalue()
@@ -487,20 +473,15 @@ class Server:
     cherrypy.quickstart(cls(), '/' + prefix, os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web/cherry.conf'))
     
   def start(self, port, prefix, docker):
-    # Setzte Variable um Docker-Umgebung zu erkennen
     global dockerglobal
     dockerglobal = docker
-    # Deaktiviere Cherrypy Log
     cherrypy.log.error_log.propagate = False
     cherrypy.log.access_log.propagate = False
-    # Setze das Port entsprechend des Aufrufs
     cherrypy.config.update({'server.socket_port': port})
-    # Prüfe auf Updates
     global updateready
     global updateversion
     if version.updateCheck()[0]:
       updateready = True
       updateversion = version.updateCheck()[1]
       print('Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-    # Setzte den Pfad der Webanwendung entsprechend des Aufrufs
     self.run(prefix)

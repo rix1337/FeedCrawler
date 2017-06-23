@@ -7,7 +7,6 @@
 # Beschreibung:
 # RSScrawler erstellt .crawljobs für den JDownloader.
 
-# Startparameter/Hilfetext für docopt (nicht verändern!)
 """RSScrawler.
 
 Usage:
@@ -29,7 +28,6 @@ import version
 version = version.getVersion()
 
 from docopt import docopt
-from lxml import html
 import requests
 import feedparser
 import re
@@ -44,21 +42,17 @@ import logging
 import os
 from multiprocessing import Process
 
-# Lokales
 from rssconfig import RssConfig
 from rssdb import RssDb
-from timer import RepeatableTimer
 import common
 import cherry
 import files
 
 
-# Definiere cherrypy Serverinstanz
 def cherry_server(port, prefix, docker):
     starten = cherry.Server()
     starten.start(port, prefix, docker)
 
-# Funktion für das wiederholte Ausführen des Scriptes
 def crawler():
     log_debug = logging.debug
     search_pool = [
@@ -75,15 +69,14 @@ def crawler():
         while True:
             for task in search_pool:
                 task.periodical_task()
-                log_debug("-------------Suchfunktion ausgeführt-------------")
             log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
     else:
         for task in search_pool:
             task.periodical_task()
-            log_debug("-------------Suchfunktion ausgeführt-------------")
         log_debug("-----------Testlauf ausgeführt!-----------")
+
 
 class MB():
     _INTERNAL_NAME = 'MB'
@@ -244,7 +237,6 @@ class MB():
                     ) and text.append(key)
                     self.db.store(
                         key,
-                        # Vermerke zweisprachiges Release entsprechend in der Datenbank
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
@@ -254,11 +246,9 @@ class MB():
                         if common.cutoff(key, '2'):
                             retail = True
 
-                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info('[Film] - <b>' + (
                     'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
 
-                    # Schreibe Crawljob
                     common.write_crawljob_file(
                         key,
                         key,
@@ -268,15 +258,12 @@ class MB():
                     ) and text.append(key)
                     self.db.store(
                         key,
-                        # Vermerke zweisprachiges Release entsprechend in der Datenbank
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
                 elif self.filename == 'MB_Regex':
-                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
 
-                    # Schreibe Crawljob
                     common.write_crawljob_file(
                         key,
                         key,
@@ -286,16 +273,13 @@ class MB():
                     ) and text.append(key)
                     self.db.store(
                         key,
-                        # Vermerke zweisprachiges Release entsprechend in der Datenbank
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                         )
                 else:
-                    # Logge gefundenes Release auch im RSScrawler (Konsole/Logdatei)
                     self.log_info(
                         '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
 
-                    # Schreibe Crawljob
                     common.write_crawljob_file(
                         key,
                         key,
@@ -305,13 +289,10 @@ class MB():
                     ) and text.append(key)
                     self.db.store(
                         key,
-                        # Vermerke zweisprachiges Release entsprechend in der Datenbank
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
-        # If a key was previously added to the text (ie a release was found):
         if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
             return True
 
@@ -334,7 +315,6 @@ class MB():
     def _get_download_links(self, url, hosters_pattern=None):
         tree = html.fromstring(requests.get(url).content)
         xpath = '//*[@id="content"]/span/div/div[2]//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
-        # FIXME use beautiful soup to get link
         return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
 
     def periodical_task(self):
@@ -356,7 +336,6 @@ class MB():
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                # Füge der Suche sämtliche Titel aus der MB_Filme Liste hinzu
                 set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.search_list)
                 ).items()}.items()
@@ -463,7 +442,6 @@ class MB():
                     else:
                         self.log_info(
                             '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                        # Schreibe Crawljob
                         common.write_crawljob_file(
                             key,
                             key,
@@ -473,7 +451,6 @@ class MB():
                         ) and text.append(key)
                         self.db.store(
                             key,
-                            # Vermerke Releases, die nicht zweisprachig sind in der Datenbank (falls enforcedl aktiv ist). Speichere jedes gefundene Release
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
@@ -545,11 +522,9 @@ class SJ():
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
 
-        # Lege Array als Typ für die added_items fest (Liste bereits hinzugefügter Releases)
         self.added_items = []
 
         for post in feed.entries:
-            # Seltenen Fehler, bei dem ein Feedeintrag (noch) keinen Link enthält, umgehen:
             if post.link == None:
                 continue
 
@@ -749,29 +724,22 @@ class YT():
         except:
             self.log_error("Liste nicht gefunden!")
 
-    # Periodische Aufgabe
     def periodical_task(self):
-        # Abbruch, bei Deaktivierter Suche
         if not self.config.get('youtube'):
             self.log_debug("Suche für YouTube deaktiviert!")
             return
-        # Leere/Definiere interne URL/Text-Arrays
         channels = []
         text = []
         videos = []
         key = ""
         download_link = ""
-        # Definiere interne Suchliste auf Basis der YT_Channels Liste
         self.allInfos = self.readInput(self.youtube)
 
-        # Suche nach jeder Zeile in der internen Suchliste
         for xline in self.allInfos:
-            # Wenn die Zeile nicht leer ist bzw. keine Raute (für Kommentare) enthält:
             if len(xline) > 0 and not xline.startswith("#"):
                 if xline.startswith("XXXXXXXXXX") or self.config.get("youtube") == False:
                     self.log_debug("Liste enthält Platzhalter. Stoppe Suche für YouTube!")
                     return
-                # Generiere aus diesen Suchurl-kompatiblen String als Seitenaufruf (entspricht einer Suche auf MB nach dem entsprechenden Titel) eine Liste an Suchanfragen-URLs (Anzahl entspricht Einträgen der internen Suchliste)
                 channels.append(xline)
 
         for channel in channels:
@@ -794,7 +762,6 @@ class YT():
             soup = BeautifulSoup(response)
             links = soup.findAll('a', attrs={'class':'yt-uix-sessionlink'})
             
-            # Maximal hinzuzufügende Links
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:
                 self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu gering. Suche stattdessen 1 Video!")
@@ -805,7 +772,6 @@ class YT():
 
             for link in links[:maxvideos]:
                 link = link.get("href")
-                # Füge nur Links, die tatsächlich auf Videos verweisen(also lang genug sind), hinzu
                 if len(link) > 10:
                     videos.append([link, channel])
 
@@ -815,26 +781,18 @@ class YT():
             key = video.replace("/watch?v=", "")
             download_link = 'https://www.youtube.com' + video
             title = ""
-            # Füge Videos nur hinzu, wenn überhaupt ein Link gefunden wurde (erzeuge hierfür einen crawljob)
             if not download_link == None:
-                # Wenn das Video als bereits hinzugefügt in der Datenbank vermerkt wurde, logge dies und breche ab
                 if self.db.retrieve(key) == 'added':
                     self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % key)
-                # Ansonsten speichere das Video als hinzugefügt in der Datenbank
                 else:
-                    # Finde den Titel des Video
                     video_title = re.findall(re.compile('<title>(.+?)</title>'),urllib2.urlopen(download_link).read())[0].replace(" - YouTube", "").decode("utf-8").replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace('&quot;', '"').replace("&#39;", "'")
-                    
-                    # Ignoriere Titel entsprechend der Einstellungen
                     ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
                     ignorevideo = re.search(ignore,video_title.lower())
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
                     
-                    # Logge gefundenes Video auch im RSScrawler (Konsole/Logdatei)
                     self.log_info('[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + download_link + '" target="_blank">Link</a>]')
-                    # Schreibe Crawljob  
                     common.write_crawljob_file(
                         key,
                         "YouTube/" + channel,
@@ -848,21 +806,16 @@ class YT():
                         channel
                 )
                     
-        # Wenn zuvor ein key dem Text hinzugefügt wurde (also ein Video gefunden wurde):
         if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            # Löse Pushbullet-Benachrichtigung aus
             common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
 
 
-## Hauptsektion
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
-    # Deaktiviere requests Log
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    # Lege loglevel über Startparameter fest
     logging.basicConfig(
         filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format='%(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     )
@@ -872,19 +825,14 @@ if __name__ == "__main__":
     console.setFormatter(formatter)
     logging.getLogger('').addHandler(console)
 
-    #  Zeige Programminformationen in der Konsole
     print("┌────────────────────────────────────────────────────────┐")
     print("  Programminfo:    RSScrawler " + version + " von RiX")
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
     print("└────────────────────────────────────────────────────────┘")
     
-    # Dateien prüfen und erstellen
     files.startup()
-            
-    # Setze relativen Dateinamen der Einstellungsdatei    
+
     einstellungen = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
-    # Erstelle RSScrawler.ini, wenn nicht bereits vorhanden
-    # Wenn jd-pfad Startparameter nicht existiert, erstelle ini ohne diesen Parameter
     if not arguments['--jd-pfad']:
         if not os.path.exists(einstellungen):
             if arguments['--port']:
@@ -896,19 +844,15 @@ if __name__ == "__main__":
             print('Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
-    # Ansonsten erstelle ini mit angegebenem Pfad
     else:
         if not os.path.exists(einstellungen):
-            # Prüfe weiterhin ob Port angegeben wurde
             if arguments['--port']:
                 files.einsteller(einstellungen, version, arguments['--jd-pfad'], arguments['--port'])
-            # Wenn nicht, vergebe nur Pfadangabe
             else:
                 files.einsteller(einstellungen, version, arguments['--jd-pfad'], "9090")
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
     
-    # Prüfe, ob neue Einstellungen in RSScrawler vorhanden sind
     configfile = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
     if not 'port' in open(configfile).read() and not 'prefix' in open(configfile).read() :
         print "Veraltete Konfigurationsdatei erkannt. Ergänze neue Einstellungen!"
@@ -918,54 +862,42 @@ if __name__ == "__main__":
             f.truncate()
             f.write(content.replace('[RSScrawler]\n', '[RSScrawler]\nport = 9090\nprefix =\n'))
             
-    # Definiere die allgemeinen Einstellungen global
     rsscrawler = RssConfig('RSScrawler')
 
-    # Wenn JDPFAD als Argument vergeben wurde, ignoriere Konfigurationseintrag
     if arguments['--jd-pfad']:
         jdownloaderpath = arguments['--jd-pfad']
     else:
         jdownloaderpath = rsscrawler.get("jdownloader")
-    # Sperre Pfad, wenn    als Docker gestartet wurde
     if arguments['--docker']:
        jdownloaderpath = '/jd2'
-    # Ersetze Backslash durch Slash (für Windows)
     jdownloaderpath = jdownloaderpath.replace("\\", "/")
-    # Entferne Slash, wenn jdownloaderpath darauf endet
     jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
-    # Konsolenhinweis bei docker-Parameter
     if arguments['--docker']:
        print('Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
        
-    # Abbrechen, wenn JDownloader Pfad nicht vergeben wurde
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
         print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
         print('Beende RSScrawler...')
         sys.exit(0)
     
-    # Zeige Pfad erst nach obigem Check    
     print('Nutze das "folderwatch" Unterverzeichnis von "' + jdownloaderpath + '" für Crawljobs')
         
-    # Abbrechen, wenn JDownloader Pfad nicht existiert
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
         print('Beende RSScrawler...')
         sys.exit(0)
 
-    # Abbrechen, wenn folderwatch Pfad im JDownloader Pfad nicht existiert
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print('Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
         
-    # Lege Port und Pfad der Webanwendung entsprechend der RSScrawler.ini bzw. des Startparameters fest
     if arguments['--port']:
         port = int(arguments['--port'])
     else:
         port = port = int(rsscrawler.get("port"))
-    # Sperre Port, wenn    als Docker gestartet wurde
     docker = '0'
     if arguments['--docker']:
        port = int('9090')
@@ -974,20 +906,16 @@ if __name__ == "__main__":
     prefix = rsscrawler.get("prefix")
     print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + '/' + prefix)
 
-    # Starte Webanwendung
     p = Process(target=cherry_server, args=(port, prefix, docker))
     p.start()
     
     files.check()
     
-    # Starte Crawler
     c = Process(target=crawler, args=())
     c.start()
 
-    # Hinweis, wie RSScrawler beendet werden kann
     print('Drücke [Strg] + [C] zum Beenden')
     
-    # Sauberes Beenden (über STRG+C) ermöglichen
     def signal_handler(signal, frame):
         print('Beende RSScrawler...')
         p.terminate()
@@ -995,7 +923,6 @@ if __name__ == "__main__":
         sys.exit(0)
     signal.signal(signal.SIGINT, signal_handler)
 
-    # Pausiere das Script für die festgelegte Zeit, nachdem es ausgeführt werde (bis zur nächsten Ausführung)
     if not arguments['--testlauf']:
         try:
             while True:
