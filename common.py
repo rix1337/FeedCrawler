@@ -28,12 +28,7 @@ def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
     
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
-    # Crawljobs enden auf .crawljob
-    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
-        # Windows-inkompatible Sonderzeichen/Leerzeichen werden ersetzt
-        re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower()
-    )
-    # Versuche .crawljob zu schreiben
+    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
     usesubdir = crawljobs.get("subdir")
@@ -44,51 +39,30 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
     else:
         autostart = "FALSE"
     try:
-        # Öffne Crawljob mit Schreibzugriff
         file = open(crawljob_file, 'w')
-        # Optionen für Paketeigenschaften im JDownloader:
-        # Paket ist aktiviert
         file.write('enabled=TRUE\n')
-        # Download startet automatisch
         file.write('autoStart=' + autostart + '\n')
-        # Passwörter hinzufügen
         file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '"]\n')
         file.write('downloadPassword=' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
-        # Archive automatisch entpacken
         file.write('extractAfterDownload=TRUE\n')
-        # Erzwinge automatischen Start
         file.write('forcedStart=' + autostart + '\n')
-        # Bestätige Fragen des JDownloaders automatisch
         file.write('autoConfirm=' + autostart + '\n')
-        # Unterverzeichnis des Downloads ist folder_name & subdir wird wenn es nicht leer ist mit angegeben. Subdir hilft bei der Automatisierung (bspw. über Filebot).
         if not subdir == "":
             file.write('downloadFolder=' + subdir + "/" + '%s\n' % folder_name)
-            # Niedrige Priorität für erzwungene zweisprachige Downloads
             if subdir == "RSScrawler/Remux":
                 file.write('priority=Lower\n')
         else:
             file.write('downloadFolder=' + '%s\n' % folder_name)
-        # Name des Pakets im JDownloader ist package_name (ohne Leerzeichen!)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
-        # Nutze ersten Eintrag (lt. Code einzigen!) des link_text Arrays als Downloadlink
         file.write('text=%s\n' % link_text)
-        # Beende Schreibvorgang
         file.close()
-        # Bestätige erfolgreichen Schreibvorgang
         return True
-    # Bei Fehlern:
     except UnicodeEncodeError as e:
-        # Beende Schreibvorgang
         file.close()
-        # Erläutere den Fehler im Log inkl. Dateipfad des Crawljobs und Fehlerbericht
         logging.error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %(crawljob_file, e.message))
-        # Wenn hiernach ein fehlerhafter Crawljob zurück bleibt
         if os.path.isfile(crawljob_file):
-            # Logge das weitere Vorgehen
             logging.info("Entferne defekten Crawljob: %s" % crawljob_file)
-            # Entferne den Crawljob
             os.remove(crawljob_file)
-        # Vermerke fehlgeschlagenen Schreibvorgang
         return False
 
 def checkIp():
@@ -103,17 +77,12 @@ def checkIp():
     return IP
                 
 def entfernen(retailtitel, identifier):
-    # Funktion um Listen einheitlich groß zu schreiben (vorraussetzung für einheitliches CutOff)
     def capitalize(line):
-        # Entferne Whitespace vom Stringende
         line = line.rstrip()
         return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
     log_debug = logging.debug
-    # Retail Titel auf Listenformat kürzen und Zusatztags entfernen
     simplified = retailtitel.replace(".", " ")
-    # Abgefahrener RegEx-String, der Retail-Releases identifiziert
     retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
-    # Obiger RegEx-String, der nicht das Jahr entfernt, falls in der Liste eine Jahreszahl angegeben wurde
     retailyear = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
     if identifier == '2':
         liste = "MB_3D"
@@ -122,10 +91,8 @@ def entfernen(retailtitel, identifier):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'r') as l:
         content = l.read()
         l.close()
-    # Inhalt der liste Schreiben, wobei der Retail-Titel entfernt wird
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
         w.write(content.replace(retailyear, "").replace(retail, "").replace(retailyear.lower(), "").replace(retail.lower(), "").replace(retailyear.upper(), "").replace(retail.upper(), "").replace(capitalize(retailyear), "").replace(capitalize(retail), ""))
-    # Leerzeilen und Eingabefehler entfernen
     files.check()
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
@@ -165,7 +132,6 @@ def load(dockerglobal):
     interval = main.get("interval")
     hoster = main.get("hoster")
     pushbulletapi = main.get("pushbulletapi")
-    # MB-Bereich
     mb = RssConfig('MB')
     mbquality = mb.get("quality")
     ignore = mb.get("ignore")
@@ -178,17 +144,14 @@ def load(dockerglobal):
     seasonsquality = mb.get("seasonsquality")
     seasonpacks = str(mb.get("seasonpacks"))
     seasonssource = mb.get("seasonssource")
-    # SJ-Bereich
     sj = RssConfig('SJ')
     sjquality = sj.get("quality")
     rejectlist = sj.get("rejectlist")
     sjregex = str(sj.get("regex"))
-    # YT-Bereich
     yt = RssConfig('YT')
     youtube = str(yt.get("youtube"))
     maxvideos = str(yt.get("maxvideos"))
     ytignore = str(yt.get("ignore"))
-    # Wandle Werte für HTML um
     if hoster == 'Share-Online':
       hosterso = ' selected'
       hosterul = ''
@@ -336,10 +299,8 @@ def load(dockerglobal):
       sjregextrue = ''
       sjregexfalse = ' selected'
       srdiv = "none"
-    # Erkenne Prefix
     if prefix:
       prefix = '/' + prefix
-    # Erkenne Docker Umgebung
     if dockerglobal == '1':
       dockerblocker = ' readonly="readonly"'
       dockerhint = 'Docker-Modus: Kann nur per Docker-Run angepasst werden! '
