@@ -28,6 +28,7 @@ import version
 version = version.getVersion()
 
 from docopt import docopt
+from lxml import html
 import requests
 import feedparser
 import re

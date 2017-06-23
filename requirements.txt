@@ -6,4 +6,5 @@ BeautifulSoup
 cherrypy
 docopt
 feedparser
+lxml
 requests
