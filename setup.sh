@@ -18,10 +18,10 @@ select opt in $OPTIONS; do
     exit
    elif [ "$opt" = "Ubuntu/Debian" ]; then
     apt-get update
-    apt-get --yes --force-yes install git python2.7 python-setuptools python-beautifulsoup python-dev libxml2-dev libxslt-dev lib32z1-dev
+    apt-get --yes --force-yes install git python2.7 python-setuptools python-beautifulsoup python-dev
     easy_install pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install docopt feedparser lxml requests cherrypy BeautifulSoup
+    pip install docopt feedparser requests cherrypy BeautifulSoup
     clear
     read -rp "Wohin soll RSScrawler installiert werden? Das Verzeichnis RSScrawler wird automatisch erstellt! Pfad ohne / am Ende: " rsspath
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
@@ -40,7 +40,7 @@ select opt in $OPTIONS; do
     cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
     python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install docopt feedparser lxml requests cherrypy BeautifulSoup
+    pip install docopt feedparser requests cherrypy BeautifulSoup
     cd /volume1/@appstore/
     wget https://github.com/rix1337/RSScrawler/archive/master.zip
     7z x master.zip

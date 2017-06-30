@@ -23,9 +23,6 @@ except ImportError:
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
-
-def get_first(iterable):
-    return iterable and list(iterable[:1]).pop() or None
     
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())

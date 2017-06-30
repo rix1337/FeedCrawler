@@ -28,7 +28,6 @@ import version
 version = version.getVersion()
 
 from docopt import docopt
-from lxml import html
 import requests
 import feedparser
 import re
@@ -70,6 +69,10 @@ def crawler():
         #HA(filename='MB_Filme'),
         #HA(filename='MB_Staffeln'),
         #HA(filename='MB_3D'),
+        HW(filename='MB_Regex'),
+        HW(filename='MB_Filme'),
+        HW(filename='MB_Staffeln'),
+        HW(filename='MB_3D')
     ]
     if not arguments['--testlauf']:
         while True:
@@ -83,6 +86,24 @@ def crawler():
             task.periodical_task()
         log_debug("-----------Testlauf ausgeführt!-----------")
 
+def getURL(url):
+    try:
+        req = urllib2.Request(
+            url,
+            None,
+            {
+                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
+        )
+        return urllib2.urlopen(req).read()
+    except urllib2.HTTPError as e:
+        self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
+        return ''
+    except urllib2.URLError as e:
+        self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' % e.reason)
+        return ''
+    except socket.error as e:
+        self.log_debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
+        return ''
 
 class MB():
     _INTERNAL_NAME = 'MB'
@@ -99,7 +120,7 @@ class MB():
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         if filename == 'MB_Staffeln':
             self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
-        self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
+        self.hoster = rsscrawler.get("hoster")
         self._periodical_active = False
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -222,7 +243,7 @@ class MB():
             self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
             return
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
-            download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
+            download_link = self._get_download_links(value[0])
             if not download_link == None:
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
@@ -321,10 +342,14 @@ class MB():
                     continue
                 yield (post.title, [post.link], title)
 
-    def _get_download_links(self, url, hosters_pattern=None):
-        tree = html.fromstring(requests.get(url).content)
-        xpath = '//*[@id="content"]/span/div/div[2]//strong[contains(text(),"Download:") or contains(text(),"Mirror #")]/following-sibling::a[1]'
-        return [common.get_first(link.xpath('./@href')) for link in tree.xpath(xpath) if hosters_pattern is None or re.search(hosters_pattern, link.text, flags=re.IGNORECASE)]
+    def _get_download_links(self, url):
+        req_page = getURL(url)
+        soup = BeautifulSoup(req_page)
+        download = soup.find("div", {"id": "content"})
+        url_hosters = re.findall('href="([^"\'>]*)".+?(.+?)<', str(download))
+        for url_hoster in url_hosters:
+            if self.hoster.lower() in url_hoster[1].lower():
+                return url_hoster[0]
 
     def periodical_task(self):
         if self.empty_list:
@@ -370,7 +395,7 @@ class MB():
             urls.append(self.FEED_URL)
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-                download_link = common.get_first(self._get_download_links(value[0], self._hosters_pattern))
+                download_link = self._get_download_links(value[0])
                 if not download_link == None:
                     englisch = False
                     if "*englisch*" in key.lower():
@@ -485,25 +510,6 @@ class SJ():
             self.level = 1
         else:
             self.level = 0
-
-    def getURL(self, url):
-        try:
-            req = urllib2.Request(
-                url,
-                None,
-                {
-                    'User-agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.116 Safari/537.36'}
-            )
-            return urllib2.urlopen(req).read()
-        except urllib2.HTTPError as e:
-            self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
-            return ''
-        except urllib2.URLError as e:
-            self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' % e.reason)
-            return ''
-        except socket.error as e:
-            self.log_debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
-            return ''
 
     def periodical_task(self):
         if self.filename == "MB_Staffeln":
@@ -620,7 +626,7 @@ class SJ():
             self.parse_download(link, title)
 
     def range_parse(self, series_url, search_title):
-        req_page = self.getURL(series_url)
+        req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
         try:
             titles = soup.findAll(text=re.compile(search_title))
@@ -633,7 +639,7 @@ class SJ():
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title):
-        req_page = self.getURL(series_url)
+        req_page = getURL(series_url)
         soup = BeautifulSoup(req_page)
         escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
@@ -1229,6 +1235,392 @@ class HA():
                         )
                 if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
                     common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
+
+class HW():
+    _INTERNAL_NAME = 'MB'
+    FEED_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    SUBSTITUTE = "[&#\s/]"
+
+    def __init__(self, filename):
+        self.config = RssConfig(self._INTERNAL_NAME)
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.filename = filename
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
+        if filename == 'MB_Staffeln':
+            self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.hoster = rsscrawler.get("hoster")
+        self._periodical_active = False
+        self.dictWithNamesAndLinks = {}
+        self.empty_list = False
+
+    def readInput(self, file):
+        if not os.path.isfile(file):
+            open(file, "a").close()
+            placeholder = open(file, 'w')
+            placeholder.write('XXXXXXXXXX')
+            placeholder.close()
+        try:
+            f = codecs.open(file, "rb")
+            return f.read().splitlines()
+        except:
+            self.log_error("Liste nicht gefunden!")
+
+    def getPatterns(self,patterns, **kwargs):
+        if patterns == ["XXXXXXXXXX"]:
+            self.log_debug("Liste enthält Platzhalter. Stoppe Suche für Filme!")
+            self.empty_list = True
+        if kwargs:
+            return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
+        return {x: (x) for x in patterns}
+
+    def searchLinks(self, feed):
+        ignore = "|".join(
+            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            "ignore") == "" else "^unmatchable$"
+
+        for key in self.allInfos:
+            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            for post in feed.entries:
+                found = re.search(s, post.title.lower())
+                if found:
+                    found = re.search(ignore, post.title.lower())
+                    if found:
+                        self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                        continue
+                    ss = self.allInfos[key][0].lower()
+                    if self.filename == 'MB_Filme':
+                        if ss == "480p":
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                                continue
+                            found = True
+                        else:
+                            found = re.search(ss, post.title.lower())
+                        if found:
+                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            found = re.search(sss, post.title.lower())
+                            if self.allInfos[key][2]:
+                                found = all([word in post.title.lower() for word in self.allInfos[key][2]])
+                            if found:
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                    continue
+                                yield (post.title, [post.link], key)
+                    elif self.filename == 'MB_3D':
+                        if '.3d.' in post.title.lower():
+                            if self.config.get('crawl3d') and (
+                                    "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                                found = True
+                            else:
+                                continue
+                        if found:
+                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            found = re.search(sss, post.title.lower())
+                            if self.allInfos[key][2]:
+                                found = all([word in post.title.lower() for word in self.allInfos[key][2]])
+                            if found:
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                    continue
+                                yield (post.title, [post.link], key)
+
+                    elif self.filename == 'MB_Staffeln':
+                        validsource = re.search(self.config.get("seasonssource"), post.title.lower())
+                        if not validsource:
+                            self.log_debug(post.title + " - Release hat falsche Quelle")
+                            continue
+                        season = re.search("\.s\d", post.title.lower())
+                        if not season:
+                            self.log_debug(post.title + " - Release ist keine Staffel")
+                            continue
+                        if self.config.get("seasonpacks") == "False":
+                            staffelpack = re.search("s\d.*(-|\.).*s\d", post.title.lower())
+                            if staffelpack:
+                                self.log_debug("%s - Release ignoriert (Staffelpaket)" % post.title)
+                                continue
+                        ss = self.allInfos[key][0].lower()
+
+                        if ss == "480p":
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                                continue
+                            found = True
+                        else:
+                            found = re.search(ss, post.title.lower())
+                        if found:
+                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            found = re.search(sss, post.title.lower())
+
+                            if self.allInfos[key][2]:
+                                found = all([word in post.title.lower() for word in self.allInfos[key][2]])
+                            if found:
+                                episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                                if episode:
+                                    self.log_debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                    continue
+                                yield (post.title, [post.link], key)
+                    else:
+                        yield (post.title, [post.link], key)
+
+    def download_dl(self, title):
+        text = []
+        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        search_url = "aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv".decode('base64') + search_title + "/feed/rss2/"
+        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+        if not '.dl.' in feedsearch_title.lower():
+            self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
+            return
+        for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
+            download_link = self._get_download_links(value[0])
+            if not download_link == None:
+                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
+                    self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                elif  self.filename == 'MB_Filme':
+                    retail = False
+                    if self.config.get('cutoff'):
+                        if self.config.get('enforcedl'):
+                            if common.cutoff(key, '1'):
+                                retail = True
+                        else:
+                            if common.cutoff(key, '0'):
+                                retail = True
+                    self.log_info('[Film] - <b>' + (
+                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler/Remux"
+                    ) and text.append(key)
+                    self.db.store(
+                        key,
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
+                        pattern
+                    )
+                elif self.filename == 'MB_3D':
+                    retail = False
+                    if self.config.get('cutoff'):
+                        if common.cutoff(key, '2'):
+                            retail = True
+
+                    self.log_info('[Film] - <b>' + (
+                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler/3Dcrawler"
+                    ) and text.append(key)
+                    self.db.store(
+                        key,
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
+                        pattern
+                    )
+                elif self.filename == 'MB_Regex':
+                    self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler"
+                    ) and text.append(key)
+                    self.db.store(
+                        key,
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
+                        pattern
+                        )
+                else:
+                    self.log_info(
+                        '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler/Remux"
+                    ) and text.append(key)
+                    self.db.store(
+                        key,
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
+                        pattern
+                    )
+        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
+            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
+            return True
+
+    def dl_search(self, feed, title):
+        ignore = "|".join(
+            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            "ignore") == "" else "^unmatchable$"
+
+        s = re.sub(self.SUBSTITUTE, ".", title).lower()
+        for post in feed.entries:
+            found = re.search(s, post.title.lower())
+            if found:
+                found = re.search(ignore, post.title.lower())
+                if found:
+                    self.log_debug(
+                        "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                    continue
+                yield (post.title, [post.link], title)
+
+    def _get_download_links(self, url):
+        req_page = getURL(url)
+        soup = BeautifulSoup(req_page)
+        download = soup.find("div", {"id": "content"})
+        url_hosters = re.findall('href="([^"\'>]*)".+?(.+?)<', str(download))
+        for url_hoster in url_hosters:
+            if self.hoster.lower() in url_hoster[1].lower():
+                return url_hoster[0]
+
+    def periodical_task(self):
+        if self.empty_list:
+            return
+        urls = []
+        text = []
+        if self.filename == 'MB_Staffeln':
+            if not self.config.get('crawlseasons'):
+                return
+            self.allInfos = dict(
+                set({key: value for (key, value) in self.getPatterns(
+                    self.readInput(self.search_list),
+                    quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
+                ).items()}.items()
+            )
+            )
+        elif self.filename == 'MB_Regex':
+            if not self.config.get('regex'):
+                return
+            self.allInfos = dict(
+                set({key: value for (key, value) in self.getPatterns(
+                    self.readInput(self.search_list)
+                ).items()}.items()
+                    ) if self.config.get('regex') else []
+            )
+        else:
+            if self.filename == 'MB_3D':
+                if not self.config.get('crawl3d'):
+                    return
+            self.allInfos = dict(
+                set({key: value for (key, value) in self.getPatterns(
+                    self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
+                ).items()}.items()
+                    )
+            )
+        if self.filename != 'MB_Regex':
+            if self.config.get("historical"):
+                for xline in self.allInfos.keys():
+                    if len(xline) > 0 and not xline.startswith("#"):
+                        xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
+                        urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode('base64') + '/search/%s/feed/rss2/' % xn)
+        else:
+            urls.append(self.FEED_URL)
+        for url in urls:
+            for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
+                download_link = self._get_download_links(value[0])
+                if not download_link == None:
+                    englisch = False
+                    if "*englisch*" in key.lower():
+                        key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
+                        englisch = True
+                    if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                        if not self.download_dl(key):
+                            self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                        self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
+                    elif self.filename == 'MB_Filme':
+                        retail = False
+                        if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                                'enforcedl'):
+                            if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                                if self.config.get('enforcedl'):
+                                    if common.cutoff(key, '1'):
+                                        retail = True
+                                else:
+                                    if common.cutoff(key, '0'):
+                                        retail = True
+                        self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
+                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                      '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        common.write_crawljob_file(
+                            key,
+                            key,
+                            download_link,
+                            jdownloaderpath + "/folderwatch",
+                            "RSScrawler"
+                        ) and text.append(key)
+                        self.db.store(
+                            key,
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern
+                        )
+                    elif self.filename == 'MB_3D':
+                        retail = False
+                        if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                                'enforcedl'):
+                            if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                                if self.config.get('enforcedl'):
+                                    if common.cutoff(key, '2'):
+                                        retail = True
+                        self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        common.write_crawljob_file(
+                            key,
+                            key,
+                            download_link,
+                            jdownloaderpath + "/folderwatch",
+                            "RSScrawler"
+                        ) and text.append(key)
+                        self.db.store(
+                            key,
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern
+                        )
+                    elif self.filename == 'MB_Staffeln':
+                        self.log_info('[Staffel] - ' + key.replace(".COMPLETE.",
+                                                                   ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        common.write_crawljob_file(
+                            key,
+                            key,
+                            download_link,
+                            jdownloaderpath + "/folderwatch",
+                            "RSScrawler"
+                        ) and text.append(key)
+                        self.db.store(
+                            key,
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern
+                        )
+                        self.db_sj.store(
+                            key.replace(".COMPLETE", "").replace(".Complete", ""),
+                            'downloaded',
+                            pattern
+                        )
+                    else:
+                        self.log_info(
+                            '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
+                        common.write_crawljob_file(
+                            key,
+                            key,
+                            download_link,
+                            jdownloaderpath + "/folderwatch",
+                            "RSScrawler"
+                        ) and text.append(key)
+                        self.db.store(
+                            key,
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern
+                        )
+            if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
+                common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
 
 
 if __name__ == "__main__":
