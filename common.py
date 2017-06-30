@@ -56,9 +56,9 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         return True
     except UnicodeEncodeError as e:
         file.close()
-        logging.error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %(crawljob_file, e.message))
+        log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %(crawljob_file, e.message))
         if os.path.isfile(crawljob_file):
-            logging.info("Entferne defekten Crawljob: %s" % crawljob_file)
+            log_info("Entferne defekten Crawljob: %s" % crawljob_file)
             os.remove(crawljob_file)
         return False
 
@@ -77,7 +77,6 @@ def entfernen(retailtitel, identifier):
     def capitalize(line):
         line = line.rstrip()
         return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
-    log_debug = logging.debug
     simplified = retailtitel.replace(".", " ")
     retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
     retailyear = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
@@ -113,13 +112,13 @@ def Pushbullet(api='', msg=''):
         req.add_header('Authorization', 'Basic %s' % auth)
         response = urllib2.urlopen(req)
     except urllib2.HTTPError:
-        logging.debug('FEHLER - Konnte Pushbullet API nicht erreichen')
+        log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
         return False
     res = json.load(response)
     if res['sender_name']:
-        logging.debug('Pushbullet Erfolgreich versendet')
+        log_debug('Pushbullet Erfolgreich versendet')
     else:
-        logging.debug('FEHLER - Konnte nicht an Pushbullet Senden')
+        log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
         
 def load(dockerglobal):
     main = RssConfig('RSScrawler')
