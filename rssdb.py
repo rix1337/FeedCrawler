@@ -5,6 +5,8 @@
 import common
 import sqlite3
 
+def get_first(iterable):		
+    return iterable and list(iterable[:1]).pop() or None
 
 class RssDb(object):
     def __init__(self, file):
@@ -23,5 +25,5 @@ class RssDb(object):
         self._conn.commit()
 
     def get_patterns(self, f):
-        return [common.get_first(el) for el in self._conn.execute(
+        return [get_first(el) for el in self._conn.execute(
             "SELECT pattern FROM data WHERE value='%s'" % f).fetchall()]

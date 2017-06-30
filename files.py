@@ -7,8 +7,6 @@ import logging
 import os
 import sys
 
-log_error = logging.error
-
 def check():
     lists_nonregex = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien", "YT_Channels"]
     lists_regex = ["MB_Regex", "SJ_Serien_Regex"]

@@ -2,7 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
-# https://github.com/zapp-brannigan/own-pyload-plugins/blob/master/hooks/MovieblogFeed.py (offline)
+# https://github.com/zapp-brannigan/ (offline)
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 # Beschreibung:
 # RSScrawler erstellt .crawljobs für den JDownloader.
@@ -64,7 +64,6 @@ def crawler():
         MB(filename='MB_Filme'),
         MB(filename='MB_Staffeln'),
         MB(filename='MB_3D'),
-        #HA ist noch zu langsam
         #HA(filename='MB_Regex'),
         #HA(filename='MB_Filme'),
         #HA(filename='MB_Staffeln'),
@@ -758,7 +757,6 @@ class YT():
                 channels.append(xline)
 
         for channel in channels:
-            htmlParser = "lxml"
             url = 'https://www.youtube.com/user/' + channel + '/videos'
             urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
             cnotfound = False
@@ -1621,7 +1619,6 @@ class HW():
                         )
             if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
                 common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
-
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
