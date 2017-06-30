@@ -23,9 +23,6 @@ except ImportError:
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
-
-def get_first(iterable):
-    return iterable and list(iterable[:1]).pop() or None
     
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
@@ -42,7 +39,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file = open(crawljob_file, 'w')
         file.write('enabled=TRUE\n')
         file.write('autoStart=' + autostart + '\n')
-        file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '"]\n')
+        file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '","' + "aGQtYXJlYS5vcmc=".decode('base64') + '","' + "aGQtd29ybGQub3Jn".decode('base64') + '","' + "d2FyZXotd29ybGQub3Jn".decode('base64') + '"]\n')
         file.write('downloadPassword=' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
         file.write('extractAfterDownload=TRUE\n')
         file.write('forcedStart=' + autostart + '\n')
