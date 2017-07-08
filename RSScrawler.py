@@ -95,13 +95,13 @@ def getURL(url):
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
-        self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
+        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
         return ''
     except urllib2.URLError as e:
-        self.log_debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' % e.reason)
+        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' % e.reason)
         return ''
     except socket.error as e:
-        self.log_debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
+        logging.debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
         return ''
 
 class MB():
