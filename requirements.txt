@@ -2,8 +2,9 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-BeautifulSoup
+bs4
 cherrypy
 docopt
 feedparser
+lxml
 requests
