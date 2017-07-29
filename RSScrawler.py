@@ -157,7 +157,7 @@ class MB():
                     ss = self.allInfos[key][0].lower()
                     if self.filename == 'MB_Filme':
                         if ss == "480p":
-                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
                             found = True
                         else:
@@ -209,7 +209,7 @@ class MB():
                         ss = self.allInfos[key][0].lower()
 
                         if ss == "480p":
-                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
                             found = True
                         else:
@@ -544,12 +544,13 @@ class SJ():
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
                     m = re.search(self.pattern, title.lower())
-                    if not m and not "720p" in title and not "1080p" in title:
+                    if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
                         m = re.search(self.pattern.replace("480p", "."), title.lower())
                         self.quality = "480p"
                     if m:
                         if "720p" in title.lower(): self.quality = "720p"
                         if "1080p" in title.lower(): self.quality = "1080p"
+                        if "2160p" in title.lower(): self.quality = "2160p"
                         m = re.search(reject, title.lower())
                         if m:
                             self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
@@ -577,7 +578,7 @@ class SJ():
                         m = re.search(self.pattern, title.lower())
                         if m:
                             if '[DEUTSCH]' in title:
-                                if "720p" in title.lower() or "1080p" in title.lower():
+                                if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
                                     continue
                                 mm = re.search(reject, title.lower())
                                 if mm:
@@ -628,7 +629,7 @@ class SJ():
             for title in titles:
                 if self.quality != '480p' and self.quality in title:
                     self.parse_download(series_url, title)
-                if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title)):
+                if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title) or ('.2160p.' in title)):
                     self.parse_download(series_url, title)
         except re.error as e:
             self.log_error('Konstantenfehler: %s' % e)
@@ -872,7 +873,7 @@ class HW():
                     ss = self.allInfos[key][0].lower()
                     if self.filename == 'MB_Filme':
                         if ss == "480p":
-                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
                             found = True
                         else:
@@ -924,7 +925,7 @@ class HW():
                         ss = self.allInfos[key][0].lower()
 
                         if ss == "480p":
-                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower():
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
                             found = True
                         else:

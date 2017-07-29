@@ -154,39 +154,63 @@ def load(dockerglobal):
     else:
       hosterso = ''
       hosterul = ' selected'
+    if mbquality == '2160p':
+      mbq2160 = ' selected'
+      mbq1080 = ''
+      mbq720 = ''
+      mbq480 = ''
     if mbquality == '1080p':
+      mbq2160 = ''
       mbq1080 = ' selected'
       mbq720 = ''
       mbq480 = ''
     if mbquality == '720p':
+      mbq2160 = ''
       mbq1080 = ''
       mbq720 = ' selected'
       mbq480 = ''
     if mbquality == '480p':
+      mbq2160 = ''
       mbq1080 = ''
       mbq720 = ''
       mbq480 = ' selected'
+    if seasonsquality == '2160p':
+      msq2160 = ' selected'
+      msq1080 = ''
+      msq720 = ''
+      msq480 = ''
     if seasonsquality == '1080p':
+      msq2160 = ''
       msq1080 = ' selected'
       msq720 = ''
       msq480 = ''
     if seasonsquality == '720p':
+      msq2160 = ''
       msq1080 = ''
       msq720 = ' selected'
       msq480 = ''
     if seasonsquality == '480p':
+      msq2160 = ''
       msq1080 = ''
       msq720 = ''
       msq480 = ' selected'
+    if sjquality == '2160p':
+      sjq2160 = ' selected'
+      sjq1080 = ''
+      sjq720 = ''
+      sjq480 = ''
     if sjquality == '1080p':
+      sjq2160 = ''
       sjq1080 = ' selected'
       sjq720 = ''
       sjq480 = ''
     if sjquality == '720p':
+      sjq2160 = ''
       sjq1080 = ''
       sjq720 = ' selected'
       sjq480 = ''
     if sjquality == '480p':
+      sjq2160 = ''
       sjq1080 = ''
       sjq720 = ''
       sjq480 = ' selected'
@@ -311,4 +335,4 @@ def load(dockerglobal):
       youtubetrue = ''
       youtubefalse = ' selected'
       ytdiv = "none"
-    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq1080, mbq720, mbq480, msq1080, msq720, msq480, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint)
+    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint)
