@@ -78,8 +78,8 @@ def entfernen(retailtitel, identifier):
         line = line.rstrip()
         return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
     simplified = retailtitel.replace(".", " ")
-    retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
-    retailyear = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*', "", simplified)
+    retail = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
+    retailyear = re.sub(r'(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
     if identifier == '2':
         liste = "MB_3D"
     else:
@@ -93,7 +93,7 @@ def entfernen(retailtitel, identifier):
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 def cutoff(key, identifier):
-    retailfinder = re.search("(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS)(|.DL)(|.AC3|.DTS).(1080|720)p.(HDDVD|BluRay)(|.AVC|.AVC.REMUX|.x264)(|.REPACK|.RERiP)-.*",key)
+    retailfinder = re.search("(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*",key)
     if retailfinder:
       entfernen(key, identifier)
       return True
@@ -269,6 +269,7 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ''
+      swebretailbluray = ''
     elif seasonssource == "web-dl|webrip|webhd|netflix|amazon|itunes":
       shdtv = ''
       shdtvweb = ''
@@ -276,6 +277,7 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ''
+      swebretailbluray = ''
     elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|netflix|amazon|itunes":
       shdtv = ''
       shdtvweb = ' selected'
@@ -283,6 +285,7 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ''
+      swebretailbluray = ''
     elif seasonssource == "bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
@@ -290,6 +293,7 @@ def load(dockerglobal):
       sbluray = ' selected'
       swebbluray = ''
       shdtvwebbluray = ''
+      swebretailbluray = ''
     elif seasonssource == "web-dl|webrip|webhd|netflix|amazon|itunes|bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
@@ -297,6 +301,7 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ' selected'
       shdtvwebbluray = ''
+      swebretailbluray = ''
     elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|netflix|amazon|itunes|bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
@@ -304,13 +309,23 @@ def load(dockerglobal):
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ' selected'
-    else:
+      swebretailbluray = ''
+    elif seasonssource == "hdtv|hdtvrip|tvrip|web-dl|webrip|webhd|netflix*|amazon*|itunes*|bluray|bd|bdrip":
       shdtv = ''
       shdtvweb = ''
       sweb = ''
       sbluray = ''
       swebbluray = ''
       shdtvwebbluray = ' selected'
+      swebretailbluray = ''
+    elif seasonssource == "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip":
+      shdtv = ''
+      shdtvweb = ''
+      sweb = ''
+      sbluray = ''
+      swebbluray = ''
+      shdtvwebbluray = ''
+      swebretailbluray = ' selected'
     if sjregex == 'True':
       sjregextrue = ' selected'
       sjregexfalse = ''
@@ -335,4 +350,4 @@ def load(dockerglobal):
       youtubetrue = ''
       youtubefalse = ' selected'
       ytdiv = "none"
-    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, maxvideos, ytignore, dockerhint)
+    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint)
