@@ -310,7 +310,7 @@ def load(dockerglobal):
       swebbluray = ''
       shdtvwebbluray = ' selected'
       swebretailbluray = ''
-    elif seasonssource == "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip":
+    else:
       shdtv = ''
       shdtvweb = ''
       sweb = ''
