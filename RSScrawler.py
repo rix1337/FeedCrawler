@@ -56,22 +56,22 @@ def cherry_server(port, prefix, docker):
 def crawler():
     log_debug = logging.debug
     search_pool = [
-        #YT(),
-        #SJ(filename='SJ_Serien', internal_name='SJ'),
-        #SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
-        #SJ(filename='MB_Staffeln', internal_name='MB'),
-        #MB(filename='MB_Regex'),
-        #MB(filename='MB_Filme'),
-        #MB(filename='MB_Staffeln'),
-        #MB(filename='MB_3D'),
-        #HW(filename='MB_Regex'),
-        #HW(filename='MB_Filme'),
-        #HW(filename='MB_Staffeln'),
-        #HW(filename='MB_3D'),
+        YT(),
+        SJ(filename='SJ_Serien', internal_name='SJ'),
+        SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(filename='MB_Staffeln', internal_name='MB'),
+        MB(filename='MB_Regex'),
+        MB(filename='MB_Filme'),
+        MB(filename='MB_Staffeln'),
+        MB(filename='MB_3D'),
+        HW(filename='MB_Regex'),
+        HW(filename='MB_Filme'),
+        HW(filename='MB_Staffeln'),
+        HW(filename='MB_3D'),
         HA(filename='MB_Regex'),
         HA(filename='MB_Filme'),
         HA(filename='MB_Staffeln'),
-        HA(filename='MB_3D'),
+        HA(filename='MB_3D')
     ]
     if not arguments['--testlauf']:
         while True:
@@ -152,10 +152,10 @@ class YT():
             cnotfound = False
             try:
                 html = urllib2.urlopen(url)
-            except urllib2.HTTPError, e:
+            except urllib2.HTTPError:
                 try:
                     html = urllib2.urlopen(urlc)
-                except urllib2.HTTPError, e:
+                except urllib2.HTTPError:
                     cnotfound = True
                 if cnotfound:
                     self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
@@ -719,6 +719,8 @@ class MB():
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
                         urls.append('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode('base64') + '/search/%s/feed/rss2/' % xn)
+            else:
+                urls.append(self.FEED_URL)
         else:
             urls.append(self.FEED_URL)
         for url in urls:
@@ -1106,6 +1108,8 @@ class HW():
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(".", " ").replace(" ", "+")
                         urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode('base64') + '/search/%s/feed/rss2/' % xn)
+            else:
+                urls.append(self.FEED_URL)
         else:
             urls.append(self.FEED_URL)
         for url in urls:
@@ -1253,6 +1257,8 @@ class HA():
             "ignore") == "" else "^unmatchable$"
 
         for key in self.allInfos:
+            if not key.replace(" ", "+") in feed:
+                continue
             req_page = getURL(feed)
             soup = bs(req_page, 'lxml')
             content = soup.find("div", {"id" : "content"})
@@ -1261,10 +1267,12 @@ class HA():
             else:
                 titles = content.findAll("a")
             for title in titles:
-                hda = re.findall('href="(.*?)" title="(.*?)">', str(title))[0]
+                try:
+                    hda = re.findall('href="(.*?)" title="(.*?)">', str(title))[0]
+                except:
+                    self.log_debug("Ungültiger Link bei Suche nach Titel")
                 url = hda[0]
                 title = hda[1]
-                print feed + " + " +title + " + " + key
                 s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
                 found = re.search(s, title.lower())
                 if found:
@@ -1520,6 +1528,8 @@ class HA():
                         title = xline.split(",")[0].replace(" ", ".")
                         search_title = title.replace(".", " ").replace(" ", "+")
                         urls.append("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=".decode('base64') + search_title)
+            else:
+                urls.append(self.FEED_URL)
         else:
             urls.append(self.FEED_URL)
 
