@@ -1257,7 +1257,7 @@ class HA():
             "ignore") == "" else "^unmatchable$"
 
         for key in self.allInfos:
-            if not key.replace(" ", "+") in feed:
+            if not key.replace(" ", "+") in feed and not self.filename == 'MB_Regex':
                 continue
             req_page = getURL(feed)
             soup = bs(req_page, 'lxml')
@@ -1483,7 +1483,7 @@ class HA():
     def _get_download_links(self, url):
         link = getURL(url)
         dl_soup = bs(link, 'lxml')
-        dl_links = re.findall('href="(http:\/\/filecrypt.cc.*?|https:\/\/www.filecrypt.cc.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
+        dl_links = re.findall('inline.*?display:inline;"><a href="(.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
         for link in dl_links:
             url = link[0]
             if self._hosters_pattern.lower().replace(" ", "-") in link[1].lower().replace(" ", "-"):
