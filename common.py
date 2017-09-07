@@ -105,7 +105,6 @@ def load(dockerglobal):
     prefix = main.get("prefix")
     interval = main.get("interval")
     hoster = main.get("hoster")
-    pushbulletapi = main.get("pushbulletapi")
     mb = RssConfig('MB')
     mbquality = mb.get("quality")
     ignore = mb.get("ignore")
@@ -320,4 +319,4 @@ def load(dockerglobal):
       youtubetrue = ''
       youtubefalse = ' selected'
       ytdiv = "none"
-    return (jdownloader, port, prefix, interval, hoster, pushbulletapi, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint)
+    return (jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint)
