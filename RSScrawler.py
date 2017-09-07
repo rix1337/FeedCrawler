@@ -199,15 +199,7 @@ class YT():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
-                    ) and text.append(video_title + "[" + key + "]")
-                    self.db.store(
-                        key,
-                        'added',
-                        channel
-                )
-                    
-        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
+                    )
 
 class SJ():
     def __init__(self, filename, internal_name):
@@ -253,8 +245,6 @@ class SJ():
             reject = "^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
-
-        self.added_items = []
 
         for post in feed.entries:
             if post.link == None:
@@ -308,9 +298,6 @@ class SJ():
                                     continue
                                 title = re.sub('\[.*\] ', '', post.title)
                                 self.range_checkr(link, title)
-
-        if len(rsscrawler.get('pushbulletapi')) > 2:
-            common.Pushbullet(rsscrawler.get("pushbulletapi"), self.added_items) if len(self.added_items) > 0 else True
 
     def range_checkr(self, link, title):
         if self.filename == 'MB_Staffeln':
@@ -392,8 +379,7 @@ class SJ():
             self.log_info(link_place_holder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]')
             self.db.store(title, 'downloaded')
             common.write_crawljob_file(title, title, link,
-                                       jdownloaderpath + "/folderwatch", "RSScrawler") and self.added_items.append(
-                title.encode("utf-8"))
+                                       jdownloaderpath + "/folderwatch", "RSScrawler")
 
     def getSeriesList(self, file, type):
         loginfo = ""
@@ -573,6 +559,9 @@ class MB():
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if not download_link == None:
+                if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+                    self.log_debug("Fake-Link erkannt!")
+                    break
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                 elif  self.filename == 'MB_Filme':
@@ -644,15 +633,7 @@ class MB():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
                     )
-        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
-            return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -727,6 +708,9 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
                 if not download_link == None:
+                    if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+                        self.log_debug("Fake-Link erkannt!")
+                        break
                     englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
@@ -812,14 +796,7 @@ class MB():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
-                        self.db.store(
-                            key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
                         )
-            if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-                common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
 
 class HW():
     _INTERNAL_NAME = 'MB'
@@ -1033,15 +1010,7 @@ class HW():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
                     )
-        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
-            return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1201,14 +1170,7 @@ class HW():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
-                        self.db.store(
-                            key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
                         )
-            if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-                common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
  
 class HA():
     _INTERNAL_NAME = 'MB'
@@ -1440,15 +1402,7 @@ class HA():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
                     )
-        if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-            common.Pushbullet(rsscrawler.get("pushbulletapi"),text)
-            return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1621,14 +1575,7 @@ class HA():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
-                        self.db.store(
-                            key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
                         )
-            if len(text) > 0 and len(rsscrawler.get("pushbulletapi")) > 0:
-                common.Pushbullet(rsscrawler.get("pushbulletapi"), text)
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')

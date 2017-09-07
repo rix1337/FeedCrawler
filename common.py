@@ -11,8 +11,6 @@ import os
 import re
 import socket
 import sys
-import urllib
-import urllib2
 from rssconfig import RssConfig
 
 try:
@@ -100,26 +98,6 @@ def cutoff(key, identifier):
     else:
       return False
 
-def Pushbullet(api='', msg=''):
-    data = urllib.urlencode({
-        'type': 'note',
-        'title': 'RSScrawler:',
-        'body': "\n\n".join(msg)
-    })
-    auth = base64.encodestring('%s:' %api).replace('\n', '')
-    try:
-        req = urllib2.Request('https://api.pushbullet.com/v2/pushes', data)
-        req.add_header('Authorization', 'Basic %s' % auth)
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
-        log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
-        return False
-    res = json.load(response)
-    if res['sender_name']:
-        log_debug('Pushbullet Erfolgreich versendet')
-    else:
-        log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
-        
 def load(dockerglobal):
     main = RssConfig('RSScrawler')
     jdownloader = main.get("jdownloader")

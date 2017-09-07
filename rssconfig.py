@@ -15,7 +15,6 @@ class RssConfig(object):
             ("port", "int", "", "9090"),
             ("prefix", "str", "", ""),
             ("interval", "int", "", ""),
-            ("pushbulletapi","str","",""),
             ("hoster", "str", "", "")
         ],
         'MB': [
