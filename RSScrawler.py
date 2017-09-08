@@ -133,7 +133,6 @@ class YT():
             self.log_debug("Suche für YouTube deaktiviert!")
             return
         channels = []
-        text = []
         videos = []
         key = ""
         download_link = ""
@@ -200,6 +199,11 @@ class YT():
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
                     )
+                    self.db.store(		
+                         key,		
+                         'added',		
+                         channel		
+                 )
 
 class SJ():
     def __init__(self, filename, internal_name):
