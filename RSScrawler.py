@@ -28,7 +28,6 @@ import version
 version = version.getVersion()
 
 from docopt import docopt
-import requests
 import feedparser
 import re
 import urllib2
@@ -91,7 +90,7 @@ def getURL(url):
             url,
             None,
             {
-                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36'}
+                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'}
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
@@ -520,6 +519,9 @@ class MB():
                         if not validsource:
                             self.log_debug(post.title + " - Release hat falsche Quelle")
                             continue
+                        if not ".complete." in post.title.lower():
+                            self.log_debug(post.title + " - Staffel noch nicht komplett")
+                            continue
                         season = re.search("\.s\d", post.title.lower())
                         if not season:
                             self.log_debug(post.title + " - Release ist keine Staffel")
@@ -899,6 +901,9 @@ class HW():
                         validsource = re.search(self.config.get("seasonssource"), post.title.lower())
                         if not validsource:
                             self.log_debug(post.title + " - Release hat falsche Quelle")
+                            continue
+                        if not ".complete." in post.title.lower():
+                            self.log_debug(post.title + " - Staffel noch nicht komplett")
                             continue
                         season = re.search("\.s\d", post.title.lower())
                         if not season:
@@ -1291,6 +1296,9 @@ class HA():
                         if not validsource:
                             self.log_debug(title + " - Release hat falsche Quelle")
                             continue
+                        if not ".complete." in title.lower():
+                            self.log_debug(title + " - Staffel noch nicht komplett")
+                            continue
                         season = re.search("\.s\d", title.lower())
                         if not season:
                             self.log_debug(title + " - Release ist keine Staffel")
@@ -1584,7 +1592,6 @@ class HA():
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
-    logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     logging.basicConfig(

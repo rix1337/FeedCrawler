@@ -7,4 +7,3 @@ cherrypy
 docopt
 feedparser
 lxml
-requests
