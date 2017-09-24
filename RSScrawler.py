@@ -77,9 +77,9 @@ def crawler():
             for task in search_pool:
                 task.periodical_task()
             log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
+            print("Suchlauf abgeschlossen!")
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
-            print("Suchlauf abgeschlossen!")
     else:
         for task in search_pool:
             task.periodical_task()
