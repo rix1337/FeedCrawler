@@ -11,6 +11,7 @@
 
 Usage:
   RSScrawler.py [--testlauf]
+                [--ersatzblogs]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-pfad="<JDPATH>"]
@@ -18,6 +19,7 @@ Usage:
 
 Options:
   --testlauf                Einmalige Ausführung von RSScrawler
+  --ersatzblogs             Erweitert die Suche um weitere Blogs um Ausfälle zu überbrücken.
   --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
@@ -62,7 +64,9 @@ def crawler():
         MB(filename='MB_Regex'),
         MB(filename='MB_Filme'),
         MB(filename='MB_Staffeln'),
-        MB(filename='MB_3D'),
+        MB(filename='MB_3D')
+    ]
+    ersatz_pool = [
         HW(filename='MB_Regex'),
         HW(filename='MB_Filme'),
         HW(filename='MB_Staffeln'),
@@ -76,15 +80,19 @@ def crawler():
         while True:
             for task in search_pool:
                 task.periodical_task()
+                log_debug("-----------Suchfunktion ausgeführt!-----------")
+            if arguments['--ersatzblogs']:
+                for task in ersatz_pool:
+                    task.periodical_task()
+                    log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
             log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
-            print("Suchlauf abgeschlossen!")
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
     else:
         for task in search_pool:
             task.periodical_task()
+            log_debug("-----------Suchfunktion ausgeführt!-----------")
         log_debug("-----------Testlauf ausgeführt!-----------")
-        print("Suchlauf abgeschlossen!")
 
 def getURL(url):
     try:
@@ -92,7 +100,7 @@ def getURL(url):
             url,
             None,
             {
-                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36'}
+                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
