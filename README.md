@@ -37,3 +37,6 @@ Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werde
   ```--jd-pfad="<JDPFAD>"```      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
 
   ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+  
+  ```--ersatzblogs```            Erweitert die Suche allgemeiner Blogs auf weitere Seiten (langsamer)
+  
