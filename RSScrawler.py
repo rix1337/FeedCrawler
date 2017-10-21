@@ -565,7 +565,6 @@ class MB():
                         yield (post.title, [post.link], key)
 
     def download_dl(self, title):
-        text = []
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
         search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode('base64') + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
@@ -597,7 +596,7 @@ class MB():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -618,7 +617,7 @@ class MB():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -633,7 +632,7 @@ class MB():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -649,6 +648,11 @@ class MB():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
+                    )
+                    self.db.store(		
+                        key,		
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
+                        pattern
                     )
 
     def dl_search(self, feed, title):
@@ -680,7 +684,6 @@ class MB():
         if self.empty_list:
             return
         urls = []
-        text = []
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
                 return
@@ -724,7 +727,7 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
                 if not download_link == None:
-                    if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                     englisch = False
@@ -756,7 +759,7 @@ class MB():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -777,7 +780,7 @@ class MB():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -792,7 +795,7 @@ class MB():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -812,6 +815,11 @@ class MB():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
+                        )
+                        self.db.store(		
+                            key,		
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
+                            pattern		
                         )
 
 class HW():
@@ -948,7 +956,6 @@ class HW():
                         yield (post.title, [post.link], key)
 
     def download_dl(self, title):
-        text = []
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
         search_url = "aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv".decode('base64') + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
@@ -977,7 +984,7 @@ class HW():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -998,7 +1005,7 @@ class HW():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -1013,7 +1020,7 @@ class HW():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -1029,6 +1036,11 @@ class HW():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
+                    )
+                    self.db.store(		
+                        key,		
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
+                        pattern		
                     )
 
     def dl_search(self, feed, title):
@@ -1060,7 +1072,6 @@ class HW():
         if self.empty_list:
             return
         urls = []
-        text = []
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
                 return
@@ -1133,7 +1144,7 @@ class HW():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1154,7 +1165,7 @@ class HW():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1169,7 +1180,7 @@ class HW():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1189,6 +1200,11 @@ class HW():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
+                        )
+                        self.db.store(		
+                            key,		
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
+                            pattern		
                         )
  
 class HA():
@@ -1344,7 +1360,6 @@ class HA():
                         yield (title, link, key)
 
     def download_dl(self, title):
-        text = []
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
         search_url = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=".decode('base64') + search_title
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
@@ -1372,7 +1387,7 @@ class HA():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -1393,7 +1408,7 @@ class HA():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -1408,7 +1423,7 @@ class HA():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
-                    ) and text.append(key)
+                    )
                     self.db.store(
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
@@ -1424,6 +1439,11 @@ class HA():
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
+                    )
+                    self.db.store(		
+                        key,		
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
+                        pattern		
                     )
 
     def dl_search(self, feed, title):
@@ -1467,7 +1487,6 @@ class HA():
 
     def periodical_task(self):
         urls = []
-        text = []
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
                 return
@@ -1541,7 +1560,7 @@ class HA():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1562,7 +1581,7 @@ class HA():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1577,7 +1596,7 @@ class HA():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
-                        ) and text.append(key)
+                        )
                         self.db.store(
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
@@ -1597,6 +1616,11 @@ class HA():
                             download_link,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
+                        )
+                        self.db.store(		
+                            key,		
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
+                            pattern		
                         )
 
 if __name__ == "__main__":
