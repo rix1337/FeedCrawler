@@ -24,7 +24,6 @@ def api_request_cutter(l, n):
         yield l[i:i+n]
 
 def notify(added_items):
-
     notifications = RssConfig('Notifications')
     pushbullet_token = notifications.get("pushbullet")
     pushover_settings = notifications.get("pushover").split(',')
