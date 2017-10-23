@@ -4,7 +4,6 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
-import base64
 import files
 import logging
 import os
@@ -12,11 +11,6 @@ import re
 import socket
 import sys
 from rssconfig import RssConfig
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 log_info = logging.info
 log_error = logging.error
@@ -70,7 +64,7 @@ def checkIp():
     finally:
         s.close()
     return IP
-                
+
 def entfernen(retailtitel, identifier):
     def capitalize(line):
         line = line.rstrip()

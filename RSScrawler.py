@@ -34,6 +34,7 @@ import feedparser
 import re
 import urllib2
 import codecs
+from collections import OrderedDict
 from bs4 import BeautifulSoup as bs
 import time
 import sys
@@ -45,6 +46,7 @@ from multiprocessing import Process
 
 from rssconfig import RssConfig
 from rssdb import RssDb
+from notifiers import notify
 import common
 import cherry
 import files
@@ -54,7 +56,10 @@ def cherry_server(port, prefix, docker):
     starten = cherry.Server()
     starten.start(port, prefix, docker)
 
+added_items = []
+
 def crawler():
+    global added_items
     log_debug = logging.debug
     search_pool = [
         YT(),
@@ -66,7 +71,7 @@ def crawler():
         MB(filename='MB_Staffeln'),
         MB(filename='MB_3D')
     ]
-    ersatz_pool = [
+    erweiterter_pool = [
         HW(filename='MB_Regex'),
         HW(filename='MB_Filme'),
         HW(filename='MB_Staffeln'),
@@ -82,16 +87,19 @@ def crawler():
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
             if arguments['--ersatzblogs']:
-                for task in ersatz_pool:
+                for task in erweiterter_pool:
                     task.periodical_task()
                     log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
             log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
+            notify(added_items)
+            added_items = []
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
     else:
         for task in search_pool:
             task.periodical_task()
             log_debug("-----------Suchfunktion ausgeführt!-----------")
+        notify(added_items)
         log_debug("-----------Testlauf ausgeführt!-----------")
 
 def getURL(url):
@@ -142,7 +150,9 @@ class YT():
             self.log_debug("Suche für YouTube deaktiviert!")
             return
         channels = []
+        links = []
         videos = []
+        playlist = False
         key = ""
         download_link = ""
         self.allInfos = self.readInput(self.youtube)
@@ -155,23 +165,54 @@ class YT():
                 channels.append(xline)
 
         for channel in channels:
-            url = 'https://www.youtube.com/user/' + channel + '/videos'
-            urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
-            cnotfound = False
-            try:
-                html = urllib2.urlopen(url)
-            except urllib2.HTTPError:
+            if 'list=' in channel:
+                if 'v=' in channel:
+                    id_cutter = channel.rfind('v=') + 2
+                    channel = channel[id_cutter:]
+                    self.log_debug('Playlist enthält (Teile der) URL. Verwende nur ID ab "v="')
+                url = 'https://www.youtube.com/watch?v=' + channel
+                playlist = True
+                
+                playlist_pool = []
+                id_beginning = url.rfind('=') + 1
+                playlist_id = url[id_beginning:]
+            
+                read_playlist = urllib2.urlopen(url).read()
+                playlist_source = str(read_playlist)
+            
+                playlist_finder = re.compile(r'watch\?v=\S+?list=' + playlist_id)
+                playlist_videos = re.findall(playlist_finder, playlist_source)
+            
+                if playlist_videos:
+                    for video_id in playlist_videos:
+                        id_string = str(video_id)
+                        if '&' in id_string:
+                            id_end = id_string.index('&')
+                        playlist_pool.append('/' + id_string[:id_end])
+            
+                    playlist_links = list(OrderedDict.fromkeys(playlist_pool))
+                    for link in playlist_links:
+                        links.append([link, "Playlist-Video"])
+                else:
+                    self.log_debug("FEHLER - Playlist leer")
+            else:
+                url = 'https://www.youtube.com/user/' + channel + '/videos'
+                urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
+                cnotfound = False
                 try:
-                    html = urllib2.urlopen(urlc)
+                    html = urllib2.urlopen(url)
                 except urllib2.HTTPError:
-                    cnotfound = True
-                if cnotfound:
-                    self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
-                    return
-                    
-            response = html.read()
-            links = re.findall('href="(\/watch.*?)">(.*?)<\/a>', response)
-
+                    try:
+                        html = urllib2.urlopen(urlc)
+                    except urllib2.HTTPError:
+                        cnotfound = True
+                    if cnotfound:
+                        self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
+                        return
+                        
+                response = html.read()
+                links = re.findall('href="(\/watch.*?)">(.*?)<\/a>', response)
+    
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:
                 self.log_debug("Anzahl zu suchender YouTube-Videos (" + str(maxvideos) +") zu gering. Suche stattdessen 1 Video!")
@@ -182,7 +223,12 @@ class YT():
 
             for link in links[:maxvideos]:
                 if len(link[0]) > 10:
-                    videos.append([link[0], link[1], channel])
+                    if playlist:
+                        video_url = urllib2.urlopen('https://www.youtube.com' + link[0]).read()
+                        video_title = re.findall('<meta name="title" content="(.*)">', video_url)[0].decode('utf-8')
+                        videos.append([link[0], video_title, channel])
+                    else:
+                        videos.append([link[0], link[1], channel])
 
         for video in videos:
             channel = video[2]
@@ -199,8 +245,7 @@ class YT():
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
-                    
-                    self.log_info('[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + download_link + '" target="_blank">Link</a>]')
+
                     common.write_crawljob_file(
                         key,
                         "YouTube/" + channel,
@@ -212,7 +257,10 @@ class YT():
                          key,		
                          'added',		
                          channel		
-                 )
+                    )
+                    log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
 
 class SJ():
     def __init__(self, filename, internal_name):
@@ -389,10 +437,11 @@ class SJ():
         if storage == 'downloaded':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.log_info(link_place_holder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]')
+            common.write_crawljob_file(title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'downloaded')
-            common.write_crawljob_file(title, title, link,
-                                       jdownloaderpath + "/folderwatch", "RSScrawler")
+            log_entry = link_place_holder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]'
+            self.log_info(log_entry)
+            added_items.append(log_entry)
 
     def getSeriesList(self, file, type):
         loginfo = ""
@@ -588,8 +637,6 @@ class MB():
                         else:
                             if common.cutoff(key, '0'):
                                 retail = True
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     common.write_crawljob_file(
                         key,
                         key,
@@ -602,15 +649,14 @@ class MB():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
                         if common.cutoff(key, '2'):
                             retail = True
-
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -623,9 +669,10 @@ class MB():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_Regex':
-                    self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -638,10 +685,10 @@ class MB():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                         )
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 else:
-                    self.log_info(
-                        '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -654,6 +701,9 @@ class MB():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
                         pattern
                     )
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -750,9 +800,6 @@ class MB():
                                 else:
                                     if common.cutoff(key, '0'):
                                         retail = True
-                        self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                      '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -765,6 +812,9 @@ class MB():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
                         retail = False
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
@@ -773,7 +823,6 @@ class MB():
                                 if self.config.get('enforcedl'):
                                     if common.cutoff(key, '2'):
                                         retail = True
-                        self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -786,9 +835,10 @@ class MB():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
-                        self.log_info('[Staffel] - ' + key.replace(".COMPLETE.",
-                                                                   ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -806,9 +856,10 @@ class MB():
                             'downloaded',
                             pattern
                         )
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     else:
-                        self.log_info(
-                            '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -821,6 +872,9 @@ class MB():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
                             pattern		
                         )
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
 
 class HW():
     _INTERNAL_NAME = 'MB'
@@ -976,8 +1030,6 @@ class HW():
                         else:
                             if common.cutoff(key, '0'):
                                 retail = True
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     common.write_crawljob_file(
                         key,
                         key,
@@ -990,15 +1042,14 @@ class HW():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
                         if common.cutoff(key, '2'):
                             retail = True
-
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1011,9 +1062,10 @@ class HW():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_Regex':
-                    self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1026,10 +1078,10 @@ class HW():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                         )
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 else:
-                    self.log_info(
-                        '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1042,6 +1094,9 @@ class HW():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
                         pattern		
                     )
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1135,9 +1190,6 @@ class HW():
                                 else:
                                     if common.cutoff(key, '0'):
                                         retail = True
-                        self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                      '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1150,6 +1202,9 @@ class HW():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
                         retail = False
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
@@ -1158,7 +1213,6 @@ class HW():
                                 if self.config.get('enforcedl'):
                                     if common.cutoff(key, '2'):
                                         retail = True
-                        self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1171,9 +1225,10 @@ class HW():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
-                        self.log_info('[Staffel] - ' + key.replace(".COMPLETE.",
-                                                                   ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1191,9 +1246,10 @@ class HW():
                             'downloaded',
                             pattern
                         )
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     else:
-                        self.log_info(
-                            '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1201,11 +1257,14 @@ class HW():
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
-                        self.db.store(		
-                            key,		
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
-                            pattern		
+                        self.db.store(
+                            key,
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                            pattern	
                         )
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
  
 class HA():
     _INTERNAL_NAME = 'MB'
@@ -1379,8 +1438,6 @@ class HA():
                         else:
                             if common.cutoff(key, '0'):
                                 retail = True
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1393,15 +1450,14 @@ class HA():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
                         if common.cutoff(key, '2'):
                             retail = True
-
-                    self.log_info('[Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1414,9 +1470,10 @@ class HA():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                     )
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 elif self.filename == 'MB_Regex':
-                    self.log_info('[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1429,10 +1486,10 @@ class HA():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
                         pattern
                         )
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
                 else:
-                    self.log_info(
-                        '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
-
                     common.write_crawljob_file(
                         key,
                         key,
@@ -1445,6 +1502,9 @@ class HA():
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
                         pattern		
                     )
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1551,9 +1611,6 @@ class HA():
                                 else:
                                     if common.cutoff(key, '0'):
                                         retail = True
-                        self.log_info('[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                      '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1566,6 +1623,9 @@ class HA():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
                         retail = False
                         if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
@@ -1574,7 +1634,6 @@ class HA():
                                 if self.config.get('enforcedl'):
                                     if common.cutoff(key, '2'):
                                         retail = True
-                        self.log_info('[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1587,9 +1646,10 @@ class HA():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
-                        self.log_info('[Staffel] - ' + key.replace(".COMPLETE.",
-                                                                   ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1607,9 +1667,10 @@ class HA():
                             'downloaded',
                             pattern
                         )
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
                     else:
-                        self.log_info(
-                            '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]')
                         common.write_crawljob_file(
                             key,
                             key,
@@ -1622,6 +1683,9 @@ class HA():
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
                             pattern		
                         )
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
 
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')

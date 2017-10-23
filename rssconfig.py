@@ -40,6 +40,10 @@ class RssConfig(object):
             ("maxvideos","int","",""),
             ("ignore","str","","")
         ],
+        'Notifications': [
+            ("pushbullet","str","",""),
+            ("pushover","str","","")
+        ],
         'Crawljobs': [
             ("autostart","str","","True"),
             ("subdir","str","","True")
