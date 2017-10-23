@@ -119,6 +119,12 @@ def load(dockerglobal):
     youtube = str(yt.get("youtube"))
     maxvideos = str(yt.get("maxvideos"))
     ytignore = str(yt.get("ignore"))
+    notify = RssConfig('Notifications')
+    pushbullet = str(notify.get('pushbullet'))
+    pushover = str(notify.get('pushover'))
+    jobs = RssConfig('Crawljobs')
+    autostart = str(jobs.get('autostart'))
+    subdir = str(jobs.get('subdir'))
     if hoster == 'Share-Online':
       hosterso = ' selected'
       hosterul = ''
@@ -313,4 +319,16 @@ def load(dockerglobal):
       youtubetrue = ''
       youtubefalse = ' selected'
       ytdiv = "none"
-    return (jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint)
+    if autostart == 'True':
+      autostarttrue = ' selected'
+      autostartfalse = ''
+    else:
+      autostarttrue = ''
+      autostartfalse = ' selected'
+    if subdir == 'True':
+      subdirtrue = ' selected'
+      subdirfalse = ''
+    else:
+      subdirtrue = ''
+      subdirfalse = ' selected'
+    return (jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint)

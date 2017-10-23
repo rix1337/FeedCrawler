@@ -19,15 +19,15 @@ log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
 
-notifications = RssConfig('Notifications')
-pushbullet_token = notifications.get("pushbullet")
-pushover_settings = notifications.get("pushover").split(',')
-
 def api_request_cutter(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
 
 def notify(added_items):
+
+    notifications = RssConfig('Notifications')
+    pushbullet_token = notifications.get("pushbullet")
+    pushover_settings = notifications.get("pushover").split(',')
     items = []
     for item in added_items:
         item = item.replace('[<a href="', '').replace('" target="_blank">Link</a>]', '')
@@ -36,20 +36,20 @@ def notify(added_items):
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))
         if len(notifications.get("pushbullet")) > 0:
-                Pushbullet(items)
+                Pushbullet(items, pushbullet_token)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]
                 pushover_token = pushover_settings[1]
                 Pushover(cut_item, pushover_user, pushover_token)
 
-def Pushbullet(items):
+def Pushbullet(items, token):
     data = urllib.urlencode({
         'type': 'note',
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' %pushbullet_token).replace('\n', '')
+    auth = base64.encodestring('%s:' %token).replace('\n', '')
     try:
         req = urllib2.Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)

@@ -21,7 +21,7 @@ updateversion = ""
 class Server:
   @cherrypy.expose
   def index(self):
-    jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -76,7 +76,7 @@ class Server:
           <textarea name="sjregex">''' + self.getListe('SJ_Serien_Regex') + '''</textarea>
           <div hinweis="Pro Zeile ein Serientitel im RegEx-Format. Die Filterliste wird hierbei ignoriert!">Staffeln (RegEx)</div>
           <textarea name="stregex">''' + self.getListe('SJ_Staffeln_Regex') + '''</textarea></div>
-          <div style='display:''' + ssdiv +''';' id='hs' hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "QWxsZ2VtZWluZSBCbG9ncw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
+          <div style='display:''' + ssdiv +''';' id='hs' hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <div style='display:''' + ssdiv +''';' id='dmbs'><div hinweis="Pro Zeile ein Serientitel für ganze Staffeln.">Staffeln</div>
           <textarea name="mbstaffeln">''' + self.getListe('MB_Staffeln') + '''</textarea></div>
           <div style='display:''' + ytdiv +''';' id='hy' hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
@@ -121,6 +121,12 @@ class Server:
           <p>YouTube-Uploads suchen:<div hinweis="Wenn aktiviert, werden Videos aus der YouTube-Kanäle-Liste gesucht."><select id="ytopt" name="youtube"><option value="True"''' + youtubetrue + '''>Aktiviert</option><option value="False"''' + youtubefalse + '''>Deaktiviert</option></select></div></p>
           <div style='display:''' + ytdiv +''';' id='sdyt'>Maximale Anzahl Videos:<div hinweis="Die Maximale Anzahl hinzuzufügender Videos (1-50)."><input type="text" name="maxvideos" value="''' + maxvideos +'''"></div>
           Filterliste:<div hinweis="Videos mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ytignore" value="''' + ytignore +'''"></div></div>
+          <div hinweis="Dieser Bereich ist für Benachrichtigungen zuständig."><h3>Benachrichtigungen</h3></div>
+          Pushbullet:<div hinweis="Hier den Acces Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
+          Pushover:<div hinweis="Hier durch Komma getrennt (Keine Leerzeichen!) den User Key und danach einen API Token eingeben. Für letzteren zunächst eine App auf Pushover.net anlegen!."><input type="text" name="pushover" value="''' + pushover +'''"></div>
+          <div hinweis="Dieser Bereich ist für die Erstellung der Crawljobs zuständig."><h3>Crawljobs</h3></div>
+          <p>Download automatisch beginnen:<div hinweis="Wenn aktiviert, werden Downloads automatisch gestartet, auch wenn der JDownloader gerade pausiert ist."><select id="autoopt" name="autostart"><option value="True"''' + autostarttrue + '''>Aktiviert</option><option value="False"''' + autostartfalse + '''>Deaktiviert</option></select></div></p>
+          <p>Unterordner nutzen:<div hinweis="Wenn aktiviert, werden Downloads in passende Unterordner sortiert. Praktisch für die Weiterverarbeitung per Script."><select id="diropt" name="subdir"><option value="True"''' + subdirtrue + '''>Aktiviert</option><option value="False"''' + subdirfalse + '''>Deaktiviert</option></select></div></p>
           <button type="submit" onclick="popup.alert({content:'<h1>Einstellungen gespeichert</h1><br />Um einige Änderungen anzunehmen, muss neu gestartet werden.'},function(a){a.proceed&&window.location.reload()});">Speichern</button>
     </form>
     ''' + ('<div class="container" style="position:fixed;z-index:1000;bottom:0px;max-width:800px;width:50%;margin: 0 auto;box-shadow: 0px 0px 10px 1px rgba(0,0,0,1);background-color:#C73D36">Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">hier</a>.</div>' if updateready else "") + '''
@@ -131,7 +137,7 @@ class Server:
 
   @cherrypy.expose
   def legacy(self):
-    jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -176,7 +182,7 @@ class Server:
           <textarea name="sjregex">''' + self.getListe('SJ_Serien_Regex') + '''</textarea>
           <div hinweis="Pro Zeile ein Serientitel im RegEx-Format. Die Filterliste wird hierbei ignoriert!">Staffeln (RegEx)</div>
           <textarea name="stregex">''' + self.getListe('SJ_Staffeln_Regex') + '''</textarea></div>
-          <div style='display:''' + ssdiv +''';' id='hs' hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "QWxsZ2VtZWluZSBCbG9ncw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
+          <div style='display:''' + ssdiv +''';' id='hs' hinweis="Dieser Bereich ist für die Suche auf ''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "TW92aWUtQmxvZw==".decode('base64') +  ''' und ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <div style='display:''' + ssdiv +''';' id='dmbs'><div hinweis="Pro Zeile ein Serientitel für ganze Staffeln.">Staffeln</div>
           <textarea name="mbstaffeln">''' + self.getListe('MB_Staffeln') + '''</textarea></div>
           <div style='display:''' + ytdiv +''';' id='hy' hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
@@ -220,6 +226,12 @@ class Server:
           <p>YouTube-Uploads suchen:<div hinweis="Wenn aktiviert, werden Videos aus der YouTube-Kanäle-Liste gesucht."><select id="ytopt" name="youtube"><option value="True"''' + youtubetrue + '''>Aktiviert</option><option value="False"''' + youtubefalse + '''>Deaktiviert</option></select></div></p>
           <div style='display:''' + ytdiv +''';' id='sdyt'>Maximale Anzahl Videos:<div hinweis="Die Maximale Anzahl hinzuzufügender Videos (1-50)."><input type="text" name="maxvideos" value="''' + maxvideos +'''"></div>
           Filterliste:<div hinweis="Videos mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ytignore" value="''' + ytignore +'''"></div></div>
+          <div hinweis="Dieser Bereich ist für Benachrichtigungen zuständig."><h3>Benachrichtigungen</h3></div>
+          Pushbullet:<div hinweis="Hier den Acces Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
+          Pushover:<div hinweis="Hier durch Komma getrennt (Keine Leerzeichen!) den User Key und danach einen API Token eingeben. Für letzteren zunächst eine App auf Pushover.net anlegen!."><input type="text" name="pushover" value="''' + pushover +'''"></div>
+          <div hinweis="Dieser Bereich ist für die Erstellung der Crawljobs zuständig."><h3>Crawljobs</h3></div>
+          <p>Download automatisch beginnen:<div hinweis="Wenn aktiviert, werden Downloads automatisch gestartet, auch wenn der JDownloader gerade pausiert ist."><select id="autoopt" name="autostart"><option value="True"''' + autostarttrue + '''>Aktiviert</option><option value="False"''' + autostartfalse + '''>Deaktiviert</option></select></div></p>
+          <p>Unterordner nutzen:<div hinweis="Wenn aktiviert, werden Downloads in passende Unterordner sortiert. Praktisch für die Weiterverarbeitung per Script."><select id="diropt" name="subdir"><option value="True"''' + subdirtrue + '''>Aktiviert</option><option value="False"''' + subdirfalse + '''>Deaktiviert</option></select></div></p>
           <button type="submit">Speichern</button>
     </form>
     ''' + ('<div class="container" style="position:fixed;z-index:1000;bottom:0px;max-width:800px;width:50%;margin: 0 auto;box-shadow: 0px 0px 10px 1px rgba(0,0,0,1);background-color:#C73D36">Update für RSScrawler verfügbar (' + updateversion +')! Weitere Informationen <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">hier</a>.</div>' if updateready else "") + '''
@@ -241,7 +253,7 @@ class Server:
       return output.getvalue()
 
   @cherrypy.expose
-  def speichern(self, jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks):
+  def speichern(self, jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks, pushbullet, pushover, autostart, subdir):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
       f.write('# RSScrawler.ini (Stand: RSScrawler ' + localversion + ')\n')
       f.write("\n[RSScrawler]\n")
@@ -279,6 +291,12 @@ class Server:
       else:
         f.write("maxvideos = " + maxvideos.encode('utf-8') + "\n")
       f.write("ignore = " + ytignore.encode('utf-8') + "\n")
+      f.write("\n[Notifications]\n")
+      f.write("pushbullet = " + pushbullet.encode('utf-8') + "\n")
+      f.write("pushover = " + pushover.encode('utf-8') + "\n")
+      f.write("\n[Crawljobs]\n")
+      f.write("autostart = " + autostart.encode('utf-8') + "\n")
+      f.write("subdir = " + subdir.encode('utf-8') + "\n")
       files.check()
       return '''<!DOCTYPE html>
 <html>
