@@ -122,7 +122,7 @@ class Server:
           <div style='display:''' + ytdiv +''';' id='sdyt'>Maximale Anzahl Videos:<div hinweis="Die Maximale Anzahl hinzuzufügender Videos (1-50)."><input type="text" name="maxvideos" value="''' + maxvideos +'''"></div>
           Filterliste:<div hinweis="Videos mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ytignore" value="''' + ytignore +'''"></div></div>
           <div hinweis="Dieser Bereich ist für Benachrichtigungen zuständig."><h3>Benachrichtigungen</h3></div>
-          Pushbullet:<div hinweis="Hier den Acces Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
+          Pushbullet:<div hinweis="Hier den Access Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
           Pushover:<div hinweis="Hier durch Komma getrennt (Keine Leerzeichen!) den User Key und danach einen API Token eingeben. Für letzteren zunächst eine App auf Pushover.net anlegen!."><input type="text" name="pushover" value="''' + pushover +'''"></div>
           <div hinweis="Dieser Bereich ist für die Erstellung der Crawljobs zuständig."><h3>Crawljobs</h3></div>
           <p>Download automatisch beginnen:<div hinweis="Wenn aktiviert, werden Downloads automatisch gestartet, auch wenn der JDownloader gerade pausiert ist."><select id="autoopt" name="autostart"><option value="True"''' + autostarttrue + '''>Aktiviert</option><option value="False"''' + autostartfalse + '''>Deaktiviert</option></select></div></p>
@@ -227,7 +227,7 @@ class Server:
           <div style='display:''' + ytdiv +''';' id='sdyt'>Maximale Anzahl Videos:<div hinweis="Die Maximale Anzahl hinzuzufügender Videos (1-50)."><input type="text" name="maxvideos" value="''' + maxvideos +'''"></div>
           Filterliste:<div hinweis="Videos mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="ytignore" value="''' + ytignore +'''"></div></div>
           <div hinweis="Dieser Bereich ist für Benachrichtigungen zuständig."><h3>Benachrichtigungen</h3></div>
-          Pushbullet:<div hinweis="Hier den Acces Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
+          Pushbullet:<div hinweis="Hier den Access Token eingeben. Muss zunächst auf Pushbullet.com angelegt werden."><input type="text" name="pushbullet" value="''' + pushbullet +'''"></div>
           Pushover:<div hinweis="Hier durch Komma getrennt (Keine Leerzeichen!) den User Key und danach einen API Token eingeben. Für letzteren zunächst eine App auf Pushover.net anlegen!."><input type="text" name="pushover" value="''' + pushover +'''"></div>
           <div hinweis="Dieser Bereich ist für die Erstellung der Crawljobs zuständig."><h3>Crawljobs</h3></div>
           <p>Download automatisch beginnen:<div hinweis="Wenn aktiviert, werden Downloads automatisch gestartet, auch wenn der JDownloader gerade pausiert ist."><select id="autoopt" name="autostart"><option value="True"''' + autostarttrue + '''>Aktiviert</option><option value="False"''' + autostartfalse + '''>Deaktiviert</option></select></div></p>
