@@ -65,6 +65,7 @@ def crawler():
         YT(),
         SJ(filename='SJ_Serien', internal_name='SJ'),
         SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SJ(filename='MB_Staffeln', internal_name='MB'),
         MB(filename='MB_Regex'),
         MB(filename='MB_Filme'),
@@ -273,7 +274,9 @@ class SJ():
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
-        if self.filename == 'MB_Staffeln':
+        if self.filename == 'SJ_Staffeln_Regex':
+            self.level = 3
+        elif self.filename == 'MB_Staffeln':
             self.seasonssource = self.config.get('seasonssource').lower()
             self.level = 2
         elif self.filename == 'SJ_Serien_Regex':
@@ -282,7 +285,7 @@ class SJ():
             self.level = 0
 
     def periodical_task(self):
-        if self.filename == "MB_Staffeln":
+        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
         else:
             feed = feedparser.parse('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
@@ -290,6 +293,10 @@ class SJ():
         self.pattern = "|".join(self.getSeriesList(self.search_list, self.level)).lower()
 
         if self.filename == 'SJ_Serien_Regex':
+            if not self.config.get('regex'):
+                self.log_debug("Suche für SJ-Regex deaktiviert!")
+                return
+        elif self.filename == 'SJ_Staffeln_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für SJ-Regex deaktiviert!")
                 return
@@ -315,6 +322,24 @@ class SJ():
             title = post.title
 
             if self.filename == 'SJ_Serien_Regex':
+                if self.config.get("regex"):
+                    m = re.search(self.pattern, title.lower())
+                    if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                        m = re.search(self.pattern.replace("480p", "."), title.lower())
+                        self.quality = "480p"
+                    if m:
+                        if "720p" in title.lower(): self.quality = "720p"
+                        if "1080p" in title.lower(): self.quality = "1080p"
+                        if "2160p" in title.lower(): self.quality = "2160p"
+                        m = re.search(reject, title.lower())
+                        if m:
+                            self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                        title = re.sub('\[.*\] ', '', post.title)
+                        self.range_checkr(link, title)
+
+                else:
+                    continue
+            elif self.filename == 'SJ_Staffeln_Regex':
                 if self.config.get("regex"):
                     m = re.search(self.pattern, title.lower())
                     if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
@@ -425,11 +450,13 @@ class SJ():
 
     def send_package(self, title, link):
         if self.filename == 'SJ_Serien_Regex':
-            link_place_holder = '[Episode/RegEx] - '
+            link_placeholder = '[Episode/RegEx] - '
         elif self.filename == 'SJ_Serien':
-            link_place_holder = '[Episode] - '
+            link_placeholder = '[Episode] - '
+        elif self.filename == 'SJ_Staffeln_Regex':
+            link_placeholder = '[Staffel/RegEx] - '
         else:
-            link_place_holder = '[Staffel] - '
+            link_placeholder = '[Staffel] - '
         try:
             storage = self.db.retrieve(title)
         except Exception as e:
@@ -439,7 +466,7 @@ class SJ():
         else:
             common.write_crawljob_file(title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'downloaded')
-            log_entry = link_place_holder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]'
+            log_entry = link_placeholder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]'
             self.log_info(log_entry)
             added_items.append(log_entry)
 
@@ -449,6 +476,8 @@ class SJ():
             loginfo = " (RegEx)"
         elif type == 2:
             loginfo = " (Staffeln)"
+        elif type == 3:
+            loginfo = " (Staffeln/RegEx)"
 
         if not os.path.isfile(file):
             open(file, "a").close()

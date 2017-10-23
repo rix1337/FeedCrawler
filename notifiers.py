@@ -34,7 +34,6 @@ def notify(added_items):
         items.append(item.encode('ascii', 'replace'))
 
     if len(items) > 0:
-
         cut_items = list(api_request_cutter(items, 5))
         if len(notifications.get("pushbullet")) > 0:
                 Pushbullet(items)
