@@ -80,7 +80,7 @@ class Server:
           <div style='display:''' + ssdiv +''';' id='dmbs'><div hinweis="Pro Zeile ein Serientitel für ganze Staffeln.">Staffeln</div>
           <textarea name="mbstaffeln">''' + self.getListe('MB_Staffeln') + '''</textarea></div>
           <div style='display:''' + ytdiv +''';' id='hy' hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
-          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals.">YouTube Kanäle</div>
+          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals. Für Playlisten list= vor deren ID angeben!">YouTube Kanäle</div>
           <textarea name="channels">''' + self.getListe('YT_Channels') + '''</textarea></div>
           <button type="submit" onclick="popup.alert({content:'<h1>Listen gespeichert</h1><br />Um sofort nach neuen Titeln zu suchen, muss neu gestartet werden.'},function(a){a.proceed&&window.location.reload()});">Speichern</button>
     </form>
@@ -186,7 +186,7 @@ class Server:
           <div style='display:''' + ssdiv +''';' id='dmbs'><div hinweis="Pro Zeile ein Serientitel für ganze Staffeln.">Staffeln</div>
           <textarea name="mbstaffeln">''' + self.getListe('MB_Staffeln') + '''</textarea></div>
           <div style='display:''' + ytdiv +''';' id='hy' hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
-          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals.">YouTube Kanäle</div>
+          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals. Für Playlisten list= vor deren ID angeben!>YouTube Kanäle</div>
           <textarea name="channels">''' + self.getListe('YT_Channels') + '''</textarea></div>
           <button type="submit">Speichern</button>
     </form>
@@ -284,6 +284,8 @@ class Server:
       f.write("regex = " + sjregex.encode('utf-8') + "\n")
       f.write("\n[YT]\n")
       f.write("youtube = " + youtube.encode('utf-8') + "\n")
+      if maxvideos == "":
+        maxvideos = "10"
       if int(maxvideos.encode('utf-8')) < 1:
         f.write("maxvideos = 1\n")
       elif int(maxvideos.encode('utf-8')) > 50:

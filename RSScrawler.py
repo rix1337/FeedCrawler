@@ -153,7 +153,6 @@ class YT():
         channels = []
         links = []
         videos = []
-        playlist = False
         key = ""
         download_link = ""
         self.allInfos = self.readInput(self.youtube)
@@ -167,35 +166,13 @@ class YT():
 
         for channel in channels:
             if 'list=' in channel:
-                if 'v=' in channel:
-                    id_cutter = channel.rfind('v=') + 2
-                    channel = channel[id_cutter:]
-                    self.log_debug('Playlist enthält (Teile der) URL. Verwende nur ID ab "v="')
-                url = 'https://www.youtube.com/watch?v=' + channel
-                playlist = True
-                
-                playlist_pool = []
-                id_beginning = url.rfind('=') + 1
-                playlist_id = url[id_beginning:]
-            
-                read_playlist = urllib2.urlopen(url).read()
-                playlist_source = str(read_playlist)
-            
-                playlist_finder = re.compile(r'watch\?v=\S+?list=' + playlist_id)
-                playlist_videos = re.findall(playlist_finder, playlist_source)
-            
-                if playlist_videos:
-                    for video_id in playlist_videos:
-                        id_string = str(video_id)
-                        if '&' in id_string:
-                            id_end = id_string.index('&')
-                        playlist_pool.append('/' + id_string[:id_end])
-            
-                    playlist_links = list(OrderedDict.fromkeys(playlist_pool))
-                    for link in playlist_links:
-                        links.append([link, "Playlist-Video"])
-                else:
-                    self.log_debug("FEHLER - Playlist leer")
+                id_cutter = channel.rfind('list=') + 5
+                channel = channel[id_cutter:]
+                url = 'https://www.youtube.com/playlist?list=' + channel
+                response = getURL(url)
+                links = re.findall('{"playlistVideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
+                if links == []:
+                    links = re.findall('data-video-id="(.*?)".*?data-title="(.*?)"', response)
             else:
                 url = 'https://www.youtube.com/user/' + channel + '/videos'
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
@@ -224,12 +201,7 @@ class YT():
 
             for link in links[:maxvideos]:
                 if len(link[0]) > 10:
-                    if playlist:
-                        video_url = urllib2.urlopen('https://www.youtube.com' + link[0]).read()
-                        video_title = re.findall('<meta name="title" content="(.*)">', video_url)[0].decode('utf-8')
-                        videos.append([link[0], video_title, channel])
-                    else:
-                        videos.append([link[0], link[1], channel])
+                    videos.append([link[0].encode('ascii', 'replace'), link[1], channel])
 
         for video in videos:
             channel = video[2]
@@ -246,7 +218,6 @@ class YT():
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
-
                     common.write_crawljob_file(
                         key,
                         "YouTube/" + channel,
