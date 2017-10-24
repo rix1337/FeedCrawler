@@ -153,7 +153,6 @@ class YT():
         channels = []
         links = []
         videos = []
-        key = ""
         download_link = ""
         self.allInfos = self.readInput(self.youtube)
 
@@ -178,18 +177,16 @@ class YT():
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
                 cnotfound = False
                 try:
-                    html = urllib2.urlopen(url)
+                    response = getURL(url)
                 except urllib2.HTTPError:
                     try:
-                        html = urllib2.urlopen(urlc)
+                        response = getURL(urlc)
                     except urllib2.HTTPError:
                         cnotfound = True
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
                         return
-                        
-                response = html.read()
-                links = re.findall('href="(\/watch.*?)">(.*?)<\/a>', response)
+                links = re.findall('{"gridVideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
     
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:
@@ -207,26 +204,25 @@ class YT():
             channel = video[2]
             video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace('&quot;', '"').replace("&#39;", "'")
             video = video[0]
-            key = video.replace("/watch?v=", "")
-            download_link = 'https://www.youtube.com' + video
+            download_link = 'https://www.youtube.com/watch?v=' + video
             if not download_link == None:
-                if self.db.retrieve(key) == 'added':
-                    self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % key)
+                if self.db.retrieve(video) == 'added':
+                    self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % video)
                 else:
                     ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
                     ignorevideo = re.search(ignore,video_title.lower())
                     if ignorevideo:
-                        self.log_debug(video_title + " (" + channel + ") " + "[" + key + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
+                        self.log_debug(video_title + " (" + channel + ") " + "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
                     common.write_crawljob_file(
-                        key,
+                        video,
                         "YouTube/" + channel,
                         download_link,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
                     )
                     self.db.store(		
-                         key,		
+                         video,		
                          'added',		
                          channel		
                     )
