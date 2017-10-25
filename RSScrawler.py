@@ -169,9 +169,6 @@ class YT():
                 channel = channel[id_cutter:]
                 url = 'https://www.youtube.com/playlist?list=' + channel
                 response = getURL(url)
-                links = re.findall('{"playlistVideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
-                if links == []:
-                    links = re.findall('data-video-id="(.*?)".*?data-title="(.*?)"', response)
             else:
                 url = 'https://www.youtube.com/user/' + channel + '/videos'
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
@@ -186,7 +183,8 @@ class YT():
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
                         return
-                links = re.findall('{"gridVideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
+
+            links = re.findall('VideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
     
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:

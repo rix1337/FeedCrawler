@@ -31,7 +31,6 @@ def notify(added_items):
     for item in added_items:
         item = item.replace('[<a href="', '').replace('" target="_blank">Link</a>]', '')
         items.append(item)
-
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))
         if len(notifications.get("pushbullet")) > 0:

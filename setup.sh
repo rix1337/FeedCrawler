@@ -5,7 +5,7 @@
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
 # https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968
 
-VERSION="v.3.1.1"
+VERSION="v.3.1.2"
 echo "┌────────────────────────────────────────────────────────┐"
 echo "  Programminfo:    RSScrawler $VERSION von RiX"
 echo "  Projektseite:    https://github.com/rix1337/RSScrawler"

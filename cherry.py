@@ -186,7 +186,7 @@ class Server:
           <div style='display:''' + ssdiv +''';' id='dmbs'><div hinweis="Pro Zeile ein Serientitel für ganze Staffeln.">Staffeln</div>
           <textarea name="mbstaffeln">''' + self.getListe('MB_Staffeln') + '''</textarea></div>
           <div style='display:''' + ytdiv +''';' id='hy' hinweis="Dieser Bereich ist für die Suche auf YouTube zuständig."><h3>YouTube</h3></div>
-          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals. Für Playlisten list= vor deren ID angeben!>YouTube Kanäle</div>
+          <div style='display:''' + ytdiv +''';' id='dyt'><div hinweis="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals. Für Playlisten list= vor deren ID angeben!">YouTube Kanäle</div>
           <textarea name="channels">''' + self.getListe('YT_Channels') + '''</textarea></div>
           <button type="submit">Speichern</button>
     </form>
