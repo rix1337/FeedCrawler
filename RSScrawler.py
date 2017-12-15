@@ -729,7 +729,7 @@ class MB():
                 ignore = "|".join(
                     ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
                     "ignore") == "" else "^unmatchable$"
-                found = re.search(ignore, download_title)
+                found = re.search(ignore, download_title.lower())
                 if found:
                     self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                     continue

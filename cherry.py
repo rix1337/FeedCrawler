@@ -7,7 +7,9 @@
 # https://github.com/jaysonwm/popupmodal.js
 
 import cherrypy
-import os, sys
+import os
+import sys
+import re
 import StringIO
 from rssconfig import RssConfig
 import common
@@ -21,7 +23,7 @@ updateversion = ""
 class Server:
   @cherrypy.expose
   def index(self):
-    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, imdb, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -107,6 +109,7 @@ class Server:
           Filmtitel nach Retail entfernen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."><select name="cutoff"><option value="True"''' + cutofftrue + '''>Aktiviert</option><option value="False"''' + cutofffalse + '''>Deaktiviert</option></select></div>
           3D-Releases suchen:<div hinweis="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Auflösung."><select id="smb3" name="crawl3d"><option value="True"''' + crawl3dtrue + '''>Aktiviert</option><option value="False"''' + crawl3dfalse + '''>Deaktiviert</option></select></div>
           Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div></p>
+          Filme ab IMDB-Wertung suchen:<div hinweis="Alle Filme, die im Feed über der genannten Wertung auftauchen, werden hinzugefügt. Wert unter 6.5 nicht empfehlenswert!"><input type="text" name="imdb" value="''' + imdb +'''"></div>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="sjquality"><option value="2160p"''' + sjq2160 + '''>4K</option><option value="1080p"''' + sjq1080 + '''>Full-HD</option><option value="720p"''' + sjq720 + '''>HD</option><option value="480p"''' + sjq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="rejectlist" value="''' + rejectlist +'''"></div>
@@ -136,7 +139,7 @@ class Server:
 
   @cherrypy.expose
   def legacy(self):
-    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
+    jdownloader, port, prefix, interval, ignore, rejectlist, hosterso, hosterul, mbq2160, mbq1080, mbq720, mbq480, msq2160, msq1080, msq720, msq480, sjq2160, sjq1080, sjq720, sjq480, historicaltrue, historicalfalse, mbregextrue, mbregexfalse, mrdiv, cutofftrue, cutofffalse, crawl3dtrue, crawl3dfalse, tddiv, enforcedltrue, enforcedlfalse, crawlseasonstrue, crawlseasonsfalse, ssdiv, sjregextrue, sjregexfalse, srdiv, dockerblocker, ytdiv, youtubetrue, youtubefalse, spacktrue, spackfalse, shdtv, shdtvweb, sweb, sbluray, swebbluray, shdtvwebbluray, swebretailbluray, imdb, maxvideos, ytignore, pushbullet, pushover, autostarttrue, autostartfalse, subdirtrue, subdirfalse, dockerhint = common.load(dockerglobal)
     return '''<!DOCTYPE html>
 <html lang="de">
   <head>
@@ -211,6 +214,7 @@ class Server:
           Filmtitel nach Retail entfernen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."><select name="cutoff"><option value="True"''' + cutofftrue + '''>Aktiviert</option><option value="False"''' + cutofffalse + '''>Deaktiviert</option></select></div>
           3D-Releases suchen:<div hinweis="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p), unabhängig von der oben gesetzten Auflösung."><select id="smb3" name="crawl3d"><option value="True"''' + crawl3dtrue + '''>Aktiviert</option><option value="False"''' + crawl3dfalse + '''>Deaktiviert</option></select></div>
           Auch per RegEx-Funktion suchen:<div hinweis="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."><select id="smbr" name="mbregex"><option value="True"''' + mbregextrue + '''>Aktiviert</option><option value="False"''' + mbregexfalse + '''>Deaktiviert</option></select></div></p>
+          Filme ab IMDB-Wertung suchen:<div hinweis="Alle Filme, die im Feed über der genannten Wertung auftauchen, werden hinzugefügt. Wert unter 6.5 nicht empfehlenswert!"><input type="text" name="imdb" value="''' + imdb +'''"></div>
           <div hinweis="Dieser Bereich ist für die Suche auf ''' + "U2VyaWVuSnVua2llcw==".decode('base64') + ''' zuständig."><h3>''' + "U2VyaWVuSnVua2llcw==".decode('base64') + '''</h3></div>
           <p>Auflösung:<div hinweis="Die Release-Auflösung, nach der gesucht wird."><select name="sjquality"><option value="2160p"''' + sjq2160 + '''>4K</option><option value="1080p"''' + sjq1080 + '''>Full-HD</option><option value="720p"''' + sjq720 + '''>HD</option><option value="480p"''' + sjq480 + '''>SD</option></select></div>
           Filterliste:<div hinweis="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."><input type="text" name="rejectlist" value="''' + rejectlist +'''"></div>
@@ -251,7 +255,7 @@ class Server:
       return output.getvalue()
 
   @cherrypy.expose
-  def speichern(self, jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks, pushbullet, pushover, autostart, subdir):
+  def speichern(self, jdownloader, port, prefix, interval, hoster, mbquality, ignore, historical, mbregex, cutoff, crawl3d, enforcedl, crawlseasons, seasonsquality, seasonssource, imdb, sjquality, rejectlist, sjregex, youtube, maxvideos, ytignore, seasonpacks, pushbullet, pushover, autostart, subdir):
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
       f.write('# RSScrawler.ini (Stand: RSScrawler ' + localversion + ')\n')
       f.write("\n[RSScrawler]\n")
@@ -276,6 +280,15 @@ class Server:
       f.write("seasonsquality = " + seasonsquality.encode('utf-8') + "\n")
       f.write("seasonpacks = " + seasonpacks.encode('utf-8') + "\n")
       f.write("seasonssource = " + seasonssource.encode('utf-8').lower() + "\n")
+      if re.match('[^0-9]', str(imdb)):
+        imdb = 0.0
+      elif imdb == '':
+        imdb = 0.0
+      else:
+        imdb = round(float(str(imdb).encode('utf-8').replace(",", ".")), 1)
+        if imdb > 10:
+          imdb = 10.0
+      f.write("imdb = " + str(imdb) + "\n")
       f.write("\n[SJ]\n")
       f.write("quality = " + sjquality.encode('utf-8') + "\n")
       f.write("rejectlist = " + rejectlist.encode('utf-8').lower() + "\n")
