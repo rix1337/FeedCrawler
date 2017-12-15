@@ -28,7 +28,8 @@ class RssConfig(object):
             ("crawlseasons", "bool", "", ""),
             ("seasonsquality", "str", "", ""),
             ("seasonspacks", "bool", "", ""),
-            ("seasonssource", "str", "", "")
+            ("seasonssource", "str", "", ""),
+            ("imdb", "str", "", "")
         ],
         'SJ': [
             ("quality", "str", "", ""),
