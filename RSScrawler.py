@@ -237,6 +237,7 @@ class SJ():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.db_mb = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
@@ -424,13 +425,15 @@ class SJ():
             link_placeholder = '[Staffel] - '
         try:
             storage = self.db.retrieve(title)
+            storage_mb = self.db_mb.retrieve(title)
         except Exception as e:
             self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-        if storage == 'downloaded':
+        if storage == 'added' or storage == 'downloaded' or storage_mb == 'added':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             common.write_crawljob_file(title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
-            self.db.store(title, 'downloaded')
+            self.db.store(title, 'added')
+            self.db_mb.store(title, 'added', "|".join(self.getSeriesList(self.search_list, self.level)))
             log_entry = link_placeholder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]'
             self.log_info(log_entry)
             added_items.append(log_entry)
@@ -487,8 +490,7 @@ class MB():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        if filename == 'MB_Staffeln':
-            self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -781,7 +783,7 @@ class MB():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -841,16 +843,16 @@ class MB():
                             "RSScrawler"
                         )
                         self.db.store(
-                            key,
+                            key.replace(".COMPLETE", "").replace(".Complete", ""),
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
                         self.db_sj.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'downloaded',
-                            pattern
+                            'added',
+                            ''
                         )
-                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     else:
@@ -883,8 +885,7 @@ class HW():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        if filename == 'MB_Staffeln':
-            self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -1171,7 +1172,7 @@ class HW():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -1231,14 +1232,14 @@ class HW():
                             "RSScrawler"
                         )
                         self.db.store(
-                            key,
+                            key.replace(".COMPLETE", "").replace(".Complete", ""),
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
                         self.db_sj.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'downloaded',
-                            pattern
+                            'added',
+                            ''
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1273,8 +1274,7 @@ class HA():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        if filename == 'MB_Staffeln':
-            self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
+        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -1592,7 +1592,7 @@ class HA():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -1652,14 +1652,14 @@ class HA():
                             "RSScrawler"
                         )
                         self.db.store(
-                            key,
+                            key.replace(".COMPLETE", "").replace(".Complete", ""),
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
                             pattern
                         )
                         self.db_sj.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'downloaded',
-                            pattern
+                            'added',
+                            ''
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
