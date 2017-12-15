@@ -717,6 +717,48 @@ class MB():
                     continue
                 yield (post.title, [post.link], title)
 
+    def imdb_search(self, imdb):
+        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?[iI][mM][dD][bB]:.*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        for item in imdbchecked:
+            download_title = item[0]
+            download_link = self._get_download_links(item[1])
+            download_imdb = float(item[2].replace(",", "."))
+            if download_link:
+                if download_imdb > imdb:
+                    ignore = self.config.get('ignore')
+                    found = re.search(ignore, download_title)
+                    if found:
+                        self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
+                        continue
+                    ss = self.config.get('quality')
+                    if self.filename == 'MB_Filme':
+                        if ss == "480p":
+                            if "720p" in download_title.lower() or "1080p" in download_title.lower() or "1080i" in download_title.lower() or "2160p" in download_title.lower():
+                                continue
+                            found = True
+                        else:
+                            found = re.search(ss, download_title.lower())
+                        if found:
+                            episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', download_title.lower())
+                            if episode:
+                                self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
+                                continue
+                            #FIXME do something here
+                            #yield (download_title, [post.link], key)
+                    elif self.filename == 'MB_3D':
+                        if '.3d.' in download_title.lower():
+                            if self.config.get('crawl3d') and ("1080p" in download_title.lower() or "1080i" in download_title.lower()):
+                                found = True
+                            else:
+                                continue
+                        if found:
+                            episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', download_title.lower())
+                            if episode:
+                                self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
+                                continue
+                                #FIXME do something here
+                                #yield (download_title, [post.link], key)
+
     def _get_download_links(self, url):
         req_page = getURL(url)
         soup = bs(req_page, 'lxml')
@@ -727,6 +769,11 @@ class MB():
                 return url_hoster[0]
 
     def periodical_task(self):
+        if self.filename == 'MB_Staffeln' or self.filename == 'MB_3D':
+            imdb = float(self.config.get('imdb'))
+            if imdb > 0:
+                self.imdb_search(imdb)
+
         if self.empty_list:
             return
         urls = []
