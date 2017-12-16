@@ -29,6 +29,7 @@ class RssConfig(object):
             ("seasonsquality", "str", "", ""),
             ("seasonspacks", "bool", "", ""),
             ("seasonssource", "str", "", ""),
+            ("imdbyear", "str", "", ""),
             ("imdb", "str", "", "")
         ],
         'SJ': [

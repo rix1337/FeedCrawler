@@ -636,15 +636,16 @@ class MB():
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
-            return
+            return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if not download_link == None:
                 if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
                     self.log_debug("Fake-Link erkannt!")
-                    break
+                    return False
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                    return True
                 elif  self.filename == 'MB_Filme':
                     retail = False
                     if self.config.get('cutoff'):
@@ -669,6 +670,7 @@ class MB():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
@@ -689,6 +691,7 @@ class MB():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_Regex':
                     common.write_crawljob_file(
                         key,
@@ -705,6 +708,7 @@ class MB():
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 else:
                     common.write_crawljob_file(
                         key,
@@ -721,6 +725,7 @@ class MB():
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1150,12 +1155,13 @@ class HW():
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
-            return
+            return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if not download_link == None:
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                    return True
                 elif  self.filename == 'MB_Filme':
                     retail = False
                     if self.config.get('cutoff'):
@@ -1180,6 +1186,7 @@ class HW():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
@@ -1200,6 +1207,7 @@ class HW():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_Regex':
                     common.write_crawljob_file(
                         key,
@@ -1216,6 +1224,7 @@ class HW():
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 else:
                     common.write_crawljob_file(
                         key,
@@ -1232,6 +1241,7 @@ class HW():
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
@@ -1677,11 +1687,12 @@ class HA():
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
-            return
+            return False
         for (key, download_link, pattern) in self.dl_search(search_url, feedsearch_title):
             if not download_link == None:
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                    return True
                 elif  self.filename == 'MB_Filme':
                     retail = False
                     if self.config.get('cutoff'):
@@ -1706,6 +1717,7 @@ class HA():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
@@ -1726,6 +1738,7 @@ class HA():
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 elif self.filename == 'MB_Regex':
                     common.write_crawljob_file(
                         key,
@@ -1742,6 +1755,7 @@ class HA():
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
                 else:
                     common.write_crawljob_file(
                         key,
@@ -1758,6 +1772,7 @@ class HA():
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+                    return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
