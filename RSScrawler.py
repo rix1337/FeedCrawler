@@ -751,6 +751,16 @@ class MB():
             download_imdb = float(item[2].replace(",", "."))
             score = str(download_imdb)
 
+            min_year = self.config.get("imdbyear")
+            if min_year:
+                year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
+                years_in_title = len(year_in_title)
+                if years_in_title > 0:
+                    title_year = year_in_title[years_in_title - 1]
+                    if title_year < min_year:
+                        self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
+                        continue
+
             if download_imdb > imdb:
                 ignore = "|".join(
                     ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
@@ -1266,6 +1276,16 @@ class HW():
             download_page = self._get_download_links(item[1])
             download_imdb = float(item[2].replace(",", "."))
             score = str(download_imdb)
+
+            min_year = self.config.get("imdbyear")
+            if min_year:
+                year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
+                years_in_title = len(year_in_title)
+                if years_in_title > 0:
+                    title_year = year_in_title[years_in_title - 1]
+                    if title_year < min_year:
+                        self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
+                        continue
 
             if download_imdb > imdb:
                 ignore = "|".join(
