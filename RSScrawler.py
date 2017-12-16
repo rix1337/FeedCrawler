@@ -84,6 +84,7 @@ def crawler():
     ]
     if not arguments['--testlauf']:
         while True:
+            start_time = time.time()
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -91,17 +92,37 @@ def crawler():
                 for task in erweiterter_pool:
                     task.periodical_task()
                     log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
-            log_debug("-----------Alle Suchfunktion ausgeführt!-----------")
+            end_time = time.time()
+            total_time = end_time - start_time
+            total_unit = " Sekunden"
+            if total_time > 60:
+                total_time = total_time / 60
+                total_unit = " Minuten"
+            total_time = str(round(total_time, 1)) + total_unit
             notify(added_items)
+            log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
             added_items = []
             time.sleep(int(rsscrawler.get('interval')) * 60)
             log_debug("-------------Wartezeit verstrichen-------------")
     else:
+        start_time = time.time()
         for task in search_pool:
             task.periodical_task()
             log_debug("-----------Suchfunktion ausgeführt!-----------")
+        for task in erweiterter_pool:
+            task.periodical_task()
+            log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
+        end_time = time.time()
+        total_time = end_time - start_time
+        total_unit = " Sekunden"
+        if total_time > 60:
+            total_time = total_time / 60
+            total_unit = " Minuten"
+        total_time = str(round(total_time, 1)) + total_unit
         notify(added_items)
-        log_debug("-----------Testlauf ausgeführt!-----------")
+        log_debug("---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
+        print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
 
 def getURL(url):
     try:
@@ -109,7 +130,7 @@ def getURL(url):
             url,
             None,
             {
-                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36'}
+                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
         )
         return urllib2.urlopen(req).read()
     except urllib2.HTTPError as e:
@@ -1228,6 +1249,117 @@ class HW():
                     continue
                 yield (post.title, [post.link], title)
 
+    def imdb_search(self, imdb):
+        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?[iI][mM][dD][bB]:.*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        for item in imdbchecked:
+            download_title = item[0]
+            download_page = self._get_download_links(item[1])
+            download_imdb = float(item[2].replace(",", "."))
+            score = str(download_imdb)
+
+            if download_imdb > imdb:
+                ignore = "|".join(
+                    ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+                    "ignore") == "" else "^unmatchable$"
+                found = re.search(ignore, download_title.lower())
+                if found:
+                    self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
+                    continue
+                season = re.search('\.S(\d{1,3})\.', download_title)
+                if season:
+                    self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
+                    continue
+                ss = self.config.get('quality')
+                if self.filename == 'MB_Filme':
+                    if ss == "480p":
+                        if "720p" in download_title.lower() or "1080p" in download_title.lower() or "1080i" in download_title.lower() or "2160p" in download_title.lower():
+                            continue
+                        found = True
+                    else:
+                        found = re.search(ss, download_title.lower())
+                    if found:
+                        episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', download_title.lower())
+                        if episode:
+                            self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
+                            continue
+                        self.download_imdb(download_title, download_page, score)
+                elif self.filename == 'MB_3D':
+                    if '.3d.' in download_title.lower():
+                        if self.config.get('crawl3d') and ("1080p" in download_title.lower() or "1080i" in download_title.lower()):
+                            found = True
+                        else:
+                            continue
+                    if found:
+                        episode = re.search(r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', download_title.lower())
+                        if episode:
+                            self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
+                            continue
+                        self.download_imdb(download_title, download_page, score)
+
+    def download_imdb(self, key, download_link, score):
+        if not download_link == None:
+            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                self.log_debug("Fake-Link erkannt!")
+            else:
+                englisch = False
+                if "*englisch*" in key.lower():
+                    key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
+                    englisch = True
+                if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                    if not self.download_dl(key):
+                        self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
+                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                    self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
+                elif self.filename == 'MB_Filme':
+                    retail = False
+                    if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                            'enforcedl'):
+                        if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                            if self.config.get('enforcedl'):
+                                if common.cutoff(key, '1'):
+                                    retail = True
+                            else:
+                                if common.cutoff(key, '0'):
+                                    retail = True
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler"
+                    )
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                        'IMDB'
+                    )
+                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
+                elif self.filename == 'MB_3D':
+                    retail = False
+                    if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                            'enforcedl'):
+                        if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                            if self.config.get('enforcedl'):
+                                if common.cutoff(key, '2'):
+                                    retail = True
+                    common.write_crawljob_file(
+                        key,
+                        key,
+                        download_link,
+                        jdownloaderpath + "/folderwatch",
+                        "RSScrawler"
+                    )
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
+                        'IMDB'
+                    )
+                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
+
     def _get_download_links(self, url):
         req_page = getURL(url)
         soup = bs(req_page, 'lxml')
@@ -1238,6 +1370,14 @@ class HW():
                 return url_hoster[0]
 
     def periodical_task(self):
+        if self.filename == 'MB_Filme' or self.filename == 'MB_3D':
+            try:
+                imdb = float(self.config.get('imdb'))
+            except:
+                imdb = 0.0
+            if imdb > 0:
+                self.imdb_search(imdb)
+
         if self.empty_list:
             return
         urls = []
