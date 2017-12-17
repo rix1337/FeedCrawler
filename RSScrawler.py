@@ -772,7 +772,6 @@ class MB():
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
                 search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
-                # FIXME umlaut for german movies
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
                 search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
@@ -1007,7 +1006,6 @@ class MB():
                             imdb_id = imdb_id[0]
                         else:
                             search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                            # FIXME umlaut for german movies
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
                             search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
@@ -1405,7 +1403,6 @@ class HW():
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
                 search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
-                # FIXME umlaut for german movies
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
                 search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
@@ -1637,7 +1634,6 @@ class HW():
                             imdb_id = imdb_id[0]
                         else:
                             search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                            # FIXME umlaut for german movies
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
                             search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
