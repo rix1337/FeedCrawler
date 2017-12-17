@@ -872,7 +872,7 @@ class MB():
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
                         if not self.download_dl(key):
-                            self.log_debug("%s - Kein zweisprachiges Release gefunden. Unterbinde hinzufügen!" % key)
+                            self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
@@ -1041,7 +1041,7 @@ class MB():
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
                                 if not self.download_dl(key):
-                                    self.log_debug("%s - Kein zweisprachiges Release gefunden. Unterbinde hinzufügen!" % key)
+                                    self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                                     return
                     if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
@@ -1503,7 +1503,7 @@ class HW():
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
                         if not self.download_dl(key):
-                            self.log_debug("%s - Kein zweisprachiges Release gefunden. Unterbinde hinzufügen!" % key)
+                            self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
@@ -1669,7 +1669,7 @@ class HW():
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
                                 if not self.download_dl(key):
-                                    self.log_debug("%s - Kein zweisprachiges Release gefunden. Unterbinde hinzufügen!" % key)
+                                    self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                                     return
                     if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
