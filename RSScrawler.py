@@ -744,35 +744,87 @@ class MB():
                 yield (post.title, [post.link], title)
 
     def imdb_search(self, imdb):
-        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?[iI][mM][dD][bB]:.*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        # FIXME finde http imdb links und rechts von tag
+        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href="http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
         for item in imdbchecked:
             download_title = item[0]
-            download_page = self._get_download_links(item[1])
-            download_imdb = float(item[2].replace(",", "."))
-            score = str(download_imdb)
+            ignore = "|".join(
+                ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+                "ignore") == "" else "^unmatchable$"
+            found = re.search(ignore, download_title.lower())
+            if found:
+                self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
+                continue
+            season = re.search('\.S(\d{1,3})\.', download_title)
+            if season:
+                self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
+                continue
+            
+            # Check this before trying anything on IMDB
+            year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
+            years_in_title = len(year_in_title)
+            if years_in_title > 0:
+                title_year = year_in_title[years_in_title - 1]
+            else:
+                title_year = ""
 
+            download_page = self._get_download_links(item[1])
+
+            if len(item[2]) > 0:
+                download_imdb = "http://www.imdb.com/title/" + item[2]
+            else:
+                search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
+                # FIXME umlaut for german movies
+                search_url = "http://www.imdb.com/find?q=" + search_title
+                search_page = getURL(search_url)
+                search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                no_series = False
+                total_results = len(search_results)
+                if total_results == 0:
+                    download_imdb = ""
+                else:
+                    while total_results > 0:
+                        attempt = 0
+                        for result in search_results:
+                            if result[3] == "TV Series":
+                                no_series = False
+                                total_results = total_results - 1
+                                attempt = attempt + 1
+                            else:
+                                no_series = True
+                                download_imdb = "http://www.imdb.com/title/" + search_results[attempt][0]
+                                title_year = search_results[attempt][2]
+                                total_results = 0
+                                break
+                    if no_series == False:
+                        self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % download_title)
+
+            download_score = float(item[3].replace(",", "."))
+            score = str(download_score)
+
+            details = ""
             min_year = self.config.get("imdbyear")
             if min_year:
-                year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
-                years_in_title = len(year_in_title)
-                if years_in_title > 0:
-                    title_year = year_in_title[years_in_title - 1]
+                if len(title_year) > 0:
+                    if title_year < min_year:
+                        self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
+                        continue
+                elif len(download_imdb) > 0:
+                    details = getURL(download_imdb)
+                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)[0]
+                    print download_title + " Jahr:" + title_year + " Link:" + download_imdb
                     if title_year < min_year:
                         self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                         continue
 
-            if download_imdb > imdb:
-                ignore = "|".join(
-                    ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-                    "ignore") == "" else "^unmatchable$"
-                found = re.search(ignore, download_title.lower())
-                if found:
-                    self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
-                    continue
-                season = re.search('\.S(\d{1,3})\.', download_title)
-                if season:
-                    self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
-                    continue
+            if len(details) == 0:
+                details = getURL(download_imdb)
+            vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
+            if int(vote_count) < 1500:
+                self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
+                continue
+
+            if download_score > imdb:
                 ss = self.config.get('quality')
                 if self.filename == 'MB_Filme':
                     if ss == "480p":
