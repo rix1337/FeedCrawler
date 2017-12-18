@@ -816,10 +816,10 @@ class MB():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                    vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
-                    if int(vote_count) < 1500:
-                        self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
-                        continue
+                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
+                if int(vote_count) < 1500:
+                    self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
+                    continue
 
             if download_score > imdb:
                 ss = self.config.get('quality')
@@ -1447,10 +1447,10 @@ class HW():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                    vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
-                    if int(vote_count) < 1500:
-                        self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
-                        continue
+                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
+                if int(vote_count) < 1500:
+                    self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
+                    continue
 
             if download_score > imdb:
                 ss = self.config.get('quality')
