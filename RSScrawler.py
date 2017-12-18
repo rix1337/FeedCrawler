@@ -132,7 +132,7 @@ def getURL(url):
             {
                 'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
         )
-        return urllib2.urlopen(req).read()
+        return urllib2.urlopen(req, timeout=5).read()
     except urllib2.HTTPError as e:
         logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
         return ''
@@ -808,7 +808,15 @@ class MB():
                         continue
                 elif len(download_imdb) > 0:
                     details = getURL(download_imdb)
-                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)[0]
+                    if details == "":
+                        self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
+                        continue
+                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
+                    if not title_year:
+                        self.log_debug("%s - Erscheinungsjahr nicht ermittelbar" % download_title)
+                        continue
+                    else:
+                        title_year = title_year[0]
                     if title_year < min_year:
                         self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                         continue
@@ -816,7 +824,15 @@ class MB():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
+                if details == "":
+                    self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
+                    continue
+                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)
+                if not vote_count:
+                    self.log_debug("%s - Wertungsanzahl nicht ermittelbar" % download_title)
+                    continue
+                else:
+                    vote_count = vote_count[0].replace(".", "").replace(",", "")
                 if int(vote_count) < 1500:
                     self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
                     continue
@@ -865,11 +881,21 @@ class MB():
                     englisch = True
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
-                    if len(details) == 0:
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                    if len(details) > 0:
+                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        if original_language:
+                            original_language = original_language[0]
+                        else:
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                     elif len(download_imdb) > 0:
                         details = getURL(download_imdb)
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                        if details == "":
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
+                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        if original_language:
+                            original_language = original_language[0]
+                        else:
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
 
                     if original_language == "German":
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
@@ -1046,7 +1072,11 @@ class MB():
                         else:
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
-                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                            if details == "":
+                                self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
+                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                            if original_language:
+                                original_language = original_language[0]
                             if original_language == "German":
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
@@ -1449,7 +1479,15 @@ class HW():
                         continue
                 elif len(download_imdb) > 0:
                     details = getURL(download_imdb)
-                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)[0]
+                    if details == "":
+                        self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
+                        continue
+                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
+                    if not title_year:
+                        self.log_debug("%s - Erscheinungsjahr nicht ermittelbar" % download_title)
+                        continue
+                    else:
+                        title_year = title_year[0]
                     if title_year < min_year:
                         self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                         continue
@@ -1457,7 +1495,15 @@ class HW():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)[0].replace(".", "").replace(",", "")
+                if details == "":
+                    self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
+                    continue
+                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)
+                if not vote_count:
+                    self.log_debug("%s - Wertungsanzahl nicht ermittelbar" % download_title)
+                    continue
+                else:
+                    vote_count = vote_count[0].replace(".", "").replace(",", "")
                 if int(vote_count) < 1500:
                     self.log_debug(download_title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + vote_count + ")")
                     continue
@@ -1506,11 +1552,21 @@ class HW():
                     englisch = True
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
-                    if len(details) == 0:
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                    if len(details) > 0:
+                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        if original_language:
+                            original_language = original_language[0]
+                        else:
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                     elif len(download_imdb) > 0:
                         details = getURL(download_imdb)
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                        if details == "":
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
+                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        if original_language:
+                            original_language = original_language[0]
+                        else:
+                            self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
 
                     if original_language == "German":
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
@@ -1684,7 +1740,11 @@ class HW():
                         else:
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
-                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)[0]
+                            if details == "":
+                                self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
+                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                            if original_language:
+                                original_language = original_language[0]
                             if original_language == "German":
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
@@ -1829,6 +1889,9 @@ class HA():
             if not key.replace(" ", "+") in feed and not self.filename == 'MB_Regex':
                 continue
             req_page = getURL(feed)
+            if req_page == "":
+                self.log_debug("Ungueltiger Link bei Seitenaufruf")
+                continue
             soup = bs(req_page, 'lxml')
             content = soup.find("div", {"id" : "content"})
             if "index.php" in feed.lower():
@@ -1839,7 +1902,7 @@ class HA():
                 try:
                     hda = re.findall('href="(.*?)" title="(.*?)">', str(title))[0]
                 except:
-                    self.log_debug("Ungültiger Link bei Suche nach Titel")
+                    self.log_debug("Ungueltiger Link bei Suche nach Titel")
                 url = hda[0]
                 title = hda[1]
                 s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
