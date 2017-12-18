@@ -744,7 +744,7 @@ class MB():
                 yield (post.title, [post.link], title)
 
     def imdb_search(self, imdb):
-        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href="http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
@@ -836,6 +836,8 @@ class MB():
                             self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(download_title, download_page, score, download_imdb, details)
+                    else:
+                        self.log_debug("%s - Release ignoriert (falsche Aufloesung)" % download_title)
                 else:
                     if not self.config.get('crawl3d'):
                         self.log_debug("%s - Release ignoriert (3D-Suche deaktiviert)" % download_title)
@@ -855,6 +857,7 @@ class MB():
         if not download_link == None:
             if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                 self.log_debug("Fake-Link erkannt!")
+                return
             else:
                 englisch = False
                 if "*englisch*" in key.lower():
@@ -871,7 +874,7 @@ class MB():
                     if original_language == "German":
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
-                        if not self.download_dl(key):
+                        if not self.download_dl(key) and not englisch:
                             self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
@@ -1001,10 +1004,9 @@ class MB():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         original_language = ""
                         get_imdb_url = getURL(url)
-                        imdb_id = re.findall('(?:|href="http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB]', get_imdb_url)
-                        if imdb_id == "":
-                            imdb_id = imdb_id[0]
-                        else:
+                        key_regex = r'<title>' + re.escape(key) + r'<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
+                        imdb_id = re.findall(key_regex, get_imdb_url)
+                        if imdb_id[0] == "":
                             search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
@@ -1030,6 +1032,8 @@ class MB():
                                             break
                                 if no_series == False:
                                     self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                        else:
+                            imdb_id = imdb_id[0]
                         if imdb_id == "":
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
@@ -1040,9 +1044,9 @@ class MB():
                             if original_language == "German":
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
-                                if not self.download_dl(key):
-                                    self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
-                                    return
+                                if not self.download_dl(key) and not englisch:
+                                    self.log_debug("%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
+                                    break
                     if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
@@ -1375,7 +1379,7 @@ class HW():
                 yield (post.title, [post.link], title)
 
     def imdb_search(self, imdb):
-        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href="http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
@@ -1467,6 +1471,8 @@ class HW():
                             self.log_debug("%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(download_title, download_page, score, download_imdb, details)
+                    else:
+                        self.log_debug("%s - Release ignoriert (falsche Aufloesung)" % download_title)
                 else:
                     if not self.config.get('crawl3d'):
                         self.log_debug("%s - Release ignoriert (3D-Suche deaktiviert)" % download_title)
@@ -1486,6 +1492,7 @@ class HW():
         if not download_link == None:
             if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                 self.log_debug("Fake-Link erkannt!")
+                return
             else:
                 englisch = False
                 if "*englisch*" in key.lower():
@@ -1502,7 +1509,7 @@ class HW():
                     if original_language == "German":
                         self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
-                        if not self.download_dl(key):
+                        if not self.download_dl(key) and not englisch:
                             self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
@@ -1629,10 +1636,9 @@ class HW():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         original_language = ""
                         get_imdb_url = getURL(url)
-                        imdb_id = re.findall('(?:|href="http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB]', get_imdb_url)
-                        if imdb_id == "":
-                            imdb_id = imdb_id[0]
-                        else:
+                        key_regex = r'<title>' + re.escape(key) + r'<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
+                        imdb_id = re.findall(key_regex, get_imdb_url)
+                        if imdb_id[0] == "":
                             search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
@@ -1658,6 +1664,8 @@ class HW():
                                             break
                                 if no_series == False:
                                     self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                        else:
+                            imdb_id = imdb_id[0]
                         if imdb_id == "":
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
@@ -1668,9 +1676,9 @@ class HW():
                             if original_language == "German":
                                 self.log_debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                             else:
-                                if not self.download_dl(key):
-                                    self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
-                                    return
+                                if not self.download_dl(key) and not englisch:
+                                    self.log_debug("%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
+                                    break
                     if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
