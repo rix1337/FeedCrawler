@@ -109,7 +109,7 @@ def crawler():
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception as e:
-                logging.error('Fehler im Suchlauf: ' + str(e))
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
     else:
         try:
             start_time = time.time()
