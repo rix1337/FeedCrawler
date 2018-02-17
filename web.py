@@ -49,6 +49,8 @@ def get_all():
             updateready = True
             updateversion = version.updateCheck()[1]
             print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+        else:
+            updateready = False
         log = ''
         logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
         if os.path.isfile(logfile):
@@ -282,6 +284,8 @@ def get_version():
             updateready = True
             updateversion = version.updateCheck()[1]
             print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+        else:
+            updateready = False
         return jsonify(
             {
                 "version": {
