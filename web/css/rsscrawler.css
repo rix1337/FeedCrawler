@@ -1,0 +1,61 @@
+body {
+    background-color: darkgrey;
+    color: black;
+}
+
+.log {
+    height: 20em;
+    resize: none;
+    background-color: #f7f7f7;
+    color: black;
+    overflow: auto;
+    text-align: left;
+}
+
+.liste {
+    height: 10em;
+    resize: none;
+    margin-bottom: 0.5em;
+    background-color: #f7f7f7;
+    color: black;
+}
+
+.container {
+    box-shadow: 0px 0px 5px 5px grey;
+    margin-top: 1em;
+    margin-bottom: 2em;
+    padding: 0.5em;
+    max-width: 80em;
+}
+
+.alert {
+    margin-bottom: 1em;
+    max-width: 20em;
+}
+
+.app {
+    background-color: white;
+    color: black;
+}
+
+.tooltip-inner {
+    border-radius: 0px;
+    max-width: 60em;
+}
+
+.btn {
+    margin-top: 0.5em;
+}
+
+#settings {
+    margin-bottom: 1em;
+}
+
+#head {
+    max-width: 20em;
+}
+
+#logo {
+    height: 5em;
+    width: 5em;
+}

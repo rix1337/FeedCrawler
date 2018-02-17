@@ -1,5 +1,3 @@
-<img src="rsscrawler.png" align="left" height="64" width="64">
-
 #  RSScrawler
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
@@ -8,11 +6,11 @@ RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDown
 
 ## Credits
 
-[zapp-brannigan](https://github.com/zapp-brannigan/) | [Gutz-Pilz](https://github.com/Gutz-Pilz/) | [bharnett](https://github.com/bharnett/) | [colorlib](http://codepen.io/colorlib/) | [cbracco](http://codepen.io/cbracco/) | [jaysonwm](https://github.com/jaysonwm/) | [Itsie](https://github.com/Itsie) | [sweatcher](https://github.com/sweatcher)
----|---|---|---|---|---|---|---
-(offline) | [Suche](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py) | [Crawljobs](https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py) | [HTML](http://codepen.io/colorlib/pen/KVoZyv) | [Tooltips](http://codepen.io/cbracco/pen/qzukg) | [Buttons](https://github.com/jaysonwm/popupmodal.js) | [Ubuntu/Debian Setup](https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409) | [Synology Setup](https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968)
+Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 
-*Im Auftrag des Projekteigners
+[zapp-brannigan](https://github.com/zapp-brannigan/)
+
+[Gutz-Pilz](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py)
 
 ## Installation
 

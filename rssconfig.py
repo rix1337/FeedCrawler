@@ -47,8 +47,8 @@ class RssConfig(object):
             ("pushover","str","","")
         ],
         'Crawljobs': [
-            ("autostart","str","","True"),
-            ("subdir","str","","True")
+            ("autostart","bool","",""),
+            ("subdir","bool","","")
         ]
     }
     __config__ = []

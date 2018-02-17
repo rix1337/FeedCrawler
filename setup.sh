@@ -5,7 +5,7 @@
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
 # https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968
 
-VERSION="v.3.2.5"
+VERSION="v.4.0.0"
 echo "┌────────────────────────────────────────────────────────┐"
 echo "  Programminfo:    RSScrawler $VERSION von RiX"
 echo "  Projektseite:    https://github.com/rix1337/RSScrawler"
@@ -21,7 +21,7 @@ select opt in $OPTIONS; do
     apt-get --yes --force-yes install git python2.7 python-setuptools python-dev
     easy_install pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 docopt feedparser cherrypy lxml
+    pip install bs4 docopt feedparser flask requests lxml
     clear
     read -rp "Wohin soll RSScrawler installiert werden? Das Verzeichnis RSScrawler wird automatisch erstellt! Pfad ohne / am Ende: " rsspath
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
@@ -40,7 +40,7 @@ select opt in $OPTIONS; do
     cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
     python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 docopt feedparser requests cherrypy lxml
+    pip install bs4 docopt feedparser flask requests lxml
     cd /volume1/@appstore/
     wget https://github.com/rix1337/RSScrawler/archive/master.zip
     7z x master.zip

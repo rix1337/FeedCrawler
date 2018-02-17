@@ -48,19 +48,21 @@ from rssconfig import RssConfig
 from rssdb import RssDb
 from notifiers import notify
 import common
-import cherry
 import files
 
 
 def cherry_server(port, prefix, docker):
-    starten = cherry.Server()
-    starten.start(port, prefix, docker)
+    #starten = cherry.Server()
+    #starten.start(port, prefix, docker)
+    print("CherryPy deaktiviert")
 
 added_items = []
 
 def crawler():
     global added_items
     log_debug = logging.debug
+    rsscrawler = RssConfig('RSScrawler')
+
     search_pool = [
         YT(),
         SJ(filename='SJ_Serien', internal_name='SJ'),
@@ -82,6 +84,7 @@ def crawler():
         HA(filename='MB_Staffeln'),
         HA(filename='MB_3D')
     ]
+    arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
             try:
@@ -215,7 +218,7 @@ class YT():
                         self.log_debug("YouTube-Kanal: " + channel + " nicht gefunden!")
                         return
 
-            links = re.findall('VideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
+            links = re.findall(r'VideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
     
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:
@@ -331,7 +334,7 @@ class SJ():
                         m = re.search(reject, title.lower())
                         if m:
                             self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                        title = re.sub('\[.*\] ', '', post.title)
+                        title = re.sub(r'\[.*\] ', '', post.title)
                         self.range_checkr(link, title)
 
                 else:
@@ -349,7 +352,7 @@ class SJ():
                         m = re.search(reject, title.lower())
                         if m:
                             self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                        title = re.sub('\[.*\] ', '', post.title)
+                        title = re.sub(r'\[.*\] ', '', post.title)
                         self.range_checkr(link, title)
 
                 else:
@@ -366,7 +369,7 @@ class SJ():
                                     self.log_debug(
                                         title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
-                                title = re.sub('\[.*\] ', '', post.title)
+                                title = re.sub(r'\[.*\] ', '', post.title)
                                 self.range_checkr(link, title)
 
                     else:
@@ -379,21 +382,21 @@ class SJ():
                                 if mm:
                                     self.log_debug(title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
-                                title = re.sub('\[.*\] ', '', post.title)
+                                title = re.sub(r'\[.*\] ', '', post.title)
                                 self.range_checkr(link, title)
 
     def range_checkr(self, link, title):
         if self.filename == 'MB_Staffeln':
-            season = re.search("\.s\d", title.lower())
+            season = re.search(r"\.s\d", title.lower())
             if not season:
                 self.log_debug(title + " - Release ist keine Staffel")
                 return
-            if self.config.get("seasonpacks") == "False":
-                staffelpack = re.search("s\d.*(-|\.).*s\d", title.lower())
+            if not self.config.get("seasonpacks"):
+                staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
                 if staffelpack:
                     self.log_debug("%s - Release ignoriert (Staffelpaket)" % title)
                     return
-        pattern = re.match(".*S\d{2}E\d{2}-\w?\d{2}.*", title)
+        pattern = re.match(r".*S\d{2}E\d{2}-\w?\d{2}.*", title)
         if pattern is not None:
             range0 = re.sub(r".*S\d{2}E(\d{2}-\w?\d{2}).*", r"\1", title).replace("E", "")
             number1 = re.sub(r"(\d{2})-\d{2}", r"\1", range0)
@@ -401,7 +404,7 @@ class SJ():
             title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)", title)
             try:
                 for count in range(int(number1), (int(number2) + 1)):
-                    NR = re.match("\d{2}", str(count))
+                    NR = re.match(r"\d{2}", str(count))
                     if NR is not None:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1)
@@ -438,7 +441,7 @@ class SJ():
             else:
                 valid = True
             if valid:
-                url_hosters = re.findall('<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+                url_hosters = re.findall(r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
                 for url_hoster in url_hosters:
                     if self.hoster.lower() in url_hoster[1]:
                         self.send_package(title, url_hoster[0])
@@ -511,9 +514,10 @@ class SJ():
 class MB():
     _INTERNAL_NAME = 'MB'
     FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
-    SUBSTITUTE = "[&#\s/]"
+    SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
+        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -550,7 +554,7 @@ class MB():
         if self.empty_list:
             return
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
 
         for key in self.allInfos:
@@ -571,7 +575,7 @@ class MB():
                         else:
                             found = re.search(ss, post.title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
@@ -589,7 +593,7 @@ class MB():
                             else:
                                 continue
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
@@ -608,12 +612,12 @@ class MB():
                         if not ".complete." in post.title.lower():
                             self.log_debug(post.title + " - Staffel noch nicht komplett")
                             continue
-                        season = re.search("\.s\d", post.title.lower())
+                        season = re.search(r"\.s\d", post.title.lower())
                         if not season:
                             self.log_debug(post.title + " - Release ist keine Staffel")
                             continue
-                        if self.config.get("seasonpacks") == "False":
-                            staffelpack = re.search("s\d.*(-|\.).*s\d", post.title.lower())
+                        if not self.config.get("seasonpacks"):
+                            staffelpack = re.search(r"s\d.*(-|\.).*s\d", post.title.lower())
                             if staffelpack:
                                 self.log_debug("%s - Release ignoriert (Staffelpaket)" % post.title)
                                 continue
@@ -626,7 +630,7 @@ class MB():
                         else:
                             found = re.search(ss, post.title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
 
                             if self.allInfos[key][2]:
@@ -739,7 +743,7 @@ class MB():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
@@ -754,22 +758,22 @@ class MB():
                 yield (post.title, [post.link], title)
 
     def imdb_search(self, imdb):
-        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        imdbchecked = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
                 "ignore") == "" else "^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
-            season = re.search('\.S(\d{1,3})\.', download_title)
+            season = re.search(r'\.S(\d{1,3})\.', download_title)
             if season:
                 self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
                 continue
 
-            year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
+            year_in_title = re.findall(r"\.((?:19|20)\d{2})\.", download_title)
             years_in_title = len(year_in_title)
             if years_in_title > 0:
                 title_year = year_in_title[years_in_title - 1]
@@ -781,10 +785,10 @@ class MB():
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
-                search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
+                search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
-                search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
                 no_series = False
                 total_results = len(search_results)
                 if total_results == 0:
@@ -821,7 +825,7 @@ class MB():
                     if details == "":
                         self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
                         continue
-                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
+                    title_year = re.findall(r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
                     if not title_year:
                         self.log_debug("%s - Erscheinungsjahr nicht ermittelbar" % download_title)
                         continue
@@ -837,7 +841,7 @@ class MB():
                 if details == "":
                     self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                     continue
-                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)
+                vote_count = re.findall(r'ratingCount">(.*?)<\/span>', details)
                 if not vote_count:
                     self.log_debug("%s - Wertungsanzahl nicht ermittelbar" % download_title)
                     continue
@@ -892,7 +896,7 @@ class MB():
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
                     if len(details) > 0:
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
                             original_language = original_language[0]
                         else:
@@ -901,7 +905,7 @@ class MB():
                         details = getURL(download_imdb)
                         if details == "":
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
                             original_language = original_language[0]
                         else:
@@ -970,7 +974,7 @@ class MB():
         req_page = getURL(url)
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
-        url_hosters = re.findall('href="([^"\'>]*)".+?(.+?)<', str(download))
+        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
             if self.hoster.lower() in url_hoster[1].lower():
                 return url_hoster[0]
@@ -1051,10 +1055,10 @@ class MB():
                         else:
                             fail = True
                         if fail:
-                            search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+                            search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
-                            search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                            search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
                             total_results = len(search_results)
                             if total_results == 0:
                                 download_imdb = ""
@@ -1084,7 +1088,7 @@ class MB():
                             details = getURL(imdb_url)
                             if details == "":
                                 self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
-                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                            original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                             if original_language:
                                 original_language = original_language[0]
                             if original_language == "German":
@@ -1185,9 +1189,10 @@ class MB():
 class HW():
     _INTERNAL_NAME = 'MB'
     FEED_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
-    SUBSTITUTE = "[&#\s/]"
+    SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
+        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -1224,7 +1229,7 @@ class HW():
         if self.empty_list:
             return
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
 
         for key in self.allInfos:
@@ -1245,7 +1250,7 @@ class HW():
                         else:
                             found = re.search(ss, post.title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
@@ -1263,7 +1268,7 @@ class HW():
                             else:
                                 continue
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in post.title.lower() for word in self.allInfos[key][2]])
@@ -1282,12 +1287,12 @@ class HW():
                         if not ".complete." in post.title.lower():
                             self.log_debug(post.title + " - Staffel noch nicht komplett")
                             continue
-                        season = re.search("\.s\d", post.title.lower())
+                        season = re.search(r"\.s\d", post.title.lower())
                         if not season:
                             self.log_debug(post.title + " - Release ist keine Staffel")
                             continue
-                        if self.config.get("seasonpacks") == "False":
-                            staffelpack = re.search("s\d.*(-|\.).*s\d", post.title.lower())
+                        if not self.config.get("seasonpacks"):
+                            staffelpack = re.search(r"s\d.*(-|\.).*s\d", post.title.lower())
                             if staffelpack:
                                 self.log_debug("%s - Release ignoriert (Staffelpaket)" % post.title)
                                 continue
@@ -1300,7 +1305,7 @@ class HW():
                         else:
                             found = re.search(ss, post.title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, post.title.lower())
 
                             if self.allInfos[key][2]:
@@ -1410,7 +1415,7 @@ class HW():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
@@ -1425,22 +1430,22 @@ class HW():
                 yield (post.title, [post.link], title)
 
     def imdb_search(self, imdb):
-        imdbchecked = re.findall('<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
+        imdbchecked = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*)<\/link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', getURL(self.FEED_URL))
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
                 "ignore") == "" else "^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
-            season = re.search('\.S(\d{1,3})\.', download_title)
+            season = re.search(r'\.S(\d{1,3})\.', download_title)
             if season:
                 self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
                 continue
 
-            year_in_title = re.findall("\.((?:19|20)\d{2})\.", download_title)
+            year_in_title = re.findall(r"\.((?:19|20)\d{2})\.", download_title)
             years_in_title = len(year_in_title)
             if years_in_title > 0:
                 title_year = year_in_title[years_in_title - 1]
@@ -1452,10 +1457,10 @@ class HW():
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
-                search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
+                search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
-                search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
                 no_series = False
                 total_results = len(search_results)
                 if total_results == 0:
@@ -1492,7 +1497,7 @@ class HW():
                     if details == "":
                         self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
                         continue
-                    title_year = re.findall("<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
+                    title_year = re.findall(r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
                     if not title_year:
                         self.log_debug("%s - Erscheinungsjahr nicht ermittelbar" % download_title)
                         continue
@@ -1508,7 +1513,7 @@ class HW():
                 if details == "":
                     self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                     continue
-                vote_count = re.findall('ratingCount">(.*?)<\/span>', details)
+                vote_count = re.findall(r'ratingCount">(.*?)<\/span>', details)
                 if not vote_count:
                     self.log_debug("%s - Wertungsanzahl nicht ermittelbar" % download_title)
                     continue
@@ -1563,7 +1568,7 @@ class HW():
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
                     if len(details) > 0:
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
                             original_language = original_language[0]
                         else:
@@ -1572,7 +1577,7 @@ class HW():
                         details = getURL(download_imdb)
                         if details == "":
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
-                        original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                        original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
                             original_language = original_language[0]
                         else:
@@ -1641,7 +1646,7 @@ class HW():
         req_page = getURL(url)
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
-        url_hosters = re.findall('href="([^"\'>]*)".+?(.+?)<', str(download))
+        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
             if self.hoster.lower() in url_hoster[1].lower():
                 return url_hoster[0]
@@ -1719,10 +1724,10 @@ class HW():
                         else:
                             fail = True
                         if fail:
-                            search_title = re.findall("(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+                            search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                             search_url = "http://www.imdb.com/find?q=" + search_title
                             search_page = getURL(search_url)
-                            search_results = re.findall('<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                            search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
                             total_results = len(search_results)
                             if total_results == 0:
                                 download_imdb = ""
@@ -1752,7 +1757,7 @@ class HW():
                             details = getURL(imdb_url)
                             if details == "":
                                 self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
-                            original_language = re.findall("Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                            original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                             if original_language:
                                 original_language = original_language[0]
                             if original_language == "German":
@@ -1853,9 +1858,10 @@ class HW():
 class HA():
     _INTERNAL_NAME = 'MB'
     FEED_URL = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA=".decode('base64')
-    SUBSTITUTE = "[&#\s/]"
+    SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
+        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -1892,7 +1898,7 @@ class HA():
         if self.empty_list:
             return
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
 
         for key in self.allInfos:
@@ -1910,7 +1916,7 @@ class HA():
                 titles = content.findAll("a")
             for title in titles:
                 try:
-                    hda = re.findall('href="(.*?)" title="(.*?)">', str(title))[0]
+                    hda = re.findall(r'href="(.*?)" title="(.*?)">', str(title))[0]
                 except:
                     self.log_debug("Ungueltiger Link bei Suche nach Titel")
                 url = hda[0]
@@ -1931,7 +1937,7 @@ class HA():
                         else:
                             found = re.search(ss, title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in title.lower() for word in self.allInfos[key][2]])
@@ -1950,7 +1956,7 @@ class HA():
                             else:
                                 continue
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, title.lower())
                             if self.allInfos[key][2]:
                                 found = all([word in title.lower() for word in self.allInfos[key][2]])
@@ -1970,12 +1976,12 @@ class HA():
                         if not ".complete." in title.lower():
                             self.log_debug(title + " - Staffel noch nicht komplett")
                             continue
-                        season = re.search("\.s\d", title.lower())
+                        season = re.search(r"\.s\d", title.lower())
                         if not season:
                             self.log_debug(title + " - Release ist keine Staffel")
                             continue
-                        if self.config.get("seasonpacks") == "False":
-                            staffelpack = re.search("s\d.*(-|\.).*s\d", title.lower())
+                        if not self.config.get("seasonpacks"):
+                            staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
                             if staffelpack:
                                 self.log_debug("%s - Release ignoriert (Staffelpaket)" % title)
                                 continue
@@ -1988,7 +1994,7 @@ class HA():
                         else:
                             found = re.search(ss, title.lower())
                         if found:
-                            sss = "[\.-]+" + self.allInfos[key][1].lower()
+                            sss = r"[\.-]+" + self.allInfos[key][1].lower()
                             found = re.search(sss, title.lower())
 
                             if self.allInfos[key][2]:
@@ -2099,7 +2105,7 @@ class HA():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            ["\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
             "ignore") == "" else "^unmatchable$"
         req_page = getURL(feed)
         soup = bs(req_page, 'lxml')
@@ -2108,12 +2114,12 @@ class HA():
             found = content.findAll("a")[0]
         except:
             return
-        hda = re.findall('href="(.*?)" title="(.*?)">', str(found))[0]
+        hda = re.findall(r'href="(.*?)" title="(.*?)">', str(found))[0]
         url = hda[0]
         title = hda[1]
         link = getURL(url)
         dl_soup = bs(link, 'lxml')
-        dl_links = re.findall('href="(http:\/\/filecrypt.cc.*?|https:\/\/www.filecrypt.cc.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
+        dl_links = re.findall(r'href="(http:\/\/filecrypt.cc.*?|https:\/\/www.filecrypt.cc.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
         for link in dl_links:
             url = link[0]
             if self._hosters_pattern.lower().replace(" ", "-") in link[1].lower().replace(" ", "-"):
@@ -2130,7 +2136,7 @@ class HA():
     def _get_download_links(self, url):
         link = getURL(url)
         dl_soup = bs(link, 'lxml')
-        dl_links = re.findall('inline.*?display:inline;"><a href="(.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
+        dl_links = re.findall(r'inline.*?display:inline;"><a href="(.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
         for link in dl_links:
             url = link[0]
             if self._hosters_pattern.lower().replace(" ", "-") in link[1].lower().replace(" ", "-"):
@@ -2328,7 +2334,7 @@ if __name__ == "__main__":
             f.seek(0)
             f.truncate()
             f.write(content.replace('[RSScrawler]\n', '[RSScrawler]\nport = 9090\nprefix =\n'))
-            
+
     rsscrawler = RssConfig('RSScrawler')
 
     if arguments['--jd-pfad']:
