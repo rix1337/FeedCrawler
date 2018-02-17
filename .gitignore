@@ -45,9 +45,3 @@ target/
 *.ini
 *.txt
 *.zip
-
-# Cloud9
-*c9_invoke_*.py
-
-# Cherrypy
-*.conf

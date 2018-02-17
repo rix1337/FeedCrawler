@@ -53,6 +53,10 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             $(".versioninfo").append(" " + $scope.version);
             console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337/RSScrawler/commits');
             $scope.update = res.data.version.update_ready;
+            $scope.docker = res.data.version.docker;
+            if ($scope.docker) {
+                $(".docker").prop( "disabled", true );
+            }
             year = (new Date).getFullYear();
             $("#year").attr("max", year);
             if ($scope.update) {
@@ -112,6 +116,10 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             $(".versioninfo").append(" " + $scope.version);
             console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337/RSScrawler/commits');
             $scope.update = res.data.version.update_ready;
+            $scope.docker = res.data.version.docker;
+            if ($scope.docker) {
+                $(".docker").prop( "disabled", true );
+            }
             if ($scope.update) {
                 console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest');
                 showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest">github.com</a>.');

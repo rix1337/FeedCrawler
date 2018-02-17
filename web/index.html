@@ -213,15 +213,15 @@
                     </h5>
                     </div>
                 
-                    <div id="collapseTwoOne" class="collapse" aria-labelledby="headingTwoOne" data-parent="#foot">
+                    <div id="collapseTwoOne" class="collapse" aria-labelledby="headingTwoOne" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>JDownloader-Pfad</h4>
-                            <input required ng-model="settings.general.pfad" class="form-control" data-toggle="tooltip" data-placement="top" title="Exakt das Verzeichnis des JDownloaders angeben, sonst funktioniert das Script nicht - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"></input>
+                            <input required ng-model="settings.general.pfad" class="form-control docker" data-toggle="tooltip" data-placement="top" title="Exakt das Verzeichnis des JDownloaders angeben, sonst funktioniert das Script nicht - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"></input>
                         </p>
                         <p>
                             <h4>Port</h4>
-                            <input required type="number" min="1" max="65535" ng-model="settings.general.port" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier den Port des Webservers wählen"></input> <!-- TODO: Dockerblocker -->
+                            <input required type="number" min="1" max="65535" ng-model="settings.general.port" class="form-control docker" data-toggle="tooltip" data-placement="top" title="Hier den Port des Webservers wählen"></input>
                         </p>
                         <p>
                             <h4>Prefix</h4>
@@ -246,7 +246,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#foot">
+                    <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Pushbullet</h4>
@@ -267,7 +267,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoThree" class="collapse" aria-labelledby="headingTwoThree" data-parent="#foot">
+                    <div id="collapseTwoThree" class="collapse" aria-labelledby="headingTwoThree" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Automatischer Download</h4>
@@ -288,7 +288,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#foot">
+                    <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Auflösung</h4>
@@ -336,7 +336,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#foot">
+                    <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Auflösung</h4>
@@ -361,7 +361,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoSix" class="collapse" aria-labelledby="headingTwoSix" data-parent="#foot">
+                    <div id="collapseTwoSix" class="collapse" aria-labelledby="headingTwoSix" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Staffeln suchen</h4>
@@ -377,7 +377,7 @@
                         </p>
                         <p>
                             <h4>Quellart der Staffeln</h4>
-                            <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources" class="form-control" data-toggle="tooltip" data-placement="top" title="Die Quellart der Staffeln, nach der gesucht wird"></input>
+                            <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources" class="form-control" data-toggle="tooltip" data-placement="top" title="Die Quellart der Staffeln, nach der gesucht wird"></select>
                         </p>
                     </div>
                     </div>
@@ -390,7 +390,7 @@
                         </button>
                     </h5>
                     </div>
-                    <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#foot">
+                    <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Suche aktivieren</h4>

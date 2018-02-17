@@ -49,19 +49,20 @@ from rssdb import RssDb
 from notifiers import notify
 import common
 import files
+import web
 
 
-def cherry_server(port, prefix, docker):
-    #starten = cherry.Server()
-    #starten.start(port, prefix, docker)
-    print("CherryPy deaktiviert")
+def web_server(port, docker):
+    web.start(port, docker)
 
-added_items = []
-
-def crawler():
+def crawler(jdpath, rssc):
     global added_items
+    added_items = []
+    global jdownloaderpath
+    jdownloaderpath = jdpath
+    global rsscrawler
+    rsscrawler = rssc
     log_debug = logging.debug
-    rsscrawler = RssConfig('RSScrawler')
 
     search_pool = [
         YT(),
@@ -87,34 +88,30 @@ def crawler():
     arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
-            try:
-                start_time = time.time()
-                log_debug("--------Alle Suchfunktion gestartet.--------")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion gestartet.")
-                for task in search_pool:
+            start_time = time.time()
+            log_debug("--------Alle Suchfunktion gestartet.--------")
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion gestartet.")
+            for task in search_pool:
+                task.periodical_task()
+                log_debug("-----------Suchfunktion ausgeführt!-----------")
+            if arguments['--ersatzblogs']:
+                for task in erweiterter_pool:
                     task.periodical_task()
-                    log_debug("-----------Suchfunktion ausgeführt!-----------")
-                if arguments['--ersatzblogs']:
-                    for task in erweiterter_pool:
-                        task.periodical_task()
-                        log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
-                end_time = time.time()
-                total_time = end_time - start_time
-                total_unit = " Sekunden"
-                if total_time > 60:
-                    total_time = total_time / 60
-                    total_unit = " Minuten"
-                total_time = str(round(total_time, 1)) + total_unit
-                notify(added_items)
-                log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
-                added_items = []
-                time.sleep(int(rsscrawler.get('interval')) * 60)
-                log_debug("-------------Wartezeit verstrichen-------------")
-            except Exception as e:
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
+                    log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
+            end_time = time.time()
+            total_time = end_time - start_time
+            total_unit = " Sekunden"
+            if total_time > 60:
+                total_time = total_time / 60
+                total_unit = " Minuten"
+            total_time = str(round(total_time, 1)) + total_unit
+            notify(added_items)
+            log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+            added_items = []
+            time.sleep(int(rsscrawler.get('interval')) * 60)
+            log_debug("-------------Wartezeit verstrichen-------------")
     else:
-        try:
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
@@ -134,8 +131,6 @@ def crawler():
             notify(added_items)
             log_debug("---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
-        except Exception as e:
-            logging.error('Fehler im Suchlauf: ' + str(e))
 
 def getURL(url):
     try:
@@ -2366,25 +2361,28 @@ if __name__ == "__main__":
         print('Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
-        
+
     if arguments['--port']:
         port = int(arguments['--port'])
     else:
         port = port = int(rsscrawler.get("port"))
-    docker = '0'
+    docker = False
     if arguments['--docker']:
        port = int('9090')
-       docker = '1'
+       docker = True
        
-    prefix = rsscrawler.get("prefix")
-    print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + '/' + prefix)
+    if rsscrawler.get("prefix"):
+        prefix = '/' + rsscrawler.get("prefix")
+    else:
+        prefix = ''
+    print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + prefix)
 
-    p = Process(target=cherry_server, args=(port, prefix, docker))
+    p = Process(target=web_server, args=(port, docker))
     p.start()
     
     files.check()
     
-    c = Process(target=crawler, args=())
+    c = Process(target=crawler, args=(jdownloaderpath, rsscrawler,))
     c.start()
 
     print('Drücke [Strg] + [C] zum Beenden')

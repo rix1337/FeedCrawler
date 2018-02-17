@@ -18,7 +18,6 @@ if general.get("prefix"):
     prefix = '/' + general.get("prefix")
 else:
     prefix = ""
-port = 9090
 
 def to_int(i):
     i = i.strip()
@@ -63,6 +62,7 @@ def get_all():
                 "version": {
                     "ver": ver,
                     "update_ready": updateready,
+                    "docker": docker,
                 },
                 "log": log,
                 "lists": {
@@ -118,7 +118,7 @@ def get_all():
                     "mbsj": {
                         "enabled": bool(mb.get("crawlseasons")),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonspacks")),
+                        "packs": bool(mb.get("seasonpacks")),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
@@ -200,7 +200,7 @@ def get_post_settings():
                     "mbsj": {
                         "enabled": bool(mb.get("crawlseasons")),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonspacks")),
+                        "packs": bool(mb.get("seasonpacks")),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
@@ -287,6 +287,7 @@ def get_version():
                 "version": {
                     "ver": ver,
                     "update_ready": updateready,
+                    "docker": docker,
                 }
             }
         )
@@ -351,10 +352,12 @@ def getListe(liste):
             output.write(line.replace("XXXXXXXXXX",""))
     return output.getvalue()
 
-if __name__ == '__main__':
+def start(port, docker_arg):
+    global docker
+    docker = docker_arg
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
         print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
     logger = logging.getLogger('werkzeug')
-    #logger.setLevel(logging.ERROR)
+    logger.setLevel(logging.ERROR)
     app.run(host='0.0.0.0', port=port)

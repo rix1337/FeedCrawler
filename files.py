@@ -55,13 +55,6 @@ def startup():
             placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt'), 'w')
             placeholder.write('XXXXXXXXXX')
             placeholder.close()
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web')):
-        _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web'))
-    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web/cherry.conf')):
-        open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web/cherry.conf'), "a").close()
-        cherryconf = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Web/cherry.conf'), 'w')
-        cherryconf.write("[global]\nserver.socket_host: '0.0.0.0'\nlog.screen: False\n\nlog.access_file: ''\nlog.error_file: ''\n\n[/]\ntools.gzip.on: True")
-        cherryconf.close()
 
 def einsteller(einstellungen, version, jdpfad, port):
     open(einstellungen, "a").close()
