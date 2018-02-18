@@ -113,13 +113,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         $http.get('api/version/')
         .then(function(res){
             $scope.version = res.data.version.ver;
-            $(".versioninfo").append(" " + $scope.version);
-            console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337/RSScrawler/commits');
             $scope.update = res.data.version.update_ready;
-            $scope.docker = res.data.version.docker;
-            if ($scope.docker) {
-                $(".docker").prop( "disabled", true );
-            }
             if ($scope.update) {
                 console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest');
                 showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest">github.com</a>.');
@@ -179,6 +173,15 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
     };
 
     $scope.updateLog();
+
+    $scope.updateChecker = function(){
+        $timeout(function() {
+        getVersionOnly();
+        $scope.updateChecker();
+        }, 300000)
+    };
+
+    $scope.updateChecker();
 
     function showSuccess(message) {
         $(".alert-success").html(message)
