@@ -20,12 +20,15 @@ else:
     prefix = ""
 
 def to_int(i):
-    i = i.strip()
+    i = i.strip().replace("None", "")
     return int(i) if i else ""
 
 def to_float(i):
-    i = i.strip()
+    i = i.strip().replace("None", "")
     return float(i) if i else ""
+
+def to_str(i):
+    return '' if i is None else str(i)
 
 @app.route(prefix + '/<path:path>')
 def send_html(path):
@@ -218,44 +221,44 @@ def get_post_settings():
         with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
             f.write('# RSScrawler.ini (Stand: RSScrawler ' + version.getVersion() + ')\n')
             f.write("\n[RSScrawler]\n")
-            f.write("jdownloader = " + str(data['general']['pfad']).encode('utf-8') + "\n")
-            f.write("port = " + str(data['general']['port']).encode('utf-8') + "\n")
-            f.write("prefix = " + str(data['general']['prefix']).encode('utf-8').lower() + "\n")
-            interval = str(data['general']['interval']).encode('utf-8')
+            f.write("jdownloader = " + to_str(data['general']['pfad']).encode('utf-8') + "\n")
+            f.write("port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
+            f.write("prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
+            interval = to_str(data['general']['interval']).encode('utf-8')
             if to_int(interval) < 3:
                 interval = '3'
             f.write("interval = " + interval + "\n")
-            f.write("hoster = " + str(data['general']['hoster']).encode('utf-8') + "\n")
+            f.write("hoster = " + to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
-            f.write("quality = " + str(data['mb']['quality']).encode('utf-8') + "\n")
-            f.write("ignore = " + str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("historical = " + str(data['mb']['historical']).encode('utf-8') + "\n")
-            f.write("regex = " + str(data['mb']['regex']).encode('utf-8') + "\n")
-            f.write("cutoff = " + str(data['mb']['cutoff']).encode('utf-8') + "\n")
-            f.write("crawl3d = " + str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
-            f.write("enforcedl = " + str(data['mb']['force_dl']).encode('utf-8') + "\n")
-            f.write("crawlseasons = " + str(data['mbsj']['enabled']).encode('utf-8') + "\n")
-            f.write("seasonsquality = " + str(data['mbsj']['quality']).encode('utf-8') + "\n")
-            f.write("seasonpacks = " + str(data['mbsj']['packs']).encode('utf-8') + "\n")
-            f.write("seasonssource = " + str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
-            f.write("imdbyear = " + str(data['mb']['imdb_year']).encode('utf-8') + "\n")
-            imdb = str(data['mb']['imdb_score']).encode('utf-8')
+            f.write("quality = " + to_str(data['mb']['quality']).encode('utf-8') + "\n")
+            f.write("ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("historical = " + to_str(data['mb']['historical']).encode('utf-8') + "\n")
+            f.write("regex = " + to_str(data['mb']['regex']).encode('utf-8') + "\n")
+            f.write("cutoff = " + to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
+            f.write("crawl3d = " + to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
+            f.write("enforcedl = " + to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
+            f.write("crawlseasons = " + to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
+            f.write("seasonsquality = " + to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
+            f.write("seasonpacks = " + to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
+            f.write("seasonssource = " + to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
+            f.write("imdbyear = " + to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
+            imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
             if re.match('[^0-9]', imdb):
                 imdb = 0.0
             elif imdb == '':
                 imdb = 0.0
             else:
-                imdb = round(float(str(data['mb']['imdb_score']).encode('utf-8').replace(",", ".")), 1)
+                imdb = round(float(to_str(data['mb']['imdb_score']).encode('utf-8').replace(",", ".")), 1)
             if imdb > 10:
                 imdb = 10.0
-            f.write("imdb = " + str(imdb) + "\n")
+            f.write("imdb = " + to_str(imdb) + "\n")
             f.write("\n[SJ]\n")
-            f.write("quality = " + str(data['sj']['quality']).encode('utf-8') + "\n")
-            f.write("rejectlist = " + str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("regex = " + str(data['sj']['regex']).encode('utf-8') + "\n")
+            f.write("quality = " + to_str(data['sj']['quality']).encode('utf-8') + "\n")
+            f.write("rejectlist = " + to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("regex = " + to_str(data['sj']['regex']).encode('utf-8') + "\n")
             f.write("\n[YT]\n")
-            f.write("youtube = " + str(data['yt']['enabled']).encode('utf-8') + "\n")
-            maxvideos = str(data['yt']['max']).encode('utf-8')
+            f.write("youtube = " + to_str(data['yt']['enabled']).encode('utf-8') + "\n")
+            maxvideos = to_str(data['yt']['max']).encode('utf-8')
             if maxvideos == "":
                 maxvideos = "10"
             if to_int(maxvideos) < 1:
@@ -263,14 +266,14 @@ def get_post_settings():
             elif to_int(maxvideos) > 50:
                 f.write("maxvideos = 50\n")
             else:
-                f.write("maxvideos = " + str(maxvideos) + "\n")
-            f.write("ignore = " + str(data['yt']['ignore']).encode('utf-8') + "\n")
+                f.write("maxvideos = " + to_str(maxvideos) + "\n")
+            f.write("ignore = " + to_str(data['yt']['ignore']).encode('utf-8') + "\n")
             f.write("\n[Notifications]\n")
-            f.write("pushbullet = " + str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
-            f.write("pushover = " + str(data['alerts']['pushover']).encode('utf-8') + "\n")
+            f.write("pushbullet = " + to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
+            f.write("pushover = " + to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
             f.write("\n[Crawljobs]\n")
-            f.write("autostart = " + str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
-            f.write("subdir = " + str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
+            f.write("autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
+            f.write("subdir = " + to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
         files.check()
         return "Success", 201
     else:

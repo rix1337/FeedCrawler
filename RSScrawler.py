@@ -49,11 +49,11 @@ from rssdb import RssDb
 from notifiers import notify
 import common
 import files
-import web
+from web import start
 
 
 def web_server(port, docker):
-    web.start(port, docker)
+    start(port, docker)
 
 def crawler(jdpath, rssc):
     global added_items
@@ -2375,7 +2375,7 @@ if __name__ == "__main__":
         prefix = '/' + rsscrawler.get("prefix")
     else:
         prefix = ''
-    print('Der Webserver ist erreichbar unter ' + common.checkIp() +':' + str(port) + prefix)
+    print('Der Webserver ist erreichbar unter http://' + common.checkIp() +':' + str(port) + prefix)
 
     p = Process(target=web_server, args=(port, docker))
     p.start()
