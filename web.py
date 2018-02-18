@@ -13,11 +13,14 @@ import logging
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
-general = RssConfig('RSScrawler')
-if general.get("prefix"):
-    prefix = '/' + general.get("prefix")
-else:
+if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
     prefix = ""
+else:
+    general = RssConfig('RSScrawler')
+    if general.get("prefix"):
+        prefix = '/' + general.get("prefix")
+    else:
+        prefix = ""
 
 def to_int(i):
     i = i.strip().replace("None", "")
