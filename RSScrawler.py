@@ -187,7 +187,7 @@ class YT():
 
         for xline in self.allInfos:
             if len(xline) > 0 and not xline.startswith("#"):
-                if xline.startswith("XXXXXXXXXX") or self.config.get("youtube") == False:
+                if xline.startswith("XXXXXXXXXX") or self.config.get("youtube") is False:
                     self.log_debug("Liste enthält Platzhalter. Stoppe Suche für YouTube!")
                     return
                 channels.append(xline)
@@ -232,11 +232,11 @@ class YT():
             video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace("&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\u0026", "&")
             video = video[0]
             download_link = 'https://www.youtube.com/watch?v=' + video
-            if not download_link == None:
+            if download_link:
                 if self.db.retrieve(video) == 'added':
                     self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % video)
                 else:
-                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get("ignore") == "" else "^unmatchable$"
+                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
                     ignorevideo = re.search(ignore,video_title.lower())
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
@@ -310,7 +310,7 @@ class SJ():
         self.hoster = rsscrawler.get("hoster")
 
         for post in feed.entries:
-            if post.link == None:
+            if not post.link:
                 continue
 
             link = post.link
@@ -392,7 +392,7 @@ class SJ():
                     self.log_debug("%s - Release ignoriert (Staffelpaket)" % title)
                     return
         pattern = re.match(r".*S\d{2}E\d{2}-\w?\d{2}.*", title)
-        if pattern is not None:
+        if pattern:
             range0 = re.sub(r".*S\d{2}E(\d{2}-\w?\d{2}).*", r"\1", title).replace("E", "")
             number1 = re.sub(r"(\d{2})-\d{2}", r"\1", range0)
             number2 = re.sub(r"\d{2}-(\d{2})", r"\1", range0)
@@ -400,7 +400,7 @@ class SJ():
             try:
                 for count in range(int(number1), (int(number2) + 1)):
                     NR = re.match(r"\d{2}", str(count))
-                    if NR is not None:
+                    if NR:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1)
                     else:
@@ -549,8 +549,7 @@ class MB():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -648,7 +647,7 @@ class MB():
             return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
-            if not download_link == None:
+            if download_link:
                 if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     return False
@@ -738,8 +737,7 @@ class MB():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -757,8 +755,7 @@ class MB():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-                "ignore") == "" else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -794,15 +791,15 @@ class MB():
                         for result in search_results:
                             if result[3] == "TV Series":
                                 no_series = False
-                                total_results = total_results - 1
-                                attempt = attempt + 1
+                                total_results -= 1
+                                attempt += 1
                             else:
                                 no_series = True
                                 download_imdb = "http://www.imdb.com/title/" + search_results[attempt][0]
                                 title_year = search_results[attempt][2]
                                 total_results = 0
                                 break
-                    if no_series == False:
+                    if no_series is False:
                         self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % download_title)
 
             download_score = float(item[3].replace(",", "."))
@@ -817,7 +814,7 @@ class MB():
                         continue
                 elif len(download_imdb) > 0:
                     details = getURL(download_imdb)
-                    if details == "":
+                    if not details:
                         self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
                         continue
                     title_year = re.findall(r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
@@ -833,7 +830,7 @@ class MB():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                if details == "":
+                if not details:
                     self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                     continue
                 vote_count = re.findall(r'ratingCount">(.*?)<\/span>', details)
@@ -879,7 +876,7 @@ class MB():
                         self.download_imdb(download_title, download_page, score, download_imdb, details)
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
-        if not download_link == None:
+        if download_link:
             if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
@@ -898,7 +895,7 @@ class MB():
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                     elif len(download_imdb) > 0:
                         details = getURL(download_imdb)
-                        if details == "":
+                        if not details:
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                         original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
@@ -1028,7 +1025,7 @@ class MB():
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
-                if not download_link == None:
+                if download_link:
                     if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
@@ -1043,7 +1040,7 @@ class MB():
                         key_regex = r'<title>' + re.escape(key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
                         imdb_id = re.findall(key_regex, get_imdb_url)
                         if len(imdb_id) > 0:
-                            if imdb_id[0] == "":
+                            if not imdb_id[0]:
                                 fail = True
                             else:
                                 imdb_id = imdb_id[0]
@@ -1066,22 +1063,22 @@ class MB():
                                     for result in search_results:
                                         if result[3] == "TV Series":
                                             no_series = False
-                                            total_results = total_results - 1
-                                            attempt = attempt + 1
+                                            total_results -= 1
+                                            attempt += 1
                                         else:
                                             no_series = True
                                             imdb_id = search_results[attempt][0]
                                             total_results = 0
                                             break
-                                if no_series == False:
+                                if no_series is False:
                                     self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
-                        if imdb_id == "" or not imdb_id:
+                        if not imdb_id:
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
                         else:
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
-                            if details == "":
+                            if not details:
                                 self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                             original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                             if original_language:
@@ -1224,8 +1221,7 @@ class HW():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -1323,7 +1319,7 @@ class HW():
             return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
-            if not download_link == None:
+            if download_link:
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -1410,8 +1406,7 @@ class HW():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -1429,8 +1424,7 @@ class HW():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-                "ignore") == "" else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -1466,15 +1460,15 @@ class HW():
                         for result in search_results:
                             if result[3] == "TV Series":
                                 no_series = False
-                                total_results = total_results - 1
-                                attempt = attempt + 1
+                                total_results -= 1
+                                attempt += 1
                             else:
                                 no_series = True
                                 download_imdb = "http://www.imdb.com/title/" + search_results[attempt][0]
                                 title_year = search_results[attempt][2]
                                 total_results = 0
                                 break
-                    if no_series == False:
+                    if no_series is False:
                         self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % download_title)
 
             download_score = float(item[3].replace(",", "."))
@@ -1489,7 +1483,7 @@ class HW():
                         continue
                 elif len(download_imdb) > 0:
                     details = getURL(download_imdb)
-                    if details == "":
+                    if not details:
                         self.log_debug("%s - Fehler bei Aufruf der IMDB-Seite" % download_title)
                         continue
                     title_year = re.findall(r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
@@ -1505,7 +1499,7 @@ class HW():
             if len(download_imdb) > 0:
                 if len(details) == 0:
                     details = getURL(download_imdb)
-                if details == "":
+                if not details:
                     self.log_debug("%s - Release ignoriert (Film zu alt)" % download_title)
                     continue
                 vote_count = re.findall(r'ratingCount">(.*?)<\/span>', details)
@@ -1551,7 +1545,7 @@ class HW():
                         self.download_imdb(download_title, download_page, score, download_imdb, details)
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
-        if not download_link == None:
+        if download_link:
             if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
@@ -1570,7 +1564,7 @@ class HW():
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                     elif len(download_imdb) > 0:
                         details = getURL(download_imdb)
-                        if details == "":
+                        if not details:
                             self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                         original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                         if original_language:
@@ -1700,7 +1694,7 @@ class HW():
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
-                if not download_link == None:
+                if download_link:
                     englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
@@ -1712,7 +1706,7 @@ class HW():
                         key_regex = r'<title>' + re.escape(key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
                         imdb_id = re.findall(key_regex, get_imdb_url)
                         if len(imdb_id) > 0:
-                            if imdb_id[0] == "":
+                            if not imdb_id[0]:
                                 fail = True
                             else:
                                 imdb_id = imdb_id[0]
@@ -1735,22 +1729,22 @@ class HW():
                                     for result in search_results:
                                         if result[3] == "TV Series":
                                             no_series = False
-                                            total_results = total_results - 1
-                                            attempt = attempt + 1
+                                            total_results -= 1
+                                            attempt += 1
                                         else:
                                             no_series = True
                                             imdb_id = search_results[attempt][0]
                                             total_results = 0
                                             break
-                                if no_series == False:
+                                if no_series is False:
                                     self.log_debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
-                        if imdb_id == "" or not imdb_id:
+                        if not imdb_id:
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
                         else:
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
-                            if details == "":
+                            if not details:
                                 self.log_debug("%s - Originalsprache nicht ermittelbar" % key)
                             original_language = re.findall(r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                             if original_language:
@@ -1893,14 +1887,13 @@ class HA():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
 
         for key in self.allInfos:
             if not key.replace(" ", "+") in feed and not self.filename == 'MB_Regex':
                 continue
             req_page = getURL(feed)
-            if req_page == "":
+            if not req_page:
                 self.log_debug("Ungueltiger Link bei Seitenaufruf")
                 continue
             soup = bs(req_page, 'lxml')
@@ -2013,7 +2006,7 @@ class HA():
             self.log_debug("%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" %feedsearch_title)
             return False
         for (key, download_link, pattern) in self.dl_search(search_url, feedsearch_title):
-            if not download_link == None:
+            if download_link:
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
                     self.log_debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -2100,8 +2093,7 @@ class HA():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if not self.config.get(
-            "ignore") == "" else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
         req_page = getURL(feed)
         soup = bs(req_page, 'lxml')
         content = soup.find("div", {"id" : "content"})
@@ -2182,7 +2174,7 @@ class HA():
 
         for url in urls:
             for (key, download_link, pattern) in self.searchLinks(url):
-                if not download_link == None:
+                if download_link:
                     englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
