@@ -9,6 +9,7 @@ Fehlerbeschreibung:
 Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein. Nur Fehler des aktuellen Releases werden berücksichtigt.
 Betriebssystem und die Logzeilen (DEBUG) zum Fehler müssen immer angegeben werden.
 
+**Hier keine Links posten. Die Seiten heißen MB bzw. SJ!**
 
 Issues mit folgendem Inhalt werden kommentarlos geschlossen:
 -Bitte um Erweiterung des RSScrawlers (ohne Code per Pull Request beizutragen)
