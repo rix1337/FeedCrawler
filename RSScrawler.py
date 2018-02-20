@@ -954,7 +954,7 @@ class MB():
                         key,
                         download_link,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler"
+                        "RSScrawler/3Dcrawler"
                     )
                     self.db.store(
                         key,
@@ -1626,7 +1626,7 @@ class HW():
                         key,
                         download_link,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler"
+                        "RSScrawler/3Dcrawler"
                     )
                     self.db.store(
                         key,
