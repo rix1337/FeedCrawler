@@ -80,7 +80,7 @@ def entfernen(retailtitel, identifier):
         content = l.read()
         l.close()
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
-        w.write(content.replace(retailyear, "").replace(retail, "").replace(retailyear.lower(), "").replace(retail.lower(), "").replace(retailyear.upper(), "").replace(retail.upper(), "").replace(capitalize(retailyear), "").replace(capitalize(retail), ""))
+        w.write(re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail)+ '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', content))
     files.check()
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
