@@ -51,7 +51,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         .then(function(res){
             $scope.version = res.data.version.ver;
             $(".versioninfo").append(" " + $scope.version);
-            console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337/RSScrawler/commits');
+            console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337');
             $scope.update = res.data.version.update_ready;
             $scope.docker = res.data.version.docker;
             if ($scope.docker) {
@@ -62,7 +62,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             if ($scope.update) {
                 $(".versioninfo").append(" - Update verfügbar!");
                 console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest');
-                showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest">github.com</a>.');
+                showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">github.com</a>.');
             }
             $scope.log = res.data.log;
             $scope.settings = res.data.settings;
@@ -116,7 +116,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             $scope.update = res.data.version.update_ready;
             if ($scope.update) {
                 console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest');
-                showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest">github.com</a>.');
+                showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest target="_blank"">github.com</a>.');
             }
             console.log('Version abgerufen!');
         }, function (res) {
