@@ -2,7 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
-# https://github.com/zapp-brannigan/ (offline)
+# https://github.com/zapp-brannigan/
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 # Beschreibung:
 # RSScrawler erstellt .crawljobs für den JDownloader.
@@ -1076,6 +1076,8 @@ class MB():
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
                         else:
+                            if isinstance(imdb_id, list):
+                                imdb_id = imdb_id.pop()
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
                             if not details:
@@ -1742,6 +1744,8 @@ class HW():
                             if not self.download_dl(key):
                                 self.log_debug("%s - Kein zweisprachiges Release gefunden." % key)
                         else:
+                            if isinstance(imdb_id, list):
+                                imdb_id = imdb_id.pop()
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             details = getURL(imdb_url)
                             if not details:
