@@ -5,7 +5,7 @@
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
 # https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968
 
-VERSION="v.4.0.2"
+VERSION="v.4.0.3"
 echo "┌────────────────────────────────────────────────────────┐"
 echo "  Programminfo:    RSScrawler $VERSION von RiX"
 echo "  Projektseite:    https://github.com/rix1337/RSScrawler"
@@ -18,10 +18,10 @@ select opt in $OPTIONS; do
     exit
    elif [ "$opt" = "Ubuntu/Debian" ]; then
     apt-get update
-    apt-get --yes --force-yes install git python2.7 python-setuptools python-dev
+    apt-get --yes --force-yes install git python2.7 python-setuptools python-dev nodejs
     easy_install pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 docopt feedparser flask requests lxml
+    pip install bs4 cfscrape docopt feedparser flask requests lxml
     clear
     read -rp "Wohin soll RSScrawler installiert werden? Das Verzeichnis RSScrawler wird automatisch erstellt! Pfad ohne / am Ende: " rsspath
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
@@ -35,12 +35,12 @@ select opt in $OPTIONS; do
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Synology" ]; then
-    echo "Es müssen Python 2.7, JDownloader 2 und Java 8 installiert sein!"
+    echo "Es müssen Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
     read -rsp $'Durch Tastendruck bestätigen...\n' -n 1 key
     cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
     python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 docopt feedparser flask requests lxml
+    pip install bs4 cfscrape docopt feedparser flask requests lxml
     cd /volume1/@appstore/
     wget https://github.com/rix1337/RSScrawler/archive/master.zip
     7z x master.zip
