@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 bs4
+cfscrape
 docopt
 feedparser
 flask
