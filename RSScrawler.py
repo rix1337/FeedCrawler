@@ -88,30 +88,34 @@ def crawler(jdpath, rssc):
     arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
-            start_time = time.time()
-            log_debug("--------Alle Suchfunktion gestartet.--------")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion gestartet.")
-            for task in search_pool:
-                task.periodical_task()
-                log_debug("-----------Suchfunktion ausgeführt!-----------")
-            if arguments['--ersatzblogs']:
-                for task in erweiterter_pool:
+            try:
+                start_time = time.time()
+                log_debug("--------Alle Suchfunktion gestartet.--------")
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion gestartet.")
+                for task in search_pool:
                     task.periodical_task()
-                    log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
-            end_time = time.time()
-            total_time = end_time - start_time
-            total_unit = " Sekunden"
-            if total_time > 60:
-                total_time = total_time / 60
-                total_unit = " Minuten"
-            total_time = str(round(total_time, 1)) + total_unit
-            notify(added_items)
-            log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
-            added_items = []
-            time.sleep(int(rsscrawler.get('interval')) * 60)
-            log_debug("-------------Wartezeit verstrichen-------------")
+                    log_debug("-----------Suchfunktion ausgeführt!-----------")
+                if arguments['--ersatzblogs']:
+                    for task in erweiterter_pool:
+                        task.periodical_task()
+                        log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
+                end_time = time.time()
+                total_time = end_time - start_time
+                total_unit = " Sekunden"
+                if total_time > 60:
+                    total_time = total_time / 60
+                    total_unit = " Minuten"
+                total_time = str(round(total_time, 1)) + total_unit
+                notify(added_items)
+                log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+                added_items = []
+                time.sleep(int(rsscrawler.get('interval')) * 60)
+                log_debug("-------------Wartezeit verstrichen-------------")
+            except Exception as e:
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
     else:
+        try:
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
@@ -131,6 +135,8 @@ def crawler(jdpath, rssc):
             notify(added_items)
             log_debug("---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+        except Exception as e:
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
 
 def getURL(url):
     try:
