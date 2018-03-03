@@ -21,7 +21,6 @@ select opt in $OPTIONS; do
     apt-get --yes --force-yes install git python2.7 python-setuptools python-dev nodejs
     easy_install pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 cfscrape docopt feedparser flask requests lxml
     clear
     read -rp "Wohin soll RSScrawler installiert werden? Das Verzeichnis RSScrawler wird automatisch erstellt! Pfad ohne / am Ende: " rsspath
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
@@ -30,23 +29,22 @@ select opt in $OPTIONS; do
     cd $rsspath/
     git clone https://github.com/rix1337/RSScrawler.git
     cd RSScrawler
+    pip install -r requirements.txt
     git remote add rss https://github.com/rix1337/RSScrawler.git
     clear
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Synology" ]; then
-    echo "Es müssen Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
+    echo "Es müssen Git, Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
     read -rsp $'Durch Tastendruck bestätigen...\n' -n 1 key
     cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
     python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
-    pip install bs4 cfscrape docopt feedparser flask requests lxml
     cd /volume1/@appstore/
-    wget https://github.com/rix1337/RSScrawler/archive/master.zip
-    7z x master.zip
-    rm /volume1/@appstore/master.zip
-    cd /volume1/@appstore/RSScrawler-master
-    chmod +x * /volume1/@appstore/RSScrawler-master
+    git clone https://github.com/rix1337/RSScrawler.git
+    cd RSScrawler
+    chmod +x * /volume1/@appstore/RSScrawler
+    pip install -r requirements.txt
     clear
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
     read -rp "Auf welchem Port soll das Webinterface erreichbar sein? Port: " rssport
@@ -56,13 +54,14 @@ select opt in $OPTIONS; do
    elif [ "$opt" = "Update" ]; then
     read -rp "Wo ist RSScrawler installiert? Pfad ohne / am Ende: " rsspath
     cd $rsspath/
+    pip install -U -r requirements.txt
     git fetch --all
     git reset --hard origin/master
     git pull origin master
     exit
    else
     clear
-    echo "Fehlauswahl"
+    echo "Bitte eine vorhandene Option wählen"
     exit
    fi
 done

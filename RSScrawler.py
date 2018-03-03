@@ -34,8 +34,8 @@ import feedparser
 import re
 import urllib2
 import codecs
-from collections import OrderedDict
 from bs4 import BeautifulSoup as bs
+import cfscrape
 import time
 import sys
 import signal
@@ -133,23 +133,8 @@ def crawler(jdpath, rssc):
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
 
 def getURL(url):
-    try:
-        req = urllib2.Request(
-            url,
-            None,
-            {
-                'User-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:57.0) Gecko/20100101 Firefox/57.0'}
-        )
-        return urllib2.urlopen(req, timeout=5).read()
-    except urllib2.HTTPError as e:
-        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Fehler: %s Grund: %s' % (e.code, e.reason))
-        return ''
-    except urllib2.URLError as e:
-        logging.debug('Bei der HTTP-Anfrage ist ein Fehler Aufgetreten: Grund: %s' % e.reason)
-        return ''
-    except socket.error as e:
-        logging.debug('Die HTTP-Anfrage wurde unterbrochen. Grund: %s' % e)
-        return ''
+    scraper = cfscrape.create_scraper(delay=10)
+    return scraper.get(url).content
 
 class YT():
     _INTERNAL_NAME='YT'
