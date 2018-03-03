@@ -35,17 +35,15 @@ select opt in $OPTIONS; do
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Synology" ]; then
-    echo "Es müssen Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
+    echo "Es müssen Git, Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
     read -rsp $'Durch Tastendruck bestätigen...\n' -n 1 key
     cd /volume1/@appstore/PythonModule/usr/lib/python2.7/site-packages/
     python easy_install.py pip
     pip install --upgrade pip virtualenv virtualenvwrapper
     cd /volume1/@appstore/
-    wget https://github.com/rix1337/RSScrawler/archive/master.zip
-    7z x master.zip
-    rm /volume1/@appstore/master.zip
-    cd /volume1/@appstore/RSScrawler-master
-    chmod +x * /volume1/@appstore/RSScrawler-master
+    git clone https://github.com/rix1337/RSScrawler.git
+    cd RSScrawler
+    chmod +x * /volume1/@appstore/RSScrawler
     pip install -r requirements.txt
     clear
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
@@ -63,7 +61,7 @@ select opt in $OPTIONS; do
     exit
    else
     clear
-    echo "Fehlauswahl"
+    echo "Bitte eine vorhandene Option wählen"
     exit
    fi
 done

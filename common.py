@@ -77,10 +77,12 @@ def entfernen(retailtitel, identifier):
     else:
         liste = "MB_Filme"
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'r') as l:
-        content = l.read()
+        content = []
+        for line in l:
+            content.append(re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail)+ '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line))
         l.close()
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
-        w.write(re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail)+ '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', content))
+        w.write(''.join(content))
     files.check()
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
