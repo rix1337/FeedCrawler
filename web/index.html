@@ -232,6 +232,10 @@
                             <input required type="number" min="3" max="1440" ng-model="settings.general.interval" class="form-control" data-toggle="tooltip" data-placement="top" title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 3 Minuten"></input>
                         </p>
                         <p>
+                            <h4>Englische Releases hinzufügen</h4>
+                            <select ng-model="settings.general.english" ng-options="o.value as o.label for o in bools"  class="form-control" data-toggle="tooltip" data-placement="top" title="Wenn aktiviert, werden auch englischsprachige Titel gesucht"></select>
+                        </p>
+                        <p>
                             <h4>Hoster</h4>
                             <select ng-model="settings.general.hoster" ng-options="h.value as h.label for h in hosters"  class="form-control" data-toggle="tooltip" data-placement="top" title="Hier den gewünschten Hoster wählen"></select>
                         </p>

@@ -97,6 +97,7 @@ def get_all():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
+                        "english": bool(general.get("english")),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -179,6 +180,7 @@ def get_post_settings():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
+                        "english": bool(general.get("english")),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -231,6 +233,7 @@ def get_post_settings():
             if to_int(interval) < 3:
                 interval = '3'
             f.write("interval = " + interval + "\n")
+            f.write("english = " + to_str(data['general']['english']).encode('utf-8') + "\n")
             f.write("hoster = " + to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
             f.write("quality = " + to_str(data['mb']['quality']).encode('utf-8') + "\n")
