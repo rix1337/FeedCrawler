@@ -5,7 +5,7 @@
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
 # https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968
 
-VERSION="v.4.0.3"
+VERSION="v.4.0.4"
 echo "┌────────────────────────────────────────────────────────┐"
 echo "  Programminfo:    RSScrawler $VERSION von RiX"
 echo "  Projektseite:    https://github.com/rix1337/RSScrawler"
@@ -32,6 +32,7 @@ select opt in $OPTIONS; do
     pip install -r requirements.txt
     git remote add rss https://github.com/rix1337/RSScrawler.git
     clear
+    echo "Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP)."
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Synology" ]; then
@@ -49,6 +50,7 @@ select opt in $OPTIONS; do
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
     read -rp "Auf welchem Port soll das Webinterface erreichbar sein? Port: " rssport
     clear
+    echo "Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP)."
     python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Update" ]; then

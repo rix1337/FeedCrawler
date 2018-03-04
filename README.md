@@ -13,10 +13,10 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 [Gutz-Pilz](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py)
 
 ##  Vorraussetzungen
-* [Python 2.7](https://synocommunity.com/package/python)
-* [Java 8](https://github.com/rednoah/java-installer)
-* [JDownloader 2](http://www.synology-forum.de/showthread.html?68134-JDownloader-2-%28noarch%29-Paketzentrum)
-* [Optional, aber empfohlen: node.js](https://www.synology.com/de-de/dsm/packages/Node.js_v4)
+* [Python 2.7](https://www.python.org/downloads/)
+* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2)
+* [Optional, aber empfohlen: node.js](https://nodejs.org/en/)
 * [Zusatzpakete](https://github.com/rix1337/RSScrawler/blob/master/requirements.txt)
 
 ## Installation

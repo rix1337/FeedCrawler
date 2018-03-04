@@ -348,6 +348,12 @@ class SJ():
                     m = re.search(self.pattern, title.lower())
                     if m:
                         if '[DEUTSCH]' in title:
+                            language_ok = 1
+                        elif rsscrawler.get('english'):
+                            language_ok = 2
+                        else:
+                            language_ok = 0
+                        if language_ok:
                             mm = re.search(self.quality, title.lower())
                             if mm:
                                 mmm = re.search(reject, title.lower())
@@ -356,12 +362,20 @@ class SJ():
                                         title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
-                                self.range_checkr(link, title)
+                                self.range_checkr(link, title, language_ok)
+                        else:
+                            self.log_debug("%s - Englische Releases deaktiviert" % title)
 
                     else:
                         m = re.search(self.pattern, title.lower())
                         if m:
                             if '[DEUTSCH]' in title:
+                                language_ok = 1
+                            elif rsscrawler.get('english'):
+                                language_ok = 2
+                            else:
+                                language_ok = 0
+                            if language_ok:
                                 if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
                                     continue
                                 mm = re.search(reject, title.lower())
@@ -369,9 +383,14 @@ class SJ():
                                     self.log_debug(title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
-                                self.range_checkr(link, title)
+                                self.range_checkr(link, title, language_ok)
+                            else:
+                                self.log_debug("%s - Englische Releases deaktiviert" % title)
 
-    def range_checkr(self, link, title):
+    def range_checkr(self, link, title, language_ok):
+        englisch = False
+        if language_ok == 2:
+            englisch = True
         if self.filename == 'MB_Staffeln':
             season = re.search(r"\.s\d", title.lower())
             if not season:
@@ -393,29 +412,29 @@ class SJ():
                     NR = re.match(r"\d{2}", str(count))
                     if NR:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
-                        self.range_parse(link, title1)
+                        self.range_parse(link, title1, englisch)
                     else:
                         title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
-                        self.range_parse(link, title1)
+                        self.range_parse(link, title1, englisch)
             except ValueError as e:
                 logging.error("Fehler in Variablenwert: %s" % e.message)
         else:
-            self.parse_download(link, title)
+            self.parse_download(link, title, englisch)
 
-    def range_parse(self, series_url, search_title):
+    def range_parse(self, series_url, search_title, englisch):
         req_page = getURL(series_url)
         soup = bs(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
             for title in titles:
                 if self.quality != '480p' and self.quality in title:
-                    self.parse_download(series_url, title)
+                    self.parse_download(series_url, title, englisch)
                 if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title) or ('.2160p.' in title)):
-                    self.parse_download(series_url, title)
+                    self.parse_download(series_url, title, englisch)
         except re.error as e:
             self.log_error('Konstantenfehler: %s' % e)
 
-    def parse_download(self, series_url, search_title):
+    def parse_download(self, series_url, search_title, englisch):
         req_page = getURL(series_url)
         soup = bs(req_page, 'lxml')
         escape_brackets = search_title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
@@ -430,19 +449,22 @@ class SJ():
                 url_hosters = re.findall(r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
                 for url_hoster in url_hosters:
                     if self.hoster.lower() in url_hoster[1]:
-                        self.send_package(title, url_hoster[0])
+                        self.send_package(title, url_hoster[0], englisch)
             else:
                 self.log_debug(title + " - Release hat falsche Quelle")
 
-    def send_package(self, title, link):
+    def send_package(self, title, link, englisch_info):
+        englisch = ""
+        if englisch_info:
+            englisch = "/Englisch"
         if self.filename == 'SJ_Serien_Regex':
-            link_placeholder = '[Episode/RegEx] - '
+            link_placeholder = '[Episode/RegEx' + englisch + '] - '
         elif self.filename == 'SJ_Serien':
-            link_placeholder = '[Episode] - '
+            link_placeholder = '[Episode' + englisch + '] - '
         elif self.filename == 'SJ_Staffeln_Regex':
-            link_placeholder = '[Staffel/RegEx] - '
+            link_placeholder = '[Staffel/RegEx' + englisch + '] - '
         else:
-            link_placeholder = '[Staffel] - '
+            link_placeholder = '[Staffel' + englisch + '] - '
         try:
             storage = self.db.retrieve(title)
             storage_mb = self.db_mb.retrieve(title)
@@ -876,6 +898,9 @@ class MB():
                 if "*englisch*" in key.lower():
                     key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
                     englisch = True
+                    if not rsscrawler.get('english'):
+                        self.log_debug("%s - Englische Releases deaktiviert" % key)
+                        return
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
                     if len(details) > 0:
@@ -1024,6 +1049,9 @@ class MB():
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
                         englisch = True
+                        if not rsscrawler.get('english'):
+                            self.log_debug("%s - Englische Releases deaktiviert" % key)
+                            return
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         original_language = ""
                         fail = False
@@ -1547,6 +1575,9 @@ class HW():
                 if "*englisch*" in key.lower():
                     key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
                     englisch = True
+                    if not rsscrawler.get('english'):
+                        self.log_debug("%s - Englische Releases deaktiviert" % key)
+                        return
                 if self.config.get('enforcedl') and '.dl.' not in key.lower():
                     original_language = ""
                     if len(details) > 0:
@@ -1692,6 +1723,9 @@ class HW():
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
                         englisch = True
+                        if not rsscrawler.get('english'):
+                            self.log_debug("%s - Englische Releases deaktiviert" % key)
+                            return
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         original_language = ""
                         fail = False
@@ -2174,6 +2208,9 @@ class HA():
                     if "*englisch*" in key.lower():
                         key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
                         englisch = True
+                        if not rsscrawler.get('english'):
+                            self.log_debug("%s - Englische Releases deaktiviert" % key)
+                            return
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
