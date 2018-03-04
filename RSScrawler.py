@@ -309,37 +309,55 @@ class SJ():
 
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
-                    m = re.search(self.pattern, title.lower())
-                    if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
-                        m = re.search(self.pattern.replace("480p", "."), title.lower())
-                        self.quality = "480p"
-                    if m:
-                        if "720p" in title.lower(): self.quality = "720p"
-                        if "1080p" in title.lower(): self.quality = "1080p"
-                        if "2160p" in title.lower(): self.quality = "2160p"
-                        m = re.search(reject, title.lower())
+                    if '[DEUTSCH]' in title:
+                        language_ok = 1
+                    elif rsscrawler.get('english'):
+                        language_ok = 2
+                    else:
+                        language_ok = 0
+                    if language_ok:
+                        m = re.search(self.pattern, title.lower())
+                        if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                            m = re.search(self.pattern.replace("480p", "."), title.lower())
+                            self.quality = "480p"
                         if m:
-                            self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                        title = re.sub(r'\[.*\] ', '', post.title)
-                        self.range_checkr(link, title)
+                            if "720p" in title.lower(): self.quality = "720p"
+                            if "1080p" in title.lower(): self.quality = "1080p"
+                            if "2160p" in title.lower(): self.quality = "2160p"
+                            m = re.search(reject, title.lower())
+                            if m:
+                                self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                            title = re.sub(r'\[.*\] ', '', post.title)
+                            self.range_checkr(link, title, language_ok)
+                    else:
+                        self.log_debug("%s - Englische Releases deaktiviert" % title)
 
                 else:
                     continue
             elif self.filename == 'SJ_Staffeln_Regex':
                 if self.config.get("regex"):
-                    m = re.search(self.pattern, title.lower())
-                    if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
-                        m = re.search(self.pattern.replace("480p", "."), title.lower())
-                        self.quality = "480p"
-                    if m:
-                        if "720p" in title.lower(): self.quality = "720p"
-                        if "1080p" in title.lower(): self.quality = "1080p"
-                        if "2160p" in title.lower(): self.quality = "2160p"
-                        m = re.search(reject, title.lower())
+                    if '[DEUTSCH]' in title:
+                        language_ok = 1
+                    elif rsscrawler.get('english'):
+                        language_ok = 2
+                    else:
+                        language_ok = 0
+                    if language_ok:
+                        m = re.search(self.pattern, title.lower())
+                        if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                            m = re.search(self.pattern.replace("480p", "."), title.lower())
+                            self.quality = "480p"
                         if m:
-                            self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                        title = re.sub(r'\[.*\] ', '', post.title)
-                        self.range_checkr(link, title)
+                            if "720p" in title.lower(): self.quality = "720p"
+                            if "1080p" in title.lower(): self.quality = "1080p"
+                            if "2160p" in title.lower(): self.quality = "2160p"
+                            m = re.search(reject, title.lower())
+                            if m:
+                                self.log_debug(title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                            title = re.sub(r'\[.*\] ', '', post.title)
+                            self.range_checkr(link, title, language_ok)
+                    else:
+                        self.log_debug("%s - Englische Releases deaktiviert" % title)
 
                 else:
                     continue
