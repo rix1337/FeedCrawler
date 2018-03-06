@@ -243,7 +243,7 @@ class YT():
                          video,		
                          'added'
                     )
-                    log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + video + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + video + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
 
@@ -490,7 +490,7 @@ class SJ():
         else:
             common.write_crawljob_file(title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'added')
-            log_entry = link_placeholder + title + ' - <a href="' + link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + title + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+            log_entry = link_placeholder + title + ' - <a href="' + link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             self.log_info(log_entry)
             added_items.append(log_entry)
 
@@ -700,7 +700,7 @@ class MB():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -720,7 +720,7 @@ class MB():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -736,7 +736,7 @@ class MB():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -752,7 +752,7 @@ class MB():
                         key,		
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -799,7 +799,10 @@ class MB():
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
-                search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
+                try:
+                    search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä").replace("oe", "ö").replace("ue", "ü").replace("Ae", "Ä").replace("Oe", "Ö").replace("Ue", "Ü")
+                except:
+                    break
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
                 search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
@@ -959,7 +962,7 @@ class MB():
                         key,
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                 else:
@@ -981,7 +984,7 @@ class MB():
                         key,
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
 
@@ -1141,7 +1144,7 @@ class MB():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
@@ -1163,7 +1166,7 @@ class MB():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
@@ -1193,7 +1196,7 @@ class MB():
                             key,		
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
 
@@ -1361,7 +1364,7 @@ class HW():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1381,7 +1384,7 @@ class HW():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1397,7 +1400,7 @@ class HW():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1413,7 +1416,7 @@ class HW():
                         key,		
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1460,7 +1463,10 @@ class HW():
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
             else:
-                search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä")
+                try:
+                    search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", download_title)[0].replace(".", "+").replace("ae", "ä").replace("oe", "ö").replace("ue", "ü").replace("Ae", "Ä").replace("Oe", "Ö").replace("Ue", "Ü")
+                except:
+                    break
                 search_url = "http://www.imdb.com/find?q=" + search_title
                 search_page = getURL(search_url)
                 search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
@@ -1620,7 +1626,7 @@ class HW():
                         key,
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                 else:
@@ -1642,7 +1648,7 @@ class HW():
                         key,
                         'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
 
@@ -1799,7 +1805,7 @@ class HW():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
@@ -1821,7 +1827,7 @@ class HW():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
@@ -1851,7 +1857,7 @@ class HW():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
  
@@ -2040,7 +2046,7 @@ class HA():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -2060,7 +2066,7 @@ class HA():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -2076,7 +2082,7 @@ class HA():
                         key,
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -2092,7 +2098,7 @@ class HA():
                         key,		
                         'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -2215,7 +2221,7 @@ class HA():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_3D':
@@ -2237,7 +2243,7 @@ class HA():
                             key,
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     elif self.filename == 'MB_Staffeln':
@@ -2267,7 +2273,7 @@ class HA():
                             key,		
                             'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link öffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download für nächsten Suchlauf zurücksetzen"><i class="fas fa-undo"></i></a>'
+                        log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
 
