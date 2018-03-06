@@ -150,7 +150,7 @@ class YT():
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/YT_Downloads.db"))
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         self.youtube = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
         self.dictWithNamesAndLinks = {}
 
@@ -241,8 +241,7 @@ class YT():
                     )
                     self.db.store(		
                          video,		
-                         'added',		
-                         channel		
+                         'added'
                     )
                     log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -256,8 +255,7 @@ class SJ():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
-        self.db_mb = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
@@ -485,15 +483,13 @@ class SJ():
             link_placeholder = '[Staffel' + englisch + '] - '
         try:
             storage = self.db.retrieve(title)
-            storage_mb = self.db_mb.retrieve(title)
         except Exception as e:
             self.log_debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-        if storage == 'added' or storage == 'downloaded' or storage_mb == 'added':
+        if storage == 'added':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             common.write_crawljob_file(title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'added')
-            self.db_mb.store(title, 'added', "|".join(self.getSeriesList(self.search_list, self.level)))
             log_entry = link_placeholder + title + ' - [<a href="' + link + '" target="_blank">Link</a>]'
             self.log_info(log_entry)
             added_items.append(log_entry)
@@ -549,9 +545,8 @@ class MB():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -703,8 +698,7 @@ class MB():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -724,8 +718,7 @@ class MB():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -741,8 +734,7 @@ class MB():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -758,8 +750,7 @@ class MB():
                     )
                     self.db.store(		
                         key,		
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -944,7 +935,7 @@ class MB():
                             self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
                     self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                 elif '.3d.' not in key.lower():
                     retail = False
@@ -966,8 +957,7 @@ class MB():
                     )
                     self.db.store(
                         key,
-                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                        'IMDB'
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -989,8 +979,7 @@ class MB():
                     )
                     self.db.store(
                         key,
-                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                        'IMDB'
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1128,7 +1117,7 @@ class MB():
                                 if not self.download_dl(key) and not englisch:
                                     self.log_debug("%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                                     break
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -1150,8 +1139,7 @@ class MB():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1173,8 +1161,7 @@ class MB():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1189,13 +1176,7 @@ class MB():
                         )
                         self.db.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
-                        )
-                        self.db_sj.store(
-                            key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'added',
-                            ''
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1210,8 +1191,7 @@ class MB():
                         )
                         self.db.store(		
                             key,		
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
-                            pattern		
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1229,9 +1209,8 @@ class HW():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -1380,8 +1359,7 @@ class HW():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1401,8 +1379,7 @@ class HW():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1418,8 +1395,7 @@ class HW():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1435,8 +1411,7 @@ class HW():
                     )
                     self.db.store(		
                         key,		
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
-                        pattern		
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1621,7 +1596,7 @@ class HW():
                             self.log_debug("%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
                     self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                 elif '.3d.' not in key.lower():
                     retail = False
@@ -1643,8 +1618,7 @@ class HW():
                     )
                     self.db.store(
                         key,
-                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                        'IMDB'
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1666,8 +1640,7 @@ class HW():
                     )
                     self.db.store(
                         key,
-                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                        'IMDB'
+                        'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -1802,7 +1775,7 @@ class HW():
                                 if not self.download_dl(key) and not englisch:
                                     self.log_debug("%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                                     break
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -1824,8 +1797,7 @@ class HW():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1847,8 +1819,7 @@ class HW():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1863,13 +1834,7 @@ class HW():
                         )
                         self.db.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
-                        )
-                        self.db_sj.store(
-                            key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'added',
-                            ''
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1884,8 +1849,7 @@ class HW():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern	
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -1903,9 +1867,8 @@ class HA():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/MB_Downloads.db"))
+        self.db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         self.search_list = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
-        self.db_sj = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/SJ_Downloads.db"))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
@@ -2075,8 +2038,7 @@ class HA():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -2096,8 +2058,7 @@ class HA():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -2113,8 +2074,7 @@ class HA():
                     )
                     self.db.store(
                         key,
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',
-                        pattern
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                         )
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -2130,8 +2090,7 @@ class HA():
                     )
                     self.db.store(		
                         key,		
-                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added',		
-                        pattern		
+                        'dl' if self.config.get('enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                     self.log_info(log_entry)
@@ -2232,7 +2191,7 @@ class HA():
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not self.download_dl(key):
                             self.log_debug("%s - Kein zweisprachiges Release gefunden" % key)
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added' or self.db_sj.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'downloaded':
+                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
                         self.log_debug("%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
                         retail = False
@@ -2254,8 +2213,7 @@ class HA():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -2277,8 +2235,7 @@ class HA():
                         )
                         self.db.store(
                             key,
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -2293,13 +2250,7 @@ class HA():
                         )
                         self.db.store(
                             key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',
-                            pattern
-                        )
-                        self.db_sj.store(
-                            key.replace(".COMPLETE", "").replace(".Complete", ""),
-                            'added',
-                            ''
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
@@ -2314,8 +2265,7 @@ class HA():
                         )
                         self.db.store(		
                             key,		
-                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added',		
-                            pattern		
+                            'notdl' if self.config.get('enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Film/Serie/RegEx] - ' + key + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
                         self.log_info(log_entry)
