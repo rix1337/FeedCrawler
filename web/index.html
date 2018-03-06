@@ -20,7 +20,7 @@
 
         <div name="log" id="log" class="container app col">
            <h1><i class="fas fa-history"></i> Log</h1>
-           <div ng-bind-html="log" class="log form-control"></div>
+           <div bind-html-compile="log" class="log form-control"></div>
            <a href="#log" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
         </div>
 

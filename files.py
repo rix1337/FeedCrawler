@@ -6,6 +6,7 @@ import errno
 import logging
 import os
 import sys
+import rssdb
 
 def check():
     lists_nonregex = [ "MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien", "YT_Channels"]
@@ -55,6 +56,13 @@ def startup():
             placeholder = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt'), 'w')
             placeholder.write('XXXXXXXXXX')
             placeholder.close()
+    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/MB_Downloads.db')):
+        if rssdb.merge_old():
+            os.remove(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/MB_Downloads.db'))
+            os.remove(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/SJ_Downloads.db'))
+            os.remove(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/YT_Downloads.db'))
+        else:
+            logging.error("Kann alte Downloads-Datenbanken nicht verbinden!")
 
 def einsteller(einstellungen, version, jdpfad, port):
     open(einstellungen, "a").close()
