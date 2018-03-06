@@ -1,6 +1,7 @@
 from flask import Flask, request, send_from_directory, render_template, jsonify
 
 from rssconfig import RssConfig
+from rssdb import RssDb
 import files
 import version
 
@@ -304,6 +305,15 @@ def get_version():
                 }
             }
         )
+    else:
+        return "Failed", 405
+
+@app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
+def delete_title(title):
+    if request.method == 'DELETE':
+        db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+        db.delete(title)
+        return "Success", 200
     else:
         return "Failed", 405
 

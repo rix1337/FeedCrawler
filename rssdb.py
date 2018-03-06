@@ -46,9 +46,13 @@ class RssDb(object):
             self._conn.commit()
 
     def retrieve(self, key):
-        res = self._conn.execute("SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        res = self._conn.execute("SELECT value FROM %s WHERE key='%s'" %(self._table, key)).fetchone()
         return res[0] if res else None
 
     def store(self, key, value):
-        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %('rsscrawler', key, value))
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %(self._table, key, value))
+        self._conn.commit()
+
+    def delete(self, key):
+        self._conn.execute("DELETE FROM %s WHERE key='%s'" %(self._table, key))
         self._conn.commit()

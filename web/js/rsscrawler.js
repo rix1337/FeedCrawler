@@ -1,9 +1,24 @@
-app = angular.module('crwlApp', ['ngSanitize']);
+app = angular.module('crwlApp', [])  .directive('bindHtmlCompile', function($compile) {
+    return {
+      restrict: "A",
+      scope: {
+        bindHtmlCompile: "="
+      },
+      link: function(scope, elem) {
+        scope.$watch("bindHtmlCompile", function(newVal) {
+          elem.html('');
+          var newElem = angular.element(newVal);
+          var compileNewElem = $compile(newElem)(scope.$parent);
+          elem.append(compileNewElem);
+        });
+      }
+    };
+});
 
 app.controller('crwlCtrl', function($scope, $http, $timeout){
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
-      })
+    })
 
     $scope.bools = [
         {value: true, label: 'Aktiviert'},
@@ -36,6 +51,10 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
 
     $scope.deleteLog = function() {
         deleteLog();
+    };
+
+    $scope.resetTitle = function(title) {
+        resetTitle(title);
     };
 
     $scope.saveLists = function() {
@@ -165,6 +184,18 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         }, function (res) {
             console.log('Konnte Log nicht leeren!');
             showDanger('Konnte Log nicht leeren!');
+        });
+    };
+
+    function resetTitle(title) {
+        $http.delete('api/delete/' + title)
+        .then(function(res){
+            console.log('Download von ' + title + ' zurückgesetzt!');
+            showSuccess('Download von ' + title + ' zurückgesetzt!');
+            getLogOnly();
+        }, function (res) {
+            console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
+            showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
         });
     };
 
