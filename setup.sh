@@ -18,7 +18,7 @@ select opt in $OPTIONS; do
     exit
    elif [ "$opt" = "Ubuntu/Debian" ]; then
     apt-get update
-    apt-get --yes --force-yes install git python2.7 python-setuptools python-dev nodejs
+    apt-get --yes --force-yes install git python2.7 python-setuptools python-dev nodejs libxml2-dev libxslt-dev
     easy_install pip
     pip install --upgrade pip virtualenv virtualenvwrapper
     clear
