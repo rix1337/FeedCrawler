@@ -102,6 +102,7 @@ def get_all():
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
+                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
                     },
@@ -185,6 +186,7 @@ def get_post_settings():
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
+                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
                     },
@@ -276,6 +278,7 @@ def get_post_settings():
                 f.write("maxvideos = " + to_str(maxvideos) + "\n")
             f.write("ignore = " + to_str(data['yt']['ignore']).encode('utf-8') + "\n")
             f.write("\n[Notifications]\n")
+            f.write("homeassistant = " + to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
             f.write("pushbullet = " + to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
             f.write("pushover = " + to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
             f.write("\n[Crawljobs]\n")
