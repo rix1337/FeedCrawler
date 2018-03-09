@@ -52,10 +52,9 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' %token).replace('\n', '')
     try:
         req = urllib2.Request(homassistant_url, data)
-        req.add_header('X-HA-Access', homeassistant_password % auth)
+        req.add_header('X-HA-Access', homeassistant_password)
         req.add_header('Content-Type', 'application/json')
         response = urllib2.urlopen(req)
     except urllib2.HTTPError:
