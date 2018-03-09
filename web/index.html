@@ -253,6 +253,10 @@
                     <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
                     <div class="card-body">
                         <p>
+                            <h4>Home Assistant</h4>
+                            <input ng-model="settings.alerts.homeassistant" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"></input>
+                        </p>
+                        <p>
                             <h4>Pushbullet</h4>
                             <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip" data-placement="top" title="Access-Token auf Pushbullet.com anlegen und hier angeben"></input>
                         </p>
