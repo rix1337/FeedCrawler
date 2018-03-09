@@ -1,18 +1,18 @@
-[RSScrawler] Fehlermeldung
+# [RSScrawler] Fehlermeldung
 
-Kontaktaufnahme/Chat ausschließlich über
+Hier keine Kontaktaufnahme, dafür gibt es:
 https://gitter.im/RSScrawler/Lobby
 
+# Zwingend erforderlich
 
-Fehlerbeschreibung:
+- **"Einstellungen"-Ordner als Zip** (Paranoide können die Downloads.db weglassen)
 
-Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein. Nur Fehler des aktuellen Releases werden berücksichtigt.
-Betriebssystem und die Logzeilen (DEBUG) zum Fehler müssen immer angegeben werden.
+- **Fehlermeldung aus dem Log** (ggf. DEBUG aktivieren!)
+
+- **Genutzte Version** (kein Support für alte Releases)
+
+# Fehlerbeschreibung:
+
+Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein ("Geht nicht" reicht nicht). Nur Fehler des aktuellen Releases werden berücksichtigt.
 
 **Hier keine Links posten. Die Seiten heißen MB bzw. SJ!**
-
-Issues mit folgendem Inhalt werden kommentarlos geschlossen:
--Bitte um Erweiterung des RSScrawlers (ohne Code per Pull Request beizutragen)
--Bitte um Support nicht bereits aufgeführter Betriebssysteme/inoffizieller Builds
--Zur Kontaktaufnahme. Hierfür dient ausschließlich Gitter!
--Unvollständige Fehlermeldung
