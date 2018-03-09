@@ -44,6 +44,7 @@ class RssConfig(object):
             ("ignore","str","","")
         ],
         'Notifications': [
+            ("homeassistant","str","",""),
             ("pushbullet","str","",""),
             ("pushover","str","","")
         ],
