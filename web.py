@@ -2,6 +2,7 @@ from flask import Flask, request, send_from_directory, render_template, jsonify
 
 from rssconfig import RssConfig
 from rssdb import RssDb
+import search
 import files
 import version
 
@@ -317,6 +318,41 @@ def delete_title(title):
     else:
         return "Failed", 405
 
+@app.route(prefix + "/api/search/<title>", methods=['GET'])
+def search_title(title):
+    if request.method == 'GET':
+        results = search.get(title)
+        return jsonify(
+            {
+                "results": {
+                    "mb": results[0],
+                    "sj": results[1]
+                }
+            }
+        ), 200
+    else:
+        return "Failed", 405
+
+@app.route(prefix + "/api/download_mb/<permalink>", methods=['GET'])
+def download_mb(permalink):
+    if request.method == 'GET':
+        if search.mb(permalink, jdpath):
+            return "Success", 200
+        else:
+            return "Failed", 400
+    else:
+        return "Failed", 40
+
+@app.route(prefix + "/api/download_sj/<id>", methods=['GET'])
+def download_sj(id):
+    if request.method == 'GET':
+        if search.sj(id, jdpath):
+            return "Success", 200
+        else:
+            return "Failed", 400
+    else:
+        return "Failed", 405
+
 @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
 def get_post_lists():
     if request.method == 'GET':
@@ -375,9 +411,11 @@ def getListe(liste):
             output.write(line.replace("XXXXXXXXXX",""))
     return output.getvalue()
 
-def start(port, docker_arg):
+def start(port, docker_arg, jd):
     global docker
     docker = docker_arg
+    global jdpath
+    jdpath = jd
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
         print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
