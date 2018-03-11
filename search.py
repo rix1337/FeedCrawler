@@ -268,14 +268,20 @@ def mb(link, jdownloaderpath):
 def rate(title):
     score = 0
     if ".bluray." in title.lower():
-        score += 5
+        score += 7
     if re.match(r'.*?(4SJ|TVS).*?', title):
-        score += 3
+        score += 4
     if ".dl." in title.lower():
-        score += 1
+        score += 2
     if re.match(r'.*?(DTS|DD\+*51|DD\+*71|AC3\.5\.*1).*?', title):
+        score += 2
+    if ".ml." in title.lower():
+        score += 1
+    if ".dd20." in title.lower():
         score += 1
     if ".dubbed." in title.lower():
+        score -= 1
+    if ".ac3d." in title.lower():
         score -= 1
     if ".hdtv." in title.lower():
         score -= 1
@@ -290,6 +296,8 @@ def rate(title):
     if ".xvid." in title.lower():
         score -= 2
     if ".pal." in title.lower():
+        score -= 3
+    if "dvd9" in title.lower():
         score -= 3
     return score
 
@@ -345,58 +353,75 @@ def sj(id, jdownloaderpath):
         config = RssConfig('SJ')
         quality = config.get('quality')
         url = getURL(link)
-        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        # add highest scoring items to list (multiple with same score possible!)
+        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+        lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+        lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
 
         best_matching_links = []
 
         if pakete:
             links = []
             for x in pakete:
-                title = x[0].replace("Staffelpack ", "")
+                title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 links.append([score, title, hoster])
             highest_score = sorted(links, reverse=True)[0][0]
             for l in links:
                 if l[0] == highest_score:
-                    best_matching_links.append([l[1], l[2]])
+                    for hoster in l[2]:
+                        best_matching_links.append([l[1], hoster[0], hoster[1]])
         elif folgen:
             links = []
             for x in folgen:
-                title = x[0].replace("Staffelpack ", "")
+                title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 links.append([score, title, hoster])
             highest_score = sorted(links, reverse=True)[0][0]
             for l in links:
                 if l[0] == highest_score:
-                    best_matching_links.append([l[1], l[2]])
+                    for hoster in l[2]:
+                        best_matching_links.append([l[1], hoster[0], hoster[1]])
         elif lq_pakete:
             links = []
             for x in lq_pakete:
-                title = x[0].replace("Staffelpack ", "")
+                title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 links.append([score, title, hoster])
             highest_score = sorted(links, reverse=True)[0][0]
             for l in links:
                 if l[0] == highest_score:
-                    best_matching_links.append([l[1], l[2]])
+                    for hoster in l[2]:
+                        best_matching_links.append([l[1], hoster[0], hoster[1]])
         elif lq_folgen:
             links = []
             for x in lq_folgen:
-                title = x[0].replace("Staffelpack ", "")
+                title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 links.append([score, title, hoster])
             highest_score = sorted(links, reverse=True)[0][0]
             for l in links:
                 if l[0] == highest_score:
-                    best_matching_links.append([l[1], l[2]])
-        print str(best_matching_links)
+                    for hoster in l[2]:
+                        best_matching_links.append([l[1], hoster[0], hoster[1]])
+
+        for link in best_matching_links:
+            dl_title = link[0].replace("Staffelpack ", "").replace("Staffelpack.", "")
+            dl_hoster = link[1]
+            dl_link = link[2]
+            rsscrawler = RssConfig('RSScrawler')
+            hoster = rsscrawler.get('hoster')
+            db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+
+            if hoster.lower() in dl_hoster.lower():
+                common.write_crawljob_file(dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler")
+                db.store(dl_title, 'added')
+                log_entry = '[Suche/Serie] - ' + dl_title + ' - <a href="' + dl_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                logging.info(log_entry)
+                notify(log_entry)
 
     return True
