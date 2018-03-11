@@ -22,8 +22,9 @@
             <div name="search" id="search" class="container app col">
                 <h1><i class="fas fa-search"></i> Suchen</h1>
                 <input ng-model="search" class="form-control mr-sm-2" type="search" placeholder="Filme und Serien suchen" aria-label="Search">
-                <p data-ng-repeat="x in results.mb"><a href="#search" ng-click="downloadMB({{x}})" class="btn btn-dark" type="submit"><i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i><input ng-model="x.link"></input><input ng-model="x.title"></input> {{x}} herunterladen</a></p>
-                <p data-ng-repeat="y in results.sj"><a href="#search" ng-click="downloadMB({{x}})" class="btn btn-dark" type="submit"><i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i><input ng-model="y.id"></input><input ng-model="y.title"></input> {{x}} herunterladen</a></p>
+                <!-- TODO bind x/y.link to downloadMB/SJ-->
+                <p data-ng-repeat="x in results.mb"><a href="#search" ng-click="downloadMB(link)" class="btn btn-dark" type="submit"><i class="fas fa-download"></i> <span ng-bind="x.link"></span> | <span ng-bind="x.title"></span></a></p>
+                <p data-ng-repeat="y in results.sj"><a href="#search" ng-click="downloadSJ(link)" class="btn btn-dark" type="submit"><i class="fas fa-download"></i> <span ng-bind="y.id"></span> | <span ng-bind="y.title"></span></a></p>
                 <a href="#search" ng-click="searchNow()" class="btn btn-dark" type="submit"><i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>
             </div>
         </form>

@@ -70,6 +70,8 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         setSettings();
     };
 
+    // TODO create downloadMB/SJ in scope, then inside rsscrawler.js - > bound to /api/download_mb/sj -> change method to post if successful
+
     function getAll() {
         $http.get('api/all/')
         .then(function(res){
