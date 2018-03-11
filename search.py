@@ -116,7 +116,7 @@ def dl_search(feed, title):
         if found:
             yield (post.title, [post.link], title)
 
-# TODO Ignore/Resolution
+# TODO Resolution
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
     url = getURL("http://movie-blog.org/" + link)
@@ -344,48 +344,59 @@ def sj(id, jdownloaderpath):
     for sXX, link in found_seasons.items():
         config = RssConfig('SJ')
         quality = config.get('quality')
-        try:
-            reject = config.get("rejectlist").replace(",", "|").lower() if len(config.get("rejectlist")) > 0 else "^unmatchable$"
-        except TypeError:
-            reject = "^unmatchable$"
-
         url = getURL(link)
         pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,2,3}\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
         lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
-        lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,2,3}\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        # add highest scoring items to list (multiple with same score possible!)
+
+        best_matching_links = []
 
         if pakete:
+            links = []
             for x in pakete:
                 title = x[0].replace("Staffelpack ", "")
-                ok = re.search(reject, title.lower())
-                if ok:
-                    score = rate(title)
-                    hoster = [[x[2], x[1]], [x[4], x[3]]]
-                    print title + " score: " + str(score)
+                score = rate(title)
+                hoster = [[x[2], x[1]], [x[4], x[3]]]
+                links.append([score, title, hoster])
+            highest_score = sorted(links, reverse=True)[0][0]
+            for l in links:
+                if l[0] == highest_score:
+                    best_matching_links.append([l[1], l[2]])
         elif folgen:
+            links = []
             for x in folgen:
                 title = x[0].replace("Staffelpack ", "")
-                ok = re.search(reject, title.lower())
-                if ok:
-                    score = rate(title)
-                    hoster = [[x[2], x[1]], [x[4], x[3]]]
-                    print title + " score: " + str(score)
+                score = rate(title)
+                hoster = [[x[2], x[1]], [x[4], x[3]]]
+                links.append([score, title, hoster])
+            highest_score = sorted(links, reverse=True)[0][0]
+            for l in links:
+                if l[0] == highest_score:
+                    best_matching_links.append([l[1], l[2]])
         elif lq_pakete:
+            links = []
             for x in lq_pakete:
                 title = x[0].replace("Staffelpack ", "")
-                ok = re.search(reject, title.lower())
-                if ok:
-                    score = rate(title)
-                    hoster = [[x[2], x[1]], [x[4], x[3]]]
-                    print title + " score: " + str(score)
+                score = rate(title)
+                hoster = [[x[2], x[1]], [x[4], x[3]]]
+                links.append([score, title, hoster])
+            highest_score = sorted(links, reverse=True)[0][0]
+            for l in links:
+                if l[0] == highest_score:
+                    best_matching_links.append([l[1], l[2]])
         elif lq_folgen:
+            links = []
             for x in lq_folgen:
                 title = x[0].replace("Staffelpack ", "")
-                ok = re.search(reject, title.lower())
-                if ok:
-                    score = rate(title)
-                    hoster = [[x[2], x[1]], [x[4], x[3]]]
-                    print title + " score: " + str(score)
+                score = rate(title)
+                hoster = [[x[2], x[1]], [x[4], x[3]]]
+                links.append([score, title, hoster])
+            highest_score = sorted(links, reverse=True)[0][0]
+            for l in links:
+                if l[0] == highest_score:
+                    best_matching_links.append([l[1], l[2]])
+        print str(best_matching_links)
 
     return True
