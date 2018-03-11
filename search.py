@@ -12,6 +12,7 @@ import logging
 import re
 import os
 import sys
+import time
 
 def get(title):
     query = title.replace(".", " ").replace(" ", "+")
@@ -264,6 +265,34 @@ def mb(link, jdownloaderpath):
     else:
         return False
 
+def rate(title):
+    score = 0
+    if ".bluray." in title.lower():
+        score += 5
+    if re.match(r'.*?(4SJ|TVS).*?', title):
+        score += 3
+    if ".dl." in title.lower():
+        score += 1
+    if re.match(r'.*?(DTS|DD\+*51|DD\+*71|AC3\.5\.*1).*?', title):
+        score += 1
+    if ".dubbed." in title.lower():
+        score -= 1
+    if ".hdtv." in title.lower():
+        score -= 1
+    if ".dtv" in title.lower():
+        score -= 1
+    if ".pdtv" in title.lower():
+        score -= 1
+    if "tvrip." in title.lower():
+        score -= 1
+    if ".subbed." in title.lower():
+        score -= 2
+    if ".xvid." in title.lower():
+        score -= 2
+    if ".pal." in title.lower():
+        score -= 3
+    return score
+
 def sj(id, jdownloaderpath):
     url = getURL("http://serienjunkies.org/?cat=" + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
@@ -307,15 +336,56 @@ def sj(id, jdownloaderpath):
         if len(dl[0]) is 1:
             sXX = "S0" + str(dl[0])
         else:
-            sXX = str(dl[0])
+            sXX = "S" + str(dl[0])
         link = dl[1]
         if sXX not in found_seasons:
             found_seasons[sXX] = link
 
     for sXX, link in found_seasons.items():
-        print sXX
-        print link
+        config = RssConfig('SJ')
+        quality = config.get('quality')
+        try:
+            reject = config.get("rejectlist").replace(",", "|").lower() if len(config.get("rejectlist")) > 0 else "^unmatchable$"
+        except TypeError:
+            reject = "^unmatchable$"
 
-    # TODO Ignore/Resolution
-    # am ende tvs schlaegt 4sj schlaegt wenigstens dl
+        url = getURL(link)
+        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,2,3}\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+        lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,2,3}\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<.*?\n.*?href="(.*?)".*? \| (.*)<'), url)
+
+        if pakete:
+            for x in pakete:
+                title = x[0].replace("Staffelpack ", "")
+                ok = re.search(reject, title.lower())
+                if ok:
+                    score = rate(title)
+                    hoster = [[x[2], x[1]], [x[4], x[3]]]
+                    print title + " score: " + str(score)
+        elif folgen:
+            for x in folgen:
+                title = x[0].replace("Staffelpack ", "")
+                ok = re.search(reject, title.lower())
+                if ok:
+                    score = rate(title)
+                    hoster = [[x[2], x[1]], [x[4], x[3]]]
+                    print title + " score: " + str(score)
+        elif lq_pakete:
+            for x in lq_pakete:
+                title = x[0].replace("Staffelpack ", "")
+                ok = re.search(reject, title.lower())
+                if ok:
+                    score = rate(title)
+                    hoster = [[x[2], x[1]], [x[4], x[3]]]
+                    print title + " score: " + str(score)
+        elif lq_folgen:
+            for x in lq_folgen:
+                title = x[0].replace("Staffelpack ", "")
+                ok = re.search(reject, title.lower())
+                if ok:
+                    score = rate(title)
+                    hoster = [[x[2], x[1]], [x[4], x[3]]]
+                    print title + " score: " + str(score)
+
     return True
