@@ -15,15 +15,21 @@ import sys
 import time
 
 def get(title):
+    config = RssConfig('MB')
+    quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
-    mb = getURL("http://www.movie-blog.org/index.php?s=" + query)
+    mb = getURL("http://www.movie-blog.org/index.php?s=" + query + "+" + quality)
     mb = re.findall(r'post-.*?<a href="http:\/{2}.*?\/(.*?)" rel.*?>(.*?)<', mb)
     results = []
     for result in mb:
-        results.append([result[0].replace("/", "+"), result[1]])
+        if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+            results.append([result[0].replace("/", "+"), result[1]])
     mb = results
     sj = postURL("http://serienjunkies.org/media/ajax/search/search.php", data={'string': "'" + query + "'"})
-    sj = json.loads(sj)
+    try:
+        sj = json.loads(sj)
+    except:
+        sj = []
     return mb, sj
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
@@ -116,7 +122,6 @@ def dl_search(feed, title):
         if found:
             yield (post.title, [post.link], title)
 
-# TODO Resolution
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
     url = getURL("http://movie-blog.org/" + link)
@@ -304,7 +309,7 @@ def rate(title):
 def sj(id, jdownloaderpath):
     url = getURL("http://serienjunkies.org/?cat=" + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
-    season_links = re.findall(r'href="(.*?)">.*?(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
+    season_links = re.findall(r'href="(.{1,90})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     rsscrawler = RssConfig('RSScrawler')
 
     staffeln = []
