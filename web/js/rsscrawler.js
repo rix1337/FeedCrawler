@@ -197,8 +197,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         title = $scope.search
         $http.get('api/search/' + title)
         .then(function(res){
-            $scope.results_mb = res.data.results.mb;
-            $scope.results_sj = res.data.results.sj;
+            $scope.results = res.data.results;
             console.log('Nach ' + title + ' gesucht!');
             getLogOnly();
         }, function (res) {

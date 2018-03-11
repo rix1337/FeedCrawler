@@ -20,16 +20,27 @@ def get(title):
     query = title.replace(".", " ").replace(" ", "+")
     mb = getURL("http://www.movie-blog.org/index.php?s=" + query + "+" + quality)
     mb = re.findall(r'post-.*?<a href="http:\/{2}.*?\/(.*?)" rel.*?>(.*?)<', mb)
-    results = []
+    results = {}
+    i = 0
     for result in mb:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
-            results.append([result[0].replace("/", "+"), result[1]])
+            res = {"link": result[0].replace("/", "+"), "title": result[1]}
+            results["result" + str(i)] = res
+            i += 1
     mb = results
+
+    results = {}
+    i = 0
     sj = postURL("http://serienjunkies.org/media/ajax/search/search.php", data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
         sj = []
+    for result in sj:
+        res = {"id": result[0], "title": result[1]}
+        results["result" + str(i)] = res
+        i += 1
+    sj = results
     return mb, sj
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
