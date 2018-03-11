@@ -1,4 +1,5 @@
-app = angular.module('crwlApp', [])  .directive('bindHtmlCompile', function($compile) {
+app = angular.module('crwlApp', [])
+    .directive('bindHtmlCompile', function($compile) {
     return {
       restrict: "A",
       scope: {
@@ -51,6 +52,10 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
 
     $scope.deleteLog = function() {
         deleteLog();
+    };
+
+    $scope.searchNow = function() {
+        searchNow();
     };
 
     $scope.resetTitle = function(title) {
@@ -187,6 +192,21 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         });
     };
 
+    function searchNow() {
+        spinSearch();
+        title = $scope.search
+        $http.get('api/search/' + title)
+        .then(function(res){
+            $scope.results_mb = res.data.results.mb;
+            $scope.results_sj = res.data.results.sj;
+            console.log('Nach ' + title + ' gesucht!');
+            getLogOnly();
+        }, function (res) {
+            console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
+            showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
+        });
+    };
+
     function resetTitle(title) {
         $http.delete('api/delete/' + title)
         .then(function(res){
@@ -225,6 +245,9 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         $(".alert-danger").fadeTo(5000, 500).slideUp(500, function(){
             $(".alert-danger").slideUp(500);
         });
+    };
+    function spinSearch() {
+        $("#spinner-search").fadeIn().delay(1000).fadeOut();
     };
 
     function spinLog() {

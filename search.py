@@ -17,13 +17,9 @@ def get(title):
     query = title.replace(".", " ").replace(" ", "+")
     mb = getURL("http://www.movie-blog.org/index.php?s=" + query)
     mb = re.findall(r'post-.*?<a href="http:\/{2}.*?\/(.*?)" rel.*?>(.*?)<', mb)
-    print mb[1][0]
     results = []
-    result_id = 0
     for result in mb:
-        results.append([result_id, result[0].replace("/", "+"), result[1]])
-        result_id += 1
-    print str(results)
+        results.append([result[0].replace("/", "+"), result[1]])
     mb = results
     sj = postURL("http://serienjunkies.org/media/ajax/search/search.php", data={'string': "'" + query + "'"})
     sj = json.loads(sj)
@@ -119,6 +115,7 @@ def dl_search(feed, title):
         if found:
             yield (post.title, [post.link], title)
 
+# TODO Ignore/Resolution
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
     url = getURL("http://movie-blog.org/" + link)
@@ -269,4 +266,56 @@ def mb(link, jdownloaderpath):
 
 def sj(id, jdownloaderpath):
     url = getURL("http://serienjunkies.org/?cat=" + str(id))
-    return url
+    season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
+    season_links = re.findall(r'href="(.*?)">.*?(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
+    rsscrawler = RssConfig('RSScrawler')
+
+    staffeln = []
+    staffel_nr = []
+    seasons = []
+
+    for s in season_links:
+        if "staffel" in s[1].lower():
+            staffeln.append([s[2], s[0]])
+            if "-" in s[2]:
+                split = s[2].split("-")
+                split = range(int(split[0]), int(split[1]) + 1)
+                for nr in split:
+                    staffel_nr.append(str(nr))
+            else:
+                staffel_nr.append(s[2])
+        else:
+            seasons.append([s[2], s[0]])
+
+    if rsscrawler.get("english"):
+        for se in seasons:
+            if not se[0] in staffel_nr:
+                staffeln.append(se)
+
+    to_dl = []
+    for s in staffeln:
+        if "-" in s[0]:
+            split = s[0].split("-")
+            split = range(int(split[0]), int(split[1]) + 1)
+            for i in split:
+                to_dl.append([str(i), s[1]])
+        else:
+            to_dl.append([s[0], s[1]])
+
+    found_seasons = {}
+    for dl in to_dl:
+        if len(dl[0]) is 1:
+            sXX = "S0" + str(dl[0])
+        else:
+            sXX = str(dl[0])
+        link = dl[1]
+        if sXX not in found_seasons:
+            found_seasons[sXX] = link
+
+    for sXX, link in found_seasons.items():
+        print sXX
+        print link
+
+    # TODO Ignore/Resolution
+    # am ende tvs schlaegt 4sj schlaegt wenigstens dl
+    return True
