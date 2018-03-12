@@ -21,6 +21,19 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         $('[data-toggle="tooltip"]').tooltip()
     })
 
+    $scope.results = [
+        {
+         mb: {
+             link: "Link",
+             title: "Title"
+         },
+         sj: {
+             id: "Link",
+             title: "Title",
+         }
+        }
+    ]
+
     $scope.bools = [
         {value: true, label: 'Aktiviert'},
         {value: false, label: 'Deaktiviert'},
@@ -58,6 +71,14 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         searchNow();
     };
 
+    $scope.downloadMB = function(link) {
+        downloadMB(link);
+    };
+
+    $scope.downloadSJ = function(id) {
+        downloadSJ(id);
+    };
+
     $scope.resetTitle = function(title) {
         resetTitle(title);
     };
@@ -69,8 +90,6 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
     $scope.saveSettings = function() {
         setSettings();
     };
-
-    // TODO create downloadMB/SJ in scope, then inside rsscrawler.js - > bound to /api/download_mb/sj -> change method to post if successful
 
     function getAll() {
         $http.get('api/all/')
@@ -178,6 +197,28 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             $('#headingTwoOne').addClass('show');
             console.log('Konnte Einstellungen nicht speichern!');
             showDanger('Konnte Einstellungen nicht speichern!');
+        });
+    };
+
+    function downloadMB(link) {
+        $http.post('api/download_mb/' + link)
+        .then(function(res){
+            console.log('Download gestartet!');
+            showSuccess('Download gestartet!');
+        }, function (res) {
+            console.log('Konnte Download nicht starten!');
+            showDanger('Konnte Download nicht starten!');
+        });
+    };
+
+    function downloadSJ(id) {
+        $http.post('api/download_sj/' + id)
+        .then(function(res){
+            console.log('Download gestartet!');
+            showSuccess('Download gestartet!');
+        }, function (res) {
+            console.log('Konnte Download nicht starten!');
+            showDanger('Konnte Download nicht starten!');
         });
     };
 

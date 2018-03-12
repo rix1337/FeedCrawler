@@ -317,6 +317,7 @@ def rate(title):
         score -= 3
     return score
 
+# TODO: Add title to SJ_Serien
 def sj(id, jdownloaderpath):
     url = getURL("http://serienjunkies.org/?cat=" + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
@@ -439,5 +440,4 @@ def sj(id, jdownloaderpath):
                 log_entry = '[Suche/Serie] - ' + dl_title + ' - <a href="' + dl_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify(log_entry)
-
     return True

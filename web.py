@@ -333,9 +333,9 @@ def search_title(title):
     else:
         return "Failed", 405
 
-@app.route(prefix + "/api/download_mb/<permalink>", methods=['GET'])
+@app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
-    if request.method == 'GET':
+    if request.method == 'POST':
         if search.mb(permalink, jdpath):
             return "Success", 200
         else:
@@ -343,9 +343,9 @@ def download_mb(permalink):
     else:
         return "Failed", 40
 
-@app.route(prefix + "/api/download_sj/<id>", methods=['GET'])
+@app.route(prefix + "/api/download_sj/<id>", methods=['POST'])
 def download_sj(id):
-    if request.method == 'GET':
+    if request.method == 'POST':
         if search.sj(id, jdpath):
             return "Success", 200
         else:
