@@ -1,4 +1,5 @@
-app = angular.module('crwlApp', [])  .directive('bindHtmlCompile', function($compile) {
+app = angular.module('crwlApp', [])
+    .directive('bindHtmlCompile', function($compile) {
     return {
       restrict: "A",
       scope: {
@@ -19,6 +20,19 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     })
+
+    $scope.results = [
+        {
+         mb: {
+             link: "Link",
+             title: "Title"
+         },
+         sj: {
+             id: "Link",
+             title: "Title",
+         }
+        }
+    ]
 
     $scope.bools = [
         {value: true, label: 'Aktiviert'},
@@ -49,8 +63,24 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
 
     $scope.init = getAll();
 
+    $scope.showSearch = function() {
+        showSearch();
+    };
+
     $scope.deleteLog = function() {
         deleteLog();
+    };
+
+    $scope.searchNow = function() {
+        searchNow();
+    };
+
+    $scope.downloadMB = function(link) {
+        downloadMB(link);
+    };
+
+    $scope.downloadSJ = function(id) {
+        downloadSJ(id);
     };
 
     $scope.resetTitle = function(title) {
@@ -174,6 +204,28 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         });
     };
 
+    function downloadMB(link) {
+        $http.post('api/download_mb/' + link)
+        .then(function(res){
+            console.log('Download gestartet!');
+            showSuccess('Download gestartet!');
+        }, function (res) {
+            console.log('Konnte Download nicht starten!');
+            showDanger('Konnte Download nicht starten!');
+        });
+    };
+
+    function downloadSJ(id) {
+        $http.post('api/download_sj/' + id)
+        .then(function(res){
+            console.log('Download gestartet!');
+            showSuccess('Download gestartet!');
+        }, function (res) {
+            console.log('Konnte Download nicht starten!');
+            showDanger('Konnte Download nicht starten!');
+        });
+    };
+
     function deleteLog() {
         spinLog();
         $http.delete('api/log/')
@@ -185,6 +237,27 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             console.log('Konnte Log nicht leeren!');
             showDanger('Konnte Log nicht leeren!');
         });
+    };
+
+    function searchNow() {
+        spinSearch();
+        title = $scope.search
+        $http.get('api/search/' + title)
+        .then(function(res){
+            $scope.results = res.data.results;
+            $(".results").show();
+            $(".search").hide();
+            console.log('Nach ' + title + ' gesucht!');
+            getLogOnly();
+        }, function (res) {
+            console.log('Konnte ' + title + ' nicht suchen!');
+            showDanger('Konnte  ' + title + ' nicht suchen!');
+        });
+    };
+
+    function showSearch() {
+        $('.results').hide();
+        $('.search').show();
     };
 
     function resetTitle(title) {
@@ -225,6 +298,9 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         $(".alert-danger").fadeTo(5000, 500).slideUp(500, function(){
             $(".alert-danger").slideUp(500);
         });
+    };
+    function spinSearch() {
+        $("#spinner-search").fadeIn().delay(1000).fadeOut();
     };
 
     function spinLog() {

@@ -47,13 +47,14 @@ from multiprocessing import Process
 from rssconfig import RssConfig
 from rssdb import RssDb
 from notifiers import notify
+from url import getURL
 import common
 import files
 from web import start
 
 
-def web_server(port, docker):
-    start(port, docker)
+def web_server(port, docker, jd):
+    start(port, docker, jd)
 
 def crawler(jdpath, rssc):
     global added_items
@@ -137,10 +138,6 @@ def crawler(jdpath, rssc):
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception as e:
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
-
-def getURL(url):
-    scraper = cfscrape.create_scraper(delay=10)
-    return scraper.get(url).content
 
 class YT():
     _INTERNAL_NAME='YT'
@@ -227,7 +224,7 @@ class YT():
                 if self.db.retrieve(video) == 'added':
                     self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % video)
                 else:
-                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
                     ignorevideo = re.search(ignore,video_title.lower())
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
@@ -292,9 +289,9 @@ class SJ():
             return
         try:
             reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
-                self.config.get("rejectlist")) > 0 else "^unmatchable$"
+                self.config.get("rejectlist")) > 0 else r"^unmatchable$"
         except TypeError:
-            reject = "^unmatchable$"
+            reject = r"^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
 
@@ -575,7 +572,7 @@ class MB():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -759,7 +756,7 @@ class MB():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -777,7 +774,7 @@ class MB():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -994,8 +991,9 @@ class MB():
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if self.hoster.lower() in url_hoster[1].lower():
-                return url_hoster[0]
+            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
+                if self.hoster.lower() in url_hoster[1].lower():
+                    return url_hoster[0]
 
     def periodical_task(self):
         if self.filename == 'MB_Filme':
@@ -1160,7 +1158,7 @@ class MB():
                             key,
                             download_link,
                             jdownloaderpath + "/folderwatch",
-                            "RSScrawler"
+                            "RSScrawler/3Dcrawler"
                         )
                         self.db.store(
                             key,
@@ -1242,7 +1240,7 @@ class HW():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -1423,7 +1421,7 @@ class HW():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -1441,7 +1439,7 @@ class HW():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -1821,7 +1819,7 @@ class HW():
                             key,
                             download_link,
                             jdownloaderpath + "/folderwatch",
-                            "RSScrawler"
+                            "RSScrawler/3Dcrawler"
                         )
                         self.db.store(
                             key,
@@ -1903,7 +1901,7 @@ class HA():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             if not key.replace(" ", "+") in feed and not self.filename == 'MB_Regex':
@@ -2105,7 +2103,7 @@ class HA():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
         req_page = getURL(feed)
         soup = bs(req_page, 'lxml')
         content = soup.find("div", {"id" : "content"})
@@ -2375,7 +2373,7 @@ if __name__ == "__main__":
         prefix = ''
     print('Der Webserver ist erreichbar unter http://' + common.checkIp() +':' + str(port) + prefix)
 
-    p = Process(target=web_server, args=(port, docker))
+    p = Process(target=web_server, args=(port, docker, jdownloaderpath))
     p.start()
     
     files.check()
