@@ -63,6 +63,10 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
 
     $scope.init = getAll();
 
+    $scope.showSearch = function() {
+        showSearch();
+    };
+
     $scope.deleteLog = function() {
         deleteLog();
     };
@@ -241,12 +245,19 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
         $http.get('api/search/' + title)
         .then(function(res){
             $scope.results = res.data.results;
+            $(".results").show();
+            $(".search").hide();
             console.log('Nach ' + title + ' gesucht!');
             getLogOnly();
         }, function (res) {
             console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
             showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
         });
+    };
+
+    function showSearch() {
+        $('.results').hide();
+        $('.search').show();
     };
 
     function resetTitle(title) {

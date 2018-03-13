@@ -224,7 +224,7 @@ class YT():
                 if self.db.retrieve(video) == 'added':
                     self.log_debug("[%s] - YouTube-Video ignoriert (bereits gefunden)" % video)
                 else:
-                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                    ignore = "|".join(["%s" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
                     ignorevideo = re.search(ignore,video_title.lower())
                     if ignorevideo:
                         self.log_debug(video_title + " (" + channel + ") " + "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
@@ -289,9 +289,9 @@ class SJ():
             return
         try:
             reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
-                self.config.get("rejectlist")) > 0 else "^unmatchable$"
+                self.config.get("rejectlist")) > 0 else r"^unmatchable$"
         except TypeError:
-            reject = "^unmatchable$"
+            reject = r"^unmatchable$"
         self.quality = self.config.get("quality")
         self.hoster = rsscrawler.get("hoster")
 
@@ -572,7 +572,7 @@ class MB():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -756,7 +756,7 @@ class MB():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -774,7 +774,7 @@ class MB():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -1240,7 +1240,7 @@ class HW():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -1421,7 +1421,7 @@ class HW():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -1439,7 +1439,7 @@ class HW():
         for item in imdbchecked:
             download_title = item[0]
             ignore = "|".join(
-                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+                [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
             found = re.search(ignore, download_title.lower())
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
@@ -1901,7 +1901,7 @@ class HA():
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             if not key.replace(" ", "+") in feed and not self.filename == 'MB_Regex':
@@ -2103,7 +2103,7 @@ class HA():
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else "^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
         req_page = getURL(feed)
         soup = bs(req_page, 'lxml')
         content = soup.find("div", {"id" : "content"})

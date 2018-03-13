@@ -285,19 +285,29 @@ def rate(title):
     score = 0
     if ".bluray." in title.lower():
         score += 7
-    if re.match(r'.*?(4SJ|TVS).*?', title):
+    if ".bd." in title.lower():
+        score += 7
+    if ".bdrip." in title.lower():
+        score += 7
+    if re.match(r'.*\-(4SJ|TVS)', title):
         score += 4
     if ".dl." in title.lower():
         score += 2
-    if re.match(r'.*?(DTS|DD\+*51|DD\+*71|AC3\.5\.*1).*?', title):
+    if re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+        score += 2
+    if re.match(r'.*\.(720|1080|2160)p\..*', title):
         score += 2
     if ".ml." in title.lower():
         score += 1
     if ".dd20." in title.lower():
         score += 1
-    if ".dubbed." in title.lower():
+    if "dubbed." in title.lower():
+        score -= 1
+    if ".synced." in title.lower():
         score -= 1
     if ".ac3d." in title.lower():
+        score -= 1
+    if ".dtsd." in title.lower():
         score -= 1
     if ".hdtv." in title.lower():
         score -= 1
@@ -312,16 +322,27 @@ def rate(title):
     if ".xvid." in title.lower():
         score -= 2
     if ".pal." in title.lower():
-        score -= 3
+        score -= 5
     if "dvd9" in title.lower():
-        score -= 3
+        score -= 5
+    try:
+        config = RssConfig('SJ')
+        reject = config.get("rejectlist").replace(",", "|").lower() if len(
+            config.get("rejectlist")) > 0 else r"^unmatchable$"
+    except TypeError:
+        reject = r"^unmatchable$"
+    r = re.search(reject, title.lower())
+    if r:
+        score -= 5
+    if ".subpack." in title.lower():
+        score -= 10
     return score
 
 # TODO: Add title to SJ_Serien
 def sj(id, jdownloaderpath):
     url = getURL("http://serienjunkies.org/?cat=" + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
-    season_links = re.findall(r'href="(.{1,90})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
+    season_links = re.findall(r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     rsscrawler = RssConfig('RSScrawler')
 
     staffeln = []
