@@ -21,8 +21,8 @@
         <form>
             <div name="search" id="search" class="container app col">
                 <h1><i class="fas fa-search"></i> Suchen</h1>
-                <a href="#search" ng-click="showSearch()"  style="display: none;" class="results btn btn-dark" type="submit">Zurück</a>
-                <input ng-model="search" class="search form-control mr-sm-2" type="search" placeholder="Filme und Serien suchen" aria-label="Search" data-toggle="tooltip" data-placement="top" title="Bequeme, intelligente, Suchfunktion. Hier werden komplette Serien(!) und Titel gesucht. Komplette Serien landen auch in der Suchliste. Die Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert.">
+                <a href="#search" ng-click="showSearch()"  style="display: none;" class="results btn btn-danger" type="submit">Zurück</a>
+                <input ng-model="search" class="search form-control mr-sm-2" type="search" placeholder="Filme und Serien suchen" aria-label="Search" data-toggle="tooltip" data-placement="top" title="Bequeme Suchfunktion für komplette Serien(!), Filme und andere verfügbare Titel. Komplette Serien landen auch in der Suchliste. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier bewusst ignoriert!">
                 <p class="results" data-ng-repeat="x in results.sj"><a href="#search" ng-click="downloadSJ(x.id)" class="btn btn-info" type="submit"><i class="fas fa-download"></i> Komplette Serie: <span ng-bind="x.title"></span></a></p>
                 <p class="results" data-ng-repeat="y in results.mb"><a href="#search" ng-click="downloadMB(y.link)" class="btn btn-secondary" type="submit"><i class="fas fa-download"></i> <span ng-bind="y.title"></span></a></p>
                 <a href="#search" ng-click="searchNow()" class="search btn btn-dark" type="submit"><i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>

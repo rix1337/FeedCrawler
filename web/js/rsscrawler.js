@@ -250,8 +250,8 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             console.log('Nach ' + title + ' gesucht!');
             getLogOnly();
         }, function (res) {
-            console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
-            showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
+            console.log('Konnte ' + title + ' nicht suchen!');
+            showDanger('Konnte  ' + title + ' nicht suchen!');
         });
     };
 

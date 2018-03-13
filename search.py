@@ -18,13 +18,13 @@ def get(title):
     config = RssConfig('MB')
     quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
-    mb = getURL("http://www.movie-blog.org/index.php?s=" + query + "+" + quality)
-    mb = re.findall(r'post-.*?<a href="http:\/{2}.*?\/(.*?)" rel.*?>(.*?)<', mb)
+    mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode('base64') + '/search/' + query + "+" + quality + '/feed/rss2/')
+    mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
     unrated = []
     for result in mb:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
-            unrated.append([rate(result[1]), result[0].replace("/", "+"), result[1]])
+            unrated.append([rate(result[0]), result[1].replace("/", "+"), result[0]])
 
     rated = sorted(unrated, reverse=True)
 
@@ -38,7 +38,7 @@ def get(title):
 
     results = {}
     i = 0
-    sj = postURL("http://serienjunkies.org/media/ajax/search/search.php", data={'string': "'" + query + "'"})
+    sj = postURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA=".decode('base64'), data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
@@ -91,9 +91,9 @@ def rate(title):
     if ".xvid." in title.lower():
         score -= 2
     if ".pal." in title.lower():
-        score -= 5
+        score -= 10
     if "dvd9" in title.lower():
-        score -= 5
+        score -= 10
     try:
         config = RssConfig('SJ')
         reject = config.get("rejectlist").replace(",", "|").lower() if len(
@@ -199,7 +199,7 @@ def dl_search(feed, title):
 
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
-    url = getURL("http://movie-blog.org/" + link)
+    url = getURL("aHR0cDovL21vdmllLWJsb2cub3JnLw==".decode('base64') + link)
     rsscrawler = RssConfig('RSScrawler')
     config = RssConfig('MB')
     hoster = rsscrawler.get('hoster')
@@ -347,7 +347,7 @@ def mb(link, jdownloaderpath):
 
 # TODO: Add title to SJ_Serien
 def sj(id, jdownloaderpath):
-    url = getURL("http://serienjunkies.org/?cat=" + str(id))
+    url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode('base64') + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     rsscrawler = RssConfig('RSScrawler')
@@ -402,6 +402,13 @@ def sj(id, jdownloaderpath):
         folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
         lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
         lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+
+        if not pakete and not folgen and not lq_pakete and not lq_folgen:
+            sXX = sXX.replace("S0", "S")
+            pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            lq_pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            lq_folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
 
         best_matching_links = []
 
