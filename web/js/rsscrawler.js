@@ -249,6 +249,7 @@ app.controller('crwlCtrl', function($scope, $http, $timeout){
             $(".search").hide();
             console.log('Nach ' + title + ' gesucht!');
             getLogOnly();
+            getListsOnly();
         }, function (res) {
             console.log('Konnte ' + title + ' nicht suchen!');
             showDanger('Konnte  ' + title + ' nicht suchen!');

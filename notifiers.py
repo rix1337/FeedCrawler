@@ -9,6 +9,7 @@ import logging
 import urllib
 import urllib2
 from rssconfig import RssConfig
+import re
 
 try:
     import simplejson as json
@@ -30,7 +31,7 @@ def notify(added_items):
     pushover_settings = notifications.get("pushover").split(',')
     items = []
     for item in added_items:
-        item = item.split("-")[-1]
+        item = re.sub(r' - <a href.*?\n', '', item)
         items.append(item)
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))
