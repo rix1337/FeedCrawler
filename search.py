@@ -13,6 +13,7 @@ import re
 import os
 import sys
 import time
+import StringIO
 
 def get(title):
     config = RssConfig('MB')
@@ -345,12 +346,24 @@ def mb(link, jdownloaderpath):
     else:
         return False
 
-# TODO: Add title to SJ_Serien
 def sj(id, jdownloaderpath):
     url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode('base64') + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
+    title = re.findall(r'>(.{1,90}?) &#', season_pool).pop()
+
     rsscrawler = RssConfig('RSScrawler')
+
+    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt')):
+        file = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'))
+        output = StringIO.StringIO()
+        for line in file.readlines():
+            output.write(line.replace("XXXXXXXXXX",""))
+    liste = output.getvalue()
+    if not title in liste:
+        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'wb') as f:
+            liste = liste + "\n" + title
+            f.write(liste.encode('utf-8'))
 
     staffeln = []
     staffel_nr = []
