@@ -20,13 +20,20 @@ def get(title):
     query = title.replace(".", " ").replace(" ", "+")
     mb = getURL("http://www.movie-blog.org/index.php?s=" + query + "+" + quality)
     mb = re.findall(r'post-.*?<a href="http:\/{2}.*?\/(.*?)" rel.*?>(.*?)<', mb)
-    results = {}
-    i = 0
+
+    unrated = []
     for result in mb:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
-            res = {"link": result[0].replace("/", "+"), "title": result[1]}
-            results["result" + str(i)] = res
-            i += 1
+            unrated.append([rate(result[1]), result[0].replace("/", "+"), result[1]])
+
+    rated = sorted(unrated, reverse=True)
+
+    results = {}
+    i = 0
+    for result in rated:
+        res = {"link": result[1], "title": result[2]}
+        results["result" + str(i)] = res
+        i += 1
     mb = results
 
     results = {}
@@ -42,6 +49,63 @@ def get(title):
         i += 1
     sj = results
     return mb, sj
+
+def rate(title):
+    score = 0
+    if ".bluray." in title.lower():
+        score += 7
+    if ".bd." in title.lower():
+        score += 7
+    if ".bdrip." in title.lower():
+        score += 7
+    if re.match(r'.*\-(4SJ|TVS)', title):
+        score += 4
+    if ".dl." in title.lower():
+        score += 2
+    if re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+        score += 2
+    if re.match(r'.*\.(720|1080|2160)p\..*', title):
+        score += 2
+    if ".ml." in title.lower():
+        score += 1
+    if ".dd20." in title.lower():
+        score += 1
+    if "dubbed." in title.lower():
+        score -= 1
+    if ".synced." in title.lower():
+        score -= 1
+    if ".ac3d." in title.lower():
+        score -= 1
+    if ".dtsd." in title.lower():
+        score -= 1
+    if ".hdtv." in title.lower():
+        score -= 1
+    if ".dtv" in title.lower():
+        score -= 1
+    if ".pdtv" in title.lower():
+        score -= 1
+    if "tvrip." in title.lower():
+        score -= 1
+    if ".subbed." in title.lower():
+        score -= 2
+    if ".xvid." in title.lower():
+        score -= 2
+    if ".pal." in title.lower():
+        score -= 5
+    if "dvd9" in title.lower():
+        score -= 5
+    try:
+        config = RssConfig('SJ')
+        reject = config.get("rejectlist").replace(",", "|").lower() if len(
+            config.get("rejectlist")) > 0 else r"^unmatchable$"
+    except TypeError:
+        reject = r"^unmatchable$"
+    r = re.search(reject, title.lower())
+    if r:
+        score -= 5
+    if ".subpack." in title.lower():
+        score -= 10
+    return score
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
     search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
@@ -280,63 +344,6 @@ def mb(link, jdownloaderpath):
             return True
     else:
         return False
-
-def rate(title):
-    score = 0
-    if ".bluray." in title.lower():
-        score += 7
-    if ".bd." in title.lower():
-        score += 7
-    if ".bdrip." in title.lower():
-        score += 7
-    if re.match(r'.*\-(4SJ|TVS)', title):
-        score += 4
-    if ".dl." in title.lower():
-        score += 2
-    if re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-        score += 2
-    if re.match(r'.*\.(720|1080|2160)p\..*', title):
-        score += 2
-    if ".ml." in title.lower():
-        score += 1
-    if ".dd20." in title.lower():
-        score += 1
-    if "dubbed." in title.lower():
-        score -= 1
-    if ".synced." in title.lower():
-        score -= 1
-    if ".ac3d." in title.lower():
-        score -= 1
-    if ".dtsd." in title.lower():
-        score -= 1
-    if ".hdtv." in title.lower():
-        score -= 1
-    if ".dtv" in title.lower():
-        score -= 1
-    if ".pdtv" in title.lower():
-        score -= 1
-    if "tvrip." in title.lower():
-        score -= 1
-    if ".subbed." in title.lower():
-        score -= 2
-    if ".xvid." in title.lower():
-        score -= 2
-    if ".pal." in title.lower():
-        score -= 5
-    if "dvd9" in title.lower():
-        score -= 5
-    try:
-        config = RssConfig('SJ')
-        reject = config.get("rejectlist").replace(",", "|").lower() if len(
-            config.get("rejectlist")) > 0 else r"^unmatchable$"
-    except TypeError:
-        reject = r"^unmatchable$"
-    r = re.search(reject, title.lower())
-    if r:
-        score -= 5
-    if ".subpack." in title.lower():
-        score -= 10
-    return score
 
 # TODO: Add title to SJ_Serien
 def sj(id, jdownloaderpath):
