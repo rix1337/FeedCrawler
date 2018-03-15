@@ -23,7 +23,7 @@ import StringIO
 def get(title):
     config = RssConfig('MB')
     quality = config.get('quality')
-    query = title.replace(".", " ").replace(" ", "+").replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+    query = title.replace(".", " ").replace(" ", "+")
     mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode('base64') + '/search/' + query + "+" + quality + '/feed/rss2/')
     mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
