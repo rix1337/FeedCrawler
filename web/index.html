@@ -12,13 +12,13 @@
         <title>RSScrawler</title>
     </head>
 
-    <body class="text-center">
+    <body ng-cloak class="text-center">
         <div id="head" class="container app col">
             <h1><i class="fas fa-rss"></i> RSScrawler</h1>
             <p id="headtitle">Projekt von <a href="https://github.com/rix1337/RSScrawler/commits" target="_blank">RiX</a><span id="updateready" style="display: none;"> - Update verfügbar!</span></p>
         </div>
 
-        <form>
+        <form ng-submit="searchNow()">
             <div name="search" id="search" class="container app col">
                 <h1><i class="fas fa-search"></i> Suchen</h1>
                 <a href="#search" ng-click="showSearch()"  style="display: none;" class="results btn btn-danger" type="submit">Zurück</a>
@@ -439,7 +439,7 @@
         <script src="js/angular.min.js"></script>
         <script src="js/angular-sanitize.min.js"></script>
         <script src="js/fontawesome-all.min.js"></script>
-        <script src="js/rsscrawler.js"></script>
+        <script src="js/rsscrawler.js?4.0.7"></script>
     </body>
 
 </html>
