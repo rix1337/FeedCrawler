@@ -414,15 +414,19 @@ class SJ():
                 if staffelpack:
                     self.log_debug("%s - Release ignoriert (Staffelpaket)" % title)
                     return
-        pattern = re.match(r".*S\d{2}E\d{2}-\w?\d{2}.*", title)
+        pattern = re.match(r".*S\d{1,2}E\d{1,2}-(?:S\d{1,2}E|E)\d{1,2}.*", title)
         if pattern:
-            range0 = re.sub(r".*S\d{2}E(\d{2}-\w?\d{2}).*", r"\1", title).replace("E", "")
-            number1 = re.sub(r"(\d{2})-\d{2}", r"\1", range0)
-            number2 = re.sub(r"\d{2}-(\d{2})", r"\1", range0)
-            title_cut = re.findall(r"(.*S\d{2}E)(\d{2}-\w?\d{2})(.*)", title)
+            range0 = re.sub(r".*S\d{1,2}E(\d{1,2}-(?:S\d{1,2}E|E)\d{1,2}).*", r"\1", title)
+            number1 = re.sub(r"(\d{1,2})-(?:S\d{1,2}E|E)\d{1,2}", r"\1", range0)
+            number2 = re.sub(r"\d{1,2}-(?:S\d{1,2}E|E)(\d{1,2})", r"\1", range0)
+            title_cut = re.findall(r"(.*S\d{1,2}E)(\d{1,2}-(?:S\d{1,2}E|E)\d{1,2})(.*)", title)
+            check = title_cut[0][1]
+            if "E" in check:
+                check = re.sub(r"(S\d{1,2}E|E)", "", check)
+                title_cut = [(title_cut[0][0], check, title_cut[0][2])]
             try:
                 for count in range(int(number1), (int(number2) + 1)):
-                    NR = re.match(r"\d{2}", str(count))
+                    NR = re.match(r"\d{1,2}", str(count))
                     if NR:
                         title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1, englisch)
