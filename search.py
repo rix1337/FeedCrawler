@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+# RSScrawler
+# Projekt von https://github.com/rix1337
+
 import common
 from notifiers import notify
 from rssconfig import RssConfig
