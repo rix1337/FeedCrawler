@@ -6,6 +6,7 @@ from url import getURL
 from url import postURL
 
 from bs4 import BeautifulSoup as bs
+from HTMLParser import HTMLParser
 import feedparser
 import json
 import logging
@@ -45,7 +46,7 @@ def get(title):
     except:
         sj = []
     for result in sj:
-        res = {"id": result[0], "title": result[1]}
+        res = {"id": result[0], "title": html_to_str(result[1])}
         results["result" + str(i)] = res
         i += 1
     sj = results
@@ -107,6 +108,9 @@ def rate(title):
     if ".subpack." in title.lower():
         score -= 10
     return score
+
+def html_to_str(unescape):
+  return HTMLParser().unescape(unescape)
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
     search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
@@ -358,7 +362,7 @@ def sj(id, jdownloaderpath):
     url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode('base64') + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
-    title = re.findall(r'>(.{1,90}?) &#', season_pool).pop()
+    title = html_to_str(re.findall(r'>(.{1,90}?) &#', season_pool).pop())
 
     rsscrawler = RssConfig('RSScrawler')
 
