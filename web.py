@@ -424,4 +424,4 @@ def start(port, docker_arg, jd):
         print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
     logger = logging.getLogger('werkzeug')
     logger.setLevel(logging.ERROR)
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, threaded=True)
