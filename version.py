@@ -7,7 +7,7 @@ import urllib2
 
 
 def getVersion():
-    return "v.4.0.8"
+    return "v.4.0.9"
 
 def updateCheck():
     localversion = getVersion()

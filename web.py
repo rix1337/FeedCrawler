@@ -16,8 +16,11 @@ import StringIO
 import os
 import re
 import sys
+import gevent
+from gevent.wsgi import WSGIServer
 
 import logging
+from logging import handlers
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
@@ -442,9 +445,13 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
-    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
+    # Disable both log and exceptions in the gevent WSGIServer
+    no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
+    gevent.hub.Hub.NOT_ERROR=(Exception,)
 
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
         print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-    app.run(host='0.0.0.0', port=port, threaded=True)
+    http_server = WSGIServer(('0.0.0.0', port), app, log = no_logger)
+    http_server.serve_forever()

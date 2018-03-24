@@ -7,5 +7,6 @@ cfscrape
 docopt
 feedparser
 flask
+gevent
 lxml
 requests[socks]
