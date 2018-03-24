@@ -1,5 +1,11 @@
+# -*- coding: utf-8 -*-
+# RSScrawler
+# Projekt von https://github.com/rix1337
+
 from flask import Flask, request, send_from_directory, render_template, jsonify
 
+from output import Unbuffered
+from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
 import search
@@ -414,14 +420,31 @@ def getListe(liste):
             output.write(line.replace("XXXXXXXXXX",""))
     return output.getvalue()
 
-def start(port, docker_arg, jd):
+def start(port, docker_arg, jd, log_level, log_file, log_format):
     global docker
     docker = docker_arg
     global jdpath
     jdpath = jd
+
+    sys.stdout = Unbuffered(sys.stdout)
+
+    console = logging.StreamHandler(stream=sys.stdout)
+    formatter = logging.Formatter(log_format)
+    console.setFormatter(CutLog(log_format))
+
+    logfile = logging.handlers.RotatingFileHandler(log_file, maxBytes=100000, backupCount=5)
+    logfile.setFormatter(formatter)
+
+    logger = logging.getLogger('')
+    logger.addHandler(logfile)
+    logger.addHandler(console)
+    logger.setLevel(log_level)
+
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
         print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-    logger = logging.getLogger('werkzeug')
-    logger.setLevel(logging.ERROR)
     app.run(host='0.0.0.0', port=port, threaded=True)

@@ -41,9 +41,12 @@ import sys
 import signal
 import socket
 import logging
+from logging import handlers
 import os
 from multiprocessing import Process
 
+from output import Unbuffered
+from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
 from notifiers import notify
@@ -53,17 +56,36 @@ import files
 from web import start
 
 
-def web_server(port, docker, jd):
-    start(port, docker, jd)
+def web_server(port, docker, jd, log_level, log_file, log_format):
+    start(port, docker, jd, log_level, log_file, log_format)
 
-def crawler(jdpath, rssc):
+def crawler(jdpath, rssc, log_level, log_file, log_format):
     global added_items
     added_items = []
     global jdownloaderpath
     jdownloaderpath = jdpath
     global rsscrawler
     rsscrawler = rssc
+
+    sys.stdout = Unbuffered(sys.stdout)
+
+    console = logging.StreamHandler(stream=sys.stdout)
+    formatter = logging.Formatter(log_format)
+    console.setFormatter(CutLog(log_format))
+
+    logfile = logging.handlers.RotatingFileHandler(log_file, maxBytes=100000, backupCount=5)
+    logfile.setFormatter(formatter)
+
+    logger = logging.getLogger('')
+    logger.addHandler(logfile)
+    logger.addHandler(console)
+    logger.setLevel(log_level)
+
+    logging.getLogger("requests").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.WARNING)
+
     log_debug = logging.debug
+    log_info = logging.info
 
     search_pool = [
         YT(),
@@ -91,8 +113,7 @@ def crawler(jdpath, rssc):
         while True:
             try:
                 start_time = time.time()
-                log_debug("--------Alle Suchfunktion gestartet.--------")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion gestartet.")
+                log_info("--------Alle Suchfunktion gestartet.--------")
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -108,18 +129,16 @@ def crawler(jdpath, rssc):
                     total_unit = " Minuten"
                 total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items)
-                log_debug("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+                log_info("-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
                 added_items = []
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception as e:
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
+                log_info(" - Fehler im Suchlauf: " + str(e))
     else:
         try:
             start_time = time.time()
-            log_debug("--------Testlauf gestartet.--------")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
+            log_info("--------Testlauf gestartet.--------")
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -134,10 +153,9 @@ def crawler(jdpath, rssc):
                 total_unit = " Minuten"
             total_time = str(round(total_time, 1)) + total_unit
             notify(added_items)
-            log_debug("---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+            log_info("---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
         except Exception as e:
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Fehler im Suchlauf: " + str(e))
+           log_info(" - Fehler im Suchlauf: " + str(e))
 
 class YT():
     _INTERNAL_NAME='YT'
@@ -783,7 +801,7 @@ class MB():
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
-            season = re.search(r'\.S(\d{1,3})\.', download_title)
+            season = re.search(r'\.S(\d{1,3})(\.|-|E)', download_title)
             if season:
                 self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
                 continue
@@ -1448,7 +1466,7 @@ class HW():
             if found:
                 self.log_debug("%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
-            season = re.search(r'\.S(\d{1,3})\.', download_title)
+            season = re.search(r'\.S(\d{1,3})(\.|-|E)', download_title)
             if season:
                 self.log_debug("%s - Release ignoriert (IMDB sucht nur Filme)" % download_title)
                 continue
@@ -2282,16 +2300,9 @@ class HA():
 if __name__ == "__main__":
     arguments = docopt(__doc__, version='RSScrawler')
 
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
-
-    logging.basicConfig(
-        filename=os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), format='%(asctime)s - %(message)s', level=logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
-    )
-    console = logging.StreamHandler()
-    console.setLevel(logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(message)s')
-    console.setFormatter(formatter)
-    logging.getLogger('').addHandler(console)
+    log_level = logging.__dict__[arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+    log_file = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
+    log_format = '%(asctime)s - %(message)s'
 
     print("┌────────────────────────────────────────────────────────┐")
     print("  Programminfo:    RSScrawler " + version + " von RiX")
@@ -2349,7 +2360,7 @@ if __name__ == "__main__":
         print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
         print('Beende RSScrawler...')
         sys.exit(0)
-    
+
     print('Nutze das "folderwatch" Unterverzeichnis von "' + jdownloaderpath + '" für Crawljobs')
         
     if not os.path.exists(jdownloaderpath):
@@ -2377,12 +2388,12 @@ if __name__ == "__main__":
         prefix = ''
     print('Der Webserver ist erreichbar unter http://' + common.checkIp() +':' + str(port) + prefix)
 
-    p = Process(target=web_server, args=(port, docker, jdownloaderpath))
+    p = Process(target=web_server, args=(port, docker, jdownloaderpath, log_level, log_file, log_format))
     p.start()
     
     files.check()
     
-    c = Process(target=crawler, args=(jdownloaderpath, rsscrawler,))
+    c = Process(target=crawler, args=(jdownloaderpath, rsscrawler, log_level, log_file, log_format,))
     c.start()
 
     print('Drücke [Strg] + [C] zum Beenden')
