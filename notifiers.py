@@ -6,11 +6,17 @@
 
 import base64
 import logging
-import urllib
-import urllib2
 from rssconfig import RssConfig
 import re
-
+import sys
+try:
+    # For Python 2.0 and later
+    import urllib.urlencode as urlencode
+    import urllib2
+except ImportError:
+    # For Python 3.0 and later
+    import urllib.request as urllib2
+    import urllib.parse as urllib
 try:
     import simplejson as json
 except ImportError:

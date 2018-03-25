@@ -12,15 +12,19 @@ import search
 import files
 import version
 
-import StringIO
 import os
 import re
 import sys
 import gevent
 from gevent.wsgi import WSGIServer
-
 import logging
 from logging import handlers
+try:
+    # For Python 2.0 and later
+    import StringIO
+except ImportError:
+    # For Python 3.0 and later
+    import io as StringIO
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 

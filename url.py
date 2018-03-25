@@ -3,7 +3,6 @@
 # Projekt von https://github.com/rix1337
 
 import cfscrape
-
 from rssconfig import RssConfig
 
 def getURL(url):

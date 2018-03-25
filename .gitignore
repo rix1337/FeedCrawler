@@ -45,3 +45,4 @@ target/
 *.ini
 *.txt
 *.zip
+.vscode/launch.json

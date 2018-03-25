@@ -2,7 +2,12 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import ConfigParser
+try:
+    # For Python 2.0 and later
+    import ConfigParser
+except ImportError:
+    # For Python 3.0 and later
+    import configparser as ConfigParser
 import logging
 import os, sys
 

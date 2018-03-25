@@ -32,7 +32,6 @@ version = version.getVersion()
 from docopt import docopt
 import feedparser
 import re
-import urllib2
 import codecs
 from bs4 import BeautifulSoup as bs
 import cfscrape
@@ -43,8 +42,14 @@ import socket
 import logging
 from logging import handlers
 import os
+import base64
 from multiprocessing import Process
-
+try:
+    # For Python 2.0 and later
+    import urllib2
+except ImportError:
+    # For Python 3.0 and later
+    import urllib.request as urllib2
 from output import Unbuffered
 from output import CutLog
 from rssconfig import RssConfig
@@ -456,7 +461,7 @@ class SJ():
                         title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1, englisch)
             except ValueError as e:
-                logging.error("Fehler in Variablenwert: %s" % e.message)
+                logging.error("Fehler in Variablenwert: %s" % e)
         else:
             self.parse_download(link, title, englisch)
 
@@ -553,12 +558,13 @@ class SJ():
             self.log_error("ANGEHALTEN, ungültiges Zeichen in Serien" + loginfo + "Liste!")
         except IOError:
             self.log_error("ANGEHALTEN, Serien" + loginfo + "-Liste nicht gefunden!")
-        except Exception, e:
+        except Exception as e:
             self.log_error("Unbekannter Fehler: %s" % e)
 
 class MB():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
+    FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw=="
+    base64.b64decode(FEED_URL)
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -1226,7 +1232,8 @@ class MB():
 
 class HW():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    FEED_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8="
+    base64.b64decode(FEED_URL)
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -1887,7 +1894,8 @@ class HW():
  
 class HA():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA=".decode('base64')
+    FEED_URL = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA="
+    base64.b64decode(FEED_URL)
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -2338,7 +2346,7 @@ if __name__ == "__main__":
     
     configfile = os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')
     if not 'port' in open(configfile).read() and not 'prefix' in open(configfile).read() :
-        print "Veraltete Konfigurationsdatei erkannt. Ergänze neue Einstellungen!"
+        print ("Veraltete Konfigurationsdatei erkannt. Ergänze neue Einstellungen!")
         with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'r+') as f:
             content = f.read()
             f.seek(0)
