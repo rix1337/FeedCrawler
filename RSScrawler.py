@@ -438,6 +438,11 @@ class SJ():
                                     self.log_debug(
                                         title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
+                                if rsscrawler.get("surround"):
+                                    if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+                                        self.log_debug(
+                                            title + " - Release ignoriert (kein Mehrkanalton)")
+                                        continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 self.range_checkr(link, title, language_ok)
                         else:
@@ -461,6 +466,11 @@ class SJ():
                                     self.log_debug(
                                         title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
+                                if rsscrawler.get("surround"):
+                                    if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+                                        self.log_debug(
+                                            title + " - Release ignoriert (kein Mehrkanalton)")
+                                        continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 self.range_checkr(link, title, language_ok)
                             else:
@@ -676,6 +686,11 @@ class MB():
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                         continue
+                    if rsscrawler.get("surround"):
+                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
+                            self.log_debug(
+                                post.title + " - Release ignoriert (kein Mehrkanalton)")
+                            continue
                     ss = self.allInfos[key][0].lower()
                     if self.filename == 'MB_Filme':
                         if ss == "480p":
@@ -906,6 +921,11 @@ class MB():
                 self.log_debug(
                     "%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
+            if rsscrawler.get("surround"):
+                if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', download_title):
+                    self.log_debug(
+                        download_title + " - Release ignoriert (kein Mehrkanalton)")
+                    continue
             season = re.search(r'\.S(\d{1,3})(\.|-|E)', download_title)
             if season:
                 self.log_debug(
@@ -1448,6 +1468,11 @@ class HW():
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                         continue
+                    if rsscrawler.get("surround"):
+                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
+                            self.log_debug(
+                                post.title + " - Release ignoriert (kein Mehrkanalton)")
+                            continue
                     ss = self.allInfos[key][0].lower()
                     if self.filename == 'MB_Filme':
                         if ss == "480p":
@@ -1675,6 +1700,11 @@ class HW():
                 self.log_debug(
                     "%s - Release ignoriert (basierend auf ignore-Einstellung)" % download_title)
                 continue
+            if rsscrawler.get("surround"):
+                if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', download_title):
+                    self.log_debug(
+                        download_title + " - Release ignoriert (kein Mehrkanalton)")
+                    continue
             season = re.search(r'\.S(\d{1,3})(\.|-|E)', download_title)
             if season:
                 self.log_debug(
@@ -2232,6 +2262,11 @@ class HA():
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % title)
                         continue
+                    if rsscrawler.get("surround"):
+                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+                            self.log_debug(
+                                title + " - Release ignoriert (kein Mehrkanalton)")
+                            continue
                     ss = self.allInfos[key][0].lower()
                     if self.filename == 'MB_Filme':
                         if ss == "480p":
