@@ -717,6 +717,20 @@ class MB():
                         if '.3d.' in post.title.lower():
                             if self.config.get('crawl3d') and (
                                     "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                                if not self.config.get("crawl3dtype"):
+                                    c3d_type = "hsbs"
+                                else:
+                                    c3d_type = self.config.get("crawl3dtype")
+                                if c3d_type == "hsbs":
+                                    if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
+                                elif c3d_type == "hou":
+                                    if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
                                 found = True
                             else:
                                 continue
@@ -1053,6 +1067,20 @@ class MB():
                             "%s - Release ignoriert (3D-Suche deaktiviert)" % download_title)
                         return
                     if self.config.get('crawl3d') and ("1080p" in download_title.lower() or "1080i" in download_title.lower()):
+                        if not self.config.get("crawl3dtype"):
+                            c3d_type = "hsbs"
+                        else:
+                            c3d_type = self.config.get("crawl3dtype")
+                        if c3d_type == "hsbs":
+                            if re.match(r'.*\.(H-OU|HOU)\..*', download_title):
+                                self.log_debug(
+                                    "%s - Release ignoriert (Falsches 3D-Format)" % download_title)
+                                continue
+                        elif c3d_type == "hou":
+                            if not re.match(r'.*\.(H-OU|HOU)\..*', download_title):
+                                self.log_debug(
+                                    "%s - Release ignoriert (Falsches 3D-Format)" % download_title)
+                                continue
                         found = True
                     else:
                         continue
@@ -1499,6 +1527,20 @@ class HW():
                         if '.3d.' in post.title.lower():
                             if self.config.get('crawl3d') and (
                                     "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                                if not self.config.get("crawl3dtype"):
+                                    c3d_type = "hsbs"
+                                else:
+                                    c3d_type = self.config.get("crawl3dtype")
+                                if c3d_type == "hsbs":
+                                    if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
+                                elif c3d_type == "hou":
+                                    if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
                                 found = True
                             else:
                                 continue
@@ -1832,6 +1874,20 @@ class HW():
                             "%s - Release ignoriert (3D-Suche deaktiviert)" % download_title)
                         return
                     if self.config.get('crawl3d') and ("1080p" in download_title.lower() or "1080i" in download_title.lower()):
+                        if not self.config.get("crawl3dtype"):
+                            c3d_type = "hsbs"
+                        else:
+                            c3d_type = self.config.get("crawl3dtype")
+                        if c3d_type == "hsbs":
+                            if re.match(r'.*\.(H-OU|HOU)\..*', download_title):
+                                self.log_debug(
+                                    "%s - Release ignoriert (Falsches 3D-Format)" % download_title)
+                                continue
+                        elif c3d_type == "hou":
+                            if not re.match(r'.*\.(H-OU|HOU)\..*', download_title):
+                                self.log_debug(
+                                    "%s - Release ignoriert (Falsches 3D-Format)" % download_title)
+                                continue
                         found = True
                     else:
                         continue
@@ -2294,6 +2350,20 @@ class HA():
                         if '.3d.' in title.lower():
                             if self.config.get('crawl3d') and (
                                     "1080p" in title.lower() or "1080i" in title.lower()):
+                                if not self.config.get("crawl3dtype"):
+                                    c3d_type = "hsbs"
+                                else:
+                                    c3d_type = self.config.get("crawl3dtype")
+                                if c3d_type == "hsbs":
+                                    if re.match(r'.*\.(H-OU|HOU)\..*', title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % title)
+                                        continue
+                                elif c3d_type == "hou":
+                                    if not re.match(r'.*\.(H-OU|HOU)\..*', title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % title)
+                                        continue
                                 found = True
                             else:
                                 continue
@@ -2767,7 +2837,7 @@ if __name__ == "__main__":
         prefix = ''
     if not arguments['--docker']:
         print('Der Webserver ist erreichbar unter http://' +
-            common.checkIp() + ':' + str(port) + prefix)
+              common.checkIp() + ':' + str(port) + prefix)
 
     p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, log_level, log_file, log_format))
