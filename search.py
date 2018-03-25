@@ -10,7 +10,6 @@ from url import getURL
 from url import postURL
 
 from bs4 import BeautifulSoup as bs
-from HTMLParser import HTMLParser
 import feedparser
 import json
 import logging
@@ -18,7 +17,14 @@ import re
 import os
 import sys
 import time
-import StringIO
+try:
+    # For Python 2.0 and later
+    from HTMLParser import HTMLParser
+    import StringIO
+except ImportError:
+    # For Python 3.0 and later
+    from html.parser import HTMLParser
+    import io as StringIO
 
 def get(title):
     config = RssConfig('MB')

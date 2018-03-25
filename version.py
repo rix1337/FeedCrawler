@@ -3,7 +3,13 @@
 # Projekt von https://github.com/rix1337
 
 import re
-import urllib2
+import sys
+try:
+    # For Python 2.0 and later
+    import urllib2
+except ImportError:
+    # For Python 3.0 and later
+    import urllib.request as urllib2
 
 
 def getVersion():

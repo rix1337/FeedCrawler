@@ -17,7 +17,10 @@ log_error = logging.error
 log_debug = logging.debug
     
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
+    if sys.version_info[0] < 3:
+        crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
+    else:
+        crawljob_file = crawljob_dir + '/%s.crawljob' % str(re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
     usesubdir = crawljobs.get("subdir")
@@ -48,7 +51,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         return True
     except UnicodeEncodeError as e:
         file.close()
-        log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %(crawljob_file, e.message))
+        log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %(crawljob_file, e))
         if os.path.isfile(crawljob_file):
             log_info("Entferne defekten Crawljob: %s" % crawljob_file)
             os.remove(crawljob_file)
