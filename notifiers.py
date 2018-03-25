@@ -20,9 +20,11 @@ log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
 
+
 def api_request_cutter(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
+
 
 def notify(added_items):
     notifications = RssConfig('Notifications')
@@ -39,14 +41,16 @@ def notify(added_items):
             for cut_item in cut_items:
                 homassistant_url = homeassistant_settings[0]
                 homeassistant_password = homeassistant_settings[1]
-                Homeassistant(cut_item, homassistant_url, homeassistant_password)
+                Homeassistant(cut_item, homassistant_url,
+                              homeassistant_password)
         if len(notifications.get("pushbullet")) > 0:
-                Pushbullet(items, pushbullet_token)
+            Pushbullet(items, pushbullet_token)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]
                 pushover_token = pushover_settings[1]
                 Pushover(cut_item, pushover_user, pushover_token)
+
 
 def Homeassistant(items, homassistant_url, homeassistant_password):
     data = urllib.urlencode({
@@ -65,15 +69,16 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
     if res['sender_name']:
         log_debug('Home Assistant Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Home Assistant Senden')    
-                
+        log_debug('FEHLER - Konnte nicht an Home Assistant Senden')
+
+
 def Pushbullet(items, token):
     data = urllib.urlencode({
         'type': 'note',
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' %token).replace('\n', '')
+    auth = base64.encodestring('%s:' % token).replace('\n', '')
     try:
         req = urllib2.Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)
@@ -86,6 +91,7 @@ def Pushbullet(items, token):
         log_debug('Pushbullet Erfolgreich versendet')
     else:
         log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
+
 
 def Pushover(items, pushover_user, pushover_token):
     data = urllib.urlencode({
