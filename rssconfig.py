@@ -18,6 +18,8 @@ class RssConfig(object):
             ("prefix", "str", "", ""),
             ("interval", "int", "", ""),
             ("english", "bool", "", ""),
+            ("surround", "bool", "", ""),
+            ("proxy", "str", "", ""),
             ("hoster", "str", "", "")
         ],
         'MB': [
@@ -27,6 +29,7 @@ class RssConfig(object):
             ("regex", "bool", "", ""),
             ("cutoff", "bool", "", ""),
             ("crawl3d", "bool", "", ""),
+            ("crawl3dtype", "str", "", ""),
             ("enforcedl", "bool", "", ""),
             ("crawlseasons", "bool", "", ""),
             ("seasonsquality", "str", "", ""),

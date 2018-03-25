@@ -61,6 +61,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         { value: 'web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip', label: 'BluRay/WebRetail (TVS/4SJ)' },
     ];
 
+    $scope.types_3d = [
+        { value: 'hsbs', label: 'H-SBS' },
+        { value: 'hou', label: 'H-OU' },
+    ];
+
     $scope.init = getAll();
 
     $scope.showSearch = function () {

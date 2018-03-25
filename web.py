@@ -83,6 +83,10 @@ def get_all():
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
+        if not mb.get("crawl3dtype"):
+             crawl_3d_type = "hsbs"
+        else:
+            crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
             {
                 "version": {
@@ -115,42 +119,45 @@ def get_all():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
-                        "english": bool(general.get("english")),
+                        "english": general.get("english"),
+                        "surround": general.get("surround"),
+                        "proxy": general.get("proxy"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
-                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
+                        "homeassistant": alerts.get("homeassistant"),
                     },
                     "crawljobs": {
-                        "autostart": bool(crawljobs.get("autostart")),
-                        "subdir": bool(crawljobs.get("subdir")),
+                        "autostart": crawljobs.get("autostart"),
+                        "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
-                        "regex": bool(mb.get("regex")),
+                        "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": bool(mb.get("historical")),
-                        "force_dl": bool(mb.get("enforcedl")),
-                        "cutoff": bool(mb.get("cutoff")),
-                        "crawl_3d": bool(mb.get("crawl3d")),
+                        "historical": mb.get("historical"),
+                        "force_dl": mb.get("enforcedl"),
+                        "cutoff": mb.get("cutoff"),
+                        "crawl_3d": mb.get("crawl3d"),
+                        "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
-                        "regex": bool(sj.get("regex")),
+                        "regex": sj.get("regex"),
                     },
                     "mbsj": {
-                        "enabled": bool(mb.get("crawlseasons")),
+                        "enabled": mb.get("crawlseasons"),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonpacks")),
+                        "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
-                        "enabled": bool(yt.get("youtube")),
+                        "enabled": yt.get("youtube"),
                         "max": to_int(yt.get("maxvideos")),
                         "ignore": yt.get("ignore"),
                     }
@@ -194,6 +201,10 @@ def get_post_settings():
         mb = RssConfig('MB')
         sj = RssConfig('SJ')
         yt = RssConfig('YT')
+        if not mb.get("crawl3dtype"):
+             crawl_3d_type = "hsbs"
+        else:
+            crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
             {
                 "settings": {
@@ -202,42 +213,45 @@ def get_post_settings():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
-                        "english": bool(general.get("english")),
+                        "english": general.get("english"),
+                        "surround": general.get("surround"),
+                        "proxy": general.get("proxy"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
-                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
+                        "homeassistant": alerts.get("homeassistant"),
                     },
                     "crawljobs": {
-                        "autostart": bool(crawljobs.get("autostart")),
-                        "subdir": bool(crawljobs.get("subdir")),
+                        "autostart": crawljobs.get("autostart"),
+                        "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
-                        "regex": bool(mb.get("regex")),
+                        "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": bool(mb.get("historical")),
-                        "force_dl": bool(mb.get("enforcedl")),
-                        "cutoff": bool(mb.get("cutoff")),
-                        "crawl_3d": bool(mb.get("crawl3d")),
+                        "historical": mb.get("historical"),
+                        "force_dl": mb.get("enforcedl"),
+                        "cutoff": mb.get("cutoff"),
+                        "crawl_3d": mb.get("crawl3d"),
+                        "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
-                        "regex": bool(sj.get("regex")),
+                        "regex": sj.get("regex"),
                     },
                     "mbsj": {
-                        "enabled": bool(mb.get("crawlseasons")),
+                        "enabled": mb.get("crawlseasons"),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonpacks")),
+                        "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
-                        "enabled": bool(yt.get("youtube")),
+                        "enabled": yt.get("youtube"),
                         "max": to_int(yt.get("maxvideos")),
                         "ignore": yt.get("ignore"),
                     }
@@ -262,6 +276,10 @@ def get_post_settings():
             f.write("interval = " + interval + "\n")
             f.write("english = " +
                     to_str(data['general']['english']).encode('utf-8') + "\n")
+            f.write("surround = " +
+                    to_str(data['general']['surround']).encode('utf-8') + "\n")
+            f.write("proxy = " +
+                    to_str(data['general']['proxy']).encode('utf-8') + "\n")
             f.write("hoster = " +
                     to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
@@ -277,6 +295,8 @@ def get_post_settings():
                     to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
             f.write("crawl3d = " +
                     to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
+            f.write("crawl3dtype = " +
+                    to_str(data['mb']['crawl_3d_type']).encode('utf-8') + "\n")
             f.write("enforcedl = " +
                     to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
             f.write("crawlseasons = " +
@@ -322,12 +342,12 @@ def get_post_settings():
             f.write("ignore = " +
                     to_str(data['yt']['ignore']).encode('utf-8') + "\n")
             f.write("\n[Notifications]\n")
-            f.write("homeassistant = " +
-                    to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
             f.write("pushbullet = " +
                     to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
             f.write("pushover = " +
                     to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
+            f.write("homeassistant = " +
+                    to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
             f.write("\n[Crawljobs]\n")
             f.write(
                 "autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")

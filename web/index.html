@@ -300,6 +300,15 @@
                                 data-placement="top" title="Wenn aktiviert, werden auch englischsprachige Titel gesucht"></select>
                         </p>
                         <p>
+                            <h4>Mehrkanalton erzwingen</h4>
+                            <select ng-model="settings.general.surround" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt"></select>
+                        </p>
+                        <p>
+                            <h4>Proxy</h4>
+                            <input ng-model="settings.general.proxy" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080"></input>
+                        </p>
+                        <p>
                             <h4>Hoster</h4>
                             <select ng-model="settings.general.hoster" ng-options="h.value as h.label for h in hosters" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Hier den gewünschten Hoster wählen"></select>
@@ -318,16 +327,16 @@
                 <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
                     <div class="card-body">
                         <p>
-                            <h4>Home Assistant</h4>
-                            <input ng-model="settings.alerts.homeassistant" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"></input>
-                        </p>
-                        <p>
                             <h4>Pushbullet</h4>
                             <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip" data-placement="top" title="Access-Token auf Pushbullet.com anlegen und hier angeben"></input>
                         </p>
                         <p>
                             <h4>Pushover</h4>
                             <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token eingeben - Für letzteren zunächst eine App auf Pushover.net anlegen"></input>
+                        </p>
+                        <p>
+                            <h4>Home Assistant</h4>
+                            <input ng-model="settings.alerts.homeassistant" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"></input>
                         </p>
                     </div>
                 </div>
@@ -407,7 +416,12 @@
                         <p>
                             <h4>3D-Releases suchen</h4>
                             <select ng-model="settings.mb.crawl_3d" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
-                                data-placement="top" title="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p) unabhängig von der oben gesetzten Auflösung - Nicht gewünschte Formate (HSBS/HOU) in die Filterliste"></select>
+                                data-placement="top" title="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p) unabhängig von der oben gesetzten Auflösung"></select>
+                        </p>
+                        <p>
+                            <h4>Art der 3D-Releases</h4>
+                            <select ng-model="settings.mb.crawl_3d_type" ng-options="t.value as t.label for t in types_3d" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Das gewünschte Format der 3D-Filme wählen"></select>
                         </p>
                     </div>
                 </div>
