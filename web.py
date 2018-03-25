@@ -271,8 +271,8 @@ def get_post_settings():
             f.write(
                 "prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
             interval = to_str(data['general']['interval']).encode('utf-8')
-            if to_int(interval) < 3:
-                interval = '3'
+            if to_int(interval) < 10:
+                interval = '10'
             f.write("interval = " + interval + "\n")
             f.write("english = " +
                     to_str(data['general']['english']).encode('utf-8') + "\n")
