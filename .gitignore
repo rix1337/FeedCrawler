@@ -46,3 +46,5 @@ target/
 *.txt
 *.zip
 *.bak
+.vscode/launch.json
+.vscode/settings.json

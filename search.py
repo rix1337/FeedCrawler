@@ -30,8 +30,7 @@ def get(title):
     config = RssConfig('MB')
     quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
-    mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-        'base64') + '/search/' + query + "+" + quality + '/feed/rss2/')
+    mb = getURL(str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==")) + '/search/' + query + "+" + quality + '/feed/rss2/')
     mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
     unrated = []
@@ -52,8 +51,7 @@ def get(title):
 
     results = {}
     i = 0
-    sj = postURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA=".decode(
-        'base64'), data={'string': "'" + query + "'"})
+    sj = postURL(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="), data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
@@ -146,13 +144,13 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
+            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
                 if hoster.lower() in url_hoster[1].lower():
                     download_link = url_hoster[0]
 
         if download_link:
             notify_array = []
-            if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+            if base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
                 logging.debug("Fake-Link erkannt!")
                 return False
             elif staffel:
@@ -252,7 +250,7 @@ def mb(link, jdownloaderpath):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     download_link = ""
     for url_hoster in url_hosters:
-        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
+        if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
             if hoster.lower() in url_hoster[1].lower():
                 download_link = url_hoster[0]
 

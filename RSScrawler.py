@@ -148,7 +148,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception as e:
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Fehler im Suchlauf: " + str(e))
+                      " - Fehler im Suchlauf: " % e)
     else:
         try:
             start_time = time.time()
@@ -174,7 +174,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                   " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception as e:
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Fehler im Suchlauf: " + str(e))
+                  " - Fehler im Suchlauf: " % e)
 
 
 class YT():
@@ -322,10 +322,10 @@ class SJ():
     def periodical_task(self):
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
+                base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw="))
         else:
             feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
+                base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw="))
 
         self.pattern = "|".join(self.getSeriesList(
             self.search_list, self.level)).lower()
@@ -682,7 +682,7 @@ class MB():
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
             for post in feed.entries:
                 found = re.search(s, post.title.lower())
                 if found:
@@ -817,7 +817,7 @@ class MB():
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if download_link:
-                if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+                if base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     return False
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
@@ -1101,7 +1101,7 @@ class MB():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+            if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -1210,7 +1210,7 @@ class MB():
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
+            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
                 if self.hoster.lower() in url_hoster[1].lower():
                     return url_hoster[0]
 
@@ -1271,7 +1271,7 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
                 if download_link:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                     englisch = False
@@ -1492,7 +1492,7 @@ class HW():
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
             for post in feed.entries:
                 found = re.search(s, post.title.lower())
                 if found:
@@ -1908,7 +1908,7 @@ class HW():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+            if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -2315,7 +2315,7 @@ class HA():
                     self.log_debug("Ungueltiger Link bei Suche nach Titel")
                 url = hda[0]
                 title = hda[1]
-                s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+                s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
                 found = re.search(s, title.lower())
                 if found:
                     found = re.search(ignore, title.lower())
