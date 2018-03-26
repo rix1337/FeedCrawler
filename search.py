@@ -30,8 +30,8 @@ def get(title):
     config = RssConfig('MB')
     quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
-    mb = getURL(str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==")) + '/search/' + query + "+" + quality + '/feed/rss2/')
-    mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
+    mb = getURL(str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=="), 'utf-8') + '/search/' + query + "+" + quality + '/feed/rss2/')
+    mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', str(mb))
 
     unrated = []
     for result in mb:
@@ -51,7 +51,7 @@ def get(title):
 
     results = {}
     i = 0
-    sj = postURL(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="), data={'string': "'" + query + "'"})
+    sj = postURL(str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="), 'utf-8'), data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
@@ -144,13 +144,13 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
+            if not str(base64.b64decode("bW92aWUtYmxvZy5vcmcv"), 'utf-8') in url_hoster[0]:
                 if hoster.lower() in url_hoster[1].lower():
                     download_link = url_hoster[0]
 
         if download_link:
             notify_array = []
-            if base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
+            if str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw"), 'utf-8') in download_link:
                 logging.debug("Fake-Link erkannt!")
                 return False
             elif staffel:
@@ -237,7 +237,7 @@ def dl_search(feed, title):
 
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
-    url = getURL(base64.b64decode("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link)
+    url = getURL( str(base64.b64decode("aHR0cDovL21vdmllLWJsb2cub3JnLw=="), 'utf-8') + link)
     rsscrawler = RssConfig('RSScrawler')
     config = RssConfig('MB')
     hoster = rsscrawler.get('hoster')
@@ -250,7 +250,7 @@ def mb(link, jdownloaderpath):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     download_link = ""
     for url_hoster in url_hosters:
-        if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
+        if not str(base64.b64decode("bW92aWUtYmxvZy5vcmcv"), 'utf-8') in url_hoster[0]:
             if hoster.lower() in url_hoster[1].lower():
                 download_link = url_hoster[0]
 
@@ -406,9 +406,8 @@ def mb(link, jdownloaderpath):
 
 
 def sj(id, jdownloaderpath):
-    url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode(
-        'base64') + str(id))
-    season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
+    url = getURL(str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9"), 'utf-8') + str(id))
+    season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', str(url)).pop()
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     title = html_to_str(re.findall(r'>(.{1,90}?) &#', season_pool).pop())
@@ -474,24 +473,24 @@ def sj(id, jdownloaderpath):
         quality = config.get('quality')
         url = getURL(link)
         pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
-                                       r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                       r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
         folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX +
-                                       r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                       r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
         lq_pakete = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
         lq_folgen = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
 
         if not pakete and not folgen and not lq_pakete and not lq_folgen:
             sXX = sXX.replace("S0", "S")
             pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
-                                           r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                           r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
             folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
             lq_pakete = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
             lq_folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), str(url))
 
         best_matching_links = []
 

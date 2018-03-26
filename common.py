@@ -37,10 +37,10 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file = open(crawljob_file, 'w')
         file.write('enabled=TRUE\n')
         file.write('autoStart=' + autostart + '\n')
-        file.write('extractPasswords=["' + base64.b64decode("bW92aWUtYmxvZy5vcmc=") + '","' + base64.b64decode("c2VyaWVuanVua2llcy5vcmc=") + '","' +
-                   base64.b64decode("aGQtYXJlYS5vcmc=") + '","' + base64.b64decode("aGQtd29ybGQub3Jn") + '","' + base64.b64decode("d2FyZXotd29ybGQub3Jn") + '"]\n')
+        file.write('extractPasswords=["' + str(base64.b64decode("bW92aWUtYmxvZy5vcmc="), 'utf-8') + '","' + str(base64.b64decode("c2VyaWVuanVua2llcy5vcmc="), 'utf-8') + '","' +
+                   str(base64.b64decode("aGQtYXJlYS5vcmc="), 'utf-8') + '","' + str(base64.b64decode("aGQtd29ybGQub3Jn"), 'utf-8') + '","' + str(base64.b64decode("d2FyZXotd29ybGQub3Jn"), 'utf-8') + '"]\n')
         file.write('downloadPassword=' +
-                   base64.b64decode("c2VyaWVuanVua2llcy5vcmc=") + '\n')
+                   str(base64.b64decode("c2VyaWVuanVua2llcy5vcmc="), 'utf-8') + '\n')
         file.write('extractAfterDownload=TRUE\n')
         file.write('forcedStart=' + autostart + '\n')
         file.write('autoConfirm=' + autostart + '\n')

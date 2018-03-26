@@ -322,10 +322,10 @@ class SJ():
     def periodical_task(self):
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(
-                base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw="))
+                 str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw="), 'utf-8'))
         else:
             feed = feedparser.parse(
-                base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw="))
+                 str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw="), 'utf-8'))
 
         self.pattern = "|".join(self.getSeriesList(
             self.search_list, self.level)).lower()
@@ -636,7 +636,7 @@ class SJ():
 
 class MB():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==")
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw=="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -817,7 +817,7 @@ class MB():
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if download_link:
-                if base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
+                if  str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw"), 'utf-8') in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     return False
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
@@ -1101,7 +1101,7 @@ class MB():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
+            if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -1210,7 +1210,7 @@ class MB():
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0]:
+            if not  str(base64.b64decode("bW92aWUtYmxvZy5vcmcv"), 'utf-8') in url_hoster[0]:
                 if self.hoster.lower() in url_hoster[1].lower():
                     return url_hoster[0]
 
@@ -1271,7 +1271,7 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
                 if download_link:
-                    if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
+                    if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                     englisch = False
@@ -1446,7 +1446,7 @@ class MB():
 
 class HW():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = base64.b64decode("aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=")
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -1908,7 +1908,7 @@ class HW():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
+            if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -2249,7 +2249,7 @@ class HW():
 
 class HA():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA=")
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -2624,7 +2624,7 @@ class HA():
                         search_title = title.replace(
                             ".", " ").replace(" ", "+")
                         urls.append(
-                            base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title)
+                             str(base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0="), 'utf-8') + search_title)
             else:
                 urls.append(self.FEED_URL)
         else:
