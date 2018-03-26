@@ -4,11 +4,13 @@
 
 import ConfigParser
 import logging
-import os, sys
+import os
+import sys
 
 
 class RssConfig(object):
-    _CONFIG_FILES = [os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')]
+    _CONFIG_FILES = [os.path.join(os.path.dirname(
+        sys.argv[0]), 'Einstellungen/RSScrawler.ini')]
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", "", ""),
@@ -16,15 +18,18 @@ class RssConfig(object):
             ("prefix", "str", "", ""),
             ("interval", "int", "", ""),
             ("english", "bool", "", ""),
+            ("surround", "bool", "", ""),
+            ("proxy", "str", "", ""),
             ("hoster", "str", "", "")
         ],
         'MB': [
             ("quality", "str", "", ""),
-            ("ignore","str","",""),
-            ("historical","bool","",""),
-            ("regex","bool","", ""),
-            ("cutoff","bool","", ""),
-            ("crawl3d","bool","",""),
+            ("ignore", "str", "", ""),
+            ("historical", "bool", "", ""),
+            ("regex", "bool", "", ""),
+            ("cutoff", "bool", "", ""),
+            ("crawl3d", "bool", "", ""),
+            ("crawl3dtype", "str", "", ""),
             ("enforcedl", "bool", "", ""),
             ("crawlseasons", "bool", "", ""),
             ("seasonsquality", "str", "", ""),
@@ -36,48 +41,50 @@ class RssConfig(object):
         'SJ': [
             ("quality", "str", "", ""),
             ("rejectlist", "str", "", ""),
-            ("regex","bool","", "")
+            ("regex", "bool", "", "")
         ],
         'YT': [
-            ("youtube","bool","",""),
-            ("maxvideos","int","",""),
-            ("ignore","str","","")
+            ("youtube", "bool", "", ""),
+            ("maxvideos", "int", "", ""),
+            ("ignore", "str", "", "")
         ],
         'Notifications': [
-            ("homeassistant","str","",""),
-            ("pushbullet","str","",""),
-            ("pushover","str","","")
+            ("homeassistant", "str", "", ""),
+            ("pushbullet", "str", "", ""),
+            ("pushover", "str", "", "")
         ],
         'Crawljobs': [
-            ("autostart","bool","",""),
-            ("subdir","bool","","")
+            ("autostart", "bool", "", ""),
+            ("subdir", "bool", "", "")
         ]
     }
     __config__ = []
 
     def __init__(self, section):
         self._section = section
-        self._config =  ConfigParser.RawConfigParser()
+        self._config = ConfigParser.RawConfigParser()
         try:
             self._config.read(self._CONFIG_FILES)
-            self._config.has_section(self._section) or self._set_default_config(self._section)
+            self._config.has_section(
+                self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except ConfigParser.DuplicateSectionError:
             logging.error('Doppelte Sektion in der Konfigurationsdatei.')
             raise
         except ConfigParser.Error:
-            logging.error('Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
+            logging.error(
+                'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
     def _set_default_config(self, section):
         self._config.add_section(section)
-        for (key,key_type,comment,value) in self._DEFAULT_CONFIG[section]:
-            self._config.set(section,key,value)
+        for (key, key_type, comment, value) in self._DEFAULT_CONFIG[section]:
+            self._config.set(section, key, value)
         with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
             self._config.write(configfile)
 
     def _read_config(self, section):
-        return [(key, '', '', self._config.get(section,key)) for key in self._config.options(section)]
+        return [(key, '', '', self._config.get(section, key)) for key in self._config.options(section)]
 
     def _get_from_config(self, scope, key):
         res = [param[3] for param in scope if param[0] == key]

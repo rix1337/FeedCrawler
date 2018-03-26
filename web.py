@@ -33,24 +33,30 @@ else:
     else:
         prefix = ""
 
+
 def to_int(i):
     i = i.strip().replace("None", "")
     return int(i) if i else ""
+
 
 def to_float(i):
     i = i.strip().replace("None", "")
     return float(i) if i else ""
 
+
 def to_str(i):
     return '' if i is None else str(i)
+
 
 @app.route(prefix + '/<path:path>')
 def send_html(path):
     return send_from_directory('web', path)
 
+
 @app.route(prefix + '/')
 def index():
     return render_template('index.html')
+
 
 @app.route(prefix + "/api/all/", methods=['GET'])
 def get_all():
@@ -65,7 +71,8 @@ def get_all():
         if version.updateCheck()[0]:
             updateready = True
             updateversion = version.updateCheck()[1]
-            print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+            print('Update steht bereit (' + updateversion +
+                  ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
         else:
             updateready = False
         log = ''
@@ -74,8 +81,12 @@ def get_all():
             logfile = open(os.path.join(logfile))
             output = StringIO.StringIO()
             for line in reversed(logfile.readlines()):
-                output.write("<p>" + line.replace("\n","</p>"))
+                output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
+        if not mb.get("crawl3dtype"):
+             crawl_3d_type = "hsbs"
+        else:
+            crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
             {
                 "version": {
@@ -108,42 +119,45 @@ def get_all():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
-                        "english": bool(general.get("english")),
+                        "english": general.get("english"),
+                        "surround": general.get("surround"),
+                        "proxy": general.get("proxy"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
-                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
+                        "homeassistant": alerts.get("homeassistant"),
                     },
                     "crawljobs": {
-                        "autostart": bool(crawljobs.get("autostart")),
-                        "subdir": bool(crawljobs.get("subdir")),
+                        "autostart": crawljobs.get("autostart"),
+                        "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
-                        "regex": bool(mb.get("regex")),
+                        "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": bool(mb.get("historical")),
-                        "force_dl": bool(mb.get("enforcedl")),
-                        "cutoff": bool(mb.get("cutoff")),
-                        "crawl_3d": bool(mb.get("crawl3d")),
+                        "historical": mb.get("historical"),
+                        "force_dl": mb.get("enforcedl"),
+                        "cutoff": mb.get("cutoff"),
+                        "crawl_3d": mb.get("crawl3d"),
+                        "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
-                        "regex": bool(sj.get("regex")),
+                        "regex": sj.get("regex"),
                     },
                     "mbsj": {
-                        "enabled": bool(mb.get("crawlseasons")),
+                        "enabled": mb.get("crawlseasons"),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonpacks")),
+                        "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
-                        "enabled": bool(yt.get("youtube")),
+                        "enabled": yt.get("youtube"),
                         "max": to_int(yt.get("maxvideos")),
                         "ignore": yt.get("ignore"),
                     }
@@ -152,6 +166,7 @@ def get_all():
         )
     else:
         return "Failed", 405
+
 
 @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
 def get_delete_log():
@@ -162,7 +177,7 @@ def get_delete_log():
             logfile = open(os.path.join(logfile))
             output = StringIO.StringIO()
             for line in reversed(logfile.readlines()):
-                output.write("<p>" + line.replace("\n","</p>"))
+                output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
         return jsonify(
             {
@@ -170,10 +185,12 @@ def get_delete_log():
             }
         )
     if request.method == 'DELETE':
-        open(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), 'w').close()
+        open(os.path.join(os.path.dirname(
+            sys.argv[0]), 'RSScrawler.log'), 'w').close()
         return "Success", 200
     else:
         return "Failed", 405
+
 
 @app.route(prefix + "/api/settings/", methods=['GET', 'POST'])
 def get_post_settings():
@@ -184,6 +201,10 @@ def get_post_settings():
         mb = RssConfig('MB')
         sj = RssConfig('SJ')
         yt = RssConfig('YT')
+        if not mb.get("crawl3dtype"):
+             crawl_3d_type = "hsbs"
+        else:
+            crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
             {
                 "settings": {
@@ -192,42 +213,45 @@ def get_post_settings():
                         "port": to_int(general.get("port")),
                         "prefix": general.get("prefix"),
                         "interval": to_int(general.get("interval")),
-                        "english": bool(general.get("english")),
+                        "english": general.get("english"),
+                        "surround": general.get("surround"),
+                        "proxy": general.get("proxy"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
-                        "homeassistant": alerts.get("homeassistant"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
+                        "homeassistant": alerts.get("homeassistant"),
                     },
                     "crawljobs": {
-                        "autostart": bool(crawljobs.get("autostart")),
-                        "subdir": bool(crawljobs.get("subdir")),
+                        "autostart": crawljobs.get("autostart"),
+                        "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
-                        "regex": bool(mb.get("regex")),
+                        "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": bool(mb.get("historical")),
-                        "force_dl": bool(mb.get("enforcedl")),
-                        "cutoff": bool(mb.get("cutoff")),
-                        "crawl_3d": bool(mb.get("crawl3d")),
+                        "historical": mb.get("historical"),
+                        "force_dl": mb.get("enforcedl"),
+                        "cutoff": mb.get("cutoff"),
+                        "crawl_3d": mb.get("crawl3d"),
+                        "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
-                        "regex": bool(sj.get("regex")),
+                        "regex": sj.get("regex"),
                     },
                     "mbsj": {
-                        "enabled": bool(mb.get("crawlseasons")),
+                        "enabled": mb.get("crawlseasons"),
                         "quality": mb.get("seasonsquality"),
-                        "packs": bool(mb.get("seasonpacks")),
+                        "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
                     },
                     "yt": {
-                        "enabled": bool(yt.get("youtube")),
+                        "enabled": yt.get("youtube"),
                         "max": to_int(yt.get("maxvideos")),
                         "ignore": yt.get("ignore"),
                     }
@@ -237,46 +261,75 @@ def get_post_settings():
     if request.method == 'POST':
         data = request.json
         with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
-            f.write('# RSScrawler.ini (Stand: RSScrawler ' + version.getVersion() + ')\n')
+            f.write('# RSScrawler.ini (Stand: RSScrawler ' +
+                    version.getVersion() + ')\n')
             f.write("\n[RSScrawler]\n")
-            f.write("jdownloader = " + to_str(data['general']['pfad']).encode('utf-8') + "\n")
-            f.write("port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
-            f.write("prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
+            f.write("jdownloader = " +
+                    to_str(data['general']['pfad']).encode('utf-8') + "\n")
+            f.write(
+                "port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
+            f.write(
+                "prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
             interval = to_str(data['general']['interval']).encode('utf-8')
-            if to_int(interval) < 3:
-                interval = '3'
+            if to_int(interval) < 10:
+                interval = '10'
             f.write("interval = " + interval + "\n")
-            f.write("english = " + to_str(data['general']['english']).encode('utf-8') + "\n")
-            f.write("hoster = " + to_str(data['general']['hoster']).encode('utf-8') + "\n")
+            f.write("english = " +
+                    to_str(data['general']['english']).encode('utf-8') + "\n")
+            f.write("surround = " +
+                    to_str(data['general']['surround']).encode('utf-8') + "\n")
+            f.write("proxy = " +
+                    to_str(data['general']['proxy']).encode('utf-8') + "\n")
+            f.write("hoster = " +
+                    to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
-            f.write("quality = " + to_str(data['mb']['quality']).encode('utf-8') + "\n")
-            f.write("ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("historical = " + to_str(data['mb']['historical']).encode('utf-8') + "\n")
-            f.write("regex = " + to_str(data['mb']['regex']).encode('utf-8') + "\n")
-            f.write("cutoff = " + to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
-            f.write("crawl3d = " + to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
-            f.write("enforcedl = " + to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
-            f.write("crawlseasons = " + to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
-            f.write("seasonsquality = " + to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
-            f.write("seasonpacks = " + to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
-            f.write("seasonssource = " + to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
-            f.write("imdbyear = " + to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
+            f.write("quality = " +
+                    to_str(data['mb']['quality']).encode('utf-8') + "\n")
+            f.write(
+                "ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("historical = " +
+                    to_str(data['mb']['historical']).encode('utf-8') + "\n")
+            f.write("regex = " +
+                    to_str(data['mb']['regex']).encode('utf-8') + "\n")
+            f.write("cutoff = " +
+                    to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
+            f.write("crawl3d = " +
+                    to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
+            f.write("crawl3dtype = " +
+                    to_str(data['mb']['crawl_3d_type']).encode('utf-8') + "\n")
+            f.write("enforcedl = " +
+                    to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
+            f.write("crawlseasons = " +
+                    to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
+            f.write("seasonsquality = " +
+                    to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
+            f.write("seasonpacks = " +
+                    to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
+            f.write("seasonssource = " +
+                    to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
+            f.write("imdbyear = " +
+                    to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
             imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
             if re.match('[^0-9]', imdb):
                 imdb = 0.0
             elif imdb == '':
                 imdb = 0.0
             else:
-                imdb = round(float(to_str(data['mb']['imdb_score']).encode('utf-8').replace(",", ".")), 1)
+                imdb = round(float(to_str(data['mb']['imdb_score']).encode(
+                    'utf-8').replace(",", ".")), 1)
             if imdb > 10:
                 imdb = 10.0
             f.write("imdb = " + to_str(imdb) + "\n")
             f.write("\n[SJ]\n")
-            f.write("quality = " + to_str(data['sj']['quality']).encode('utf-8') + "\n")
-            f.write("rejectlist = " + to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("regex = " + to_str(data['sj']['regex']).encode('utf-8') + "\n")
+            f.write("quality = " +
+                    to_str(data['sj']['quality']).encode('utf-8') + "\n")
+            f.write("rejectlist = " +
+                    to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("regex = " +
+                    to_str(data['sj']['regex']).encode('utf-8') + "\n")
             f.write("\n[YT]\n")
-            f.write("youtube = " + to_str(data['yt']['enabled']).encode('utf-8') + "\n")
+            f.write("youtube = " +
+                    to_str(data['yt']['enabled']).encode('utf-8') + "\n")
             maxvideos = to_str(data['yt']['max']).encode('utf-8')
             if maxvideos == "":
                 maxvideos = "10"
@@ -286,18 +339,25 @@ def get_post_settings():
                 f.write("maxvideos = 50\n")
             else:
                 f.write("maxvideos = " + to_str(maxvideos) + "\n")
-            f.write("ignore = " + to_str(data['yt']['ignore']).encode('utf-8') + "\n")
+            f.write("ignore = " +
+                    to_str(data['yt']['ignore']).encode('utf-8') + "\n")
             f.write("\n[Notifications]\n")
-            f.write("homeassistant = " + to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
-            f.write("pushbullet = " + to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
-            f.write("pushover = " + to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
+            f.write("pushbullet = " +
+                    to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
+            f.write("pushover = " +
+                    to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
+            f.write("homeassistant = " +
+                    to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
             f.write("\n[Crawljobs]\n")
-            f.write("autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
-            f.write("subdir = " + to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
+            f.write(
+                "autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
+            f.write("subdir = " +
+                    to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
         files.check()
         return "Success", 201
     else:
         return "Failed", 405
+
 
 @app.route(prefix + "/api/version/", methods=['GET'])
 def get_version():
@@ -306,7 +366,8 @@ def get_version():
         if version.updateCheck()[0]:
             updateready = True
             updateversion = version.updateCheck()[1]
-            print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+            print('Update steht bereit (' + updateversion +
+                  ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
         else:
             updateready = False
         return jsonify(
@@ -321,14 +382,17 @@ def get_version():
     else:
         return "Failed", 405
 
+
 @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
 def delete_title(title):
     if request.method == 'DELETE':
-        db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+        db = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         db.delete(title)
         return "Success", 200
     else:
         return "Failed", 405
+
 
 @app.route(prefix + "/api/search/<title>", methods=['GET'])
 def search_title(title):
@@ -345,6 +409,7 @@ def search_title(title):
     else:
         return "Failed", 405
 
+
 @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
     if request.method == 'POST':
@@ -355,6 +420,7 @@ def download_mb(permalink):
     else:
         return "Failed", 40
 
+
 @app.route(prefix + "/api/download_sj/<id>", methods=['POST'])
 def download_sj(id):
     if request.method == 'POST':
@@ -364,6 +430,7 @@ def download_sj(id):
             return "Failed", 400
     else:
         return "Failed", 405
+
 
 @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
 def get_post_lists():
@@ -413,15 +480,18 @@ def get_post_lists():
     else:
         return "Failed", 405
 
+
 def getListe(liste):
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt')):
         return "Liste nicht gefunden"
     else:
-        file = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
+        file = open(os.path.join(os.path.dirname(
+            sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
         output = StringIO.StringIO()
         for line in file.readlines():
-            output.write(line.replace("XXXXXXXXXX",""))
+            output.write(line.replace("XXXXXXXXXX", ""))
     return output.getvalue()
+
 
 def start(port, docker_arg, jd, log_level, log_file, log_format):
     global docker
@@ -435,7 +505,8 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     formatter = logging.Formatter(log_format)
     console.setFormatter(CutLog(log_format))
 
-    logfile = logging.handlers.RotatingFileHandler(log_file, maxBytes=100000, backupCount=5)
+    logfile = logging.handlers.RotatingFileHandler(
+        log_file, maxBytes=100000, backupCount=5)
     logfile.setFormatter(formatter)
 
     logger = logging.getLogger('')
@@ -448,10 +519,11 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
 
     # Disable both log and exceptions in the gevent WSGIServer
     no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
-    gevent.hub.Hub.NOT_ERROR=(Exception,)
+    gevent.hub.Hub.NOT_ERROR = (Exception,)
 
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
-        print('Update steht bereit (' + updateversion +')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-    http_server = WSGIServer(('0.0.0.0', port), app, log = no_logger)
+        print('Update steht bereit (' + updateversion +
+              ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+    http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()
