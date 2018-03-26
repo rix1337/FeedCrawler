@@ -4,19 +4,14 @@
 # Enthält Code von:
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
+# import rsscrawler modules
+from rssconfig import RssConfig
+
+# import python modules
 import base64
 import logging
-from rssconfig import RssConfig
 import re
-import sys
-try:
-    # For Python 2.0 and later
-    import urllib.urlencode as urlencode
-    import urllib2
-except ImportError:
-    # For Python 3.0 and later
-    import urllib.request as urllib2
-    import urllib.parse as urllib
+import urllib.request, urllib.parse, urllib.error
 try:
     import simplejson as json
 except ImportError:
@@ -26,9 +21,11 @@ log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
 
+
 def api_request_cutter(l, n):
     for i in range(0, len(l), n):
         yield l[i:i+n]
+
 
 def notify(added_items):
     notifications = RssConfig('Notifications')
@@ -45,46 +42,49 @@ def notify(added_items):
             for cut_item in cut_items:
                 homassistant_url = homeassistant_settings[0]
                 homeassistant_password = homeassistant_settings[1]
-                Homeassistant(cut_item, homassistant_url, homeassistant_password)
+                Homeassistant(cut_item, homassistant_url,
+                              homeassistant_password)
         if len(notifications.get("pushbullet")) > 0:
-                Pushbullet(items, pushbullet_token)
+            Pushbullet(items, pushbullet_token)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]
                 pushover_token = pushover_settings[1]
                 Pushover(cut_item, pushover_user, pushover_token)
 
+
 def Homeassistant(items, homassistant_url, homeassistant_password):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
     try:
-        req = urllib2.Request(homassistant_url, data)
+        req = urllib.request.Request(homassistant_url, data)
         req.add_header('X-HA-Access', homeassistant_password)
         req.add_header('Content-Type', 'application/json')
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Home Assistant API nicht erreichen')
         return False
     res = json.load(response)
     if res['sender_name']:
         log_debug('Home Assistant Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Home Assistant Senden')    
-                
+        log_debug('FEHLER - Konnte nicht an Home Assistant Senden')
+
+
 def Pushbullet(items, token):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'type': 'note',
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' %token).replace('\n', '')
+    auth = base64.encodestring('%s:' % token).replace('\n', '')
     try:
-        req = urllib2.Request('https://api.pushbullet.com/v2/pushes', data)
+        req = urllib.request.Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
         return False
     res = json.load(response)
@@ -93,17 +93,18 @@ def Pushbullet(items, token):
     else:
         log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
 
+
 def Pushover(items, pushover_user, pushover_token):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'user': pushover_user,
         'token': pushover_token,
         'title': 'RSScrawler',
         'message': "\n\n".join(items)
     })
     try:
-        req = urllib2.Request('https://api.pushover.net/1/messages.json', data)
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        req = urllib.request.Request('https://api.pushover.net/1/messages.json', data)
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Pushover API nicht erreichen')
         return False
     res = json.load(response)
