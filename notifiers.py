@@ -42,8 +42,7 @@ def notify(added_items):
             for cut_item in cut_items:
                 homassistant_url = homeassistant_settings[0]
                 homeassistant_password = homeassistant_settings[1]
-                Homeassistant(cut_item, homassistant_url,
-                              homeassistant_password)
+                Homeassistant(cut_item, homassistant_url,homeassistant_password)
         if len(notifications.get("pushbullet")) > 0:
             Pushbullet(items, pushbullet_token)
         if len(notifications.get('pushover')) > 0:
@@ -54,10 +53,7 @@ def notify(added_items):
 
 
 def Homeassistant(items, homassistant_url, homeassistant_password):
-    data = urllib.parse.urlencode({
-        'title': 'RSScrawler:',
-        'body': "\n\n".join(items)
-    })
+    data = urllib.parse.urlencode({ 'title': 'RSScrawler:', 'body': "\n\n".join(items)})
     try:
         req = urllib.request.Request(homassistant_url, data)
         req.add_header('X-HA-Access', homeassistant_password)
@@ -74,11 +70,7 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
 
 
 def Pushbullet(items, token):
-    data = urllib.parse.urlencode({
-        'type': 'note',
-        'title': 'RSScrawler:',
-        'body': "\n\n".join(items)
-    })
+    data = urllib.parse.urlencode({'type': 'note', 'title': 'RSScrawler:', 'body': "\n\n".join(items)})
     auth = base64.encodestring('%s:' % token).replace('\n', '')
     try:
         req = urllib.request.Request('https://api.pushbullet.com/v2/pushes', data)
@@ -95,12 +87,7 @@ def Pushbullet(items, token):
 
 
 def Pushover(items, pushover_user, pushover_token):
-    data = urllib.parse.urlencode({
-        'user': pushover_user,
-        'token': pushover_token,
-        'title': 'RSScrawler',
-        'message': "\n\n".join(items)
-    })
+    data = urllib.parse.urlencode({'user': pushover_user, 'token': pushover_token, 'title': 'RSScrawler', 'message': "\n\n".join(items) })
     try:
         req = urllib.request.Request('https://api.pushover.net/1/messages.json', data)
         response = urllib.request.urlopen(req)

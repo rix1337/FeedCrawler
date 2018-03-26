@@ -74,8 +74,7 @@ def get_all():
         if version.updateCheck()[0]:
             updateready = True
             updateversion = version.updateCheck()[1]
-            print('Update steht bereit (' + updateversion +
-                  ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+            print('Update steht bereit (' + updateversion + ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
         else:
             updateready = False
         log = ''
@@ -188,8 +187,7 @@ def get_delete_log():
             }
         )
     if request.method == 'DELETE':
-        open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'RSScrawler.log'), 'w').close()
+        open(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log'), 'w').close()
         return "Success", 200
     else:
         return "Failed", 405
@@ -264,75 +262,49 @@ def get_post_settings():
     if request.method == 'POST':
         data = request.json
         with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
-            f.write('# RSScrawler.ini (Stand: RSScrawler ' +
-                    version.getVersion() + ')\n')
+            f.write('# RSScrawler.ini (Stand: RSScrawler ' + version.getVersion() + ')\n')
             f.write("\n[RSScrawler]\n")
-            f.write("jdownloader = " +
-                    to_str(data['general']['pfad']).encode('utf-8') + "\n")
-            f.write(
-                "port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
-            f.write(
-                "prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
+            f.write("jdownloader = " + to_str(data['general']['pfad']).encode('utf-8') + "\n")
+            f.write("port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
+            f.write("prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
             interval = to_str(data['general']['interval']).encode('utf-8')
             if to_int(interval) < 10:
                 interval = '10'
             f.write("interval = " + interval + "\n")
-            f.write("english = " +
-                    to_str(data['general']['english']).encode('utf-8') + "\n")
-            f.write("surround = " +
-                    to_str(data['general']['surround']).encode('utf-8') + "\n")
-            f.write("proxy = " +
-                    to_str(data['general']['proxy']).encode('utf-8') + "\n")
-            f.write("hoster = " +
-                    to_str(data['general']['hoster']).encode('utf-8') + "\n")
+            f.write("english = " + to_str(data['general']['english']).encode('utf-8') + "\n")
+            f.write("surround = " + to_str(data['general']['surround']).encode('utf-8') + "\n")
+            f.write("proxy = " + to_str(data['general']['proxy']).encode('utf-8') + "\n")
+            f.write("hoster = " + to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
-            f.write("quality = " +
-                    to_str(data['mb']['quality']).encode('utf-8') + "\n")
-            f.write(
-                "ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("historical = " +
-                    to_str(data['mb']['historical']).encode('utf-8') + "\n")
-            f.write("regex = " +
-                    to_str(data['mb']['regex']).encode('utf-8') + "\n")
-            f.write("cutoff = " +
-                    to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
-            f.write("crawl3d = " +
-                    to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
-            f.write("crawl3dtype = " +
-                    to_str(data['mb']['crawl_3d_type']).encode('utf-8') + "\n")
-            f.write("enforcedl = " +
-                    to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
-            f.write("crawlseasons = " +
-                    to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
-            f.write("seasonsquality = " +
-                    to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
-            f.write("seasonpacks = " +
-                    to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
-            f.write("seasonssource = " +
-                    to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
-            f.write("imdbyear = " +
-                    to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
+            f.write("quality = " + to_str(data['mb']['quality']).encode('utf-8') + "\n")
+            f.write("ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("historical = " + to_str(data['mb']['historical']).encode('utf-8') + "\n")
+            f.write("regex = " +  to_str(data['mb']['regex']).encode('utf-8') + "\n")
+            f.write("cutoff = " + to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
+            f.write("crawl3d = " + to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
+            f.write("crawl3dtype = " + to_str(data['mb']['crawl_3d_type']).encode('utf-8') + "\n")
+            f.write("enforcedl = " + to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
+            f.write("crawlseasons = " + to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
+            f.write("seasonsquality = " + to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
+            f.write("seasonpacks = " + to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
+            f.write("seasonssource = " + to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
+            f.write("imdbyear = " + to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
             imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
             if re.match('[^0-9]', imdb):
                 imdb = 0.0
             elif imdb == '':
                 imdb = 0.0
             else:
-                imdb = round(float(to_str(data['mb']['imdb_score']).encode(
-                    'utf-8').replace(",", ".")), 1)
+                imdb = round(float(to_str(data['mb']['imdb_score']).encode('utf-8').replace(",", ".")), 1)
             if imdb > 10:
                 imdb = 10.0
             f.write("imdb = " + to_str(imdb) + "\n")
             f.write("\n[SJ]\n")
-            f.write("quality = " +
-                    to_str(data['sj']['quality']).encode('utf-8') + "\n")
-            f.write("rejectlist = " +
-                    to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("regex = " +
-                    to_str(data['sj']['regex']).encode('utf-8') + "\n")
+            f.write("quality = " + to_str(data['sj']['quality']).encode('utf-8') + "\n")
+            f.write("rejectlist = " + to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
+            f.write("regex = " + to_str(data['sj']['regex']).encode('utf-8') + "\n")
             f.write("\n[YT]\n")
-            f.write("youtube = " +
-                    to_str(data['yt']['enabled']).encode('utf-8') + "\n")
+            f.write("youtube = " + to_str(data['yt']['enabled']).encode('utf-8') + "\n")
             maxvideos = to_str(data['yt']['max']).encode('utf-8')
             if maxvideos == "":
                 maxvideos = "10"
@@ -342,20 +314,14 @@ def get_post_settings():
                 f.write("maxvideos = 50\n")
             else:
                 f.write("maxvideos = " + to_str(maxvideos) + "\n")
-            f.write("ignore = " +
-                    to_str(data['yt']['ignore']).encode('utf-8') + "\n")
+            f.write("ignore = " + to_str(data['yt']['ignore']).encode('utf-8') + "\n")
             f.write("\n[Notifications]\n")
-            f.write("pushbullet = " +
-                    to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
-            f.write("pushover = " +
-                    to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
-            f.write("homeassistant = " +
-                    to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
+            f.write("pushbullet = " + to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
+            f.write("pushover = " + to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
+            f.write("homeassistant = " + to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
             f.write("\n[Crawljobs]\n")
-            f.write(
-                "autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
-            f.write("subdir = " +
-                    to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
+            f.write("autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
+            f.write("subdir = " + to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
         files.check()
         return "Success", 201
     else:
@@ -369,8 +335,7 @@ def get_version():
         if version.updateCheck()[0]:
             updateready = True
             updateversion = version.updateCheck()[1]
-            print('Update steht bereit (' + updateversion +
-                  ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+            print('Update steht bereit (' + updateversion + ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
         else:
             updateready = False
         return jsonify(
@@ -389,8 +354,7 @@ def get_version():
 @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
 def delete_title(title):
     if request.method == 'DELETE':
-        db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+        db = RssDb(os.path.join(os.path.dirname(sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         db.delete(title)
         return "Success", 200
     else:
@@ -488,8 +452,7 @@ def getListe(liste):
     if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt')):
         return "Liste nicht gefunden"
     else:
-        file = open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
+        file = open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
         output = io.StringIO()
         for line in file.readlines():
             output.write(line.replace("XXXXXXXXXX", ""))
@@ -526,7 +489,6 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
 
     if version.updateCheck()[0]:
         updateversion = version.updateCheck()[1]
-        print('Update steht bereit (' + updateversion +
-              ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+        print('Update steht bereit (' + updateversion + ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
     http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()
