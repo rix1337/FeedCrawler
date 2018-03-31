@@ -2,25 +2,28 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-from flask import Flask, request, send_from_directory, render_template, jsonify
-
-from output import Unbuffered
+# import rsscrawler modules
+import files
+import search
+import version
 from output import CutLog
+from output import Unbuffered
 from rssconfig import RssConfig
 from rssdb import RssDb
-import search
-import files
-import version
 
-import StringIO
-import os
-import re
-import sys
+# import third party modules
+from flask import Flask, request, send_from_directory, render_template, jsonify
 import gevent
 from gevent.wsgi import WSGIServer
 
+# import python modules
+import io
 import logging
+import os
+import re
+import sys
 from logging import handlers
+
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
@@ -80,7 +83,7 @@ def get_all():
         logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
         if os.path.isfile(logfile):
             logfile = open(os.path.join(logfile))
-            output = StringIO.StringIO()
+            output = io.StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
@@ -179,7 +182,7 @@ def get_delete_log():
         logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
         if os.path.isfile(logfile):
             logfile = open(os.path.join(logfile))
-            output = StringIO.StringIO()
+            output = io.StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
@@ -498,7 +501,7 @@ def getListe(liste):
     else:
         file = open(os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
-        output = StringIO.StringIO()
+        output = io.StringIO()
         for line in file.readlines():
             output.write(line.replace("XXXXXXXXXX", ""))
     return output.getvalue()

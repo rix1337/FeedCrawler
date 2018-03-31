@@ -2,9 +2,10 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import sqlite3
+# import python modules
 import os
 import sys
+import sqlite3
 
 
 def get_first(iterable):

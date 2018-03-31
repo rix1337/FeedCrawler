@@ -4,13 +4,14 @@
 # Enthält Code von:
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
+# import rsscrawler modules
+from rssconfig import RssConfig
+
+# import python modules
 import base64
 import logging
-import urllib
-import urllib2
-from rssconfig import RssConfig
 import re
-
+import urllib.request, urllib.parse, urllib.error
 try:
     import simplejson as json
 except ImportError:
@@ -53,16 +54,16 @@ def notify(added_items):
 
 
 def Homeassistant(items, homassistant_url, homeassistant_password):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
     try:
-        req = urllib2.Request(homassistant_url, data)
+        req = urllib.request.Request(homassistant_url, data)
         req.add_header('X-HA-Access', homeassistant_password)
         req.add_header('Content-Type', 'application/json')
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Home Assistant API nicht erreichen')
         return False
     res = json.load(response)
@@ -73,17 +74,17 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
 
 
 def Pushbullet(items, token):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'type': 'note',
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
     auth = base64.encodestring('%s:' % token).replace('\n', '')
     try:
-        req = urllib2.Request('https://api.pushbullet.com/v2/pushes', data)
+        req = urllib.request.Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
         return False
     res = json.load(response)
@@ -94,16 +95,16 @@ def Pushbullet(items, token):
 
 
 def Pushover(items, pushover_user, pushover_token):
-    data = urllib.urlencode({
+    data = urllib.parse.urlencode({
         'user': pushover_user,
         'token': pushover_token,
         'title': 'RSScrawler',
         'message': "\n\n".join(items)
     })
     try:
-        req = urllib2.Request('https://api.pushover.net/1/messages.json', data)
-        response = urllib2.urlopen(req)
-    except urllib2.HTTPError:
+        req = urllib.request.Request('https://api.pushover.net/1/messages.json', data)
+        response = urllib.request.urlopen(req)
+    except urllib.error.HTTPError:
         log_debug('FEHLER - Konnte Pushover API nicht erreichen')
         return False
     res = json.load(response)

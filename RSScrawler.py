@@ -26,35 +26,40 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
+# import rsscrawler modules
+import common
+import files
 import version
-version = version.getVersion()
-
-from docopt import docopt
-import feedparser
-import re
-import urllib2
-import codecs
-from bs4 import BeautifulSoup as bs
-import cfscrape
-import time
-import sys
-import signal
-import socket
-import logging
-from logging import handlers
-import os
-from multiprocessing import Process
-
+from notifiers import notify
 from output import Unbuffered
 from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
-from notifiers import notify
 from url import getURL
-import common
-import files
 from web import start
 
+# import third party modules
+import cfscrape
+import feedparser
+from bs4 import BeautifulSoup as bs
+from docopt import docopt
+
+# import python modules
+import base64
+import codecs
+import logging
+import os
+import re
+import signal
+import socket
+import sys
+import time
+import urllib.request, urllib.error, urllib.parse
+from logging import handlers
+from multiprocessing import Process
+
+
+version = version.getVersion()
 
 def web_server(port, docker, jd, log_level, log_file, log_format):
     start(port, docker, jd, log_level, log_file, log_format)
@@ -172,7 +177,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   " - Fehler im Suchlauf: " + str(e))
 
-
 class YT():
     _INTERNAL_NAME = 'YT'
 
@@ -229,10 +233,10 @@ class YT():
                 cnotfound = False
                 try:
                     response = getURL(url)
-                except urllib2.HTTPError:
+                except urllib.error.HTTPError:
                     try:
                         response = getURL(urlc)
-                    except urllib2.HTTPError:
+                    except urllib.error.HTTPError:
                         cnotfound = True
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " +
@@ -260,7 +264,7 @@ class YT():
         for video in videos:
             channel = video[2]
             video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace(
-                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\u0026", "&")
+                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\\u0026", "&"
             video = video[0]
             download_link = 'https://www.youtube.com/watch?v=' + video
             if download_link:
@@ -365,10 +369,10 @@ class SJ():
     def periodical_task(self):
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
+                 str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw="), 'utf-8'))
         else:
             feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
+                 str(base64.b64decode("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw="), 'utf-8'))
 
         self.pattern = "|".join(self.getSeriesList(
             self.search_list, self.level)).lower()
@@ -567,7 +571,7 @@ class SJ():
                             str(count) + ".*" + title_cut[0][-1]
                         self.range_parse(link, title1, englisch)
             except ValueError as e:
-                logging.error("Fehler in Variablenwert: %s" % e.message)
+                logging.error("Fehler in Variablenwert: %s" % e)
         else:
             self.parse_download(link, title, englisch)
 
@@ -673,13 +677,13 @@ class SJ():
         except IOError:
             self.log_error("ANGEHALTEN, Serien" + loginfo +
                            "-Liste nicht gefunden!")
-        except Exception, e:
+        except Exception as e:
             self.log_error("Unbekannter Fehler: %s" % e)
 
 
 class MB():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw=="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -725,7 +729,7 @@ class MB():
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
             for post in feed.entries:
                 found = re.search(s, post.title.lower())
                 if found:
@@ -860,7 +864,7 @@ class MB():
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if download_link:
-                if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+                if  str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw"), 'utf-8') in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     return False
                 if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
@@ -1144,7 +1148,7 @@ class MB():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+            if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -1253,7 +1257,7 @@ class MB():
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         for url_hoster in url_hosters:
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
+            if not  str(base64.b64decode("bW92aWUtYmxvZy5vcmcv"), 'utf-8') in url_hoster[0]:
                 if self.hoster.lower() in url_hoster[1].lower():
                     return url_hoster[0]
 
@@ -1273,19 +1277,19 @@ class MB():
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list)
-                ).items()}.items()
+                ).items())}.items()
                 ) if self.config.get('regex') else []
             )
         else:
@@ -1293,14 +1297,14 @@ class MB():
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         if self.filename != 'MB_Regex':
             if self.config.get("historical"):
-                for xline in self.allInfos.keys():
+                for xline in list(self.allInfos.keys()):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
@@ -1314,7 +1318,7 @@ class MB():
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
                 download_link = self._get_download_links(value[0])
                 if download_link:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                     englisch = False
@@ -1489,7 +1493,7 @@ class MB():
 
 class HW():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -1535,7 +1539,7 @@ class HW():
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
             for post in feed.entries:
                 found = re.search(s, post.title.lower())
                 if found:
@@ -1951,7 +1955,7 @@ class HW():
 
     def download_imdb(self, key, download_link, score, download_imdb, details):
         if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+            if  str(base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8="), 'utf-8') in download_link:
                 self.log_debug("Fake-Link erkannt!")
                 return
             else:
@@ -2079,19 +2083,19 @@ class HW():
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list)
-                ).items()}.items()
+                ).items())}.items()
                 ) if self.config.get('regex') else []
             )
         else:
@@ -2099,14 +2103,14 @@ class HW():
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         if self.filename != 'MB_Regex':
             if self.config.get("historical"):
-                for xline in self.allInfos.keys():
+                for xline in list(self.allInfos.keys()):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
@@ -2292,7 +2296,7 @@ class HW():
 
 class HA():
     _INTERNAL_NAME = 'MB'
-    FEED_URL = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA=".decode('base64')
+    FEED_URL =  str(base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy9pbmRleC5waHA="), 'utf-8')
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -2358,7 +2362,7 @@ class HA():
                     self.log_debug("Ungueltiger Link bei Suche nach Titel")
                 url = hda[0]
                 title = hda[1]
-                s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+                s = re.sub(self.SUBSTITUTE, ".", "^" + str(key)).lower()
                 found = re.search(s, title.lower())
                 if found:
                     found = re.search(ignore, title.lower())
@@ -2634,19 +2638,19 @@ class HA():
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list)
-                ).items()}.items()
+                ).items())}.items()
                 ) if self.config.get('regex') else []
             )
         else:
@@ -2654,20 +2658,20 @@ class HA():
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
+                ).items())}.items()
                 )
             )
         if self.filename != 'MB_Regex':
             if self.config.get("historical"):
-                for xline in self.allInfos.keys():
+                for xline in list(self.allInfos.keys()):
                     if len(xline) > 0 and not xline.startswith("#"):
                         title = xline.split(",")[0].replace(" ", ".")
                         search_title = title.replace(
                             ".", " ").replace(" ", "+")
                         urls.append(
-                            "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=".decode('base64') + search_title)
+                             str(base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0="), 'utf-8') + search_title)
             else:
                 urls.append(self.FEED_URL)
         else:

@@ -4,13 +4,17 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
+# import rsscrawler modules
 import files
+from rssconfig import RssConfig
+
+# import python modules
+import base64
 import logging
 import os
 import re
 import socket
 import sys
-from rssconfig import RssConfig
 
 log_info = logging.info
 log_error = logging.error
@@ -18,7 +22,7 @@ log_debug = logging.debug
 
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+    crawljob_file = crawljob_dir + '/%s.crawljob' % str(
         re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
@@ -33,10 +37,10 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file = open(crawljob_file, 'w')
         file.write('enabled=TRUE\n')
         file.write('autoStart=' + autostart + '\n')
-        file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '","' +
-                   "aGQtYXJlYS5vcmc=".decode('base64') + '","' + "aGQtd29ybGQub3Jn".decode('base64') + '","' + "d2FyZXotd29ybGQub3Jn".decode('base64') + '"]\n')
+        file.write('extractPasswords=["' + str(base64.b64decode("bW92aWUtYmxvZy5vcmc="), 'utf-8') + '","' + str(base64.b64decode("c2VyaWVuanVua2llcy5vcmc="), 'utf-8') + '","' +
+                   str(base64.b64decode("aGQtYXJlYS5vcmc="), 'utf-8') + '","' + str(base64.b64decode("aGQtd29ybGQub3Jn"), 'utf-8') + '","' + str(base64.b64decode("d2FyZXotd29ybGQub3Jn"), 'utf-8') + '"]\n')
         file.write('downloadPassword=' +
-                   "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
+                   str(base64.b64decode("c2VyaWVuanVua2llcy5vcmc="), 'utf-8') + '\n')
         file.write('extractAfterDownload=TRUE\n')
         file.write('forcedStart=' + autostart + '\n')
         file.write('autoConfirm=' + autostart + '\n')
@@ -53,7 +57,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
     except UnicodeEncodeError as e:
         file.close()
         log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %
-                  (crawljob_file, e.message))
+                  (crawljob_file, e))
         if os.path.isfile(crawljob_file):
             log_info("Entferne defekten Crawljob: %s" % crawljob_file)
             os.remove(crawljob_file)
