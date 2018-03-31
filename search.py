@@ -26,6 +26,7 @@ import time
 from html.parser import HTMLParser
 
 
+
 def get(title):
     config = RssConfig('MB')
     quality = config.get('quality')

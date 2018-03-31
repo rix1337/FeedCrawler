@@ -69,6 +69,7 @@ def get_all():
         crawljobs = RssConfig('Crawljobs')
         mb = RssConfig('MB')
         sj = RssConfig('SJ')
+        dd = RssConfig('DD')
         yt = RssConfig('YT')
         ver = version.getVersion()
         if version.updateCheck()[0]:
@@ -159,6 +160,9 @@ def get_all():
                         "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
                     },
+                    "dd": {
+                        "feeds": dd.get("feeds"),
+                    },
                     "yt": {
                         "enabled": yt.get("youtube"),
                         "max": to_int(yt.get("maxvideos")),
@@ -203,6 +207,7 @@ def get_post_settings():
         crawljobs = RssConfig('Crawljobs')
         mb = RssConfig('MB')
         sj = RssConfig('SJ')
+        dd = RssConfig('DD')
         yt = RssConfig('YT')
         if not mb.get("crawl3dtype"):
              crawl_3d_type = "hsbs"
@@ -252,6 +257,9 @@ def get_post_settings():
                         "quality": mb.get("seasonsquality"),
                         "packs": mb.get("seasonpacks"),
                         "source": mb.get("seasonssource"),
+                    },
+                    "dd": {
+                        "feeds": dd.get("feeds"),
                     },
                     "yt": {
                         "enabled": yt.get("youtube"),
@@ -330,6 +338,9 @@ def get_post_settings():
                     to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
             f.write("regex = " +
                     to_str(data['sj']['regex']).encode('utf-8') + "\n")
+            f.write("\n[DD]\n")
+            f.write("feeds = " +
+                    to_str(data['dd']['feeds']).encode('utf-8') + "\n")
             f.write("\n[YT]\n")
             f.write("youtube = " +
                     to_str(data['yt']['enabled']).encode('utf-8') + "\n")

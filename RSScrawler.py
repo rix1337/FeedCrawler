@@ -96,6 +96,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
 
     search_pool = [
         YT(),
+        DD(),
         SJ(filename='SJ_Serien', internal_name='SJ'),
         SJ(filename='SJ_Serien_Regex', internal_name='SJ'),
         SJ(filename='SJ_Staffeln_Regex', internal_name='SJ'),
@@ -148,7 +149,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception as e:
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Fehler im Suchlauf: " % e)
+                      " - Fehler im Suchlauf: " + str(e))
     else:
         try:
             start_time = time.time()
@@ -174,8 +175,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                   " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception as e:
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Fehler im Suchlauf: " % e)
-
+                  " - Fehler im Suchlauf: " + str(e))
 
 class YT():
     _INTERNAL_NAME = 'YT'
@@ -264,7 +264,7 @@ class YT():
         for video in videos:
             channel = video[2]
             video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace(
-                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\\u0026", "&")
+                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\\u0026", "&"
             video = video[0]
             download_link = 'https://www.youtube.com/watch?v=' + video
             if download_link:
@@ -294,6 +294,53 @@ class YT():
                         video + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
+
+
+class DD():
+    _INTERNAL_NAME = 'DD'
+
+    def __init__(self):
+        self.config = RssConfig(self._INTERNAL_NAME)
+        self.log_info = logging.info
+        self.log_error = logging.error
+        self.log_debug = logging.debug
+        self.db = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+
+    def periodical_task(self):
+        feeds = self.config.get("feeds")
+        if feeds:
+            feeds = feeds.replace(" ", "").split(',')
+            for feed in feeds:
+                feed = feedparser.parse(feed)
+                for post in feed.entries:
+                    key = post.title.replace(" ", ".")
+                    feed_link = post.link
+                    link_pool = post.summary
+                    unicode_links = re.findall(r'(http.*)', link_pool)
+                    links = []
+                    for link in unicode_links:
+                        links.append(str(link))
+                    if self.db.retrieve(key) == 'added':
+                        self.log_debug(
+                            "%s - Release ignoriert (bereits gefunden)" % key)
+                    else:
+                        common.write_crawljob_file(
+                            key,
+                            key,
+                            links,
+                            jdownloaderpath + "/folderwatch",
+                            "RSScrawler"
+                        )
+                        self.db.store(
+                            key,
+                            'added'
+                        )
+                        log_entry = '[DD.tv/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                        self.log_info(log_entry)
+                        added_items.append(log_entry)
 
 
 class SJ():

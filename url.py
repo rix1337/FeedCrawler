@@ -9,6 +9,7 @@ from rssconfig import RssConfig
 import cfscrape
 
 
+
 def getURL(url):
     proxy = RssConfig('RSScrawler').get('proxy')
     if proxy:

@@ -43,6 +43,8 @@ class RssConfig(object):
             ("quality", "str", "", ""),
             ("rejectlist", "str", "", ""),
             ("regex", "bool", "", "")
+        'DD': [
+            ("feeds", "str", "", "")
         ],
         'YT': [
             ("youtube", "bool", "", ""),
