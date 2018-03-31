@@ -35,7 +35,8 @@ def merge_old():
 
     for res in res_old:
         for key, value in res:
-            conn_new.execute("INSERT INTO '%s' VALUES ('%s', '%s')" % ('rsscrawler', key, value.lower().replace('downloaded', 'added')))
+            conn_new.execute("INSERT INTO '%s' VALUES ('%s', '%s')" % (
+                'rsscrawler', key, value.lower().replace('downloaded', 'added')))
             conn_new.commit()
 
     return True
@@ -46,7 +47,8 @@ class RssDb(object):
         self._conn = sqlite3.connect(file, check_same_thread=False)
         self._table = 'rsscrawler'
         if not self._conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-            self._conn.execute('''CREATE TABLE %s (key, value)''' % self._table)
+            self._conn.execute(
+                '''CREATE TABLE %s (key, value)''' % self._table)
             self._conn.commit()
 
     def retrieve(self, key):
@@ -55,9 +57,11 @@ class RssDb(object):
         return res[0] if res else None
 
     def store(self, key, value):
-        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" % (self._table, key, value))
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %
+                           (self._table, key, value))
         self._conn.commit()
 
     def delete(self, key):
-        self._conn.execute("DELETE FROM %s WHERE key='%s'" % (self._table, key))
+        self._conn.execute("DELETE FROM %s WHERE key='%s'" %
+                           (self._table, key))
         self._conn.commit()
