@@ -48,3 +48,4 @@ target/
 *.bak
 .vscode/launch.json
 .vscode/settings.json
+*.bat
