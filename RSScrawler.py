@@ -264,7 +264,7 @@ class YT():
         for video in videos:
             channel = video[2]
             video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace(
-                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\\u0026", "&"
+                "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\\u0026", "&")
             video = video[0]
             download_link = 'https://www.youtube.com/watch?v=' + video
             if download_link:
