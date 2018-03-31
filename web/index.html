@@ -490,11 +490,28 @@
                 <div class="card-header" id="headingTwoSeven">
                     <h5 class="mb-0">
                         <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoSeven" aria-expanded="false" aria-controls="collapseTwoSeven">
-                            <h3>YouTube</h3>
+                            <h3>DD</h3>
                         </button>
                     </h5>
                 </div>
                 <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
+                    <div class="card-body">
+                        <p>
+                            <h4>Feeds</h4>
+                            <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier Feeds von DD eintragen (durch Kommata getrennt)"></input>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header" id="headingTwoEight">
+                    <h5 class="mb-0">
+                        <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoEight" aria-expanded="false" aria-controls="collapseTwoEight">
+                            <h3>YouTube</h3>
+                        </button>
+                    </h5>
+                </div>
+                <div id="collapseTwoEight" class="collapse" aria-labelledby="headingTwoEight" data-parent="#settings">
                     <div class="card-body">
                         <p>
                             <h4>Suche aktivieren</h4>
@@ -527,7 +544,7 @@
     <script src="js/angular.min.js"></script>
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/fontawesome-all.min.js"></script>
-    <script src="js/rsscrawler.js?4.1.0"></script>
+    <script src="js/rsscrawler.js?4.1.1"></script>
 </body>
 
 </html>
