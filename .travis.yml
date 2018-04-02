@@ -7,6 +7,7 @@ python:
   - "3.6"
 cache: pip
 install:
+  - mkdir -p /test/folderwatch
   - pip install -r requirements.txt
 script:
   - python RSScrawler.py --port=9090 --jd-pfad="/test" --ersatzblogs
