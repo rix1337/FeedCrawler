@@ -853,8 +853,7 @@ class MB():
     def download_dl(self, title):
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
-            'base64') + search_title + "/feed/rss2/"
+        search_url = str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv"), 'utf-8') + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
@@ -1308,8 +1307,7 @@ class MB():
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
-                        urls.append('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
+                        urls.append(str(base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=="), 'utf-8') + '/search/%s/feed/rss2/' % xn)
             else:
                 urls.append(self.FEED_URL)
         else:
@@ -1663,8 +1661,7 @@ class HW():
     def download_dl(self, title):
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv".decode(
-            'base64') + search_title + "/feed/rss2/"
+        search_url = str(base64.b64decode("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv"), 'utf-8') + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
@@ -2114,8 +2111,7 @@ class HW():
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
-                        urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
+                        urls.append(str(base64.b64decode('aHR0cDovL2hkLXdvcmxkLm9yZw=='), 'utf-8') + '/search/%s/feed/rss2/' % xn)
             else:
                 urls.append(self.FEED_URL)
         else:
@@ -2489,8 +2485,7 @@ class HA():
     def download_dl(self, title):
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=".decode(
-            'base64') + search_title
+        search_url = str(base64.b64decode("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0="), 'utf-8') + search_title
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
             ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
