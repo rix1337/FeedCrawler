@@ -2,7 +2,7 @@
 
 RSScrawler durchsucht vordefinierte Seiten nach Titeln und reicht Links an JDownloader weiter.
 
-[![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)[![Build Status](https://travis-ci.org/rix1337/RSScrawler.svg?branch=master)](https://travis-ci.org/rix1337/RSScrawler)
+[![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)[![Build Status](https://travis-ci.org/DaLeberkasPepi/RSScrawler.svg?branch=master)](https://travis-ci.org/DaLeberkasPepi/RSScrawler)
 
 ## Credits
 
