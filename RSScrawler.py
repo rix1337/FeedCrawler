@@ -328,6 +328,7 @@ class DD():
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
+                        self.db.delete(key)
                         self.db.store(
                             key,
                             'added'
@@ -338,10 +339,13 @@ class DD():
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     else:
+                        self.db.delete(key)
                         self.db.store(
                             key,
                             int(len(links))
                         )
+                        self.log_debug(
+                            "%s - Release gefunden, warte bis sich der Eintrag stabilisiert hat" % key)
 
 
 class SJ():
