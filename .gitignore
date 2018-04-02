@@ -45,7 +45,3 @@ target/
 *.ini
 *.txt
 *.zip
-*.bak
-.vscode/launch.json
-.vscode/settings.json
-*.bat

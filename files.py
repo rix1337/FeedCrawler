@@ -2,15 +2,11 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-# import rsscrawler modules
-import rssdb
-
-# import python modules
 import errno
 import logging
 import os
 import sys
-
+import rssdb
 
 
 def check():

@@ -2,18 +2,18 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-# import python modules
 import re
-import urllib.request, urllib.error, urllib.parse
+import urllib2
 
 
 def getVersion():
     return "v.4.1.1"
 
+
 def updateCheck():
     localversion = getVersion()
     try:
-        onlineversion = re.search(r'return "(v\.\d{1,2}\.\d{1,2}\.\d{1,2})"', urllib.request.urlopen(
+        onlineversion = re.search(r'return "(v\.\d{1,2}\.\d{1,2}\.\d{1,2})"', urllib2.urlopen(
             'https://raw.githubusercontent.com/rix1337/RSScrawler/master/version.py').read()).group(1)
         if localversion == onlineversion:
             return (False, localversion)

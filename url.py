@@ -2,12 +2,9 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-# import rsscrawler modules
-from rssconfig import RssConfig
-
-# import third party modules
 import cfscrape
 
+from rssconfig import RssConfig
 
 
 def getURL(url):
