@@ -9,4 +9,4 @@ cache: pip
 install:
   - pip install -r requirements.txt
 script:
-  - python RSScrawler.py --port=9090 --jd-pfad="/test"
+  - python RSScrawler.py --port=9090 --jd-pfad="/test" --ersatzblogs
