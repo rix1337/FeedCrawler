@@ -317,10 +317,10 @@ class DD():
                     links = []
                     for link in unicode_links:
                         links.append(str(link))
-                    if self.db.retrieve(key) == 'added':
+                    if str(self.db.retrieve(key)) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
-                    else:
+                    elif str(self.db.retrieve(key)) == str(len(links)):
                         common.write_crawljob_file(
                             key,
                             key,
@@ -328,6 +328,7 @@ class DD():
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
+                        self.db.delete(key)
                         self.db.store(
                             key,
                             'added'
@@ -337,6 +338,14 @@ class DD():
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
+                    else:
+                        self.db.delete(key)
+                        self.db.store(
+                            key,
+                            str(len(links))
+                        )
+                        self.log_debug(
+                            "%s - Release gefunden, warte bis sich der Eintrag stabilisiert hat" % key)
 
 
 class SJ():
@@ -863,7 +872,7 @@ class MB():
                 if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     return False
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -1189,7 +1198,7 @@ class MB():
                                 "%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - Release ignoriert (bereits gefunden)" % key)
                 elif '.3d.' not in key.lower():
@@ -1394,7 +1403,7 @@ class MB():
                                     self.log_debug(
                                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                                     break
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
+                    if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
@@ -1670,7 +1679,7 @@ class HW():
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
             download_link = self._get_download_links(value[0])
             if download_link:
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -1996,7 +2005,7 @@ class HW():
                                 "%s - Kein zweisprachiges Release gefunden!" % key)
                             return
 
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - Release ignoriert (bereits gefunden)" % key)
                 elif '.3d.' not in key.lower():
@@ -2197,7 +2206,7 @@ class HW():
                                     self.log_debug(
                                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                                     break
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
+                    if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
@@ -2495,7 +2504,7 @@ class HA():
             return False
         for (key, download_link, pattern) in self.dl_search(search_url, feedsearch_title):
             if download_link:
-                if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'dl':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -2689,7 +2698,7 @@ class HA():
                         if not self.download_dl(key):
                             self.log_debug(
                                 "%s - Kein zweisprachiges Release gefunden" % key)
-                    if self.db.retrieve(key) == 'added' or self.db.retrieve(key) == 'notdl' or self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", "")) == 'added':
+                    if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
                     elif self.filename == 'MB_Filme':
