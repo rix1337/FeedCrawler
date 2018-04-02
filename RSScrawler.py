@@ -320,7 +320,7 @@ class DD():
                     if self.db.retrieve(key) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
-                    else:
+                    elif self.db.retrieve(key) == int(len(links)):
                         common.write_crawljob_file(
                             key,
                             key,
@@ -337,6 +337,11 @@ class DD():
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
+                    else:
+                        self.db.store(
+                            key,
+                            int(len(links))
+                        )
 
 
 class SJ():
