@@ -45,3 +45,6 @@ target/
 *.ini
 *.txt
 *.zip
+
+#Visual Studio compiled
+.vscode/
