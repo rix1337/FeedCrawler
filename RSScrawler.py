@@ -87,7 +87,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
     log_debug = logging.debug
-    log_info = logging.info
 
     search_pool = [
         YT(),
@@ -2902,23 +2901,27 @@ if __name__ == "__main__":
 
     files.check()
 
-    c = Process(target=crawler, args=(jdownloaderpath,
-                                      rsscrawler, log_level, log_file, log_format,))
-    c.start()
-
-    print('Drücke [Strg] + [C] zum Beenden')
-
-    def signal_handler(signal, frame):
-        print('Beende RSScrawler...')
-        p.terminate()
-        c.terminate()
-        sys.exit(0)
-    signal.signal(signal.SIGINT, signal_handler)
-
     if not arguments['--testlauf']:
+        c = Process(target=crawler, args=(jdownloaderpath,
+                                        rsscrawler, log_level, log_file, log_format,))
+        c.start()
+
+        print('Drücke [Strg] + [C] zum Beenden')
+
+        def signal_handler(signal, frame):
+            print('Beende RSScrawler...')
+            p.terminate()
+            c.terminate()
+            sys.exit(0)
+        signal.signal(signal.SIGINT, signal_handler)
+
         try:
             while True:
                 signal.pause()
         except AttributeError:
             while True:
                 time.sleep(1)
+    else:
+        crawler(jdownloaderpath, rsscrawler, log_level, log_file, log_format)
+        p.terminate()
+        sys.exit(0)
