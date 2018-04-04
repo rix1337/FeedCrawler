@@ -311,7 +311,8 @@ class DD():
                     key = post.title.replace(" ", ".")
                     feed_link = post.link
                     link_pool = post.summary
-                    unicode_links = re.findall(r'(http?:\/\/{0}.*)'.format(hoster), link_pool)
+                    link_regex = r"(http.*" +  re.escape(hoster) + r".*"
+                    unicode_links = re.findall(link_regex, link_pool)
                     links = []
                     for link in unicode_links:
                         links.append(str(link))
