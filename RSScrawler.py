@@ -302,6 +302,7 @@ class DD():
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
+        hoster = self.config.get("hoster")
         if feeds:
             feeds = feeds.replace(" ", "").split(',')
             for feed in feeds:
@@ -310,7 +311,7 @@ class DD():
                     key = post.title.replace(" ", ".")
                     feed_link = post.link
                     link_pool = post.summary
-                    unicode_links = re.findall(r'(http.*)', link_pool)
+                    unicode_links = re.findall(r'(http?:\/\/{0}.*)'.format(hoster), link_pool)
                     links = []
                     for link in unicode_links:
                         links.append(str(link))
