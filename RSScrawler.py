@@ -142,8 +142,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception as e:
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Fehler im Suchlauf: " + str(e))
+                logging.exception(e)
     else:
         try:
             start_time = time.time()
@@ -168,8 +167,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception as e:
-            print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Fehler im Suchlauf: " + str(e))
+            logging.exception(e)
 
 
 class YT():
