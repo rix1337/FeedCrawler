@@ -44,6 +44,7 @@ import logging
 from logging import handlers
 import os
 from multiprocessing import Process
+import traceback
 
 from output import Unbuffered
 from output import CutLog
@@ -141,8 +142,8 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 added_items = []
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
-            except Exception as e:
-                logging.exception(e)
+            except Exception:
+                traceback.print_exc()
     else:
         try:
             start_time = time.time()
@@ -166,8 +167,8 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 "---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
-        except Exception as e:
-            logging.exception(e)
+        except Exception:
+            traceback.print_exc()
 
 
 class YT():
