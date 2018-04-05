@@ -307,7 +307,7 @@ class DD():
             feeds = feeds.replace(" ", "").split(',')
             for feed in feeds:
                 feed = feedparser.parse(feed)
-                for post in feed.entries:
+                for post in feed.entries[1:19]:
                     key = post.title.replace(" ", ".")
                     feed_link = post.link
                     link_pool = post.summary
@@ -319,7 +319,7 @@ class DD():
                     if str(self.db.retrieve(key)) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % key)
-                    elif str(self.db.retrieve(key)) == str(len(links)):
+                    else:
                         common.write_crawljob_file(
                             key,
                             key,
@@ -327,7 +327,6 @@ class DD():
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
-                        self.db.delete(key)
                         self.db.store(
                             key,
                             'added'
@@ -337,15 +336,6 @@ class DD():
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
-                    else:
-                        self.db.delete(key)
-                        self.db.store(
-                            key,
-                            str(len(links))
-                        )
-                        self.log_debug(
-                            "%s - Release gefunden, warte bis sich der Eintrag stabilisiert hat" % key)
-
 
 class SJ():
     def __init__(self, filename, internal_name):
