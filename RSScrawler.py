@@ -307,7 +307,8 @@ class DD():
             feeds = feeds.replace(" ", "").split(',')
             for feed in feeds:
                 feed = feedparser.parse(feed)
-                for post in feed.entries[1:19]:
+                feedentries = int(len(feed.entries))-1
+                for post in feed.entries[1:feedentries]:
                     key = post.title.replace(" ", ".")
                     feed_link = post.link
                     link_pool = post.summary
