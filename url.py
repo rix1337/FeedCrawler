@@ -45,15 +45,19 @@ def checkURL():
 
 
 def getURL(url):
-    proxy = RssConfig('RSScrawler').get('proxy')
+    config = RssConfig('RSScrawler')
+    proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
         sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
         mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
-        if sj in url or mb in url:
-            db = RssDb(os.path.join(os.path.dirname(
-                sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
-            if db.retrieve("SJ") or db.retrieve("MB"):
+        db = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
+        if sj in url:
+            if db.retrieve("SJ") and config.get("fallback"):
+                return scraper.get(url, timeout=30).content
+        elif mb in url:
+            if db.retrieve("MB") and config.get("fallback"):
                 return scraper.get(url, timeout=30).content
         proxies = {'http': proxy, 'https': proxy}
         return scraper.get(url, proxies=proxies, timeout=30).content
