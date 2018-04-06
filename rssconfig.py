@@ -20,6 +20,7 @@ class RssConfig(object):
             ("english", "bool", "", ""),
             ("surround", "bool", "", ""),
             ("proxy", "str", "", ""),
+            ("fallback", "bool", "", ""),
             ("hoster", "str", "", "")
         ],
         'MB': [

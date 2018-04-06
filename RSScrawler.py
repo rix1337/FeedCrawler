@@ -44,6 +44,9 @@ import logging
 from logging import handlers
 import os
 from multiprocessing import Process
+from dateutil import parser
+from datetime import datetime
+import warnings
 import traceback
 
 from output import Unbuffered
@@ -51,6 +54,7 @@ from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
 from notifiers import notify
+from url import checkURL
 from url import getURL
 import common
 import files
@@ -86,6 +90,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
+    warnings.simplefilter("ignore", UnicodeWarning)
 
     log_debug = logging.debug
 
@@ -115,6 +120,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     if not arguments['--testlauf']:
         while True:
             try:
+                checkURL()
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
@@ -146,6 +152,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 traceback.print_exc()
     else:
         try:
+            checkURL()
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
@@ -180,7 +187,7 @@ class YT():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.youtube = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
         self.dictWithNamesAndLinks = {}
@@ -299,7 +306,7 @@ class DD():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
@@ -309,41 +316,43 @@ class DD():
                 feed = feedparser.parse(feed)
                 for post in feed.entries:
                     key = post.title.replace(" ", ".")
-                    feed_link = post.link
-                    link_pool = post.summary
-                    unicode_links = re.findall(r'(http.*)', link_pool)
-                    links = []
-                    for link in unicode_links:
-                        links.append(str(link))
-                    if str(self.db.retrieve(key)) == 'added':
-                        self.log_debug(
-                            "%s - Release ignoriert (bereits gefunden)" % key)
-                    elif str(self.db.retrieve(key)) == str(len(links)):
-                        common.write_crawljob_file(
-                            key,
-                            key,
-                            links,
-                            jdownloaderpath + "/folderwatch",
-                            "RSScrawler"
-                        )
-                        self.db.delete(key)
-                        self.db.store(
-                            key,
-                            'added'
-                        )
-                        log_entry = '[DD.tv/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
-                        self.log_info(log_entry)
-                        added_items.append(log_entry)
+
+                    epoch = datetime(1970, 1, 1)
+                    current_epoch = int(time.time())
+                    published_format = "%Y-%m-%d %H:%M:%S+00:00"
+                    published_timestamp = str(parser.parse(post.published))
+                    published_epoch = int((datetime.strptime(
+                        published_timestamp, published_format) - epoch).total_seconds())
+                    if (current_epoch - 1800) > published_epoch:
+                        feed_link = post.link
+                        link_pool = post.summary
+                        unicode_links = re.findall(r'(http.*)', link_pool)
+                        links = []
+                        for link in unicode_links:
+                            links.append(str(link))
+                        if self.db.retrieve(key) == 'added':
+                            self.log_debug(
+                                "%s - Release ignoriert (bereits gefunden)" % key)
+                        else:
+                            common.write_crawljob_file(
+                                key,
+                                key,
+                                links,
+                                jdownloaderpath + "/folderwatch",
+                                "RSScrawler"
+                            )
+                            self.db.store(
+                                key,
+                                'added'
+                            )
+                            log_entry = '[DD.tv/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
+                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                            self.log_info(log_entry)
+                            added_items.append(log_entry)
                     else:
-                        self.db.delete(key)
-                        self.db.store(
-                            key,
-                            str(len(links))
-                        )
                         self.log_debug(
-                            "%s - Release gefunden, warte bis sich der Eintrag stabilisiert hat" % key)
+                            "%s - Release ist jünger als 30 Minuten und wird ignoriert." % key)
 
 
 class SJ():
@@ -355,7 +364,7 @@ class SJ():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
@@ -697,7 +706,7 @@ class MB():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -1507,7 +1516,7 @@ class HW():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -2310,7 +2319,7 @@ class HA():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
@@ -2902,7 +2911,7 @@ if __name__ == "__main__":
 
     if not arguments['--testlauf']:
         c = Process(target=crawler, args=(jdownloaderpath,
-                                        rsscrawler, log_level, log_file, log_format,))
+                                          rsscrawler, log_level, log_file, log_format,))
         c.start()
 
         print('Drücke [Strg] + [C] zum Beenden')

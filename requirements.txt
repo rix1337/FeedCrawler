@@ -9,4 +9,5 @@ feedparser
 flask
 gevent
 lxml
+python-dateutil
 requests[socks]

@@ -42,9 +42,9 @@ def merge_old():
 
 
 class RssDb(object):
-    def __init__(self, file):
+    def __init__(self, file, table):
         self._conn = sqlite3.connect(file, check_same_thread=False)
-        self._table = 'rsscrawler'
+        self._table = table
         if not self._conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
             self._conn.execute(
                 '''CREATE TABLE %s (key, value)''' % self._table)
