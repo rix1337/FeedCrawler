@@ -309,6 +309,11 @@
                             <input ng-model="settings.general.proxy" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080"></input>
                         </p>
                         <p>
+                            <h4>Proxy-Fallback</h4>
+                            <select ng-model="settings.general.fallback" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Diese Option sollte nicht leichtfertig aktiviert werden! Vor jedem Suchlauf wird geprüft, ob MB oder SJ die aktuelle IP gesperrt haben. Ist diese Option aktiv, wird die oben eingetragene Proxy-Adresse für die blockierte Seite umgangen."></select>
+                        </p>
+                        <p>
                             <h4>Hoster</h4>
                             <select ng-model="settings.general.hoster" ng-options="h.value as h.label for h in hosters" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Hier den gewünschten Hoster wählen"></select>
@@ -544,7 +549,7 @@
     <script src="js/angular.min.js"></script>
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/fontawesome-all.min.js"></script>
-    <script src="js/rsscrawler.js?4.1.1"></script>
+    <script src="js/rsscrawler.js?4.1.2"></script>
 </body>
 
 </html>

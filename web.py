@@ -123,6 +123,7 @@ def get_all():
                         "english": general.get("english"),
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
+                        "fallback": general.get("fallback"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -221,6 +222,7 @@ def get_post_settings():
                         "english": general.get("english"),
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
+                        "fallback": general.get("fallback"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -288,6 +290,8 @@ def get_post_settings():
                     to_str(data['general']['surround']).encode('utf-8') + "\n")
             f.write("proxy = " +
                     to_str(data['general']['proxy']).encode('utf-8') + "\n")
+            f.write("fallback = " +
+                    to_str(data['general']['fallback']).encode('utf-8') + "\n")
             f.write("hoster = " +
                     to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
