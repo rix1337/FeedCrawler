@@ -8,7 +8,7 @@ import os
 import sys
 
 from rssconfig import RssConfig
-from rssdb import CheckDb
+from rssdb import RssDb
 
 
 def checkURL():
@@ -16,11 +16,11 @@ def checkURL():
     mb_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8=".decode('base64')
     proxy = RssConfig('RSScrawler').get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
-    db = CheckDb(os.path.join(os.path.dirname(
-        sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
     sj_blocked_proxy = False
     mb_blocked_proxy = False
     if proxy:
+        db = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
         if "block." in str(scraper.get(sj_url, proxies=proxies, timeout=30, allow_redirects=False).headers.get("location")):
             print "Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!"
@@ -48,13 +48,12 @@ def getURL(url):
     proxy = RssConfig('RSScrawler').get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
-        db = CheckDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
-        # TODO if db.retrieve("SJ") and serienjunkies.org in url use no proxies
-        # TODO if db.retrieve("MB") and movie-blog.org in url use no proxies
-        if "movie-blog.org" in url:
-            if db.retrieve("MB"):
-                print "Not using proxy"
+        sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
+        mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
+        if sj in url or mb in url:
+            db = RssDb(os.path.join(os.path.dirname(
+                sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
+            if db.retrieve("SJ") or db.retrieve("MB"):
                 return scraper.get(url, timeout=30).content
         proxies = {'http': proxy, 'https': proxy}
         return scraper.get(url, proxies=proxies, timeout=30).content
@@ -65,8 +64,6 @@ def getURL(url):
 def postURL(url, data):
     proxy = RssConfig('RSScrawler').get('proxy')
     if proxy:
-        db = CheckDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
         proxies = {'http': proxy, 'https': proxy}
         scraper = cfscrape.create_scraper(delay=10)
         return scraper.post(url, data, proxies=proxies, timeout=30).content

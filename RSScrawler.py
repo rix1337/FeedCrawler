@@ -188,7 +188,7 @@ class YT():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.youtube = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
         self.dictWithNamesAndLinks = {}
@@ -307,7 +307,7 @@ class DD():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
@@ -322,7 +322,8 @@ class DD():
                     current_epoch = int(time.time())
                     published_format = "%Y-%m-%d %H:%M:%S+00:00"
                     published_timestamp = str(parser.parse(post.published))
-                    published_epoch = int((datetime.strptime(published_timestamp, published_format) - epoch).total_seconds())
+                    published_epoch = int((datetime.strptime(
+                        published_timestamp, published_format) - epoch).total_seconds())
                     if (current_epoch - 1800) > published_epoch:
                         feed_link = post.link
                         link_pool = post.summary
@@ -351,7 +352,8 @@ class DD():
                             self.log_info(log_entry)
                             added_items.append(log_entry)
                     else:
-                        self.log_debug("%s - Release ist jünger als 30 Minuten und wird ignoriert." % key)
+                        self.log_debug(
+                            "%s - Release ist jünger als 30 Minuten und wird ignoriert." % key)
 
 
 class SJ():
@@ -363,7 +365,7 @@ class SJ():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
@@ -705,7 +707,7 @@ class MB():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -1515,7 +1517,7 @@ class HW():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -2318,7 +2320,7 @@ class HA():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')

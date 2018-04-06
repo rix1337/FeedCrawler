@@ -402,7 +402,7 @@ def get_version():
 def delete_title(title):
     if request.method == 'DELETE':
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         db.delete(title)
         return "Success", 200
     else:
