@@ -2811,18 +2811,12 @@ if __name__ == "__main__":
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
     print("└────────────────────────────────────────────────────────┘")
 
-    files.startup()
-
-    einstellungen = os.path.join(os.path.dirname(
-        sys.argv[0]), 'Einstellungen/RSScrawler.ini')
     if not arguments['--jd-pfad']:
-        if not os.path.exists(einstellungen):
-            if arguments['--port']:
-                files.einsteller(
-                    einstellungen, version, "Muss unbedingt vergeben werden!", arguments['--port'])
-            else:
-                files.einsteller(einstellungen, version,
-                                 "Muss unbedingt vergeben werden!", "9090")
+        if arguments['--port']:
+            files.startup(
+                "Muss unbedingt vergeben werden!", arguments['--port'])
+        else:
+            files.startup("Muss unbedingt vergeben werden!", "9090")
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print(
                 'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
@@ -2831,26 +2825,12 @@ if __name__ == "__main__":
             print('Viel Spass! Beende RSScrawler!')
             sys.exit(0)
     else:
-        if not os.path.exists(einstellungen):
-            if arguments['--port']:
-                files.einsteller(einstellungen, version,
-                                 arguments['--jd-pfad'], arguments['--port'])
-            else:
-                files.einsteller(einstellungen, version,
-                                 arguments['--jd-pfad'], "9090")
+        if arguments['--port']:
+            files.startup(arguments['--jd-pfad'], arguments['--port'])
+        else:
+            files.startup(arguments['--jd-pfad'], "9090")
             print('Der Ordner "Einstellungen" wurde erstellt.')
             print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
-
-    configfile = os.path.join(os.path.dirname(
-        sys.argv[0]), 'Einstellungen/RSScrawler.ini')
-    if not 'port' in open(configfile).read() and not 'prefix' in open(configfile).read():
-        print('Veraltete Konfigurationsdatei erkannt. Ergänze neue Einstellungen!')
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'r+') as f:
-            content = f.read()
-            f.seek(0)
-            f.truncate()
-            f.write(content.replace('[RSScrawler]\n',
-                                    '[RSScrawler]\nport = 9090\nprefix =\n'))
 
     rsscrawler = RssConfig('RSScrawler')
 

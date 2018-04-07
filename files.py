@@ -7,6 +7,7 @@ import logging
 import os
 import sys
 import rssdb
+from rssconfig import RssConfig
 
 
 def check():
@@ -49,7 +50,7 @@ def _mkdir_p(path):
             raise
 
 
-def startup():
+def startup(jdownloader, port):
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
         _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen'))
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads')):
@@ -58,6 +59,7 @@ def startup():
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen')):
         _mkdir_p(os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen'))
+
     lists = ["MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien",
              "MB_Regex", "SJ_Serien_Regex", "SJ_Staffeln_Regex", "YT_Channels"]
     for l in lists:
@@ -68,6 +70,7 @@ def startup():
                 sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt'), 'w')
             placeholder.write('XXXXXXXXXX')
             placeholder.close()
+
     if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/MB_Downloads.db')):
         if rssdb.merge_old():
             os.remove(os.path.join(os.path.dirname(
@@ -79,9 +82,10 @@ def startup():
         else:
             logging.error("Kann alte Downloads-Datenbanken nicht verbinden!")
 
-
-def einsteller(einstellungen, version, jdpfad, port):
-    open(einstellungen, "a").close()
-    einsteller = open(einstellungen, 'w')
-    einsteller.write('# RSScrawler.ini (Stand: RSScrawler ' + version + ')\n\n[RSScrawler]\njdownloader = ' + jdpfad + '\nport = ' + port + '\nprefix = \ninterval = 10\nenglish = False\nsurround = \nproxy = \nfallback = False\nhoster = Share-Online\n\n[MB]\nquality = 720p\nignore = cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx\nhistorical = False\nregex = False\ncutoff = False\ncrawl3d = False\ncrawl3dtype = hsbs\nenforcedl = False\ncrawlseasons = True\nseasonsquality = 720p\nseasonpacks = False\nseasonssource = web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip\nimdbyear = 2010\nimdb = 0.0\n\n[SJ]\nquality = 720p\nrejectlist = XviD,Subbed,HDTV\nregex = False\n\n[DD]\nfeeds = \n\n[YT]\nyoutube = False\nmaxvideos = 10\nignore = \n\n[Notifications]\npushbullet = \npushover = \nhomeassistant = \n\n[Crawljobs]\nautostart = True\nsubdir = True\n')
-    einsteller.close()
+    sections = ['RSScrawler', 'MB', 'SJ', 'DD',
+                'YT', 'Notifications', 'Crawljobs']
+    for section in sections:
+        if section == "RSScrawler":
+            RssConfig(section, jdownloader, port)
+        else:
+            RssConfig(section)
