@@ -6,6 +6,7 @@ import common
 from notifiers import notify
 from rssconfig import RssConfig
 from rssdb import RssDb
+from rssdb import ListDb
 from url import getURL
 from url import postURL
 
@@ -412,17 +413,13 @@ def sj(id, jdownloaderpath):
 
     rsscrawler = RssConfig('RSScrawler')
 
-    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt')):
-        file = open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'))
-        output = StringIO.StringIO()
-        for line in file.readlines():
-            output.write(line.replace("XXXXXXXXXX", ""))
-    liste = output.getvalue()
-    if not title in liste:
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'wb') as f:
-            liste = liste + "\n" + title
-            f.write(liste.encode('utf-8'))
+    listen = ["SJ_Serien", "MB_Staffeln"]
+    for liste in listen:
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        if not title in cont:
+            ListDb(os.path.join(os.path.dirname(
+                sys.argv[0]), "RSScrawler.db"), liste).store(title)
 
     staffeln = []
     staffel_nr = []

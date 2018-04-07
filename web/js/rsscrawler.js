@@ -235,6 +235,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
+                getListsOnly();
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
@@ -246,6 +247,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
+                getListsOnly();
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');

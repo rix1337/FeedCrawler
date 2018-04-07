@@ -652,10 +652,11 @@ class SJ():
         cont = ListDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), liste).retrieve()
         titles = []
-        for title in cont:
-            if title:
-                title = title.replace(" ", ".")
-                titles.append(title)
+        if cont:
+            for title in cont:
+                if title:
+                    title = title.replace(" ", ".")
+                    titles.append(title)
         if not titles:
             self.log_debug(
                 "Liste ist leer. Stoppe Suche für Serien!" + loginfo)
