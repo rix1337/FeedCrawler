@@ -123,6 +123,7 @@ def get_all():
                         "english": general.get("english"),
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
+                        "fallback": general.get("fallback"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -222,6 +223,7 @@ def get_post_settings():
                         "english": general.get("english"),
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
+                        "fallback": general.get("fallback"),
                         "hoster": general.get("hoster"),
                     },
                     "alerts": {
@@ -290,6 +292,8 @@ def get_post_settings():
                     to_str(data['general']['surround']).encode('utf-8') + "\n")
             f.write("proxy = " +
                     to_str(data['general']['proxy']).encode('utf-8') + "\n")
+            f.write("fallback = " +
+                    to_str(data['general']['fallback']).encode('utf-8') + "\n")
             f.write("hoster = " +
                     to_str(data['general']['hoster']).encode('utf-8') + "\n")
             f.write("\n[MB]\n")
@@ -402,7 +406,7 @@ def get_version():
 def delete_title(title):
     if request.method == 'DELETE':
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"))
+            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
         db.delete(title)
         return "Success", 200
     else:
