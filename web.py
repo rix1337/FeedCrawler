@@ -160,6 +160,7 @@ def get_all():
                     },
                     "dd": {
                         "feeds": dd.get("feeds"),
+                        "hoster": dd.get("hoster"),
                     },
                     "yt": {
                         "enabled": yt.get("youtube"),
@@ -259,6 +260,7 @@ def get_post_settings():
                     },
                     "dd": {
                         "feeds": dd.get("feeds"),
+                        "hoster": dd.get("hoster"),
                     },
                     "yt": {
                         "enabled": yt.get("youtube"),
@@ -342,6 +344,8 @@ def get_post_settings():
             f.write("\n[DD]\n")
             f.write("feeds = " +
                     to_str(data['dd']['feeds']).encode('utf-8') + "\n")
+            f.write("hoster = " +
+                    to_str(data['dd']['hoster']).encode('utf-8') + "\n")
             f.write("\n[YT]\n")
             f.write("youtube = " +
                     to_str(data['yt']['enabled']).encode('utf-8') + "\n")

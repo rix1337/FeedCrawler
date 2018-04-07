@@ -310,11 +310,13 @@ class DD():
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
+        hoster = self.config.get("hoster")
         if feeds:
             feeds = feeds.replace(" ", "").split(',')
             for feed in feeds:
                 feed = feedparser.parse(feed)
-                for post in feed.entries:
+                feedentries = int(len(feed.entries))
+                for post in feed.entries[1:feedentries]:
                     key = post.title.replace(" ", ".")
 
                     epoch = datetime(1970, 1, 1)
