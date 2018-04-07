@@ -8,6 +8,7 @@ from output import Unbuffered
 from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
+from rssdb import ListDb
 import search
 import files
 import version
@@ -24,7 +25,7 @@ from logging import handlers
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
-if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')):
+if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
     prefix = ""
 else:
     general = RssConfig('RSScrawler')
@@ -374,7 +375,6 @@ def get_post_settings():
             "autostart", to_str(data['crawljobs']['autostart']).encode('utf-8'))
         section.save("subdir",
                      to_str(data['crawljobs']['subdir']).encode('utf-8'))
-        files.check()
         return "Success", 201
     else:
         return "Failed", 405
@@ -408,7 +408,7 @@ def get_version():
 def delete_title(title):
     if request.method == 'DELETE':
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         db.delete(title)
         return "Success", 200
     else:
@@ -480,38 +480,31 @@ def get_post_lists():
         )
     if request.method == 'POST':
         data = request.json
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'wb') as f:
-            f.write(data['mb']['filme'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_3D.txt'), 'wb') as f:
-            f.write(data['mb']['filme3d'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), 'wb') as f:
-            f.write(data['mbsj']['staffeln'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Regex.txt'), 'wb') as f:
-            f.write(data['mb']['regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'wb') as f:
-            f.write(data['sj']['serien'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'wb') as f:
-            f.write(data['sj']['regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Staffeln_Regex.txt'), 'wb') as f:
-            f.write(data['sj']['staffeln_regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt'), 'wb') as f:
-            f.write(data['yt']['kanaele_playlisten'].encode('utf-8'))
-        files.check()
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store(
+            data['mb']['filme'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store(
+            data['mb']['filme3d'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store(
+            data['mbsj']['staffeln'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store(
+            data['mb']['regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store(
+            data['sj']['serien'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store(
+            data['sj']['regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store(
+            data['sj']['staffeln_regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store(
+            data['yt']['kanaele_playlisten'].encode('utf-8').split('\n'))
         return "Success", 201
     else:
         return "Failed", 405
 
 
 def getListe(liste):
-    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt')):
-        return "Liste nicht gefunden"
-    else:
-        file = open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
-        output = StringIO.StringIO()
-        for line in file.readlines():
-            output.write(line.replace("XXXXXXXXXX", ""))
-    return output.getvalue()
+    cont = ListDb(os.path.join(os.path.dirname(
+        sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+    return "\n".join(cont) if cont else ""
 
 
 def start(port, docker_arg, jd, log_level, log_file, log_format):

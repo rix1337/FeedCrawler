@@ -40,25 +40,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.mb_hosters = [
-        { value: 'Share-Online', label: 'Share-Online' },
-        { value: 'OBOOM', label: 'OBOOM' },
-        { value: 'Uploaded', label: 'Uploaded*' },
-        { value: 'Rapidgator', label: 'Rapidgator*' },
-        { value: 'Openload', label: 'Openload*' },
-        { value: 'Zippyshare', label: 'Zippyshare*' },
+        { value: 'share-online', label: 'Share-Online' },
+        { value: 'oboom', label: 'OBOOM' },
+        { value: 'uploaded', label: 'Uploaded*' },
+        { value: 'rapidgator', label: 'Rapidgator*' },
+        { value: 'openload', label: 'Openload*' },
+        { value: 'zippyshare', label: 'Zippyshare*' },
         { value: '.*', label: 'ALLE**' },
     ];
 
     $scope.sj_hosters = [
-        { value: 'Share-Online', label: 'Share-Online' },
-        { value: 'Uploaded', label: 'Uploaded' },
-        { value: 'Rapidgator', label: 'Rapidgator*' },
+        { value: 'share-online', label: 'Share-Online' },
+        { value: 'uploaded', label: 'Uploaded' },
+        { value: 'rapidgator', label: 'Rapidgator*' },
         { value: '.*', label: 'ALLE**' },
     ];
 
     $scope.dd_hosters = [
-        { value: 'Uploaded', label: 'Uploaded' },
-        { value: 'Share-Online', label: 'Share-Online' },
+        { value: 'ironfiles', label: 'IronFiles' },
+        { value: 'oboom', label: 'OBOOM' },
+        { value: 'rapidgator', label: 'Rapidgator' },
+        { value: 'k2s', label: 'Keep2Share' },
+        { value: 'filefactory', label: 'FileFactory' },
         { value: '.*', label: 'ALLE' },
     ];
 

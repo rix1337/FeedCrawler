@@ -2,75 +2,20 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import errno
+import codecs
 import logging
 import os
 import sys
+import time
+import shutil
+
 import rssdb
+from rssdb import ListDb
 from rssconfig import RssConfig
 
 
-def check():
-    lists_nonregex = ["MB_3D", "MB_Filme",
-                      "MB_Staffeln", "SJ_Serien", "YT_Channels"]
-    lists_regex = ["MB_Regex", "SJ_Serien_Regex", "SJ_Staffeln_Regex"]
-
-    for nrlist in lists_nonregex:
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + nrlist + '.txt'), 'r+') as f:
-            content = f.read()
-            f.seek(0)
-            f.truncate()
-            if content == '':
-                content = 'XXXXXXXXXX'
-            content = "".join(
-                [s for s in content.strip().splitlines(True) if s.strip()])
-            f.write(content.replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-                'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' '))
-
-    for rlist in lists_regex:
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + rlist + '.txt'), 'r+') as f:
-            content = f.read()
-            f.seek(0)
-            f.truncate()
-            if content == '':
-                content = 'XXXXXXXXXX'
-            content = "".join(
-                [s for s in content.strip().splitlines(True) if s.strip()])
-            f.write(content)
-
-
-def _mkdir_p(path):
-    try:
-        os.makedirs(path)
-    except OSError as e:
-        if e.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            logging.error("Kann Pfad nicht anlegen: %s" % path)
-            raise
-
-
 def startup(jdownloader=None, port=None):
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
-        _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen'))
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads')):
-        _mkdir_p(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Downloads'))
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen')):
-        _mkdir_p(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen'))
-
-    lists = ["MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien",
-             "MB_Regex", "SJ_Serien_Regex", "SJ_Staffeln_Regex", "YT_Channels"]
-    for l in lists:
-        if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt')):
-            open(os.path.join(os.path.dirname(
-                sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), "a").close()
-            placeholder = open(os.path.join(os.path.dirname(
-                sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt'), 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-
+    # Merge Pre-v.4.1.x-Databases into v.4.1.x-Database
     if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/MB_Downloads.db')):
         if rssdb.merge_old():
             os.remove(os.path.join(os.path.dirname(
@@ -81,6 +26,34 @@ def startup(jdownloader=None, port=None):
                 sys.argv[0]), 'Einstellungen/Downloads/YT_Downloads.db'))
         else:
             logging.error("Kann alte Downloads-Datenbanken nicht verbinden!")
+
+    # Move Pre-v.4.2.x-Settings to Base dir
+    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/Downloads.db')):
+        os.rename(os.path.join(os.path.dirname(
+            sys.argv[0]), 'Einstellungen/Downloads/Downloads.db'), os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.db'))
+
+    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')):
+        os.rename(os.path.join(os.path.dirname(
+            sys.argv[0]), 'Einstellungen/RSScrawler.ini'), os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini'))
+
+    # Move Pre-v.4.2.x-Lists to Database
+    lists = ["MB_3D", "MB_Filme", "MB_Staffeln", "SJ_Serien",
+             "MB_Regex", "SJ_Serien_Regex", "SJ_Staffeln_Regex", "YT_Channels"]
+    for l in lists:
+        liste = os.path.join(os.path.dirname(
+            sys.argv[0]), 'Einstellungen/Listen/' + l + '.txt')
+        if os.path.isfile(liste):
+            f = codecs.open(liste, "rb")
+            items = f.read().replace("XXXXXXXXXX", "").splitlines()
+            f.close()
+            for item in items:
+                ListDb(os.path.join(os.path.dirname(
+                    sys.argv[0]), "RSScrawler.db"), l).store(item)
+
+    # Delete old Settings dir
+    if os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
+        shutil.rmtree(os.path.join(
+            os.path.dirname(sys.argv[0]), 'Einstellungen'))
 
     if jdownloader or port:
         sections = ['RSScrawler', 'MB', 'SJ', 'DD',

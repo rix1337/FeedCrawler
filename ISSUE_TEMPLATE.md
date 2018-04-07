@@ -5,7 +5,7 @@ https://gitter.im/RSScrawler/Lobby
 
 # Zwingend erforderlich
 
-- **"Einstellungen"-Ordner als Zip** (Paranoide können die Downloads.db weglassen)
+- **RSScrawler.ini und RSScrawler.db**
 
 - **Fehlermeldung aus dem Log** (ggf. DEBUG aktivieren!)
 

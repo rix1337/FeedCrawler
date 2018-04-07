@@ -187,7 +187,7 @@ class YT():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         self.youtube = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
         self.dictWithNamesAndLinks = {}
@@ -306,7 +306,7 @@ class DD():
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
@@ -364,7 +364,7 @@ class SJ():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
@@ -706,7 +706,7 @@ class MB():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -1516,7 +1516,7 @@ class HW():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
@@ -2319,7 +2319,7 @@ class HA():
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         self.search_list = os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
@@ -2811,7 +2811,7 @@ if __name__ == "__main__":
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
     print("└────────────────────────────────────────────────────────┘")
 
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')):
+    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
         if not arguments['--jd-pfad']:
             if arguments['--port']:
                 files.startup(
@@ -2893,8 +2893,6 @@ if __name__ == "__main__":
     p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, log_level, log_file, log_format))
     p.start()
-
-    files.check()
 
     if not arguments['--testlauf']:
         c = Process(target=crawler, args=(jdownloaderpath,

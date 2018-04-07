@@ -239,7 +239,7 @@ def mb(link, jdownloaderpath):
     config = RssConfig('MB')
     hoster = rsscrawler.get('hoster')
     db = RssDb(os.path.join(os.path.dirname(
-        sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+        sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
     soup = bs(url, 'lxml')
     download = soup.find("div", {"id": "content"})
@@ -554,7 +554,7 @@ def sj(id, jdownloaderpath):
             rsscrawler = RssConfig('RSScrawler')
             hoster = rsscrawler.get('hoster')
             db = RssDb(os.path.join(os.path.dirname(
-                sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+                sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
             if hoster.lower() in dl_hoster.lower():
                 common.write_crawljob_file(

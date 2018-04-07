@@ -10,7 +10,7 @@ import sys
 
 class RssConfig(object):
     _CONFIG_FILES = [os.path.join(os.path.dirname(
-        sys.argv[0]), 'Einstellungen/RSScrawler.ini')]
+        sys.argv[0]), 'RSScrawler.ini')]
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", ""),

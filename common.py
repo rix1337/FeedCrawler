@@ -92,7 +92,6 @@ def entfernen(retailtitel, identifier):
         l.close()
     with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
         w.write(''.join(content))
-    files.check()
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
