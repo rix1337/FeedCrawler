@@ -46,7 +46,7 @@ class RssConfig(object):
             ("regex", "bool", "False")
         ],
         'DD': [
-            ("hoster", "str", ""),
+            ("hoster", "str", ".*"),
             ("feeds", "str", "")
         ],
         'YT': [

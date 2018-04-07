@@ -313,11 +313,6 @@
                             <select ng-model="settings.general.fallback" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Diese Option sollte nicht leichtfertig aktiviert werden! Vor jedem Suchlauf wird geprüft, ob MB oder SJ die aktuelle IP gesperrt haben. Ist diese Option aktiv, wird die oben eingetragene Proxy-Adresse für die blockierte Seite umgangen."></select>
                         </p>
-                        <p>
-                            <h4>Hoster</h4>
-                            <select ng-model="settings.general.hoster" ng-options="h.value as h.label for h in hosters" class="form-control" data-toggle="tooltip"
-                                data-placement="top" title="Hier den gewünschten Hoster wählen"></select>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -379,6 +374,11 @@
                 </div>
                 <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#settings">
                     <div class="card-body">
+                        <p>
+                            <h4>Hoster</h4>
+                            <select ng-model="settings.mb.hoster" ng-options="h.value as h.label for h in mb_hosters" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Hier den/die gewünschten Hoster wählen *steht nicht immer zur Verfügung **extremen Captcha-Bedarf beachten!"></select>
+                        </p>
                         <p>
                             <h4>Auflösung</h4>
                             <select ng-model="settings.mb.quality" ng-options="r.value as r.label for r in resolutions" class="form-control" data-toggle="tooltip"
@@ -442,6 +442,11 @@
                 <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#settings">
                     <div class="card-body">
                         <p>
+                            <h4>Hoster</h4>
+                            <select ng-model="settings.sj.hoster" ng-options="h.value as h.label for h in sj_hosters" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Hier den/die gewünschten Hoster wählen *steht nicht immer zur Verfügung **extremen Captcha-Bedarf beachten!"></select>
+                        </p>
+                        <p>
                             <h4>Auflösung</h4>
                             <select ng-model="settings.sj.quality" ng-options="r.value as r.label for r in resolutions" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
@@ -501,6 +506,11 @@
                 </div>
                 <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
                     <div class="card-body">
+                        <p>
+                            <h4>Hoster</h4>
+                            <select ng-model="settings.dd.hoster" ng-options="h.value as h.label for h in dd_hosters" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Hier den/die gewünschten Hoster wählen."></select>
+                        </p>
                         <p>
                             <h4>Feeds</h4>
                             <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip" data-placement="top" title="Hier Feeds von DD eintragen (durch Kommata getrennt)"></input>

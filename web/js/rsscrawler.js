@@ -39,9 +39,27 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         { value: false, label: 'Deaktiviert' },
     ];
 
-    $scope.hosters = [
+    $scope.mb_hosters = [
+        { value: 'Share-Online', label: 'Share-Online' },
+        { value: 'OBOOM', label: 'OBOOM' },
+        { value: 'Uploaded', label: 'Uploaded*' },
+        { value: 'Rapidgator', label: 'Rapidgator*' },
+        { value: 'Openload', label: 'Openload*' },
+        { value: 'Zippyshare', label: 'Zippyshare*' },
+        { value: '.*', label: 'ALLE**' },
+    ];
+
+    $scope.sj_hosters = [
+        { value: 'Share-Online', label: 'Share-Online' },
+        { value: 'Uploaded', label: 'Uploaded' },
+        { value: 'Rapidgator', label: 'Rapidgator*' },
+        { value: '.*', label: 'ALLE**' },
+    ];
+
+    $scope.dd_hosters = [
         { value: 'Uploaded', label: 'Uploaded' },
         { value: 'Share-Online', label: 'Share-Online' },
+        { value: '.*', label: 'ALLE' },
     ];
 
     $scope.resolutions = [

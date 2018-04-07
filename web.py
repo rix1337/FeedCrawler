@@ -124,7 +124,6 @@ def get_all():
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
                         "fallback": general.get("fallback"),
-                        "hoster": general.get("hoster"),
                     },
                     "alerts": {
                         "pushbullet": alerts.get("pushbullet"),
@@ -136,6 +135,7 @@ def get_all():
                         "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
+                        "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
@@ -148,6 +148,7 @@ def get_all():
                         "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
+                        "hoster": sj.get("hoster"),
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
                         "regex": sj.get("regex"),
@@ -159,6 +160,7 @@ def get_all():
                         "source": mb.get("seasonssource"),
                     },
                     "dd": {
+                        "hoster": dd.get("hoster"),
                         "feeds": dd.get("feeds"),
                     },
                     "yt": {
@@ -223,7 +225,6 @@ def get_post_settings():
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
                         "fallback": general.get("fallback"),
-                        "hoster": general.get("hoster"),
                     },
                     "alerts": {
                         "pushbullet": alerts.get("pushbullet"),
@@ -235,6 +236,7 @@ def get_post_settings():
                         "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
+                        "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
@@ -247,6 +249,7 @@ def get_post_settings():
                         "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
+                        "hoster": sj.get("hoster"),
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
                         "regex": sj.get("regex"),
@@ -258,6 +261,7 @@ def get_post_settings():
                         "source": mb.get("seasonssource"),
                     },
                     "dd": {
+                        "hoster": dd.get("hoster"),
                         "feeds": dd.get("feeds"),
                     },
                     "yt": {
@@ -290,9 +294,9 @@ def get_post_settings():
                      to_str(data['general']['proxy']).encode('utf-8'))
         section.save("fallback",
                      to_str(data['general']['fallback']).encode('utf-8'))
-        section.save("hoster",
-                     to_str(data['general']['hoster']).encode('utf-8'))
         section = RssConfig("MB")
+        section.save("hoster",
+                     to_str(data['mb']['hoster']).encode('utf-8'))
         section.save("quality",
                      to_str(data['mb']['quality']).encode('utf-8'))
         section.save(
@@ -331,6 +335,8 @@ def get_post_settings():
             imdb = 10.0
         section.save("imdb", to_str(imdb))
         section = RssConfig("SJ")
+        section.save("hoster",
+                     to_str(data['sj']['hoster']).encode('utf-8'))
         section.save("quality",
                      to_str(data['sj']['quality']).encode('utf-8'))
         section.save("rejectlist",
@@ -338,6 +344,8 @@ def get_post_settings():
         section.save("regex",
                      to_str(data['sj']['regex']).encode('utf-8'))
         section = RssConfig("DD")
+        section.save("hoster",
+                     to_str(data['dd']['hoster']).encode('utf-8'))
         section.save("feeds",
                      to_str(data['dd']['feeds']).encode('utf-8'))
         section = RssConfig("YT")
