@@ -50,7 +50,7 @@ def _mkdir_p(path):
             raise
 
 
-def startup(jdownloader, port):
+def startup(jdownloader=None, port=None):
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
         _mkdir_p(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen'))
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads')):
@@ -82,10 +82,12 @@ def startup(jdownloader, port):
         else:
             logging.error("Kann alte Downloads-Datenbanken nicht verbinden!")
 
-    sections = ['RSScrawler', 'MB', 'SJ', 'DD',
-                'YT', 'Notifications', 'Crawljobs']
-    for section in sections:
-        if section == "RSScrawler":
-            RssConfig(section, jdownloader, port)
-        else:
+    if jdownloader or port:
+        sections = ['RSScrawler', 'MB', 'SJ', 'DD',
+                    'YT', 'Notifications', 'Crawljobs']
+        for section in sections:
             RssConfig(section)
+        if jdownloader:
+            RssConfig('RSScrawler').save("jdownloader", jdownloader)
+        if port:
+            RssConfig('RSScrawler').save("port", port)

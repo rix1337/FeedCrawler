@@ -2811,26 +2811,33 @@ if __name__ == "__main__":
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
     print("└────────────────────────────────────────────────────────┘")
 
-    if not arguments['--jd-pfad']:
-        if arguments['--port']:
-            files.startup(
-                "Muss unbedingt vergeben werden!", arguments['--port'])
+    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')):
+        if not arguments['--jd-pfad']:
+            if arguments['--port']:
+                files.startup(
+                    "Muss unbedingt vergeben werden!", arguments['--port'])
+            else:
+                files.startup("Muss unbedingt vergeben werden!", "9090")
+                print('Der Ordner "Einstellungen" wurde erstellt.')
+                print(
+                    'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+                print(
+                    'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
+                print('Viel Spass! Beende RSScrawler!')
+                sys.exit(0)
         else:
-            files.startup("Muss unbedingt vergeben werden!", "9090")
-            print('Der Ordner "Einstellungen" wurde erstellt.')
-            print(
-                'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-            print(
-                'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
-            print('Viel Spass! Beende RSScrawler!')
-            sys.exit(0)
-    else:
-        if arguments['--port']:
-            files.startup(arguments['--jd-pfad'], arguments['--port'])
-        else:
-            files.startup(arguments['--jd-pfad'], "9090")
-            print('Der Ordner "Einstellungen" wurde erstellt.')
-            print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+            if arguments['--port']:
+                files.startup(arguments['--jd-pfad'], arguments['--port'])
+            else:
+                files.startup(arguments['--jd-pfad'], "9090")
+                print('Der Ordner "Einstellungen" wurde erstellt.')
+                print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+    elif arguments['--jd-pfad'] and arguments['--port']:
+        files.startup(arguments['--jd-pfad'], arguments['--port'])
+    elif arguments['--jd-pfad']:
+        files.startup(arguments['--jd-pfad'], None)
+    elif arguments['--port']:
+        files.startup(None, arguments['--port'])
 
     rsscrawler = RssConfig('RSScrawler')
 

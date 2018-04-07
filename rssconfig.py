@@ -66,15 +66,13 @@ class RssConfig(object):
     }
     __config__ = []
 
-    def __init__(self, section, jdownloader=None, port=None):
+    def __init__(self, section):
         self._section = section
         self._config = ConfigParser.RawConfigParser()
         try:
             self._config.read(self._CONFIG_FILES)
             self._config.has_section(
                 self._section) or self._set_default_config(self._section)
-            if jdownloader and port:
-                self._set_parameters(jdownloader, port)
             self.__config__ = self._read_config(self._section)
         except ConfigParser.DuplicateSectionError:
             logging.error('Doppelte Sektion in der Konfigurationsdatei.')
@@ -91,14 +89,13 @@ class RssConfig(object):
         with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
             self._config.write(configfile)
 
-    def _set_parameters(self, jdownloader, port):
-        self._config.set("RSScrawler", "jdownloader", jdownloader)
-        self._config.set("RSScrawler", "port", port)
+    def _set_to_config(self, section, key, value):
+        self._config.set(section, key, value)
         with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
             self._config.write(configfile)
 
     def _read_config(self, section):
-        return [(key, '', '', self._config.get(section, key)) for key in self._config.options(section)]
+        return [(key, '', self._config.get(section, key)) for key in self._config.options(section)]
 
     def _get_from_config(self, scope, key):
         res = [param[2] for param in scope if param[0] == key]
@@ -106,6 +103,10 @@ class RssConfig(object):
             return True if len(res) and res[0].strip('\'"').lower() == 'true' else False
         else:
             return res[0].strip('\'"') if len(res) > 0 else False
+
+    def save(self, key, value):
+        self._set_to_config(self._section, key, value)
+        return
 
     def get(self, key):
         return self._get_from_config(self.__config__, key) or self._get_from_config(self._DEFAULT_CONFIG[self._section], key)
