@@ -85,7 +85,12 @@ class ListDb(object):
             items.append(str(r[0]))
         return items if items else None
 
-    def store(self, keys):
+    def store(self, key):
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
+                           (self._table, key))
+        self._conn.commit()
+
+    def store_list(self, keys):
         items = []
         if re.match("MB_3D|MB_Filme|MB_Staffeln|SJ_Serien|YT_Channels", self._table):
             for k in keys:

@@ -44,6 +44,7 @@ target/
 *.crawljob
 *.ini
 *.txt
+*.journal
 *.zip
 
 #Visual Studio compiled

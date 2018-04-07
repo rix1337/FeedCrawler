@@ -53,6 +53,7 @@ from output import Unbuffered
 from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
+from rssdb import ListDb
 from notifiers import notify
 from url import checkURL
 from url import getURL
@@ -188,21 +189,13 @@ class YT():
         self.log_debug = logging.debug
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.youtube = os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt')
+        self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
 
-    def readInput(self, file):
-        if not os.path.isfile(file):
-            open(file, "a").close()
-            placeholder = open(file, 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-        try:
-            f = codecs.open(file, "rb")
-            return f.read().splitlines()
-        except:
-            self.log_error("Liste nicht gefunden!")
+    def readInput(self, liste):
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        return cont if cont else ""
 
     def periodical_task(self):
         if not self.config.get('youtube'):
@@ -214,13 +207,13 @@ class YT():
         download_link = ""
         self.allInfos = self.readInput(self.youtube)
 
-        for xline in self.allInfos:
-            if len(xline) > 0 and not xline.startswith("#"):
-                if xline.startswith("XXXXXXXXXX") or self.config.get("youtube") is False:
+        for item in self.allInfos:
+            if len(item) > 0:
+                if self.config.get("youtube") is False:
                     self.log_debug(
-                        "Liste enthält Platzhalter. Stoppe Suche für YouTube!")
+                        "Liste ist leer. Stoppe Suche für YouTube!")
                     return
-                channels.append(xline)
+                channels.append(item)
 
         for channel in channels:
             if 'list=' in channel:
@@ -365,8 +358,6 @@ class SJ():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.search_list = os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
             self.level = 3
@@ -387,7 +378,7 @@ class SJ():
                 'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
 
         self.pattern = "|".join(self.getSeriesList(
-            self.search_list, self.level)).lower()
+            self.filename, self.level)).lower()
 
         if self.filename == 'SJ_Serien_Regex':
             if not self.config.get('regex'):
@@ -650,7 +641,7 @@ class SJ():
             self.log_info(log_entry)
             added_items.append(log_entry)
 
-    def getSeriesList(self, file, type):
+    def getSeriesList(self, liste, type):
         loginfo = ""
         if type == 1:
             loginfo = " (RegEx)"
@@ -658,39 +649,23 @@ class SJ():
             loginfo = " (Staffeln)"
         elif type == 3:
             loginfo = " (Staffeln/RegEx)"
-
-        if not os.path.isfile(file):
-            open(file, "a").close()
-            placeholder = open(file, 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-        try:
-            titles = []
-            f = codecs.open(file, "rb", "utf-8")
-            for title in f.read().splitlines():
-                if len(title) == 0:
-                    continue
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        titles = []
+        for title in cont:
+            if title:
                 title = title.replace(" ", ".")
                 titles.append(title)
-            f.close()
-            if titles[0] == "XXXXXXXXXX":
-                self.log_debug(
-                    "Liste enthält Platzhalter. Stoppe Suche für Serien!" + loginfo)
-                if type == 1:
-                    self.empty_list = True
-                elif type == 2:
-                    self.empty_list = True
-                else:
-                    self.empty_list = True
-            return titles
-        except UnicodeError:
-            self.log_error(
-                "ANGEHALTEN, ungültiges Zeichen in Serien" + loginfo + "Liste!")
-        except IOError:
-            self.log_error("ANGEHALTEN, Serien" + loginfo +
-                           "-Liste nicht gefunden!")
-        except Exception, e:
-            self.log_error("Unbekannter Fehler: %s" % e)
+        if not titles:
+            self.log_debug(
+                "Liste ist leer. Stoppe Suche für Serien!" + loginfo)
+            if type == 1:
+                self.empty_list = True
+            elif type == 2:
+                self.empty_list = True
+            else:
+                self.empty_list = True
+        return titles
 
 
 class MB():
@@ -707,28 +682,19 @@ class MB():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.search_list = os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
-    def readInput(self, file):
-        if not os.path.isfile(file):
-            open(file, "a").close()
-            placeholder = open(file, 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-        try:
-            f = codecs.open(file, "rb")
-            return f.read().splitlines()
-        except:
-            self.log_error("Liste nicht gefunden!")
+    def readInput(self, liste):
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        return cont if cont else ""
 
     def getPatterns(self, patterns, **kwargs):
-        if patterns == ["XXXXXXXXXX"]:
+        if patterns == ['']:
             self.log_debug(
-                "Liste enthält Platzhalter. Stoppe Suche für Filme!")
+                "Liste ist leer. Stoppe Suche für Filme!")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -1290,7 +1256,7 @@ class MB():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list),
+                    self.readInput(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
                 ).items()}.items()
                 )
@@ -1300,7 +1266,7 @@ class MB():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list)
+                    self.readInput(self.filename)
                 ).items()}.items()
                 ) if self.config.get('regex') else []
             )
@@ -1310,7 +1276,7 @@ class MB():
                     return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
+                    self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
                 ).items()}.items()
                 )
             )
@@ -1517,28 +1483,19 @@ class HW():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.search_list = os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self.hoster = rsscrawler.get("hoster")
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
-    def readInput(self, file):
-        if not os.path.isfile(file):
-            open(file, "a").close()
-            placeholder = open(file, 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-        try:
-            f = codecs.open(file, "rb")
-            return f.read().splitlines()
-        except:
-            self.log_error("Liste nicht gefunden!")
+    def readInput(self, liste):
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        return cont if cont else ""
 
     def getPatterns(self, patterns, **kwargs):
-        if patterns == ["XXXXXXXXXX"]:
+        if patterns == ['']:
             self.log_debug(
-                "Liste enthält Platzhalter. Stoppe Suche für Filme!")
+                "Liste ist leer. Stoppe Suche für Filme!")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -2096,7 +2053,7 @@ class HW():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list),
+                    self.readInput(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
                 ).items()}.items()
                 )
@@ -2106,7 +2063,7 @@ class HW():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list)
+                    self.readInput(self.filename)
                 ).items()}.items()
                 ) if self.config.get('regex') else []
             )
@@ -2116,7 +2073,7 @@ class HW():
                     return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
+                    self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
                 ).items()}.items()
                 )
             )
@@ -2320,28 +2277,19 @@ class HA():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.search_list = os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/{}.txt'.format(self.filename))
         self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
-    def readInput(self, file):
-        if not os.path.isfile(file):
-            open(file, "a").close()
-            placeholder = open(file, 'w')
-            placeholder.write('XXXXXXXXXX')
-            placeholder.close()
-        try:
-            f = codecs.open(file, "rb")
-            return f.read().splitlines()
-        except:
-            self.log_error("Liste nicht gefunden!")
+    def readInput(self, liste):
+        cont = ListDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        return cont if cont else ""
 
     def getPatterns(self, patterns, **kwargs):
-        if patterns == ["XXXXXXXXXX"]:
+        if patterns == ['']:
             self.log_debug(
-                "Liste enthält Platzhalter. Stoppe Suche für Filme!")
+                "Liste ist leer. Stoppe Suche für Filme!")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -2651,7 +2599,7 @@ class HA():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list),
+                    self.readInput(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
                 ).items()}.items()
                 )
@@ -2661,7 +2609,7 @@ class HA():
                 return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list)
+                    self.readInput(self.filename)
                 ).items()}.items()
                 ) if self.config.get('regex') else []
             )
@@ -2671,7 +2619,7 @@ class HA():
                     return
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.search_list), quality=self.config.get('quality'), rg='.*', sf=None
+                    self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
                 ).items()}.items()
                 )
             )

@@ -480,21 +480,21 @@ def get_post_lists():
         )
     if request.method == 'POST':
         data = request.json
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store_list(
             data['mb']['filme'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store_list(
             data['mb']['filme3d'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store_list(
             data['mbsj']['staffeln'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store_list(
             data['mb']['regex'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store_list(
             data['sj']['serien'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store_list(
             data['sj']['regex'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store_list(
             data['sj']['staffeln_regex'].encode('utf-8').split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store(
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store_list(
             data['yt']['kanaele_playlisten'].encode('utf-8').split('\n'))
         return "Success", 201
     else:
