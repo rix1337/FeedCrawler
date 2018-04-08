@@ -2059,7 +2059,7 @@ class HW():
             hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(self.hoster, hoster):
                 links[hoster] = url_hoster[0]
-            return links.values()
+        return links.values()
 
     def periodical_task(self):
         if self.filename == 'MB_Filme':
@@ -2294,7 +2294,6 @@ class HA():
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
-        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -2302,7 +2301,7 @@ class HA():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self._hosters_pattern = rsscrawler.get('hoster').replace(',', '|')
+        self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
@@ -2381,8 +2380,8 @@ class HA():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % title)
                                     continue
-                                link = self._get_download_links(url)
-                                yield (title, link, key)
+                                links = self._get_download_links(url)
+                                yield (title, links, key)
                     elif self.filename == 'MB_3D':
                         if '.3d.' in title.lower():
                             if self.config.get('crawl3d') and (
@@ -2417,8 +2416,8 @@ class HA():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % title)
                                     continue
-                                link = self._get_download_links(url)
-                                yield (title, link, key)
+                                links = self._get_download_links(url)
+                                yield (title, links, key)
 
                     elif self.filename == 'MB_Staffeln':
                         validsource = re.search(self.config.get(
@@ -2465,11 +2464,11 @@ class HA():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % title)
                                     continue
-                                link = self._get_download_links(url)
-                                yield (title, link, key)
+                                links = self._get_download_links(url)
+                                yield (title, links, key)
                     else:
-                        link = self._get_download_links(url)
-                        yield (title, link, key)
+                        links = self._get_download_links(url)
+                        yield (title, links, key)
 
     def download_dl(self, title):
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
@@ -2482,8 +2481,9 @@ class HA():
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
-        for (key, download_link, pattern) in self.dl_search(search_url, feedsearch_title):
-            if download_link:
+        for (key, download_links, pattern) in self.dl_search(search_url, feedsearch_title):
+            if download_links:
+                download_link = download_links[0]
                 if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
@@ -2500,7 +2500,7 @@ class HA():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -2523,7 +2523,7 @@ class HA():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
                     )
@@ -2542,7 +2542,7 @@ class HA():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
                     )
@@ -2561,7 +2561,7 @@ class HA():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -2591,31 +2591,36 @@ class HA():
         url = hda[0]
         title = hda[1]
         link = getURL(url)
-        dl_soup = bs(link, 'lxml')
-        dl_links = re.findall(
-            r'href="(http:\/\/filecrypt.cc.*?|https:\/\/www.filecrypt.cc.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
-        for link in dl_links:
-            url = link[0]
-            if self._hosters_pattern.lower().replace(" ", "-") in link[1].lower().replace(" ", "-"):
-                s = re.sub(self.SUBSTITUTE, ".", title).lower()
-                found = re.search(s, title.lower())
+        soup = bs(link, 'lxml')
+        url_hosters = re.findall(
+            r'href="(http:\/\/filecrypt.cc.*?|https:\/\/www.filecrypt.cc.*?)" target="_blank">(.*?)<\/a>', str(soup))
+        links = {}
+        for url_hoster in reversed(url_hosters):
+            hoster = url_hoster[1].lower().replace('target="_blank">', '')
+            if re.match(self.hoster, hoster):
+                links[hoster] = url_hoster[0]
+        if links:
+            s = re.sub(self.SUBSTITUTE, ".", title).lower()
+            found = re.search(s, title.lower())
+            if found:
+                found = re.search(ignore, title.lower())
                 if found:
-                    found = re.search(ignore, title.lower())
-                    if found:
-                        self.log_debug(
-                            "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % title)
-                        continue
-                    yield (title, url, title)
+                    self.log_debug(
+                        "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % title)
+                    return
+                yield (title, links.values(), title)
 
     def _get_download_links(self, url):
         link = getURL(url)
-        dl_soup = bs(link, 'lxml')
-        dl_links = re.findall(
-            r'inline.*?display:inline;"><a href="(.*?)" target="_blank">(.*?)<\/a>', str(dl_soup))
-        for link in dl_links:
-            url = link[0]
-            if self._hosters_pattern.lower().replace(" ", "-") in link[1].lower().replace(" ", "-"):
-                return url
+        soup = bs(link, 'lxml')
+        url_hosters = re.findall(
+            r'inline.*?display:inline;"><a href="(.*?)" target="_blank">(.*?)<\/a>', str(soup))
+        links = {}
+        for url_hoster in reversed(url_hosters):
+            hoster = url_hoster[1].lower().replace('target="_blank">', '')
+            if re.match(self.hoster, hoster):
+                links[hoster] = url_hoster[0]
+        return links.values()
 
     def periodical_task(self):
         urls = []
@@ -2663,8 +2668,9 @@ class HA():
             urls.append(self.FEED_URL)
 
         for url in urls:
-            for (key, download_link, pattern) in self.searchLinks(url):
-                if download_link:
+            for (key, download_links, pattern) in self.searchLinks(url):
+                if download_links:
+                    download_link = download_links[0]
                     englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace(
@@ -2695,7 +2701,7 @@ class HA():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2720,7 +2726,7 @@ class HA():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2737,7 +2743,7 @@ class HA():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2755,7 +2761,7 @@ class HA():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
