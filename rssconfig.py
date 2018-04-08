@@ -23,7 +23,7 @@ class RssConfig(object):
             ("fallback", "bool", "False")
         ],
         'MB': [
-            ("hoster", "str", "Share-Online"),
+            ("hoster", "str", ".*?share-online.*?"),
             ("quality", "str", "720p"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
             ("historical", "bool", "False"),
@@ -40,7 +40,7 @@ class RssConfig(object):
             ("imdb", "str", "0.0")
         ],
         'SJ': [
-            ("hoster", "str", "Share-Online"),
+            ("hoster", "str", ".*?share-online.*?"),
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False")

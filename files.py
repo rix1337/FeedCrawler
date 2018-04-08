@@ -32,7 +32,16 @@ def startup(jdownloader=None, port=None):
         os.rename(os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/Downloads/Downloads.db'), os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.db'))
 
-    if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini')):
+    old_config = os.path.join(os.path.join(os.path.dirname(
+        sys.argv[0]), 'Einstellungen/RSScrawler.ini'))
+    if os.path.isfile(old_config):
+        with open(old_config, 'r') as f:
+            content = f.read().replace("hoster = Share-Online\n",
+                                       "").replace("hoster = Uploaded\n", "")
+            f.close()
+        with open(old_config, 'w') as f:
+            f.write(content)
+
         os.rename(os.path.join(os.path.dirname(
             sys.argv[0]), 'Einstellungen/RSScrawler.ini'), os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini'))
 

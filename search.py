@@ -141,12 +141,17 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        for url_hoster in url_hosters:
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
-                if hoster.lower() in url_hoster[1].lower():
-                    download_link = url_hoster[0]
+        links = {}
+        for url_hoster in reversed(url_hosters):
+            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+                link_hoster = url_hoster[1].lower().replace(
+                    'target="_blank">', '')
+                if re.match(hoster, link_hoster):
+                    links[link_hoster] = url_hoster[0]
+        download_links = links.values()
 
-        if download_link:
+        if download_links:
+            download_link = download_links[0]
             notify_array = []
             if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
                 logging.debug("Fake-Link erkannt!")
@@ -155,7 +160,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                 common.write_crawljob_file(
                     key,
                     key,
-                    download_link,
+                    download_links,
                     jdownloaderpath + "/folderwatch",
                     "RSScrawler/Remux"
                 )
@@ -179,7 +184,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                 common.write_crawljob_file(
                     key,
                     key,
-                    download_link,
+                    download_links,
                     jdownloaderpath + "/folderwatch",
                     "RSScrawler/3Dcrawler"
                 )
@@ -207,7 +212,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                 common.write_crawljob_file(
                     key,
                     key,
-                    download_link,
+                    download_links,
                     jdownloaderpath + "/folderwatch",
                     "RSScrawler/Remux"
                 )
@@ -236,9 +241,8 @@ def dl_search(feed, title):
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
     url = getURL("aHR0cDovL21vdmllLWJsb2cub3JnLw==".decode('base64') + link)
-    rsscrawler = RssConfig('RSScrawler')
     config = RssConfig('MB')
-    hoster = rsscrawler.get('hoster')
+    hoster = re.compile(config.get('hoster'))
     db = RssDb(os.path.join(os.path.dirname(
         sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
@@ -246,11 +250,13 @@ def mb(link, jdownloaderpath):
     download = soup.find("div", {"id": "content"})
     key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-    download_link = ""
-    for url_hoster in url_hosters:
-        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
-            if hoster.lower() in url_hoster[1].lower():
-                download_link = url_hoster[0]
+    links = {}
+    for url_hoster in reversed(url_hosters):
+        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
+            if re.match(hoster, link_hoster):
+                links[link_hoster] = url_hoster[0]
+    download_links = links.values()
 
     englisch = False
     if "*englisch*" in key.lower():
@@ -326,13 +332,14 @@ def mb(link, jdownloaderpath):
                     logging.debug(
                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
 
-    if download_link:
+    if download_links:
+        download_link = download_links[0]
         notify_array = []
         if staffel:
             common.write_crawljob_file(
                 key,
                 key,
-                download_link,
+                download_links,
                 jdownloaderpath + "/folderwatch",
                 "RSScrawler"
             )
@@ -341,8 +348,10 @@ def mb(link, jdownloaderpath):
                 'notdl' if config.get(
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
-            log_entry = '[Suche/Staffel] - ' + key.replace(
-                ".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+            log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
+                ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                key.replace(".COMPLETE", "").replace(
+                    ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array)
@@ -356,7 +365,7 @@ def mb(link, jdownloaderpath):
             common.write_crawljob_file(
                 key,
                 key,
-                download_link,
+                download_links,
                 jdownloaderpath + "/folderwatch",
                 "RSScrawler"
             )
@@ -383,7 +392,7 @@ def mb(link, jdownloaderpath):
             common.write_crawljob_file(
                 key,
                 key,
-                download_link,
+                download_links,
                 jdownloaderpath + "/folderwatch",
                 "RSScrawler"
             )
@@ -549,11 +558,12 @@ def sj(id, jdownloaderpath):
             dl_hoster = link[1]
             dl_link = link[2]
             rsscrawler = RssConfig('RSScrawler')
-            hoster = rsscrawler.get('hoster')
+            config = RssConfig('SJ')
+            hoster = re.compile(config.get('hoster'))
             db = RssDb(os.path.join(os.path.dirname(
                 sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
-            if hoster.lower() in dl_hoster.lower():
+            if re.match(hoster, dl_hoster.lower()):
                 common.write_crawljob_file(
                     dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler")
                 db.store(dl_title, 'added')

@@ -348,7 +348,7 @@ class DD():
                                 key,
                                 'added'
                             )
-                            log_entry = '[DD/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
+                            log_entry = '[DD] - <b>Englisch</b> - ' + key + ' - <a href="' + feed_link + \
                                 '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
                                 key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                             self.log_info(log_entry)
@@ -632,15 +632,15 @@ class SJ():
         link = links[0]
         englisch = ""
         if englisch_info:
-            englisch = "/Englisch"
+            englisch = "<b>Englisch</b> - "
         if self.filename == 'SJ_Serien_Regex':
-            link_placeholder = '[Episode/RegEx' + englisch + '] - '
+            link_placeholder = '[Episode/RegEx] - ' + englisch
         elif self.filename == 'SJ_Serien':
-            link_placeholder = '[Episode' + englisch + '] - '
-        elif self.filename == 'SJ_Staffeln_Regex':
-            link_placeholder = '[Staffel/RegEx' + englisch + '] - '
+            link_placeholder = '[Episode] - ' + englisch
+        elif self.filename == 'SJ_Staffeln_Regex]':
+            link_placeholder = '[Staffel/RegEx] - ' + englisch
         else:
-            link_placeholder = '[Staffel' + englisch + '] - '
+            link_placeholder = '[Staffel] - ' + englisch
         try:
             storage = self.db.retrieve(title)
         except Exception as e:
@@ -1471,7 +1471,9 @@ class MB():
                                 'enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
                         log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
-                            ".Complete", "") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                            ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key.replace(".COMPLETE", "").replace(
+                                ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     else:
@@ -2264,8 +2266,10 @@ class HW():
                             'notdl' if self.config.get(
                                 'enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Staffel] - ' + key.replace(
-                            ".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
+                            ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key.replace(".COMPLETE", "").replace(
+                                ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     else:
@@ -2753,8 +2757,10 @@ class HA():
                             'notdl' if self.config.get(
                                 'enforcedl') and '.dl.' not in key.lower() else 'added'
                         )
-                        log_entry = '[Staffel] - ' + key.replace(
-                            ".COMPLETE.", ".") + ' - [<a href="' + download_link + '" target="_blank">Link</a>]'
+                        log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
+                            ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key.replace(".COMPLETE", "").replace(
+                                ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                         self.log_info(log_entry)
                         added_items.append(log_entry)
                     else:
