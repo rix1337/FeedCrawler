@@ -92,7 +92,7 @@ class ListDb(object):
 
     def store_list(self, keys):
         items = []
-        if not re.match("_Regex", self._table):
+        if not "_Regex" in self._table:
             for k in keys:
                 key = ()
                 k = k.replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(

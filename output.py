@@ -25,7 +25,7 @@ class Unbuffered(object):
 class CutLog(logging.Formatter):
     @staticmethod
     def _filter(s):
-        return re.sub(r' - <a href.*<\/a>', '', s)
+        return re.sub(r' - <a href.*<\/a>', '', s).replace('<b>', '').replace('</b>', '')
 
     def format(self, record):
         original = logging.Formatter.format(self, record)

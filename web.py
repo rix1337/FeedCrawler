@@ -520,7 +520,7 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
 
     logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=5)
+        log_file, maxBytes=100000, backupCount=9)
     logfile.setFormatter(formatter)
 
     logger = logging.getLogger('')

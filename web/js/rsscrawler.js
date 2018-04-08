@@ -40,28 +40,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.mb_hosters = [
-        { value: 'share-online', label: 'Share-Online' },
-        { value: 'oboom', label: 'OBOOM' },
-        { value: 'uploaded', label: 'Uploaded*' },
-        { value: 'rapidgator', label: 'Rapidgator*' },
-        { value: 'openload', label: 'Openload*' },
-        { value: 'zippyshare', label: 'Zippyshare*' },
-        { value: '.*', label: 'ALLE**' },
+        { value: '.*?share-online.*?', label: 'Share-Online' },
+        { value: '.*?oboom.*?', label: 'OBOOM' },
+        { value: '.*?uploaded.*?', label: 'Uploaded*' },
+        { value: '.*?rapidgator.*?', label: 'Rapidgator*' },
+        { value: '.*?openload.*?', label: 'Openload*' },
+        { value: '.*?zippyshare.*?', label: 'Zippyshare*' },
+        { value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**' },
     ];
 
     $scope.sj_hosters = [
-        { value: 'share-online', label: 'Share-Online' },
-        { value: 'uploaded', label: 'Uploaded' },
-        { value: 'rapidgator', label: 'Rapidgator*' },
+        { value: '.*?share-online.*?', label: 'Share-Online' },
+        { value: '.*?uploaded.*?', label: 'Uploaded' },
+        { value: '.*?rapidgator.*?', label: 'Rapidgator*' },
         { value: '.*', label: 'ALLE**' },
     ];
 
     $scope.dd_hosters = [
-        { value: 'ironfiles', label: 'IronFiles' },
-        { value: 'oboom', label: 'OBOOM' },
-        { value: 'rapidgator', label: 'Rapidgator' },
-        { value: 'k2s', label: 'Keep2Share' },
-        { value: 'filefactory', label: 'FileFactory' },
+        { value: '.*ironfiles.*', label: 'IronFiles' },
+        { value: '.*oboom.*', label: 'OBOOM' },
+        { value: '.*rapidgator.*', label: 'Rapidgator' },
+        { value: '.*k2s.*', label: 'Keep2Share' },
+        { value: '.*filefactory.*', label: 'FileFactory' },
         { value: '.*', label: 'ALLE' },
     ];
 

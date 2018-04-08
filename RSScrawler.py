@@ -81,7 +81,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
 
     logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=5)
+        log_file, maxBytes=100000, backupCount=9)
     logfile.setFormatter(formatter)
 
     logger = logging.getLogger('')
@@ -238,7 +238,7 @@ class YT():
                         return
 
             links = re.findall(
-                r'VideoRenderer":{"videoId":"(.*?)",".*?simpleText":"(.*?)"}', response)
+                r'VideoRenderer":{"videoId":"(.*?)",".*?[Tt]ext":"(.*?)"}', response)
 
             maxvideos = int(self.config.get("maxvideos"))
             if maxvideos < 1:
@@ -257,7 +257,12 @@ class YT():
 
         for video in videos:
             channel = video[2]
-            video_title = video[1].replace("&amp;", "&").replace("&gt;", ">").replace(
+            title = video[1]
+            if "[private" in title.lower() and "video]" in title.lower():
+                self.log_debug(
+                    "[%s] - YouTube-Video ignoriert (Privates Video)" % video)
+                continue
+            video_title = title.replace("&amp;", "&").replace("&gt;", ">").replace(
                 "&lt;", "<").replace('&quot;', '"').replace("&#39;", "'").replace("\u0026", "&")
             video = video[0]
             download_link = 'https://www.youtube.com/watch?v=' + video
@@ -305,6 +310,7 @@ class DD():
         feeds = self.config.get("feeds")
         if feeds:
             feeds = feeds.replace(" ", "").split(',')
+            hoster = re.compile(self.config.get("hoster"))
             for feed in feeds:
                 feed = feedparser.parse(feed)
                 for post in feed.entries:
@@ -322,8 +328,12 @@ class DD():
                         unicode_links = re.findall(r'(http.*)', link_pool)
                         links = []
                         for link in unicode_links:
-                            links.append(str(link))
-                        if self.db.retrieve(key) == 'added':
+                            if re.match(hoster, link):
+                                links.append(str(link))
+                        if not links:
+                            self.log_debug(
+                                "%s - Release ignoriert (kein passender Link gefunden)" % key)
+                        elif self.db.retrieve(key) == 'added':
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:
@@ -338,7 +348,7 @@ class DD():
                                 key,
                                 'added'
                             )
-                            log_entry = '[DD.tv/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
+                            log_entry = '[DD/<b>Englisch</b>] ' + key + ' - <a href="' + feed_link + \
                                 '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
                                 key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                             self.log_info(log_entry)
@@ -400,7 +410,7 @@ class SJ():
         except TypeError:
             reject = r"^unmatchable$"
         self.quality = self.config.get("quality")
-        self.hoster = rsscrawler.get("hoster")
+        self.hoster = re.compile(self.config.get("hoster"))
 
         for post in feed.entries:
             if not post.link:
@@ -606,13 +616,20 @@ class SJ():
             if valid:
                 url_hosters = re.findall(
                     r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+                links = []
                 for url_hoster in url_hosters:
-                    if self.hoster.lower() in url_hoster[1]:
-                        self.send_package(title, url_hoster[0], englisch)
+                    if re.match(self.hoster, url_hoster[1]):
+                        links.append(url_hoster[0])
+                if not links:
+                    self.log_debug(
+                        "%s - Release ignoriert (kein passender Link gefunden)" % title)
+                else:
+                    self.send_package(title, links, englisch)
             else:
                 self.log_debug(title + " - Release hat falsche Quelle")
 
-    def send_package(self, title, link, englisch_info):
+    def send_package(self, title, links, englisch_info):
+        link = links[0]
         englisch = ""
         if englisch_info:
             englisch = "/Englisch"
@@ -633,7 +650,7 @@ class SJ():
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             common.write_crawljob_file(
-                title, title, link, jdownloaderpath + "/folderwatch", "RSScrawler")
+                title, title, links, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - <a href="' + link + \
                 '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
@@ -675,7 +692,6 @@ class MB():
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
-        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -683,7 +699,7 @@ class MB():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.hoster = rsscrawler.get("hoster")
+        self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
@@ -841,11 +857,13 @@ class MB():
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
-            download_link = self._get_download_links(value[0])
-            if download_link:
-                if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
-                    self.log_debug("Fake-Link erkannt!")
-                    return False
+            download_links = self._get_download_links(value[0])
+            if download_links:
+                for download_link in download_links:
+                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                        self.log_debug("Fake-Link erkannt!")
+                        break
+                download_link = download_links[0]
                 if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
@@ -862,7 +880,7 @@ class MB():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -885,7 +903,7 @@ class MB():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
                     )
@@ -904,7 +922,7 @@ class MB():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
                     )
@@ -923,7 +941,7 @@ class MB():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -984,7 +1002,7 @@ class MB():
             else:
                 title_year = ""
 
-            download_page = self._get_download_links(item[1])
+            download_pages = self._get_download_links(item[1])
 
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
@@ -1088,7 +1106,7 @@ class MB():
                                 "%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(
-                            download_title, download_page, score, download_imdb, details)
+                            download_title, download_pages, score, download_imdb, details)
                     else:
                         self.log_debug(
                             "%s - Release ignoriert (falsche Aufloesung)" % download_title)
@@ -1123,122 +1141,126 @@ class MB():
                                 "%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(
-                            download_title, download_page, score, download_imdb, details)
+                            download_title, download_pages, score, download_imdb, details)
 
-    def download_imdb(self, key, download_link, score, download_imdb, details):
-        if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                return
-            else:
-                englisch = False
-                if "*englisch*" in key.lower():
-                    key = key.replace(
-                        '*ENGLISCH*', '').replace("*Englisch*", "")
-                    englisch = True
-                    if not rsscrawler.get('english'):
-                        self.log_debug(
-                            "%s - Englische Releases deaktiviert" % key)
-                        return
-                if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                    original_language = ""
-                    if len(details) > 0:
-                        original_language = re.findall(
-                            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                        if original_language:
-                            original_language = original_language[0]
-                        else:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-                    elif len(download_imdb) > 0:
-                        details = getURL(download_imdb)
-                        if not details:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-                        original_language = re.findall(
-                            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                        if original_language:
-                            original_language = original_language[0]
-                        else:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-
-                    if original_language == "German":
-                        self.log_debug(
-                            "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
-                    else:
-                        if not self.download_dl(key) and not englisch:
-                            self.log_debug(
-                                "%s - Kein zweisprachiges Release gefunden!" % key)
-                            return
-
-                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+    def download_imdb(self, key, download_links, score, download_imdb, details):
+        if download_links:
+            for download_link in download_links:
+                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    self.log_debug("Fake-Link erkannt!")
+                    break
+            download_link = download_links[0]
+            englisch = False
+            if "*englisch*" in key.lower():
+                key = key.replace(
+                    '*ENGLISCH*', '').replace("*Englisch*", "")
+                englisch = True
+                if not rsscrawler.get('english'):
                     self.log_debug(
-                        "%s - Release ignoriert (bereits gefunden)" % key)
-                elif '.3d.' not in key.lower():
-                    retail = False
-                    if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
-                            'enforcedl'):
-                        if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                            if self.config.get('enforcedl'):
-                                if common.cutoff(key, '1'):
-                                    retail = True
-                            else:
-                                if common.cutoff(key, '0'):
-                                    retail = True
-                    common.write_crawljob_file(
-                        key,
-                        key,
-                        download_link,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler"
-                    )
-                    self.db.store(
-                        key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + \
-                        download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
+                        "%s - Englische Releases deaktiviert" % key)
+                    return
+            if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                original_language = ""
+                if len(details) > 0:
+                    original_language = re.findall(
+                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                    if original_language:
+                        original_language = original_language[0]
+                    else:
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+                elif len(download_imdb) > 0:
+                    details = getURL(download_imdb)
+                    if not details:
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+                    original_language = re.findall(
+                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                    if original_language:
+                        original_language = original_language[0]
+                    else:
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+
+                if original_language == "German":
+                    self.log_debug(
+                        "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
-                    retail = False
-                    if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
-                            'enforcedl'):
-                        if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                            if self.config.get('enforcedl'):
-                                if common.cutoff(key, '2'):
-                                    retail = True
-                    common.write_crawljob_file(
-                        key,
-                        key,
-                        download_link,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler/3Dcrawler"
-                    )
-                    self.db.store(
-                        key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
+                    if not self.download_dl(key) and not englisch:
+                        self.log_debug(
+                            "%s - Kein zweisprachiges Release gefunden!" % key)
+                        return
+
+            if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                self.log_debug(
+                    "%s - Release ignoriert (bereits gefunden)" % key)
+            elif '.3d.' not in key.lower():
+                retail = False
+                if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                        'enforcedl'):
+                    if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                        if self.config.get('enforcedl'):
+                            if common.cutoff(key, '1'):
+                                retail = True
+                        else:
+                            if common.cutoff(key, '0'):
+                                retail = True
+                common.write_crawljob_file(
+                    key,
+                    key,
+                    download_links,
+                    jdownloaderpath + "/folderwatch",
+                    "RSScrawler"
+                )
+                self.db.store(
+                    key,
+                    'notdl' if self.config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + \
+                    download_link + \
+                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                self.log_info(log_entry)
+                added_items.append(log_entry)
+            else:
+                retail = False
+                if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
+                        'enforcedl'):
+                    if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                        if self.config.get('enforcedl'):
+                            if common.cutoff(key, '2'):
+                                retail = True
+                common.write_crawljob_file(
+                    key,
+                    key,
+                    download_links,
+                    jdownloaderpath + "/folderwatch",
+                    "RSScrawler/3Dcrawler"
+                )
+                self.db.store(
+                    key,
+                    'notdl' if self.config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + \
+                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                self.log_info(log_entry)
+                added_items.append(log_entry)
 
     def _get_download_links(self, url):
         req_page = getURL(url)
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        for url_hoster in url_hosters:
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0]:
-                if self.hoster.lower() in url_hoster[1].lower():
-                    return url_hoster[0]
+        links = {}
+        for url_hoster in reversed(url_hosters):
+            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+                hoster = url_hoster[1].lower().replace('target="_blank">', '')
+                if re.match(self.hoster, hoster):
+                    links[hoster] = url_hoster[0]
+        return links.values()
 
     def periodical_task(self):
         if self.filename == 'MB_Filme':
@@ -1295,11 +1317,13 @@ class MB():
             urls.append(self.FEED_URL)
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-                download_link = self._get_download_links(value[0])
-                if download_link:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
-                        self.log_debug("Fake-Link erkannt!")
-                        break
+                download_links = self._get_download_links(value[0])
+                if download_links:
+                    for download_link in download_links:
+                        if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                            self.log_debug("Fake-Link erkannt!")
+                            break
+                    download_link = download_links[0]
                     englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace(
@@ -1394,7 +1418,7 @@ class MB():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -1419,7 +1443,7 @@ class MB():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler/3Dcrawler"
                         )
@@ -1436,7 +1460,7 @@ class MB():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -1454,7 +1478,7 @@ class MB():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -1476,7 +1500,6 @@ class HW():
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
-        rsscrawler = RssConfig('RSScrawler')
         self.config = RssConfig(self._INTERNAL_NAME)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -1484,7 +1507,7 @@ class HW():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.hoster = rsscrawler.get("hoster")
+        self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
@@ -1642,8 +1665,9 @@ class HW():
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
-            download_link = self._get_download_links(value[0])
-            if download_link:
+            download_links = self._get_download_links(value[0])
+            if download_links:
+                download_link = download_links[0]
                 if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
@@ -1660,7 +1684,7 @@ class HW():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -1683,7 +1707,7 @@ class HW():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/3Dcrawler"
                     )
@@ -1702,7 +1726,7 @@ class HW():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler"
                     )
@@ -1721,7 +1745,7 @@ class HW():
                     common.write_crawljob_file(
                         key,
                         key,
-                        download_link,
+                        download_links,
                         jdownloaderpath + "/folderwatch",
                         "RSScrawler/Remux"
                     )
@@ -1782,7 +1806,7 @@ class HW():
             else:
                 title_year = ""
 
-            download_page = self._get_download_links(item[1])
+            download_pages = self._get_download_links(item[1])
 
             if len(item[2]) > 0:
                 download_imdb = "http://www.imdb.com/title/" + item[2]
@@ -1886,7 +1910,7 @@ class HW():
                                 "%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(
-                            download_title, download_page, score, download_imdb, details)
+                            download_title, download_pages, score, download_imdb, details)
                     else:
                         self.log_debug(
                             "%s - Release ignoriert (falsche Aufloesung)" % download_title)
@@ -1921,54 +1945,51 @@ class HW():
                                 "%s - Release ignoriert (Serienepisode)" % download_title)
                             continue
                         self.download_imdb(
-                            download_title, download_page, score, download_imdb, details)
+                            download_title, download_pages, score, download_imdb, details)
 
-    def download_imdb(self, key, download_link, score, download_imdb, details):
-        if download_link:
-            if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                return
-            else:
-                englisch = False
-                if "*englisch*" in key.lower():
-                    key = key.replace(
-                        '*ENGLISCH*', '').replace("*Englisch*", "")
-                    englisch = True
-                    if not rsscrawler.get('english'):
-                        self.log_debug(
-                            "%s - Englische Releases deaktiviert" % key)
-                        return
-                if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                    original_language = ""
-                    if len(details) > 0:
-                        original_language = re.findall(
-                            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                        if original_language:
-                            original_language = original_language[0]
-                        else:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-                    elif len(download_imdb) > 0:
-                        details = getURL(download_imdb)
-                        if not details:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-                        original_language = re.findall(
-                            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                        if original_language:
-                            original_language = original_language[0]
-                        else:
-                            self.log_debug(
-                                "%s - Originalsprache nicht ermittelbar" % key)
-
-                    if original_language == "German":
-                        self.log_debug(
-                            "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
+    def download_imdb(self, key, download_links, score, download_imdb, details):
+        if download_links:
+            download_link = download_links[0]
+            englisch = False
+            if "*englisch*" in key.lower():
+                key = key.replace(
+                    '*ENGLISCH*', '').replace("*Englisch*", "")
+                englisch = True
+                if not rsscrawler.get('english'):
+                    self.log_debug(
+                        "%s - Englische Releases deaktiviert" % key)
+                    return
+            if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                original_language = ""
+                if len(details) > 0:
+                    original_language = re.findall(
+                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                    if original_language:
+                        original_language = original_language[0]
                     else:
-                        if not self.download_dl(key) and not englisch:
-                            self.log_debug(
-                                "%s - Kein zweisprachiges Release gefunden!" % key)
-                            return
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+                elif len(download_imdb) > 0:
+                    details = getURL(download_imdb)
+                    if not details:
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+                    original_language = re.findall(
+                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                    if original_language:
+                        original_language = original_language[0]
+                    else:
+                        self.log_debug(
+                            "%s - Originalsprache nicht ermittelbar" % key)
+
+                if original_language == "German":
+                    self.log_debug(
+                        "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
+                else:
+                    if not self.download_dl(key) and not englisch:
+                        self.log_debug(
+                            "%s - Kein zweisprachiges Release gefunden!" % key)
+                        return
 
                 if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
@@ -2033,9 +2054,12 @@ class HW():
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        for url_hoster in url_hosters:
-            if self.hoster.lower() in url_hoster[1].lower():
-                return url_hoster[0]
+        links = {}
+        for url_hoster in reversed(url_hosters):
+            hoster = url_hoster[1].lower().replace('target="_blank">', '')
+            if re.match(self.hoster, hoster):
+                links[hoster] = url_hoster[0]
+            return links.values()
 
     def periodical_task(self):
         if self.filename == 'MB_Filme':
@@ -2092,9 +2116,9 @@ class HW():
             urls.append(self.FEED_URL)
         for url in urls:
             for (key, value, pattern) in self.searchLinks(feedparser.parse(url)):
-                download_link = self._get_download_links(value[0])
-                if download_link:
-                    englisch = False
+                download_links = self._get_download_links(value[0])
+                if download_links:
+                    download_link = download_links[0]
                     if "*englisch*" in key.lower():
                         key = key.replace(
                             '*ENGLISCH*', '').replace("*Englisch*", "")
@@ -2188,7 +2212,7 @@ class HW():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2213,7 +2237,7 @@ class HW():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler/3Dcrawler"
                         )
@@ -2230,7 +2254,7 @@ class HW():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2248,7 +2272,7 @@ class HW():
                         common.write_crawljob_file(
                             key,
                             key,
-                            download_link,
+                            download_links,
                             jdownloaderpath + "/folderwatch",
                             "RSScrawler"
                         )
@@ -2780,7 +2804,8 @@ if __name__ == "__main__":
             else:
                 files.startup(arguments['--jd-pfad'], "9090")
                 print('Der Ordner "Einstellungen" wurde erstellt.')
-                print('Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+                print(
+                    'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
     elif arguments['--jd-pfad'] and arguments['--port']:
         files.startup(arguments['--jd-pfad'], arguments['--port'])
     elif arguments['--jd-pfad']:
