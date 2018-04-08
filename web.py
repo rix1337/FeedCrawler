@@ -8,6 +8,7 @@ from output import Unbuffered
 from output import CutLog
 from rssconfig import RssConfig
 from rssdb import RssDb
+from rssdb import ListDb
 import search
 import files
 import version
@@ -24,7 +25,7 @@ from logging import handlers
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
-if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen')):
+if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
     prefix = ""
 else:
     general = RssConfig('RSScrawler')
@@ -85,7 +86,7 @@ def get_all():
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
         if not mb.get("crawl3dtype"):
-             crawl_3d_type = "hsbs"
+            crawl_3d_type = "hsbs"
         else:
             crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
@@ -124,7 +125,6 @@ def get_all():
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
                         "fallback": general.get("fallback"),
-                        "hoster": general.get("hoster"),
                     },
                     "alerts": {
                         "pushbullet": alerts.get("pushbullet"),
@@ -136,6 +136,7 @@ def get_all():
                         "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
+                        "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
@@ -148,6 +149,7 @@ def get_all():
                         "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
+                        "hoster": sj.get("hoster"),
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
                         "regex": sj.get("regex"),
@@ -159,6 +161,7 @@ def get_all():
                         "source": mb.get("seasonssource"),
                     },
                     "dd": {
+                        "hoster": dd.get("hoster"),
                         "feeds": dd.get("feeds"),
                     },
                     "yt": {
@@ -208,7 +211,7 @@ def get_post_settings():
         dd = RssConfig('DD')
         yt = RssConfig('YT')
         if not mb.get("crawl3dtype"):
-             crawl_3d_type = "hsbs"
+            crawl_3d_type = "hsbs"
         else:
             crawl_3d_type = mb.get("crawl3dtype")
         return jsonify(
@@ -223,7 +226,6 @@ def get_post_settings():
                         "surround": general.get("surround"),
                         "proxy": general.get("proxy"),
                         "fallback": general.get("fallback"),
-                        "hoster": general.get("hoster"),
                     },
                     "alerts": {
                         "pushbullet": alerts.get("pushbullet"),
@@ -235,6 +237,7 @@ def get_post_settings():
                         "subdir": crawljobs.get("subdir"),
                     },
                     "mb": {
+                        "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
@@ -247,6 +250,7 @@ def get_post_settings():
                         "crawl_3d_type": crawl_3d_type,
                     },
                     "sj": {
+                        "hoster": sj.get("hoster"),
                         "quality": sj.get("quality"),
                         "ignore": sj.get("rejectlist"),
                         "regex": sj.get("regex"),
@@ -258,6 +262,7 @@ def get_post_settings():
                         "source": mb.get("seasonssource"),
                     },
                     "dd": {
+                        "hoster": dd.get("hoster"),
                         "feeds": dd.get("feeds"),
                     },
                     "yt": {
@@ -270,105 +275,106 @@ def get_post_settings():
         )
     if request.method == 'POST':
         data = request.json
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/RSScrawler.ini'), 'wb') as f:
-            f.write('# RSScrawler.ini (Stand: RSScrawler ' +
-                    version.getVersion() + ')\n')
-            f.write("\n[RSScrawler]\n")
-            f.write("jdownloader = " +
-                    to_str(data['general']['pfad']).encode('utf-8') + "\n")
-            f.write(
-                "port = " + to_str(data['general']['port']).encode('utf-8') + "\n")
-            f.write(
-                "prefix = " + to_str(data['general']['prefix']).encode('utf-8').lower() + "\n")
-            interval = to_str(data['general']['interval']).encode('utf-8')
-            if to_int(interval) < 10:
-                interval = '10'
-            f.write("interval = " + interval + "\n")
-            f.write("english = " +
-                    to_str(data['general']['english']).encode('utf-8') + "\n")
-            f.write("surround = " +
-                    to_str(data['general']['surround']).encode('utf-8') + "\n")
-            f.write("proxy = " +
-                    to_str(data['general']['proxy']).encode('utf-8') + "\n")
-            f.write("fallback = " +
-                    to_str(data['general']['fallback']).encode('utf-8') + "\n")
-            f.write("hoster = " +
-                    to_str(data['general']['hoster']).encode('utf-8') + "\n")
-            f.write("\n[MB]\n")
-            f.write("quality = " +
-                    to_str(data['mb']['quality']).encode('utf-8') + "\n")
-            f.write(
-                "ignore = " + to_str(data['mb']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("historical = " +
-                    to_str(data['mb']['historical']).encode('utf-8') + "\n")
-            f.write("regex = " +
-                    to_str(data['mb']['regex']).encode('utf-8') + "\n")
-            f.write("cutoff = " +
-                    to_str(data['mb']['cutoff']).encode('utf-8') + "\n")
-            f.write("crawl3d = " +
-                    to_str(data['mb']['crawl_3d']).encode('utf-8') + "\n")
-            f.write("crawl3dtype = " +
-                    to_str(data['mb']['crawl_3d_type']).encode('utf-8') + "\n")
-            f.write("enforcedl = " +
-                    to_str(data['mb']['force_dl']).encode('utf-8') + "\n")
-            f.write("crawlseasons = " +
-                    to_str(data['mbsj']['enabled']).encode('utf-8') + "\n")
-            f.write("seasonsquality = " +
-                    to_str(data['mbsj']['quality']).encode('utf-8') + "\n")
-            f.write("seasonpacks = " +
-                    to_str(data['mbsj']['packs']).encode('utf-8') + "\n")
-            f.write("seasonssource = " +
-                    to_str(data['mbsj']['source']).encode('utf-8').lower() + "\n")
-            f.write("imdbyear = " +
-                    to_str(data['mb']['imdb_year']).encode('utf-8') + "\n")
-            imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
-            if re.match('[^0-9]', imdb):
-                imdb = 0.0
-            elif imdb == '':
-                imdb = 0.0
-            else:
-                imdb = round(float(to_str(data['mb']['imdb_score']).encode(
-                    'utf-8').replace(",", ".")), 1)
-            if imdb > 10:
-                imdb = 10.0
-            f.write("imdb = " + to_str(imdb) + "\n")
-            f.write("\n[SJ]\n")
-            f.write("quality = " +
-                    to_str(data['sj']['quality']).encode('utf-8') + "\n")
-            f.write("rejectlist = " +
-                    to_str(data['sj']['ignore']).encode('utf-8').lower() + "\n")
-            f.write("regex = " +
-                    to_str(data['sj']['regex']).encode('utf-8') + "\n")
-            f.write("\n[DD]\n")
-            f.write("feeds = " +
-                    to_str(data['dd']['feeds']).encode('utf-8') + "\n")
-            f.write("\n[YT]\n")
-            f.write("youtube = " +
-                    to_str(data['yt']['enabled']).encode('utf-8') + "\n")
-            maxvideos = to_str(data['yt']['max']).encode('utf-8')
-            if maxvideos == "":
-                maxvideos = "10"
-            if to_int(maxvideos) < 1:
-                f.write("maxvideos = 1\n")
-            elif to_int(maxvideos) > 50:
-                f.write("maxvideos = 50\n")
-            else:
-                f.write("maxvideos = " + to_str(maxvideos) + "\n")
-            f.write("ignore = " +
-                    to_str(data['yt']['ignore']).encode('utf-8') + "\n")
-            f.write("\n[Notifications]\n")
-            f.write("pushbullet = " +
-                    to_str(data['alerts']['pushbullet']).encode('utf-8') + "\n")
-            f.write("pushover = " +
-                    to_str(data['alerts']['pushover']).encode('utf-8') + "\n")
-            f.write("homeassistant = " +
-                    to_str(data['alerts']['homeassistant']).encode('utf-8') + "\n")
-            f.write("\n[Crawljobs]\n")
-            f.write(
-                "autostart = " + to_str(data['crawljobs']['autostart']).encode('utf-8') + "\n")
-            f.write("subdir = " +
-                    to_str(data['crawljobs']['subdir']).encode('utf-8') + "\n")
-        files.check()
+
+        section = RssConfig("RSScrawler")
+        section.save("jdownloader",
+                     to_str(data['general']['pfad']).encode('utf-8'))
+        section.save(
+            "port", to_str(data['general']['port']).encode('utf-8'))
+        section.save(
+            "prefix", to_str(data['general']['prefix']).encode('utf-8').lower())
+        interval = to_str(data['general']['interval']).encode('utf-8')
+        if to_int(interval) < 10:
+            interval = '10'
+        section.save("interval", interval)
+        section.save("english",
+                     to_str(data['general']['english']).encode('utf-8'))
+        section.save("surround",
+                     to_str(data['general']['surround']).encode('utf-8'))
+        section.save("proxy",
+                     to_str(data['general']['proxy']).encode('utf-8'))
+        section.save("fallback",
+                     to_str(data['general']['fallback']).encode('utf-8'))
+        section = RssConfig("MB")
+        section.save("hoster",
+                     to_str(data['mb']['hoster']).encode('utf-8'))
+        section.save("quality",
+                     to_str(data['mb']['quality']).encode('utf-8'))
+        section.save(
+            "ignore", to_str(data['mb']['ignore']).encode('utf-8').lower())
+        section.save("historical",
+                     to_str(data['mb']['historical']).encode('utf-8'))
+        section.save("regex",
+                     to_str(data['mb']['regex']).encode('utf-8'))
+        section.save("cutoff",
+                     to_str(data['mb']['cutoff']).encode('utf-8'))
+        section.save("crawl3d",
+                     to_str(data['mb']['crawl_3d']).encode('utf-8'))
+        section.save("crawl3dtype",
+                     to_str(data['mb']['crawl_3d_type']).encode('utf-8'))
+        section.save("enforcedl",
+                     to_str(data['mb']['force_dl']).encode('utf-8'))
+        section.save("crawlseasons",
+                     to_str(data['mbsj']['enabled']).encode('utf-8'))
+        section.save("seasonsquality",
+                     to_str(data['mbsj']['quality']).encode('utf-8'))
+        section.save("seasonpacks",
+                     to_str(data['mbsj']['packs']).encode('utf-8'))
+        section.save("seasonssource",
+                     to_str(data['mbsj']['source']).encode('utf-8').lower())
+        section.save("imdbyear",
+                     to_str(data['mb']['imdb_year']).encode('utf-8'))
+        imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
+        if re.match('[^0-9]', imdb):
+            imdb = 0.0
+        elif imdb == '':
+            imdb = 0.0
+        else:
+            imdb = round(float(to_str(data['mb']['imdb_score']).encode(
+                'utf-8').replace(",", ".")), 1)
+        if imdb > 10:
+            imdb = 10.0
+        section.save("imdb", to_str(imdb))
+        section = RssConfig("SJ")
+        section.save("hoster",
+                     to_str(data['sj']['hoster']).encode('utf-8'))
+        section.save("quality",
+                     to_str(data['sj']['quality']).encode('utf-8'))
+        section.save("rejectlist",
+                     to_str(data['sj']['ignore']).encode('utf-8').lower())
+        section.save("regex",
+                     to_str(data['sj']['regex']).encode('utf-8'))
+        section = RssConfig("DD")
+        section.save("hoster",
+                     to_str(data['dd']['hoster']).encode('utf-8'))
+        section.save("feeds",
+                     to_str(data['dd']['feeds']).encode('utf-8'))
+        section = RssConfig("YT")
+        section.save("youtube",
+                     to_str(data['yt']['enabled']).encode('utf-8'))
+        maxvideos = to_str(data['yt']['max']).encode('utf-8')
+        if maxvideos == "":
+            maxvideos = "10"
+        if to_int(maxvideos) < 1:
+            section.save("maxvideos", "1")
+        elif to_int(maxvideos) > 50:
+            section.save("maxvideos", "50")
+        else:
+            section.save("maxvideos", to_str(maxvideos))
+        section.save("ignore",
+                     to_str(data['yt']['ignore']).encode('utf-8'))
+        section = RssConfig("Notifications")
+        section.save("pushbullet",
+                     to_str(data['alerts']['pushbullet']).encode('utf-8'))
+        section.save("pushover",
+                     to_str(data['alerts']['pushover']).encode('utf-8'))
+        section.save("homeassistant",
+                     to_str(data['alerts']['homeassistant']).encode('utf-8'))
+        section = RssConfig("Crawljobs")
+        section.save(
+            "autostart", to_str(data['crawljobs']['autostart']).encode('utf-8'))
+        section.save("subdir",
+                     to_str(data['crawljobs']['subdir']).encode('utf-8'))
         return "Success", 201
     else:
         return "Failed", 405
@@ -402,7 +408,7 @@ def get_version():
 def delete_title(title):
     if request.method == 'DELETE':
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'rsscrawler')
+            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
         db.delete(title)
         return "Success", 200
     else:
@@ -474,38 +480,31 @@ def get_post_lists():
         )
     if request.method == 'POST':
         data = request.json
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Filme.txt'), 'wb') as f:
-            f.write(data['mb']['filme'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_3D.txt'), 'wb') as f:
-            f.write(data['mb']['filme3d'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Staffeln.txt'), 'wb') as f:
-            f.write(data['mbsj']['staffeln'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/MB_Regex.txt'), 'wb') as f:
-            f.write(data['mb']['regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien.txt'), 'wb') as f:
-            f.write(data['sj']['serien'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Serien_Regex.txt'), 'wb') as f:
-            f.write(data['sj']['regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/SJ_Staffeln_Regex.txt'), 'wb') as f:
-            f.write(data['sj']['staffeln_regex'].encode('utf-8'))
-        with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/YT_Channels.txt'), 'wb') as f:
-            f.write(data['yt']['kanaele_playlisten'].encode('utf-8'))
-        files.check()
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store_list(
+            data['mb']['filme'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store_list(
+            data['mb']['filme3d'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store_list(
+            data['mbsj']['staffeln'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store_list(
+            data['mb']['regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store_list(
+            data['sj']['serien'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store_list(
+            data['sj']['regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store_list(
+            data['sj']['staffeln_regex'].encode('utf-8').split('\n'))
+        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store_list(
+            data['yt']['kanaele_playlisten'].encode('utf-8').split('\n'))
         return "Success", 201
     else:
         return "Failed", 405
 
 
 def getListe(liste):
-    if not os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt')):
-        return "Liste nicht gefunden"
-    else:
-        file = open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'))
-        output = StringIO.StringIO()
-        for line in file.readlines():
-            output.write(line.replace("XXXXXXXXXX", ""))
-    return output.getvalue()
+    cont = ListDb(os.path.join(os.path.dirname(
+        sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+    return "\n".join(cont) if cont else ""
 
 
 def start(port, docker_arg, jd, log_level, log_file, log_format):
@@ -521,7 +520,7 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
 
     logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=5)
+        log_file, maxBytes=100000, backupCount=9)
     logfile.setFormatter(formatter)
 
     logger = logging.getLogger('')

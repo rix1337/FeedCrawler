@@ -5,12 +5,14 @@
 import sqlite3
 import os
 import sys
+import re
 
 
 def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
 
 
+# Merge Pre-v.4.1.x-Databases into v.4.1.x-Database
 def merge_old():
     def connect(file):
         return sqlite3.connect(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/' + file + '.db'), check_same_thread=False)
@@ -58,6 +60,53 @@ class RssDb(object):
     def store(self, key, value):
         self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %
                            (self._table, key, value))
+        self._conn.commit()
+
+    def delete(self, key):
+        self._conn.execute("DELETE FROM %s WHERE key='%s'" %
+                           (self._table, key))
+        self._conn.commit()
+
+
+class ListDb(object):
+    def __init__(self, file, table):
+        self._conn = sqlite3.connect(file, check_same_thread=False)
+        self._table = table
+        if not self._conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
+            self._conn.execute(
+                '''CREATE TABLE %s (key)''' % self._table)
+            self._conn.commit()
+
+    def retrieve(self):
+        res = self._conn.execute(
+            "SELECT distinct key FROM %s" % (self._table))
+        items = []
+        for r in res:
+            items.append(str(r[0]))
+        return items if items else None
+
+    def store(self, key):
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
+                           (self._table, key))
+        self._conn.commit()
+
+    def store_list(self, keys):
+        items = []
+        if not "_Regex" in self._table:
+            for k in keys:
+                key = ()
+                k = k.replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
+                    'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ')
+                key = key + (k,)
+                items.append(key)
+        else:
+            for k in keys:
+                key = ()
+                key = key + (k,)
+                items.append(key)
+        self._conn.execute("DELETE FROM %s" % (self._table))
+        self._conn.executemany(
+            "INSERT INTO '%s' (key) VALUES (?)" % (self._table), items)
         self._conn.commit()
 
     def delete(self, key):

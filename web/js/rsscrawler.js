@@ -39,9 +39,30 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         { value: false, label: 'Deaktiviert' },
     ];
 
-    $scope.hosters = [
-        { value: 'Uploaded', label: 'Uploaded' },
-        { value: 'Share-Online', label: 'Share-Online' },
+    $scope.mb_hosters = [
+        { value: '.*?share-online.*?', label: 'Share-Online' },
+        { value: '.*?oboom.*?', label: 'OBOOM' },
+        { value: '.*?uploaded.*?', label: 'Uploaded*' },
+        { value: '.*?rapidgator.*?', label: 'Rapidgator*' },
+        { value: '.*?openload.*?', label: 'Openload*' },
+        { value: '.*?zippyshare.*?', label: 'Zippyshare*' },
+        { value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**' },
+    ];
+
+    $scope.sj_hosters = [
+        { value: '.*?share-online.*?', label: 'Share-Online' },
+        { value: '.*?uploaded.*?', label: 'Uploaded' },
+        { value: '.*?rapidgator.*?', label: 'Rapidgator*' },
+        { value: '.*', label: 'ALLE**' },
+    ];
+
+    $scope.dd_hosters = [
+        { value: '.*ironfiles.*', label: 'IronFiles' },
+        { value: '.*oboom.*', label: 'OBOOM' },
+        { value: '.*rapidgator.*', label: 'Rapidgator' },
+        { value: '.*k2s.*', label: 'Keep2Share' },
+        { value: '.*filefactory.*', label: 'FileFactory' },
+        { value: '.*', label: 'ALLE' },
     ];
 
     $scope.resolutions = [
@@ -214,6 +235,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
+                getListsOnly();
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
@@ -225,6 +247,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
+                getListsOnly();
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');

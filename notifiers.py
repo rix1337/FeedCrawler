@@ -33,7 +33,7 @@ def notify(added_items):
     pushover_settings = notifications.get("pushover").split(',')
     items = []
     for item in added_items:
-        item = re.sub(r' - <a href.*<\/a>', '', item)
+        item = re.sub(r' - <a href.*<\/a>', '', item).replace('<b>', '').replace('</b>', '')
         items.append(item)
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))

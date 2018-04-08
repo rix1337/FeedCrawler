@@ -11,6 +11,7 @@ import re
 import socket
 import sys
 from rssconfig import RssConfig
+from rssdb import ListDb
 
 log_info = logging.info
 log_error = logging.error
@@ -19,7 +20,7 @@ log_debug = logging.debug
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
     crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
-        re.sub('[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
+        re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
     usesubdir = crawljobs.get("subdir")
@@ -84,15 +85,13 @@ def entfernen(retailtitel, identifier):
         liste = "MB_3D"
     else:
         liste = "MB_Filme"
-    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'r') as l:
-        content = []
-        for line in l:
-            content.append(re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' +
-                                  re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line))
-        l.close()
-    with open(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Listen/' + liste + '.txt'), 'w') as w:
-        w.write(''.join(content))
-    files.check()
+    cont = ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+    new_cont = []
+    for line in cont:
+        line = re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line)
+        if line:
+            new_cont.append(line)
+    ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 

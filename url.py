@@ -20,7 +20,7 @@ def checkURL():
     mb_blocked_proxy = False
     if proxy:
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
+            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
         if "block." in str(scraper.get(sj_url, proxies=proxies, timeout=30, allow_redirects=False).headers.get("location")):
             print "Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!"
@@ -52,7 +52,7 @@ def getURL(url):
         sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
         mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
         db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "Einstellungen/Downloads/Downloads.db"), 'proxystatus')
+            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
                 return scraper.get(url, timeout=30).content
