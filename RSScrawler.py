@@ -355,7 +355,7 @@ class DD():
                             added_items.append(log_entry)
                     else:
                         self.log_debug(
-                            "%s - Release ist jünger als 30 Minuten und wird ignoriert." % key)
+                            "%s - Releasezeitpunkt weniger 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
 class SJ():
