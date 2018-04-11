@@ -19,7 +19,6 @@ Usage:
 
 Options:
   --testlauf                Einmalige Ausführung von RSScrawler
-  --ersatzblogs             Erweitert die Suche um weitere Blogs um Ausfälle zu überbrücken.
   --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
@@ -105,9 +104,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
         MB(filename='MB_Regex'),
         MB(filename='MB_Filme'),
         MB(filename='MB_Staffeln'),
-        MB(filename='MB_3D')
-    ]
-    erweiterter_pool = [
+        MB(filename='MB_3D'),
         HW(filename='MB_Regex'),
         HW(filename='MB_Filme'),
         HW(filename='MB_Staffeln'),
@@ -129,11 +126,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
-                if arguments['--ersatzblogs']:
-                    for task in erweiterter_pool:
-                        task.periodical_task()
-                        log_debug(
-                            "---------Ersatz-Suchfunktion ausgeführt!---------")
                 end_time = time.time()
                 total_time = end_time - start_time
                 total_unit = " Sekunden"
@@ -160,9 +152,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
-            for task in erweiterter_pool:
-                task.periodical_task()
-                log_debug("---------Ersatz-Suchfunktion ausgeführt!---------")
             end_time = time.time()
             total_time = end_time - start_time
             total_unit = " Sekunden"
@@ -572,17 +561,20 @@ class SJ():
             if "E" in check:
                 check = re.sub(r"(S\d{1,2}E|E)", "", check)
                 title_cut = [(title_cut[0][0], check, title_cut[0][2])]
-            title = title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
+            title = title.replace("(", ".*").replace(")",
+                                                     ".*").replace("+", ".*")
             try:
                 for count in range(int(number1), (int(number2) + 1)):
                     NR = re.match(r"E\d{1,2}", str(count))
                     if NR:
                         title1 = title_cut[0][0] + \
-                            str(count) + ".*" + title_cut[0][-1].replace("(", ".*").replace(")", ".*").replace("+", ".*")
+                            str(count) + ".*" + title_cut[0][-1].replace(
+                                "(", ".*").replace(")", ".*").replace("+", ".*")
                         self.range_parse(link, title1, englisch, title)
                     else:
                         title1 = title_cut[0][0] + "0" + \
-                            str(count) + ".*" + title_cut[0][-1].replace("(", ".*").replace(")", ".*").replace("+", ".*")
+                            str(count) + ".*" + title_cut[0][-1].replace(
+                                "(", ".*").replace(")", ".*").replace("+", ".*")
                         self.range_parse(link, title1, englisch, title)
             except ValueError as e:
                 logging.error("Fehler in Variablenwert: %s" % e.message)
@@ -704,6 +696,11 @@ class MB():
         self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
+        FEED_URLS = [self.FEED_URL]
+        i = 2
+        while i <= 10:
+            FEED_URLS.append(self.FEED_URL + "?paged=" + str(i))
+            i += 1
 
     def readInput(self, liste):
         cont = ListDb(os.path.join(os.path.dirname(
@@ -1514,6 +1511,11 @@ class HW():
         self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
+        FEED_URLS = [self.FEED_URL]
+        i = 2
+        while i <= 10:
+            FEED_URLS.append(self.FEED_URL + "?paged=" + str(i))
+            i += 1
 
     def readInput(self, liste):
         cont = ListDb(os.path.join(os.path.dirname(
@@ -2310,6 +2312,11 @@ class HA():
         self.hoster = re.compile(self.config.get("hoster"))
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
+        FEED_URLS = [self.FEED_URL]
+        i = 2
+        while i <= 10:
+            FEED_URLS.append(self.FEED_URL + "?pg=" + str(i) + "&s=default")
+            i += 1
 
     def readInput(self, liste):
         cont = ListDb(os.path.join(os.path.dirname(

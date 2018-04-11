@@ -291,8 +291,8 @@
                         </p>
                         <p>
                             <h4>Suchintervall</h4>
-                            <input required type="number" min="10" max="1440" ng-model="settings.general.interval" class="form-control" data-toggle="tooltip"
-                                data-placement="top" title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 10 Minuten"></input>
+                            <input required type="number" min="5" max="1440" ng-model="settings.general.interval" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten"></input>
                         </p>
                         <p>
                             <h4>Englische Releases hinzufügen</h4>
@@ -404,11 +404,6 @@
                                 data-placement="top" title="Berücksichtige Filme bei IMDB-Suche erst ab diesem Erscheinungsjahr"></input>
                         </p>
                         <p>
-                            <h4>Suchfunktion, statt Feed nutzen</h4>
-                            <select ng-model="settings.mb.historical" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
-                                data-placement="top" title="Wenn aktiviert, wird die Suchfunktion genutzt, da der Feed nur wenige Stunden abbildet - Akzeptiert alle vergangenen Releases"></select>
-                        </p>
-                        <p>
                             <h4>Zweisprachige Releases erzwingen</h4>
                             <select ng-model="settings.mb.force_dl" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten"></select>
@@ -427,6 +422,11 @@
                             <h4>3D-Format</h4>
                             <select ng-model="settings.mb.crawl_3d_type" ng-options="t.value as t.label for t in types_3d" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Das gewünschte Format der 3D-Filme wählen"></select>
+                        </p>
+                        <p>
+                            <h4>Suchfunktion, statt Feed nutzen</h4>
+                            <select ng-model="settings.mb.historical" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Wenn aktiviert, wird die Suchfunktion genutzt - Sehr langsam - Akzeptiert alle vergangenen Releases"></select>
                         </p>
                     </div>
                 </div>
@@ -559,7 +559,7 @@
     <script src="js/angular.min.js"></script>
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/fontawesome-all.min.js"></script>
-    <script src="js/rsscrawler.js?4.2.0"></script>
+    <script src="js/rsscrawler.js?4.2.1"></script>
 </body>
 
 </html>

@@ -284,8 +284,8 @@ def get_post_settings():
         section.save(
             "prefix", to_str(data['general']['prefix']).encode('utf-8').lower())
         interval = to_str(data['general']['interval']).encode('utf-8')
-        if to_int(interval) < 10:
-            interval = '10'
+        if to_int(interval) < 5:
+            interval = '5'
         section.save("interval", interval)
         section.save("english",
                      to_str(data['general']['english']).encode('utf-8'))
@@ -302,8 +302,6 @@ def get_post_settings():
                      to_str(data['mb']['quality']).encode('utf-8'))
         section.save(
             "ignore", to_str(data['mb']['ignore']).encode('utf-8').lower())
-        section.save("historical",
-                     to_str(data['mb']['historical']).encode('utf-8'))
         section.save("regex",
                      to_str(data['mb']['regex']).encode('utf-8'))
         section.save("cutoff",
@@ -335,6 +333,8 @@ def get_post_settings():
         if imdb > 10:
             imdb = 10.0
         section.save("imdb", to_str(imdb))
+        section.save("historical",
+                     to_str(data['mb']['historical']).encode('utf-8'))
         section = RssConfig("SJ")
         section.save("hoster",
                      to_str(data['sj']['hoster']).encode('utf-8'))

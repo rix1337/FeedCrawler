@@ -26,7 +26,6 @@ class RssConfig(object):
             ("hoster", "str", ".*?share-online.*?"),
             ("quality", "str", "720p"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
-            ("historical", "bool", "False"),
             ("regex", "bool", "False"),
             ("cutoff", "bool", "False"),
             ("crawl3d", "bool", "False"),
@@ -37,7 +36,8 @@ class RssConfig(object):
             ("seasonpacks", "bool", "False"),
             ("seasonssource", "str", "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
-            ("imdb", "str", "0.0")
+            ("imdb", "str", "0.0"),
+            ("historical", "bool", "False")
         ],
         'SJ': [
             ("hoster", "str", ".*?share-online.*?"),
