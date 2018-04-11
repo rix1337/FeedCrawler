@@ -355,7 +355,7 @@ class DD():
                             added_items.append(log_entry)
                     else:
                         self.log_debug(
-                            "%s - Releasezeitpunkt weniger 30 Minuten in der Vergangenheit - wird ignoriert." % key)
+                            "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
 class SJ():
@@ -558,41 +558,43 @@ class SJ():
                         "%s - Release ignoriert (Staffelpaket)" % title)
                     return
         pattern = re.match(
-            r".*S\d{1,2}E\d{1,2}-(?:S\d{1,2}E|E)\d{1,2}.*", title)
+            r".*S\d{1,2}E\d{1,2}-(?:S\d{1,2}E|E|)\d{1,2}.*", title)
         if pattern:
             range0 = re.sub(
-                r".*S\d{1,2}E(\d{1,2}-(?:S\d{1,2}E|E)\d{1,2}).*", r"\1", title)
+                r".*S\d{1,2}E(\d{1,2}-(?:S\d{1,2}E|E|)\d{1,2}).*", r"\1", title)
             number1 = re.sub(
-                r"(\d{1,2})-(?:S\d{1,2}E|E)\d{1,2}", r"\1", range0)
+                r"(\d{1,2})-(?:S\d{1,2}E|E|)\d{1,2}", r"\1", range0)
             number2 = re.sub(
-                r"\d{1,2}-(?:S\d{1,2}E|E)(\d{1,2})", r"\1", range0)
+                r"\d{1,2}-(?:S\d{1,2}E|E|)(\d{1,2})", r"\1", range0)
             title_cut = re.findall(
-                r"(.*S\d{1,2}E)(\d{1,2}-(?:S\d{1,2}E|E)\d{1,2})(.*)", title)
+                r"(.*S\d{1,2}E)(\d{1,2}-(?:S\d{1,2}E|E|)\d{1,2})(.*)", title)
             check = title_cut[0][1]
             if "E" in check:
                 check = re.sub(r"(S\d{1,2}E|E)", "", check)
                 title_cut = [(title_cut[0][0], check, title_cut[0][2])]
+            title = title.replace("(", ".*").replace(")", ".*").replace("+", ".*")
             try:
                 for count in range(int(number1), (int(number2) + 1)):
-                    NR = re.match(r"\d{1,2}", str(count))
+                    NR = re.match(r"E\d{1,2}", str(count))
                     if NR:
                         title1 = title_cut[0][0] + \
-                            str(count) + ".*" + title_cut[0][-1]
-                        self.range_parse(link, title1, englisch)
+                            str(count) + ".*" + title_cut[0][-1].replace("(", ".*").replace(")", ".*").replace("+", ".*")
+                        self.range_parse(link, title1, englisch, title)
                     else:
                         title1 = title_cut[0][0] + "0" + \
-                            str(count) + ".*" + title_cut[0][-1]
-                        self.range_parse(link, title1, englisch)
+                            str(count) + ".*" + title_cut[0][-1].replace("(", ".*").replace(")", ".*").replace("+", ".*")
+                        self.range_parse(link, title1, englisch, title)
             except ValueError as e:
                 logging.error("Fehler in Variablenwert: %s" % e.message)
-        else:
-            self.parse_download(link, title, englisch)
+        self.parse_download(link, title, englisch)
 
-    def range_parse(self, series_url, search_title, englisch):
+    def range_parse(self, series_url, search_title, englisch, fallback_title):
         req_page = getURL(series_url)
         soup = bs(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
+            if not titles:
+                titles = soup.findAll(text=re.compile(fallback_title))
             for title in titles:
                 if self.quality != '480p' and self.quality in title:
                     self.parse_download(series_url, title, englisch)
