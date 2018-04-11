@@ -2211,6 +2211,7 @@ class HW():
                 download_links = self._get_download_links(value[0])
                 if download_links:
                     download_link = download_links[0]
+                    englisch = False
                     if "*englisch*" in key.lower():
                         key = key.replace(
                             '*ENGLISCH*', '').replace("*Englisch*", "")
