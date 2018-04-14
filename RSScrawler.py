@@ -345,12 +345,24 @@ class SJ():
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.config = RssConfig(self._INTERNAL_NAME)
+        self.rsscrawler = RssConfig("RSScrawler")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+
+        self.cdc = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), 'cdc')
+        self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
+        settings = ["quality", "rejectlist", "regex", "hoster"]
+        self.settings = []
+        self.settings.append(self.rsscrawler.get("english"))
+        self.settings.append(self.rsscrawler.get("surround"))
+        for s in settings:
+            self.settings.append(self.config.get(s))
+
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
             self.level = 3
@@ -392,12 +404,28 @@ class SJ():
                 self.config.get("rejectlist")) > 0 else r"^unmatchable$"
         except TypeError:
             reject = r"^unmatchable$"
+
         self.quality = self.config.get("quality")
         self.hoster = re.compile(self.config.get("hoster"))
+
+        first_post_sj = feed.entries[0]
+        concat_mb = first_post_sj.title + first_post_sj.published + \
+            str(self.settings) + str(self.pattern)
+        sha_sj = hashlib.sha256(concat_mb.encode(
+            'ascii', 'ignore')).hexdigest()
 
         for post in feed.entries:
             if not post.link:
                 continue
+
+            concat = post.title + post.published + \
+                str(self.settings) + str(self.pattern)
+            sha = hashlib.sha256(concat.encode(
+                'ascii', 'ignore')).hexdigest()
+            if sha == self.last_sha_sj:
+                self.log_debug(
+                    "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                break
 
             link = post.link
             title = post.title
@@ -524,6 +552,9 @@ class SJ():
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
+
+        self.cdc.delete("SJ-" + self.filename)
+        self.cdc.store("SJ-" + self.filename, sha_sj)
 
     def range_checkr(self, link, title, language_ok):
         englisch = False
@@ -679,13 +710,13 @@ class BL():
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
     i = 2
-    while i <= 5:
+    while i <= 10:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
     HW_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
     HW_FEED_URLS = [HW_URL]
     i = 2
-    while i <= 5:
+    while i <= 10:
         HW_FEED_URLS.append(HW_URL + "?paged=" + str(i))
         i += 1
     SUBSTITUTE = r"[&#\s/]"
@@ -998,12 +1029,12 @@ class BL():
         for post in feed:
             concat = post.title + post.published + \
                 str(self.settings) + str(self.allInfos)
-            sha = hashlib.sha256(concat.encode('ascii', 'ignore')).hexdigest()
+            sha = hashlib.sha256(concat.encode(
+                'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
-                if not self.config.get("historical"):
-                    self.log_debug(
-                        "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
-                    break
+                self.log_debug(
+                    "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                break
 
             content = str(post.content)
 
@@ -1515,7 +1546,7 @@ class BL():
                 ) if self.config.get('regex') else []
             )
         elif self.filename == "IMDB":
-            self.allInfos = None
+            self.allInfos = self.filename
             try:
                 imdb = float(self.config.get('imdb'))
             except:
@@ -1530,7 +1561,7 @@ class BL():
                 ).items()}.items()
                 )
             )
-        if self.filename != 'MB_Regex':
+        if self.filename != 'MB_Regex' and self.filename != 'IMDB':
             if self.config.get("historical"):
                 for xline in self.allInfos.keys():
                     if len(xline) > 0 and not xline.startswith("#"):
@@ -1558,17 +1589,21 @@ class BL():
         for url in hw_urls:
             hw_parsed_urls += feedparser.parse(url).entries
 
-        first_post_mb = mb_parsed_urls[0]
-        concat_mb = first_post_mb.title + first_post_mb.published + \
-            str(self.settings) + str(self.allInfos)
-        sha_mb = hashlib.sha256(concat_mb.encode(
-            'ascii', 'ignore')).hexdigest()
+        try:
+            first_post_mb = mb_parsed_urls[0]
+            concat_mb = first_post_mb.title + first_post_mb.published + \
+                str(self.settings) + str(self.allInfos)
+            sha_mb = hashlib.sha256(concat_mb.encode(
+                'ascii', 'ignore')).hexdigest()
 
-        first_post_hw = hw_parsed_urls[0]
-        concat_hw = first_post_hw.title + first_post_hw.published + \
-            str(self.settings) + str(self.allInfos)
-        sha_hw = hashlib.sha256(concat_hw.encode(
-            'ascii', 'ignore')).hexdigest()
+            first_post_hw = hw_parsed_urls[0]
+            concat_hw = first_post_hw.title + first_post_hw.published + \
+                str(self.settings) + str(self.allInfos)
+            sha_hw = hashlib.sha256(concat_hw.encode(
+                'ascii', 'ignore')).hexdigest()
+        except:
+            sha_mb = None
+            sha_hw = None
 
         if self.filename == "IMDB":
             if imdb > 0:
@@ -1580,10 +1615,11 @@ class BL():
             for(key, value, pattern) in self.searchLinks(hw_parsed_urls, "HW"):
                 self.feed_download(key, value)
 
-        self.cdc.delete("MB-" + self.filename)
-        self.cdc.delete("HW-" + self.filename)
-        self.cdc.store("MB-" + self.filename, sha_mb)
-        self.cdc.store("HW-" + self.filename, sha_hw)
+        if sha_mb and sha_hw:
+            self.cdc.delete("MB-" + self.filename)
+            self.cdc.delete("HW-" + self.filename)
+            self.cdc.store("MB-" + self.filename, sha_mb)
+            self.cdc.store("HW-" + self.filename, sha_hw)
 
 
 if __name__ == "__main__":
