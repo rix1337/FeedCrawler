@@ -99,6 +99,9 @@ class RssConfig(object):
 
     def _get_from_config(self, scope, key):
         res = [param[2] for param in scope if param[0] == key]
+        if not res:
+            res = [param[2]
+                   for param in self._DEFAULT_CONFIG[self._section] if param[0] == key]
         if [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
             return True if len(res) and res[0].strip('\'"').lower() == 'true' else False
         else:
@@ -109,4 +112,4 @@ class RssConfig(object):
         return
 
     def get(self, key):
-        return self._get_from_config(self.__config__, key) or self._get_from_config(self._DEFAULT_CONFIG[self._section], key)
+        return self._get_from_config(self.__config__, key)
