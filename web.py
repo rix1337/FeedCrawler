@@ -515,18 +515,22 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
 
     sys.stdout = Unbuffered(sys.stdout)
 
+    logger = logging.getLogger('')
+    logger.setLevel(log_level)
+
     console = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter(log_format)
     console.setFormatter(CutLog(log_format))
+    console.setLevel(log_level)
 
     logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=9)
+        log_file, maxBytes=100000, backupCount=3)
     logfile.setFormatter(formatter)
+    logfile.setLevel(logging.INFO)
 
-    logger = logging.getLogger('')
     logger.addHandler(logfile)
     logger.addHandler(console)
-    logger.setLevel(log_level)
+
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
