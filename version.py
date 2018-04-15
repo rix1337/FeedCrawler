@@ -7,14 +7,14 @@ import urllib2
 
 
 def getVersion():
-    return "v.4.2.2"
+    return "v.4.2.3"
 
 
 def updateCheck():
     localversion = getVersion()
     try:
-        onlineversion = re.search(r'return "(v\.\d{1,2}\.\d{1,2}\.\d{1,2})"', urllib2.urlopen(
-            'https://raw.githubusercontent.com/rix1337/RSScrawler/master/version.py').read()).group(1)
+        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urllib2.urlopen(
+            'https://github.com/rix1337/RSScrawler/releases/latest').read()).group(1)
         if localversion == onlineversion:
             return (False, localversion)
         else:
