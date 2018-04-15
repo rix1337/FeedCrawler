@@ -76,18 +76,22 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
 
     sys.stdout = Unbuffered(sys.stdout)
 
+    logger = logging.getLogger('')
+    logger.setLevel(log_level)
+
     console = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter(log_format)
     console.setFormatter(CutLog(log_format))
+    console.setLevel(log_level)
 
     logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=9)
+        log_file, maxBytes=100000, backupCount=3)
     logfile.setFormatter(formatter)
+    logfile.setLevel(logging.INFO)
 
-    logger = logging.getLogger('')
     logger.addHandler(logfile)
     logger.addHandler(console)
-    logger.setLevel(log_level)
+
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -432,7 +436,7 @@ class SJ():
 
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
-                    if '[DEUTSCH]' in title:
+                    if '[DEUTSCH]' in title or '[TV-FILM]' in title:
                         language_ok = 1
                     elif rsscrawler.get('english'):
                         language_ok = 2
@@ -779,6 +783,7 @@ class BL():
                         self.log_debug(
                             "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
                         break
+                content = str(post.content)
                 found = re.search(s, post.title.lower())
                 if found:
                     found = re.search(ignore, post.title.lower())
@@ -812,7 +817,7 @@ class BL():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                yield (post.title, [post.link], key)
+                                yield (post.title, content, key)
                     elif self.filename == 'MB_3D':
                         if '.3d.' in post.title.lower():
                             if self.config.get('crawl3d') and (
@@ -847,7 +852,7 @@ class BL():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                yield (post.title, [post.link], key)
+                                yield (post.title, content, key)
 
                     elif self.filename == 'MB_Staffeln':
                         validsource = re.search(self.config.get(
@@ -894,9 +899,9 @@ class BL():
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                yield (post.title, [post.link], key)
+                                yield (post.title, content, key)
                     else:
-                        yield (post.title, [post.link], key)
+                        yield (post.title, content, key)
 
     def download_dl(self, title):
         search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
@@ -910,7 +915,7 @@ class BL():
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
         for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
-            download_links = self._get_download_links(value[0])
+            download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
                     if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
@@ -1017,13 +1022,14 @@ class BL():
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
             found = re.search(s, post.title.lower())
+            content = str(post.content)
             if found:
                 found = re.search(ignore, post.title.lower())
                 if found:
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                     continue
-                yield (post.title, [post.link], title)
+                yield (post.title, content, title)
 
     def imdb_search(self, imdb, feed, site):
         for post in feed:
@@ -1040,7 +1046,7 @@ class BL():
 
             if re.match(r'.*?[mM][kK][vV].*?', content):
                 post_imdb = re.findall(
-                    r'.*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>', content)
+                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
 
                 if post_imdb:
                     post_imdb = post_imdb.pop()
@@ -1125,9 +1131,9 @@ class BL():
                 else:
                     title_year = ""
 
-                download_pages = self._get_download_links(post.link)
+                download_pages = self._get_download_links(content)
 
-                if len(post_imdb) > 0:
+                if post_imdb:
                     download_imdb = "http://www.imdb.com/title/" + post_imdb[0]
                 else:
                     try:
@@ -1199,6 +1205,8 @@ class BL():
                     vote_count = re.findall(
                         r'ratingCount">(.*?)<\/span>', details)
                     if not vote_count:
+                        print post.title
+                        print download_imdb
                         self.log_debug(
                             "%s - Wertungsanzahl nicht ermittelbar" % post.title)
                         continue
@@ -1326,11 +1334,8 @@ class BL():
                 self.log_info(log_entry)
                 added_items.append(log_entry)
 
-    def _get_download_links(self, url):
-        req_page = getURL(url)
-        soup = bs(req_page, 'lxml')
-        download = soup.find("div", {"id": "content"})
-        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+    def _get_download_links(self, content):
+        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
             if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
@@ -1340,7 +1345,7 @@ class BL():
         return links.values()
 
     def feed_download(self, key, value):
-        download_links = self._get_download_links(value[0])
+        download_links = self._get_download_links(value)
         url = value[0]
         if download_links:
             for download_link in download_links:
@@ -1520,8 +1525,16 @@ class BL():
                 added_items.append(log_entry)
 
     def periodical_task(self):
-        if self.empty_list and self.filename != "IMDB":
-            return
+        try:
+            imdb = float(self.config.get('imdb'))
+        except:
+            imdb = 0.0
+
+        if self.empty_list:
+            if not self.filename == "IMDB":
+                return
+            elif imdb == 0:
+                return
 
         mb_urls = []
         hw_urls = []
@@ -1547,10 +1560,6 @@ class BL():
             )
         elif self.filename == "IMDB":
             self.allInfos = self.filename
-            try:
-                imdb = float(self.config.get('imdb'))
-            except:
-                imdb = 0.0
         else:
             if self.filename == 'MB_3D':
                 if not self.config.get('crawl3d'):
