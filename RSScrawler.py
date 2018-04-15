@@ -1347,9 +1347,8 @@ class BL():
                     links[hoster] = url_hoster[0]
         return links.values()
 
-    def feed_download(self, key, value):
-        download_links = self._get_download_links(value)
-        url = value[0]
+    def feed_download(self, key, content):
+        download_links = self._get_download_links(content)
         if download_links:
             for download_link in download_links:
                 if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
@@ -1368,19 +1367,13 @@ class BL():
             if self.config.get('enforcedl') and '.dl.' not in key.lower():
                 original_language = ""
                 fail = False
-                get_imdb_url = getURL(url)
-                key_regex = r'<title>' + \
-                    re.escape(
-                        key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
-                imdb_id = re.findall(key_regex, get_imdb_url)
-                if len(imdb_id) > 0:
-                    if not imdb_id[0]:
-                        fail = True
-                    else:
-                        imdb_id = imdb_id[0]
+
+                imdb_id = re.findall(
+                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
+
+                if imdb_id:
+                    imdb_id = imdb_id[0][0]
                 else:
-                    fail = True
-                if fail:
                     search_title = re.findall(
                         r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                     search_url = "http://www.imdb.com/find?q=" + search_title
@@ -1388,9 +1381,7 @@ class BL():
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
                     total_results = len(search_results)
-                    if total_results == 0:
-                        download_imdb = ""
-                    elif self.filename == 'MB_Staffeln':
+                    if self.filename == 'MB_Staffeln':
                         imdb_id = search_results[0][0]
                     else:
                         no_series = False
