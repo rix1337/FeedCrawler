@@ -1525,8 +1525,16 @@ class BL():
                 added_items.append(log_entry)
 
     def periodical_task(self):
-        if self.empty_list and self.filename != "IMDB":
-            return
+        try:
+            imdb = float(self.config.get('imdb'))
+        except:
+            imdb = 0.0
+
+        if self.empty_list:
+            if not self.filename == "IMDB":
+                return
+            elif imdb == 0:
+                return
 
         mb_urls = []
         hw_urls = []
@@ -1552,10 +1560,6 @@ class BL():
             )
         elif self.filename == "IMDB":
             self.allInfos = self.filename
-            try:
-                imdb = float(self.config.get('imdb'))
-            except:
-                imdb = 0.0
         else:
             if self.filename == 'MB_3D':
                 if not self.config.get('crawl3d'):
