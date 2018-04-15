@@ -418,7 +418,7 @@ def sj(id, jdownloaderpath):
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
-    title = html_to_str(re.findall(r'>(.{1,90}?) &#', season_pool).pop())
+    title = html_to_str(re.findall(r'>(.{1,85}?) &#', season_pool).pop())
 
     rsscrawler = RssConfig('RSScrawler')
 
