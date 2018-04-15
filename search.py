@@ -426,6 +426,8 @@ def sj(id, jdownloaderpath):
     for liste in listen:
         cont = ListDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        if not cont:
+            cont = ""
         if not title in cont:
             ListDb(os.path.join(os.path.dirname(
                 sys.argv[0]), "RSScrawler.db"), liste).store(title)
