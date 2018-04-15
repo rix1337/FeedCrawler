@@ -79,7 +79,7 @@ class ListDb(object):
 
     def retrieve(self):
         res = self._conn.execute(
-            "SELECT distinct key FROM %s" % (self._table))
+            "SELECT distinct key FROM %s ORDER BY key" % (self._table))
         items = []
         for r in res:
             items.append(str(r[0]))
