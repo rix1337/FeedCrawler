@@ -92,7 +92,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     logger.addHandler(logfile)
     logger.addHandler(console)
 
-
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
     warnings.simplefilter("ignore", UnicodeWarning)
@@ -748,6 +747,10 @@ class BL():
         for s in settings:
             self.settings.append(self.config.get(s))
 
+        try:
+            self.imdb = float(self.config.get('imdb'))
+        except:
+            self.imdb = 0.0
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
@@ -757,9 +760,9 @@ class BL():
         return cont if cont else ""
 
     def getPatterns(self, patterns, **kwargs):
-        if patterns == ['']:
+        if not patterns:
             self.log_debug(
-                "Liste ist leer. Stoppe Suche für Filme!")
+                "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -1525,17 +1528,7 @@ class BL():
                 added_items.append(log_entry)
 
     def periodical_task(self):
-        try:
-            imdb = float(self.config.get('imdb'))
-        except:
-            imdb = 0.0
-
-        if self.empty_list:
-            if not self.filename == "IMDB":
-                return
-            elif imdb == 0:
-                return
-
+        imdb = self.imdb
         mb_urls = []
         hw_urls = []
 
@@ -1590,6 +1583,13 @@ class BL():
                 mb_urls.append(URL)
             for URL in self.HW_FEED_URLS:
                 hw_urls.append(URL)
+
+        if self.empty_list and self.filename != 'IMDB':
+            return
+        elif imdb == 0:
+            self.log_debug(
+                "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
+            return
 
         mb_parsed_urls = []
         hw_parsed_urls = []

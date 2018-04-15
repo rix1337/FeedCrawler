@@ -531,7 +531,6 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     logger.addHandler(logfile)
     logger.addHandler(console)
 
-
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
