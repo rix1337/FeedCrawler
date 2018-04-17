@@ -1207,8 +1207,6 @@ class BL():
                     vote_count = re.findall(
                         r'ratingCount">(.*?)<\/span>', details)
                     if not vote_count:
-                        print post.title
-                        print download_imdb
                         self.log_debug(
                             "%s - Wertungsanzahl nicht ermittelbar" % post.title)
                         continue
