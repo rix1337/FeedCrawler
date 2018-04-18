@@ -523,13 +523,19 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
-    logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=3)
+    logfile = logging.handlers.RotatingFileHandler(log_file)
     logfile.setFormatter(formatter)
     logfile.setLevel(logging.INFO)
 
     logger.addHandler(logfile)
     logger.addHandler(console)
+
+    if log_level == 10:
+        logfile_debug = logging.handlers.RotatingFileHandler(
+            log_file.replace("RSScrawler.log", "RSScrawler_DEBUG.log"), maxBytes=100000, backupCount=5)
+        logfile_debug.setFormatter(formatter)
+        logfile_debug.setLevel(10)
+        logger.addHandler(logfile_debug)
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)

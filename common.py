@@ -12,6 +12,7 @@ import socket
 import sys
 from rssconfig import RssConfig
 from rssdb import ListDb
+from rssdb import RssDb
 
 log_info = logging.info
 log_error = logging.error
@@ -77,10 +78,9 @@ def entfernen(retailtitel, identifier):
     def capitalize(line):
         line = line.rstrip()
         return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
-    simplified = retailtitel.replace(".", " ")
-    retail = re.sub(
-        r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
-    retailyear = re.sub(r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
+    titles = retail_sub(retailtitel)
+    retail = titles[0]
+    retailyear = titles[1]
     if identifier == '2':
         liste = "MB_3D"
     else:
@@ -93,7 +93,16 @@ def entfernen(retailtitel, identifier):
             if line:
                 new_cont.append(line)
     ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
+    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retail, "retail")
+    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retailyear, "retail")
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
+
+def retail_sub(title):
+    simplified = title.replace(".", " ")
+    retail = re.sub(
+        r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
+    retailyear = re.sub(r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
+    return retail, retailyear
 
 
 def cutoff(key, identifier):
