@@ -96,16 +96,18 @@ class ListDb(object):
         items = []
         if not "_Regex" in self._table:
             for k in keys:
-                key = ()
-                k = k.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-                    'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
-                key = key + (k,)
-                items.append(key)
+                if k:
+                    key = ()
+                    k = k.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
+                        'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+                    key = key + (k,)
+                    items.append(key)
         else:
             for k in keys:
-                key = ()
-                key = key + (k,)
-                items.append(key)
+                if k:
+                    key = ()
+                    key = key + (k,)
+                    items.append(key)
         self._conn.execute("DELETE FROM %s" % (self._table))
         self._conn.executemany(
             "INSERT INTO '%s' (key) VALUES (?)" % (self._table), items)

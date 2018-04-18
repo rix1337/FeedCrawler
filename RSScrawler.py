@@ -757,12 +757,14 @@ class BL():
     def readInput(self, liste):
         cont = ListDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), liste).retrieve()
-        return cont if cont else ""
+        if not cont:
+            self.empty_list = True
+            return ""
+        else:
+            return cont
 
     def getPatterns(self, patterns, **kwargs):
         if not patterns:
-            self.log_debug(
-                "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -1576,6 +1578,8 @@ class BL():
                 hw_urls.append(URL)
 
         if self.empty_list and self.filename != 'IMDB':
+            self.log_debug(
+                "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
             return
         elif imdb == 0:
             self.log_debug(

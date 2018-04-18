@@ -87,10 +87,11 @@ def entfernen(retailtitel, identifier):
         liste = "MB_Filme"
     cont = ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).retrieve()
     new_cont = []
-    for line in cont:
-        line = re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line)
-        if line:
-            new_cont.append(line)
+    if cont:
+        for line in cont:
+            line = re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line)
+            if line:
+                new_cont.append(line)
     ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
