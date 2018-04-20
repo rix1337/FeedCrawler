@@ -304,7 +304,7 @@ class DD():
             feeds = feeds.replace(" ", "").split(',')
             hoster = re.compile(self.config.get("hoster"))
             for feed in feeds:
-                feed = feedparser.parse(feed)
+                feed = feedparser.parse(getURL(feed))
                 for post in feed.entries:
                     key = post.title.replace(" ", ".")
 
@@ -384,13 +384,6 @@ class SJ():
             self.level = 0
 
     def periodical_task(self):
-        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-            feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'))
-        else:
-            feed = feedparser.parse(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'))
-
         self.pattern = "|".join(self.getSeriesList(
             self.filename, self.level)).lower()
 
@@ -416,6 +409,14 @@ class SJ():
 
         self.quality = self.config.get("quality")
         self.hoster = re.compile(self.config.get("hoster"))
+
+        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+            feed = feedparser.parse(getURL(
+                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+        else:
+            feed = feedparser.parse(getURL(
+                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+
 
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
@@ -754,6 +755,10 @@ class BL():
         self.settings.append(self.rsscrawler.get("surround"))
         for s in settings:
             self.settings.append(self.config.get(s))
+        self.i_mb_done = False
+        self.i_hw_done = False
+        self.mb_done = False
+        self.hw_done = False
 
         try:
             self.imdb = float(self.config.get('imdb'))
@@ -794,7 +799,11 @@ class BL():
                 if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
                     if not self.config.get("historical"):
                         self.log_debug(
-                            "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                            site + "-Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                        if "MB" in site:
+                            self.mb_done = True
+                        elif "HW" in site:
+                            self.hw_done = True
                         break
                 content = str(post.content)
                 found = re.search(s, post.title.lower())
@@ -927,7 +936,7 @@ class BL():
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
-        for (key, value, pattern) in self.dl_search(feedparser.parse(search_url), feedsearch_title):
+        for (key, value, pattern) in self.dl_search(feedparser.parse(getURL(search_url)), feedsearch_title):
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
@@ -1052,7 +1061,11 @@ class BL():
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
                 self.log_debug(
-                    "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                    site + "-Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                if "MB" in site:
+                    self.i_mb_done = True
+                elif "HW" in site:
+                    self.i_hw_done = True
                 break
 
             content = str(post.content)
@@ -1607,21 +1620,16 @@ class BL():
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        mb_parsed_urls = []
-        hw_parsed_urls = []
-        for url in mb_urls:
-            mb_parsed_urls += feedparser.parse(url).entries
-        for url in hw_urls:
-            hw_parsed_urls += feedparser.parse(url).entries
-
         try:
-            first_post_mb = mb_parsed_urls[0]
+            first_page_mb = feedparser.parse(getURL(mb_urls[0])).entries
+            first_post_mb = first_page_mb[0]
             concat_mb = first_post_mb.title + first_post_mb.published + \
                 str(self.settings) + str(self.allInfos)
             sha_mb = hashlib.sha256(concat_mb.encode(
                 'ascii', 'ignore')).hexdigest()
 
-            first_post_hw = hw_parsed_urls[0]
+            first_page_hw = feedparser.parse(getURL(hw_urls[0])).entries
+            first_post_hw = first_page_hw[0]
             concat_hw = first_post_hw.title + first_post_hw.published + \
                 str(self.settings) + str(self.allInfos)
             sha_hw = hashlib.sha256(concat_hw.encode(
@@ -1632,13 +1640,45 @@ class BL():
 
         if self.filename == "IMDB":
             if imdb > 0:
-                self.imdb_search(imdb, mb_parsed_urls, "MB")
-                self.imdb_search(imdb, hw_parsed_urls, "HW")
+                i = 0
+                for url in mb_urls:
+                    if not self.i_mb_done:
+                        if i == 0:
+                            mb_parsed_url = first_page_mb
+                        else:
+                            mb_parsed_url = feedparser.parse(getURL(url)).entries
+                        self.imdb_search(imdb, mb_parsed_url, "MB")
+                        i += 1
+                i = 0
+                for url in hw_urls:
+                    if not self.i_hw_done:
+                        if i == 0:
+                            hw_parsed_url = first_page_hw
+                        else:
+                            hw_parsed_url = feedparser.parse(getURL(url)).entries
+                        self.imdb_search(imdb, hw_parsed_url, "HW")
+                        i += 1
         else:
-            for(key, value, pattern) in self.searchLinks(mb_parsed_urls, "MB"):
-                self.feed_download(key, value)
-            for(key, value, pattern) in self.searchLinks(hw_parsed_urls, "HW"):
-                self.feed_download(key, value)
+            i = 0
+            for url in mb_urls:
+                if not self.mb_done:
+                    if i == 0:
+                        mb_parsed_url = first_page_mb
+                    else:
+                        mb_parsed_url = feedparser.parse(getURL(url)).entries
+                    for(key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
+                        self.feed_download(key, value)
+                    i += 1
+            i = 0
+            for url in hw_urls:
+                if not self.hw_done:
+                    if i == 0:
+                        hw_parsed_url = first_page_hw
+                    else:
+                        hw_parsed_url = feedparser.parse(getURL(url)).entries
+                    for(key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
+                        self.feed_download(key, value)
+                        i += 1
 
         if sha_mb and sha_hw:
             self.cdc.delete("MB-" + self.filename)
