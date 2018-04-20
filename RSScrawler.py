@@ -530,6 +530,14 @@ class SJ():
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
+                                try:
+                                    storage = self.db.retrieve(title)
+                                except Exception as e:
+                                    self.log_debug(
+                                        "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                if storage == 'added':
+                                    self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+                                    continue
                                 self.range_checkr(link, title, language_ok)
                         else:
                             self.log_debug(
@@ -558,6 +566,14 @@ class SJ():
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
+                                try:
+                                    storage = self.db.retrieve(title)
+                                except Exception as e:
+                                    self.log_debug(
+                                        "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                if storage == 'added':
+                                    self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+                                    continue
                                 self.range_checkr(link, title, language_ok)
                             else:
                                 self.log_debug(
@@ -1067,16 +1083,12 @@ class BL():
                 elif "HW" in site:
                     self.i_hw_done = True
                 break
-
-            content = str(post.content)
-
+            content = str(post.content.pop())
             if re.match(r'.*?[mM][kK][vV].*?', content):
                 post_imdb = re.findall(
                     r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
-
                 if post_imdb:
                     post_imdb = post_imdb.pop()
-
                 replaced = common.retail_sub(post.title)
                 retailtitle = self.db_retail.retrieve(replaced[0])
                 retailyear = self.db_retail.retrieve(replaced[1])
@@ -1088,22 +1100,14 @@ class BL():
                     self.log_debug(
                         "%s - Release ignoriert (Retail-Release bereits gefunden)" % post.title)
                     continue
-                ss = self.config.get('quality')
+                quality_set = self.config.get('quality')
                 if '.3d.' not in post.title.lower():
-                    if ss == "480p":
+                    if quality_set == "480p":
                         if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
-                            continue
-                        found = True
+                            quality_match = False
                     else:
-                        found = re.search(ss, post.title.lower())
-                    if found:
-                        episode = re.search(
-                            r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                        if episode:
-                            self.log_debug(
-                                "%s - Release ignoriert (Serienepisode)" % post.title)
-                            continue
-                    else:
+                        quality_match = re.search(quality_set, post.title.lower())
+                    if not quality_match:
                         self.log_debug(
                             "%s - Release ignoriert (falsche Aufloesung)" % post.title)
                         continue
@@ -1130,13 +1134,6 @@ class BL():
                         found = True
                     else:
                         continue
-                    if found:
-                        episode = re.search(
-                            r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                        if episode:
-                            self.log_debug(
-                                "%s - Release ignoriert (Serienepisode)" % post.title)
-                            continue
 
                 ignore = "|".join(
                     [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
@@ -1254,7 +1251,6 @@ class BL():
                         ",", "."))
 
                 if download_score > imdb:
-                    ss = self.config.get('quality')
                     if '.3d.' not in post.title.lower():
                         self.download_imdb(
                             post.title, download_pages, str(download_score), download_imdb, details)
@@ -1620,23 +1616,19 @@ class BL():
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        try:
-            first_page_mb = feedparser.parse(getURL(mb_urls[0])).entries
-            first_post_mb = first_page_mb[0]
-            concat_mb = first_post_mb.title + first_post_mb.published + \
-                str(self.settings) + str(self.allInfos)
-            sha_mb = hashlib.sha256(concat_mb.encode(
-                'ascii', 'ignore')).hexdigest()
+        first_page_mb = feedparser.parse(getURL(mb_urls[0])).entries
+        first_post_mb = first_page_mb[0]
+        concat_mb = first_post_mb.title + first_post_mb.published + \
+            str(self.settings) + str(self.allInfos)
+        sha_mb = hashlib.sha256(concat_mb.encode(
+            'ascii', 'ignore')).hexdigest()
 
-            first_page_hw = feedparser.parse(getURL(hw_urls[0])).entries
-            first_post_hw = first_page_hw[0]
-            concat_hw = first_post_hw.title + first_post_hw.published + \
-                str(self.settings) + str(self.allInfos)
-            sha_hw = hashlib.sha256(concat_hw.encode(
-                'ascii', 'ignore')).hexdigest()
-        except:
-            sha_mb = None
-            sha_hw = None
+        first_page_hw = feedparser.parse(getURL(hw_urls[0])).entries
+        first_post_hw = first_page_hw[0]
+        concat_hw = first_post_hw.title + first_post_hw.published + \
+            str(self.settings) + str(self.allInfos)
+        sha_hw = hashlib.sha256(concat_hw.encode(
+            'ascii', 'ignore')).hexdigest()
 
         if self.filename == "IMDB":
             if imdb > 0:
