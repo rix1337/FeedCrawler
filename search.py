@@ -288,9 +288,7 @@ def mb(link, jdownloaderpath):
             search_results = re.findall(
                 r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
             total_results = len(search_results)
-            if total_results == 0:
-                download_imdb = ""
-            elif staffel:
+            if staffel:
                 imdb_id = search_results[0][0]
             else:
                 no_series = False

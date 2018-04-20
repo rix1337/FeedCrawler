@@ -83,13 +83,19 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
-    logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=3)
+    logfile = logging.handlers.RotatingFileHandler(log_file)
     logfile.setFormatter(formatter)
     logfile.setLevel(logging.INFO)
 
     logger.addHandler(logfile)
     logger.addHandler(console)
+
+    if log_level == 10:
+        logfile_debug = logging.handlers.RotatingFileHandler(
+            log_file.replace("RSScrawler.log", "RSScrawler_DEBUG.log"), maxBytes=100000, backupCount=5)
+        logfile_debug.setFormatter(formatter)
+        logfile_debug.setLevel(10)
+        logger.addHandler(logfile_debug)
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -732,6 +738,8 @@ class BL():
         self.filename = filename
         self.db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+        self.db_retail = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), 'retail')
         self.hoster = re.compile(self.config.get("hoster"))
 
         self.cdc = RssDb(os.path.join(os.path.dirname(
@@ -756,12 +764,14 @@ class BL():
     def readInput(self, liste):
         cont = ListDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), liste).retrieve()
-        return cont if cont else ""
+        if not cont:
+            self.empty_list = True
+            return ""
+        else:
+            return cont
 
     def getPatterns(self, patterns, **kwargs):
         if not patterns:
-            self.log_debug(
-                "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
@@ -924,7 +934,7 @@ class BL():
                         self.log_debug("Fake-Link erkannt!")
                         break
                 download_link = download_links[0]
-                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -1053,9 +1063,16 @@ class BL():
                 if post_imdb:
                     post_imdb = post_imdb.pop()
 
+                replaced = common.retail_sub(post.title)
+                retailtitle = self.db_retail.retrieve(replaced[0])
+                retailyear = self.db_retail.retrieve(replaced[1])
                 if str(self.db.retrieve(post.title)) == 'added' or str(self.db.retrieve(post.title)) == 'notdl' or str(self.db.retrieve(post.title.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - Release ignoriert (bereits gefunden)" % post.title)
+                    continue
+                elif retailtitle == 'retail' or retailyear == 'retail':
+                    self.log_debug(
+                        "%s - Release ignoriert (Retail-Release bereits gefunden)" % post.title)
                     continue
                 ss = self.config.get('quality')
                 if '.3d.' not in post.title.lower():
@@ -1351,6 +1368,17 @@ class BL():
                 if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
+            replaced = common.retail_sub(key)
+            retailtitle = self.db_retail.retrieve(replaced[0])
+            retailyear = self.db_retail.retrieve(replaced[1])
+            if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                self.log_debug(
+                    "%s - Release ignoriert (bereits gefunden)" % key)
+                return
+            elif retailtitle == 'retail' or retailyear == 'retail':
+                self.log_debug(
+                    "%s - Release ignoriert (Retail-Release bereits gefunden)" % key)
+                return
             download_link = download_links[0]
             englisch = False
             if "*englisch*" in key.lower():
@@ -1363,7 +1391,6 @@ class BL():
                     return
             if self.config.get('enforcedl') and '.dl.' not in key.lower():
                 original_language = ""
-                fail = False
 
                 imdb_id = re.findall(
                     r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
@@ -1421,10 +1448,7 @@ class BL():
                             self.log_debug(
                                 "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                             return
-            if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
-                self.log_debug(
-                    "%s - Release ignoriert (bereits gefunden)" % key)
-            elif self.filename == 'MB_Filme':
+            if self.filename == 'MB_Filme':
                 retail = False
                 if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                         'enforcedl'):
@@ -1572,8 +1596,11 @@ class BL():
             for URL in self.HW_FEED_URLS:
                 hw_urls.append(URL)
 
-        if self.empty_list and self.filename != 'IMDB':
-            return
+        if self.filename != 'IMDB':
+            if self.empty_list:
+                self.log_debug(
+                    "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
+                return
         elif imdb == 0:
             self.log_debug(
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
