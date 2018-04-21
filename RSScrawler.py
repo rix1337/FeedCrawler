@@ -11,7 +11,6 @@
 
 Usage:
   RSScrawler.py [--testlauf]
-                [--ersatzblogs]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-pfad="<JDPATH>"]
@@ -164,7 +163,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             total_time = str(round(total_time, 1)) + total_unit
             notify(added_items)
             log_debug(
-                "---Testlauf ausgeführt (inkl. Ersatz-Suchfunktionen, Dauer: " + total_time + ")!---")
+                "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception:

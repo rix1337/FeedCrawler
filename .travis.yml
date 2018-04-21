@@ -6,4 +6,4 @@ install:
   - mkdir -p /home/travis/jd2/folderwatch
   - pip install -r requirements.txt
 script:
-  - python RSScrawler.py --port=9090 --jd-pfad="/home/travis/jd2" --ersatzblogs --testlauf --log-level=DEBUG
+  - python RSScrawler.py --port=9090 --jd-pfad="/home/travis/jd2" --testlauf --log-level=DEBUG
