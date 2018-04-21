@@ -433,7 +433,7 @@ class SJ():
                 'ascii', 'ignore')).hexdigest()
             if sha == self.last_sha_sj:
                 self.log_debug(
-                    "Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                    "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
             link = post.link
@@ -823,7 +823,7 @@ class BL():
                 if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
                     if not self.historical:
                         self.log_debug(
-                            site + "-Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                            site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche nach '" + key + "' ab!")
                         if "MB" in site:
                             self.mb_done = True
                         elif "HW" in site:
@@ -1088,7 +1088,7 @@ class BL():
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
                 self.log_debug(
-                    site + "-Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
+                    site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
                 if "MB" in site:
                     self.i_mb_done = True
                 elif "HW" in site:
