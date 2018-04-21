@@ -25,7 +25,7 @@ class RssConfig(object):
         'MB': [
             ("hoster", "str", ".*?share-online.*?"),
             ("quality", "str", "720p"),
-            ("search", "int", "3"),
+            ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
             ("regex", "bool", "False"),
             ("cutoff", "bool", "False"),
