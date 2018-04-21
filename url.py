@@ -45,8 +45,6 @@ def checkURL():
 
 
 def getURL(url):
-    # TODO remove print
-    print url
     config = RssConfig('RSScrawler')
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)

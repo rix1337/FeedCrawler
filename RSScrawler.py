@@ -827,9 +827,10 @@ class BL():
                         elif "HW" in site:
                             self.hw_done = True
                         break
-                content = str(post.content)
+
                 found = re.search(s, post.title.lower())
                 if found:
+                    content = post.content[0].value.encode("utf8")
                     found = re.search(ignore, post.title.lower())
                     if found:
                         self.log_debug(
@@ -1066,8 +1067,8 @@ class BL():
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
             found = re.search(s, post.title.lower())
-            content = str(post.content)
             if found:
+                content = post.content[0].value.encode("utf8")
                 found = re.search(ignore, post.title.lower())
                 if found:
                     self.log_debug(
@@ -1077,8 +1078,6 @@ class BL():
 
     def imdb_search(self, imdb, feed, site):
         for post in feed.entries:
-            # TODO remove print
-            print post.title
             concat = post.title + post.published + \
                 str(self.settings) + str(self.allInfos)
             sha = hashlib.sha256(concat.encode(
@@ -1091,8 +1090,8 @@ class BL():
                 elif "HW" in site:
                     self.i_hw_done = True
                 break
-            content = str(post.content.pop())
-            if re.match(r'.*?[mM][kK][vV].*?', content):
+            content = post.content[0].value.encode("utf8")
+            if "mkv" in content.lower():
                 post_imdb = re.findall(
                     r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
                 if post_imdb:
@@ -1625,7 +1624,6 @@ class BL():
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        print mb_urls
         first_page_mb = feedparser.parse(getURL(mb_urls[0]))
         first_post_mb = first_page_mb.entries[0]
         concat_mb = first_post_mb.title + first_post_mb.published + \
