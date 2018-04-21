@@ -74,7 +74,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     global rsscrawler
     rsscrawler = rssc
 
-    sys.stdout = Unbuffered(sys.stdout)
+    #sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
     logger.setLevel(log_level)
@@ -735,14 +735,18 @@ class BL():
     _INTERNAL_NAME = 'MB'
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
+    search = int(RssConfig(_INTERNAL_NAME).get("search"))
+    if search == 99:
+        historical = True
+        search = 3
     i = 2
-    while i <= 10:
+    while i <= search:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
     HW_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
     HW_FEED_URLS = [HW_URL]
     i = 2
-    while i <= 10:
+    while i <= search:
         HW_FEED_URLS.append(HW_URL + "?paged=" + str(i))
         i += 1
     SUBSTITUTE = r"[&#\s/]"
@@ -764,7 +768,7 @@ class BL():
             sys.argv[0]), "RSScrawler.db"), 'cdc')
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
-        settings = ["quality", "ignore", "historical", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
+        settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb", "hoster"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
@@ -813,7 +817,7 @@ class BL():
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
                 if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
-                    if not self.config.get("historical"):
+                    if not self.historical:
                         self.log_debug(
                             site + "-Feed ab hier bereits gecrawlt. Breche ab! (" + post.title + ")")
                         if "MB" in site:
@@ -1070,7 +1074,8 @@ class BL():
                 yield (post.title, content, title)
 
     def imdb_search(self, imdb, feed, site):
-        for post in feed:
+        for post in feed.entries:
+            print post.title
             concat = post.title + post.published + \
                 str(self.settings) + str(self.allInfos)
             sha = hashlib.sha256(concat.encode(
@@ -1586,7 +1591,7 @@ class BL():
                 )
             )
         if self.filename != 'MB_Regex' and self.filename != 'IMDB':
-            if self.config.get("historical"):
+            if self.historical:
                 for xline in self.allInfos.keys():
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
@@ -1616,15 +1621,17 @@ class BL():
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_page_mb = feedparser.parse(getURL(mb_urls[0])).entries
-        first_post_mb = first_page_mb[0]
+
+        print mb_urls
+        first_page_mb = feedparser.parse(getURL(mb_urls[0]))
+        first_post_mb = first_page_mb.entries[0]
         concat_mb = first_post_mb.title + first_post_mb.published + \
             str(self.settings) + str(self.allInfos)
         sha_mb = hashlib.sha256(concat_mb.encode(
             'ascii', 'ignore')).hexdigest()
 
-        first_page_hw = feedparser.parse(getURL(hw_urls[0])).entries
-        first_post_hw = first_page_hw[0]
+        first_page_hw = feedparser.parse(getURL(hw_urls[0]))
+        first_post_hw = first_page_hw.entries[0]
         concat_hw = first_post_hw.title + first_post_hw.published + \
             str(self.settings) + str(self.allInfos)
         sha_hw = hashlib.sha256(concat_hw.encode(
@@ -1638,7 +1645,7 @@ class BL():
                         if i == 0:
                             mb_parsed_url = first_page_mb
                         else:
-                            mb_parsed_url = feedparser.parse(getURL(url)).entries
+                            mb_parsed_url = feedparser.parse(getURL(url))
                         self.imdb_search(imdb, mb_parsed_url, "MB")
                         i += 1
                 i = 0
@@ -1647,7 +1654,7 @@ class BL():
                         if i == 0:
                             hw_parsed_url = first_page_hw
                         else:
-                            hw_parsed_url = feedparser.parse(getURL(url)).entries
+                            hw_parsed_url = feedparser.parse(getURL(url))
                         self.imdb_search(imdb, hw_parsed_url, "HW")
                         i += 1
         else:
@@ -1657,7 +1664,7 @@ class BL():
                     if i == 0:
                         mb_parsed_url = first_page_mb
                     else:
-                        mb_parsed_url = feedparser.parse(getURL(url)).entries
+                        mb_parsed_url = feedparser.parse(getURL(url))
                     for(key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
                         self.feed_download(key, value)
                     i += 1
@@ -1667,7 +1674,7 @@ class BL():
                     if i == 0:
                         hw_parsed_url = first_page_hw
                     else:
-                        hw_parsed_url = feedparser.parse(getURL(url)).entries
+                        hw_parsed_url = feedparser.parse(getURL(url))
                     for(key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
                         self.feed_download(key, value)
                         i += 1

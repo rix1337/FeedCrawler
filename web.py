@@ -138,11 +138,11 @@ def get_all():
                     "mb": {
                         "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
+                        "search": mb.get("search"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": mb.get("historical"),
                         "force_dl": mb.get("enforcedl"),
                         "cutoff": mb.get("cutoff"),
                         "crawl_3d": mb.get("crawl3d"),
@@ -239,11 +239,11 @@ def get_post_settings():
                     "mb": {
                         "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
+                        "search": mb.get("search"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": mb.get("historical"),
                         "force_dl": mb.get("enforcedl"),
                         "cutoff": mb.get("cutoff"),
                         "crawl_3d": mb.get("crawl3d"),
@@ -300,6 +300,8 @@ def get_post_settings():
                      to_str(data['mb']['hoster']).encode('utf-8'))
         section.save("quality",
                      to_str(data['mb']['quality']).encode('utf-8'))
+        section.save("search",
+                     to_str(data['mb']['search']).encode('utf-8'))
         section.save(
             "ignore", to_str(data['mb']['ignore']).encode('utf-8').lower())
         section.save("regex",
@@ -333,8 +335,6 @@ def get_post_settings():
         if imdb > 10:
             imdb = 10.0
         section.save("imdb", to_str(imdb))
-        section.save("historical",
-                     to_str(data['mb']['historical']).encode('utf-8'))
         section = RssConfig("SJ")
         section.save("hoster",
                      to_str(data['sj']['hoster']).encode('utf-8'))
@@ -513,7 +513,7 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     global jdpath
     jdpath = jd
 
-    sys.stdout = Unbuffered(sys.stdout)
+    #sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
     logger.setLevel(log_level)
