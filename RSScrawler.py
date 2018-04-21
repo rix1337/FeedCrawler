@@ -1629,18 +1629,22 @@ class BL():
             return
 
         first_page_mb = feedparser.parse(getURL(mb_urls[0]))
-        first_post_mb = first_page_mb.entries[0]
-        concat_mb = first_post_mb.title + first_post_mb.published + \
-            str(self.settings) + str(self.allInfos)
-        sha_mb = hashlib.sha256(concat_mb.encode(
-            'ascii', 'ignore')).hexdigest()
-
         first_page_hw = feedparser.parse(getURL(hw_urls[0]))
-        first_post_hw = first_page_hw.entries[0]
-        concat_hw = first_post_hw.title + first_post_hw.published + \
-            str(self.settings) + str(self.allInfos)
-        sha_hw = hashlib.sha256(concat_hw.encode(
-            'ascii', 'ignore')).hexdigest()
+        if not self.historical:
+            first_post_mb = first_page_mb.entries[0]
+            concat_mb = first_post_mb.title + first_post_mb.published + \
+                str(self.settings) + str(self.allInfos)
+            sha_mb = hashlib.sha256(concat_mb.encode(
+                'ascii', 'ignore')).hexdigest()
+
+            first_post_hw = first_page_hw.entries[0]
+            concat_hw = first_post_hw.title + first_post_hw.published + \
+                str(self.settings) + str(self.allInfos)
+            sha_hw = hashlib.sha256(concat_hw.encode(
+                'ascii', 'ignore')).hexdigest()
+        else:
+            sha_mb = None
+            sha_hw = None
 
         if self.filename == "IMDB":
             if imdb > 0:
