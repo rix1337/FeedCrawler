@@ -813,9 +813,11 @@ class BL():
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            settings = str(self.settings)
+            liste = str(self.allInfos)
             for post in feed.entries:
                 concat = post.title + post.published + \
-                    str(self.settings) + str(self.allInfos)
+                    settings + liste
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
                 if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
@@ -1077,9 +1079,11 @@ class BL():
                 yield (post.title, content, title)
 
     def imdb_search(self, imdb, feed, site):
+        settings = str(self.settings)
+        liste = str(self.allInfos)
         for post in feed.entries:
             concat = post.title + post.published + \
-                str(self.settings) + str(self.allInfos)
+                settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
