@@ -11,7 +11,6 @@ class Unbuffered(object):
         self.stream = stream
 
     def write(self, data):
-        self.stream.seek(0, 2)
         self.stream.write(data)
         self.stream.flush()
 
