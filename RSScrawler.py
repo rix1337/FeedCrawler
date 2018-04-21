@@ -417,7 +417,6 @@ class SJ():
             feed = feedparser.parse(getURL(
                 'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
 
-
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
             str(self.settings) + str(self.pattern)
@@ -536,7 +535,8 @@ class SJ():
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                 if storage == 'added':
-                                    self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+                                    self.log_debug(
+                                        title + " - Release ignoriert (bereits gefunden)")
                                     continue
                                 self.range_checkr(link, title, language_ok)
                         else:
@@ -572,7 +572,8 @@ class SJ():
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                 if storage == 'added':
-                                    self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+                                    self.log_debug(
+                                        title + " - Release ignoriert (bereits gefunden)")
                                     continue
                                 self.range_checkr(link, title, language_ok)
                             else:
@@ -736,6 +737,7 @@ class BL():
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
     search = int(RssConfig(_INTERNAL_NAME).get("search"))
+    historical = False
     if search == 99:
         historical = True
         search = 3
@@ -1112,7 +1114,8 @@ class BL():
                         if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                             quality_match = False
                     else:
-                        quality_match = re.search(quality_set, post.title.lower())
+                        quality_match = re.search(
+                            quality_set, post.title.lower())
                     if not quality_match:
                         self.log_debug(
                             "%s - Release ignoriert (falsche Aufloesung)" % post.title)
@@ -1621,7 +1624,6 @@ class BL():
             self.log_debug(
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
-
 
         print mb_urls
         first_page_mb = feedparser.parse(getURL(mb_urls[0]))
