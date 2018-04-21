@@ -385,6 +385,11 @@
                                 data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
                         </p>
                         <p>
+                            <h4>Suchtiefe</h4>
+                            <select ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search" class="form-control" data-toggle="tooltip"
+                                data-placement="top" title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
+                        </p>
+                        <p>
                             <h4>Filterliste</h4>
                             <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip" data-placement="top" title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"></input>
                         </p>
@@ -422,11 +427,6 @@
                             <h4>3D-Format</h4>
                             <select ng-model="settings.mb.crawl_3d_type" ng-options="t.value as t.label for t in types_3d" class="form-control" data-toggle="tooltip"
                                 data-placement="top" title="Das gewünschte Format der 3D-Filme wählen"></select>
-                        </p>
-                        <p>
-                            <h4>Suchfunktion, statt Feed nutzen</h4>
-                            <select ng-model="settings.mb.historical" ng-options="o.value as o.label for o in bools" class="form-control" data-toggle="tooltip"
-                                data-placement="top" title="Wenn aktiviert, wird die Suchfunktion genutzt - Sehr langsam - Akzeptiert alle vergangenen Releases"></select>
                         </p>
                     </div>
                 </div>
@@ -559,7 +559,7 @@
     <script src="js/angular.min.js"></script>
     <script src="js/angular-sanitize.min.js"></script>
     <script src="js/fontawesome-all.min.js"></script>
-    <script src="js/rsscrawler.js?4.2.4"></script>
+    <script src="js/rsscrawler.js?4.2.5"></script>
 </body>
 
 </html>

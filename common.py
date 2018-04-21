@@ -75,9 +75,6 @@ def checkIp():
 
 
 def entfernen(retailtitel, identifier):
-    def capitalize(line):
-        line = line.rstrip()
-        return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
@@ -89,7 +86,8 @@ def entfernen(retailtitel, identifier):
     new_cont = []
     if cont:
         for line in cont:
-            line = re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line)
+            if line.lower() == retailyear.lower() or line.lower() == retail.lower():
+                line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '', line.lower())
             if line:
                 new_cont.append(line)
     ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
