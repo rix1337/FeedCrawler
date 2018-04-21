@@ -513,7 +513,7 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     global jdpath
     jdpath = jd
 
-    #sys.stdout = Unbuffered(sys.stdout)
+    sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
     logger.setLevel(log_level)

@@ -37,7 +37,7 @@ def startup(jdownloader=None, port=None):
     if os.path.isfile(old_config):
         with open(old_config, 'r') as f:
             content = f.read().replace("hoster = Share-Online\n",
-                                       "").replace("hoster = Uploaded\n", "")
+                                       "").replace("hoster = Uploaded\n", "").replace("historical = True\n", "").replace("historical = False\n", "")
             f.close()
         with open(old_config, 'w') as f:
             f.write(content)

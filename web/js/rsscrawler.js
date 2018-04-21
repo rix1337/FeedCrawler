@@ -56,7 +56,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         { value: '10', label: '300 Einträge' },
         { value: '15', label: '450 Einträge' },
         { value: '30', label: '900 Einträge' },
-        { value: '99', label: 'Alle verfügbaren Einträge (Suchfunktion, statt Feed)' },
+        { value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)' },
     ];
 
     $scope.sj_hosters = [

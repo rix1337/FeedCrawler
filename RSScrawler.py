@@ -74,7 +74,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     global rsscrawler
     rsscrawler = rssc
 
-    #sys.stdout = Unbuffered(sys.stdout)
+    sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
     logger.setLevel(log_level)
@@ -811,7 +811,7 @@ class BL():
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
-            for post in feed:
+            for post in feed.entries:
                 concat = post.title + post.published + \
                     str(self.settings) + str(self.allInfos)
                 sha = hashlib.sha256(concat.encode(
@@ -1075,6 +1075,7 @@ class BL():
 
     def imdb_search(self, imdb, feed, site):
         for post in feed.entries:
+            # TODO remove print
             print post.title
             concat = post.title + post.published + \
                 str(self.settings) + str(self.allInfos)

@@ -45,6 +45,7 @@ def checkURL():
 
 
 def getURL(url):
+    # TODO remove print
     print url
     config = RssConfig('RSScrawler')
     proxy = config.get('proxy')
