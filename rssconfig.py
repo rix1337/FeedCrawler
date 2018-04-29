@@ -35,7 +35,8 @@ class RssConfig(object):
             ("crawlseasons", "bool", "True"),
             ("seasonsquality", "str", "720p"),
             ("seasonpacks", "bool", "False"),
-            ("seasonssource", "str", "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
+            ("seasonssource", "str",
+             "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
             ("imdb", "str", "0.0")
         ],

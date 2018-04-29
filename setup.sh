@@ -5,7 +5,7 @@
 # https://github.com/rix1337/RSScrawler/issues/88#issuecomment-251078409
 # https://github.com/rix1337/RSScrawler/issues/7#issuecomment-271187968
 
-VERSION="v.4.2.5"
+VERSION="v.4.2.6"
 echo "┌────────────────────────────────────────────────────────┐"
 echo "  Programminfo:    RSScrawler $VERSION von RiX"
 echo "  Projektseite:    https://github.com/rix1337/RSScrawler"
@@ -13,7 +13,7 @@ echo "└───────────────────────�
 echo "Hinweise im Wiki: https://github.com/rix1337/RSScrawler/wiki"
 echo "Bitte Plattform wählen:"
 OPTIONS="Ubuntu/Debian Synology Update Beenden"
-select opt in $OPTIONS; do
+select opt in ${OPTIONS}; do
    if [ "$opt" = "Beenden" ]; then
     exit
    elif [ "$opt" = "Ubuntu/Debian" ]; then
@@ -25,15 +25,15 @@ select opt in $OPTIONS; do
     read -rp "Wohin soll RSScrawler installiert werden? Das Verzeichnis RSScrawler wird automatisch erstellt! Pfad ohne / am Ende: " rsspath
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
     read -rp "Auf welchem Port soll das Webinterface erreichbar sein? Port: " rssport
-    mkdir -p $rsspath/
-    cd $rsspath/
+    mkdir -p ${rsspath}/
+    cd ${rsspath}/
     git clone https://github.com/rix1337/RSScrawler.git
     cd RSScrawler
     pip install -r requirements.txt
     git remote add rss https://github.com/rix1337/RSScrawler.git
     clear
     echo "Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP)."
-    python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
+    python RSScrawler.py --port=${rssport} --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Synology" ]; then
     echo "Es müssen Git, Python 2.7, JDownloader 2 und Java 8 installiert sein (optional auch node.js)!"
@@ -51,11 +51,11 @@ select opt in $OPTIONS; do
     read -rp "Auf welchem Port soll das Webinterface erreichbar sein? Port: " rssport
     clear
     echo "Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP)."
-    python RSScrawler.py --port=$rssport --jd-pfad="$jdpath" &
+    python RSScrawler.py --port=${rssport} --jd-pfad="$jdpath" &
     exit
    elif [ "$opt" = "Update" ]; then
     read -rp "Wo ist RSScrawler installiert? Pfad ohne / am Ende: " rsspath
-    cd $rsspath/
+    cd ${rsspath}/
     pip install -U -r requirements.txt
     git fetch --all
     git reset --hard origin/master

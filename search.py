@@ -2,24 +2,23 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import json
+import logging
+import os
+import re
+import sys
+from HTMLParser import HTMLParser
+
+import feedparser
+from bs4 import BeautifulSoup as bs
+
 import common
 from notifiers import notify
 from rssconfig import RssConfig
-from rssdb import RssDb
 from rssdb import ListDb
+from rssdb import RssDb
 from url import getURL
 from url import postURL
-
-from bs4 import BeautifulSoup as bs
-from HTMLParser import HTMLParser
-import feedparser
-import json
-import logging
-import re
-import os
-import sys
-import time
-import StringIO
 
 
 def get(title):
@@ -35,6 +34,15 @@ def get(title):
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
             unrated.append(
                 [rate(result[0]), result[1].replace("/", "+"), result[0]])
+
+    if config.get("crawl3d"):
+        mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
+            'base64') + '/search/' + query + "+3D+1080p" + '/feed/rss2/')
+        mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
+        for result in mb:
+            if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+                unrated.append(
+                    [rate(result[0]), result[1].replace("/", "+"), result[0]])
 
     rated = sorted(unrated, reverse=True)
 
@@ -125,18 +133,29 @@ def html_to_str(unescape):
 
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
-    search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-        ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+    search_title = \
+        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
+                                                                    ".German.DTS.DL.1080p.").replace(
+            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
+            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
+                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
+                                                                                                            1)[
+            0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
     search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
         'base64') + search_title + "/feed/rss2/"
-    feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-        ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+    feedsearch_title = \
+        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
+                                                                    ".German.DTS.DL.1080p.").replace(
+            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
+            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
+                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
+                                                                                                            1)[
+            0].split('.h264-', 1)[0]
     if not '.dl.' in feedsearch_title.lower():
         logging.debug(
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
         return False
     for (key, value, pattern) in dl_search(feedparser.parse(search_url), feedsearch_title):
-        download_link = False
         req_page = getURL(value[0])
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
@@ -169,9 +188,9 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Suche/Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array)
@@ -193,9 +212,10 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Suche/Film] - <b>' + (
+                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array)
@@ -221,9 +241,10 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Suche/Film] - <b>' + (
+                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array)
@@ -252,7 +273,7 @@ def mb(link, jdownloaderpath):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     links = {}
     for url_hoster in reversed(url_hosters):
-        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
@@ -266,12 +287,11 @@ def mb(link, jdownloaderpath):
     staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
 
     if config.get('enforcedl') and '.dl.' not in key.lower():
-        original_language = ""
         fail = False
         get_imdb_url = url
         key_regex = r'<title>' + \
-            re.escape(
-                key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
+                    re.escape(
+                        key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
         imdb_id = re.findall(key_regex, get_imdb_url)
         if len(imdb_id) > 0:
             if not imdb_id[0]:
@@ -286,7 +306,8 @@ def mb(link, jdownloaderpath):
             search_url = "http://www.imdb.com/find?q=" + search_title
             search_page = getURL(search_url)
             search_results = re.findall(
-                r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                search_page)
             total_results = len(search_results)
             if staffel:
                 imdb_id = search_results[0][0]
@@ -347,9 +368,11 @@ def mb(link, jdownloaderpath):
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
             log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
-                ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                key.replace(".COMPLETE", "").replace(
-                    ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                ".Complete",
+                "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                        key.replace(".COMPLETE", "").replace(
+                            ".Complete",
+                            "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array)
@@ -372,8 +395,9 @@ def mb(link, jdownloaderpath):
                 'notdl' if config.get(
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
-            log_entry = '[Suche/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+            log_entry = '[Suche/Film] - <b>' + (
+                'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array)
@@ -399,9 +423,11 @@ def mb(link, jdownloaderpath):
                 'notdl' if config.get(
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
-            log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
-                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+            log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
+                '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                            '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
+                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array)
@@ -477,24 +503,32 @@ def sj(id, jdownloaderpath):
         quality = config.get('quality')
         url = getURL(link)
         pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
-                                       r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                       r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                            url)
         folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX +
-                                       r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                       r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                            url)
         lq_pakete = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+            url)
         lq_folgen = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+            r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+            url)
 
         if not pakete and not folgen and not lq_pakete and not lq_folgen:
             sXX = sXX.replace("S0", "S")
             pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
-                                           r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                                           r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                                url)
             folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                url)
             lq_pakete = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                url)
             lq_folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'), url)
+                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                url)
 
         best_matching_links = []
 
@@ -557,7 +591,6 @@ def sj(id, jdownloaderpath):
                 "Staffelpack ", "").replace("Staffelpack.", "")
             dl_hoster = link[1]
             dl_link = link[2]
-            rsscrawler = RssConfig('RSScrawler')
             config = RssConfig('SJ')
             hoster = re.compile(config.get('hoster'))
             db = RssDb(os.path.join(os.path.dirname(
@@ -568,8 +601,8 @@ def sj(id, jdownloaderpath):
                     dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler")
                 db.store(dl_title, 'added')
                 log_entry = '[Suche/Serie] - ' + dl_title + ' - <a href="' + dl_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
         notify(notify_array)

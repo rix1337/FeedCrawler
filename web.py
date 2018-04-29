@@ -2,26 +2,24 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-from flask import Flask, request, send_from_directory, render_template, jsonify
-
-from output import Unbuffered
-from output import CutLog
-from rssconfig import RssConfig
-from rssdb import RssDb
-from rssdb import ListDb
-import search
-import files
-import version
-
 import StringIO
+import logging
 import os
 import re
 import sys
+from logging import handlers
+
 import gevent
+from flask import Flask, request, send_from_directory, render_template, jsonify
 from gevent.wsgi import WSGIServer
 
-import logging
-from logging import handlers
+import search
+import version
+from output import CutLog
+from output import Unbuffered
+from rssconfig import RssConfig
+from rssdb import ListDb
+from rssdb import RssDb
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 

@@ -14,6 +14,7 @@ Usage:
                 [--docker]
                 [--port=<PORT>]
                 [--jd-pfad="<JDPATH>"]
+                [--cdc-reset]
                 [--log-level=<LOGLEVEL>]
 
 Options:
@@ -21,44 +22,43 @@ Options:
   --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
+  --cdc-reset               Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
-import version
-version = version.getVersion()
-
-from docopt import docopt
-import feedparser
-import re
-import urllib2
-import codecs
-from bs4 import BeautifulSoup as bs
-import cfscrape
-import time
-import sys
-import signal
-import socket
-import logging
-from logging import handlers
-import os
-from multiprocessing import Process
-from dateutil import parser
-from datetime import datetime
-import warnings
-import traceback
 import hashlib
+import logging
+import os
+import re
+import signal
+import sys
+import time
+import traceback
+import urllib2
+import warnings
+from datetime import datetime
+from logging import handlers
+from multiprocessing import Process
 
-from output import Unbuffered
-from output import CutLog
-from rssconfig import RssConfig
-from rssdb import RssDb
-from rssdb import ListDb
-from notifiers import notify
-from url import checkURL
-from url import getURL
+import feedparser
+from bs4 import BeautifulSoup as bs
+from dateutil import parser
+from docopt import docopt
+
 import common
 import files
+import version
+from notifiers import notify
+from output import CutLog
+from output import Unbuffered
+from rssconfig import RssConfig
+from rssdb import ListDb
+from rssdb import RssDb
+from url import checkURL
+from url import getURL
 from web import start
+
+version = version.getVersion()
 
 
 def web_server(port, docker, jd, log_level, log_file, log_format):
@@ -123,8 +123,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 checkURL()
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion gestartet.")
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -150,7 +148,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             checkURL()
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -170,7 +167,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             traceback.print_exc()
 
 
-class YT():
+class YT:
     _INTERNAL_NAME = 'YT'
 
     def __init__(self):
@@ -193,9 +190,7 @@ class YT():
             self.log_debug("Suche für YouTube deaktiviert!")
             return
         channels = []
-        links = []
         videos = []
-        download_link = ""
         self.allInfos = self.readInput(self.youtube)
 
         for item in self.allInfos:
@@ -281,12 +276,12 @@ class YT():
                         'added'
                     )
                     log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        video + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                video + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
 
 
-class DD():
+class DD:
     _INTERNAL_NAME = 'DD'
 
     def __init__(self):
@@ -340,8 +335,8 @@ class DD():
                                 'added'
                             )
                             log_entry = '[DD] - <b>Englisch</b> - ' + key + ' - <a href="' + feed_link + \
-                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                             self.log_info(log_entry)
                             added_items.append(log_entry)
                     else:
@@ -349,7 +344,7 @@ class DD():
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
-class SJ():
+class SJ:
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.config = RssConfig(self._INTERNAL_NAME)
@@ -418,7 +413,7 @@ class SJ():
 
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
-            str(self.settings) + str(self.pattern)
+                    str(self.settings) + str(self.pattern)
         sha_sj = hashlib.sha256(concat_mb.encode(
             'ascii', 'ignore')).hexdigest()
 
@@ -427,7 +422,7 @@ class SJ():
                 continue
 
             concat = post.title + post.published + \
-                str(self.settings) + str(self.pattern)
+                     str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if sha == self.last_sha_sj:
@@ -619,13 +614,13 @@ class SJ():
                     NR = re.match(r"E\d{1,2}", str(count))
                     if NR:
                         title1 = title_cut[0][0] + \
-                            str(count) + ".*" + title_cut[0][-1].replace(
-                                "(", ".*").replace(")", ".*").replace("+", ".*")
+                                 str(count) + ".*" + title_cut[0][-1].replace(
+                            "(", ".*").replace(")", ".*").replace("+", ".*")
                         self.range_parse(link, title1, englisch, title)
                     else:
                         title1 = title_cut[0][0] + "0" + \
-                            str(count) + ".*" + title_cut[0][-1].replace(
-                                "(", ".*").replace(")", ".*").replace("+", ".*")
+                                 str(count) + ".*" + title_cut[0][-1].replace(
+                            "(", ".*").replace(")", ".*").replace("+", ".*")
                         self.range_parse(link, title1, englisch, title)
             except ValueError as e:
                 logging.error("Fehler in Variablenwert: %s" % e.message)
@@ -653,7 +648,6 @@ class SJ():
             "(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            valid = False
             if self.filename == 'MB_Staffeln':
                 valid = re.search(self.seasonssource, title.lower())
             else:
@@ -698,8 +692,8 @@ class SJ():
                 title, title, links, jdownloaderpath + "/folderwatch", "RSScrawler")
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - <a href="' + link + \
-                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                        title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             self.log_info(log_entry)
             added_items.append(log_entry)
 
@@ -731,7 +725,7 @@ class SJ():
         return titles
 
 
-class BL():
+class BL:
     _INTERNAL_NAME = 'MB'
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
@@ -802,13 +796,14 @@ class BL():
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
-        return {x: (x) for x in patterns}
+        return {x: x for x in patterns}
 
     def searchLinks(self, feed, site):
         if self.empty_list:
             return
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
+            "ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
             s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
@@ -816,7 +811,7 @@ class BL():
             liste = str(self.allInfos)
             for post in feed.entries:
                 concat = post.title + post.published + \
-                    settings + liste
+                         settings + liste
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
                 if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
@@ -950,12 +945,22 @@ class BL():
                         yield (post.title, content, key)
 
     def download_dl(self, title):
-        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
+                                                                                   ".German.DTS.DL.1080p.").replace(
+            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
+            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
+                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
+                                                                                                            1)[0].split(
+            '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
         search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
             'base64') + search_title + "/feed/rss2/"
-        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.", ".German.DTS.DL.1080p.").replace(".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.").split('.x264-', 1)[0].split('.h264-', 1)[0]
+        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
+                                                                                       ".German.DTS.DL.1080p.").replace(
+            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
+            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
+                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
+                                                                                                            1)[0].split(
+            '.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
@@ -968,7 +973,8 @@ class BL():
                         self.log_debug("Fake-Link erkannt!")
                         break
                 download_link = download_links[0]
-                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl' or str(
+                        self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
@@ -993,9 +999,10 @@ class BL():
                         'dl' if self.config.get(
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + (
+                        'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1016,9 +1023,10 @@ class BL():
                         'dl' if self.config.get(
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film] - <b>' + (
+                        'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1036,8 +1044,8 @@ class BL():
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1055,15 +1063,16 @@ class BL():
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
 
     def dl_search(self, feed, title):
         ignore = "|".join(
-            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
+            [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
+            "ignore") else r"^unmatchable$"
 
         s = re.sub(self.SUBSTITUTE, ".", title).lower()
         for post in feed.entries:
@@ -1079,10 +1088,10 @@ class BL():
 
     def imdb_search(self, imdb, feed, site):
         settings = str(self.settings)
-        liste = str(self.allInfos)
+        score = str(self.imdb)
         for post in feed.entries:
             concat = post.title + post.published + \
-                settings + liste
+                     settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
@@ -1096,13 +1105,15 @@ class BL():
             content = post.content[0].value.encode("utf8")
             if "mkv" in content.lower():
                 post_imdb = re.findall(
-                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
+                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
+                    content)
                 if post_imdb:
                     post_imdb = post_imdb.pop()
                 replaced = common.retail_sub(post.title)
                 retailtitle = self.db_retail.retrieve(replaced[0])
                 retailyear = self.db_retail.retrieve(replaced[1])
-                if str(self.db.retrieve(post.title)) == 'added' or str(self.db.retrieve(post.title)) == 'notdl' or str(self.db.retrieve(post.title.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                if str(self.db.retrieve(post.title)) == 'added' or str(self.db.retrieve(post.title)) == 'notdl' or str(
+                        self.db.retrieve(post.title.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                     self.log_debug(
                         "%s - Release ignoriert (bereits gefunden)" % post.title)
                     continue
@@ -1142,12 +1153,12 @@ class BL():
                                 self.log_debug(
                                     "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
                                 continue
-                        found = True
                     else:
                         continue
 
                 ignore = "|".join(
-                    [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get("ignore") else r"^unmatchable$"
+                    [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
+                    "ignore") else r"^unmatchable$"
                 found = re.search(ignore, post.title.lower())
                 if found:
                     self.log_debug(
@@ -1178,14 +1189,20 @@ class BL():
                     download_imdb = "http://www.imdb.com/title/" + post_imdb[0]
                 else:
                     try:
-                        search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", post.title)[0].replace(
-                            ".", "+").replace("ae", "ä").replace("oe", "ö").replace("ue", "ü").replace("Ae", "Ä").replace("Oe", "Ö").replace("Ue", "Ü")
+                        search_title = \
+                            re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
+                                       post.title)[
+                                0].replace(
+                                ".", "+").replace("ae", "ä").replace("oe", "ö").replace("ue", "ü").replace("Ae",
+                                                                                                           "Ä").replace(
+                                "Oe", "Ö").replace("Ue", "Ü")
                     except:
                         break
                     search_url = "http://www.imdb.com/find?q=" + search_title
                     search_page = getURL(search_url)
                     search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                        search_page)
                     no_series = False
                     total_results = len(search_results)
                     if total_results == 0:
@@ -1201,7 +1218,7 @@ class BL():
                                 else:
                                     no_series = True
                                     download_imdb = "http://www.imdb.com/title/" + \
-                                        search_results[attempt][0]
+                                                    search_results[attempt][0]
                                     title_year = search_results[attempt][2]
                                     total_results = 0
                                     break
@@ -1340,10 +1357,13 @@ class BL():
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[IMDB ' + score + '/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + \
-                    download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[IMDB ' + score + '/Film] - ' + (
+                    '<b>Englisch</b> - ' if englisch and not retail else "") + (
+                                '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + \
+                            download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             else:
@@ -1366,9 +1386,10 @@ class BL():
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[IMDB ' + score + '/Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[IMDB ' + score + '/Film] - <b>' + (
+                    'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
 
@@ -1392,7 +1413,8 @@ class BL():
             replaced = common.retail_sub(key)
             retailtitle = self.db_retail.retrieve(replaced[0])
             retailyear = self.db_retail.retrieve(replaced[1])
-            if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+            if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'notdl' or str(
+                    self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
                 return
@@ -1414,7 +1436,8 @@ class BL():
                 original_language = ""
 
                 imdb_id = re.findall(
-                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?', content)
+                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
+                    content)
 
                 if imdb_id:
                     imdb_id = imdb_id[0][0]
@@ -1424,7 +1447,8 @@ class BL():
                     search_url = "http://www.imdb.com/find?q=" + search_title
                     search_page = getURL(search_url)
                     search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})', search_page)
+                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                        search_page)
                     total_results = len(search_results)
                     if self.filename == 'MB_Staffeln':
                         imdb_id = search_results[0][0]
@@ -1492,9 +1516,11 @@ class BL():
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + ('<b>Englisch/Retail</b> - ' if englisch and retail else "") + ('<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
+                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             elif self.filename == 'MB_3D':
@@ -1517,8 +1543,9 @@ class BL():
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film] - <b>' + ('Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Film] - <b>' + (
+                    'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
@@ -1536,9 +1563,11 @@ class BL():
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
-                    ".Complete", "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key.replace(".COMPLETE", "").replace(
-                        ".Complete", "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    ".Complete",
+                    "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key.replace(".COMPLETE", "").replace(
+                                ".Complete",
+                                "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             else:
@@ -1555,8 +1584,8 @@ class BL():
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + \
-                    '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                    key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
+                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 self.log_info(log_entry)
                 added_items.append(log_entry)
 
@@ -1571,9 +1600,9 @@ class BL():
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filename),
-                    quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
+                    quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
                 ).items()}.items()
-                )
+                    )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
@@ -1582,7 +1611,7 @@ class BL():
                 set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filename)
                 ).items()}.items()
-                ) if self.config.get('regex') else []
+                    ) if self.config.get('regex') else []
             )
         elif self.filename == "IMDB":
             self.allInfos = self.filename
@@ -1594,7 +1623,7 @@ class BL():
                 set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
                 ).items()}.items()
-                )
+                    )
             )
         if self.filename != 'MB_Regex' and self.filename != 'IMDB':
             if self.historical:
@@ -1630,17 +1659,30 @@ class BL():
         first_page_mb = feedparser.parse(getURL(mb_urls[0]))
         first_page_hw = feedparser.parse(getURL(hw_urls[0]))
         if not self.historical:
-            first_post_mb = first_page_mb.entries[0]
-            concat_mb = first_post_mb.title + first_post_mb.published + \
-                str(self.settings) + str(self.allInfos)
-            sha_mb = hashlib.sha256(concat_mb.encode(
-                'ascii', 'ignore')).hexdigest()
+            if self.filename != 'IMDB':
+                first_post_mb = first_page_mb.entries[0]
+                concat_mb = first_post_mb.title + first_post_mb.published + \
+                            str(self.settings) + str(self.allInfos)
+                sha_mb = hashlib.sha256(concat_mb.encode(
+                    'ascii', 'ignore')).hexdigest()
 
-            first_post_hw = first_page_hw.entries[0]
-            concat_hw = first_post_hw.title + first_post_hw.published + \
-                str(self.settings) + str(self.allInfos)
-            sha_hw = hashlib.sha256(concat_hw.encode(
-                'ascii', 'ignore')).hexdigest()
+                first_post_hw = first_page_hw.entries[0]
+                concat_hw = first_post_hw.title + first_post_hw.published + \
+                            str(self.settings) + str(self.allInfos)
+                sha_hw = hashlib.sha256(concat_hw.encode(
+                    'ascii', 'ignore')).hexdigest()
+            else:
+                first_post_mb = first_page_mb.entries[0]
+                concat_mb = first_post_mb.title + first_post_mb.published + \
+                            str(self.settings) + str(self.imdb)
+                sha_mb = hashlib.sha256(concat_mb.encode(
+                    'ascii', 'ignore')).hexdigest()
+
+                first_post_hw = first_page_hw.entries[0]
+                concat_hw = first_post_hw.title + first_post_hw.published + \
+                            str(self.settings) + str(self.imdb)
+                sha_hw = hashlib.sha256(concat_hw.encode(
+                    'ascii', 'ignore')).hexdigest()
         else:
             sha_mb = None
             sha_hw = None
@@ -1673,7 +1715,7 @@ class BL():
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(getURL(url))
-                    for(key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
+                    for (key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
                         self.feed_download(key, value)
                     i += 1
             i = 0
@@ -1683,7 +1725,7 @@ class BL():
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(getURL(url))
-                    for(key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
+                    for (key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
                         self.feed_download(key, value)
                         i += 1
 
@@ -1746,7 +1788,7 @@ if __name__ == "__main__":
         jdownloaderpath = '/jd2'
     jdownloaderpath = jdownloaderpath.replace("\\", "/")
     jdownloaderpath = jdownloaderpath[:-
-                                      1] if jdownloaderpath.endswith('/') else jdownloaderpath
+    1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
     if arguments['--docker']:
         print('Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
@@ -1766,18 +1808,18 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
-        print('Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+        print(
+            'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
 
-    if arguments['--port']:
-        port = int(arguments['--port'])
-    else:
-        port = port = int(rsscrawler.get("port"))
+    port = int(rsscrawler.get("port"))
     docker = False
     if arguments['--docker']:
         port = int('9090')
         docker = True
+    elif arguments['--port']:
+        port = int(arguments['--port'])
 
     if rsscrawler.get("prefix"):
         prefix = '/' + rsscrawler.get("prefix")
@@ -1786,6 +1828,10 @@ if __name__ == "__main__":
     if not arguments['--docker']:
         print('Der Webserver ist erreichbar unter http://' +
               common.checkIp() + ':' + str(port) + prefix)
+
+    if arguments['--cdc-reset']:
+        print("CDC-Tabelle geleert!")
+        RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), 'cdc').reset()
 
     p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, log_level, log_file, log_format))
@@ -1798,11 +1844,14 @@ if __name__ == "__main__":
 
         print('Drücke [Strg] + [C] zum Beenden')
 
+
         def signal_handler(signal, frame):
             print('Beende RSScrawler...')
             p.terminate()
             c.terminate()
             sys.exit(0)
+
+
         signal.signal(signal.SIGINT, signal_handler)
 
         try:

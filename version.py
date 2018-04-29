@@ -7,7 +7,7 @@ import urllib2
 
 
 def getVersion():
-    return "v.4.2.5"
+    return "v.4.2.6"
 
 
 def updateCheck():
@@ -25,8 +25,8 @@ def updateCheck():
             elif localversion[0] < onlineversion[0]:
                 update = True
         if update:
-            return (True, "v." + ".".join(onlineversion))
+            return True, "v." + ".".join(onlineversion)
         else:
-            return (False, "v." + ".".join(localversion))
+            return False, "v." + ".".join(localversion)
     except:
-        return (False, "Error")
+        return False, "Error"
