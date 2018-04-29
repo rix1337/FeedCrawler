@@ -4,14 +4,15 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
-import files
 import logging
 import os
 import re
 import socket
 import sys
+
 from rssconfig import RssConfig
 from rssdb import ListDb
+from rssdb import RssDb
 
 log_info = logging.info
 log_error = logging.error
@@ -34,8 +35,11 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file = open(crawljob_file, 'w')
         file.write('enabled=TRUE\n')
         file.write('autoStart=' + autostart + '\n')
-        file.write('extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '","' +
-                   "aGQtYXJlYS5vcmc=".decode('base64') + '","' + "aGQtd29ybGQub3Jn".decode('base64') + '","' + "d2FyZXotd29ybGQub3Jn".decode('base64') + '"]\n')
+        file.write(
+            'extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode(
+                'base64') + '","' +
+            "aGQtYXJlYS5vcmc=".decode('base64') + '","' + "aGQtd29ybGQub3Jn".decode(
+                'base64') + '","' + "d2FyZXotd29ybGQub3Jn".decode('base64') + '"]\n')
         file.write('downloadPassword=' +
                    "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
         file.write('extractAfterDownload=TRUE\n')
@@ -52,7 +56,6 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file.close()
         return True
     except UnicodeEncodeError as e:
-        file.close()
         log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %
                   (crawljob_file, e.message))
         if os.path.isfile(crawljob_file):
@@ -74,13 +77,9 @@ def checkIp():
 
 
 def entfernen(retailtitel, identifier):
-    def capitalize(line):
-        line = line.rstrip()
-        return ' '.join(s[0].upper() + s[1:] for s in line.split(' '))
-    simplified = retailtitel.replace(".", " ")
-    retail = re.sub(
-        r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
-    retailyear = re.sub(r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*', "", simplified)
+    titles = retail_sub(retailtitel)
+    retail = titles[0]
+    retailyear = titles[1]
     if identifier == '2':
         liste = "MB_3D"
     else:
@@ -89,15 +88,32 @@ def entfernen(retailtitel, identifier):
     new_cont = []
     if cont:
         for line in cont:
-            line = re.sub(r'^(' + re.escape(retailyear) + '|' + re.escape(retail) + '|' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + '|' + re.escape(retailyear.upper()) + '|' + re.escape(retail.upper()) + '|' + re.escape(capitalize(retailyear)) + '|' + re.escape(capitalize(retail)) + ')', '', line)
+            if line.lower() == retailyear.lower() or line.lower() == retail.lower():
+                line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '',
+                              line.lower())
             if line:
                 new_cont.append(line)
     ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
+    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retail, "retail")
+    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retailyear, "retail")
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
+def retail_sub(title):
+    simplified = title.replace(".", " ")
+    retail = re.sub(
+        r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+        "", simplified)
+    retailyear = re.sub(
+        r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+        "", simplified)
+    return retail, retailyear
+
+
 def cutoff(key, identifier):
-    retailfinder = re.search("(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*", key)
+    retailfinder = re.search(
+        "(|.UNRATED|Uncut|UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*",
+        key)
     if retailfinder:
         entfernen(key, identifier)
         return True

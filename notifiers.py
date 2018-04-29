@@ -6,10 +6,11 @@
 
 import base64
 import logging
+import re
 import urllib
 import urllib2
+
 from rssconfig import RssConfig
-import re
 
 try:
     import simplejson as json
@@ -23,7 +24,7 @@ log_debug = logging.debug
 
 def api_request_cutter(l, n):
     for i in range(0, len(l), n):
-        yield l[i:i+n]
+        yield l[i:i + n]
 
 
 def notify(added_items):

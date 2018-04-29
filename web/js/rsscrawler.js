@@ -49,6 +49,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         { value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**' },
     ];
 
+    $scope.mb_search = [
+        { value: '1', label: '30 Einträge' },
+        { value: '3', label: '90 Einträge' },
+        { value: '5', label: '150 Einträge' },
+        { value: '10', label: '300 Einträge' },
+        { value: '15', label: '450 Einträge' },
+        { value: '30', label: '900 Einträge' },
+        { value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)' },
+    ];
+
     $scope.sj_hosters = [
         { value: '.*?share-online.*?', label: 'Share-Online' },
         { value: '.*?uploaded.*?', label: 'Uploaded' },

@@ -2,26 +2,24 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-from flask import Flask, request, send_from_directory, render_template, jsonify
-
-from output import Unbuffered
-from output import CutLog
-from rssconfig import RssConfig
-from rssdb import RssDb
-from rssdb import ListDb
-import search
-import files
-import version
-
 import StringIO
+import logging
 import os
 import re
 import sys
+from logging import handlers
+
 import gevent
+from flask import Flask, request, send_from_directory, render_template, jsonify
 from gevent.wsgi import WSGIServer
 
-import logging
-from logging import handlers
+import search
+import version
+from output import CutLog
+from output import Unbuffered
+from rssconfig import RssConfig
+from rssdb import ListDb
+from rssdb import RssDb
 
 app = Flask(__name__, static_url_path='/web', template_folder='web')
 
@@ -138,11 +136,11 @@ def get_all():
                     "mb": {
                         "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
+                        "search": mb.get("search"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": mb.get("historical"),
                         "force_dl": mb.get("enforcedl"),
                         "cutoff": mb.get("cutoff"),
                         "crawl_3d": mb.get("crawl3d"),
@@ -239,11 +237,11 @@ def get_post_settings():
                     "mb": {
                         "hoster": mb.get("hoster"),
                         "quality": mb.get("quality"),
+                        "search": mb.get("search"),
                         "ignore": mb.get("ignore"),
                         "regex": mb.get("regex"),
                         "imdb_score": to_float(mb.get("imdb")),
                         "imdb_year": to_int(mb.get("imdbyear")),
-                        "historical": mb.get("historical"),
                         "force_dl": mb.get("enforcedl"),
                         "cutoff": mb.get("cutoff"),
                         "crawl_3d": mb.get("crawl3d"),
@@ -300,6 +298,8 @@ def get_post_settings():
                      to_str(data['mb']['hoster']).encode('utf-8'))
         section.save("quality",
                      to_str(data['mb']['quality']).encode('utf-8'))
+        section.save("search",
+                     to_str(data['mb']['search']).encode('utf-8'))
         section.save(
             "ignore", to_str(data['mb']['ignore']).encode('utf-8').lower())
         section.save("regex",
@@ -333,8 +333,6 @@ def get_post_settings():
         if imdb > 10:
             imdb = 10.0
         section.save("imdb", to_str(imdb))
-        section.save("historical",
-                     to_str(data['mb']['historical']).encode('utf-8'))
         section = RssConfig("SJ")
         section.save("hoster",
                      to_str(data['sj']['hoster']).encode('utf-8'))
@@ -523,13 +521,19 @@ def start(port, docker_arg, jd, log_level, log_file, log_format):
     console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
-    logfile = logging.handlers.RotatingFileHandler(
-        log_file, maxBytes=100000, backupCount=3)
+    logfile = logging.handlers.RotatingFileHandler(log_file)
     logfile.setFormatter(formatter)
     logfile.setLevel(logging.INFO)
 
     logger.addHandler(logfile)
     logger.addHandler(console)
+
+    if log_level == 10:
+        logfile_debug = logging.handlers.RotatingFileHandler(
+            log_file.replace("RSScrawler.log", "RSScrawler_DEBUG.log"), maxBytes=100000, backupCount=5)
+        logfile_debug.setFormatter(formatter)
+        logfile_debug.setLevel(10)
+        logger.addHandler(logfile_debug)
 
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
