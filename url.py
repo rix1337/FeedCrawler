@@ -2,10 +2,10 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import cfscrape
-import time
 import os
 import sys
+
+import cfscrape
 
 from rssconfig import RssConfig
 from rssdb import RssDb
@@ -22,7 +22,8 @@ def checkURL():
         db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
-        if "block." in str(scraper.get(sj_url, proxies=proxies, timeout=15, allow_redirects=False).headers.get("location")):
+        if "block." in str(
+                scraper.get(sj_url, proxies=proxies, timeout=15, allow_redirects=False).headers.get("location")):
             print "Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!"
             if RssConfig('RSScrawler').get("fallback"):
                 db.store("SJ", "Blocked")

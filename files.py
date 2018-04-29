@@ -5,13 +5,12 @@
 import codecs
 import logging
 import os
-import sys
-import time
 import shutil
+import sys
 
 import rssdb
-from rssdb import ListDb
 from rssconfig import RssConfig
+from rssdb import ListDb
 
 
 def startup(jdownloader=None, port=None):
@@ -30,14 +29,17 @@ def startup(jdownloader=None, port=None):
     # Move Pre-v.4.2.x-Settings to Base dir
     if os.path.isfile(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/Downloads.db')):
         os.rename(os.path.join(os.path.dirname(
-            sys.argv[0]), 'Einstellungen/Downloads/Downloads.db'), os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.db'))
+            sys.argv[0]), 'Einstellungen/Downloads/Downloads.db'),
+            os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.db'))
 
     old_config = os.path.join(os.path.join(os.path.dirname(
         sys.argv[0]), 'Einstellungen/RSScrawler.ini'))
     if os.path.isfile(old_config):
         with open(old_config, 'r') as f:
             content = f.read().replace("hoster = Share-Online\n",
-                                       "").replace("hoster = Uploaded\n", "").replace("historical = True\n", "").replace("historical = False\n", "")
+                                       "").replace("hoster = Uploaded\n", "").replace("historical = True\n",
+                                                                                      "").replace(
+                "historical = False\n", "")
             f.close()
         with open(old_config, 'w') as f:
             f.write(content)

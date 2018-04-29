@@ -4,7 +4,6 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
-import files
 import logging
 import os
 import re

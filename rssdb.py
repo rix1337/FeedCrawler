@@ -2,10 +2,9 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import sqlite3
 import os
+import sqlite3
 import sys
-import re
 
 
 def get_first(iterable):
@@ -15,7 +14,8 @@ def get_first(iterable):
 # Merge Pre-v.4.1.x-Databases into v.4.1.x-Database
 def merge_old():
     def connect(file):
-        return sqlite3.connect(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/' + file + '.db'), check_same_thread=False)
+        return sqlite3.connect(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/' + file + '.db'),
+                               check_same_thread=False)
 
     def read(connection):
         return connection.execute("SELECT key, value FROM 'data'")
@@ -29,10 +29,7 @@ def merge_old():
         conn_new.execute("CREATE TABLE 'rsscrawler' (key, value)")
         conn_new.commit()
 
-    res_old = []
-    res_old.append(read(conn_old1))
-    res_old.append(read(conn_old2))
-    res_old.append(read(conn_old3))
+    res_old = [read(conn_old1), read(conn_old2), read(conn_old3)]
 
     for res in res_old:
         for key, value in res:
@@ -47,7 +44,8 @@ class RssDb(object):
     def __init__(self, file, table):
         self._conn = sqlite3.connect(file, check_same_thread=False)
         self._table = table
-        if not self._conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
+        if not self._conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
             self._conn.execute(
                 '''CREATE TABLE %s (key, value)''' % self._table)
             self._conn.commit()
@@ -72,7 +70,8 @@ class ListDb(object):
     def __init__(self, file, table):
         self._conn = sqlite3.connect(file, check_same_thread=False)
         self._table = table
-        if not self._conn.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
+        if not self._conn.execute(
+                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
             self._conn.execute(
                 '''CREATE TABLE %s (key)''' % self._table)
             self._conn.commit()
@@ -86,8 +85,11 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = key.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-            'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+        key = key.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
+                                                                                                         'Ae').replace(
+            'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
+            'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace(
+            '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -98,8 +100,12 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = k.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä', 'Ae').replace('ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-                        'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+                    k = k.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
+                                                                                                                 'Ae').replace(
+                        'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
+                        'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
+                                                                                                               '').replace(
+                        '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
                     key = key + (k,)
                     items.append(key)
         else:
