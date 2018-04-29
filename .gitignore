@@ -3,7 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 # Python
-.pyc
+*.pyc
 
 # RSScrawler files
 *.db
