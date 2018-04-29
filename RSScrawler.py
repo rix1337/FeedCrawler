@@ -14,6 +14,7 @@ Usage:
                 [--docker]
                 [--port=<PORT>]
                 [--jd-pfad="<JDPATH>"]
+                [--cdc-reset]
                 [--log-level=<LOGLEVEL>]
 
 Options:
@@ -21,6 +22,7 @@ Options:
   --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
+  --cdc-reset               Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 
@@ -121,8 +123,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 checkURL()
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion gestartet.")
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -148,7 +148,6 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             checkURL()
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - Testlauf gestartet.")
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -168,7 +167,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             traceback.print_exc()
 
 
-class YT():
+class YT:
     _INTERNAL_NAME = 'YT'
 
     def __init__(self):
@@ -191,9 +190,7 @@ class YT():
             self.log_debug("Suche für YouTube deaktiviert!")
             return
         channels = []
-        links = []
         videos = []
-        download_link = ""
         self.allInfos = self.readInput(self.youtube)
 
         for item in self.allInfos:
@@ -284,7 +281,7 @@ class YT():
                     added_items.append(log_entry)
 
 
-class DD():
+class DD:
     _INTERNAL_NAME = 'DD'
 
     def __init__(self):
@@ -347,7 +344,7 @@ class DD():
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
-class SJ():
+class SJ:
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.config = RssConfig(self._INTERNAL_NAME)
@@ -651,7 +648,6 @@ class SJ():
             "(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
         if title:
-            valid = False
             if self.filename == 'MB_Staffeln':
                 valid = re.search(self.seasonssource, title.lower())
             else:
@@ -729,7 +725,7 @@ class SJ():
         return titles
 
 
-class BL():
+class BL:
     _INTERNAL_NAME = 'MB'
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
@@ -800,7 +796,7 @@ class BL():
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
-        return {x: (x) for x in patterns}
+        return {x: x for x in patterns}
 
     def searchLinks(self, feed, site):
         if self.empty_list:
@@ -1092,10 +1088,10 @@ class BL():
 
     def imdb_search(self, imdb, feed, site):
         settings = str(self.settings)
-        liste = str(self.allInfos)
+        score = str(self.imdb)
         for post in feed.entries:
             concat = post.title + post.published + \
-                     settings + liste
+                     settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
@@ -1157,7 +1153,6 @@ class BL():
                                 self.log_debug(
                                     "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
                                 continue
-                        found = True
                     else:
                         continue
 
@@ -1605,7 +1600,7 @@ class BL():
             self.allInfos = dict(
                 set({key: value for (key, value) in self.getPatterns(
                     self.readInput(self.filename),
-                    quality=self.config.get('seasonsquality'), rg='.*', sf=('.complete.')
+                    quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
                 ).items()}.items()
                     )
             )
@@ -1664,17 +1659,30 @@ class BL():
         first_page_mb = feedparser.parse(getURL(mb_urls[0]))
         first_page_hw = feedparser.parse(getURL(hw_urls[0]))
         if not self.historical:
-            first_post_mb = first_page_mb.entries[0]
-            concat_mb = first_post_mb.title + first_post_mb.published + \
-                        str(self.settings) + str(self.allInfos)
-            sha_mb = hashlib.sha256(concat_mb.encode(
-                'ascii', 'ignore')).hexdigest()
+            if self.filename != 'IMDB':
+                first_post_mb = first_page_mb.entries[0]
+                concat_mb = first_post_mb.title + first_post_mb.published + \
+                            str(self.settings) + str(self.allInfos)
+                sha_mb = hashlib.sha256(concat_mb.encode(
+                    'ascii', 'ignore')).hexdigest()
 
-            first_post_hw = first_page_hw.entries[0]
-            concat_hw = first_post_hw.title + first_post_hw.published + \
-                        str(self.settings) + str(self.allInfos)
-            sha_hw = hashlib.sha256(concat_hw.encode(
-                'ascii', 'ignore')).hexdigest()
+                first_post_hw = first_page_hw.entries[0]
+                concat_hw = first_post_hw.title + first_post_hw.published + \
+                            str(self.settings) + str(self.allInfos)
+                sha_hw = hashlib.sha256(concat_hw.encode(
+                    'ascii', 'ignore')).hexdigest()
+            else:
+                first_post_mb = first_page_mb.entries[0]
+                concat_mb = first_post_mb.title + first_post_mb.published + \
+                            str(self.settings) + str(self.imdb)
+                sha_mb = hashlib.sha256(concat_mb.encode(
+                    'ascii', 'ignore')).hexdigest()
+
+                first_post_hw = first_page_hw.entries[0]
+                concat_hw = first_post_hw.title + first_post_hw.published + \
+                            str(self.settings) + str(self.imdb)
+                sha_hw = hashlib.sha256(concat_hw.encode(
+                    'ascii', 'ignore')).hexdigest()
         else:
             sha_mb = None
             sha_hw = None
@@ -1805,14 +1813,13 @@ if __name__ == "__main__":
         print('Beende RSScrawler...')
         sys.exit(0)
 
-    if arguments['--port']:
-        port = int(arguments['--port'])
-    else:
-        port = port = int(rsscrawler.get("port"))
+    port = int(rsscrawler.get("port"))
     docker = False
     if arguments['--docker']:
         port = int('9090')
         docker = True
+    elif arguments['--port']:
+        port = int(arguments['--port'])
 
     if rsscrawler.get("prefix"):
         prefix = '/' + rsscrawler.get("prefix")
@@ -1821,6 +1828,10 @@ if __name__ == "__main__":
     if not arguments['--docker']:
         print('Der Webserver ist erreichbar unter http://' +
               common.checkIp() + ':' + str(port) + prefix)
+
+    if arguments['--cdc-reset']:
+        print("CDC-Tabelle geleert!")
+        RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), 'cdc').reset()
 
     p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, log_level, log_file, log_format))

@@ -35,6 +35,15 @@ def get(title):
             unrated.append(
                 [rate(result[0]), result[1].replace("/", "+"), result[0]])
 
+    if config.get("crawl3d"):
+        mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
+            'base64') + '/search/' + query + "+3D+1080p" + '/feed/rss2/')
+        mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
+        for result in mb:
+            if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+                unrated.append(
+                    [rate(result[0]), result[1].replace("/", "+"), result[0]])
+
     rated = sorted(unrated, reverse=True)
 
     results = {}
@@ -147,7 +156,6 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
         return False
     for (key, value, pattern) in dl_search(feedparser.parse(search_url), feedsearch_title):
-        download_link = False
         req_page = getURL(value[0])
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
@@ -180,7 +188,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
+                log_entry = '[Suche/Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
                             '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
@@ -204,7 +212,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Film] - <b>' + (
+                log_entry = '[Suche/Film] - <b>' + (
                     'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
                             '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
@@ -233,7 +241,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Film] - <b>' + (
+                log_entry = '[Suche/Film] - <b>' + (
                     'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
                             '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
@@ -265,7 +273,7 @@ def mb(link, jdownloaderpath):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     links = {}
     for url_hoster in reversed(url_hosters):
-        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
@@ -279,7 +287,6 @@ def mb(link, jdownloaderpath):
     staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
 
     if config.get('enforcedl') and '.dl.' not in key.lower():
-        original_language = ""
         fail = False
         get_imdb_url = url
         key_regex = r'<title>' + \
@@ -584,7 +591,6 @@ def sj(id, jdownloaderpath):
                 "Staffelpack ", "").replace("Staffelpack.", "")
             dl_hoster = link[1]
             dl_link = link[2]
-            rsscrawler = RssConfig('RSScrawler')
             config = RssConfig('SJ')
             hoster = re.compile(config.get('hoster'))
             db = RssDb(os.path.join(os.path.dirname(

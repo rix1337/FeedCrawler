@@ -46,8 +46,7 @@ class RssDb(object):
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-            self._conn.execute(
-                '''CREATE TABLE %s (key, value)''' % self._table)
+            self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
             self._conn.commit()
 
     def retrieve(self, key):
@@ -65,6 +64,10 @@ class RssDb(object):
                            (self._table, key))
         self._conn.commit()
 
+    def reset(self):
+        self._conn.execute("DROP TABLE %s" % self._table)
+        self._conn.commit()
+
 
 class ListDb(object):
     def __init__(self, file, table):
@@ -78,7 +81,7 @@ class ListDb(object):
 
     def retrieve(self):
         res = self._conn.execute(
-            "SELECT distinct key FROM %s ORDER BY key" % (self._table))
+            "SELECT distinct key FROM %s ORDER BY key" % self._table)
         items = []
         for r in res:
             items.append(str(r[0]))
@@ -114,9 +117,9 @@ class ListDb(object):
                     key = ()
                     key = key + (k,)
                     items.append(key)
-        self._conn.execute("DELETE FROM %s" % (self._table))
+        self._conn.execute("DELETE FROM %s" % self._table)
         self._conn.executemany(
-            "INSERT INTO '%s' (key) VALUES (?)" % (self._table), items)
+            "INSERT INTO '%s' (key) VALUES (?)" % self._table, items)
         self._conn.commit()
 
     def delete(self, key):
