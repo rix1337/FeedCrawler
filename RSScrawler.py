@@ -145,7 +145,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+                      " - Alle Suchfunktion ausgefuehrt (Dauer: " + total_time + ")!")
                 added_items = []
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
@@ -170,7 +170,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+                  " - Testlauf ausgefuehrt (Dauer: " + total_time + ")!")
         except Exception:
             traceback.print_exc()
 
@@ -1664,36 +1664,51 @@ class BL(object):
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_page_mb = feedparser.parse(getURL(mb_urls[0]))
-        first_page_hw = feedparser.parse(getURL(hw_urls[0]))
-        if not self.historical:
-            if self.filename != 'IMDB':
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
-
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
-            else:
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
-
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
-        else:
+        try:
+            first_page_mb = feedparser.parse(getURL(mb_urls[0]))
+        except:
+            first_page_mb = False
             sha_mb = None
+
+        if first_page_mb:
+            if not self.historical:
+                if self.filename != 'IMDB':
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
+                else:
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
+            else:
+                sha_mb = None
+
+        try:
+            first_page_hw = feedparser.parse(getURL(hw_urls[0]))
+        except:
+            first_page_hw = False
             sha_hw = None
+
+        if first_page_hw:
+            if not self.historical:
+                if self.filename != 'IMDB':
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
+                else:
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
+            else:
+                sha_hw = None
 
         if self.filename == "IMDB":
             if imdb > 0:
@@ -1737,10 +1752,12 @@ class BL(object):
                         self.feed_download(key, value)
                         i += 1
 
-        if sha_mb and sha_hw:
+        if sha_mb:
             self.cdc.delete("MB-" + self.filename)
-            self.cdc.delete("HW-" + self.filename)
             self.cdc.store("MB-" + self.filename, sha_mb)
+
+        if sha_hw:
+            self.cdc.delete("HW-" + self.filename)
             self.cdc.store("HW-" + self.filename, sha_hw)
 
 
@@ -1768,7 +1785,7 @@ if __name__ == "__main__":
                 print(
                     'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(
-                    'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
+                    'Die Einstellungen und Listen sind beim naechsten Start im Webinterface anpassbar.')
                 print('Viel Spass! Beende RSScrawler!')
                 sys.exit(0)
         else:
@@ -1799,16 +1816,16 @@ if __name__ == "__main__":
     1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
     if arguments['--docker']:
-        print('Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
+        print('Docker-Modus: JDownloader-Pfad und Port koennen nur per Docker-Run angepasst werden!')
 
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-        print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
+        print('Weiterhin sollten die Listen entsprechend der README.md gefuellt werden!')
         print('Beende RSScrawler...')
         sys.exit(0)
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
-          jdownloaderpath + '" für Crawljobs')
+          jdownloaderpath + '" fuer Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
@@ -1817,7 +1834,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print(
-            'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+            'Der Pfad des JDownloaders enthaelt nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
 
@@ -1850,7 +1867,7 @@ if __name__ == "__main__":
                                           rsscrawler, log_level, log_file, log_format,))
         c.start()
 
-        print('Drücke [Strg] + [C] zum Beenden')
+        print('Druecke [Strg] + [C] zum Beenden')
 
 
         def signal_handler(signal, frame):

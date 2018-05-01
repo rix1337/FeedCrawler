@@ -85,8 +85,9 @@ def get_all():
             logfile = open(os.path.join(logfile))
             output = io.StringIO()
             for line in reversed(logfile.readlines()):
-                output.write("<p>" + line.replace("\n", "</p>"))
-                log = output.getvalue()
+                line = "<p>" + line.replace("\n", "</p>").decode("utf-8")
+                output.write(unicode(line))
+            log = output.getvalue()
         if not mb.get("crawl3dtype"):
             crawl_3d_type = "hsbs"
         else:
@@ -187,8 +188,9 @@ def get_delete_log():
             logfile = open(os.path.join(logfile))
             output = io.StringIO()
             for line in reversed(logfile.readlines()):
-                output.write("<p>" + line.replace("\n", "</p>"))
-                log = output.getvalue()
+                line = "<p>" + line.replace("\n", "</p>").decode("utf-8")
+                output.write(unicode(line))
+            log = output.getvalue()
         return jsonify(
             {
                 "log": log,
