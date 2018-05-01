@@ -2,6 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from __future__ import print_function
 import StringIO
 import logging
 import os

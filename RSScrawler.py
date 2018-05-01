@@ -25,6 +25,7 @@ Options:
   --cdc-reset               Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
+from __future__ import print_function
 
 import hashlib
 import logging
