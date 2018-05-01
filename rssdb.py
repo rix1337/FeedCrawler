@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from builtins import str
+from builtins import object
 import os
 import sqlite3
 import sys

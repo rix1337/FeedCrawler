@@ -4,6 +4,7 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
+from builtins import str
 import logging
 import os
 import re
@@ -20,7 +21,7 @@ log_debug = logging.debug
 
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+    crawljob_file = crawljob_dir + '/%s.crawljob' % str(
         re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")

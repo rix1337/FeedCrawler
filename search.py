@@ -2,12 +2,16 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
 import json
 import logging
 import os
 import re
 import sys
-from HTMLParser import HTMLParser
+from html.parser import HTMLParser
 
 import feedparser
 from bs4 import BeautifulSoup as bs
@@ -167,7 +171,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     'target="_blank">', '')
                 if re.match(hoster, link_hoster):
                     links[link_hoster] = url_hoster[0]
-        download_links = links.values()
+        download_links = list(links.values())
 
         if download_links:
             download_link = download_links[0]
@@ -277,7 +281,7 @@ def mb(link, jdownloaderpath):
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
-    download_links = links.values()
+    download_links = list(links.values())
 
     englisch = False
     if "*englisch*" in key.lower():
@@ -465,7 +469,7 @@ def sj(id, jdownloaderpath):
             staffeln.append([s[2], s[0]])
             if "-" in s[2]:
                 split = s[2].split("-")
-                split = range(int(split[0]), int(split[1]) + 1)
+                split = list(range(int(split[0]), int(split[1]) + 1))
                 for nr in split:
                     staffel_nr.append(str(nr))
             else:
@@ -482,7 +486,7 @@ def sj(id, jdownloaderpath):
     for s in staffeln:
         if "-" in s[0]:
             split = s[0].split("-")
-            split = range(int(split[0]), int(split[1]) + 1)
+            split = list(range(int(split[0]), int(split[1]) + 1))
             for i in split:
                 to_dl.append([str(i), s[1]])
         else:
@@ -498,7 +502,7 @@ def sj(id, jdownloaderpath):
         if sXX not in found_seasons:
             found_seasons[sXX] = link
 
-    for sXX, link in found_seasons.items():
+    for sXX, link in list(found_seasons.items()):
         config = RssConfig('SJ')
         quality = config.get('quality')
         url = getURL(link)

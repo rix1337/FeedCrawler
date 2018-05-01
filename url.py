@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 from __future__ import print_function
+from builtins import str
 import os
 import sys
 

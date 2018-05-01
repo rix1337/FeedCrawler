@@ -26,7 +26,14 @@ Options:
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
 from __future__ import print_function
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
 import hashlib
 import logging
 import os
@@ -35,7 +42,7 @@ import signal
 import sys
 import time
 import traceback
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import warnings
 from datetime import datetime
 from logging import handlers
@@ -131,7 +138,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 total_time = end_time - start_time
                 total_unit = " Sekunden"
                 if total_time > 60:
-                    total_time = total_time / 60
+                    total_time = old_div(total_time, 60)
                     total_unit = " Minuten"
                 total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items)
@@ -156,7 +163,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             total_time = end_time - start_time
             total_unit = " Sekunden"
             if total_time > 60:
-                total_time = total_time / 60
+                total_time = old_div(total_time, 60)
                 total_unit = " Minuten"
             total_time = str(round(total_time, 1)) + total_unit
             notify(added_items)
@@ -168,7 +175,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             traceback.print_exc()
 
 
-class YT:
+class YT(object):
     _INTERNAL_NAME = 'YT'
 
     def __init__(self):
@@ -214,10 +221,10 @@ class YT:
                 cnotfound = False
                 try:
                     response = getURL(url)
-                except urllib2.HTTPError:
+                except urllib.error.HTTPError:
                     try:
                         response = getURL(urlc)
-                    except urllib2.HTTPError:
+                    except urllib.error.HTTPError:
                         cnotfound = True
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " +
@@ -282,7 +289,7 @@ class YT:
                     added_items.append(log_entry)
 
 
-class DD:
+class DD(object):
     _INTERNAL_NAME = 'DD'
 
     def __init__(self):
@@ -345,7 +352,7 @@ class DD:
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
-class SJ:
+class SJ(object):
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.config = RssConfig(self._INTERNAL_NAME)
@@ -726,7 +733,7 @@ class SJ:
         return titles
 
 
-class BL:
+class BL(object):
     _INTERNAL_NAME = 'MB'
     MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
     MB_FEED_URLS = [MB_URL]
@@ -1402,7 +1409,7 @@ class BL:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '')
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
-        return links.values()
+        return list(links.values())
 
     def feed_download(self, key, content):
         download_links = self._get_download_links(content)
@@ -1599,19 +1606,19 @@ class BL:
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
-                ).items()}.items()
+                ).items())}.items()
                     )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename)
-                ).items()}.items()
+                ).items())}.items()
                     ) if self.config.get('regex') else []
             )
         elif self.filename == "IMDB":
@@ -1621,14 +1628,14 @@ class BL:
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
+                ).items())}.items()
                     )
             )
         if self.filename != 'MB_Regex' and self.filename != 'IMDB':
             if self.historical:
-                for xline in self.allInfos.keys():
+                for xline in list(self.allInfos.keys()):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
