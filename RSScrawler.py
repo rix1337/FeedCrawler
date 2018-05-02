@@ -415,10 +415,10 @@ class SJ(object):
 
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(getURL(
-                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw=')))
         else:
             feed = feedparser.parse(getURL(
-                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw=')))
 
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
