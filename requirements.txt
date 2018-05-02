@@ -3,10 +3,12 @@
 # Projekt von https://github.com/rix1337
 
 bs4
+configparser
 cfscrape
 docopt
 feedparser
 flask
+future
 gevent
 lxml
 python-dateutil

@@ -25,7 +25,16 @@ Options:
   --cdc-reset               Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
   --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
 """
+from __future__ import print_function
+from __future__ import division
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import str
+from builtins import range
+from builtins import object
+from past.utils import old_div
+import base64
 import hashlib
 import logging
 import os
@@ -34,7 +43,7 @@ import signal
 import sys
 import time
 import traceback
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 import warnings
 from datetime import datetime
 from logging import handlers
@@ -130,14 +139,14 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 total_time = end_time - start_time
                 total_unit = " Sekunden"
                 if total_time > 60:
-                    total_time = total_time / 60
+                    total_time = old_div(total_time, 60)
                     total_unit = " Minuten"
                 total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items)
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+                      " - Alle Suchfunktion ausgefuehrt (Dauer: " + total_time + ")!")
                 added_items = []
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
@@ -155,19 +164,19 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             total_time = end_time - start_time
             total_unit = " Sekunden"
             if total_time > 60:
-                total_time = total_time / 60
+                total_time = old_div(total_time, 60)
                 total_unit = " Minuten"
             total_time = str(round(total_time, 1)) + total_unit
             notify(added_items)
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+                  " - Testlauf ausgefuehrt (Dauer: " + total_time + ")!")
         except Exception:
             traceback.print_exc()
 
 
-class YT:
+class YT(object):
     _INTERNAL_NAME = 'YT'
 
     def __init__(self):
@@ -213,10 +222,10 @@ class YT:
                 cnotfound = False
                 try:
                     response = getURL(url)
-                except urllib2.HTTPError:
+                except urllib.error.HTTPError:
                     try:
                         response = getURL(urlc)
-                    except urllib2.HTTPError:
+                    except urllib.error.HTTPError:
                         cnotfound = True
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " +
@@ -281,7 +290,7 @@ class YT:
                     added_items.append(log_entry)
 
 
-class DD:
+class DD(object):
     _INTERNAL_NAME = 'DD'
 
     def __init__(self):
@@ -344,7 +353,7 @@ class DD:
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
 
 
-class SJ:
+class SJ(object):
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.config = RssConfig(self._INTERNAL_NAME)
@@ -406,10 +415,10 @@ class SJ:
 
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw=')))
         else:
             feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw=')))
 
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
@@ -725,9 +734,9 @@ class SJ:
         return titles
 
 
-class BL:
+class BL(object):
     _INTERNAL_NAME = 'MB'
-    MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
+    MB_URL = base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==")
     MB_FEED_URLS = [MB_URL]
     search = int(RssConfig(_INTERNAL_NAME).get("search"))
     historical = False
@@ -738,7 +747,7 @@ class BL:
     while i <= search:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
-    HW_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    HW_URL = base64.b64decode("aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=")
     HW_FEED_URLS = [HW_URL]
     i = 2
     while i <= search:
@@ -952,8 +961,7 @@ class BL:
                                                                       ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
                                                                                                             1)[0].split(
             '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
-            'base64') + search_title + "/feed/rss2/"
+        search_url = base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                                        ".German.DTS.DL.1080p.").replace(
             ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
@@ -969,7 +977,7 @@ class BL:
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                 download_link = download_links[0]
@@ -1289,7 +1297,7 @@ class BL:
     def download_imdb(self, key, download_links, score, download_imdb, details):
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             download_link = download_links[0]
@@ -1397,17 +1405,17 @@ class BL:
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '')
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
-        return links.values()
+        return list(links.values())
 
     def feed_download(self, key, content):
         download_links = self._get_download_links(content)
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             replaced = common.retail_sub(key)
@@ -1598,19 +1606,19 @@ class BL:
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
-                ).items()}.items()
+                ).items())}.items()
                     )
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename)
-                ).items()}.items()
+                ).items())}.items()
                     ) if self.config.get('regex') else []
             )
         elif self.filename == "IMDB":
@@ -1620,21 +1628,19 @@ class BL:
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
+                set({key: value for (key, value) in list(self.getPatterns(
                     self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
+                ).items())}.items()
                     )
             )
         if self.filename != 'MB_Regex' and self.filename != 'IMDB':
             if self.historical:
-                for xline in self.allInfos.keys():
+                for xline in list(self.allInfos.keys()):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
-                        mb_urls.append('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
-                        hw_urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
+                        mb_urls.append(base64.b64decode('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/%s/feed/rss2/' % xn)
+                        hw_urls.append(base64.b64decode('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
@@ -1656,36 +1662,51 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_page_mb = feedparser.parse(getURL(mb_urls[0]))
-        first_page_hw = feedparser.parse(getURL(hw_urls[0]))
-        if not self.historical:
-            if self.filename != 'IMDB':
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
-
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
-            else:
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
-
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
-        else:
+        try:
+            first_page_mb = feedparser.parse(getURL(mb_urls[0]))
+        except:
+            first_page_mb = False
             sha_mb = None
+
+        if first_page_mb:
+            if not self.historical:
+                if self.filename != 'IMDB':
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
+                else:
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
+            else:
+                sha_mb = None
+
+        try:
+            first_page_hw = feedparser.parse(getURL(hw_urls[0]))
+        except:
+            first_page_hw = False
             sha_hw = None
+
+        if first_page_hw:
+            if not self.historical:
+                if self.filename != 'IMDB':
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
+                else:
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
+            else:
+                sha_hw = None
 
         if self.filename == "IMDB":
             if imdb > 0:
@@ -1729,10 +1750,12 @@ class BL:
                         self.feed_download(key, value)
                         i += 1
 
-        if sha_mb and sha_hw:
+        if sha_mb:
             self.cdc.delete("MB-" + self.filename)
-            self.cdc.delete("HW-" + self.filename)
             self.cdc.store("MB-" + self.filename, sha_mb)
+
+        if sha_hw:
+            self.cdc.delete("HW-" + self.filename)
             self.cdc.store("HW-" + self.filename, sha_hw)
 
 
@@ -1760,7 +1783,7 @@ if __name__ == "__main__":
                 print(
                     'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(
-                    'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
+                    'Die Einstellungen und Listen sind beim naechsten Start im Webinterface anpassbar.')
                 print('Viel Spass! Beende RSScrawler!')
                 sys.exit(0)
         else:
@@ -1791,16 +1814,16 @@ if __name__ == "__main__":
     1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
     if arguments['--docker']:
-        print('Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
+        print('Docker-Modus: JDownloader-Pfad und Port koennen nur per Docker-Run angepasst werden!')
 
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-        print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
+        print('Weiterhin sollten die Listen entsprechend der README.md gefuellt werden!')
         print('Beende RSScrawler...')
         sys.exit(0)
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
-          jdownloaderpath + '" für Crawljobs')
+          jdownloaderpath + '" fuer Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
@@ -1809,7 +1832,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print(
-            'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+            'Der Pfad des JDownloaders enthaelt nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
 
@@ -1842,7 +1865,7 @@ if __name__ == "__main__":
                                           rsscrawler, log_level, log_file, log_format,))
         c.start()
 
-        print('Drücke [Strg] + [C] zum Beenden')
+        print('Druecke [Strg] + [C] zum Beenden')
 
 
         def signal_handler(signal, frame):

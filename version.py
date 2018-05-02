@@ -2,8 +2,10 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from future import standard_library
+standard_library.install_aliases()
 import re
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 def getVersion():
@@ -13,7 +15,7 @@ def getVersion():
 def updateCheck():
     localversion = getVersion().replace("v.", "").split(".")
     try:
-        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urllib2.urlopen(
+        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urllib.request.urlopen(
             'https://github.com/rix1337/RSScrawler/releases/latest').read()).group(1).replace("v.", "").split(".")
         if localversion == onlineversion:
             update = False

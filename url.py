@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from __future__ import print_function
+from builtins import str
 import os
 import sys
 
@@ -24,14 +26,14 @@ def checkURL():
         proxies = {'http': proxy, 'https': proxy}
         if "block." in str(
                 scraper.get(sj_url, proxies=proxies, timeout=30, allow_redirects=False).headers.get("location")):
-            print "Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!"
+            print("Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht moeglich!")
             if RssConfig('RSScrawler').get("fallback"):
                 db.store("SJ", "Blocked")
             sj_blocked_proxy = True
         else:
             db.delete("SJ")
         if "<Response [403]>" in str(scraper.get(mb_url, proxies=proxies, timeout=30, allow_redirects=False)):
-            print "Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!"
+            print("Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht moeglich!")
             if RssConfig('RSScrawler').get("fallback"):
                 db.store("MB", "Blocked")
                 mb_blocked_proxy = True
@@ -39,9 +41,9 @@ def checkURL():
             db.delete("MB")
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get("location")):
-            print "Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!"
+            print("Der Zugriff auf SJ ist mit der aktuellen IP nicht moeglich!")
         if "<Response [403]>" in str(scraper.get(mb_url, timeout=30, allow_redirects=False)):
-            print "Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!"
+            print("Der Zugriff auf MB ist mit der aktuellen IP nicht moeglich!")
     return
 
 
