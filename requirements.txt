@@ -2,6 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+base64
 bs4
 configparser
 cfscrape
