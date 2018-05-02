@@ -34,6 +34,7 @@ from builtins import str
 from builtins import range
 from builtins import object
 from past.utils import old_div
+import base64
 import hashlib
 import logging
 import os
@@ -414,10 +415,10 @@ class SJ(object):
 
         if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
             feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw=')
         else:
             feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+                base64.b64decode('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw=')
 
         first_post_sj = feed.entries[0]
         concat_mb = first_post_sj.title + first_post_sj.published + \
@@ -735,7 +736,7 @@ class SJ(object):
 
 class BL(object):
     _INTERNAL_NAME = 'MB'
-    MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
+    MB_URL = base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==")
     MB_FEED_URLS = [MB_URL]
     search = int(RssConfig(_INTERNAL_NAME).get("search"))
     historical = False
@@ -746,7 +747,7 @@ class BL(object):
     while i <= search:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
-    HW_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    HW_URL = base64.b64decode("aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=")
     HW_FEED_URLS = [HW_URL]
     i = 2
     while i <= search:
@@ -960,8 +961,7 @@ class BL(object):
                                                                       ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
                                                                                                             1)[0].split(
             '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
-            'base64') + search_title + "/feed/rss2/"
+        search_url = base64.b64decode("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                                        ".German.DTS.DL.1080p.").replace(
             ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
@@ -977,7 +977,7 @@ class BL(object):
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                 download_link = download_links[0]
@@ -1297,7 +1297,7 @@ class BL(object):
     def download_imdb(self, key, download_links, score, download_imdb, details):
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             download_link = download_links[0]
@@ -1405,7 +1405,7 @@ class BL(object):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            if not base64.b64decode("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '')
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
@@ -1415,7 +1415,7 @@ class BL(object):
         download_links = self._get_download_links(content)
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                if base64.b64decode("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             replaced = common.retail_sub(key)
@@ -1639,10 +1639,8 @@ class BL(object):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
-                        mb_urls.append('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
-                        hw_urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
+                        mb_urls.append(base64.b64decode('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/%s/feed/rss2/' % xn)
+                        hw_urls.append(base64.b64decode('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
