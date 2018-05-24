@@ -11,7 +11,7 @@ from logging import handlers
 
 import gevent
 from flask import Flask, request, send_from_directory, render_template, jsonify
-from gevent.wsgi import WSGIServer
+from gevent.pywsgi import WSGIServer
 
 import search
 import version
