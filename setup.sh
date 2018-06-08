@@ -29,7 +29,7 @@ select opt in ${OPTIONS}; do
     cd ${rsspath}/
     git clone https://github.com/rix1337/RSScrawler.git
     cd RSScrawler
-    pip install -r requirements.txt
+    pip install -I -r requirements.txt
     git remote add rss https://github.com/rix1337/RSScrawler.git
     clear
     echo "Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP)."
@@ -45,7 +45,7 @@ select opt in ${OPTIONS}; do
     git clone https://github.com/rix1337/RSScrawler.git
     cd RSScrawler
     chmod +x * /volume1/@appstore/RSScrawler
-    pip install -r requirements.txt
+    pip install -I -r requirements.txt
     clear
     read -rp "Wo ist der JDownloader installiert? Pfad ohne / am Ende: " jdpath
     read -rp "Auf welchem Port soll das Webinterface erreichbar sein? Port: " rssport
