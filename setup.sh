@@ -56,7 +56,7 @@ select opt in ${OPTIONS}; do
    elif [ "$opt" = "Update" ]; then
     read -rp "Wo ist RSScrawler installiert? Pfad ohne / am Ende: " rsspath
     cd ${rsspath}/
-    pip install -U -r requirements.txt
+    pip install -I -r requirements.txt
     git fetch --all
     git reset --hard origin/master
     git pull origin master
