@@ -1508,6 +1508,10 @@ class BL:
                         else:
                             if common.cutoff(key, '0'):
                                 retail = True
+                else:
+                    if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                        if common.cutoff(key, '0'):
+                            retail = True
                 common.write_crawljob_file(
                     key,
                     key,
@@ -1535,6 +1539,10 @@ class BL:
                         if self.config.get('enforcedl'):
                             if common.cutoff(key, '2'):
                                 retail = True
+                else:
+                    if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                        if common.cutoff(key, '2'):
+                            retail = True
                 common.write_crawljob_file(
                     key,
                     key,
