@@ -316,26 +316,26 @@
                     <h4>JDownloader-Pfad</h4>
                     <input required ng-model="settings.general.pfad" class="form-control docker" data-toggle="tooltip"
                            data-placement="top"
-                           title="Exakt das Verzeichnis des JDownloaders angeben, sonst funktioniert das Script nicht - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"></input>
+                           title="Exakt das Verzeichnis des JDownloaders angeben, sonst funktioniert das Script nicht - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
                     </p>
                     <p>
                     <h4>Port</h4>
                     <input required type="number" min="1" max="65535" ng-model="settings.general.port"
                            class="form-control docker" data-toggle="tooltip"
-                           data-placement="top" title="Hier den Port des Webservers wählen"></input>
+                           data-placement="top" title="Hier den Port des Webservers wählen"/>
                     </p>
                     <p>
                     <h4>Prefix</h4>
                     <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)"></input>
+                           title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)"/>
                     </p>
                     <p>
                     <h4>Suchintervall</h4>
                     <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten"></input>
+                           title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten"/>
                     </p>
                     <p>
                     <h4>Englische Releases hinzufügen</h4>
@@ -355,7 +355,7 @@
                     <h4>Proxy</h4>
                     <input ng-model="settings.general.proxy" class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080"></input>
+                           title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080"/>
                     </p>
                     <p>
                     <h4>Proxy-Fallback</h4>
@@ -382,19 +382,19 @@
                     <h4>Pushbullet</h4>
                     <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Access-Token auf Pushbullet.com anlegen und hier angeben"></input>
+                           title="Access-Token auf Pushbullet.com anlegen und hier angeben"/>
                     </p>
                     <p>
                     <h4>Pushover</h4>
                     <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token eingeben - Für letzteren zunächst eine App auf Pushover.net anlegen"></input>
+                           title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token eingeben - Für letzteren zunächst eine App auf Pushover.net anlegen"/>
                     </p>
                     <p>
                     <h4>Home Assistant</h4>
                     <input ng-model="settings.alerts.homeassistant" class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"></input>
+                           title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"/>
                     </p>
                 </div>
             </div>
@@ -461,7 +461,7 @@
                     <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"></input>
+                           title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
                     </p>
                     <p>
                     <h4>Auch per RegEx suchen</h4>
@@ -475,14 +475,14 @@
                     <input required type="number" step="0.1" ng-model="settings.mb.imdb_score" min="0.0" max="10.0"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren"></input>
+                           title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren"/>
                     </p>
                     <p>
                     <h4>IMDB hinzufügen ab Erscheinungsjahr</h4>
                     <input id="year" type="number" min="1900" max="2100" ng-model="settings.mb.imdb_year"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
-                           title="Berücksichtige Filme bei IMDB-Suche erst ab diesem Erscheinungsjahr"></input>
+                           title="Berücksichtige Filme bei IMDB-Suche erst ab diesem Erscheinungsjahr"/>
                     </p>
                     <p>
                     <h4>Zweisprachige Releases erzwingen</h4>
@@ -541,7 +541,7 @@
                     <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"></input>
+                           title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
                     </p>
                     <p>
                     <h4>Auch per RegEx suchen</h4>
@@ -614,7 +614,7 @@
                     <p>
                     <h4>Feeds</h4>
                     <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Hier Feeds von DD eintragen (durch Kommata getrennt)"></input>
+                           title="Hier Feeds von DD eintragen (durch Kommata getrennt)"/>
                     </p>
                 </div>
             </div>
@@ -640,12 +640,12 @@
                     <h4>Maximale Videoanzahl</h4>
                     <input required type="number" min="1" max="50" ng-model="settings.yt.max" class="form-control"
                            data-toggle="tooltip" data-placement="top"
-                           title="Die Maximale Anzahl hinzuzufügender Videos (1-50)"></input>
+                           title="Die Maximale Anzahl hinzuzufügender Videos (1-50)"/>
                     </p>
                     <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)"></input>
+                           title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)"/>
                     </p>
                 </div>
             </div>
