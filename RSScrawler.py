@@ -56,6 +56,7 @@ from rssdb import ListDb
 from rssdb import RssDb
 from url import checkURL
 from url import getURL
+from url import getURLObject
 from web import start
 
 version = version.getVersion()
@@ -358,7 +359,9 @@ class SJ:
 
         self.cdc = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'cdc')
+        self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
         settings = ["quality", "rejectlist", "regex", "hoster"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
@@ -403,18 +406,36 @@ class SJ:
 
         self.quality = self.config.get("quality")
         self.hoster = re.compile(self.config.get("hoster"))
+        set_sj = str(self.settings) + str(self.pattern)
+        set_sj = hashlib.sha256(set_sj.encode(
+            'ascii', 'ignore')).hexdigest()
 
-        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-            feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+        if self.last_set_sj == set_sj:
+            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                response = getURLObject('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'), self.headers)
+                feed = feedparser.parse(response.content)
+            else:
+                response = getURLObject('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'),
+                                        self.headers)
+                feed = feedparser.parse(response.content)
+            if response.status_code == 304:
+                self.log_debug(
+                    "SJ-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                return
+            header = True
         else:
-            feed = feedparser.parse(getURL(
-                'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                feed = feedparser.parse(getURL(
+                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+            else:
+                feed = feedparser.parse(getURL(
+                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+            header = False
 
         first_post_sj = feed.entries[0]
-        concat_mb = first_post_sj.title + first_post_sj.published + \
+        concat_sj = first_post_sj.title + first_post_sj.published + \
                     str(self.settings) + str(self.pattern)
-        sha_sj = hashlib.sha256(concat_mb.encode(
+        sha_sj = hashlib.sha256(concat_sj.encode(
             'ascii', 'ignore')).hexdigest()
 
         for post in feed.entries:
@@ -574,8 +595,13 @@ class SJ:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
+        self.cdc.delete("SJSet-" + self.filename)
+        self.cdc.store("SJSet-" + self.filename, set_sj)
         self.cdc.delete("SJ-" + self.filename)
         self.cdc.store("SJ-" + self.filename, sha_sj)
+        if header:
+            self.cdc.delete("SJHeaders-" + self.filename)
+            self.cdc.store("SJHeaders-" + self.filename, response.headers['Last-Modified'])
 
     def range_checkr(self, link, title, language_ok):
         englisch = False
@@ -761,6 +787,11 @@ class BL:
 
         self.cdc = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'cdc')
+
+        self.last_set_mbhw = self.cdc.retrieve("MBHWSet-" + self.filename)
+        self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
+        self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
+
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
@@ -1668,36 +1699,63 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_page_mb = feedparser.parse(getURL(mb_urls[0]))
-        first_page_hw = feedparser.parse(getURL(hw_urls[0]))
+        first_mb = getURLObject(mb_urls[0], self.headers_mb)
+        first_hw = getURLObject(hw_urls[0], self.headers_hw)
+        first_page_mb = feedparser.parse(first_mb.content)
+        first_page_hw = feedparser.parse(first_hw.content)
+
+        mb_304 = False
+        hw_304 = False
+
+        set_mbhw = str(self.settings) + str(self.allInfos)
+        set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
+
+        if self.last_set_mbhw == set_mbhw:
+            if first_mb.status_code == 304:
+                mb_304 = True
+                mb_urls = []
+                self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+
+            if first_hw.status_code == 304:
+                hw_304 = True
+                hw_urls = []
+                self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+
+        if mb_304 and hw_304:
+            return
+
+        sha_mb = None
+        sha_hw = None
+
         if not self.historical:
             if self.filename != 'IMDB':
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
+                if not mb_304:
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
 
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.allInfos)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
+                if not hw_304:
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.allInfos)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
             else:
-                first_post_mb = first_page_mb.entries[0]
-                concat_mb = first_post_mb.title + first_post_mb.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_mb = hashlib.sha256(concat_mb.encode(
-                    'ascii', 'ignore')).hexdigest()
+                if not mb_304:
+                    first_post_mb = first_page_mb.entries[0]
+                    concat_mb = first_post_mb.title + first_post_mb.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_mb = hashlib.sha256(concat_mb.encode(
+                        'ascii', 'ignore')).hexdigest()
 
-                first_post_hw = first_page_hw.entries[0]
-                concat_hw = first_post_hw.title + first_post_hw.published + \
-                            str(self.settings) + str(self.imdb)
-                sha_hw = hashlib.sha256(concat_hw.encode(
-                    'ascii', 'ignore')).hexdigest()
-        else:
-            sha_mb = None
-            sha_hw = None
+                if not hw_304:
+                    first_post_hw = first_page_hw.entries[0]
+                    concat_hw = first_post_hw.title + first_post_hw.published + \
+                                str(self.settings) + str(self.imdb)
+                    sha_hw = hashlib.sha256(concat_hw.encode(
+                        'ascii', 'ignore')).hexdigest()
 
         if self.filename == "IMDB":
             if imdb > 0:
@@ -1741,6 +1799,8 @@ class BL:
                         self.feed_download(key, value)
                         i += 1
 
+        self.cdc.delete("MBHWSet-" + self.filename)
+        self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
         if sha_mb and sha_hw:
             if not self.dl_unsatisfied:
                 self.cdc.delete("MB-" + self.filename)
@@ -1749,6 +1809,14 @@ class BL:
                 self.cdc.store("HW-" + self.filename, sha_hw)
             else:
                 self.log_debug("Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues CDC!")
+        if not mb_304:
+            self.cdc.delete("MBHeaders-" + self.filename)
+            self.cdc.store("MBHeaders-" + self.filename, first_mb.headers['Last-Modified'])
+        if not hw_304:
+            self.cdc.delete("HWHeaders-" + self.filename)
+            self.cdc.store("HWHeaders-" + self.filename, first_hw.headers['Last-Modified'])
+
+
 
 
 if __name__ == "__main__":

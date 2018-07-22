@@ -65,6 +65,25 @@ def getURL(url):
     else:
         return scraper.get(url, timeout=30).content
 
+def getURLObject(url, headers):
+    config = RssConfig('RSScrawler')
+    proxy = config.get('proxy')
+    scraper = cfscrape.create_scraper(delay=10)
+    if proxy:
+        sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
+        mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
+        db = RssDb(os.path.join(os.path.dirname(
+            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
+        if sj in url:
+            if db.retrieve("SJ") and config.get("fallback"):
+                return scraper.get(url, headers=headers, timeout=30)
+        elif mb in url:
+            if db.retrieve("MB") and config.get("fallback"):
+                return scraper.get(url, headers=headers, timeout=30)
+        proxies = {'http': proxy, 'https': proxy}
+        return scraper.get(url, headers=headers, proxies=proxies, timeout=30)
+    else:
+        return scraper.get(url, headers=headers, timeout=30)
 
 def postURL(url, data):
     proxy = RssConfig('RSScrawler').get('proxy')
