@@ -13,7 +13,7 @@ from rssdb import RssDb
 
 def checkURL():
     sj_url = "aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn".decode('base64')
-    mb_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8=".decode('base64')
+    mb_url = "aHR0cDovL21vdmllLWJsb2cub3JnLw==".decode('base64')
     proxy = RssConfig('RSScrawler').get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     sj_blocked_proxy = False

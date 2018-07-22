@@ -412,11 +412,13 @@ class SJ:
 
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                response = getURLObject('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'), self.headers)
+                response = getURLObject(
+                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'), self.headers)
                 feed = feedparser.parse(response.content)
             else:
-                response = getURLObject('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'),
-                                        self.headers)
+                response = getURLObject(
+                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'),
+                    self.headers)
                 feed = feedparser.parse(response.content)
             if response.status_code == 304:
                 self.log_debug(
@@ -753,7 +755,7 @@ class SJ:
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    MB_URL = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9mZWVkLw==".decode('base64')
+    MB_URL = "aHR0cDovL21vdmllLWJsb2cub3JnL2ZlZWQv".decode('base64')
     MB_FEED_URLS = [MB_URL]
     search = int(RssConfig(_INTERNAL_NAME).get("search"))
     historical = False
@@ -764,7 +766,7 @@ class BL:
     while i <= search:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
-    HW_URL = "aHR0cDovL3d3dy5oZC13b3JsZC5vcmcvZmVlZC8=".decode('base64')
+    HW_URL = "aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==".decode('base64')
     HW_FEED_URLS = [HW_URL]
     i = 2
     while i <= search:
@@ -1808,15 +1810,14 @@ class BL:
                 self.cdc.store("MB-" + self.filename, sha_mb)
                 self.cdc.store("HW-" + self.filename, sha_hw)
             else:
-                self.log_debug("Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues CDC!")
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues CDC!")
         if not mb_304:
             self.cdc.delete("MBHeaders-" + self.filename)
             self.cdc.store("MBHeaders-" + self.filename, first_mb.headers['Last-Modified'])
         if not hw_304:
             self.cdc.delete("HWHeaders-" + self.filename)
             self.cdc.store("HWHeaders-" + self.filename, first_hw.headers['Last-Modified'])
-
-
 
 
 if __name__ == "__main__":
