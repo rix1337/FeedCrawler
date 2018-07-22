@@ -1732,32 +1732,44 @@ class BL:
         if not self.historical:
             if self.filename != 'IMDB':
                 if not mb_304:
-                    first_post_mb = first_page_mb.entries[0]
-                    concat_mb = first_post_mb.title + first_post_mb.published + \
-                                str(self.settings) + str(self.allInfos)
-                    sha_mb = hashlib.sha256(concat_mb.encode(
-                        'ascii', 'ignore')).hexdigest()
+                    try:
+                        first_post_mb = first_page_mb.entries[0]
+                        concat_mb = first_post_mb.title + first_post_mb.published + \
+                                    str(self.settings) + str(self.allInfos)
+                        sha_mb = hashlib.sha256(concat_mb.encode(
+                            'ascii', 'ignore')).hexdigest()
+                    except:
+                        sha_mb = None
 
                 if not hw_304:
-                    first_post_hw = first_page_hw.entries[0]
-                    concat_hw = first_post_hw.title + first_post_hw.published + \
-                                str(self.settings) + str(self.allInfos)
-                    sha_hw = hashlib.sha256(concat_hw.encode(
-                        'ascii', 'ignore')).hexdigest()
+                    try:
+                        first_post_hw = first_page_hw.entries[0]
+                        concat_hw = first_post_hw.title + first_post_hw.published + \
+                                    str(self.settings) + str(self.allInfos)
+                        sha_hw = hashlib.sha256(concat_hw.encode(
+                            'ascii', 'ignore')).hexdigest()
+                    except:
+                        sha_hw = None
             else:
                 if not mb_304:
-                    first_post_mb = first_page_mb.entries[0]
-                    concat_mb = first_post_mb.title + first_post_mb.published + \
-                                str(self.settings) + str(self.imdb)
-                    sha_mb = hashlib.sha256(concat_mb.encode(
-                        'ascii', 'ignore')).hexdigest()
+                    try:
+                        first_post_mb = first_page_mb.entries[0]
+                        concat_mb = first_post_mb.title + first_post_mb.published + \
+                                    str(self.settings) + str(self.imdb)
+                        sha_mb = hashlib.sha256(concat_mb.encode(
+                            'ascii', 'ignore')).hexdigest()
+                    except:
+                        sha_mb = None
 
                 if not hw_304:
-                    first_post_hw = first_page_hw.entries[0]
-                    concat_hw = first_post_hw.title + first_post_hw.published + \
-                                str(self.settings) + str(self.imdb)
-                    sha_hw = hashlib.sha256(concat_hw.encode(
-                        'ascii', 'ignore')).hexdigest()
+                    try:
+                        first_post_hw = first_page_hw.entries[0]
+                        concat_hw = first_post_hw.title + first_post_hw.published + \
+                                    str(self.settings) + str(self.imdb)
+                        sha_hw = hashlib.sha256(concat_hw.encode(
+                            'ascii', 'ignore')).hexdigest()
+                    except:
+                        sha_hw = None
 
         if self.filename == "IMDB":
             if imdb > 0:
