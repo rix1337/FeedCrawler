@@ -1732,34 +1732,34 @@ class BL:
         if not self.historical:
             if self.filename != 'IMDB':
                 if not mb_304:
-                    try:
-                        first_post_mb = first_page_mb.entries[0]
-                        concat_mb = first_post_mb.title + first_post_mb.published + \
+                    for i in first_page_mb.entries:
+                        concat_mb = i.title + i.published + \
                                     str(self.settings) + str(self.allInfos)
                         sha_mb = hashlib.sha256(concat_mb.encode(
                             'ascii', 'ignore')).hexdigest()
-                    except:
-                        sha_mb = None
-
+                        break
                 if not hw_304:
-                    try:
-                        first_post_hw = first_page_hw.entries[0]
-                        concat_hw = first_post_hw.title + first_post_hw.published + \
+                    for i in first_page_mb.entries:
+                        concat_hw = i.title + i.published + \
                                     str(self.settings) + str(self.allInfos)
                         sha_hw = hashlib.sha256(concat_hw.encode(
                             'ascii', 'ignore')).hexdigest()
-                    except:
-                        sha_hw = None
+                        break
             else:
                 if not mb_304:
-                    try:
-                        first_post_mb = first_page_mb.entries[0]
-                        concat_mb = first_post_mb.title + first_post_mb.published + \
+                    for i in first_page_mb.entries:
+                        concat_mb = i.title + i.published + \
                                     str(self.settings) + str(self.imdb)
                         sha_mb = hashlib.sha256(concat_mb.encode(
                             'ascii', 'ignore')).hexdigest()
-                    except:
-                        sha_mb = None
+                        break
+                if not hw_304:
+                    for i in first_page_mb.entries:
+                        concat_hw = i.title + i.published + \
+                                    str(self.settings) + str(self.imdb)
+                        sha_hw = hashlib.sha256(concat_hw.encode(
+                            'ascii', 'ignore')).hexdigest()
+                        break
 
                 if not hw_304:
                     try:
