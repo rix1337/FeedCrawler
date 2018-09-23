@@ -11,6 +11,7 @@ from HTMLParser import HTMLParser
 
 import feedparser
 from bs4 import BeautifulSoup as bs
+from fuzzywuzzy import fuzz
 
 import common
 from notifiers import notify
@@ -130,6 +131,48 @@ def rate(title):
 
 def html_to_str(unescape):
     return HTMLParser().unescape(unescape)
+
+
+def best_result_mb(title):
+    title = title.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
+                                                                                                         'Ae').replace(
+        'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß',
+                                                                                                       'ss').replace(
+        '(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?',
+                                                                                                               '').replace(
+        '!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+    try:
+        mb_results = get(title)[0]
+    except:
+        return False
+    results = []
+    i = len(mb_results)
+    j = 0
+    while i > 0:
+        q = 'result' + str(j)
+        results.append(mb_results.get(q).get('title'))
+        i -= 1
+        j += 1
+    best_score = 0
+    best_match = 0
+    for r in results:
+        r = r.replace(".", " ")
+        without_year = re.sub(
+            r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+            "", r)
+        with_year = re.sub(
+            r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+            "", r)
+        score = fuzz.ratio(title, without_year) + fuzz.ratio(title, with_year)
+        if score > best_score:
+            best_score = score
+            best_match = i
+        i += 1
+    best_match = 'result' + str(best_match)
+    best_title = mb_results.get(best_match).get('title')
+    best_link = mb_results.get(best_match).get('link')
+    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    return best_link
 
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
