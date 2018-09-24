@@ -64,8 +64,10 @@ def get(title):
     except:
         sj = []
     for result in sj:
-        res = {"id": result[0], "title": html_to_str(result[1])}
-        results["result" + str(i)] = res
+        r = fuzz.ratio(title.lower(), html_to_str(result[1]).lower())
+        if r > 65:
+            res = {"id": result[0], "title": html_to_str(result[1])}
+            results["result" + str(i)] = res
         i += 1
     sj = results
     return mb, sj
@@ -158,10 +160,10 @@ def best_result_mb(title):
     for r in results:
         r = r.replace(".", " ")
         without_year = re.sub(
-            r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU)(|.)\d{4}(|.)(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+            r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*)(|.)\d{4}(|.)(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
             "", r)
         with_year = re.sub(
-            r'(|.UNRATED|.Unrated|.Uncut|.UNCUT)(|.Directors.Cut|.DC|.EXTENDED|.Extended|.Theatrical|.THEATRICAL)(|.3D|.3D.HSBS|.3D.HOU|.HSBS|.HOU).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP)-.*',
+            r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
             "", r)
         score = fuzz.ratio(title, without_year) + fuzz.ratio(title, with_year)
         if score > best_score:
@@ -177,6 +179,38 @@ def best_result_mb(title):
         return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_link
+
+
+def best_result_sj(title):
+    try:
+        sj_results = get(title)[1]
+    except:
+        return False
+    results = []
+    i = len(sj_results)
+    j = 0
+    while i > 0:
+        q = 'result' + str(j)
+        results.append(sj_results.get(q).get('title'))
+        i -= 1
+        j += 1
+    best_score = 0
+    best_match = 0
+    for r in results:
+        score = fuzz.ratio(title, r)
+        if score > best_score:
+            best_score = score
+            best_match = i
+        i += 1
+    best_match = 'result' + str(best_match)
+    try:
+        best_title = sj_results.get(best_match).get('title')
+        best_id = sj_results.get(best_match).get('id')
+    except:
+        logging.debug('Kein Treffer fuer die Suche nach ' + title)
+        return
+    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    return best_id
 
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
