@@ -441,6 +441,18 @@ def download_movie(title):
         return "Failed", 405
 
 
+@app.route(prefix + "/api/download_show/<title>", methods=['POST'])
+def download_show(title):
+    if request.method == 'POST':
+        best_result = search.best_result_sj(title)
+        if best_result and search.sj(best_result, jdpath):
+            return "Success", 200
+        else:
+            return "Failed", 400
+    else:
+        return "Failed", 405
+
+
 @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
     if request.method == 'POST':

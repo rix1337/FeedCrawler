@@ -64,8 +64,10 @@ def get(title):
     except:
         sj = []
     for result in sj:
-        res = {"id": result[0], "title": html_to_str(result[1])}
-        results["result" + str(i)] = res
+        r = fuzz.ratio(title.lower(), html_to_str(result[1]).lower())
+        if r > 65:
+            res = {"id": result[0], "title": html_to_str(result[1])}
+            results["result" + str(i)] = res
         i += 1
     sj = results
     return mb, sj
