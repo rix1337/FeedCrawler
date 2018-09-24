@@ -181,6 +181,38 @@ def best_result_mb(title):
     return best_link
 
 
+def best_result_sj(title):
+    try:
+        sj_results = get(title)[1]
+    except:
+        return False
+    results = []
+    i = len(sj_results)
+    j = 0
+    while i > 0:
+        q = 'result' + str(j)
+        results.append(sj_results.get(q).get('title'))
+        i -= 1
+        j += 1
+    best_score = 0
+    best_match = 0
+    for r in results:
+        score = fuzz.ratio(title, r)
+        if score > best_score:
+            best_score = score
+            best_match = i
+        i += 1
+    best_match = 'result' + str(best_match)
+    try:
+        best_title = sj_results.get(best_match).get('title')
+        best_id = sj_results.get(best_match).get('id')
+    except:
+        logging.debug('Kein Treffer fuer die Suche nach ' + title)
+        return
+    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    return best_id
+
+
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
     search_title = \
         title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
