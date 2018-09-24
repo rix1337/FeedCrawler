@@ -97,20 +97,20 @@ def get_all():
                 "log": log,
                 "lists": {
                     "mb": {
-                        "filme": getListe('MB_Filme'),
-                        "filme3d": getListe('MB_3D'),
-                        "regex": getListe('MB_Regex'),
+                        "filme": get_list('MB_Filme'),
+                        "filme3d": get_list('MB_3D'),
+                        "regex": get_list('MB_Regex'),
                     },
                     "sj": {
-                        "serien": getListe('SJ_Serien'),
-                        "regex": getListe('SJ_Serien_Regex'),
-                        "staffeln_regex": getListe('SJ_Staffeln_Regex'),
+                        "serien": get_list('SJ_Serien'),
+                        "regex": get_list('SJ_Serien_Regex'),
+                        "staffeln_regex": get_list('SJ_Staffeln_Regex'),
                     },
                     "mbsj": {
-                        "staffeln": getListe('MB_Staffeln'),
+                        "staffeln": get_list('MB_Staffeln'),
                     },
                     "yt": {
-                        "kanaele_playlisten": getListe('YT_Channels'),
+                        "kanaele_playlisten": get_list('YT_Channels'),
                     },
                 },
                 "settings": {
@@ -429,6 +429,18 @@ def search_title(title):
         return "Failed", 405
 
 
+@app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
+def download_movie(title):
+    if request.method == 'POST':
+        best_result = search.best_result_mb(title)
+        if best_result and search.mb(best_result, jdpath):
+            return "Success", 200
+        else:
+            return "Failed", 400
+    else:
+        return "Failed", 405
+
+
 @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
     if request.method == 'POST':
@@ -437,7 +449,7 @@ def download_mb(permalink):
         else:
             return "Failed", 400
     else:
-        return "Failed", 40
+        return "Failed", 405
 
 
 @app.route(prefix + "/api/download_sj/<id>", methods=['POST'])
@@ -458,20 +470,20 @@ def get_post_lists():
             {
                 "lists": {
                     "mb": {
-                        "filme": getListe('MB_Filme'),
-                        "filme3d": getListe('MB_3D'),
-                        "regex": getListe('MB_Regex'),
+                        "filme": get_list('MB_Filme'),
+                        "filme3d": get_list('MB_3D'),
+                        "regex": get_list('MB_Regex'),
                     },
                     "sj": {
-                        "serien": getListe('SJ_Serien'),
-                        "regex": getListe('SJ_Serien_Regex'),
-                        "staffeln_regex": getListe('SJ_Staffeln_Regex'),
+                        "serien": get_list('SJ_Serien'),
+                        "regex": get_list('SJ_Serien_Regex'),
+                        "staffeln_regex": get_list('SJ_Staffeln_Regex'),
                     },
                     "mbsj": {
-                        "staffeln": getListe('MB_Staffeln'),
+                        "staffeln": get_list('MB_Staffeln'),
                     },
                     "yt": {
-                        "kanaele_playlisten": getListe('YT_Channels'),
+                        "kanaele_playlisten": get_list('YT_Channels'),
                     },
                 },
             }
@@ -499,7 +511,7 @@ def get_post_lists():
         return "Failed", 405
 
 
-def getListe(liste):
+def get_list(liste):
     cont = ListDb(os.path.join(os.path.dirname(
         sys.argv[0]), "RSScrawler.db"), liste).retrieve()
     return "\n".join(cont) if cont else ""

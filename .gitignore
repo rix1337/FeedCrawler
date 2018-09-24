@@ -4,6 +4,8 @@
 
 # Python
 *.pyc
+*.bak
+venv
 
 # RSScrawler files
 *.db
