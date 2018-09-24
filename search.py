@@ -169,8 +169,12 @@ def best_result_mb(title):
             best_match = i
         i += 1
     best_match = 'result' + str(best_match)
-    best_title = mb_results.get(best_match).get('title')
-    best_link = mb_results.get(best_match).get('link')
+    try:
+        best_title = mb_results.get(best_match).get('title')
+        best_link = mb_results.get(best_match).get('link')
+    except:
+        logging.debug('Kein Treffer fuer die Suche nach ' + title)
+        return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_link
 
