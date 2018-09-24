@@ -2,42 +2,11 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import os
 import sqlite3
-import sys
 
 
 def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
-
-
-# Merge Pre-v.4.1.x-Databases into v.4.1.x-Database
-def merge_old():
-    def connect(file):
-        return sqlite3.connect(os.path.join(os.path.dirname(sys.argv[0]), 'Einstellungen/Downloads/' + file + '.db'),
-                               check_same_thread=False)
-
-    def read(connection):
-        return connection.execute("SELECT key, value FROM 'data'")
-
-    conn_old1 = connect('MB_Downloads')
-    conn_old2 = connect('SJ_Downloads')
-    conn_old3 = connect('YT_Downloads')
-    conn_new = connect('Downloads')
-
-    if not conn_new.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'rsscrawler';").fetchall():
-        conn_new.execute("CREATE TABLE 'rsscrawler' (key, value)")
-        conn_new.commit()
-
-    res_old = [read(conn_old1), read(conn_old2), read(conn_old3)]
-
-    for res in res_old:
-        for key, value in res:
-            conn_new.execute("INSERT INTO '%s' VALUES ('%s', '%s')" % (
-                'rsscrawler', key, value.lower().replace('downloaded', 'added')))
-            conn_new.commit()
-
-    return True
 
 
 class RssDb(object):
