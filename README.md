@@ -1,6 +1,6 @@
 #  RSScrawler
 
-RSScrawler automatisiert bequem Downloads und Suchen für den JDownloader.
+RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 [![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)[![Build Status](https://travis-ci.org/rix1337/RSScrawler.svg?branch=master)](https://travis-ci.org/rix1337/RSScrawler)
 
