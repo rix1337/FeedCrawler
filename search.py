@@ -650,7 +650,7 @@ def sj(id, special, jdownloaderpath):
                 r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                 url)
 
-        if "e" in special.lower():
+        if special and "e" in special.lower():
             pakete = []
             lq_pakete = []
 
