@@ -23,11 +23,27 @@ from url import postURL
 
 
 def get(title):
+    specific_season = re.match(r'^(.*);(s\d{1,3})$', title.lower())
+    specific_episode = re.match(r'^(.*);(s\d{1,3}e\d{1,3})$', title.lower())
+    if specific_season:
+        split = title.split(";")
+        title = split[0]
+        special = split[1].upper()
+    elif specific_episode:
+        split = title.split(";")
+        title = split[0]
+        special = split[1].upper()
+    else:
+        special = None
     config = RssConfig('MB')
     quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
+    if special:
+        mb_query = query + "+" + special
+    else:
+        mb_query = query
     mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-        'base64') + '/search/' + query + "+" + quality + '/feed/rss2/')
+        'base64') + '/search/' + mb_query + "+" + quality + '/feed/rss2/')
     mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
     unrated = []
@@ -38,7 +54,7 @@ def get(title):
 
     if config.get("crawl3d"):
         mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-            'base64') + '/search/' + query + "+3D+1080p" + '/feed/rss2/')
+            'base64') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/')
         mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
         for result in mb:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
@@ -61,13 +77,18 @@ def get(title):
         sj = json.loads(sj)
     except:
         sj = []
+
+    if special:
+        append = " (" + special + ")"
+    else:
+        append = ""
     i = 0
     results = {}
     for result in sj:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 85:
-            res = {"id": result[0], "title": r_title}
+            res = {"id": result[0], "title": r_title + append, "special": special}
             results["result" + str(i)] = res
         i += 1
     if not results:
@@ -76,13 +97,13 @@ def get(title):
             r_title = html_to_str(result[1])
             r_rating = fuzz.ratio(title.lower(), r_title.lower())
             if r_rating > 65:
-                res = {"id": result[0], "title": r_title}
+                res = {"id": result[0], "title": r_title + append, "special": special}
                 results["result" + str(i)] = res
             i += 1
     if not results:
         i = 0
         for result in sj:
-            res = {"id": result[0], "title": html_to_str(result[1])}
+            res = {"id": result[0], "title": html_to_str(result[1]) + append, "special": special}
             results["result" + str(i)] = res
             i += 1
     sj = results
@@ -533,7 +554,8 @@ def mb(link, jdownloaderpath):
         return False
 
 
-def sj(id, jdownloaderpath):
+def sj(id, special, jdownloaderpath):
+    print special
     url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode(
         'base64') + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()

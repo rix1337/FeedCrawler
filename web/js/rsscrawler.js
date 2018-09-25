@@ -115,8 +115,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         downloadMB(link);
     };
 
-    $scope.downloadSJ = function (id) {
-        downloadSJ(id);
+    $scope.downloadSJ = function (id, special) {
+        downloadSJ(id, special);
     };
 
     $scope.resetTitle = function (title) {
@@ -252,8 +252,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     };
 
-    function downloadSJ(id) {
-        $http.post('api/download_sj/' + id)
+    function downloadSJ(id, special) {
+        $http.post('api/download_sj/' + id + ";" + special)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
