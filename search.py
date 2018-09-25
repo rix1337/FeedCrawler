@@ -555,7 +555,6 @@ def mb(link, jdownloaderpath):
 
 
 def sj(id, special, jdownloaderpath):
-    print special
     url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode(
         'base64') + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
@@ -617,6 +616,8 @@ def sj(id, special, jdownloaderpath):
         if sXX not in found_seasons:
             found_seasons[sXX] = link
 
+    something_found = False
+
     for sXX, link in found_seasons.items():
         config = RssConfig('SJ')
         quality = config.get('quality')
@@ -649,6 +650,10 @@ def sj(id, special, jdownloaderpath):
                 r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                 url)
 
+        if "e" in special.lower():
+            pakete = []
+            lq_pakete = []
+
         best_matching_links = []
 
         if pakete:
@@ -657,52 +662,72 @@ def sj(id, special, jdownloaderpath):
                 title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
-                links.append([score, title, hoster])
-            highest_score = sorted(links, reverse=True)[0][0]
-            for l in links:
-                if l[0] == highest_score:
-                    for hoster in l[2]:
-                        best_matching_links.append(
-                            [l[1], hoster[0], hoster[1]])
+                if special:
+                    if special.lower() in title.lower():
+                        links.append([score, title, hoster])
+                else:
+                    links.append([score, title, hoster])
+            if links:
+                highest_score = sorted(links, reverse=True)[0][0]
+                for l in links:
+                    if l[0] == highest_score:
+                        for hoster in l[2]:
+                            best_matching_links.append(
+                                [l[1], hoster[0], hoster[1]])
         elif folgen:
             links = []
             for x in folgen:
                 title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
-                links.append([score, title, hoster])
-            highest_score = sorted(links, reverse=True)[0][0]
-            for l in links:
-                if l[0] == highest_score:
-                    for hoster in l[2]:
-                        best_matching_links.append(
-                            [l[1], hoster[0], hoster[1]])
+                if special:
+                    if special.lower() in title.lower():
+                        links.append([score, title, hoster])
+                else:
+                    links.append([score, title, hoster])
+            if links:
+                highest_score = sorted(links, reverse=True)[0][0]
+                for l in links:
+                    if l[0] == highest_score:
+                        for hoster in l[2]:
+                            best_matching_links.append(
+                                [l[1], hoster[0], hoster[1]])
         elif lq_pakete:
             links = []
             for x in lq_pakete:
                 title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
-                links.append([score, title, hoster])
-            highest_score = sorted(links, reverse=True)[0][0]
-            for l in links:
-                if l[0] == highest_score:
-                    for hoster in l[2]:
-                        best_matching_links.append(
-                            [l[1], hoster[0], hoster[1]])
+                if special:
+                    if special.lower() in title.lower():
+                        links.append([score, title, hoster])
+                else:
+                    links.append([score, title, hoster])
+            if links:
+                highest_score = sorted(links, reverse=True)[0][0]
+                for l in links:
+                    if l[0] == highest_score:
+                        for hoster in l[2]:
+                            best_matching_links.append(
+                                [l[1], hoster[0], hoster[1]])
         elif lq_folgen:
             links = []
             for x in lq_folgen:
                 title = x[0]
                 score = rate(title)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
-                links.append([score, title, hoster])
-            highest_score = sorted(links, reverse=True)[0][0]
-            for l in links:
-                if l[0] == highest_score:
-                    for hoster in l[2]:
-                        best_matching_links.append(
-                            [l[1], hoster[0], hoster[1]])
+                if special:
+                    if special.lower() in title.lower():
+                        links.append([score, title, hoster])
+                else:
+                    links.append([score, title, hoster])
+            if links:
+                highest_score = sorted(links, reverse=True)[0][0]
+                for l in links:
+                    if l[0] == highest_score:
+                        for hoster in l[2]:
+                            best_matching_links.append(
+                                [l[1], hoster[0], hoster[1]])
 
         notify_array = []
         for link in best_matching_links:
@@ -724,5 +749,9 @@ def sj(id, special, jdownloaderpath):
                             dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
+        if len(best_matching_links) > 0:
+            something_found = True
         notify(notify_array)
+    if not something_found:
+        return False
     return True
