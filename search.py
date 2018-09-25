@@ -212,7 +212,16 @@ def best_result_mb(title):
         best_title = mb_results.get(best_match).get('title')
         best_link = mb_results.get(best_match).get('link')
     except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title)
+        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        listen = ["MB_Filme"]
+        for liste in listen:
+            cont = ListDb(os.path.join(os.path.dirname(
+                sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+            if not cont:
+                cont = ""
+            if not title in cont:
+                ListDb(os.path.join(os.path.dirname(
+                    sys.argv[0]), "RSScrawler.db"), liste).store(title)
         return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_link
