@@ -55,20 +55,36 @@ def get(title):
         i += 1
     mb = results
 
-    results = {}
-    i = 0
     sj = postURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA=".decode(
         'base64'), data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
         sj = []
+    i = 0
+    results = {}
     for result in sj:
-        r = fuzz.ratio(title.lower(), html_to_str(result[1]).lower())
-        if r > 65:
-            res = {"id": result[0], "title": html_to_str(result[1])}
+        r_title = html_to_str(result[1])
+        r_rating = fuzz.ratio(title.lower(), r_title)
+        if r_rating > 85:
+            res = {"id": result[0], "title": r_title}
             results["result" + str(i)] = res
         i += 1
+    if not results:
+        i = 0
+        for result in sj:
+            r_title = html_to_str(result[1])
+            r_rating = fuzz.ratio(title.lower(), r_title.lower())
+            if r_rating > 65:
+                res = {"id": result[0], "title": r_title}
+                results["result" + str(i)] = res
+            i += 1
+    if not results:
+        i = 0
+        for result in sj:
+            res = {"id": result[0], "title": html_to_str(result[1])}
+            results["result" + str(i)] = res
+            i += 1
     sj = results
     return mb, sj
 
