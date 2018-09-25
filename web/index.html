@@ -30,10 +30,10 @@
         <input ng-model="search" class="search form-control mr-sm-2" type="search" placeholder="Filme und Serien suchen"
                aria-label="Search"
                data-toggle="tooltip" data-placement="top"
-               title="Bequeme Suchfunktion für komplette Serien(!), Filme und andere verfügbare Titel. Komplette Serien landen auch in der Suchliste. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
+               title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
         <p class="results" data-ng-repeat="x in results.sj">
-            <a href="#search" ng-click="downloadSJ(x.id)" class="btn btn-info" type="submit">
-                <i class="fas fa-download"></i> Komplette Serie:
+            <a href="#search" ng-click="downloadSJ(x.id, x.special)" class="btn btn-info" type="submit">
+                <i class="fas fa-download"></i> Serie:
                 <span ng-bind="x.title"></span>
             </a>
         </p>

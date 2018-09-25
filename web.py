@@ -443,9 +443,15 @@ def download_movie(title):
 
 @app.route(prefix + "/api/download_show/<title>", methods=['POST'])
 def download_show(title):
+    if ";" in title:
+        split = title.split(";")
+        title = split[0]
+        special = split[1]
+    else:
+        special = None
     if request.method == 'POST':
         best_result = search.best_result_sj(title)
-        if best_result and search.sj(best_result, jdpath):
+        if best_result and search.sj(best_result, special, jdpath):
             return "Success", 200
         else:
             return "Failed", 400
@@ -464,10 +470,15 @@ def download_mb(permalink):
         return "Failed", 405
 
 
-@app.route(prefix + "/api/download_sj/<id>", methods=['POST'])
-def download_sj(id):
+@app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
+def download_sj(info):
+    split = info.split(";")
+    id = split[0]
+    special = split[1]
+    if special == "null":
+        special = None
     if request.method == 'POST':
-        if search.sj(id, jdpath):
+        if search.sj(id, special, jdpath):
             return "Success", 200
         else:
             return "Failed", 400
