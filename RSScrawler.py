@@ -150,10 +150,10 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
         try:
             checkURL()
             start_time = time.time()
-            log_debug("--------Testlauf gestartet.--------")
+            log_debug(u"--------Testlauf gestartet.--------")
             for task in search_pool:
                 task.periodical_task()
-                log_debug("-----------Suchfunktion ausgeführt!-----------")
+                log_debug(u"-----------Suchfunktion ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
             total_unit = " Sekunden"
@@ -1843,10 +1843,10 @@ if __name__ == "__main__":
     log_file = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    print(u"┌────────────────────────────────────────────────────────┐")
+    print("┌────────────────────────────────────────────────────────┐")
     print("  Programminfo:    RSScrawler " + version + " von RiX")
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
-    print(u"└────────────────────────────────────────────────────────┘")
+    print("└────────────────────────────────────────────────────────┘")
 
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
         if not arguments['--jd-pfad']:
@@ -1855,21 +1855,21 @@ if __name__ == "__main__":
                     "Muss unbedingt vergeben werden!", arguments['--port'])
             else:
                 files.startup("Muss unbedingt vergeben werden!", "9090")
-                print('Der Ordner "Einstellungen" wurde erstellt.')
+                print(u'Der Ordner "Einstellungen" wurde erstellt.')
                 print(
-                    'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+                    u'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(
-                    'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
-                print(u'Viel Spaß! Beende RSScrawler!')
+                    u'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
+                print(u'Viel Spass! Beende RSScrawler!')
                 sys.exit(0)
         else:
             if arguments['--port']:
                 files.startup(arguments['--jd-pfad'], arguments['--port'])
             else:
                 files.startup(arguments['--jd-pfad'], "9090")
-                print('Der Ordner "Einstellungen" wurde erstellt.')
+                print(u'Der Ordner "Einstellungen" wurde erstellt.')
                 print(
-                    'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+                    u'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
     elif arguments['--jd-pfad'] and arguments['--port']:
         files.startup(arguments['--jd-pfad'], arguments['--port'])
     elif arguments['--jd-pfad']:
@@ -1893,23 +1893,23 @@ if __name__ == "__main__":
         print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
 
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
-        print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+        print(u'Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
         print(u'Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
-        print('Beende RSScrawler...')
+        print(u'Beende RSScrawler...')
         sys.exit(0)
 
-    print('Nutze das "folderwatch" Unterverzeichnis von "' +
+    print(u'Nutze das "folderwatch" Unterverzeichnis von "' +
           jdownloaderpath + u'" für Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
-        print('Der Pfad des JDownloaders existiert nicht.')
-        print('Beende RSScrawler...')
+        print(u'Der Pfad des JDownloaders existiert nicht.')
+        print(u'Beende RSScrawler...')
         sys.exit(0)
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print(
             u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-        print('Beende RSScrawler...')
+        print(u'Beende RSScrawler...')
         sys.exit(0)
 
     port = int(rsscrawler.get("port"))
@@ -1925,7 +1925,7 @@ if __name__ == "__main__":
     else:
         prefix = ''
     if not arguments['--docker']:
-        print('Der Webserver ist erreichbar unter http://' +
+        print(u'Der Webserver ist erreichbar unter http://' +
               common.checkIp() + ':' + str(port) + prefix)
 
     if arguments['--cdc-reset']:
@@ -1945,7 +1945,7 @@ if __name__ == "__main__":
 
 
         def signal_handler(signal, frame):
-            print('Beende RSScrawler...')
+            print(u'Beende RSScrawler...')
             p.terminate()
             c.terminate()
             sys.exit(0)

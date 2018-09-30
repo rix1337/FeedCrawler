@@ -7,12 +7,12 @@ import logging
 import os
 import re
 import sys
+from html.parser import HTMLParser
 
 import feedparser
 import six
 from bs4 import BeautifulSoup as bs
 from fuzzywuzzy import fuzz
-from html.parser import HTMLParser
 
 import common
 from common import decode_base64
