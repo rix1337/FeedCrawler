@@ -4,11 +4,15 @@
 # Enthält Code von:
 # https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
+
+import base64
 import logging
 import os
 import re
 import socket
 import sys
+
+import six
 
 from rssconfig import RssConfig
 from rssdb import ListDb
@@ -20,8 +24,13 @@ log_debug = logging.debug
 
 
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
-    crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
-        re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
+    try:
+        crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
+            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
+    except NameError:
+        crawljob_file = crawljob_dir + '/%s.crawljob' % (
+            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())    
+
     crawljobs = RssConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
     usesubdir = crawljobs.get("subdir")
@@ -36,12 +45,13 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file.write('enabled=TRUE\n')
         file.write('autoStart=' + autostart + '\n')
         file.write(
-            'extractPasswords=["' + "bW92aWUtYmxvZy5vcmc=".decode('base64') + '","' + "c2VyaWVuanVua2llcy5vcmc=".decode(
-                'base64') + '","' +
-            "aGQtYXJlYS5vcmc=".decode('base64') + '","' + "aGQtd29ybGQub3Jn".decode(
-                'base64') + '","' + "d2FyZXotd29ybGQub3Jn".decode('base64') + '"]\n')
+            'extractPasswords=["' + decode_base64("bW92aWUtYmxvZy5vcmc=") + '","' + decode_base64(
+                "c2VyaWVuanVua2llcy5vcmc=") + '","' +
+            decode_base64("aGQtYXJlYS5vcmc=") + '","' + decode_base64("aGQtd29ybGQub3Jn") + '","' + decode_base64(
+                "d2FyZXotd29ybGQub3Jn") + '"]\n')
         file.write('downloadPassword=' +
-                   "c2VyaWVuanVua2llcy5vcmc=".decode('base64') + '\n')
+                   decode_base64("c2VyaWVuanVua2llcy5vcmc=") + '\n')          
+
         file.write('extractAfterDownload=TRUE\n')
         file.write('forcedStart=' + autostart + '\n')
         file.write('autoConfirm=' + autostart + '\n')
@@ -119,3 +129,10 @@ def cutoff(key, identifier):
         return True
     else:
         return False
+
+
+def decode_base64(value):
+    if six.PY2:
+        return value.decode("base64")
+    else:
+        return base64.b64decode(value).decode()

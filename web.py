@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
+import six
 
-import StringIO
+if six.PY2:
+    from StringIO import StringIO
+else:
+    from io import StringIO
 import logging
 import os
 import re
@@ -34,6 +38,9 @@ else:
 
 
 def to_int(i):
+    if six.PY3:
+        if isinstance(i, bytes):
+            i = i.decode()
     i = i.strip().replace("None", "")
     return int(i) if i else ""
 
@@ -79,7 +86,7 @@ def get_all():
         logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
         if os.path.isfile(logfile):
             logfile = open(os.path.join(logfile))
-            output = StringIO.StringIO()
+            output = StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
@@ -181,7 +188,7 @@ def get_delete_log():
         logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
         if os.path.isfile(logfile):
             logfile = open(os.path.join(logfile))
-            output = StringIO.StringIO()
+            output = StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
                 log = output.getvalue()
@@ -276,81 +283,80 @@ def get_post_settings():
 
         section = RssConfig("RSScrawler")
         section.save("jdownloader",
-                     to_str(data['general']['pfad']).encode('utf-8'))
+                     to_str(data['general']['pfad']))
         section.save(
-            "port", to_str(data['general']['port']).encode('utf-8'))
+            "port", to_str(data['general']['port']))
         section.save(
-            "prefix", to_str(data['general']['prefix']).encode('utf-8').lower())
-        interval = to_str(data['general']['interval']).encode('utf-8')
+            "prefix", to_str(data['general']['prefix']).lower())
+        interval = to_str(data['general']['interval'])
         if to_int(interval) < 5:
             interval = '5'
         section.save("interval", interval)
         section.save("english",
-                     to_str(data['general']['english']).encode('utf-8'))
+                     to_str(data['general']['english']))
         section.save("surround",
-                     to_str(data['general']['surround']).encode('utf-8'))
+                     to_str(data['general']['surround']))
         section.save("proxy",
-                     to_str(data['general']['proxy']).encode('utf-8'))
+                     to_str(data['general']['proxy']))
         section.save("fallback",
-                     to_str(data['general']['fallback']).encode('utf-8'))
+                     to_str(data['general']['fallback']))
         section = RssConfig("MB")
         section.save("hoster",
-                     to_str(data['mb']['hoster']).encode('utf-8'))
+                     to_str(data['mb']['hoster']))
         section.save("quality",
-                     to_str(data['mb']['quality']).encode('utf-8'))
+                     to_str(data['mb']['quality']))
         section.save("search",
-                     to_str(data['mb']['search']).encode('utf-8'))
+                     to_str(data['mb']['search']))
         section.save(
-            "ignore", to_str(data['mb']['ignore']).encode('utf-8').lower())
+            "ignore", to_str(data['mb']['ignore']).lower())
         section.save("regex",
-                     to_str(data['mb']['regex']).encode('utf-8'))
+                     to_str(data['mb']['regex']))
         section.save("cutoff",
-                     to_str(data['mb']['cutoff']).encode('utf-8'))
+                     to_str(data['mb']['cutoff']))
         section.save("crawl3d",
-                     to_str(data['mb']['crawl_3d']).encode('utf-8'))
+                     to_str(data['mb']['crawl_3d']))
         section.save("crawl3dtype",
-                     to_str(data['mb']['crawl_3d_type']).encode('utf-8'))
+                     to_str(data['mb']['crawl_3d_type']))
         section.save("enforcedl",
-                     to_str(data['mb']['force_dl']).encode('utf-8'))
+                     to_str(data['mb']['force_dl']))
         section.save("crawlseasons",
-                     to_str(data['mbsj']['enabled']).encode('utf-8'))
+                     to_str(data['mbsj']['enabled']))
         section.save("seasonsquality",
-                     to_str(data['mbsj']['quality']).encode('utf-8'))
+                     to_str(data['mbsj']['quality']))
         section.save("seasonpacks",
-                     to_str(data['mbsj']['packs']).encode('utf-8'))
+                     to_str(data['mbsj']['packs']))
         section.save("seasonssource",
-                     to_str(data['mbsj']['source']).encode('utf-8').lower())
+                     to_str(data['mbsj']['source']).lower())
         section.save("imdbyear",
-                     to_str(data['mb']['imdb_year']).encode('utf-8'))
-        imdb = to_str(data['mb']['imdb_score']).encode('utf-8')
+                     to_str(data['mb']['imdb_year']))
+        imdb = to_str(data['mb']['imdb_score'])
         if re.match('[^0-9]', imdb):
             imdb = 0.0
         elif imdb == '':
             imdb = 0.0
         else:
-            imdb = round(float(to_str(data['mb']['imdb_score']).encode(
-                'utf-8').replace(",", ".")), 1)
+            imdb = round(float(to_str(data['mb']['imdb_score']).replace(",", ".")), 1)
         if imdb > 10:
             imdb = 10.0
         section.save("imdb", to_str(imdb))
         section = RssConfig("SJ")
         section.save("hoster",
-                     to_str(data['sj']['hoster']).encode('utf-8'))
+                     to_str(data['sj']['hoster']))
         section.save("quality",
-                     to_str(data['sj']['quality']).encode('utf-8'))
+                     to_str(data['sj']['quality']))
         section.save("rejectlist",
-                     to_str(data['sj']['ignore']).encode('utf-8').lower())
+                     to_str(data['sj']['ignore']).lower())
         section.save("regex",
-                     to_str(data['sj']['regex']).encode('utf-8'))
+                     to_str(data['sj']['regex']))
         section = RssConfig("DD")
         section.save("hoster",
-                     to_str(data['dd']['hoster']).encode('utf-8'))
+                     to_str(data['dd']['hoster']))
         section.save("feeds",
-                     to_str(data['dd']['feeds']).encode('utf-8'))
+                     to_str(data['dd']['feeds']))
         section = RssConfig("YT")
         section.save("youtube",
-                     to_str(data['yt']['enabled']).encode('utf-8'))
-        maxvideos = to_str(data['yt']['max']).encode('utf-8')
+                     to_str(data['yt']['enabled']))
+        maxvideos = to_str(data['yt']['max'])
         if maxvideos == "":
             maxvideos = "10"
         if to_int(maxvideos) < 1:
@@ -360,19 +366,19 @@ def get_post_settings():
         else:
             section.save("maxvideos", to_str(maxvideos))
         section.save("ignore",
-                     to_str(data['yt']['ignore']).encode('utf-8'))
+                     to_str(data['yt']['ignore']))
         section = RssConfig("Notifications")
         section.save("pushbullet",
-                     to_str(data['alerts']['pushbullet']).encode('utf-8'))
+                     to_str(data['alerts']['pushbullet']))
         section.save("pushover",
-                     to_str(data['alerts']['pushover']).encode('utf-8'))
+                     to_str(data['alerts']['pushover']))
         section.save("homeassistant",
-                     to_str(data['alerts']['homeassistant']).encode('utf-8'))
+                     to_str(data['alerts']['homeassistant']))
         section = RssConfig("Crawljobs")
         section.save(
-            "autostart", to_str(data['crawljobs']['autostart']).encode('utf-8'))
+            "autostart", to_str(data['crawljobs']['autostart']))
         section.save("subdir",
-                     to_str(data['crawljobs']['subdir']).encode('utf-8'))
+                     to_str(data['crawljobs']['subdir']))
         return "Success", 201
     else:
         return "Failed", 405
@@ -514,21 +520,21 @@ def get_post_lists():
     if request.method == 'POST':
         data = request.json
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store_list(
-            data['mb']['filme'].encode('utf-8').split('\n'))
+            data['mb']['filme'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store_list(
-            data['mb']['filme3d'].encode('utf-8').split('\n'))
+            data['mb']['filme3d'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store_list(
-            data['mbsj']['staffeln'].encode('utf-8').split('\n'))
+            data['mbsj']['staffeln'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store_list(
-            data['mb']['regex'].encode('utf-8').split('\n'))
+            data['mb']['regex'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store_list(
-            data['sj']['serien'].encode('utf-8').split('\n'))
+            data['sj']['serien'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store_list(
-            data['sj']['regex'].encode('utf-8').split('\n'))
+            data['sj']['regex'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store_list(
-            data['sj']['staffeln_regex'].encode('utf-8').split('\n'))
+            data['sj']['staffeln_regex'].split('\n'))
         ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store_list(
-            data['yt']['kanaele_playlisten'].encode('utf-8').split('\n'))
+            data['yt']['kanaele_playlisten'].split('\n'))
         return "Success", 201
     else:
         return "Failed", 405

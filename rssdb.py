@@ -57,10 +57,10 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = key.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
+        key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä',
                                                                                                          'Ae').replace(
-            'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-            'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace(
+            u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(
+            u'ß', 'ss').replace('(', '').replace(')', '').replace(u'*', '').replace(u'|', '').replace('\\', '').replace(
             '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
@@ -72,10 +72,10 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = k.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
-                                                                                                                 'Ae').replace(
-                        'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace(
-                        'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
+                    k = k.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
+                        u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
+                                                                                                        'ue').replace(
+                        u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
                                                                                                                '').replace(
                         '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
                     key = key + (k,)

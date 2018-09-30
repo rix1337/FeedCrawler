@@ -7,13 +7,15 @@ import logging
 import os
 import re
 import sys
-from HTMLParser import HTMLParser
 
 import feedparser
+import six
 from bs4 import BeautifulSoup as bs
 from fuzzywuzzy import fuzz
+from html.parser import HTMLParser
 
 import common
+from common import decode_base64
 from notifiers import notify
 from rssconfig import RssConfig
 from rssdb import ListDb
@@ -42,8 +44,8 @@ def get(title):
         mb_query = query + "+" + special
     else:
         mb_query = query
-    mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-        'base64') + '/search/' + mb_query + "+" + quality + '/feed/rss2/')
+    mb = getURL(
+        decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+" + quality + '/feed/rss2/')
     mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
     unrated = []
@@ -53,8 +55,8 @@ def get(title):
                 [rate(result[0]), result[1].replace("/", "+"), result[0]])
 
     if config.get("crawl3d"):
-        mb = getURL('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-            'base64') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/')
+        mb = getURL(
+            decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/')
         mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
         for result in mb:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
@@ -71,8 +73,8 @@ def get(title):
         i += 1
     mb = results
 
-    sj = postURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA=".decode(
-        'base64'), data={'string': "'" + query + "'"})
+    sj = postURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="),
+                 data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
     except:
@@ -268,8 +270,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                                                                       ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
                                                                                                             1)[
             0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-    search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
-        'base64') + search_title + "/feed/rss2/"
+    search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
     feedsearch_title = \
         title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                     ".German.DTS.DL.1080p.").replace(
@@ -289,17 +290,17 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            if not decode_base64("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
                 link_hoster = url_hoster[1].lower().replace(
                     'target="_blank">', '')
                 if re.match(hoster, link_hoster):
                     links[link_hoster] = url_hoster[0]
-        download_links = links.values()
+        download_links = links.values() if six.PY2 else list(links.values())
 
         if download_links:
             download_link = download_links[0]
             notify_array = []
-            if "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw".decode("base64") in download_link:
+            if decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
                 logging.debug("Fake-Link erkannt!")
                 return False
             elif staffel:
@@ -388,7 +389,7 @@ def dl_search(feed, title):
 
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
-    url = getURL("aHR0cDovL21vdmllLWJsb2cub3JnLw==".decode('base64') + link)
+    url = getURL(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link)
     config = RssConfig('MB')
     hoster = re.compile(config.get('hoster'))
     db = RssDb(os.path.join(os.path.dirname(
@@ -400,11 +401,11 @@ def mb(link, jdownloaderpath):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     links = {}
     for url_hoster in reversed(url_hosters):
-        if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+        if not decode_base64("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
-    download_links = links.values()
+    download_links = links.values() if six.PY2 else list(links.values())
 
     englisch = False
     if "*englisch*" in key.lower():
@@ -564,8 +565,7 @@ def mb(link, jdownloaderpath):
 
 
 def sj(id, special, jdownloaderpath):
-    url = getURL("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9".decode(
-        'base64') + str(id))
+    url = getURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(id))
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)

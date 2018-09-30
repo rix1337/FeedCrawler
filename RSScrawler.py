@@ -34,20 +34,22 @@ import signal
 import sys
 import time
 import traceback
-import urllib2
 import warnings
 from datetime import datetime
 from logging import handlers
 from multiprocessing import Process
 
 import feedparser
+import six
 from bs4 import BeautifulSoup as bs
 from dateutil import parser
 from docopt import docopt
+from six.moves.urllib.error import HTTPError
 
 import common
 import files
 import version
+from common import decode_base64
 from notifiers import notify
 from output import CutLog
 from output import Unbuffered
@@ -214,10 +216,10 @@ class YT:
                 cnotfound = False
                 try:
                     response = getURL(url)
-                except urllib2.HTTPError:
+                except HTTPError:
                     try:
                         response = getURL(urlc)
-                    except urllib2.HTTPError:
+                    except HTTPError:
                         cnotfound = True
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " +
@@ -413,11 +415,11 @@ class SJ:
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 response = getURLObject(
-                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64'), self.headers)
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), self.headers)
                 feed = feedparser.parse(response.content)
             else:
                 response = getURLObject(
-                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64'),
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
                     self.headers)
                 feed = feedparser.parse(response.content)
             if response.status_code == 304:
@@ -428,10 +430,10 @@ class SJ:
         else:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 feed = feedparser.parse(getURL(
-                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='.decode('base64')))
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw=')))
             else:
                 feed = feedparser.parse(getURL(
-                    'aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='.decode('base64')))
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw=')))
             header = False
 
         first_post_sj = feed.entries[0]
@@ -755,7 +757,7 @@ class SJ:
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    MB_URL = "aHR0cDovL21vdmllLWJsb2cub3JnL2ZlZWQv".decode('base64')
+    MB_URL = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnL2ZlZWQv")
     MB_FEED_URLS = [MB_URL]
     search = int(RssConfig(_INTERNAL_NAME).get("search"))
     historical = False
@@ -766,7 +768,8 @@ class BL:
     while i <= search:
         MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
         i += 1
-    HW_URL = "aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==".decode('base64')
+
+    HW_URL = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==")
     HW_FEED_URLS = [HW_URL]
     i = 2
     while i <= search:
@@ -987,8 +990,7 @@ class BL:
                                                                       ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
                                                                                                             1)[0].split(
             '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-        search_url = "aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv".decode(
-            'base64') + search_title + "/feed/rss2/"
+        search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
         feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                                        ".German.DTS.DL.1080p.").replace(
             ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
@@ -1004,7 +1006,7 @@ class BL:
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
-                    if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                    if decode_base64("bW92aWUtYmxvZy5vcmcvMjAxMC8=") in download_link:
                         self.log_debug("Fake-Link erkannt!")
                         break
                 download_link = download_links[0]
@@ -1113,7 +1115,7 @@ class BL:
         for post in feed.entries:
             found = re.search(s, post.title.lower())
             if found:
-                content = post.content[0].value.encode("utf8")
+                content = post.content[0].value
                 found = re.search(ignore, post.title.lower())
                 if found:
                     self.log_debug(
@@ -1137,11 +1139,12 @@ class BL:
                 elif "HW" in site:
                     self.i_hw_done = True
                 break
-            content = post.content[0].value.encode("utf8")
+            content = post.content[0].value
             if "mkv" in content.lower():
                 post_imdb = re.findall(
                     r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
                     content)
+
                 if post_imdb:
                     post_imdb = post_imdb.pop()
                 replaced = common.retail_sub(post.title)
@@ -1228,9 +1231,9 @@ class BL:
                             re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
                                        post.title)[
                                 0].replace(
-                                ".", "+").replace("ae", "ä").replace("oe", "ö").replace("ue", "ü").replace("Ae",
-                                                                                                           "Ä").replace(
-                                "Oe", "Ö").replace("Ue", "Ü")
+                                ".", "+").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace("Ae",
+                                                                                                              u"Ä").replace(
+                                "Oe", u"Ö").replace("Ue", u"Ü")
                     except:
                         break
                     search_url = "http://www.imdb.com/find?q=" + search_title
@@ -1287,7 +1290,6 @@ class BL:
                             self.log_debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-
                 if len(download_imdb) > 0:
                     if len(details) == 0:
                         details = getURL(download_imdb)
@@ -1312,19 +1314,19 @@ class BL:
                         r'ratingValue">(.*?)<\/span>', details)
                     download_score = float(download_score[0].replace(
                         ",", "."))
-
-                if download_score > imdb:
-                    if '.3d.' not in post.title.lower():
-                        self.download_imdb(
-                            post.title, download_pages, str(download_score), download_imdb, details)
-                    else:
-                        self.download_imdb(
-                            post.title, download_pages, str(download_score), download_imdb, details)
+                    if download_score > imdb:
+                        if '.3d.' not in post.title.lower():
+                            self.download_imdb(
+                                post.title, download_pages, str(download_score), download_imdb, details)
+                        else:
+                            self.download_imdb(
+                                post.title, download_pages, str(download_score), download_imdb, details)
 
     def download_imdb(self, key, download_links, score, download_imdb, details):
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                url = decode_base64("bW92aWUtYmxvZy5vcmcvMjAxMC8=")
+                if url in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             download_link = download_links[0]
@@ -1432,17 +1434,19 @@ class BL:
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not "bW92aWUtYmxvZy5vcmcv".decode("base64") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            url = decode_base64("bW92aWUtYmxvZy5vcmcv")
+            if not url in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '')
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
-        return links.values()
+        return links.values() if six.PY2 else list(links.values())
 
     def feed_download(self, key, content):
         download_links = self._get_download_links(content)
         if download_links:
             for download_link in download_links:
-                if "bW92aWUtYmxvZy5vcmcvMjAxMC8=".decode("base64") in download_link:
+                url = decode_base64("bW92aWUtYmxvZy5vcmcvMjAxMC8=")
+                if url in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             replaced = common.retail_sub(key)
@@ -1676,10 +1680,9 @@ class BL:
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
-                        mb_urls.append('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
-                        hw_urls.append('aHR0cDovL2hkLXdvcmxkLm9yZw=='.decode(
-                            'base64') + '/search/%s/feed/rss2/' % xn)
+                        mb_urls.append(
+                            decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/%s/feed/rss2/' % xn)
+                        hw_urls.append(decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
@@ -1896,7 +1899,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
-          jdownloaderpath + '" für Crawljobs')
+          jdownloaderpath + '" fur Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')

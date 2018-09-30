@@ -7,13 +7,14 @@ import sys
 
 import cfscrape
 
+from common import decode_base64
 from rssconfig import RssConfig
 from rssdb import RssDb
 
 
 def checkURL():
-    sj_url = "aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn".decode('base64')
-    mb_url = "aHR0cDovL21vdmllLWJsb2cub3JnLw==".decode('base64')
+    sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
+    mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==")
     proxy = RssConfig('RSScrawler').get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     sj_blocked_proxy = False
@@ -24,14 +25,14 @@ def checkURL():
         proxies = {'http': proxy, 'https': proxy}
         if "block." in str(
                 scraper.get(sj_url, proxies=proxies, timeout=30, allow_redirects=False).headers.get("location")):
-            print "Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!"
+            print("Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler').get("fallback"):
                 db.store("SJ", "Blocked")
             sj_blocked_proxy = True
         else:
             db.delete("SJ")
         if "<Response [403]>" in str(scraper.get(mb_url, proxies=proxies, timeout=30, allow_redirects=False)):
-            print "Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!"
+            print("Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler').get("fallback"):
                 db.store("MB", "Blocked")
                 mb_blocked_proxy = True
@@ -39,9 +40,9 @@ def checkURL():
             db.delete("MB")
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get("location")):
-            print "Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!"
+            print("Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
         if "<Response [403]>" in str(scraper.get(mb_url, timeout=30, allow_redirects=False)):
-            print "Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!"
+            print("Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
     return
 
 
@@ -50,28 +51,28 @@ def getURL(url):
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
-        sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
-        mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
+        sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
         db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
-                return scraper.get(url, timeout=30).content
+                return scraper.get(url, timeout=30).text
         elif mb in url:
             if db.retrieve("MB") and config.get("fallback"):
-                return scraper.get(url, timeout=30).content
+                return scraper.get(url, timeout=30).text
         proxies = {'http': proxy, 'https': proxy}
-        return scraper.get(url, proxies=proxies, timeout=30).content
+        return scraper.get(url, proxies=proxies, timeout=30).text
     else:
-        return scraper.get(url, timeout=30).content
+        return scraper.get(url, timeout=30).text
 
 def getURLObject(url, headers):
     config = RssConfig('RSScrawler')
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
-        sj = "c2VyaWVuanVua2llcy5vcmc=".decode('base64')
-        mb = "bW92aWUtYmxvZy5vcmc=".decode('base64')
+        sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
         db = RssDb(os.path.join(os.path.dirname(
             sys.argv[0]), "RSScrawler.db"), 'proxystatus')
         if sj in url:
