@@ -130,7 +130,6 @@ def cutoff(key, identifier):
     else:
         return False
 
-
 def decode_base64(value):
     if six.PY2:
         return value.decode("base64")

@@ -140,7 +140,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
+                      u" - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
                 added_items = []
                 time.sleep(int(rsscrawler.get('interval')) * 60)
                 log_debug("-------------Wartezeit verstrichen-------------")
@@ -165,7 +165,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  " - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+                  u" - Testlauf ausgeführt (Dauer: " + total_time + ")!")
         except Exception:
             traceback.print_exc()
 
@@ -1843,10 +1843,10 @@ if __name__ == "__main__":
     log_file = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    print("┌────────────────────────────────────────────────────────┐")
+    print(u"┌────────────────────────────────────────────────────────┐")
     print("  Programminfo:    RSScrawler " + version + " von RiX")
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
-    print("└────────────────────────────────────────────────────────┘")
+    print(u"└────────────────────────────────────────────────────────┘")
 
     if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
         if not arguments['--jd-pfad']:
@@ -1860,7 +1860,7 @@ if __name__ == "__main__":
                     'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(
                     'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
-                print('Viel Spass! Beende RSScrawler!')
+                print(u'Viel Spaß! Beende RSScrawler!')
                 sys.exit(0)
         else:
             if arguments['--port']:
@@ -1890,11 +1890,11 @@ if __name__ == "__main__":
     1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
     if arguments['--docker']:
-        print('Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
+        print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
 
     if jdownloaderpath == 'Muss unbedingt vergeben werden!':
         print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-        print('Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
+        print(u'Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
         print('Beende RSScrawler...')
         sys.exit(0)
 
@@ -1908,7 +1908,7 @@ if __name__ == "__main__":
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print(
-            'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
         print('Beende RSScrawler...')
         sys.exit(0)
 
@@ -1941,7 +1941,7 @@ if __name__ == "__main__":
                                           rsscrawler, log_level, log_file, log_format,))
         c.start()
 
-        print('Drücke [Strg] + [C] zum Beenden')
+        print(u'Drücke [Strg] + [C] zum Beenden')
 
 
         def signal_handler(signal, frame):

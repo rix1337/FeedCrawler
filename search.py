@@ -175,10 +175,9 @@ def html_to_str(unescape):
 
 
 def best_result_mb(title):
-    title = title.encode('ascii', 'replace').replace('.', ' ').replace(';', '').replace(',', '').replace('Ä',
-                                                                                                         'Ae').replace(
-        'ä', 'ae').replace('Ö', 'Oe').replace('ö', 'oe').replace('Ü', 'Ue').replace('ü', 'ue').replace('ß',
-                                                                                                       'ss').replace(
+    title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
+        u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß',
+                                                                                                            'ss').replace(
         '(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?',
                                                                                                                '').replace(
         '!', '').replace(':', '').replace('  ', ' ').replace("'", '')

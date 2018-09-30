@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 import six
-
 if six.PY2:
     from StringIO import StringIO
 else:
