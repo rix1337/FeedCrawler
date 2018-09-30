@@ -1899,7 +1899,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
-          jdownloaderpath + '" fur Crawljobs')
+          jdownloaderpath + u'" für Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
