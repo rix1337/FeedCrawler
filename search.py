@@ -7,7 +7,10 @@ import logging
 import os
 import re
 import sys
-from html.parser import HTMLParser
+try:
+    from html.parser import HTMLParser
+except ImportError:
+    from HTMLParser import HTMLParser
 
 import feedparser
 import six
