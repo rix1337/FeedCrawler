@@ -7,7 +7,6 @@ cfscrape
 docopt
 feedparser
 flask
-future
 fuzzywuzzy[speedup]
 gevent
 lxml
