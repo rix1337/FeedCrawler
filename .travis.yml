@@ -2,10 +2,10 @@ language: python
 python:
   - "2.7"
   - "3.6"
-  - python: 3.7
+  - "3.7"
     dist: xenial
     sudo: true
-  - python: 3.8-dev
+  - "3.8-dev"
     dist: xenial
     sudo: true
 cache: pip
