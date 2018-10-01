@@ -3,17 +3,18 @@
 # Projekt von https://github.com/rix1337
 
 import re
-import urllib2
+
+from six.moves.urllib.request import urlopen
 
 
 def getVersion():
-    return "v.4.3.1"
+    return "v.5.0.0"
 
 
 def updateCheck():
     localversion = getVersion().replace("v.", "").split(".")
     try:
-        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urllib2.urlopen(
+        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urlopen(
             'https://github.com/rix1337/RSScrawler/releases/latest').read()).group(1).replace("v.", "").split(".")
         if localversion == onlineversion:
             update = False

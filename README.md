@@ -13,11 +13,10 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 [Gutz-Pilz](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py)
 
 ##  Vorraussetzungen
-* [Python 2.7](https://www.python.org/downloads/)
-* [Java 8](http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html)
-* [JDownloader 2](http://www.jdownloader.org/jdownloader2)
-* [Optional, aber empfohlen: node.js](https://nodejs.org/en/)
+* [Python ab 3.6 empfohlen (2.7 wird noch unterstützt)](https://www.python.org/downloads/)
+* [JDownloader 2 (benötigt JRE)](http://www.jdownloader.org/jdownloader2)
 * [Zusatzpakete](https://github.com/rix1337/RSScrawler/blob/master/requirements.txt)
+* [Optional, aber empfohlen: node.js](https://nodejs.org/en/)
 
 ## Installation
 

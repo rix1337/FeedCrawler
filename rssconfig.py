@@ -2,7 +2,12 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import ConfigParser
+# import ConfigParser
+try:
+    import configparser as ConfigParser
+except ImportError:
+    import ConfigParser
+
 import logging
 import os
 import sys
@@ -87,12 +92,12 @@ class RssConfig(object):
         self._config.add_section(section)
         for (key, key_type, value) in self._DEFAULT_CONFIG[section]:
             self._config.set(section, key, value)
-        with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
+        with open(self._CONFIG_FILES[::-1].pop(), 'w') as configfile:
             self._config.write(configfile)
 
     def _set_to_config(self, section, key, value):
         self._config.set(section, key, value)
-        with open(self._CONFIG_FILES[::-1].pop(), 'wb') as configfile:
+        with open(self._CONFIG_FILES[::-1].pop(), 'w') as configfile:
             self._config.write(configfile)
 
     def _read_config(self, section):

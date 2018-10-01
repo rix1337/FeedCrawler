@@ -13,3 +13,4 @@ gevent
 lxml
 python-dateutil
 requests[socks]
+six
