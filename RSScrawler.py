@@ -863,7 +863,7 @@ class BL:
 
                 found = re.search(s, post.title.lower())
                 if found:
-                    content = post.content[0].value.encode("utf8")
+                    content = post.content[0].value
                     if re.search(r'.*([mM][kK][vV]).*', content):
                         found = re.search(ignore, post.title.lower())
                         if found:
