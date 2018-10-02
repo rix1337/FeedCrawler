@@ -7,11 +7,9 @@ matrix:
     - python: 3.7
       dist: xenial
       sudo: true
-      cache: pip
     - python: 3.8-dev
       dist: xenial
       sudo: true
-      cache: pip
 allow_failures:
   - python: 3.8-dev
 cache: pip
