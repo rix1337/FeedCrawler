@@ -5,11 +5,13 @@ https://gitter.im/RSScrawler/Lobby
 
 # Zwingend erforderlich
 
-- **RSScrawler.ini und RSScrawler.db**
+- **RSScrawler.ini und RSScrawler.db als Datei**
 
 - **Fehlermeldung aus dem Log** (ggf. DEBUG aktivieren!)
 
 - **Genutzte Version** (kein Support für alte Releases)
+
+- **Wird Python 3.6 oder aktueller genutzt?**
 
 # Fehlerbeschreibung:
 
