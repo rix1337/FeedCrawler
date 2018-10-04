@@ -1835,7 +1835,7 @@ class BL:
             self.cdc.store("HWHeaders-" + self.filename, first_hw.headers['Last-Modified'])
 
 
-if __name__ == "__main__":
+def main():
     arguments = docopt(__doc__, version='RSScrawler')
 
     log_level = logging.__dict__[
@@ -1963,3 +1963,7 @@ if __name__ == "__main__":
         crawler(jdownloaderpath, rsscrawler, log_level, log_file, log_format)
         p.terminate()
         sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
