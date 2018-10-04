@@ -24,13 +24,23 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 
 ## Installation
 
-Hinweise zur Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/RSScrawler/wiki)!
+Folgenden Befehl ausführen:
+
+```pip install rsscrawler```
+
+Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/RSScrawler/wiki)!
 
 ## Sicherheitshinweis
 
 Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP).
 
 ## RSScrawler starten
+
+Nach der Installation per pip lässt sich RSScrawler bequem in der Konsole starten:
+
+```RSScrawler``` oder ```rsscrawler``` führt RSScrawler aus.
+
+Bei Problemen/manueller Installation:
 
 ```python RSScrawler.py``` führt RSScrawler aus
 

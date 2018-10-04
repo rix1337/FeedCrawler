@@ -5,7 +5,13 @@
 # Python
 *.pyc
 *.bak
+__pycache__
+
+# Build Tools
+build
+dist
 venv
+*.egg-info
 
 # RSScrawler files
 *.db
