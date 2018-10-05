@@ -35,6 +35,8 @@ def config(configpath):
         f.close()
     configpath = configpath.replace("\\", "/")
     configpath = configpath[:-1] if configpath.endswith('/') else configpath
+    if not os.path.exists(configpath):
+        os.makedirs(configpath)
     return configpath
 
 

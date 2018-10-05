@@ -24,7 +24,7 @@ from rssconfig import RssConfig
 from rssdb import ListDb
 from rssdb import RssDb
 
-app = Flask(__name__, static_url_path='/web', template_folder='web')
+app = Flask(__name__, template_folder='web')
 
 configfile = "RSScrawler.conf"
 if os.path.exists(configfile):
