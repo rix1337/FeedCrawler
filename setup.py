@@ -47,7 +47,6 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rix1337/RSScrawler",
-    packages=setuptools.find_packages(),
     data_files=[('', py),
                 ('web', web),
                 ('web/css', web_css),
