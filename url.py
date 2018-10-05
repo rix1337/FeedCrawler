@@ -12,10 +12,10 @@ from rssconfig import RssConfig
 from rssdb import RssDb
 
 
-def checkURL():
+def checkURL(configfile):
     sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
     mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==")
-    proxy = RssConfig('RSScrawler').get('proxy')
+    proxy = RssConfig('RSScrawler', configfile).get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     sj_blocked_proxy = False
     mb_blocked_proxy = False
@@ -26,14 +26,14 @@ def checkURL():
         if "block." in str(
                 scraper.get(sj_url, proxies=proxies, timeout=30, allow_redirects=False).headers.get("location")):
             print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler').get("fallback"):
+            if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("SJ", "Blocked")
             sj_blocked_proxy = True
         else:
             db.delete("SJ")
         if "<Response [403]>" in str(scraper.get(mb_url, proxies=proxies, timeout=30, allow_redirects=False)):
             print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler').get("fallback"):
+            if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("MB", "Blocked")
                 mb_blocked_proxy = True
         else:
@@ -46,8 +46,8 @@ def checkURL():
     return
 
 
-def getURL(url):
-    config = RssConfig('RSScrawler')
+def getURL(url, configfile):
+    config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
@@ -66,8 +66,9 @@ def getURL(url):
     else:
         return scraper.get(url, timeout=30).text
 
-def getURLObject(url, headers):
-    config = RssConfig('RSScrawler')
+
+def getURLObject(url, configfile, headers):
+    config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     if proxy:
@@ -86,8 +87,9 @@ def getURLObject(url, headers):
     else:
         return scraper.get(url, headers=headers, timeout=30)
 
-def postURL(url, data):
-    proxy = RssConfig('RSScrawler').get('proxy')
+
+def postURL(url, configfile, data):
+    proxy = RssConfig('RSScrawler', configfile).get('proxy')
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
         scraper = cfscrape.create_scraper(delay=10)

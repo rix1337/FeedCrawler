@@ -24,12 +24,18 @@ from rssconfig import RssConfig
 from rssdb import ListDb
 from rssdb import RssDb
 
-app = Flask(__name__, static_url_path='/web', template_folder='web')
+app = Flask(__name__, template_folder='web')
 
-if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
+configfile = "RSScrawler.conf"
+if os.path.exists(configfile):
+    f = open(configfile, "r")
+    configfile = os.path.join(f.readline(), 'RSScrawler.ini')
+else:
+    configfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')
+if not os.path.exists(configfile):
     prefix = ""
 else:
-    general = RssConfig('RSScrawler')
+    general = RssConfig('RSScrawler', configfile)
     if general.get("prefix"):
         prefix = '/' + general.get("prefix")
     else:
@@ -66,13 +72,13 @@ def index():
 @app.route(prefix + "/api/all/", methods=['GET'])
 def get_all():
     if request.method == 'GET':
-        general = RssConfig('RSScrawler')
-        alerts = RssConfig('Notifications')
-        crawljobs = RssConfig('Crawljobs')
-        mb = RssConfig('MB')
-        sj = RssConfig('SJ')
-        dd = RssConfig('DD')
-        yt = RssConfig('YT')
+        general = RssConfig('RSScrawler', configfile)
+        alerts = RssConfig('Notifications', configfile)
+        crawljobs = RssConfig('Crawljobs', configfile)
+        mb = RssConfig('MB', configfile)
+        sj = RssConfig('SJ', configfile)
+        dd = RssConfig('DD', configfile)
+        yt = RssConfig('YT', configfile)
         ver = version.getVersion()
         if version.updateCheck()[0]:
             updateready = True
@@ -82,9 +88,8 @@ def get_all():
         else:
             updateready = False
         log = ''
-        logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
-        if os.path.isfile(logfile):
-            logfile = open(os.path.join(logfile))
+        if os.path.isfile(lgfile):
+            logfile = open(os.path.join(lgfile))
             output = StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
@@ -184,9 +189,8 @@ def get_all():
 def get_delete_log():
     if request.method == 'GET':
         log = ''
-        logfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
-        if os.path.isfile(logfile):
-            logfile = open(os.path.join(logfile))
+        if os.path.isfile(lgfile):
+            logfile = open(os.path.join(lgfile))
             output = StringIO()
             for line in reversed(logfile.readlines()):
                 output.write("<p>" + line.replace("\n", "</p>"))
@@ -197,8 +201,7 @@ def get_delete_log():
             }
         )
     if request.method == 'DELETE':
-        open(os.path.join(os.path.dirname(
-            sys.argv[0]), 'RSScrawler.log'), 'w').close()
+        open(lgfile, 'w').close()
         return "Success", 200
     else:
         return "Failed", 405
@@ -207,13 +210,13 @@ def get_delete_log():
 @app.route(prefix + "/api/settings/", methods=['GET', 'POST'])
 def get_post_settings():
     if request.method == 'GET':
-        general = RssConfig('RSScrawler')
-        alerts = RssConfig('Notifications')
-        crawljobs = RssConfig('Crawljobs')
-        mb = RssConfig('MB')
-        sj = RssConfig('SJ')
-        dd = RssConfig('DD')
-        yt = RssConfig('YT')
+        general = RssConfig('RSScrawler', configfile)
+        alerts = RssConfig('Notifications', configfile)
+        crawljobs = RssConfig('Crawljobs', configfile)
+        mb = RssConfig('MB', configfile)
+        sj = RssConfig('SJ', configfile)
+        dd = RssConfig('DD', configfile)
+        yt = RssConfig('YT', configfile)
         if not mb.get("crawl3dtype"):
             crawl_3d_type = "hsbs"
         else:
@@ -280,7 +283,7 @@ def get_post_settings():
     if request.method == 'POST':
         data = request.json
 
-        section = RssConfig("RSScrawler")
+        section = RssConfig("RSScrawler", configfile)
         section.save("jdownloader",
                      to_str(data['general']['pfad']))
         section.save(
@@ -299,7 +302,7 @@ def get_post_settings():
                      to_str(data['general']['proxy']))
         section.save("fallback",
                      to_str(data['general']['fallback']))
-        section = RssConfig("MB")
+        section = RssConfig("MB", configfile)
         section.save("hoster",
                      to_str(data['mb']['hoster']))
         section.save("quality",
@@ -338,7 +341,7 @@ def get_post_settings():
         if imdb > 10:
             imdb = 10.0
         section.save("imdb", to_str(imdb))
-        section = RssConfig("SJ")
+        section = RssConfig("SJ", configfile)
         section.save("hoster",
                      to_str(data['sj']['hoster']))
         section.save("quality",
@@ -347,12 +350,12 @@ def get_post_settings():
                      to_str(data['sj']['ignore']).lower())
         section.save("regex",
                      to_str(data['sj']['regex']))
-        section = RssConfig("DD")
+        section = RssConfig("DD", configfile)
         section.save("hoster",
                      to_str(data['dd']['hoster']))
         section.save("feeds",
                      to_str(data['dd']['feeds']))
-        section = RssConfig("YT")
+        section = RssConfig("YT", configfile)
         section.save("youtube",
                      to_str(data['yt']['enabled']))
         maxvideos = to_str(data['yt']['max'])
@@ -366,14 +369,14 @@ def get_post_settings():
             section.save("maxvideos", to_str(maxvideos))
         section.save("ignore",
                      to_str(data['yt']['ignore']))
-        section = RssConfig("Notifications")
+        section = RssConfig("Notifications", configfile)
         section.save("pushbullet",
                      to_str(data['alerts']['pushbullet']))
         section.save("pushover",
                      to_str(data['alerts']['pushover']))
         section.save("homeassistant",
                      to_str(data['alerts']['homeassistant']))
-        section = RssConfig("Crawljobs")
+        section = RssConfig("Crawljobs", configfile)
         section.save(
             "autostart", to_str(data['crawljobs']['autostart']))
         section.save("subdir",
@@ -410,8 +413,7 @@ def get_version():
 @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
 def delete_title(title):
     if request.method == 'DELETE':
-        db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+        db = RssDb(dbfile, 'rsscrawler')
         db.delete(title)
         return "Success", 200
     else:
@@ -421,7 +423,7 @@ def delete_title(title):
 @app.route(prefix + "/api/search/<title>", methods=['GET'])
 def search_title(title):
     if request.method == 'GET':
-        results = search.get(title)
+        results = search.get(title, configfile)
         return jsonify(
             {
                 "results": {
@@ -437,8 +439,8 @@ def search_title(title):
 @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
 def download_movie(title):
     if request.method == 'POST':
-        best_result = search.best_result_mb(title)
-        if best_result and search.mb(best_result, jdpath):
+        best_result = search.best_result_mb(title, configfile)
+        if best_result and search.mb(best_result, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -455,8 +457,8 @@ def download_show(title):
     else:
         special = None
     if request.method == 'POST':
-        best_result = search.best_result_sj(title)
-        if best_result and search.sj(best_result, special, jdpath):
+        best_result = search.best_result_sj(title, configfile)
+        if best_result and search.sj(best_result, special, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -467,7 +469,7 @@ def download_show(title):
 @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
     if request.method == 'POST':
-        if search.mb(permalink, jdpath):
+        if search.mb(permalink, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -483,7 +485,7 @@ def download_sj(info):
     if special == "null":
         special = None
     if request.method == 'POST':
-        if search.sj(id, special, jdpath):
+        if search.sj(id, special, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -518,21 +520,21 @@ def get_post_lists():
         )
     if request.method == 'POST':
         data = request.json
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Filme").store_list(
+        ListDb(dbfile, "MB_Filme").store_list(
             data['mb']['filme'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_3D").store_list(
+        ListDb(dbfile, "MB_3D").store_list(
             data['mb']['filme3d'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Staffeln").store_list(
+        ListDb(dbfile, "MB_Staffeln").store_list(
             data['mbsj']['staffeln'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "MB_Regex").store_list(
+        ListDb(dbfile, "MB_Regex").store_list(
             data['mb']['regex'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien").store_list(
+        ListDb(dbfile, "SJ_Serien").store_list(
             data['sj']['serien'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Serien_Regex").store_list(
+        ListDb(dbfile, "SJ_Serien_Regex").store_list(
             data['sj']['regex'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "SJ_Staffeln_Regex").store_list(
+        ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
             data['sj']['staffeln_regex'].split('\n'))
-        ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "YT_Channels").store_list(
+        ListDb(dbfile, "YT_Channels").store_list(
             data['yt']['kanaele_playlisten'].split('\n'))
         return "Success", 201
     else:
@@ -540,16 +542,21 @@ def get_post_lists():
 
 
 def get_list(liste):
-    cont = ListDb(os.path.join(os.path.dirname(
-        sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+    cont = ListDb(dbfile, liste).retrieve()
     return "\n".join(cont) if cont else ""
 
 
-def start(port, docker_arg, jd, log_level, log_file, log_format):
+def start(port, docker_arg, jd, cfg, db, log_level, log_file, log_format):
     global docker
     docker = docker_arg
     global jdpath
     jdpath = jd
+    global configfile
+    configfile = cfg
+    global dbfile
+    dbfile = db
+    global lgfile
+    lgfile = log_file
 
     sys.stdout = Unbuffered(sys.stdout)
 
