@@ -8,14 +8,8 @@ try:
 except ImportError:
     import ConfigParser
 
-import logging
-import os
-import sys
-
 
 class RssConfig(object):
-    _CONFIG_FILES = [os.path.join(os.path.dirname(
-        sys.argv[0]), 'RSScrawler.ini')]
     _DEFAULT_CONFIG = {
         'RSScrawler': [
             ("jdownloader", "str", ""),
@@ -72,19 +66,20 @@ class RssConfig(object):
     }
     __config__ = []
 
-    def __init__(self, section):
+    def __init__(self, section, configfile):
+        self._configfile = configfile
         self._section = section
         self._config = ConfigParser.RawConfigParser()
         try:
-            self._config.read(self._CONFIG_FILES)
+            self._config.read(self._configfile)
             self._config.has_section(
                 self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except ConfigParser.DuplicateSectionError:
-            logging.error('Doppelte Sektion in der Konfigurationsdatei.')
+            print('Doppelte Sektion in der Konfigurationsdatei.')
             raise
         except ConfigParser.Error:
-            logging.error(
+            print(
                 'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
@@ -92,12 +87,12 @@ class RssConfig(object):
         self._config.add_section(section)
         for (key, key_type, value) in self._DEFAULT_CONFIG[section]:
             self._config.set(section, key, value)
-        with open(self._CONFIG_FILES[::-1].pop(), 'w') as configfile:
+        with open(self._configfile, 'w') as configfile:
             self._config.write(configfile)
 
     def _set_to_config(self, section, key, value):
         self._config.set(section, key, value)
-        with open(self._CONFIG_FILES[::-1].pop(), 'w') as configfile:
+        with open(self._configfile, 'w') as configfile:
             self._config.write(configfile)
 
     def _read_config(self, section):

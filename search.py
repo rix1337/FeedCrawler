@@ -7,6 +7,7 @@ import logging
 import os
 import re
 import sys
+
 try:
     from html.parser import HTMLParser
 except ImportError:
@@ -40,7 +41,7 @@ def get(title):
         special = split[1].upper()
     else:
         special = None
-    config = RssConfig('MB')
+    config = RssConfig('MB', configfile)
     quality = config.get('quality')
     query = title.replace(".", " ").replace(" ", "+")
     if special:
@@ -48,7 +49,8 @@ def get(title):
     else:
         mb_query = query
     mb = getURL(
-        decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+" + quality + '/feed/rss2/')
+        decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+" + quality + '/feed/rss2/',
+        configfile)
     mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
 
     unrated = []
@@ -59,7 +61,8 @@ def get(title):
 
     if config.get("crawl3d"):
         mb = getURL(
-            decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/')
+            decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/',
+            configfile)
         mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
         for result in mb:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
@@ -76,7 +79,7 @@ def get(title):
         i += 1
     mb = results
 
-    sj = postURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="),
+    sj = postURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="), configfile,
                  data={'string': "'" + query + "'"})
     try:
         sj = json.loads(sj)
@@ -160,7 +163,7 @@ def rate(title):
     if "dvd9" in title.lower():
         score -= 10
     try:
-        config = RssConfig('SJ')
+        config = RssConfig('SJ', configfile)
         reject = config.get("rejectlist").replace(",", "|").lower() if len(
             config.get("rejectlist")) > 0 else r"^unmatchable$"
     except TypeError:
@@ -286,7 +289,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
         return False
     for (key, value, pattern) in dl_search(feedparser.parse(search_url), feedsearch_title):
-        req_page = getURL(value[0])
+        req_page = getURL(value[0], configfile)
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
@@ -311,7 +314,8 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler/Remux"
+                    "RSScrawler/Remux",
+                    configfile
                 )
                 db.store(
                     key,
@@ -335,7 +339,8 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler"
+                    "RSScrawler/3Dcrawler",
+                    configfile
                 )
                 db.store(
                     key,
@@ -364,7 +369,8 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler/Remux"
+                    "RSScrawler/Remux",
+                    configfile
                 )
                 db.store(
                     key,
@@ -391,8 +397,8 @@ def dl_search(feed, title):
 
 def mb(link, jdownloaderpath):
     link = link.replace("+", "/")
-    url = getURL(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link)
-    config = RssConfig('MB')
+    url = getURL(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile)
+    config = RssConfig('MB', configfile)
     hoster = re.compile(config.get('hoster'))
     db = RssDb(os.path.join(os.path.dirname(
         sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
@@ -434,7 +440,7 @@ def mb(link, jdownloaderpath):
             search_title = re.findall(
                 r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
             search_url = "http://www.imdb.com/find?q=" + search_title
-            search_page = getURL(search_url)
+            search_page = getURL(search_url, configfile)
             search_results = re.findall(
                 r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                 search_page)
@@ -466,7 +472,7 @@ def mb(link, jdownloaderpath):
             if isinstance(imdb_id, list):
                 imdb_id = imdb_id.pop()
             imdb_url = "http://www.imdb.com/title/" + imdb_id
-            details = getURL(imdb_url)
+            details = getURL(imdb_url, configfile)
             if not details:
                 logging.debug("%s - Originalsprache nicht ermittelbar" % key)
             original_language = re.findall(
@@ -490,7 +496,8 @@ def mb(link, jdownloaderpath):
                 key,
                 download_links,
                 jdownloaderpath + "/folderwatch",
-                "RSScrawler"
+                "RSScrawler",
+                configfile
             )
             db.store(
                 key.replace(".COMPLETE", "").replace(".Complete", ""),
@@ -518,7 +525,8 @@ def mb(link, jdownloaderpath):
                 key,
                 download_links,
                 jdownloaderpath + "/folderwatch",
-                "RSScrawler"
+                "RSScrawler",
+                configfile
             )
             db.store(
                 key,
@@ -546,7 +554,8 @@ def mb(link, jdownloaderpath):
                 key,
                 download_links,
                 jdownloaderpath + "/folderwatch",
-                "RSScrawler"
+                "RSScrawler",
+                configfile
             )
             db.store(
                 key,
@@ -567,13 +576,13 @@ def mb(link, jdownloaderpath):
 
 
 def sj(id, special, jdownloaderpath):
-    url = getURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(id))
+    url = getURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(id), configfile)
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     title = html_to_str(re.findall(r'>(.{1,85}?) &#', season_pool).pop())
 
-    rsscrawler = RssConfig('RSScrawler')
+    rsscrawler = RssConfig('RSScrawler', configfile)
 
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
@@ -630,9 +639,9 @@ def sj(id, special, jdownloaderpath):
     something_found = False
 
     for sXX, link in found_seasons.items():
-        config = RssConfig('SJ')
+        config = RssConfig('SJ', configfile)
         quality = config.get('quality')
-        url = getURL(link)
+        url = getURL(link, configfile)
         pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
                                        r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                             url)
@@ -746,14 +755,14 @@ def sj(id, special, jdownloaderpath):
                 "Staffelpack ", "").replace("Staffelpack.", "")
             dl_hoster = link[1]
             dl_link = link[2]
-            config = RssConfig('SJ')
+            config = RssConfig('SJ', configfile)
             hoster = re.compile(config.get('hoster'))
             db = RssDb(os.path.join(os.path.dirname(
                 sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
 
             if re.match(hoster, dl_hoster.lower()):
                 common.write_crawljob_file(
-                    dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler")
+                    dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler", configfile)
                 db.store(dl_title, 'added')
                 log_entry = '[Suche/Serie] - ' + dl_title + ' - <a href="' + dl_link + \
                             '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \

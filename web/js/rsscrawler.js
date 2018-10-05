@@ -19,7 +19,7 @@ app = angular.module('crwlApp', [])
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
-    })
+    });
 
     $scope.results = [
         {
@@ -32,7 +32,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 title: "Title",
             }
         }
-    ]
+    ];
 
     $scope.bools = [
         { value: true, label: 'Aktiviert' },
@@ -158,8 +158,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte nichts abrufen!');
                 showDanger('Konnte nichts abrufen!');
             });
-    };
-
+    }
     function getLogOnly() {
         $http.get('api/log/')
             .then(function (res) {
@@ -169,8 +168,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Log nicht abrufen!');
                 showDanger('Konnte Log nicht abrufen!');
             });
-    };
-
+    }
     function getSettingsOnly() {
         $http.get('api/settings/')
             .then(function (res) {
@@ -182,8 +180,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
             });
-    };
-
+    }
     function getListsOnly() {
         $http.get('api/lists/')
             .then(function (res) {
@@ -193,8 +190,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Listen nicht abrufen!');
                 showDanger('Konnte Listen nicht abrufen!');
             });
-    };
-
+    }
     function getVersionOnly() {
         $http.get('api/version/')
             .then(function (res) {
@@ -211,8 +207,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Version nicht abrufen!');
                 showDanger('Konnte Version nicht abrufen!');
             });
-    };
-
+    }
     function setLists() {
         spinLists();
         $http.post('api/lists/', $scope.lists, 'application/json')
@@ -224,8 +219,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Listen nicht speichern!');
                 showDanger('Konnte Listen nicht speichern!');
             });
-    };
-
+    }
     function setSettings() {
         spinSettings();
         $http.post('api/settings/', $scope.settings, 'application/json')
@@ -238,8 +232,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Einstellungen nicht speichern!');
                 showDanger('Konnte Einstellungen nicht speichern!');
             });
-    };
-
+    }
     function downloadMB(link) {
         $http.post('api/download_mb/' + link)
             .then(function (res) {
@@ -250,8 +243,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
             });
-    };
-
+    }
     function downloadSJ(id, special) {
         $http.post('api/download_sj/' + id + ";" + special)
             .then(function (res) {
@@ -262,8 +254,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
             });
-    };
-
+    }
     function deleteLog() {
         spinLog();
         $http.delete('api/log/')
@@ -275,11 +266,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Log nicht leeren!');
                 showDanger('Konnte Log nicht leeren!');
             });
-    };
-
+    }
     function searchNow() {
         spinSearch();
-        title = $scope.search
+        title = $scope.search;
         $http.get('api/search/' + title)
             .then(function (res) {
                 $scope.results = res.data.results;
@@ -292,13 +282,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte ' + title + ' nicht suchen!');
                 showDanger('Konnte  ' + title + ' nicht suchen!');
             });
-    };
-
+    }
     function showSearch() {
         $('.results').hide();
         $('.search').show();
-    };
-
+    }
     function resetTitle(title) {
         $http.delete('api/delete/' + title)
             .then(function (res) {
@@ -309,51 +297,43 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
                 showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
             });
-    };
-
+    }
     function scrollingTitle(titleText) {
         document.title = titleText;
         setTimeout(function () {
             scrollingTitle(titleText.substr(1) + titleText.substr(0, 1));
         }, 200);
-    };
-
+    }
     function showSuccess(message) {
-        $(".alert-success").html(message)
+        $(".alert-success").html(message);
         $(".alert-success").fadeTo(3000, 500).slideUp(500, function () {
             $(".alert-success").slideUp(500);
         });
-    };
-
+    }
     function showInfo(message) {
-        $(".alert-info").html(message)
+        $(".alert-info").html(message);
         $(".alert-info").fadeTo(10000, 500).slideUp(500, function () {
             $(".alert-info").slideUp(500);
         });
-    };
-
+    }
     function showDanger(message) {
-        $(".alert-danger").html(message)
+        $(".alert-danger").html(message);
         $(".alert-danger").fadeTo(5000, 500).slideUp(500, function () {
             $(".alert-danger").slideUp(500);
         });
-    };
+    }
     function spinSearch() {
         $("#spinner-search").fadeIn().delay(1000).fadeOut();
-    };
-
+    }
     function spinLog() {
         $("#spinner-log").fadeIn().delay(1000).fadeOut();
-    };
-
+    }
     function spinLists() {
         $("#spinner-lists").fadeIn().delay(1000).fadeOut();
-    };
-
+    }
     function spinSettings() {
         $("#spinner-settings").fadeIn().delay(1000).fadeOut();
-    };
-
+    }
     $scope.updateLog = function () {
         $timeout(function () {
             getLogOnly();

@@ -3,7 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import setuptools
-import glob
+
 from version import getVersion
 
 with open("README.md", "r", encoding='utf-8') as fh:
@@ -11,12 +11,6 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
-
-py_files = glob.glob("*.py")
-modules = []
-for f in py_files:
-    if not "setup.py" in f:
-        modules.append(f.replace(".py",""))
 
 setuptools.setup(
     name="rsscrawler",

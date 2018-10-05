@@ -23,15 +23,15 @@ log_error = logging.error
 log_debug = logging.debug
 
 
-def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir):
+def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir, configfile):
     try:
         crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
             re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
     except NameError:
         crawljob_file = crawljob_dir + '/%s.crawljob' % (
-            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())    
+            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
 
-    crawljobs = RssConfig('Crawljobs')
+    crawljobs = RssConfig('Crawljobs', configfile)
     autostart = crawljobs.get("autostart")
     usesubdir = crawljobs.get("subdir")
     if not usesubdir:

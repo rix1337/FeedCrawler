@@ -14,6 +14,7 @@ venv
 *.egg-info
 
 # RSScrawler files
+*.conf
 *.db
 *.log
 *.crawljob

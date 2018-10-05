@@ -10,7 +10,8 @@
 """RSScrawler.
 
 Usage:
-  RSScrawler.py [--testlauf]
+  RSScrawler.py [--config="<CFGPFAD>"]
+                [--testlauf]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-pfad="<JDPATH>"]
@@ -18,6 +19,7 @@ Usage:
                 [--log-level=<LOGLEVEL>]
 
 Options:
+  --config="<CFGPFAD>"      Legt den Ablageort für Einstellungen und Logs fest
   --testlauf                Einmalige Ausführung von RSScrawler
   --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
@@ -64,17 +66,21 @@ from web import start
 version = version.getVersion()
 
 
-def web_server(port, docker, jd, log_level, log_file, log_format):
-    start(port, docker, jd, log_level, log_file, log_format)
+def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format):
+    start(port, docker, jd, cfg, db, log_level, log_file, log_format)
 
 
-def crawler(jdpath, rssc, log_level, log_file, log_format):
+def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
     global added_items
     added_items = []
     global jdownloaderpath
     jdownloaderpath = jdpath
     global rsscrawler
     rsscrawler = rssc
+    global configfile
+    configfile = cfgfile
+    global dbfile
+    dbfile = dfile
 
     sys.stdout = Unbuffered(sys.stdout)
 
@@ -123,7 +129,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
     if not arguments['--testlauf']:
         while True:
             try:
-                checkURL()
+                checkURL(configfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 for task in search_pool:
@@ -148,7 +154,7 @@ def crawler(jdpath, rssc, log_level, log_file, log_format):
                 traceback.print_exc()
     else:
         try:
-            checkURL()
+            checkURL(configfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             for task in search_pool:
@@ -174,18 +180,16 @@ class YT:
     _INTERNAL_NAME = 'YT'
 
     def __init__(self):
-        self.config = RssConfig(self._INTERNAL_NAME)
+        self.config = RssConfig(self._INTERNAL_NAME, configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
         self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
 
     def readInput(self, liste):
-        cont = ListDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        cont = ListDb(os.path.join(dbfile), liste).retrieve()
         return cont if cont else ""
 
     def periodical_task(self):
@@ -209,16 +213,16 @@ class YT:
                 id_cutter = channel.rfind('list=') + 5
                 channel = channel[id_cutter:]
                 url = 'https://www.youtube.com/playlist?list=' + channel
-                response = getURL(url)
+                response = getURL(url, configfile)
             else:
                 url = 'https://www.youtube.com/user/' + channel + '/videos'
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
                 cnotfound = False
                 try:
-                    response = getURL(url)
+                    response = getURL(url, configfile)
                 except HTTPError:
                     try:
-                        response = getURL(urlc)
+                        response = getURL(urlc, configfile)
                     except HTTPError:
                         cnotfound = True
                     if cnotfound:
@@ -272,7 +276,8 @@ class YT:
                         "YouTube/" + channel,
                         download_link,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler"
+                        "RSScrawler",
+                        configfile
                     )
                     self.db.store(
                         video,
@@ -288,12 +293,11 @@ class DD:
     _INTERNAL_NAME = 'DD'
 
     def __init__(self):
-        self.config = RssConfig(self._INTERNAL_NAME)
+        self.config = RssConfig(self._INTERNAL_NAME, configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
@@ -301,7 +305,7 @@ class DD:
             feeds = feeds.replace(" ", "").split(',')
             hoster = re.compile(self.config.get("hoster"))
             for feed in feeds:
-                feed = feedparser.parse(getURL(feed))
+                feed = feedparser.parse(getURL(feed, configfile))
                 for post in feed.entries:
                     key = post.title.replace(" ", ".")
 
@@ -331,7 +335,8 @@ class DD:
                                 key,
                                 links,
                                 jdownloaderpath + "/folderwatch",
-                                "RSScrawler"
+                                "RSScrawler",
+                                configfile
                             )
                             self.db.store(
                                 key,
@@ -350,17 +355,15 @@ class DD:
 class SJ:
     def __init__(self, filename, internal_name):
         self._INTERNAL_NAME = internal_name
-        self.config = RssConfig(self._INTERNAL_NAME)
-        self.rsscrawler = RssConfig("RSScrawler")
+        self.config = RssConfig(self._INTERNAL_NAME, configfile)
+        self.rsscrawler = RssConfig("RSScrawler", configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
 
-        self.cdc = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'cdc')
+        self.cdc = RssDb(os.path.join(dbfile), 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
@@ -415,11 +418,12 @@ class SJ:
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 response = getURLObject(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), self.headers)
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile,
+                    self.headers)
                 feed = feedparser.parse(response.content)
             else:
                 response = getURLObject(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile,
                     self.headers)
                 feed = feedparser.parse(response.content)
             if response.status_code == 304:
@@ -430,10 +434,10 @@ class SJ:
         else:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 feed = feedparser.parse(getURL(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw=')))
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile))
             else:
                 feed = feedparser.parse(getURL(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw=')))
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile))
             header = False
 
         first_post_sj = feed.entries[0]
@@ -657,7 +661,7 @@ class SJ:
         self.parse_download(link, title, englisch)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
-        req_page = getURL(series_url)
+        req_page = getURL(series_url, configfile)
         soup = bs(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
@@ -672,7 +676,7 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        req_page = getURL(series_url)
+        req_page = getURL(series_url, configfile)
         soup = bs(req_page, 'lxml')
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
@@ -719,7 +723,7 @@ class SJ:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             common.write_crawljob_file(
-                title, title, links, jdownloaderpath + "/folderwatch", "RSScrawler")
+                title, title, links, jdownloaderpath + "/folderwatch", "RSScrawler", configfile)
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - <a href="' + link + \
                         '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
@@ -735,8 +739,7 @@ class SJ:
             loginfo = " (Staffeln)"
         elif type == 3:
             loginfo = " (Staffeln/RegEx)"
-        cont = ListDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        cont = ListDb(os.path.join(dbfile), liste).retrieve()
         titles = []
         if cont:
             for title in cont:
@@ -759,39 +762,37 @@ class BL:
     _INTERNAL_NAME = 'MB'
     MB_URL = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnL2ZlZWQv")
     MB_FEED_URLS = [MB_URL]
-    search = int(RssConfig(_INTERNAL_NAME).get("search"))
-    historical = False
-    if search == 99:
-        historical = True
-        search = 3
-    i = 2
-    while i <= search:
-        MB_FEED_URLS.append(MB_URL + "?paged=" + str(i))
-        i += 1
-
     HW_URL = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==")
     HW_FEED_URLS = [HW_URL]
-    i = 2
-    while i <= search:
-        HW_FEED_URLS.append(HW_URL + "?paged=" + str(i))
-        i += 1
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
-        self.config = RssConfig(self._INTERNAL_NAME)
-        self.rsscrawler = RssConfig("RSScrawler")
+        self.config = RssConfig(self._INTERNAL_NAME, configfile)
+        self.rsscrawler = RssConfig("RSScrawler", configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
-        self.db_retail = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'retail')
+        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
+        self.db_retail = RssDb(os.path.join(dbfile), 'retail')
         self.hoster = re.compile(self.config.get("hoster"))
 
-        self.cdc = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'cdc')
+        search = int(RssConfig(self._INTERNAL_NAME, configfile).get("search"))
+        self.historical = False
+        if search == 99:
+            self.historical = True
+            search = 3
+        i = 2
+        while i <= search:
+            self.MB_FEED_URLS.append(self.MB_URL + "?paged=" + str(i))
+            i += 1
+
+        i = 2
+        while i <= search:
+            self.HW_FEED_URLS.append(self.HW_URL + "?paged=" + str(i))
+            i += 1
+
+        self.cdc = RssDb(os.path.join(dbfile), 'cdc')
 
         self.last_set_mbhw = self.cdc.retrieve("MBHWSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
@@ -820,8 +821,7 @@ class BL:
         self.empty_list = False
 
     def readInput(self, liste):
-        cont = ListDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        cont = ListDb(os.path.join(dbfile), liste).retrieve()
         if not cont:
             self.empty_list = True
             return ""
@@ -1002,7 +1002,7 @@ class BL:
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
-        for (key, value, pattern) in self.dl_search(feedparser.parse(getURL(search_url)), feedsearch_title):
+        for (key, value, pattern) in self.dl_search(feedparser.parse(getURL(search_url, configfile)), feedsearch_title):
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
@@ -1029,7 +1029,8 @@ class BL:
                         key,
                         download_links,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler/Remux"
+                        "RSScrawler/Remux",
+                        configfile
                     )
                     self.db.store(
                         key,
@@ -1053,7 +1054,8 @@ class BL:
                         key,
                         download_links,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler/3Dcrawler"
+                        "RSScrawler/3Dcrawler",
+                        configfile
                     )
                     self.db.store(
                         key,
@@ -1073,7 +1075,8 @@ class BL:
                         key,
                         download_links,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler"
+                        "RSScrawler",
+                        configfile
                     )
                     self.db.store(
                         key,
@@ -1092,7 +1095,8 @@ class BL:
                         key,
                         download_links,
                         jdownloaderpath + "/folderwatch",
-                        "RSScrawler/Remux"
+                        "RSScrawler/Remux",
+                        configfile
                     )
                     self.db.store(
                         key,
@@ -1237,7 +1241,7 @@ class BL:
                     except:
                         break
                     search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = getURL(search_url)
+                    search_page = getURL(search_url, configfile)
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                         search_page)
@@ -1273,7 +1277,7 @@ class BL:
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                     elif len(download_imdb) > 0:
-                        details = getURL(download_imdb)
+                        details = getURL(download_imdb, configfile)
                         if not details:
                             self.log_debug(
                                 "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
@@ -1292,7 +1296,7 @@ class BL:
                             continue
                 if len(download_imdb) > 0:
                     if len(details) == 0:
-                        details = getURL(download_imdb)
+                        details = getURL(download_imdb, configfile)
                     if not details:
                         self.log_debug(
                             "%s - Release ignoriert (Film zu alt)" % post.title)
@@ -1350,7 +1354,7 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
                 elif len(download_imdb) > 0:
-                    details = getURL(download_imdb)
+                    details = getURL(download_imdb, configfile)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1387,7 +1391,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler"
+                    "RSScrawler",
+                    configfile
                 )
                 self.db.store(
                     key,
@@ -1416,7 +1421,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler"
+                    "RSScrawler/3Dcrawler",
+                    configfile
                 )
                 self.db.store(
                     key,
@@ -1484,7 +1490,7 @@ class BL:
                     search_title = re.findall(
                         r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                     search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = getURL(search_url)
+                    search_page = getURL(search_url, configfile)
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                         search_page)
@@ -1517,7 +1523,7 @@ class BL:
                     if isinstance(imdb_id, list):
                         imdb_id = imdb_id.pop()
                     imdb_url = "http://www.imdb.com/title/" + imdb_id
-                    details = getURL(imdb_url)
+                    details = getURL(imdb_url, configfile)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1554,7 +1560,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler"
+                    "RSScrawler",
+                    configfile
                 )
                 self.db.store(
                     key,
@@ -1585,7 +1592,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler"
+                    "RSScrawler/3Dcrawler",
+                    configfile
                 )
                 self.db.store(
                     key,
@@ -1603,7 +1611,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler"
+                    "RSScrawler",
+                    configfile
                 )
                 self.db.store(
                     key.replace(".COMPLETE", "").replace(
@@ -1625,7 +1634,8 @@ class BL:
                     key,
                     download_links,
                     jdownloaderpath + "/folderwatch",
-                    "RSScrawler"
+                    "RSScrawler",
+                    configfile
                 )
                 self.db.store(
                     key,
@@ -1704,8 +1714,8 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_mb = getURLObject(mb_urls[0], self.headers_mb)
-        first_hw = getURLObject(hw_urls[0], self.headers_hw)
+        first_mb = getURLObject(mb_urls[0], configfile, self.headers_mb)
+        first_hw = getURLObject(hw_urls[0], configfile, self.headers_hw)
         first_page_mb = feedparser.parse(first_mb.content)
         first_page_hw = feedparser.parse(first_hw.content)
 
@@ -1782,7 +1792,7 @@ class BL:
                         if i == 0:
                             mb_parsed_url = first_page_mb
                         else:
-                            mb_parsed_url = feedparser.parse(getURL(url))
+                            mb_parsed_url = feedparser.parse(getURL(url, configfile))
                         self.imdb_search(imdb, mb_parsed_url, "MB")
                         i += 1
                 i = 0
@@ -1791,7 +1801,7 @@ class BL:
                         if i == 0:
                             hw_parsed_url = first_page_hw
                         else:
-                            hw_parsed_url = feedparser.parse(getURL(url))
+                            hw_parsed_url = feedparser.parse(getURL(url, configfile))
                         self.imdb_search(imdb, hw_parsed_url, "HW")
                         i += 1
         else:
@@ -1801,7 +1811,7 @@ class BL:
                     if i == 0:
                         mb_parsed_url = first_page_mb
                     else:
-                        mb_parsed_url = feedparser.parse(getURL(url))
+                        mb_parsed_url = feedparser.parse(getURL(url, configfile))
                     for (key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
                         self.feed_download(key, value)
                     i += 1
@@ -1811,7 +1821,7 @@ class BL:
                     if i == 0:
                         hw_parsed_url = first_page_hw
                     else:
-                        hw_parsed_url = feedparser.parse(getURL(url))
+                        hw_parsed_url = feedparser.parse(getURL(url, configfile))
                     for (key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
                         self.feed_download(key, value)
                         i += 1
@@ -1838,24 +1848,32 @@ class BL:
 def main():
     arguments = docopt(__doc__, version='RSScrawler')
 
-    log_level = logging.__dict__[
-        arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
-    log_file = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.log')
-    log_format = '%(asctime)s - %(message)s'
-
     print("┌────────────────────────────────────────────────────────┐")
     print("  Programminfo:    RSScrawler " + version + " von RiX")
     print("  Projektseite:    https://github.com/rix1337/RSScrawler")
     print("└────────────────────────────────────────────────────────┘")
 
-    if not os.path.exists(os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')):
+    if arguments['--docker']:
+        configpath = "/config"
+    else:
+        configpath = files.config(arguments['--config'])
+    configfile = os.path.join(configpath, "RSScrawler.ini")
+    dbfile = os.path.join(configpath, "RSScrawler.db")
+
+    print("Nutze das Verzeichnis " + configpath + " für Einstellungen/Logs")
+
+    log_level = logging.__dict__[
+        arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
+    log_file = os.path.join(configpath, 'RSScrawler.log')
+    log_format = '%(asctime)s - %(message)s'
+
+    if not os.path.exists(os.path.join(configpath, 'RSScrawler.ini')):
         if not arguments['--jd-pfad']:
             if arguments['--port']:
-                files.startup(
+                files.startup(configfile,
                     "Muss unbedingt vergeben werden!", arguments['--port'])
             else:
-                files.startup("Muss unbedingt vergeben werden!", "9090")
-                print('Der Ordner "Einstellungen" wurde erstellt.')
+                files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
                 print(
                     'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(
@@ -1864,20 +1882,19 @@ def main():
                 sys.exit(0)
         else:
             if arguments['--port']:
-                files.startup(arguments['--jd-pfad'], arguments['--port'])
+                files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
             else:
-                files.startup(arguments['--jd-pfad'], "9090")
-                print('Der Ordner "Einstellungen" wurde erstellt.')
+                files.startup(configfile, arguments['--jd-pfad'], "9090")
                 print(
                     'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
     elif arguments['--jd-pfad'] and arguments['--port']:
-        files.startup(arguments['--jd-pfad'], arguments['--port'])
+        files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
     elif arguments['--jd-pfad']:
-        files.startup(arguments['--jd-pfad'], None)
+        files.startup(configfile, arguments['--jd-pfad'], None)
     elif arguments['--port']:
-        files.startup(None, arguments['--port'])
+        files.startup(configfile, None, arguments['--port'])
 
-    rsscrawler = RssConfig('RSScrawler')
+    rsscrawler = RssConfig('RSScrawler', configfile)
 
     if arguments['--jd-pfad']:
         jdownloaderpath = arguments['--jd-pfad']
@@ -1930,14 +1947,14 @@ def main():
 
     if arguments['--cdc-reset']:
         print("CDC-Tabelle geleert!")
-        RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), 'cdc').reset()
+        RssDb(os.path.join(dbfile), 'cdc').reset()
 
     p = Process(target=web_server, args=(
-        port, docker, jdownloaderpath, log_level, log_file, log_format))
+        port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format))
     p.start()
 
     if not arguments['--testlauf']:
-        c = Process(target=crawler, args=(jdownloaderpath,
+        c = Process(target=crawler, args=(jdownloaderpath, configfile, dbfile,
                                           rsscrawler, log_level, log_file, log_format,))
         c.start()
 
