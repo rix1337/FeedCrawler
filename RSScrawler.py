@@ -142,7 +142,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                     total_time = total_time / 60
                     total_unit = " Minuten"
                 total_time = str(round(total_time, 1)) + total_unit
-                notify(added_items)
+                notify(added_items, configfile)
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
@@ -167,7 +167,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 total_time = total_time / 60
                 total_unit = " Minuten"
             total_time = str(round(total_time, 1)) + total_unit
-            notify(added_items)
+            notify(added_items, configfile)
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
@@ -1977,7 +1977,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(jdownloaderpath, rsscrawler, log_level, log_file, log_format)
+        crawler(jdownloaderpath, configfile, dbfile, rsscrawler, log_level, log_file, log_format)
         p.terminate()
         sys.exit(0)
 

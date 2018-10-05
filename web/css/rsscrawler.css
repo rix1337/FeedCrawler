@@ -21,7 +21,7 @@ body {
 }
 
 .container {
-    box-shadow: 0px 0px 5px 5px grey;
+    box-shadow: 0 0 5px 5px grey;
     margin-top: 1em;
     margin-bottom: 2em;
     padding: 0.5em;
@@ -39,7 +39,7 @@ body {
 }
 
 .tooltip-inner {
-    border-radius: 0px;
+    border-radius: 0;
     max-width: 60em;
 }
 
@@ -55,7 +55,3 @@ body {
     max-width: 20em;
 }
 
-#logo {
-    height: 5em;
-    width: 5em;
-}

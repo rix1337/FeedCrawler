@@ -28,7 +28,7 @@ from url import getURL
 from url import postURL
 
 
-def get(title):
+def get(title, configfile):
     specific_season = re.match(r'^(.*);(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*);(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
@@ -57,7 +57,7 @@ def get(title):
     for result in mb:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
             unrated.append(
-                [rate(result[0]), result[1].replace("/", "+"), result[0]])
+                [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
 
     if config.get("crawl3d"):
         mb = getURL(
@@ -67,7 +67,7 @@ def get(title):
         for result in mb:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                 unrated.append(
-                    [rate(result[0]), result[1].replace("/", "+"), result[0]])
+                    [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
 
     rated = sorted(unrated, reverse=True)
 
@@ -118,7 +118,7 @@ def get(title):
     return mb, sj
 
 
-def rate(title):
+def rate(title, configfile):
     score = 0
     if ".bluray." in title.lower():
         score += 7
@@ -180,7 +180,7 @@ def html_to_str(unescape):
     return HTMLParser().unescape(unescape)
 
 
-def best_result_mb(title):
+def best_result_mb(title, configfile):
     title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
         u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß',
                                                                                                             'ss').replace(
@@ -188,7 +188,7 @@ def best_result_mb(title):
                                                                                                                '').replace(
         '!', '').replace(':', '').replace('  ', ' ').replace("'", '')
     try:
-        mb_results = get(title)[0]
+        mb_results = get(title, configfile)[0]
     except:
         return False
     results = []
@@ -234,9 +234,9 @@ def best_result_mb(title):
     return best_link
 
 
-def best_result_sj(title):
+def best_result_sj(title, configfile):
     try:
-        sj_results = get(title)[1]
+        sj_results = get(title, configfile)[1]
     except:
         return False
     results = []
@@ -266,7 +266,7 @@ def best_result_sj(title):
     return best_id
 
 
-def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
+def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile):
     search_title = \
         title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                     ".German.DTS.DL.1080p.").replace(
@@ -327,7 +327,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
-                notify(notify_array)
+                notify(notify_array, configfile)
                 return True
             elif '.3d.' in key.lower():
                 retail = False
@@ -353,7 +353,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
-                notify(notify_array)
+                notify(notify_array, configfile)
                 return True
             else:
                 retail = False
@@ -383,7 +383,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config):
                             key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
-                notify(notify_array)
+                notify(notify_array, configfile)
                 return True
 
 
@@ -395,7 +395,7 @@ def dl_search(feed, title):
             yield (post.title, [post.link], title)
 
 
-def mb(link, jdownloaderpath):
+def mb(link, jdownloaderpath, configfile):
     link = link.replace("+", "/")
     url = getURL(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile)
     config = RssConfig('MB', configfile)
@@ -465,7 +465,7 @@ def mb(link, jdownloaderpath):
                     logging.debug(
                         "%s - Keine passende Film-IMDB-Seite gefunden" % key)
         if not imdb_id:
-            if not download_dl(key, jdownloaderpath, hoster, staffel, db, config):
+            if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile):
                 logging.debug(
                     "%s - Kein zweisprachiges Release gefunden." % key)
         else:
@@ -483,7 +483,7 @@ def mb(link, jdownloaderpath):
                 logging.debug(
                     "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
             else:
-                if not download_dl(key, jdownloaderpath, hoster, staffel, db, config) and not englisch:
+                if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile) and not englisch:
                     logging.debug(
                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
 
@@ -512,7 +512,7 @@ def mb(link, jdownloaderpath):
                             "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
-            notify(notify_array)
+            notify(notify_array, configfile)
             return True
         elif '.3d.' in key.lower():
             retail = False
@@ -538,7 +538,7 @@ def mb(link, jdownloaderpath):
                         key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
-            notify(notify_array)
+            notify(notify_array, configfile)
             return True
         else:
             retail = False
@@ -569,13 +569,13 @@ def mb(link, jdownloaderpath):
                         key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
             logging.info(log_entry)
             notify_array.append(log_entry)
-            notify(notify_array)
+            notify(notify_array, configfile)
             return True
     else:
         return False
 
 
-def sj(id, special, jdownloaderpath):
+def sj(id, special, jdownloaderpath, configfile):
     url = getURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(id), configfile)
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
@@ -680,7 +680,7 @@ def sj(id, special, jdownloaderpath):
             links = []
             for x in pakete:
                 title = x[0]
-                score = rate(title)
+                score = rate(title, configfile)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 if special:
                     if special.lower() in title.lower():
@@ -698,7 +698,7 @@ def sj(id, special, jdownloaderpath):
             links = []
             for x in folgen:
                 title = x[0]
-                score = rate(title)
+                score = rate(title, configfile)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 if special:
                     if special.lower() in title.lower():
@@ -716,7 +716,7 @@ def sj(id, special, jdownloaderpath):
             links = []
             for x in lq_pakete:
                 title = x[0]
-                score = rate(title)
+                score = rate(title, configfile)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 if special:
                     if special.lower() in title.lower():
@@ -734,7 +734,7 @@ def sj(id, special, jdownloaderpath):
             links = []
             for x in lq_folgen:
                 title = x[0]
-                score = rate(title)
+                score = rate(title, configfile)
                 hoster = [[x[2], x[1]], [x[4], x[3]]]
                 if special:
                     if special.lower() in title.lower():
@@ -771,7 +771,7 @@ def sj(id, special, jdownloaderpath):
                 notify_array.append(log_entry)
         if len(best_matching_links) > 0:
             something_found = True
-        notify(notify_array)
+        notify(notify_array, configfile)
     if not something_found:
         return False
     return True

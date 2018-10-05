@@ -423,7 +423,7 @@ def delete_title(title):
 @app.route(prefix + "/api/search/<title>", methods=['GET'])
 def search_title(title):
     if request.method == 'GET':
-        results = search.get(title)
+        results = search.get(title, configfile)
         return jsonify(
             {
                 "results": {
@@ -439,8 +439,8 @@ def search_title(title):
 @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
 def download_movie(title):
     if request.method == 'POST':
-        best_result = search.best_result_mb(title)
-        if best_result and search.mb(best_result, jdpath):
+        best_result = search.best_result_mb(title, configfile)
+        if best_result and search.mb(best_result, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -457,8 +457,8 @@ def download_show(title):
     else:
         special = None
     if request.method == 'POST':
-        best_result = search.best_result_sj(title)
-        if best_result and search.sj(best_result, special, jdpath):
+        best_result = search.best_result_sj(title, configfile)
+        if best_result and search.sj(best_result, special, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -469,7 +469,7 @@ def download_show(title):
 @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
 def download_mb(permalink):
     if request.method == 'POST':
-        if search.mb(permalink, jdpath):
+        if search.mb(permalink, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400
@@ -485,7 +485,7 @@ def download_sj(info):
     if special == "null":
         special = None
     if request.method == 'POST':
-        if search.sj(id, special, jdpath):
+        if search.sj(id, special, jdpath, configfile):
             return "Success", 200
         else:
             return "Failed", 400

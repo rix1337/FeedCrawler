@@ -30,7 +30,7 @@ def api_request_cutter(l, n):
         yield l[i:i + n]
 
 
-def notify(added_items):
+def notify(added_items, configfile):
     notifications = RssConfig('Notifications', configfile)
     homeassistant_settings = notifications.get("homeassistant").split(',')
     pushbullet_token = notifications.get("pushbullet")
