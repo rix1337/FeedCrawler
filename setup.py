@@ -3,13 +3,13 @@
 # Projekt von https://github.com/rix1337
 
 import glob
-
-import pypandoc
 import setuptools
+import six
 
 py = []
 for h in glob.glob("*.py"):
     py.append(h.replace("\\", "/"))
+py.append("requirements.txt")
 web = ["web/index.html"]
 web_css = []
 for i in glob.glob("web/css/*"):
@@ -24,16 +24,13 @@ for k in glob.glob("web/js/*"):
 
 from version import getVersion
 
-try:
-    long_description = pypandoc.convert('README.md', 'rst')
-    long_description = long_description.replace("\r", "")  # Do not forget this line
-except OSError:
-    print("Pandoc not found. Long_description conversion failure.")
-    import io
 
-    # pandoc is not installed, fallback to using raw contents
-    with io.open('README.md', encoding="utf-8") as f:
+try:
+    with open('README.md', encoding='utf-8') as f:
         long_description = f.read()
+except:
+    import io
+    long_description = io.open('README.md', encoding='utf-8').read()
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
