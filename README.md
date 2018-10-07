@@ -28,6 +28,7 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 
 Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP).
 
+
 ## Installation
 
 ```pip install rsscrawler```
