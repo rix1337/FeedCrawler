@@ -7,9 +7,9 @@ import sys
 
 import cfscrape
 
-from common import decode_base64
-from rssconfig import RssConfig
-from rssdb import RssDb
+from rsscrawler.common import decode_base64
+from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import RssDb
 
 
 def checkURL(configfile):

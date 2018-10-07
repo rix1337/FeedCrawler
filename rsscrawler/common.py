@@ -14,9 +14,9 @@ import sys
 
 import six
 
-from rssconfig import RssConfig
-from rssdb import ListDb
-from rssdb import RssDb
+from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
 
 log_info = logging.info
 log_error = logging.error

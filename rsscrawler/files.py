@@ -7,7 +7,7 @@ import sys
 
 import six
 
-from rssconfig import RssConfig
+from rsscrawler.rssconfig import RssConfig
 
 
 def config(configpath):

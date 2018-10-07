@@ -19,7 +19,6 @@ venv
 *.log
 *.crawljob
 *.ini
-*.txt
 *.journal
 *.zip
 *.1
