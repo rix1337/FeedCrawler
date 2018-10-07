@@ -246,7 +246,7 @@ class YT:
             for link in links[:maxvideos]:
                 if len(link[0]) > 10:
                     videos.append(
-                        [link[0].encode('ascii', 'replace'), link[1], channel])
+                        [link[0], link[1], channel])
 
         for video in videos:
             channel = video[2]
