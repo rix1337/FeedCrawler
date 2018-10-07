@@ -40,6 +40,16 @@ def config(configpath):
     return configpath
 
 
+def jd_input(configfile, port=None):
+    print("Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
+    jdownloaderpath = six.moves.input("Pfad angeben:")
+    if len(jdownloaderpath) > 0 and port:
+        startup(configfile, jdownloaderpath, port)
+    elif len(jdownloaderpath) > 0:
+        startup(configfile, jdownloaderpath, '9090')
+    return jdownloaderpath
+
+
 def startup(configfile, jdownloader=None, port=None):
     if jdownloader or port:
         sections = ['RSScrawler', 'MB', 'SJ', 'DD',
