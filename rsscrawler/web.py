@@ -16,25 +16,34 @@ import gevent
 from flask import Flask, request, send_from_directory, render_template, jsonify
 from gevent.pywsgi import WSGIServer
 
-from output import CutLog
-from output import Unbuffered
-import version
+from rsscrawler import search
+from rsscrawler import version
+from rsscrawler.output import CutLog
+from rsscrawler.output import Unbuffered
+from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
 
-def app_container(configfile, port, no_logger):
-    import search
-    from rssconfig import RssConfig
-    from rssdb import ListDb
-    from rssdb import RssDb
 
+def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger):
     app = Flask(__name__, template_folder='web')
 
-    general = RssConfig('RSScrawler', configfile)
-    if general.get("prefix"):
-        prefix = '/' + general.get("prefix")
+    configfile = "RSScrawler.conf"
+    if os.path.exists(configfile):
+        f = open(configfile, "r")
+        configfile = os.path.join(f.readline(), 'RSScrawler.ini')
     else:
+        configfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')
+    if not os.path.exists(configfile):
         prefix = ""
-
-
+    else:
+        general = RssConfig('RSScrawler', configfile)
+        if general.get("prefix"):
+            prefix = '/' + general.get("prefix")
+        else:
+            prefix = ""
+    
+    
     def to_int(i):
         if six.PY3:
             if isinstance(i, bytes):
@@ -42,25 +51,20 @@ def app_container(configfile, port, no_logger):
         i = i.strip().replace("None", "")
         return int(i) if i else ""
 
-
     def to_float(i):
         i = i.strip().replace("None", "")
         return float(i) if i else ""
 
-
     def to_str(i):
         return '' if i is None else str(i)
-
 
     @app.route(prefix + '/<path:path>')
     def send_html(path):
         return send_from_directory('web', path)
 
-
     @app.route(prefix + '/')
     def index():
         return render_template('index.html')
-
 
     @app.route(prefix + "/api/all/", methods=['GET'])
     def get_all():
@@ -81,8 +85,8 @@ def app_container(configfile, port, no_logger):
             else:
                 updateready = False
             log = ''
-            if os.path.isfile(lgfile):
-                logfile = open(os.path.join(lgfile))
+            if os.path.isfile(log_file):
+                logfile = open(os.path.join(log_file))
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
                     output.write("<p>" + line.replace("\n", "</p>"))
@@ -177,13 +181,12 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
     def get_delete_log():
         if request.method == 'GET':
             log = ''
-            if os.path.isfile(lgfile):
-                logfile = open(os.path.join(lgfile))
+            if os.path.isfile(log_file):
+                logfile = open(os.path.join(log_file))
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
                     output.write("<p>" + line.replace("\n", "</p>"))
@@ -194,11 +197,10 @@ def app_container(configfile, port, no_logger):
                 }
             )
         if request.method == 'DELETE':
-            open(lgfile, 'w').close()
+            open(log_file, 'w').close()
             return "Success", 200
         else:
             return "Failed", 405
-
 
     @app.route(prefix + "/api/settings/", methods=['GET', 'POST'])
     def get_post_settings():
@@ -378,7 +380,6 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     @app.route(prefix + "/api/version/", methods=['GET'])
     def get_version():
         if request.method == 'GET':
@@ -402,7 +403,6 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
     def delete_title(title):
         if request.method == 'DELETE':
@@ -411,7 +411,6 @@ def app_container(configfile, port, no_logger):
             return "Success", 200
         else:
             return "Failed", 405
-
 
     @app.route(prefix + "/api/search/<title>", methods=['GET'])
     def search_title(title):
@@ -428,7 +427,6 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
     def download_movie(title):
         if request.method == 'POST':
@@ -439,7 +437,6 @@ def app_container(configfile, port, no_logger):
                 return "Failed", 400
         else:
             return "Failed", 405
-
 
     @app.route(prefix + "/api/download_show/<title>", methods=['POST'])
     def download_show(title):
@@ -458,7 +455,6 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
     def download_mb(permalink):
         if request.method == 'POST':
@@ -468,7 +464,6 @@ def app_container(configfile, port, no_logger):
                 return "Failed", 400
         else:
             return "Failed", 405
-
 
     @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
     def download_sj(info):
@@ -484,7 +479,6 @@ def app_container(configfile, port, no_logger):
                 return "Failed", 400
         else:
             return "Failed", 405
-
 
     @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
     def get_post_lists():
@@ -533,27 +527,16 @@ def app_container(configfile, port, no_logger):
         else:
             return "Failed", 405
 
-
     def get_list(liste):
         cont = ListDb(dbfile, liste).retrieve()
         return "\n".join(cont) if cont else ""
+
 
     http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()
 
 
-def start(port, docker_arg, jd, cfg, db, log_level, log_file, log_format):
-    global docker
-    docker = docker_arg
-    global jdpath
-    jdpath = jd
-    global configfile
-    configfile = cfg
-    global dbfile
-    dbfile = db
-    global lgfile
-    lgfile = log_file
-
+def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_format):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
@@ -581,7 +564,6 @@ def start(port, docker_arg, jd, cfg, db, log_level, log_file, log_format):
     logging.getLogger("requests").setLevel(logging.WARNING)
     logging.getLogger("urllib3").setLevel(logging.WARNING)
 
-    # Disable both log and exceptions in the gevent WSGIServer
     no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
     gevent.hub.Hub.NOT_ERROR = (Exception,)
 
@@ -590,4 +572,4 @@ def start(port, docker_arg, jd, cfg, db, log_level, log_file, log_format):
         print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(configfile, port, no_logger)
+    app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)

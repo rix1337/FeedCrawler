@@ -48,21 +48,26 @@ from dateutil import parser
 from docopt import docopt
 from six.moves.urllib.error import HTTPError
 
-import common
-import files
-import version
-from common import decode_base64
-from notifiers import notify
-from output import CutLog
-from output import Unbuffered
-from rssconfig import RssConfig
-from rssdb import ListDb
-from rssdb import RssDb
-from url import checkURL
-from url import getURL
-from url import getURLObject
+from rsscrawler import common
+from rsscrawler import files
+from rsscrawler import version
+from rsscrawler.common import decode_base64
+from rsscrawler.notifiers import notify
+from rsscrawler.output import CutLog
+from rsscrawler.output import Unbuffered
+from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
+from rsscrawler.url import checkURL
+from rsscrawler.url import getURL
+from rsscrawler.url import getURLObject
+from rsscrawler.web import start
 
 version = version.getVersion()
+
+
+def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format):
+    start(port, docker, jd, cfg, db, log_level, log_file, log_format)
 
 
 def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
@@ -1944,9 +1949,7 @@ def main():
         print("CDC-Tabelle geleert!")
         RssDb(os.path.join(dbfile), 'cdc').reset()
 
-    from web import start
-
-    p = Process(target=start, args=(
+    p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format))
     p.start()
 
