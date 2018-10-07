@@ -2,30 +2,32 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import glob
-import io
-
 import setuptools
-
-web = ["web/index.html"]
-web_css = []
-for i in glob.glob("web/css/*"):
-    web_css.append(i.replace("\\", "/"))
-web_img = []
-for h in glob.glob("web/img/*"):
-    web_img.append(h.replace("\\", "/"))
-web_js = []
-for j in glob.glob("web/js/*"):
-    web_js.append(j.replace("\\", "/"))
-
 
 from version import getVersion
 
-with io.open('README.md', encoding='utf-8') as f:
-    long_description = '\n' + f.read()
+try:
+    with open('README.md', encoding='utf-8') as f:
+        long_description = f.read()
+except:
+    import io
+    long_description = io.open('README.md', encoding='utf-8').read()
 
 with open('requirements.txt') as f:
     required = f.read().splitlines()
+
+
+def package_files(directory):
+    import os
+    paths = []
+    for (path, directories, filenames) in os.walk(directory):
+        for filename in filenames:
+            paths.append(os.path.join(path, filename))
+    return paths
+
+
+extra_files = package_files('web')
+
 
 setuptools.setup(
     name="rsscrawler",
@@ -36,11 +38,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rix1337/RSScrawler",
-    packages=setuptools.find_packages(),
-    data_files=[('web', web),
-                ('web/css', web_css),
-                ('web/img', web_img),
-                ('web/js', web_js)],
+    packages=['.'],
+    package_data={'.': extra_files},
     install_requires=required,
     zip_safe=False,
     classifiers=[
