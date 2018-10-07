@@ -13,7 +13,7 @@ from six.moves.urllib.error import HTTPError
 from six.moves.urllib.parse import urlencode
 from six.moves.urllib.request import urlopen, Request
 
-from rssconfig import RssConfig
+from rsscrawler.rssconfig import RssConfig
 
 try:
     import simplejson as json

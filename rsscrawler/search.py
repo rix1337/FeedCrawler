@@ -18,14 +18,14 @@ import six
 from bs4 import BeautifulSoup as bs
 from fuzzywuzzy import fuzz
 
-import common
-from common import decode_base64
-from notifiers import notify
-from rssconfig import RssConfig
-from rssdb import ListDb
-from rssdb import RssDb
-from url import getURL
-from url import postURL
+from rsscrawler import common
+from rsscrawler.common import decode_base64
+from rsscrawler.notifiers import notify
+from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
+from rsscrawler.url import getURL
+from rsscrawler.url import postURL
 
 
 def get(title, configfile):

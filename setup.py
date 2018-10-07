@@ -3,8 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import setuptools
-
-from version import getVersion
+from rsscrawler.version import getVersion
 
 try:
     with open('README.md', encoding='utf-8') as f:
@@ -16,19 +15,6 @@ except:
 with open('requirements.txt') as f:
     required = f.read().splitlines()
 
-
-def package_files(directory):
-    import os
-    paths = []
-    for (path, directories, filenames) in os.walk(directory):
-        for filename in filenames:
-            paths.append(os.path.join(path, filename))
-    return paths
-
-
-extra_files = package_files('web')
-
-
 setuptools.setup(
     name="rsscrawler",
     version=getVersion().replace("v.",""),
@@ -38,8 +24,8 @@ setuptools.setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rix1337/RSScrawler",
-    packages=['.'],
-    package_data={'.': extra_files},
+    packages=setuptools.find_packages(),
+    include_package_data=True,
     install_requires=required,
     zip_safe=False,
     classifiers=[
@@ -50,7 +36,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'rsscrawler = RSScrawler:main',
+            'rsscrawler = rsscrawler.RSScrawler:main',
         ],
 },
 )
