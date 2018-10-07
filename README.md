@@ -42,7 +42,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 ```rsscrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
-## Startparameter:
+## Startparameter
 
   ```--config="<CFGPFAD>"```      Legt den Ablageort für Einstellungen und Logs fest
 
