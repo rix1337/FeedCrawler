@@ -1869,7 +1869,9 @@ def main():
 
     if not os.path.exists(os.path.join(configpath, 'RSScrawler.ini')):
         if not arguments['--jd-pfad']:
-            if arguments['--port']:
+            if files.jd_input(configfile, arguments['--port']):
+                print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+            elif arguments['--port']:
                 files.startup(configfile,
                     "Muss unbedingt vergeben werden!", arguments['--port'])
             else:
@@ -1908,24 +1910,32 @@ def main():
 
     if arguments['--docker']:
         print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
-
-    if jdownloaderpath == 'Muss unbedingt vergeben werden!':
-        print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-        print(u'Weiterhin sollten die Listen entsprechend der README.md gefüllt werden!')
-        print('Beende RSScrawler...')
-        sys.exit(0)
+    elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
+        if files.jd_input(configfile, arguments['--port']):
+            print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+            jdownloaderpath = rsscrawler.get("jdownloader")
+            jdownloaderpath = jdownloaderpath.replace("\\", "/")
+            jdownloaderpath = jdownloaderpath[:-
+            1] if jdownloaderpath.endswith('/') else jdownloaderpath
+        else:
+            print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+            print('Diese liegt unter ' + configfile)
+            print('Beende RSScrawler...')
+            sys.exit(0)
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
           jdownloaderpath + u'" für Crawljobs')
 
     if not os.path.exists(jdownloaderpath):
         print('Der Pfad des JDownloaders existiert nicht.')
+        rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
         print('Beende RSScrawler...')
         sys.exit(0)
 
     if not os.path.exists(jdownloaderpath + "/folderwatch"):
         print(
             u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+        rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
         print('Beende RSScrawler...')
         sys.exit(0)
 
