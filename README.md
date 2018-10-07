@@ -28,7 +28,6 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 
 Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP).
 
-
 ## Installation
 
 ```pip install rsscrawler```
@@ -43,7 +42,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 ```rsscrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
-## Startparameter
+## Startparameter:
 
   ```--config="<CFGPFAD>"```      Legt den Ablageort für Einstellungen und Logs fest
 

@@ -27,19 +27,13 @@ from rssdb import RssDb
 app = Flask(__name__, template_folder='web')
 
 configfile = "RSScrawler.conf"
-if os.path.exists(configfile):
-    f = open(configfile, "r")
-    configfile = os.path.join(f.readline(), 'RSScrawler.ini')
+f = open(configfile, "r")
+configfile = os.path.join(f.readline(), 'RSScrawler.ini')
+general = RssConfig('RSScrawler', configfile)
+if general.get("prefix"):
+    prefix = '/' + general.get("prefix")
 else:
-    configfile = os.path.join(os.path.dirname(sys.argv[0]), 'RSScrawler.ini')
-if not os.path.exists(configfile):
     prefix = ""
-else:
-    general = RssConfig('RSScrawler', configfile)
-    if general.get("prefix"):
-        prefix = '/' + general.get("prefix")
-    else:
-        prefix = ""
 
 
 def to_int(i):

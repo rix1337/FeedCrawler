@@ -61,13 +61,8 @@ from rssdb import RssDb
 from url import checkURL
 from url import getURL
 from url import getURLObject
-from web import start
 
 version = version.getVersion()
-
-
-def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format):
-    start(port, docker, jd, cfg, db, log_level, log_file, log_format)
 
 
 def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
@@ -1949,7 +1944,9 @@ def main():
         print("CDC-Tabelle geleert!")
         RssDb(os.path.join(dbfile), 'cdc').reset()
 
-    p = Process(target=web_server, args=(
+    from web import start
+
+    p = Process(target=start, args=(
         port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format))
     p.start()
 
