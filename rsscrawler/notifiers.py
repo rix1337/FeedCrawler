@@ -82,7 +82,7 @@ def Pushbullet(items, token):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' % token).replace('\n', '')
+    auth = base64.encodestring(('%s:' % token).encode()).decode().replace('\n', '')
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)
