@@ -82,6 +82,7 @@ def Pushbullet(items, token):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
+    # TODO fix this notifier
     auth = base64.encodestring('%s:' % token).replace('\n', '')
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
