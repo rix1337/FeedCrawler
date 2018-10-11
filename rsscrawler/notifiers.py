@@ -4,7 +4,6 @@
 # Enthält Code von:
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
-import base64
 import logging
 import re
 
@@ -61,6 +60,10 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
+
+    if six.PY3:
+        data = data.encode("utf-8")
+
     try:
         req = Request(homassistant_url, data)
         req.add_header('X-HA-Access', homeassistant_password)
@@ -82,10 +85,13 @@ def Pushbullet(items, token):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    auth = base64.encodestring('%s:' % token).replace('\n', '')
+
+    if six.PY3:
+        data = data.encode("utf-8")
+
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
-        req.add_header('Authorization', 'Basic %s' % auth)
+        req.add_header('Access-Token', token)
         response = urlopen(req)
     except HTTPError:
         log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
