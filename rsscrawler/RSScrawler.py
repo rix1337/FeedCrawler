@@ -681,9 +681,17 @@ class SJ:
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
+        if not title:
+            try:
+                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets).pop()
+                escape_brackets_pack = escape_brackets.replace(episode, "")
+                title = soup.find(text=re.compile(escape_brackets_pack))
+            except:
+                title = False
+                self.log_debug(title + " - Kein Link gefunden")
         if title:
             if self.filename == 'MB_Staffeln':
-                valid = re.search(self.seasonssource, title.lower())
+                valid = re.search(self.seasonssource, search_title.lower())
             else:
                 valid = True
             if valid:
@@ -695,11 +703,11 @@ class SJ:
                         links.append(url_hoster[0])
                 if not links:
                     self.log_debug(
-                        "%s - Release ignoriert (kein passender Link gefunden)" % title)
+                        "%s - Release ignoriert (kein passender Link gefunden)" % search_title)
                 else:
-                    self.send_package(title, links, englisch)
+                    self.send_package(search_title, links, englisch)
             else:
-                self.log_debug(title + " - Release hat falsche Quelle")
+                self.log_debug(search_title + " - Release hat falsche Quelle")
 
     def send_package(self, title, links, englisch_info):
         link = links[0]
@@ -1878,8 +1886,7 @@ def main():
                 files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
                 print(
                     'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-                print(
-                    u'Die Einstellungen und Listen sind beim nächsten Start im Webinterface anpassbar.')
+                print('Diese liegt unter ' + configfile)
                 print(u'Viel Spaß! Beende RSScrawler!')
                 sys.exit(0)
         else:
