@@ -135,9 +135,3 @@ def decode_base64(value):
         return value.decode("base64")
     else:
         return base64.b64decode(value).decode()
-
-
-def encode_base64(value):
-    if six.PY3:
-        value = value.encode()
-    return base64.b64encode(value)

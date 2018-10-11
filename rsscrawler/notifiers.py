@@ -4,7 +4,6 @@
 # Enthält Code von:
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
-import base64
 import logging
 import re
 
@@ -14,7 +13,6 @@ from six.moves.urllib.parse import urlencode
 from six.moves.urllib.request import urlopen, Request
 
 from rsscrawler.rssconfig import RssConfig
-from rsscrawler.common import encode_base64
 
 try:
     import simplejson as json
@@ -91,10 +89,9 @@ def Pushbullet(items, token):
     if six.PY3:
         data = data.encode("utf-8")
 
-    auth = encode_base64('%s:' % token)
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
-        req.add_header('Authorization', 'Basic %s' % auth)
+        req.add_header('Access-Token', token)
         response = urlopen(req)
     except HTTPError:
         log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
