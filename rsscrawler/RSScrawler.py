@@ -31,6 +31,7 @@ Options:
 import hashlib
 import logging
 import os
+import random
 import re
 import signal
 import sys
@@ -143,12 +144,15 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                     total_unit = " Minuten"
                 total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items, configfile)
-                log_debug(
-                    "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!-----")
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      u" - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")!")
                 added_items = []
-                time.sleep(int(rsscrawler.get('interval')) * 60)
+                interval = int(rsscrawler.get('interval')) * 60
+                random_range = random.randrange(0, interval // 4)
+                wait = interval + random_range
+                log_debug(
+                    "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")! Warte " + str(wait) + " Sekunden.")
+                print(time.strftime("%Y-%m-%d %H:%M:%S") +
+                      u" - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")! Warte " + str(wait) + " Sekunden.")
+                time.sleep(wait)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
                 traceback.print_exc()

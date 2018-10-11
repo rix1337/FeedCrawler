@@ -95,19 +95,10 @@ def get(title, configfile):
     for result in sj:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
-        if r_rating > 85:
+        if r_rating > 55:
             res = {"id": result[0], "title": r_title + append, "special": special}
             results["result" + str(i)] = res
         i += 1
-    if not results:
-        i = 0
-        for result in sj:
-            r_title = html_to_str(result[1])
-            r_rating = fuzz.ratio(title.lower(), r_title.lower())
-            if r_rating > 65:
-                res = {"id": result[0], "title": r_title + append, "special": special}
-                results["result" + str(i)] = res
-            i += 1
     if not results:
         i = 0
         for result in sj:
