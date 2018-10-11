@@ -692,7 +692,7 @@ class SJ:
                 title = soup.find(text=re.compile(escape_brackets_pack))
             except:
                 title = False
-                self.log_debug(title + " - Kein Link gefunden")
+                self.log_debug(search_title + " - Kein Link gefunden")
         if title:
             if self.filename == 'MB_Staffeln':
                 valid = re.search(self.seasonssource, search_title.lower())
