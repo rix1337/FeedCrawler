@@ -14,6 +14,7 @@ from six.moves.urllib.parse import urlencode
 from six.moves.urllib.request import urlopen, Request
 
 from rsscrawler.rssconfig import RssConfig
+from rsscrawler.common import encode_base64
 
 try:
     import simplejson as json
@@ -61,6 +62,10 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
+
+    if six.PY3:
+        data = data.encode("utf-8")
+
     try:
         req = Request(homassistant_url, data)
         req.add_header('X-HA-Access', homeassistant_password)
@@ -82,8 +87,11 @@ def Pushbullet(items, token):
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
     })
-    # TODO fix this notifier
-    auth = base64.encodestring('%s:' % token).replace('\n', '')
+
+    if six.PY3:
+        data = data.encode("utf-8")
+
+    auth = encode_base64('%s:' % token)
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
         req.add_header('Authorization', 'Basic %s' % auth)
