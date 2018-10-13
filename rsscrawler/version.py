@@ -8,7 +8,7 @@ from six.moves.urllib.request import urlopen
 
 
 def get_version():
-    return "v.5.0.14"
+    return "v.5.1.0"
 
 
 def update_check():
