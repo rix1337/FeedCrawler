@@ -1,12 +1,7 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-import six
 
-if six.PY2:
-    from StringIO import StringIO
-else:
-    from io import StringIO
 import logging
 import os
 import re
@@ -14,8 +9,10 @@ import sys
 from logging import handlers
 
 import gevent
+import six
 from flask import Flask, request, send_from_directory, render_template, jsonify
 from gevent.pywsgi import WSGIServer
+from six.moves import StringIO
 
 from rsscrawler import search
 from rsscrawler import version
@@ -77,7 +74,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                 updateready = False
             log = ''
             if os.path.isfile(log_file):
-                logfile = open(os.path.join(log_file))
+                logfile = open(log_file)
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
                     output.write("<p>" + line.replace("\n", "</p>"))
@@ -177,7 +174,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         if request.method == 'GET':
             log = ''
             if os.path.isfile(log_file):
-                logfile = open(os.path.join(log_file))
+                logfile = open(log_file)
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
                     output.write("<p>" + line.replace("\n", "</p>"))
