@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import html
 import json
 import logging
 import re
@@ -167,6 +166,7 @@ def html_to_str(unescape):
     if six.PY2:
         six.moves.html_parser.unescape(unescape)
     else:
+        import html
         return html.unescape(unescape)
 
 
