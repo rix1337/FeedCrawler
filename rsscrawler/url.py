@@ -2,9 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import os
-import sys
-
 import cfscrape
 import fake_useragent
 
@@ -13,23 +10,24 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 
 
-def fakeUserAgent():
-    ua = fake_useragent.UserAgent(
-        fallback='Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0')
-    return ua.random
+def fake_user_agent():
+    try:
+        agent = fake_useragent.UserAgent().random
+    except fake_useragent.errors.FakeUserAgentError:
+        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0"
+    return agent
 
 
-def checkURL(configfile):
+def check_url(configfile, dbfile):
     sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
     mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==")
     proxy = RssConfig('RSScrawler', configfile).get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
-    agent = fakeUserAgent()
+    agent = fake_user_agent()
     sj_blocked_proxy = False
     mb_blocked_proxy = False
     if proxy:
-        db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
+        db = RssDb(dbfile, 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
         if "block." in str(
                 scraper.get(sj_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30,
@@ -59,16 +57,15 @@ def checkURL(configfile):
     return
 
 
-def getURL(url, configfile):
+def get_url(url, configfile, dbfile):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
-    agent = fakeUserAgent()
+    agent = fake_user_agent()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
-        db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
+        db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
                 return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
@@ -81,17 +78,16 @@ def getURL(url, configfile):
         return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
 
 
-def getURLObject(url, configfile, headers):
+def get_url_object(url, configfile, dbfile, headers):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
-    agent = fakeUserAgent()
+    agent = fake_user_agent()
     headers.update({'User-Agent': agent})
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
-        db = RssDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), 'proxystatus')
+        db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
                 return scraper.get(url, headers=headers, timeout=30)
@@ -104,13 +100,22 @@ def getURLObject(url, configfile, headers):
         return scraper.get(url, headers=headers, timeout=30)
 
 
-def postURL(url, configfile, data):
-    proxy = RssConfig('RSScrawler', configfile).get('proxy')
-    agent = fakeUserAgent()
+def post_url(url, configfile, dbfile, data):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    scraper = cfscrape.create_scraper(delay=10)
+    agent = fake_user_agent()
     if proxy:
+        sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        db = RssDb(dbfile, 'proxystatus')
+        if sj in url:
+            if db.retrieve("SJ") and config.get("fallback"):
+                return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
+        elif mb in url:
+            if db.retrieve("MB") and config.get("fallback"):
+                return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
         proxies = {'http': proxy, 'https': proxy}
-        scraper = cfscrape.create_scraper(delay=10)
         return scraper.post(url, data, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
     else:
-        scraper = cfscrape.create_scraper(delay=10)
         return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content

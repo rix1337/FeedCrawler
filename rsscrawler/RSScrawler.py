@@ -59,12 +59,12 @@ from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
-from rsscrawler.url import checkURL
-from rsscrawler.url import getURL
-from rsscrawler.url import getURLObject
+from rsscrawler.url import check_url
+from rsscrawler.url import get_url
+from rsscrawler.url import get_url_object
 from rsscrawler.web import start
 
-version = version.getVersion()
+version = version.get_version()
 
 
 def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format):
@@ -130,7 +130,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
     if not arguments['--testlauf']:
         while True:
             try:
-                checkURL(configfile)
+                check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 for task in search_pool:
@@ -158,7 +158,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 traceback.print_exc()
     else:
         try:
-            checkURL(configfile)
+            check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             for task in search_pool:
@@ -217,16 +217,16 @@ class YT:
                 id_cutter = channel.rfind('list=') + 5
                 channel = channel[id_cutter:]
                 url = 'https://www.youtube.com/playlist?list=' + channel
-                response = getURL(url, configfile)
+                response = get_url(url, configfile, dbfile)
             else:
                 url = 'https://www.youtube.com/user/' + channel + '/videos'
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
                 cnotfound = False
                 try:
-                    response = getURL(url, configfile)
+                    response = get_url(url, configfile, dbfile)
                 except HTTPError:
                     try:
-                        response = getURL(urlc, configfile)
+                        response = get_url(urlc, configfile, dbfile)
                     except HTTPError:
                         cnotfound = True
                     if cnotfound:
@@ -309,7 +309,7 @@ class DD:
             feeds = feeds.replace(" ", "").split(',')
             hoster = re.compile(self.config.get("hoster"))
             for feed in feeds:
-                feed = feedparser.parse(getURL(feed, configfile))
+                feed = feedparser.parse(get_url(feed, configfile, dbfile))
                 for post in feed.entries:
                     key = post.title.replace(" ", ".")
 
@@ -421,13 +421,15 @@ class SJ:
 
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                response = getURLObject(
+                response = get_url_object(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile,
+                    dbfile,
                     self.headers)
                 feed = feedparser.parse(response.content)
             else:
-                response = getURLObject(
+                response = get_url_object(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile,
+                    dbfile,
                     self.headers)
                 feed = feedparser.parse(response.content)
             if response.status_code == 304:
@@ -437,11 +439,13 @@ class SJ:
             header = True
         else:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                feed = feedparser.parse(getURL(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile))
+                feed = feedparser.parse(get_url(
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile,
+                    dbfile))
             else:
-                feed = feedparser.parse(getURL(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile))
+                feed = feedparser.parse(get_url(
+                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile,
+                    dbfile))
             header = False
 
         first_post_sj = feed.entries[0]
@@ -665,7 +669,7 @@ class SJ:
         self.parse_download(link, title, englisch)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
-        req_page = getURL(series_url, configfile)
+        req_page = get_url(series_url, configfile, dbfile)
         soup = bs(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
@@ -680,7 +684,7 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        req_page = getURL(series_url, configfile)
+        req_page = get_url(series_url, configfile, dbfile)
         soup = bs(req_page, 'lxml')
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
@@ -1014,7 +1018,8 @@ class BL:
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
-        for (key, value, pattern) in self.dl_search(feedparser.parse(getURL(search_url, configfile)), feedsearch_title):
+        for (key, value, pattern) in self.dl_search(feedparser.parse(get_url(search_url, configfile, dbfile)),
+                                                    feedsearch_title):
             download_links = self._get_download_links(value)
             if download_links:
                 for download_link in download_links:
@@ -1253,7 +1258,7 @@ class BL:
                     except:
                         break
                     search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = getURL(search_url, configfile)
+                    search_page = get_url(search_url, configfile, dbfile)
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                         search_page)
@@ -1289,7 +1294,7 @@ class BL:
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                     elif len(download_imdb) > 0:
-                        details = getURL(download_imdb, configfile)
+                        details = get_url(download_imdb, configfile, dbfile)
                         if not details:
                             self.log_debug(
                                 "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
@@ -1308,7 +1313,7 @@ class BL:
                             continue
                 if len(download_imdb) > 0:
                     if len(details) == 0:
-                        details = getURL(download_imdb, configfile)
+                        details = get_url(download_imdb, configfile, dbfile)
                     if not details:
                         self.log_debug(
                             "%s - Release ignoriert (Film zu alt)" % post.title)
@@ -1366,7 +1371,7 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
                 elif len(download_imdb) > 0:
-                    details = getURL(download_imdb, configfile)
+                    details = get_url(download_imdb, configfile, dbfile)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1502,7 +1507,7 @@ class BL:
                     search_title = re.findall(
                         r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                     search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = getURL(search_url, configfile)
+                    search_page = get_url(search_url, configfile, dbfile)
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                         search_page)
@@ -1535,7 +1540,7 @@ class BL:
                     if isinstance(imdb_id, list):
                         imdb_id = imdb_id.pop()
                     imdb_url = "http://www.imdb.com/title/" + imdb_id
-                    details = getURL(imdb_url, configfile)
+                    details = get_url(imdb_url, configfile, dbfile)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1726,8 +1731,8 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_mb = getURLObject(mb_urls[0], configfile, self.headers_mb)
-        first_hw = getURLObject(hw_urls[0], configfile, self.headers_hw)
+        first_mb = get_url_object(mb_urls[0], configfile, dbfile, self.headers_mb)
+        first_hw = get_url_object(hw_urls[0], configfile, dbfile, self.headers_hw)
         first_page_mb = feedparser.parse(first_mb.content)
         first_page_hw = feedparser.parse(first_hw.content)
 
@@ -1804,7 +1809,7 @@ class BL:
                         if i == 0:
                             mb_parsed_url = first_page_mb
                         else:
-                            mb_parsed_url = feedparser.parse(getURL(url, configfile))
+                            mb_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
                         self.imdb_search(imdb, mb_parsed_url, "MB")
                         i += 1
                 i = 0
@@ -1813,7 +1818,7 @@ class BL:
                         if i == 0:
                             hw_parsed_url = first_page_hw
                         else:
-                            hw_parsed_url = feedparser.parse(getURL(url, configfile))
+                            hw_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
                         self.imdb_search(imdb, hw_parsed_url, "HW")
                         i += 1
         else:
@@ -1823,7 +1828,7 @@ class BL:
                     if i == 0:
                         mb_parsed_url = first_page_mb
                     else:
-                        mb_parsed_url = feedparser.parse(getURL(url, configfile))
+                        mb_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
                     for (key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
                         self.feed_download(key, value)
                     i += 1
@@ -1833,7 +1838,7 @@ class BL:
                     if i == 0:
                         hw_parsed_url = first_page_hw
                     else:
-                        hw_parsed_url = feedparser.parse(getURL(url, configfile))
+                        hw_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
                     for (key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
                         self.feed_download(key, value)
                         i += 1
@@ -1885,7 +1890,7 @@ def main():
                 print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
             elif arguments['--port']:
                 files.startup(configfile,
-                    "Muss unbedingt vergeben werden!", arguments['--port'])
+                              "Muss unbedingt vergeben werden!", arguments['--port'])
             else:
                 files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
                 print(
@@ -1964,7 +1969,7 @@ def main():
         prefix = ''
     if not arguments['--docker']:
         print('Der Webserver ist erreichbar unter http://' +
-              common.checkIp() + ':' + str(port) + prefix)
+              common.check_ip() + ':' + str(port) + prefix)
 
     if arguments['--cdc-reset']:
         print("CDC-Tabelle geleert!")
@@ -1981,13 +1986,11 @@ def main():
 
         print(u'Drücke [Strg] + [C] zum Beenden')
 
-
         def signal_handler(signal, frame):
             print('Beende RSScrawler...')
             p.terminate()
             c.terminate()
             sys.exit(0)
-
 
         signal.signal(signal.SIGINT, signal_handler)
 

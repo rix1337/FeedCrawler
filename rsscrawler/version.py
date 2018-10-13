@@ -7,12 +7,12 @@ import re
 from six.moves.urllib.request import urlopen
 
 
-def getVersion():
-    return "v.5.0.13"
+def get_version():
+    return "v.5.0.14"
 
 
-def updateCheck():
-    localversion = getVersion().replace("v.", "").split(".")
+def update_check():
+    localversion = get_version().replace("v.", "").split(".")
     try:
         onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urlopen(
             'https://github.com/rix1337/RSScrawler/releases/latest').read()).group(1).replace("v.", "").split(".")
@@ -25,6 +25,8 @@ def updateCheck():
                 update = True
             elif localversion[0] < onlineversion[0]:
                 update = True
+            else:
+                update = False
         if update:
             return True, "v." + ".".join(onlineversion)
         else:

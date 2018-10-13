@@ -44,18 +44,18 @@ def notify(added_items, configfile):
             for cut_item in cut_items:
                 homassistant_url = homeassistant_settings[0]
                 homeassistant_password = homeassistant_settings[1]
-                Homeassistant(cut_item, homassistant_url,
-                              homeassistant_password)
+                home_assistant(cut_item, homassistant_url,
+                               homeassistant_password)
         if len(notifications.get("pushbullet")) > 0:
-            Pushbullet(items, pushbullet_token)
+            pushbullet(items, pushbullet_token)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]
                 pushover_token = pushover_settings[1]
-                Pushover(cut_item, pushover_user, pushover_token)
+                pushover(cut_item, pushover_user, pushover_token)
 
 
-def Homeassistant(items, homassistant_url, homeassistant_password):
+def home_assistant(items, homassistant_url, homeassistant_password):
     data = urlencode({
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
@@ -79,7 +79,7 @@ def Homeassistant(items, homassistant_url, homeassistant_password):
         log_debug('FEHLER - Konnte nicht an Home Assistant Senden')
 
 
-def Pushbullet(items, token):
+def pushbullet(items, token):
     data = urlencode({
         'type': 'note',
         'title': 'RSScrawler:',
@@ -103,7 +103,7 @@ def Pushbullet(items, token):
         log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
 
 
-def Pushover(items, pushover_user, pushover_token):
+def pushover(items, pushover_user, pushover_token):
     data = urlencode({
         'user': pushover_user,
         'token': pushover_token,

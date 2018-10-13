@@ -2,6 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 import six
+
 if six.PY2:
     from StringIO import StringIO
 else:
@@ -33,8 +34,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         prefix = '/' + general.get("prefix")
     else:
         prefix = ""
-    
-    
+
     def to_int(i):
         if six.PY3:
             if isinstance(i, bytes):
@@ -60,17 +60,17 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/all/", methods=['GET'])
     def get_all():
         if request.method == 'GET':
-            general = RssConfig('RSScrawler', configfile)
+            general_conf = RssConfig('RSScrawler', configfile)
             alerts = RssConfig('Notifications', configfile)
             crawljobs = RssConfig('Crawljobs', configfile)
             mb = RssConfig('MB', configfile)
             sj = RssConfig('SJ', configfile)
             dd = RssConfig('DD', configfile)
             yt = RssConfig('YT', configfile)
-            ver = version.getVersion()
-            if version.updateCheck()[0]:
+            ver = version.get_version()
+            if version.update_check()[0]:
                 updateready = True
-                updateversion = version.updateCheck()[1]
+                updateversion = version.update_check()[1]
                 print('Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
             else:
@@ -114,14 +114,14 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                     },
                     "settings": {
                         "general": {
-                            "pfad": general.get("jdownloader"),
-                            "port": to_int(general.get("port")),
-                            "prefix": general.get("prefix"),
-                            "interval": to_int(general.get("interval")),
-                            "english": general.get("english"),
-                            "surround": general.get("surround"),
-                            "proxy": general.get("proxy"),
-                            "fallback": general.get("fallback"),
+                            "pfad": general_conf.get("jdownloader"),
+                            "port": to_int(general_conf.get("port")),
+                            "prefix": general_conf.get("prefix"),
+                            "interval": to_int(general_conf.get("interval")),
+                            "english": general_conf.get("english"),
+                            "surround": general_conf.get("surround"),
+                            "proxy": general_conf.get("proxy"),
+                            "fallback": general_conf.get("fallback"),
                         },
                         "alerts": {
                             "pushbullet": alerts.get("pushbullet"),
@@ -196,7 +196,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/settings/", methods=['GET', 'POST'])
     def get_post_settings():
         if request.method == 'GET':
-            general = RssConfig('RSScrawler', configfile)
+            general_conf = RssConfig('RSScrawler', configfile)
             alerts = RssConfig('Notifications', configfile)
             crawljobs = RssConfig('Crawljobs', configfile)
             mb = RssConfig('MB', configfile)
@@ -211,14 +211,14 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                 {
                     "settings": {
                         "general": {
-                            "pfad": general.get("jdownloader"),
-                            "port": to_int(general.get("port")),
-                            "prefix": general.get("prefix"),
-                            "interval": to_int(general.get("interval")),
-                            "english": general.get("english"),
-                            "surround": general.get("surround"),
-                            "proxy": general.get("proxy"),
-                            "fallback": general.get("fallback"),
+                            "pfad": general_conf.get("jdownloader"),
+                            "port": to_int(general_conf.get("port")),
+                            "prefix": general_conf.get("prefix"),
+                            "interval": to_int(general_conf.get("interval")),
+                            "english": general_conf.get("english"),
+                            "surround": general_conf.get("surround"),
+                            "proxy": general_conf.get("proxy"),
+                            "fallback": general_conf.get("fallback"),
                         },
                         "alerts": {
                             "pushbullet": alerts.get("pushbullet"),
@@ -374,10 +374,10 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/version/", methods=['GET'])
     def get_version():
         if request.method == 'GET':
-            ver = version.getVersion()
-            if version.updateCheck()[0]:
+            ver = version.get_version()
+            if version.update_check()[0]:
                 updateready = True
-                updateversion = version.updateCheck()[1]
+                updateversion = version.update_check()[1]
                 print('Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
             else:
@@ -406,7 +406,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/search/<title>", methods=['GET'])
     def search_title(title):
         if request.method == 'GET':
-            results = search.get(title, configfile)
+            results = search.get(title, configfile, dbfile)
             return jsonify(
                 {
                     "results": {
@@ -421,8 +421,8 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
     def download_movie(title):
         if request.method == 'POST':
-            best_result = search.best_result_mb(title, configfile)
-            if best_result and search.mb(best_result, jdpath, configfile):
+            best_result = search.best_result_mb(title, configfile, dbfile)
+            if best_result and search.mb(best_result, jdpath, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -438,8 +438,8 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             special = None
         if request.method == 'POST':
-            best_result = search.best_result_sj(title, configfile)
-            if best_result and search.sj(best_result, special, jdpath, configfile):
+            best_result = search.best_result_sj(title, configfile, dbfile)
+            if best_result and search.sj(best_result, special, jdpath, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -449,7 +449,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
     def download_mb(permalink):
         if request.method == 'POST':
-            if search.mb(permalink, jdpath, configfile):
+            if search.mb(permalink, jdpath, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -459,12 +459,12 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
     def download_sj(info):
         split = info.split(";")
-        id = split[0]
+        sj_id = split[0]
         special = split[1]
         if special == "null":
             special = None
         if request.method == 'POST':
-            if search.sj(id, special, jdpath, configfile):
+            if search.sj(sj_id, special, jdpath, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -522,7 +522,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         cont = ListDb(dbfile, liste).retrieve()
         return "\n".join(cont) if cont else ""
 
-
     http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()
 
@@ -558,8 +557,8 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
     no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
     gevent.hub.Hub.NOT_ERROR = (Exception,)
 
-    if version.updateCheck()[0]:
-        updateversion = version.updateCheck()[1]
+    if version.update_check()[0]:
+        updateversion = version.update_check()[1]
         print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
