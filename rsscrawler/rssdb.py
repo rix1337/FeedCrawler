@@ -61,7 +61,8 @@ class ListDb(object):
                                                                               'Ae').replace(
             u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(
             u'ß', 'ss').replace('(', '').replace(')', '').replace(u'*', '').replace(u'|', '').replace('\\', '').replace(
-            '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+            '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '').replace("’",
+                                                                                                                    "")
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -77,7 +78,9 @@ class ListDb(object):
                                                                                                         'ue').replace(
                         u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
                                                                                                                 '').replace(
-                        '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+                        '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'",
+                                                                                                               '').replace(
+                        "’", "")
                     key = key + (k,)
                     items.append(key)
         else:

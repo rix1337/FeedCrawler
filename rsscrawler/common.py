@@ -10,7 +10,6 @@ import logging
 import os
 import re
 import socket
-import sys
 
 import six
 
@@ -86,7 +85,7 @@ def check_ip():
     return ip
 
 
-def entfernen(retailtitel, identifier):
+def entfernen(retailtitel, identifier, dbfile):
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
@@ -94,7 +93,7 @@ def entfernen(retailtitel, identifier):
         liste = "MB_3D"
     else:
         liste = "MB_Filme"
-    cont = ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+    cont = ListDb(dbfile, liste).retrieve()
     new_cont = []
     if cont:
         for line in cont:
@@ -103,9 +102,9 @@ def entfernen(retailtitel, identifier):
                               line.lower())
             if line:
                 new_cont.append(line)
-    ListDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), liste).store_list(new_cont)
-    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retail, "retail")
-    RssDb(os.path.join(os.path.dirname(sys.argv[0]), "RSScrawler.db"), "retail").store(retailyear, "retail")
+    ListDb(dbfile, liste).store_list(new_cont)
+    RssDb(dbfile, "retail").store(retail, "retail")
+    RssDb(dbfile, "retail").store(retailyear, "retail")
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
@@ -120,12 +119,12 @@ def retail_sub(title):
     return retail, retailyear
 
 
-def cutoff(key, identifier):
+def cutoff(key, identifier, dbfile):
     retailfinder = re.search(
         r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
         key)
     if retailfinder:
-        entfernen(key, identifier)
+        entfernen(key, identifier, dbfile)
         return True
     else:
         return False

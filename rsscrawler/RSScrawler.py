@@ -44,7 +44,7 @@ from multiprocessing import Process
 
 import feedparser
 import six
-from bs4 import BeautifulSoup as bs
+from bs4 import BeautifulSoup
 from dateutil import parser
 from docopt import docopt
 from six.moves.urllib.error import HTTPError
@@ -188,12 +188,12 @@ class YT:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
+        self.db = RssDb(dbfile, 'rsscrawler')
         self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
 
     def readInput(self, liste):
-        cont = ListDb(os.path.join(dbfile), liste).retrieve()
+        cont = ListDb(dbfile, liste).retrieve()
         return cont if cont else ""
 
     def periodical_task(self):
@@ -301,7 +301,7 @@ class DD:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
+        self.db = RssDb(dbfile, 'rsscrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")
@@ -365,9 +365,9 @@ class SJ:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
+        self.db = RssDb(dbfile, 'rsscrawler')
 
-        self.cdc = RssDb(os.path.join(dbfile), 'cdc')
+        self.cdc = RssDb(dbfile, 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
@@ -670,7 +670,7 @@ class SJ:
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
         req_page = get_url(series_url, configfile, dbfile)
-        soup = bs(req_page, 'lxml')
+        soup = BeautifulSoup(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
             if not titles:
@@ -685,7 +685,7 @@ class SJ:
 
     def parse_download(self, series_url, search_title, englisch):
         req_page = get_url(series_url, configfile, dbfile)
-        soup = bs(req_page, 'lxml')
+        soup = BeautifulSoup(req_page, 'lxml')
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
@@ -755,7 +755,7 @@ class SJ:
             loginfo = " (Staffeln)"
         elif type == 3:
             loginfo = " (Staffeln/RegEx)"
-        cont = ListDb(os.path.join(dbfile), liste).retrieve()
+        cont = ListDb(dbfile, liste).retrieve()
         titles = []
         if cont:
             for title in cont:
@@ -789,8 +789,8 @@ class BL:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.db = RssDb(os.path.join(dbfile), 'rsscrawler')
-        self.db_retail = RssDb(os.path.join(dbfile), 'retail')
+        self.db = RssDb(dbfile, 'rsscrawler')
+        self.db_retail = RssDb(dbfile, 'retail')
         self.hoster = re.compile(self.config.get("hoster"))
 
         search = int(RssConfig(self._INTERNAL_NAME, configfile).get("search"))
@@ -808,7 +808,7 @@ class BL:
             self.HW_FEED_URLS.append(self.HW_URL + "?paged=" + str(i))
             i += 1
 
-        self.cdc = RssDb(os.path.join(dbfile), 'cdc')
+        self.cdc = RssDb(dbfile, 'cdc')
 
         self.last_set_mbhw = self.cdc.retrieve("MBHWSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
@@ -837,7 +837,7 @@ class BL:
         self.empty_list = False
 
     def readInput(self, liste):
-        cont = ListDb(os.path.join(dbfile), liste).retrieve()
+        cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             self.empty_list = True
             return ""
@@ -1036,10 +1036,10 @@ class BL:
                     retail = False
                     if self.config.get('cutoff'):
                         if self.config.get('enforcedl'):
-                            if common.cutoff(key, '1'):
+                            if common.cutoff(key, '1', dbfile):
                                 retail = True
                         else:
-                            if common.cutoff(key, '0'):
+                            if common.cutoff(key, '0', dbfile):
                                 retail = True
                     common.write_crawljob_file(
                         key,
@@ -1064,7 +1064,7 @@ class BL:
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
-                        if common.cutoff(key, '2'):
+                        if common.cutoff(key, '2', dbfile):
                             retail = True
                     common.write_crawljob_file(
                         key,
@@ -1398,10 +1398,10 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if common.cutoff(key, '1'):
+                            if common.cutoff(key, '1', dbfile):
                                 retail = True
                         else:
-                            if common.cutoff(key, '0'):
+                            if common.cutoff(key, '0', dbfile):
                                 retail = True
                 common.write_crawljob_file(
                     key,
@@ -1431,7 +1431,7 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if common.cutoff(key, '2'):
+                            if common.cutoff(key, '2', dbfile):
                                 retail = True
                 common.write_crawljob_file(
                     key,
@@ -1563,14 +1563,14 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if common.cutoff(key, '1'):
+                            if common.cutoff(key, '1', dbfile):
                                 retail = True
                         else:
-                            if common.cutoff(key, '0'):
+                            if common.cutoff(key, '0', dbfile):
                                 retail = True
                 else:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                        if common.cutoff(key, '0'):
+                        if common.cutoff(key, '0', dbfile):
                             retail = True
                 common.write_crawljob_file(
                     key,
@@ -1598,11 +1598,11 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if common.cutoff(key, '2'):
+                            if common.cutoff(key, '2', dbfile):
                                 retail = True
                 else:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                        if common.cutoff(key, '2'):
+                        if common.cutoff(key, '2', dbfile):
                             retail = True
                 common.write_crawljob_file(
                     key,
@@ -1884,7 +1884,7 @@ def main():
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    if not os.path.exists(os.path.join(configpath, 'RSScrawler.ini')):
+    if not os.path.exists(configfile):
         if not arguments['--jd-pfad']:
             if files.jd_input(configfile, arguments['--port']):
                 print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
@@ -1973,7 +1973,7 @@ def main():
 
     if arguments['--cdc-reset']:
         print("CDC-Tabelle geleert!")
-        RssDb(os.path.join(dbfile), 'cdc').reset()
+        RssDb(dbfile, 'cdc').reset()
 
     p = Process(target=web_server, args=(
         port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format))

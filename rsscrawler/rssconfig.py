@@ -2,11 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-# import ConfigParser
-try:
-    import configparser as ConfigParser
-except ImportError:
-    import ConfigParser
+from six.moves import configparser
 
 
 class RssConfig(object):
@@ -69,16 +65,16 @@ class RssConfig(object):
     def __init__(self, section, configfile):
         self._configfile = configfile
         self._section = section
-        self._config = ConfigParser.RawConfigParser()
+        self._config = configparser.RawConfigParser()
         try:
             self._config.read(self._configfile)
             self._config.has_section(
                 self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
-        except ConfigParser.DuplicateSectionError:
+        except configparser.DuplicateSectionError:
             print('Doppelte Sektion in der Konfigurationsdatei.')
             raise
-        except ConfigParser.Error:
+        except configparser.Error:
             print(
                 'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise

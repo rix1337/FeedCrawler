@@ -2,18 +2,14 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import html
 import json
 import logging
 import re
 
-try:
-    from html.parser import HTMLParser
-except ImportError:
-    from HTMLParser import HTMLParser
-
 import feedparser
 import six
-from bs4 import BeautifulSoup as bs
+from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 from rsscrawler import common
@@ -168,7 +164,10 @@ def rate(title, configfile):
 
 
 def html_to_str(unescape):
-    return HTMLParser().unescape(unescape)
+    if six.PY2:
+        six.moves.html_parser.unescape(unescape)
+    else:
+        return html.unescape(unescape)
 
 
 def best_result_mb(title, configfile, dbfile):
@@ -279,7 +278,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
         return False
     for (key, value, pattern) in dl_search(feedparser.parse(search_url), feedsearch_title):
         req_page = get_url(value[0], configfile, dbfile)
-        soup = bs(req_page, 'lxml')
+        soup = BeautifulSoup(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         links = {}
@@ -321,7 +320,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
             elif '.3d.' in key.lower():
                 retail = False
                 if config.get('cutoff'):
-                    if common.cutoff(key, '2'):
+                    if common.cutoff(key, '2', dbfile):
                         retail = True
                 common.write_crawljob_file(
                     key,
@@ -348,10 +347,10 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
                 retail = False
                 if config.get('cutoff'):
                     if config.get('enforcedl'):
-                        if common.cutoff(key, '1'):
+                        if common.cutoff(key, '1', dbfile):
                             retail = True
                     else:
-                        if common.cutoff(key, '0'):
+                        if common.cutoff(key, '0', dbfile):
                             retail = True
                 common.write_crawljob_file(
                     key,
@@ -391,7 +390,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
     hoster = re.compile(config.get('hoster'))
     db = RssDb(dbfile, 'rsscrawler')
 
-    soup = bs(url, 'lxml')
+    soup = BeautifulSoup(url, 'lxml')
     download = soup.find("div", {"id": "content"})
     key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
@@ -507,7 +506,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if common.cutoff(key, '2'):
+                    if common.cutoff(key, '2', dbfile):
                         retail = True
             common.write_crawljob_file(
                 key,
@@ -533,10 +532,10 @@ def mb(link, jdownloaderpath, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if common.cutoff(key, '1'):
+                    if common.cutoff(key, '1', dbfile):
                         retail = True
                 else:
-                    if common.cutoff(key, '0'):
+                    if common.cutoff(key, '0', dbfile):
                         retail = True
             common.write_crawljob_file(
                 key,
@@ -576,10 +575,17 @@ def sj(sj_id, special, jdownloaderpath, configfile, dbfile):
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
         cont = ListDb(dbfile, liste).retrieve()
+        list_title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
+            u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
+                                                                                            'ue').replace(
+            u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
+                                                                                                    '').replace('/',
+                                                                                                                '').replace(
+            '?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '').replace("’", "")
         if not cont:
             cont = ""
-        if not title in cont:
-            ListDb(dbfile, liste).store(title)
+        if not list_title in cont:
+            ListDb(dbfile, liste).store(list_title)
 
     staffeln = []
     staffel_nr = []
