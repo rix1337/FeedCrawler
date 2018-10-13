@@ -20,6 +20,7 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 
 ##  Vorraussetzungen
 * [Python ab 3.5 empfohlen (2.7 wird noch unterstützt)](https://www.python.org/downloads/)
+* [pip, falls nicht vorhanden](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2 (benötigt JRE)](http://www.jdownloader.org/jdownloader2)
 * [Zusatzpakete](https://github.com/rix1337/RSScrawler/blob/master/requirements.txt)
 * [Optional, aber empfohlen: node.js](https://nodejs.org/en/)
@@ -27,6 +28,13 @@ Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
 ## Sicherheitshinweis
 
 Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP).
+
+## Bekannte Fehler
+
+Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern nur auf Systemseite:
+
+* Kommt es direkt beim Programmstart zu einem _UnicodeEncodeError_ einfach `export PYTHONIOENCODING=utf-8` vor Programmstart ausführen
+* Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://visualstudio.microsoft.com/de/visual-cpp-build-tools/) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi). Python _Levenshtein_ wird aussschließlich in der Suche per Webinterface/API von der _fuzzywuzzy_ Bibliothek verwendet; auf deren Installation kann notfalls verzichtet werden, da fuzzywuzzy automatisch auf eine langsamere Alternative ausweicht.
 
 
 ## Installation
