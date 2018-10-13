@@ -1920,24 +1920,21 @@ def main():
         jdownloaderpath = rsscrawler.get("jdownloader")
     if arguments['--docker']:
         jdownloaderpath = '/jd2'
-    jdownloaderpath = jdownloaderpath.replace("\\", "/")
-    jdownloaderpath = jdownloaderpath[:-
-    1] if jdownloaderpath.endswith('/') else jdownloaderpath
-
-    if arguments['--docker']:
         print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
     elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
-        if files.jd_input(configfile, arguments['--port']):
+        jdownloaderpath = files.jd_input(configfile, arguments['--port'])
+        if jdownloaderpath:
             print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
-            jdownloaderpath = rsscrawler.get("jdownloader")
-            jdownloaderpath = jdownloaderpath.replace("\\", "/")
-            jdownloaderpath = jdownloaderpath[:-
-            1] if jdownloaderpath.endswith('/') else jdownloaderpath
         else:
             print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
             print('Diese liegt unter ' + configfile)
             print('Beende RSScrawler...')
             sys.exit(0)
+
+    jdownloaderpath = rsscrawler.get("jdownloader")
+    jdownloaderpath = jdownloaderpath.replace("\\", "/")
+    jdownloaderpath = jdownloaderpath[:-
+    1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
     print('Nutze das "folderwatch" Unterverzeichnis von "' +
           jdownloaderpath + u'" für Crawljobs')
