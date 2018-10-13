@@ -1931,7 +1931,6 @@ def main():
             print('Beende RSScrawler...')
             sys.exit(0)
 
-    jdownloaderpath = rsscrawler.get("jdownloader")
     jdownloaderpath = jdownloaderpath.replace("\\", "/")
     jdownloaderpath = jdownloaderpath[:-
     1] if jdownloaderpath.endswith('/') else jdownloaderpath
