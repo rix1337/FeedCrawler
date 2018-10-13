@@ -50,7 +50,7 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
             decode_base64("aGQtYXJlYS5vcmc=") + '","' + decode_base64("aGQtd29ybGQub3Jn") + '","' + decode_base64(
                 "d2FyZXotd29ybGQub3Jn") + '"]\n')
         file.write('downloadPassword=' +
-                   decode_base64("c2VyaWVuanVua2llcy5vcmc=") + '\n')          
+                   decode_base64("c2VyaWVuanVua2llcy5vcmc=") + '\n')
 
         file.write('extractAfterDownload=TRUE\n')
         file.write('forcedStart=' + autostart + '\n')
@@ -74,16 +74,16 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         return False
 
 
-def checkIp():
+def check_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
         s.connect(('10.255.255.255', 0))
-        IP = s.getsockname()[0]
+        ip = s.getsockname()[0]
     except:
-        IP = '127.0.0.1'
+        ip = '127.0.0.1'
     finally:
         s.close()
-    return IP
+    return ip
 
 
 def entfernen(retailtitel, identifier):
@@ -129,6 +129,7 @@ def cutoff(key, identifier):
         return True
     else:
         return False
+
 
 def decode_base64(value):
     if six.PY2:

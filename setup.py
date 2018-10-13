@@ -3,7 +3,8 @@
 # Projekt von https://github.com/rix1337
 
 import setuptools
-from rsscrawler.version import getVersion
+
+from rsscrawler.version import get_version
 
 try:
     with open('README.md', encoding='utf-8') as f:
@@ -17,7 +18,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="rsscrawler",
-    version=getVersion().replace("v.",""),
+    version=get_version().replace("v.", ""),
     author="rix1337",
     author_email="",
     description="Automating JDownloader Downloads (German!)",

@@ -58,7 +58,7 @@ class ListDb(object):
 
     def store(self, key):
         key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä',
-                                                                                                         'Ae').replace(
+                                                                              'Ae').replace(
             u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(
             u'ß', 'ss').replace('(', '').replace(')', '').replace(u'*', '').replace(u'|', '').replace('\\', '').replace(
             '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
@@ -76,7 +76,7 @@ class ListDb(object):
                         u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
                                                                                                         'ue').replace(
                         u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
-                                                                                                               '').replace(
+                                                                                                                '').replace(
                         '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '')
                     key = key + (k,)
                     items.append(key)

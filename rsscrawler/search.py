@@ -4,9 +4,7 @@
 
 import json
 import logging
-import os
 import re
-import sys
 
 try:
     from html.parser import HTMLParser
@@ -24,11 +22,11 @@ from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
-from rsscrawler.url import getURL
-from rsscrawler.url import postURL
+from rsscrawler.url import get_url
+from rsscrawler.url import post_url
 
 
-def get(title, configfile):
+def get(title, configfile, dbfile):
     specific_season = re.match(r'^(.*);(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*);(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
@@ -48,23 +46,23 @@ def get(title, configfile):
         mb_query = query + "+" + special
     else:
         mb_query = query
-    mb = getURL(
+    mb_search = get_url(
         decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+" + quality + '/feed/rss2/',
-        configfile)
-    mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
+        configfile, dbfile)
+    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
 
     unrated = []
-    for result in mb:
+    for result in mb_results:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
             unrated.append(
                 [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
 
     if config.get("crawl3d"):
-        mb = getURL(
+        mb_search = get_url(
             decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/',
-            configfile)
-        mb = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb)
-        for result in mb:
+            configfile, dbfile)
+        mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
+        for result in mb_results:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                 unrated.append(
                     [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
@@ -77,14 +75,16 @@ def get(title, configfile):
         res = {"link": result[1], "title": result[2]}
         results["result" + str(i)] = res
         i += 1
-    mb = results
+    mb_final = results
 
-    sj = postURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="), configfile,
-                 data={'string': "'" + query + "'"})
+    sj_search = post_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="),
+                         configfile,
+                         dbfile,
+                         data={'string': "'" + query + "'"})
     try:
-        sj = json.loads(sj)
+        sj_results = json.loads(sj_search)
     except:
-        sj = []
+        sj_results = []
 
     if special:
         append = " (" + special + ")"
@@ -92,7 +92,7 @@ def get(title, configfile):
         append = ""
     i = 0
     results = {}
-    for result in sj:
+    for result in sj_results:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 55:
@@ -101,12 +101,12 @@ def get(title, configfile):
         i += 1
     if not results:
         i = 0
-        for result in sj:
+        for result in sj_results:
             res = {"id": result[0], "title": html_to_str(result[1]) + append, "special": special}
             results["result" + str(i)] = res
             i += 1
-    sj = results
-    return mb, sj
+    sj_final = results
+    return mb_final, sj_final
 
 
 def rate(title, configfile):
@@ -171,7 +171,7 @@ def html_to_str(unescape):
     return HTMLParser().unescape(unescape)
 
 
-def best_result_mb(title, configfile):
+def best_result_mb(title, configfile, dbfile):
     title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
         u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß',
                                                                                                             'ss').replace(
@@ -179,7 +179,7 @@ def best_result_mb(title, configfile):
                                                                                                                '').replace(
         '!', '').replace(':', '').replace('  ', ' ').replace("'", '')
     try:
-        mb_results = get(title, configfile)[0]
+        mb_results = get(title, configfile, dbfile)[0]
     except:
         return False
     results = []
@@ -213,21 +213,19 @@ def best_result_mb(title, configfile):
         logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["MB_Filme"]
         for liste in listen:
-            cont = ListDb(os.path.join(os.path.dirname(
-                sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+            cont = ListDb(dbfile, liste).retrieve()
             if not cont:
                 cont = ""
             if not title in cont:
-                ListDb(os.path.join(os.path.dirname(
-                    sys.argv[0]), "RSScrawler.db"), liste).store(title)
+                ListDb(dbfile, liste).store(title)
         return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_link
 
 
-def best_result_sj(title, configfile):
+def best_result_sj(title, configfile, dbfile):
     try:
-        sj_results = get(title, configfile)[1]
+        sj_results = get(title, configfile, dbfile)[1]
     except:
         return False
     results = []
@@ -257,7 +255,7 @@ def best_result_sj(title, configfile):
     return best_id
 
 
-def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile):
+def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
     search_title = \
         title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
                                                                     ".German.DTS.DL.1080p.").replace(
@@ -280,7 +278,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile)
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
         return False
     for (key, value, pattern) in dl_search(feedparser.parse(search_url), feedsearch_title):
-        req_page = getURL(value[0], configfile)
+        req_page = get_url(value[0], configfile, dbfile)
         soup = bs(req_page, 'lxml')
         download = soup.find("div", {"id": "content"})
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
@@ -386,13 +384,12 @@ def dl_search(feed, title):
             yield (post.title, [post.link], title)
 
 
-def mb(link, jdownloaderpath, configfile):
+def mb(link, jdownloaderpath, configfile, dbfile):
     link = link.replace("+", "/")
-    url = getURL(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile)
+    url = get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile, dbfile)
     config = RssConfig('MB', configfile)
     hoster = re.compile(config.get('hoster'))
-    db = RssDb(os.path.join(os.path.dirname(
-        sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+    db = RssDb(dbfile, 'rsscrawler')
 
     soup = bs(url, 'lxml')
     download = soup.find("div", {"id": "content"})
@@ -431,7 +428,7 @@ def mb(link, jdownloaderpath, configfile):
             search_title = re.findall(
                 r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
             search_url = "http://www.imdb.com/find?q=" + search_title
-            search_page = getURL(search_url, configfile)
+            search_page = get_url(search_url, configfile, dbfile)
             search_results = re.findall(
                 r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                 search_page)
@@ -456,14 +453,14 @@ def mb(link, jdownloaderpath, configfile):
                     logging.debug(
                         "%s - Keine passende Film-IMDB-Seite gefunden" % key)
         if not imdb_id:
-            if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile):
+            if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
                 logging.debug(
                     "%s - Kein zweisprachiges Release gefunden." % key)
         else:
             if isinstance(imdb_id, list):
                 imdb_id = imdb_id.pop()
             imdb_url = "http://www.imdb.com/title/" + imdb_id
-            details = getURL(imdb_url, configfile)
+            details = get_url(imdb_url, configfile, dbfile)
             if not details:
                 logging.debug("%s - Originalsprache nicht ermittelbar" % key)
             original_language = re.findall(
@@ -474,7 +471,8 @@ def mb(link, jdownloaderpath, configfile):
                 logging.debug(
                     "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
             else:
-                if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile) and not englisch:
+                if not download_dl(key, jdownloaderpath, hoster, staffel, db, config, configfile,
+                                   dbfile) and not englisch:
                     logging.debug(
                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
 
@@ -566,8 +564,8 @@ def mb(link, jdownloaderpath, configfile):
         return False
 
 
-def sj(id, special, jdownloaderpath, configfile):
-    url = getURL(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(id), configfile)
+def sj(sj_id, special, jdownloaderpath, configfile, dbfile):
+    url = get_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(sj_id), configfile, dbfile)
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
@@ -577,13 +575,11 @@ def sj(id, special, jdownloaderpath, configfile):
 
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
-        cont = ListDb(os.path.join(os.path.dirname(
-            sys.argv[0]), "RSScrawler.db"), liste).retrieve()
+        cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             cont = ""
         if not title in cont:
-            ListDb(os.path.join(os.path.dirname(
-                sys.argv[0]), "RSScrawler.db"), liste).store(title)
+            ListDb(dbfile, liste).store(title)
 
     staffeln = []
     staffel_nr = []
@@ -620,45 +616,45 @@ def sj(id, special, jdownloaderpath, configfile):
     found_seasons = {}
     for dl in to_dl:
         if len(dl[0]) is 1:
-            sXX = "S0" + str(dl[0])
+            sxx = "S0" + str(dl[0])
         else:
-            sXX = "S" + str(dl[0])
+            sxx = "S" + str(dl[0])
         link = dl[1]
-        if sXX not in found_seasons:
-            found_seasons[sXX] = link
+        if sxx not in found_seasons:
+            found_seasons[sxx] = link
 
     something_found = False
 
-    for sXX, link in found_seasons.items():
+    for sxx, link in found_seasons.items():
         config = RssConfig('SJ', configfile)
         quality = config.get('quality')
-        url = getURL(link, configfile)
-        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
+        url = get_url(link, configfile, dbfile)
+        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx + r'\..*?' + quality +
                                        r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                             url)
-        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX +
+        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx +
                                        r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                             url)
         lq_pakete = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+            r'<p><strong>(.*?\.' + sxx + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
             url)
         lq_folgen = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+            r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
             url)
 
         if not pakete and not folgen and not lq_pakete and not lq_folgen:
-            sXX = sXX.replace("S0", "S")
-            pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sXX + r'\..*?' + quality +
+            sxx = sxx.replace("S0", "S")
+            pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx + r'\..*?' + quality +
                                            r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                                 url)
             folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                 url)
             lq_pakete = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                r'<p><strong>(.*?\.' + sxx + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                 url)
             lq_folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sXX + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
+                r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
                 url)
 
         if special and "e" in special.lower():
@@ -741,15 +737,14 @@ def sj(id, special, jdownloaderpath, configfile):
                                 [l[1], hoster[0], hoster[1]])
 
         notify_array = []
-        for link in best_matching_links:
-            dl_title = link[0].replace(
+        for best_link in best_matching_links:
+            dl_title = best_link[0].replace(
                 "Staffelpack ", "").replace("Staffelpack.", "")
-            dl_hoster = link[1]
-            dl_link = link[2]
+            dl_hoster = best_link[1]
+            dl_link = best_link[2]
             config = RssConfig('SJ', configfile)
             hoster = re.compile(config.get('hoster'))
-            db = RssDb(os.path.join(os.path.dirname(
-                sys.argv[0]), "RSScrawler.db"), 'rsscrawler')
+            db = RssDb(dbfile, 'rsscrawler')
 
             if re.match(hoster, dl_hoster.lower()):
                 common.write_crawljob_file(
