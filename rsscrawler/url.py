@@ -49,7 +49,7 @@ def check_url(configfile, dbfile):
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(
                 scraper.get(sj_url, headers={'User-Agent': agent}, timeout=30, allow_redirects=False).headers.get(
-                        "location")):
+                    "location")):
             print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
         if "<Response [403]>" in str(
                 scraper.get(mb_url, headers={'User-Agent': agent}, timeout=30, allow_redirects=False)):
@@ -78,7 +78,7 @@ def get_url(url, configfile, dbfile):
         return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
 
 
-def get_url_object(url, configfile, dbfile, headers):
+def get_url_headers(url, configfile, dbfile, headers):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
@@ -119,3 +119,24 @@ def post_url(url, configfile, dbfile, data):
         return scraper.post(url, data, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
     else:
         return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
+
+
+def post_url_json(url, configfile, dbfile, json):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    scraper = cfscrape.create_scraper(delay=10)
+    agent = fake_user_agent()
+    if proxy:
+        sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        db = RssDb(dbfile, 'proxystatus')
+        if sj in url:
+            if db.retrieve("SJ") and config.get("fallback"):
+                return scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
+        elif mb in url:
+            if db.retrieve("MB") and config.get("fallback"):
+                return scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
+        proxies = {'http': proxy, 'https': proxy}
+        return scraper.post(url, json=json, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
+    else:
+        return scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content

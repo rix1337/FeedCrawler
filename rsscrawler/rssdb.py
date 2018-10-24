@@ -4,7 +4,7 @@
 
 import sqlite3
 
-from rsscrawler.common import sanitize
+import rsscrawler.common
 
 
 def get_first(iterable):
@@ -59,7 +59,7 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = sanitize(key)
+        key = rsscrawler.common.sanitize(key)
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -70,7 +70,7 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = sanitize(k)
+                    k = rsscrawler.common.sanitize(k)
                     key = key + (k,)
                     items.append(key)
         else:
