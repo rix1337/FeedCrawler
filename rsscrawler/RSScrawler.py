@@ -53,6 +53,7 @@ from rsscrawler import common
 from rsscrawler import files
 from rsscrawler import version
 from rsscrawler.common import decode_base64
+from rsscrawler.common import fullhd_title
 from rsscrawler.notifiers import notify
 from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
@@ -999,21 +1000,10 @@ class BL:
                             yield (post.title, content, key)
 
     def download_dl(self, title):
-        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                                   ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[0].split(
-            '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
+                                                                                                                 "+")
         search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
-        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                                       ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[0].split(
-            '.h264-', 1)[0]
+        feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)

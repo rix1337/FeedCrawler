@@ -54,121 +54,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     def index():
         return render_template('index.html')
 
-    @app.route(prefix + "/api/all/", methods=['GET'])
-    def get_all():
-        if request.method == 'GET':
-            general_conf = RssConfig('RSScrawler', configfile)
-            alerts = RssConfig('Notifications', configfile)
-            crawljobs = RssConfig('Crawljobs', configfile)
-            mb = RssConfig('MB', configfile)
-            sj = RssConfig('SJ', configfile)
-            dd = RssConfig('DD', configfile)
-            yt = RssConfig('YT', configfile)
-            ver = version.get_version()
-            if version.update_check()[0]:
-                updateready = True
-                updateversion = version.update_check()[1]
-                print('Update steht bereit (' + updateversion +
-                      ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-            else:
-                updateready = False
-            log = ''
-            if os.path.isfile(log_file):
-                logfile = open(log_file)
-                output = StringIO()
-                for line in reversed(logfile.readlines()):
-                    output.write("<p>" + line.replace("\n", "</p>"))
-                    log = output.getvalue()
-            if not mb.get("crawl3dtype"):
-                crawl_3d_type = "hsbs"
-            else:
-                crawl_3d_type = mb.get("crawl3dtype")
-            return jsonify(
-                {
-                    "version": {
-                        "ver": ver,
-                        "update_ready": updateready,
-                        "docker": docker,
-                    },
-                    "log": log,
-                    "lists": {
-                        "mb": {
-                            "filme": get_list('MB_Filme'),
-                            "filme3d": get_list('MB_3D'),
-                            "regex": get_list('MB_Regex'),
-                        },
-                        "sj": {
-                            "serien": get_list('SJ_Serien'),
-                            "regex": get_list('SJ_Serien_Regex'),
-                            "staffeln_regex": get_list('SJ_Staffeln_Regex'),
-                        },
-                        "mbsj": {
-                            "staffeln": get_list('MB_Staffeln'),
-                        },
-                        "yt": {
-                            "kanaele_playlisten": get_list('YT_Channels'),
-                        },
-                    },
-                    "settings": {
-                        "general": {
-                            "pfad": general_conf.get("jdownloader"),
-                            "port": to_int(general_conf.get("port")),
-                            "prefix": general_conf.get("prefix"),
-                            "interval": to_int(general_conf.get("interval")),
-                            "english": general_conf.get("english"),
-                            "surround": general_conf.get("surround"),
-                            "proxy": general_conf.get("proxy"),
-                            "fallback": general_conf.get("fallback"),
-                        },
-                        "alerts": {
-                            "pushbullet": alerts.get("pushbullet"),
-                            "pushover": alerts.get("pushover"),
-                            "homeassistant": alerts.get("homeassistant"),
-                        },
-                        "crawljobs": {
-                            "autostart": crawljobs.get("autostart"),
-                            "subdir": crawljobs.get("subdir"),
-                        },
-                        "mb": {
-                            "hoster": mb.get("hoster"),
-                            "quality": mb.get("quality"),
-                            "search": mb.get("search"),
-                            "ignore": mb.get("ignore"),
-                            "regex": mb.get("regex"),
-                            "imdb_score": to_float(mb.get("imdb")),
-                            "imdb_year": to_int(mb.get("imdbyear")),
-                            "force_dl": mb.get("enforcedl"),
-                            "cutoff": mb.get("cutoff"),
-                            "crawl_3d": mb.get("crawl3d"),
-                            "crawl_3d_type": crawl_3d_type,
-                        },
-                        "sj": {
-                            "hoster": sj.get("hoster"),
-                            "quality": sj.get("quality"),
-                            "ignore": sj.get("rejectlist"),
-                            "regex": sj.get("regex"),
-                        },
-                        "mbsj": {
-                            "enabled": mb.get("crawlseasons"),
-                            "quality": mb.get("seasonsquality"),
-                            "packs": mb.get("seasonpacks"),
-                            "source": mb.get("seasonssource"),
-                        },
-                        "dd": {
-                            "hoster": dd.get("hoster"),
-                            "feeds": dd.get("feeds"),
-                        },
-                        "yt": {
-                            "enabled": yt.get("youtube"),
-                            "max": to_int(yt.get("maxvideos")),
-                            "ignore": yt.get("ignore"),
-                        }
-                    }
-                }
-            )
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
     def get_delete_log():
         if request.method == 'GET':
@@ -195,6 +80,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         if request.method == 'GET':
             general_conf = RssConfig('RSScrawler', configfile)
             alerts = RssConfig('Notifications', configfile)
+            ombi = RssConfig('Ombi', configfile)
             crawljobs = RssConfig('Crawljobs', configfile)
             mb = RssConfig('MB', configfile)
             sj = RssConfig('SJ', configfile)
@@ -221,6 +107,14 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                             "pushbullet": alerts.get("pushbullet"),
                             "pushover": alerts.get("pushover"),
                             "homeassistant": alerts.get("homeassistant"),
+                        },
+                        "ombi": {
+                            "url": ombi.get("url"),
+                            "api": ombi.get("api"),
+                            "mdb_api": ombi.get("mdb_api"),
+                            "tvd_api": ombi.get("tvd_api"),
+                            "tvd_user": ombi.get("tvd_user"),
+                            "tvd_userkey": ombi.get("tvd_userkey")
                         },
                         "crawljobs": {
                             "autostart": crawljobs.get("autostart"),
@@ -359,6 +253,19 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                          to_str(data['alerts']['pushover']))
             section.save("homeassistant",
                          to_str(data['alerts']['homeassistant']))
+            section = RssConfig("Ombi", configfile)
+            section.save("url",
+                         to_str(data['ombi']['url']))
+            section.save("api",
+                         to_str(data['ombi']['api']))
+            section.save("mdb_api",
+                         to_str(data['ombi']['mdb_api']))
+            section.save("tvd_api",
+                         to_str(data['ombi']['tvd_api']))
+            section.save("tvd_user",
+                         to_str(data['ombi']['tvd_user']))
+            section.save("tvd_userkey",
+                         to_str(data['ombi']['tvd_userkey']))
             section = RssConfig("Crawljobs", configfile)
             section.save(
                 "autostart", to_str(data['crawljobs']['autostart']))

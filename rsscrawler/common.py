@@ -130,6 +130,24 @@ def cutoff(key, identifier, dbfile):
         return False
 
 
+def sanitize(key):
+    sanitize = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace(
+        u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß', 'ss').replace('(',
+                                                                                                            '').replace(
+        ')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!',
+                                                                                                               '').replace(
+        ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
+    return sanitize
+
+
+def fullhd_title(key):
+    key = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
+                                                                    ".German.DTS.DL.1080p.").replace(
+        ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(
+        ".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.")
+    return key
+
+
 def decode_base64(value):
     if six.PY2:
         return value.decode("base64")

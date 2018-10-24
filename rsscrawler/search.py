@@ -13,6 +13,8 @@ from fuzzywuzzy import fuzz
 
 from rsscrawler import common
 from rsscrawler.common import decode_base64
+from rsscrawler.common import fullhd_title
+from rsscrawler.common import sanitize
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -171,12 +173,7 @@ def html_to_str(unescape):
 
 
 def best_result_mb(title, configfile, dbfile):
-    title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
-        u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß',
-                                                                                                            'ss').replace(
-        '(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?',
-                                                                                                               '').replace(
-        '!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+    title = sanitize(title)
     try:
         mb_results = get(title, configfile, dbfile)[0]
     except:
@@ -256,22 +253,10 @@ def best_result_sj(title, configfile, dbfile):
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
     search_title = \
-        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[
-            0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
     search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
     feedsearch_title = \
-        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[
-            0].split('.h264-', 1)[0]
+        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
     if not '.dl.' in feedsearch_title.lower():
         logging.debug(
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
@@ -575,13 +560,7 @@ def sj(sj_id, special, jdownloaderpath, configfile, dbfile):
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
         cont = ListDb(dbfile, liste).retrieve()
-        list_title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
-            u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
-                                                                                            'ue').replace(
-            u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
-                                                                                                    '').replace('/',
-                                                                                                                '').replace(
-            '?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '').replace("’", "")
+        list_title = sanitize(title)
         if not cont:
             cont = ""
         if not list_title in cont:

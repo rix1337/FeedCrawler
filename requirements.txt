@@ -8,7 +8,7 @@ docopt
 fake-useragent
 feedparser
 flask
-fuzzywuzzy[speedup]
+fuzzywuzzy
 gevent
 lxml
 python-dateutil

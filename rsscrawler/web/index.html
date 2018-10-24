@@ -404,11 +404,61 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoThree"
                             aria-expanded="false" aria-controls="collapseTwoThree">
-                        <h3>Crawljobs</h3>
+                        <h3>Ombi</h3>
                     </button>
                 </h5>
             </div>
             <div id="collapseTwoThree" class="collapse" aria-labelledby="headingTwoThree" data-parent="#settings">
+                <div class="card-body">
+                    <p>
+                    <h4>Ombi URL</h4>
+                    <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
+                    </p>
+                    <p>
+                    <h4>Ombi API-Key</h4>
+                    <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Hier den API-Key von Ombi angeben."/>
+                    </p>
+                    <p>
+                    <h4>The Movie Database API-Key</h4>
+                    <input ng-model="settings.ombi.mdb_api" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Unter https://www.themoviedb.org/settings/api registrieren und einen API-Key anfordern."/>
+                    </p>
+                    <p>
+                    <h4>TheTVDB API-Key</h4>
+                    <input ng-model="settings.ombi.tvd_api" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Unter https://www.thetvdb.com/member/api registrieren und einen API-Key generieren."/>
+                    </p>
+                    <p>
+                    <h4>TheTVDB Username</h4>
+                    <input ng-model="settings.ombi.tvd_user" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Unter https://www.thetvdb.com/member/api registrieren und den Username angeben."/>
+                    </p>
+                    <p>
+                    <h4>TheTVDB Unique ID</h4>
+                    <input ng-model="settings.ombi.tvd_userkey" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Unter https://www.thetvdb.com/member/api registrieren und die Unique ID angeben."/>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwoFour">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoFour"
+                            aria-expanded="false" aria-controls="collapseTwoFour">
+                        <h3>Crawljobs</h3>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Automatischer Download</h4>
@@ -428,15 +478,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoFour">
+            <div class="card-header" id="headingTwoFive">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoFour"
-                            aria-expanded="false" aria-controls="collapseTwoFour">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoFive"
+                            aria-expanded="false" aria-controls="collapseTwoFive">
                         <h3>Blogs</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#settings">
+            <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Hoster</h4>
@@ -515,15 +565,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoFive">
+            <div class="card-header" id="headingTwoSix">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoFive"
-                            aria-expanded="false" aria-controls="collapseTwoFive">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoSix"
+                            aria-expanded="false" aria-controls="collapseTwoSix">
                         <h3>SJ</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#settings">
+            <div id="collapseTwoSix" class="collapse" aria-labelledby="headingTwoSix" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Hoster</h4>
@@ -554,15 +604,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoSix">
+            <div class="card-header" id="headingTwoSeven">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoSix"
-                            aria-expanded="false" aria-controls="collapseTwoSix">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoSeven"
+                            aria-expanded="false" aria-controls="collapseTwoSeven">
                         <h3>Blogs/SJ</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoSix" class="collapse" aria-labelledby="headingTwoSix" data-parent="#settings">
+            <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Staffeln suchen</h4>
@@ -595,15 +645,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoSeven">
+            <div class="card-header" id="headingTwoEight">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoSeven"
-                            aria-expanded="false" aria-controls="collapseTwoSeven">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoEight"
+                            aria-expanded="false" aria-controls="collapseTwoEight">
                         <h3>DD</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
+            <div id="collapseTwoEight" class="collapse" aria-labelledby="headingTwoEight" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Hoster</h4>
@@ -620,15 +670,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoEight">
+            <div class="card-header" id="headingTwoNine">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoEight"
-                            aria-expanded="false" aria-controls="collapseTwoEight">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoNine"
+                            aria-expanded="false" aria-controls="collapseTwoNine">
                         <h3>YouTube</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoEight" class="collapse" aria-labelledby="headingTwoEight" data-parent="#settings">
+            <div id="collapseTwoNine" class="collapse" aria-labelledby="headingTwoNine" data-parent="#settings">
                 <div class="card-body">
                     <p>
                     <h4>Suche aktivieren</h4>
@@ -665,7 +715,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-sanitize.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?updated"></script>
 </body>
 
 </html>
