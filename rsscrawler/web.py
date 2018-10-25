@@ -375,6 +375,10 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
+    def get_list(liste):
+        cont = ListDb(dbfile, liste).retrieve()
+        return "\n".join(cont) if cont else ""
+
     @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
     def get_post_lists():
         if request.method == 'GET':
@@ -421,10 +425,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
             return "Success", 201
         else:
             return "Failed", 405
-
-    def get_list(liste):
-        cont = ListDb(dbfile, liste).retrieve()
-        return "\n".join(cont) if cont else ""
 
     http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()

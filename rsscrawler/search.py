@@ -95,7 +95,7 @@ def get(title, configfile, dbfile):
         if r_rating > 55:
             res = {"id": result[0], "title": r_title + append, "special": special}
             results["result" + str(i)] = res
-        i += 1
+            i += 1
     if not results:
         i = 0
         for result in sj_results:
@@ -207,13 +207,12 @@ def best_result_mb(title, configfile, dbfile):
         best_link = mb_results.get(best_match).get('link')
     except:
         logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
-        listen = ["MB_Filme"]
-        for liste in listen:
-            cont = ListDb(dbfile, liste).retrieve()
-            if not cont:
-                cont = ""
-            if not title in cont:
-                ListDb(dbfile, liste).store(title)
+        liste = "MB_Filme"
+        cont = ListDb(dbfile, liste).retrieve()
+        if not cont:
+            cont = ""
+        if not title in cont:
+            ListDb(dbfile, liste).store(title)
         return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_link
@@ -245,8 +244,15 @@ def best_result_sj(title, configfile, dbfile):
         best_title = sj_results.get(best_match).get('title')
         best_id = sj_results.get(best_match).get('id')
     except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title)
-        return
+        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        listen = ["SJ_Serien", "MB_Staffeln"]
+        for liste in listen:
+            cont = ListDb(dbfile, liste).retrieve()
+            if not cont:
+                cont = ""
+            if not title in cont:
+                ListDb(dbfile, liste).store(title)
+            return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_id
 

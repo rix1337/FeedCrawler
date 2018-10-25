@@ -135,7 +135,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
-                ombi(configfile, dbfile)
+                ombi(configfile, dbfile, jdownloaderpath, log_debug)
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -164,7 +164,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
-            ombi(configfile, dbfile)
+            ombi(configfile, dbfile, jdownloaderpath, log_debug)
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
