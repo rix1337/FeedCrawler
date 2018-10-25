@@ -204,12 +204,12 @@ def best_result_mb(title, configfile, dbfile):
         best_title = best_result.get('title')
         best_link = best_result.get('link')
         if re.search(ignore, best_title.lower()):
-            found = False
-        else:
-            found = True
+            best_title = None
+        elif not re.search(r'^' + title.replace(" ", ".") + '.(\d{4}|German|\d{3,4}p).*', best_title):
+            best_title = None
     else:
-        found = False
-    if not found:
+        best_title = None
+    if not best_title:
         logging.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -217,8 +217,7 @@ def best_result_mb(title, configfile, dbfile):
             cont = ""
         if not title in cont:
             ListDb(dbfile, liste).store(title)
-        return
-    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        return False
     if not common.cutoff(best_title, 1, dbfile):
         logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
@@ -227,7 +226,10 @@ def best_result_mb(title, configfile, dbfile):
             cont = ""
         if not title in cont:
             ListDb(dbfile, liste).store(title)
-    return best_link
+        return best_link
+    else:
+        logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        return best_link
 
 
 def best_result_sj(title, configfile, dbfile):
