@@ -357,4 +357,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.updateLog();
+
+    $scope.updateChecker = function () {
+        $timeout(function () {
+            getVersion();
+            $scope.updateChecker();
+        }, 300000)
+    };
+
+    $scope.updateChecker();
 });

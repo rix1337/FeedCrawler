@@ -20,31 +20,50 @@ def mdb(configfile, dbfile, tmdbid, mdb_api):
     return title
 
 
-def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
+def get_tvdb_token(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
+    db = RssDb(dbfile, 'Ombi')
     response = post_url_json("https://api.thetvdb.com/login", configfile, dbfile, json={
         'username': tvd_user,
         'userkey': tvd_userkey,
         'apikey': tvd_api,
     })
     response = json.loads(response)
-    jwttoken = response.get('token')
+    token = response.get('token')
+    db.delete("tvdb_token")
+    db.store("tvdb_token", token)
+    return token
+
+
+def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
+    db = RssDb(dbfile, 'Ombi')
+    token = db.retrieve('tvdb_token')
+
+    if not token:
+        token = get_tvdb_token(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api)
 
     get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                               headers={'Authorization': 'Bearer ' + jwttoken, 'Content-Type': 'application/json',
+                               headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
                                         'Accept': 'application/json', 'Accept-Language': 'de'})
+
+    if get_info.status_code == 401:
+        token = get_tvdb_token(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api)
+        get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
+                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
+                                            'Accept': 'application/json', 'Accept-Language': 'de'})
+
     raw_data = json.loads(get_info.text)
     raw_info = raw_data.get('data')
     raw_title = raw_info.get('seriesName')
     if not raw_title:
         get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + jwttoken, 'Content-Type': 'application/json',
+                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
                                             'Accept': 'application/json', 'Accept-Language': 'en'})
         raw_data = json.loads(get_info.text)
         raw_info = raw_data.get('data')
         raw_title = raw_info.get('seriesName')
     title = sanitize(raw_title)
     get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + jwttoken, 'Content-Type': 'application/json',
+                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
                                             'Accept': 'application/json', 'Accept-Language': 'de'})
     raw_episode_data = json.loads(get_episodes.text)
     episodes = raw_episode_data.get('data')
@@ -55,7 +74,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
         while page <= pages:
             get_episodes = get_url_headers(
                 'https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes?page=' + str(page), configfile, dbfile,
-                headers={'Authorization': 'Bearer ' + jwttoken,
+                headers={'Authorization': 'Bearer ' + token,
                          'Content-Type': 'application/json',
                          'Accept': 'application/json', 'Accept-Language': 'de'})
             raw_episode_data = json.loads(get_episodes.text)
@@ -89,6 +108,7 @@ def ombi(configfile, dbfile):
         requested_movies = get_url_headers(url + '/api/v1/Request/movie', configfile, dbfile, headers={'ApiKey': api})
         requested_shows = get_url_headers(url + '/api/v1/Request/tv', configfile, dbfile, headers={'ApiKey': api})
     except:
+        # TODO use logging
         print("could not reach ombi")
         return False
     requested_movies = json.loads(requested_movies.text)
