@@ -92,14 +92,8 @@ def get(title, configfile, dbfile):
     for result in sj_results:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
-        if r_rating > 55:
+        if r_rating > 65:
             res = {"id": result[0], "title": r_title + append, "special": special}
-            results["result" + str(i)] = res
-            i += 1
-    if not results:
-        i = 0
-        for result in sj_results:
-            res = {"id": result[0], "title": html_to_str(result[1]) + append, "special": special}
             results["result" + str(i)] = res
             i += 1
     sj_final = results
@@ -178,6 +172,9 @@ def best_result_mb(title, configfile, dbfile):
         mb_results = get(title, configfile, dbfile)[0]
     except:
         return False
+    conf = RssConfig('MB', configfile)
+    ignore = "|".join([r"\.%s(\.|-)" % p for p in conf.get('ignore').lower().split(',')]) if conf.get(
+        'ignore') else r"^unmatchable$"
     results = []
     i = len(mb_results)
     j = 0
@@ -202,11 +199,18 @@ def best_result_mb(title, configfile, dbfile):
             best_match = i
         i += 1
     best_match = 'result' + str(best_match)
-    try:
-        best_title = mb_results.get(best_match).get('title')
-        best_link = mb_results.get(best_match).get('link')
-    except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+    best_result = mb_results.get(best_match)
+    if best_result:
+        best_title = best_result.get('title')
+        best_link = best_result.get('link')
+        if re.search(ignore, best_title.lower()):
+            found = False
+        else:
+            found = True
+    else:
+        found = False
+    if not found:
+        logging.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
@@ -215,6 +219,14 @@ def best_result_mb(title, configfile, dbfile):
             ListDb(dbfile, liste).store(title)
         return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    if not common.cutoff(best_title, 1, dbfile):
+        logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        liste = "MB_Filme"
+        cont = ListDb(dbfile, liste).retrieve()
+        if not cont:
+            cont = ""
+        if not title in cont:
+            ListDb(dbfile, liste).store(title)
     return best_link
 
 
