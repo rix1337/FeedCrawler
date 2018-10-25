@@ -55,6 +55,14 @@ class RssConfig(object):
             ("pushbullet", "str", ""),
             ("pushover", "str", "")
         ],
+        'Ombi': [
+            ("url", "str", ""),
+            ("api", "str", ""),
+            ("mdb_api", "str", ""),
+            ("tvd_api", "str", ""),
+            ("tvd_user", "str", ""),
+            ("tvd_userkey", "str", "")
+        ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
             ("subdir", "bool", "True")

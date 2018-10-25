@@ -13,6 +13,8 @@ from fuzzywuzzy import fuzz
 
 from rsscrawler import common
 from rsscrawler.common import decode_base64
+from rsscrawler.common import fullhd_title
+from rsscrawler.common import sanitize
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -90,14 +92,8 @@ def get(title, configfile, dbfile):
     for result in sj_results:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
-        if r_rating > 55:
+        if r_rating > 65:
             res = {"id": result[0], "title": r_title + append, "special": special}
-            results["result" + str(i)] = res
-        i += 1
-    if not results:
-        i = 0
-        for result in sj_results:
-            res = {"id": result[0], "title": html_to_str(result[1]) + append, "special": special}
             results["result" + str(i)] = res
             i += 1
     sj_final = results
@@ -171,16 +167,14 @@ def html_to_str(unescape):
 
 
 def best_result_mb(title, configfile, dbfile):
-    title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
-        u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß',
-                                                                                                            'ss').replace(
-        '(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?',
-                                                                                                               '').replace(
-        '!', '').replace(':', '').replace('  ', ' ').replace("'", '')
+    title = sanitize(title)
     try:
         mb_results = get(title, configfile, dbfile)[0]
     except:
         return False
+    conf = RssConfig('MB', configfile)
+    ignore = "|".join([r"\.%s(\.|-)" % p for p in conf.get('ignore').lower().split(',')]) if conf.get(
+        'ignore') else r"^unmatchable$"
     results = []
     i = len(mb_results)
     j = 0
@@ -205,21 +199,37 @@ def best_result_mb(title, configfile, dbfile):
             best_match = i
         i += 1
     best_match = 'result' + str(best_match)
-    try:
-        best_title = mb_results.get(best_match).get('title')
-        best_link = mb_results.get(best_match).get('link')
-    except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
-        listen = ["MB_Filme"]
-        for liste in listen:
-            cont = ListDb(dbfile, liste).retrieve()
-            if not cont:
-                cont = ""
-            if not title in cont:
-                ListDb(dbfile, liste).store(title)
-        return
-    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
-    return best_link
+    best_result = mb_results.get(best_match)
+    if best_result:
+        best_title = best_result.get('title')
+        best_link = best_result.get('link')
+        if re.search(ignore, best_title.lower()):
+            best_title = None
+        elif not re.search(r'^' + title.replace(" ", ".") + '.(\d{4}|German|\d{3,4}p).*', best_title):
+            best_title = None
+    else:
+        best_title = None
+    if not best_title:
+        logging.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        liste = "MB_Filme"
+        cont = ListDb(dbfile, liste).retrieve()
+        if not cont:
+            cont = ""
+        if not title in cont:
+            ListDb(dbfile, liste).store(title)
+        return False
+    if not common.cutoff(best_title, 1, dbfile):
+        logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        liste = "MB_Filme"
+        cont = ListDb(dbfile, liste).retrieve()
+        if not cont:
+            cont = ""
+        if not title in cont:
+            ListDb(dbfile, liste).store(title)
+        return best_link
+    else:
+        logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        return best_link
 
 
 def best_result_sj(title, configfile, dbfile):
@@ -248,30 +258,25 @@ def best_result_sj(title, configfile, dbfile):
         best_title = sj_results.get(best_match).get('title')
         best_id = sj_results.get(best_match).get('id')
     except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title)
-        return
+        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        listen = ["SJ_Serien", "MB_Staffeln"]
+        for liste in listen:
+            cont = ListDb(dbfile, liste).retrieve()
+            if not cont:
+                cont = ""
+            if not title in cont:
+                ListDb(dbfile, liste).store(title)
+            return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_id
 
 
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
     search_title = \
-        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[
-            0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
     search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
     feedsearch_title = \
-        title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[
-            0].split('.h264-', 1)[0]
+        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
     if not '.dl.' in feedsearch_title.lower():
         logging.debug(
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
@@ -575,13 +580,7 @@ def sj(sj_id, special, jdownloaderpath, configfile, dbfile):
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
         cont = ListDb(dbfile, liste).retrieve()
-        list_title = title.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
-            u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
-                                                                                            'ue').replace(
-            u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
-                                                                                                    '').replace('/',
-                                                                                                                '').replace(
-            '?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '').replace("’", "")
+        list_title = sanitize(title)
         if not cont:
             cont = ""
         if not list_title in cont:

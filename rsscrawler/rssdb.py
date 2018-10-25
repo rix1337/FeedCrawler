@@ -4,6 +4,8 @@
 
 import sqlite3
 
+import rsscrawler.common
+
 
 def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
@@ -57,12 +59,7 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä',
-                                                                              'Ae').replace(
-            u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(
-            u'ß', 'ss').replace('(', '').replace(')', '').replace(u'*', '').replace(u'|', '').replace('\\', '').replace(
-            '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'", '').replace("’",
-                                                                                                                    "")
+        key = rsscrawler.common.sanitize(key)
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -73,14 +70,7 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = k.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(
-                        u'ä', 'ae').replace(u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü',
-                                                                                                        'ue').replace(
-                        u'ß', 'ss').replace('(', '').replace(')', '').replace('*', '').replace('|', '').replace('\\',
-                                                                                                                '').replace(
-                        '/', '').replace('?', '').replace('!', '').replace(':', '').replace('  ', ' ').replace("'",
-                                                                                                               '').replace(
-                        "’", "")
+                    k = rsscrawler.common.sanitize(k)
                     key = key + (k,)
                     items.append(key)
         else:

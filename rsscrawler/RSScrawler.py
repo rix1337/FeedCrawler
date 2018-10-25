@@ -53,7 +53,9 @@ from rsscrawler import common
 from rsscrawler import files
 from rsscrawler import version
 from rsscrawler.common import decode_base64
+from rsscrawler.common import fullhd_title
 from rsscrawler.notifiers import notify
+from rsscrawler.ombi import ombi
 from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
@@ -61,7 +63,7 @@ from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import check_url
 from rsscrawler.url import get_url
-from rsscrawler.url import get_url_object
+from rsscrawler.url import get_url_headers
 from rsscrawler.web import start
 
 version = version.get_version()
@@ -133,6 +135,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
+                ombi(configfile, dbfile, jdownloaderpath, log_debug)
                 for task in search_pool:
                     task.periodical_task()
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -161,6 +164,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
+            ombi(configfile, dbfile, jdownloaderpath, log_debug)
             for task in search_pool:
                 task.periodical_task()
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
@@ -421,13 +425,13 @@ class SJ:
 
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                response = get_url_object(
+                response = get_url_headers(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), configfile,
                     dbfile,
                     self.headers)
                 feed = feedparser.parse(response.content)
             else:
-                response = get_url_object(
+                response = get_url_headers(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), configfile,
                     dbfile,
                     self.headers)
@@ -999,21 +1003,10 @@ class BL:
                             yield (post.title, content, key)
 
     def download_dl(self, title):
-        search_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                                   ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[0].split(
-            '.h264-', 1)[0].replace(".", " ").replace(" ", "+")
+        search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
+                                                                                                                 "+")
         search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
-        feedsearch_title = title.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                                       ".German.DTS.DL.1080p.").replace(
-            ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(
-            ".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(".German.AC3.Dubbed.720p.",
-                                                                      ".German.AC3.Dubbed.DL.1080p.").split('.x264-',
-                                                                                                            1)[0].split(
-            '.h264-', 1)[0]
+        feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
         if not '.dl.' in feedsearch_title.lower():
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
@@ -1731,8 +1724,8 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_mb = get_url_object(mb_urls[0], configfile, dbfile, self.headers_mb)
-        first_hw = get_url_object(hw_urls[0], configfile, dbfile, self.headers_hw)
+        first_mb = get_url_headers(mb_urls[0], configfile, dbfile, self.headers_mb)
+        first_hw = get_url_headers(hw_urls[0], configfile, dbfile, self.headers_hw)
         first_page_mb = feedparser.parse(first_mb.content)
         first_page_hw = feedparser.parse(first_hw.content)
 
