@@ -61,7 +61,14 @@
         <i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
     <p class="myjd-downloads">
         Downloads:
-        <span ng-repeat="x in myjd_downloads"></br><span ng-bind="x"/></span>
+    <div ng-repeat="x in myjd_downloads">
+        <span ng-bind="x"></span>
+        <div class="progress">
+            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0"
+                 aria-valuemax="100">25%
+            </div>
+        </div>
+    </div>
     </p>
     <p class="myjd-decrypted">
         Linkgrabber:

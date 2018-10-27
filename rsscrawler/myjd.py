@@ -117,7 +117,14 @@ def get_packages_in_downloader(device):
             eta = package.get('eta')
             if eta:
                 eta = readable_time(eta)
-            packages.append({name: [links, hosts, size, done, completed, speed, eta]})
+            packages.append({"name": name,
+                             "links": links,
+                             "hosts": hosts,
+                             "size": size,
+                             "done": done,
+                             "completed": completed,
+                             "speed": speed,
+                             "eta": eta})
         return packages
     else:
         return False
@@ -162,7 +169,10 @@ def get_packages_in_linkgrabber(device):
             if decrypt_failed:
                 failed.append(name)
             else:
-                decrypted.append({name: [links, hosts, size]})
+                decrypted.append({"name": name,
+                                  "links": links,
+                                  "hosts": hosts,
+                                  "size": size})
         if not failed:
             failed = False
         if not decrypted:
