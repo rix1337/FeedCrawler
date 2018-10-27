@@ -59,14 +59,6 @@
 <div name="log" id="myjd" class="container app col">
     <h1>
         <i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
-    <p>
-        Status:
-        <span ng-bind="myjd_state"/>
-    </p>
-    <p>
-        Linksammler aktiv:
-        <span ng-bind="myjd_grabbing"/>
-    </p>
     <p class="myjd-downloads">
         Downloads:
         <span ng-repeat="x in myjd_downloads"></br><span ng-bind="x"/></span>
@@ -78,6 +70,10 @@
     <p class="myjd-failed">
         Fehlerhaft:
         <span ng-repeat="z in myjd_failed"></br><span ng-bind="z"/></span>
+    </p>
+    <p>
+        <i id="myjd_state" class="fas fa-question-circle" title="Downloadstatus unbekannt"></i>
+        <i id="myjd_grabbing" class="blinking" title="Linkgrabber läuft"></i>
     </p>
 </div>
 

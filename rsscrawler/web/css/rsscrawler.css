@@ -28,6 +28,18 @@ body {
     max-width: 80em;
 }
 
+.myjd-downloads {
+    display: none;
+}
+
+.myjd-decrypted {
+    display: none;
+}
+
+.myjd-failed {
+    display: none;
+}
+
 .alert {
     margin-bottom: 1em;
     max-width: 20em;
@@ -55,3 +67,16 @@ body {
     max-width: 20em;
 }
 
+.blinking {
+
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

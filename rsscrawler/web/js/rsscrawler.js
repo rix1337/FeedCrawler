@@ -306,10 +306,44 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.get('api/myjd/')
             .then(function (res) {
                 $scope.myjd_state = res.data.downloader_state;
+                if ($scope.myjd_state == "RUNNING") {
+                    $('#myjd_state').removeClass('fa-question-circle').removeClass('fa-pause').removeClass('fa-stop').addClass('fa-play').attr('title', 'Downloads laufen');
+                } else if ($scope.myjd_state == "PAUSE") {
+                    $('#myjd_state').removeClass('fa-question-circle').removeClass('fa-play').removeClass('fa-stop').addClass('fa-pause').attr('title', 'Downloads pausiert');
+                } else if ($scope.myjd_state == "STOPPED_STATE") {
+                    $('#myjd_state').removeClass('fa-question-circle').removeClass('fa-play').removeClass('fa-pause').addClass('fa-stop').attr('title', 'Downloads angehalten');
+                } else {
+                    $('#myjd_state').removeClass('fa-play').removeClass('fa-pause').removeClass('fa-stop').addClass('fa-question-circle').attr('title', 'Downloadstatus unbekannt');
+                }
+                ;
                 $scope.myjd_grabbing = res.data.grabber_collecting;
+                if ($scope.myjd_grabbing) {
+                    $('#myjd_grabbing').addClass('fas').addClass('fa-search');
+                } else {
+                    $('#myjd_grabbing').removeClass('fas').removeClass('fa-search');
+                }
+                ;
                 $scope.myjd_downloads = res.data.packages.downloader;
+                if ($scope.myjd_downloads) {
+                    $('.myjd-downloads').show();
+                } else {
+                    $('.myjd-downloads').hide();
+                }
+                ;
                 $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
+                if ($scope.myjd_decrypted) {
+                    $('.myjd-decrypted').show();
+                } else {
+                    $('.myjd-decrypted').hide();
+                }
+                ;
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+                if ($scope.myjd_failed) {
+                    $('.myjd-failed').show();
+                } else {
+                    $('.myjd-failed').hide();
+                }
+                ;
                 console.log('JDownloader abgerufen!');
             }, function (res) {
                 console.log('Konnte JDownloader nicht erreichen!');
