@@ -137,10 +137,15 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         setSettings();
     };
 
+    $scope.getMyJD = function () {
+        getMyJD();
+    };
+
 
     function getAll() {
         getVersion()
         getLog()
+        getMyJD()
         getLists()
         getSettings()
     }
@@ -297,6 +302,21 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('.search').show();
     }
 
+    function getMyJD() {
+        $http.get('api/myjd/')
+            .then(function (res) {
+                $scope.myjd_state = res.data.downloader_state;
+                $scope.myjd_grabbing = res.data.grabber_collecting;
+                $scope.myjd_downloads = res.data.packages.downloader;
+                $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
+                $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+                console.log('JDownloader abgerufen!');
+            }, function (res) {
+                console.log('Konnte JDownloader nicht erreichen!');
+                showDanger('Konnte JDownloader nicht erreichen!');
+            });
+    }
+
     function resetTitle(title) {
         $http.delete('api/delete/' + title)
             .then(function (res) {
@@ -361,6 +381,15 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.updateLog();
+
+    $scope.checMyJD = function () {
+        $timeout(function () {
+            getMyJD();
+            $scope.checMyJD();
+        }, 10000)
+    };
+
+    $scope.checMyJD();
 
     $scope.updateChecker = function () {
         $timeout(function () {

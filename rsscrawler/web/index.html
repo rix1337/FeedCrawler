@@ -56,6 +56,32 @@
         <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
 </div>
 
+<div name="log" id="myjd" class="container app col">
+    <h1>
+        <i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
+    <p>
+        Status:
+        <span ng-bind="myjd_state"/>
+    </p>
+    <p>
+        Linksammler aktiv:
+        <span ng-bind="myjd_grabbing"/>
+    </p>
+    <p class="myjd-downloads">
+        Downloads:
+        <span ng-repeat="x in myjd_downloads"></br><span ng-bind="x"/></span>
+    </p>
+    <p class="myjd-decrypted">
+        Linkgrabber:
+        <span ng-repeat="y in myjd_decrypted"></br><span ng-bind="y"/></span>
+    </p>
+    <p class="myjd-failed">
+        Fehlerhaft:
+        <span ng-repeat="z in myjd_failed"></br><span ng-bind="z"/></span>
+    </p>
+</div>
+
+
 <form>
     <div name="lists" id="lists" class="container app col">
         <h1>
@@ -307,7 +333,7 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwoZero"
                             aria-expanded="true" aria-controls="collapseTwoZero">
-                        <h3>MyJDownloader</h3>
+                        <h3>JDownloader</h3>
                     </button>
                 </h5>
             </div>
@@ -317,15 +343,15 @@
                     <h4>Nutzername</h4>
                     <input ng-model="settings.general.myjd_user" class="form-control docker" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier den Nutzernamen von MyJDownloader angeben"/>
+                           title="Hier den Nutzernamen von My JDownloader angeben"/>
                     <h4>Passwort</h4>
                     <input ng-model="settings.general.myjd_pass" class="form-control docker" data-toggle="tooltip"
                            data-placement="top" type="password"
-                           title="Hier das Passwort von MyJDownloader angeben"/>
+                           title="Hier das Passwort von My JDownloader angeben"/>
                     <h4>Gerätename</h4>
                     <input ng-model="settings.general.myjd_device" class="form-control docker" data-toggle="tooltip"
                            data-placement="top"
-                           title="Hier den Gerätenamen des mit dem obigen MyJDownloader-Konto verbundenen JDownloaders angeben"/>
+                           title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben"/>
                 </div>
             </div>
         </div>
