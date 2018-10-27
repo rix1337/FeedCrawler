@@ -94,6 +94,9 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                 {
                     "settings": {
                         "general": {
+                            "myjd_user": general_conf.get("myjd_user"),
+                            "myjd_pass": general_conf.get("myjd_pass"),
+                            "myjd_device": general_conf.get("myjd_device"),
                             "pfad": general_conf.get("jdownloader"),
                             "port": to_int(general_conf.get("port")),
                             "prefix": general_conf.get("prefix"),
@@ -161,6 +164,12 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
             data = request.json
 
             section = RssConfig("RSScrawler", configfile)
+            section.save("myjd_user",
+                         to_str(data['general']['myjd_user']))
+            section.save("myjd_pass",
+                         to_str(data['general']['myjd_pass']))
+            section.save("myjd_device",
+                         to_str(data['general']['myjd_device']))
             section.save("jdownloader",
                          to_str(data['general']['pfad']))
             section.save(

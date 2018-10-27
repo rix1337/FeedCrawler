@@ -164,6 +164,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Einstellungen abgerufen!');
                 year = (new Date).getFullYear();
                 $("#year").attr("max", year);
+                if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                    $("#pfad").prop("disabled", true);
+                }
+                ;
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');

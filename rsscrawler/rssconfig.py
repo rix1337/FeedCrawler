@@ -8,6 +8,9 @@ from six.moves import configparser
 class RssConfig(object):
     _DEFAULT_CONFIG = {
         'RSScrawler': [
+            ("myjd_user", "str", ""),
+            ("myjd_pass", "str", ""),
+            ("myjd_device", "str", ""),
             ("jdownloader", "str", ""),
             ("port", "int", "9090"),
             ("prefix", "str", ""),

@@ -300,6 +300,35 @@
     <div name="settings" id="settings" class="container app col">
         <h1>
             <i class="fas fa-cog"></i> Einstellungen</h1>
+
+
+        <div class="card">
+            <div class="card-header" id="headingTwoZero">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#collapseTwoZero"
+                            aria-expanded="true" aria-controls="collapseTwoZero">
+                        <h3>MyJDownloader</h3>
+                    </button>
+                </h5>
+            </div>
+
+            <div id="collapseTwoZero" class="collapse" aria-labelledby="headingTwoZero" data-parent="#settings">
+                <div class="card-body">
+                    <h4>Nutzername</h4>
+                    <input ng-model="settings.general.myjd_user" class="form-control docker" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Hier den Nutzernamen von MyJDownloader angeben"/>
+                    <h4>Passwort</h4>
+                    <input ng-model="settings.general.myjd_pass" class="form-control docker" data-toggle="tooltip"
+                           data-placement="top" type="password"
+                           title="Hier das Passwort von MyJDownloader angeben"/>
+                    <h4>Gerätename</h4>
+                    <input ng-model="settings.general.myjd_device" class="form-control docker" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Hier den Gerätenamen des mit dem obigen MyJDownloader-Konto verbundenen JDownloaders angeben"/>
+                </div>
+            </div>
+        </div>
         <div class="card">
             <div class="card-header" id="headingTwoOne">
                 <h5 class="mb-0">
@@ -312,58 +341,42 @@
 
             <div id="collapseTwoOne" class="collapse" aria-labelledby="headingTwoOne" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>JDownloader-Pfad</h4>
-                    <input required ng-model="settings.general.pfad" class="form-control docker" data-toggle="tooltip"
+                    <input ng-model="settings.general.pfad" class="form-control docker" id="pfad" data-toggle="tooltip"
                            data-placement="top"
-                           title="Exakt das Verzeichnis des JDownloaders angeben, sonst funktioniert das Script nicht - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
-                    </p>
-                    <p>
+                           title="Nur aktiv, wenn oben keine MyJDownloader-Zugangsdaten hinterlegt wurden: Exakt das Verzeichnis des JDownloaders angeben - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
                     <h4>Port</h4>
-                    <input required type="number" min="1" max="65535" ng-model="settings.general.port"
+                    <input required type="number" min="1024" max="65535" ng-model="settings.general.port"
                            class="form-control docker" data-toggle="tooltip"
                            data-placement="top" title="Hier den Port des Webservers wählen"/>
-                    </p>
-                    <p>
                     <h4>Prefix</h4>
                     <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)"/>
-                    </p>
-                    <p>
                     <h4>Suchintervall</h4>
                     <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
-                    </p>
-                    <p>
                     <h4>Englische Releases hinzufügen</h4>
                     <select ng-model="settings.general.english" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden auch englischsprachige Titel gesucht"></select>
-                    </p>
-                    <p>
                     <h4>Mehrkanalton erzwingen</h4>
                     <select ng-model="settings.general.surround" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt"></select>
-                    </p>
-                    <p>
                     <h4>Proxy</h4>
                     <input ng-model="settings.general.proxy" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080"/>
-                    </p>
-                    <p>
                     <h4>Proxy-Fallback</h4>
                     <select ng-model="settings.general.fallback" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Diese Option sollte nicht leichtfertig aktiviert werden! Vor jedem Suchlauf wird geprüft, ob MB oder SJ die aktuelle IP gesperrt haben. Ist diese Option aktiv, wird die oben eingetragene Proxy-Adresse für die blockierte Seite umgangen."></select>
-                    </p>
                 </div>
             </div>
         </div>
@@ -378,24 +391,18 @@
             </div>
             <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Pushbullet</h4>
                     <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Access-Token auf Pushbullet.com anlegen und hier angeben"/>
-                    </p>
-                    <p>
                     <h4>Pushover</h4>
                     <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token eingeben - Für letzteren zunächst eine App auf Pushover.net anlegen"/>
-                    </p>
-                    <p>
                     <h4>Home Assistant</h4>
                     <input ng-model="settings.alerts.homeassistant" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben"/>
-                    </p>
                 </div>
             </div>
         </div>
@@ -410,42 +417,30 @@
             </div>
             <div id="collapseTwoThree" class="collapse" aria-labelledby="headingTwoThree" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Ombi URL</h4>
                     <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
-                    </p>
-                    <p>
                     <h4>Ombi API-Key</h4>
                     <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den API-Key von Ombi angeben."/>
-                    </p>
-                    <p>
                     <h4>The Movie Database API-Key</h4>
                     <input ng-model="settings.ombi.mdb_api" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Unter https://www.themoviedb.org/settings/api registrieren und einen API-Key anfordern."/>
-                    </p>
-                    <p>
                     <h4>TheTVDB API-Key</h4>
                     <input ng-model="settings.ombi.tvd_api" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Unter https://www.thetvdb.com/member/api registrieren und einen API-Key generieren."/>
-                    </p>
-                    <p>
                     <h4>TheTVDB Username</h4>
                     <input ng-model="settings.ombi.tvd_user" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Unter https://www.thetvdb.com/member/api registrieren und den Username angeben."/>
-                    </p>
-                    <p>
                     <h4>TheTVDB Unique ID</h4>
                     <input ng-model="settings.ombi.tvd_userkey" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Unter https://www.thetvdb.com/member/api registrieren und die Unique ID angeben."/>
-                    </p>
                 </div>
             </div>
         </div>
@@ -460,20 +455,16 @@
             </div>
             <div id="collapseTwoFour" class="collapse" aria-labelledby="headingTwoFour" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Automatischer Download</h4>
                     <select ng-model="settings.crawljobs.autostart" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden Downloads automatisch gestartet, auch wenn der JDownloader gerade pausiert ist"></select>
-                    </p>
-                    <p>
                     <h4>Unterordner bei Download</h4>
                     <select ng-model="settings.crawljobs.subdir" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Praktisch für die Weiterverarbeitung per Script"></select>
-                    </p>
                 </div>
             </div>
         </div>
@@ -488,79 +479,57 @@
             </div>
             <div id="collapseTwoFive" class="collapse" aria-labelledby="headingTwoFive" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Hoster</h4>
                     <select ng-model="settings.mb.hoster" ng-options="h.value as h.label for h in mb_hosters"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Hier den/die gewünschten Hoster wählen *steht nicht immer zur Verfügung **extremen Captcha-Bedarf beachten!"></select>
-                    </p>
-                    <p>
                     <h4>Auflösung</h4>
                     <select ng-model="settings.mb.quality" ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
-                    </p>
-                    <p>
                     <h4>Suchtiefe</h4>
                     <select ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
-                    </p>
-                    <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
-                    </p>
-                    <p>
                     <h4>Auch per RegEx suchen</h4>
                     <select ng-model="settings.mb.regex" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht"></select>
-                    </p>
-                    <p>
                     <h4>Ab IMDB-Wertung hinzufügen</h4>
                     <input required type="number" step="0.1" ng-model="settings.mb.imdb_score" min="0.0" max="10.0"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren"/>
-                    </p>
-                    <p>
                     <h4>IMDB hinzufügen ab Erscheinungsjahr</h4>
                     <input id="year" type="number" min="1900" max="2100" ng-model="settings.mb.imdb_year"
                            class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Berücksichtige Filme bei IMDB-Suche erst ab diesem Erscheinungsjahr"/>
-                    </p>
-                    <p>
                     <h4>Zweisprachige Releases erzwingen</h4>
                     <select ng-model="settings.mb.force_dl" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten"></select>
-                    </p>
-                    <p>
                     <h4>Listeneintrag bei Retail streichen</h4>
                     <select ng-model="settings.mb.cutoff" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde"></select>
-                    </p>
-                    <p>
                     <h4>3D-Releases suchen</h4>
                     <select ng-model="settings.mb.crawl_3d" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p) unabhängig von der oben gesetzten Auflösung"></select>
-                    </p>
-                    <p>
                     <h4>3D-Format</h4>
                     <select ng-model="settings.mb.crawl_3d_type" ng-options="t.value as t.label for t in types_3d"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Das gewünschte Format der 3D-Filme wählen"></select>
-                    </p>
                 </div>
             </div>
         </div>
@@ -575,31 +544,23 @@
             </div>
             <div id="collapseTwoSix" class="collapse" aria-labelledby="headingTwoSix" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Hoster</h4>
                     <select ng-model="settings.sj.hoster" ng-options="h.value as h.label for h in sj_hosters"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Hier den/die gewünschten Hoster wählen *steht nicht immer zur Verfügung **extremen Captcha-Bedarf beachten!"></select>
-                    </p>
-                    <p>
                     <h4>Auflösung</h4>
                     <select ng-model="settings.sj.quality" ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
-                    </p>
-                    <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
-                    </p>
-                    <p>
                     <h4>Auch per RegEx suchen</h4>
                     <select ng-model="settings.sj.regex" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht"></select>
-                    </p>
                 </div>
             </div>
         </div>
@@ -614,33 +575,25 @@
             </div>
             <div id="collapseTwoSeven" class="collapse" aria-labelledby="headingTwoSeven" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Staffeln suchen</h4>
                     <select ng-model="settings.mbsj.enabled" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste auf Blogs und SJ gesucht"></select>
-                    </p>
-                    <p>
                     <h4>Auflösung der Staffeln</h4>
                     <select ng-model="settings.mbsj.quality" ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Die Release-Auflösung der Staffeln, nach der gesucht wird"></select>
-                    </p>
-                    <p>
                     <h4>Staffelpakete erlauben</h4>
                     <select ng-model="settings.mbsj.packs" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top"
                             title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind"></select>
-                    </p>
-                    <p>
                     <h4>Quellart der Staffeln</h4>
                     <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Die Quellart der Staffeln, nach der gesucht wird"></select>
-                    </p>
                 </div>
             </div>
         </div>
@@ -655,17 +608,13 @@
             </div>
             <div id="collapseTwoEight" class="collapse" aria-labelledby="headingTwoEight" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Hoster</h4>
                     <select ng-model="settings.dd.hoster" ng-options="h.value as h.label for h in dd_hosters"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Hier den/die gewünschten Hoster wählen."></select>
-                    </p>
-                    <p>
                     <h4>Feeds</h4>
                     <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip" data-placement="top"
                            title="Hier Feeds von DD eintragen (durch Kommata getrennt)"/>
-                    </p>
                 </div>
             </div>
         </div>
@@ -680,23 +629,17 @@
             </div>
             <div id="collapseTwoNine" class="collapse" aria-labelledby="headingTwoNine" data-parent="#settings">
                 <div class="card-body">
-                    <p>
                     <h4>Suche aktivieren</h4>
                     <select ng-model="settings.yt.enabled" ng-options="o.value as o.label for o in bools"
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Wenn aktiviert, werden YouTube-Videos gesucht"></select>
-                    </p>
-                    <p>
                     <h4>Maximale Videoanzahl</h4>
                     <input required type="number" min="1" max="50" ng-model="settings.yt.max" class="form-control"
                            data-toggle="tooltip" data-placement="top"
                            title="Die Maximale Anzahl hinzuzufügender Videos (1-50)"/>
-                    </p>
-                    <p>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
                            title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)"/>
-                    </p>
                 </div>
             </div>
         </div>
@@ -715,7 +658,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-sanitize.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?updated"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>

@@ -4,6 +4,8 @@
 
 import json
 
+import requests
+
 from rsscrawler import search
 from rsscrawler.common import sanitize
 from rsscrawler.rssconfig import RssConfig
@@ -107,14 +109,13 @@ def ombi(configfile, dbfile, jdpath, log_debug):
 
     try:
         if mdb_api:
-            requested_movies = get_url_headers(url + '/api/v1/Request/movie', configfile, dbfile,
-                                               headers={'ApiKey': api})
+            requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
             requested_movies = json.loads(requested_movies.text)
         else:
             requested_movies = []
             log_debug("Aufgrund fehlender API-Zugangsdaten werden keine Filme aus Ombi importiert.")
         if tvd_api and tvd_user and tvd_userkey:
-            requested_shows = get_url_headers(url + '/api/v1/Request/tv', configfile, dbfile, headers={'ApiKey': api})
+            requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
             requested_shows = json.loads(requested_shows.text)
         else:
             requested_shows = []
@@ -131,6 +132,7 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                 best_result = search.best_result_mb(title, configfile, dbfile)
                 if best_result:
                     search.mb(best_result, jdpath, configfile, dbfile)
+                # TODO repeat for english title if setting is enabled
                 db.store('tmdb_' + str(tmdbid), 'added')
 
     for r in requested_shows:

@@ -12,11 +12,11 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ## Credits
 
-Die Suchfunktionen basieren auf pyLoad-Erweiterungen von:
+[mmarquezs](https://github.com/mmarquezs/)
 
 [zapp-brannigan](https://github.com/zapp-brannigan/)
 
-[Gutz-Pilz](https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py)
+[Gutz-Pilz](https://github.com/Gutz-Pilz/)
 
 ##  Vorraussetzungen
 * [Python ab 3.5 empfohlen (2.7 wird noch unterstützt)](https://www.python.org/downloads/)
