@@ -67,6 +67,18 @@ body {
     max-width: 20em;
 }
 
+.progress {
+    height: 2em;
+}
+
+#percentage {
+    display: inline-block;
+}
+
+#myjd_state {
+    font-size: 2em;
+}
+
 .blinking {
 
     animation: blink 1s linear infinite;

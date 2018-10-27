@@ -7,7 +7,7 @@
 
     <link href="img/favicon.ico" rel="icon" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/rsscrawler.css">
+    <link rel="stylesheet" href="css/rsscrawler.css?myjd">
 
     <title>RSScrawler</title>
 </head>
@@ -56,28 +56,48 @@
         <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
 </div>
 
-<div name="log" id="myjd" class="container app col">
-    <h1>
-        <i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
+<div name="myjd" id="myjd" class="container app col">
+    <h1><i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
+
     <p class="myjd-downloads">
-        Downloads:
-    <div ng-repeat="x in myjd_downloads">
-        <span ng-bind="x"></span>
-        <div class="progress">
-            <div class="progress-bar" role="progressbar" style="width: 25%;" aria-valuenow="25" aria-valuemin="0"
-                 aria-valuemax="100">25%
-            </div>
+    <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
+        <div class="card-header">
+            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)<br>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span ng-bind="x.done"></span>/<span ng-bind="x.size"></span></li>
+            <li class="list-group-item">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                         aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100" style="width: 75%">
+                        <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
+        </ul>
+    </div>
+    </p>
+
+    <p class="myjd-decrypted">
+    <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
+        <div class="card-header">
+            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)<br>
+        </div>
+        <ul class="list-group list-group-flush">
+            <span ng-bind="y.size"></span></li>
+        </ul>
+    </div>
+    </p>
+
+    <p class="myjd-failed">
+    <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
+        <div class="card-header">
+            <strong ng-bind="z"></strong><br>
         </div>
     </div>
     </p>
-    <p class="myjd-decrypted">
-        Linkgrabber:
-        <span ng-repeat="y in myjd_decrypted"></br><span ng-bind="y"/></span>
-    </p>
-    <p class="myjd-failed">
-        Fehlerhaft:
-        <span ng-repeat="z in myjd_failed"></br><span ng-bind="z"/></span>
-    </p>
+
     <p>
         <i id="myjd_state" class="fas fa-question-circle" title="Downloadstatus unbekannt"></i>
         <i id="myjd_grabbing" class="blinking" title="Linkgrabber läuft"></i>
@@ -687,7 +707,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-sanitize.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?myjd"></script>
 </body>
 
 </html>

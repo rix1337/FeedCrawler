@@ -420,7 +420,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             getMyJD();
             $scope.checMyJD();
-        }, 30000)
+        }, 15000)
     };
 
     $scope.checMyJD();

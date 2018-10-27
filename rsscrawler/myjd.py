@@ -107,7 +107,7 @@ def get_packages_in_downloader(device):
             links = package.get('childCount')
             size = package.get('bytesTotal')
             done = package.get('bytesLoaded')
-            completed = str(100 * done // size) + " %"
+            completed = 100 * done // size
             size = readable_size(size)
             done = readable_size(done)
             speed = package.get('speed')
@@ -122,7 +122,7 @@ def get_packages_in_downloader(device):
                              "hosts": hosts,
                              "size": size,
                              "done": done,
-                             "completed": completed,
+                             "percentage": completed,
                              "speed": speed,
                              "eta": eta})
         return packages
