@@ -36,17 +36,18 @@ def get_device(configfile, dbfile):
 
     conf = RssConfig('RSScrawler', configfile)
 
-    myjd_user = conf.get('myjd_user')
-    myjd_pass = conf.get('myjd_pass')
-    myjd_device = conf.get('mjd_device')
-
-    jd.connect(myjd_user, myjd_pass)
+    myjd_user = str(conf.get('myjd_user'))
+    myjd_pass = str(conf.get('myjd_pass'))
+    myjd_device = str(conf.get('myjd_device'))
 
     # TODO save token/encryption key for reuse
-
-    jd.update_devices()
-
-    device = jd.get_device(myjd_device)
+    try:
+        jd.connect(myjd_user, myjd_pass)
+        jd.update_devices()
+        device = jd.get_device(myjd_device)
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
     return device
 
 
@@ -171,21 +172,39 @@ def get_packages_in_linkgrabber(device):
         return [False, False]
 
 
-def get_info():
-    device = get_device()
-    device.update.run_update_check()
+def update_jdownloader(configfile, dbfile):
+    device = get_device(configfile, dbfile)
+    if device:
+        device.update.run_update_check()
+        update = device.update.is_update_available()
+        if update:
+            device.update.restart_and_update()
 
-    downloader_state = device.downloadcontroller.get_current_state()
-    grabber_collecting = device.linkgrabber.is_collecting()
 
-    packages_in_downloader = get_packages_in_downloader(device)
-    packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-    packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-    packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
+def check_failed_packages(configfile, dbfile):
+    device = get_device(configfile, dbfile)
+    if device:
+        grabber_collecting = device.linkgrabber.is_collecting()
+        packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+        packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
 
-    update = device.update.is_update_available()
-    if update:
-        device.update.restart_and_update()
+        return [grabber_collecting, packages_in_linkgrabber_failed]
+    else:
+        return False
 
-    return [downloader_state, grabber_collecting,
-            [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
+
+def get_info(configfile, dbfile):
+    device = get_device(configfile, dbfile)
+    if device:
+        downloader_state = device.downloadcontroller.get_current_state()
+        grabber_collecting = device.linkgrabber.is_collecting()
+
+        packages_in_downloader = get_packages_in_downloader(device)
+        packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+        packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+        packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
+
+        return [downloader_state, grabber_collecting,
+                [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
+    else:
+        return False

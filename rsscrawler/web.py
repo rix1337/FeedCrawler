@@ -16,6 +16,8 @@ from six.moves import StringIO
 
 from rsscrawler import search
 from rsscrawler import version
+from rsscrawler.myjd import check_failed_packages
+from rsscrawler.myjd import get_info
 from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
@@ -379,6 +381,43 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         if request.method == 'POST':
             if search.sj(sj_id, special, jdpath, configfile, dbfile):
                 return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_failed/", methods=['GET'])
+    def myjd_failed():
+        if request.method == 'GET':
+            myjd = check_failed_packages(configfile, dbfile)
+            if myjd:
+                return jsonify(
+                    {
+                        "grabber_collecting": myjd[0],
+                        "linkgrabber_failed": myjd[1]
+                    }
+                ), 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd/", methods=['GET'])
+    def myjd_info():
+        if request.method == 'GET':
+            myjd = get_info(configfile, dbfile)
+            if myjd:
+                return jsonify(
+                    {
+                        "downloader_state": myjd[0],
+                        "grabber_collecting": myjd[1],
+                        "packages": {
+                            "downloader": myjd[2][0],
+                            "linkgrabber_decrypted": myjd[2][1],
+                            "linkgrabber_failed": myjd[2][2]
+                        }
+                    }
+                ), 200
             else:
                 return "Failed", 400
         else:

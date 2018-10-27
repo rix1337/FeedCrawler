@@ -54,6 +54,7 @@ from rsscrawler import files
 from rsscrawler import version
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
+from rsscrawler.myjd import update_jdownloader
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import CutLog
@@ -148,6 +149,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items, configfile)
                 added_items = []
+                update_jdownloader(configfile, dbfile)
                 interval = int(rsscrawler.get('interval')) * 60
                 random_range = random.randrange(0, interval // 4)
                 wait = interval + random_range
@@ -176,6 +178,7 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
                 total_unit = " Minuten"
             total_time = str(round(total_time, 1)) + total_unit
             notify(added_items, configfile)
+            update_jdownloader(configfile, dbfile)
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
