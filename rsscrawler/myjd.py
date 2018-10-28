@@ -185,6 +185,19 @@ def check_failed_packages(configfile):
         return False
 
 
+def get_state(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            downloader_state = device.downloadcontroller.get_current_state()
+            grabber_collecting = device.linkgrabber.is_collecting()
+            return [downloader_state, grabber_collecting]
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
 def get_info(configfile):
     try:
         device = get_device(configfile)
@@ -282,11 +295,11 @@ def jdownloader_start(configfile):
         return False
 
 
-def jdownloader_pause(configfile):
+def jdownloader_pause(configfile, bool):
     try:
         device = get_device(configfile)
         if device:
-            device.downloadcontroller.pause_downloads()
+            device.downloadcontroller.pause_downloads(bool)
             return True
         else:
             return False

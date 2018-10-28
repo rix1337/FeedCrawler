@@ -62,7 +62,7 @@
     <p class="myjd-downloads">
     <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
         <div class="card-header">
-            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)<br>
+            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
         </div>
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><span ng-bind="x.done"></span>/<span ng-bind="x.size"></span></li>
@@ -82,7 +82,7 @@
     <p class="myjd-decrypted">
     <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
         <div class="card-header">
-            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)<br>
+            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
         </div>
         <ul class="list-group list-group-flush">
             <span ng-bind="y.size"></span></li>
@@ -93,13 +93,18 @@
     <p class="myjd-failed">
     <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
         <div class="card-header">
-            <strong ng-bind="z.name"></strong><br>
+            <strong ng-bind="z.name"></strong>
         </div>
     </div>
     </p>
 
-    <p>
-        <i id="myjd_state" class="fas fa-question-circle" title="Downloadstatus unbekannt"></i>
+    <p id="myjd_state">
+        <a href="#myjd" id="myjd_start" ng-click="myJDstart()"><i class="myjd_state fas fa-play"
+                                                                  title="Download starten"></i></a>
+        <a href="#myjd" id="myjd_unpause" ng-click="myJDunpause()"><i class="myjd_state fas fa-pause"
+                                                                      title="Download fortsetzen"></i></a>
+        <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="myjd_state fas fa-stop"
+                                                                title="Download anhalten"></i></a>
         <i id="myjd_grabbing" class="blinking" title="Linkgrabber läuft"></i>
     </p>
 </div>

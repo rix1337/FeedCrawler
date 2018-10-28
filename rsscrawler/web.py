@@ -17,8 +17,8 @@ from six.moves import StringIO
 
 from rsscrawler import search
 from rsscrawler import version
-from rsscrawler.myjd import check_failed_packages
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
@@ -413,15 +413,15 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_failed/", methods=['GET'])
-    def myjd_failed():
+    @app.route(prefix + "/api/myjd_state/", methods=['GET'])
+    def myjd_state():
         if request.method == 'GET':
-            myjd = check_failed_packages(configfile)
+            myjd = get_state(configfile)
             if myjd:
                 return jsonify(
                     {
-                        "grabber_collecting": myjd[0],
-                        "linkgrabber_failed": myjd[1]
+                        "downloader_state": myjd[0],
+                        "grabber_collecting": myjd[1]
                     }
                 ), 200
             else:
@@ -464,10 +464,10 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_pause/", methods=['POST'])
+    @app.route(prefix + "/api/myjd_unpause/", methods=['POST'])
     def myjd_pause():
         if request.method == 'POST':
-            myjd = jdownloader_pause(configfile)
+            myjd = jdownloader_pause(configfile, False)
             if myjd:
                 return "Success", 200
             else:
