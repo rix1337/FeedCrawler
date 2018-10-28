@@ -28,6 +28,10 @@ body {
     max-width: 80em;
 }
 
+#myjd {
+    display: none;
+}
+
 .myjd-downloads {
     display: none;
 }

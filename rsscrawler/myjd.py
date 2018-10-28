@@ -117,6 +117,7 @@ def get_packages_in_downloader(device):
             eta = package.get('eta')
             if eta:
                 eta = readable_time(eta)
+            uuid = package.get('uuid')
             packages.append({"name": name,
                              "links": links,
                              "hosts": hosts,
@@ -124,7 +125,8 @@ def get_packages_in_downloader(device):
                              "done": done,
                              "percentage": completed,
                              "speed": speed,
-                             "eta": eta})
+                             "eta": eta,
+                             "uuid": uuid})
         return packages
     else:
         return False
@@ -162,17 +164,20 @@ def get_packages_in_linkgrabber(device):
             if size:
                 size = readable_size(size)
             hosts = package.get('hosts')
+            uuid = package.get('uuid')
             decrypt_failed = False
             for h in hosts:
                 if h == 'linkcrawlerretry':
                     decrypt_failed = True
             if decrypt_failed:
-                failed.append(name)
+                failed.append({"name": name,
+                               "uuid": uuid})
             else:
                 decrypted.append({"name": name,
                                   "links": links,
                                   "hosts": hosts,
-                                  "size": size})
+                                  "size": size,
+                                  "uuid": uuid})
         if not failed:
             failed = False
         if not decrypted:

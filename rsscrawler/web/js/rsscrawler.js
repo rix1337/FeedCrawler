@@ -170,6 +170,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                    $("#myjd").show();
                     $("#pfad").prop("disabled", true);
                 }
                 ;
