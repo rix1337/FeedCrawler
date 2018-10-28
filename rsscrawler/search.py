@@ -44,7 +44,7 @@ def get(title, configfile, dbfile):
     else:
         mb_query = query
     mb_search = get_url(
-        decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+" + quality + '/feed/rss2/',
+        decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + mb_query + "+" + quality + '/feed/rss2/',
         configfile, dbfile)
     mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
 
@@ -56,7 +56,7 @@ def get(title, configfile, dbfile):
 
     if config.get("crawl3d"):
         mb_search = get_url(
-            decode_base64('aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZw==') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/',
+            decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/',
             configfile, dbfile)
         mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
         for result in mb_results:
@@ -274,7 +274,7 @@ def best_result_sj(title, configfile, dbfile):
 def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
     search_title = \
         fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-    search_url = decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/"
+    search_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/"
     feedsearch_title = \
         fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
     if not '.dl.' in feedsearch_title.lower():
@@ -288,7 +288,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not decode_base64("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
                 link_hoster = url_hoster[1].lower().replace(
                     'target="_blank">', '')
                 if re.match(hoster, link_hoster):
@@ -401,7 +401,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
     links = {}
     for url_hoster in reversed(url_hosters):
-        if not decode_base64("bW92aWUtYmxvZy5vcmcv") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+        if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
