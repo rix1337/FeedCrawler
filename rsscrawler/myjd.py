@@ -82,6 +82,8 @@ def download_link(configfile, title, subdir, links, password):
 
 
 def get_packages_in_downloader(device):
+    links = device.downloads.query_links()
+
     downloader_packages = device.downloads.query_packages([{
         "bytesLoaded": True,
         "bytesTotal": True,
@@ -104,7 +106,7 @@ def get_packages_in_downloader(device):
         packages = []
         for package in downloader_packages:
             name = package.get('name')
-            links = package.get('childCount')
+            total_links = package.get('childCount')
             size = package.get('bytesTotal')
             done = package.get('bytesLoaded')
             completed = 100 * done // size
@@ -118,14 +120,24 @@ def get_packages_in_downloader(device):
             if eta:
                 eta = readable_time(eta)
             uuid = package.get('uuid')
+            urls = []
+            linkids = []
+            for link in links:
+                if uuid == link.get('packageUUID'):
+                    url = link.get('url')
+                    if url not in urls:
+                        urls.append(url)
+                    linkids.append(link.get('uuid'))
             packages.append({"name": name,
-                             "links": links,
+                             "links": total_links,
                              "hosts": hosts,
                              "size": size,
                              "done": done,
                              "percentage": completed,
                              "speed": speed,
                              "eta": eta,
+                             "urls": urls,
+                             "linkids": linkids,
                              "uuid": uuid})
         return packages
     else:
@@ -138,6 +150,8 @@ def get_packages_in_linkgrabber(device):
     if grabber_packages > 0:
         failed = []
         decrypted = []
+
+        links = device.linkgrabber.query_links()
 
         grabbed_packages = device.linkgrabber.query_packages(params=[
             {
@@ -159,24 +173,36 @@ def get_packages_in_linkgrabber(device):
             }])
         for package in grabbed_packages:
             name = package.get('name')
-            links = package.get('childCount')
+            total_links = package.get('childCount')
             size = package.get('bytesTotal')
             if size:
                 size = readable_size(size)
             hosts = package.get('hosts')
             uuid = package.get('uuid')
+            urls = []
+            linkids = []
+            for link in links:
+                if uuid == link.get('packageUUID'):
+                    url = link.get('url')
+                    if url not in urls:
+                        urls.append(url)
+                    linkids.append(link.get('uuid'))
             decrypt_failed = False
             for h in hosts:
                 if h == 'linkcrawlerretry':
                     decrypt_failed = True
             if decrypt_failed:
                 failed.append({"name": name,
+                               "urls": urls,
+                               "linkids": linkids,
                                "uuid": uuid})
             else:
                 decrypted.append({"name": name,
-                                  "links": links,
+                                  "links": total_links,
                                   "hosts": hosts,
                                   "size": size,
+                                  "urls": urls,
+                                  "linkids": linkids,
                                   "uuid": uuid})
         if not failed:
             failed = False
@@ -194,6 +220,9 @@ def update_jdownloader(configfile, dbfile):
         update = device.update.is_update_available()
         if update:
             device.update.restart_and_update()
+        return True
+    else:
+        return False
 
 
 def check_failed_packages(configfile, dbfile):
@@ -221,5 +250,14 @@ def get_info(configfile, dbfile):
 
         return [downloader_state, grabber_collecting,
                 [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
+    else:
+        return False
+
+
+def move_to_downloads(configfile, dbfile, linkids, uuid):
+    device = get_device(configfile, dbfile)
+    if device:
+        device.linkgrabber.move_to_downloadlist(linkids, uuid)
+        return True
     else:
         return False
