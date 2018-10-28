@@ -421,7 +421,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             getMyJD();
             $scope.checMyJD();
-        }, 15000)
+        }, 20000)
     };
 
     $scope.checMyJD();

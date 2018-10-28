@@ -19,6 +19,9 @@ from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.myjd import check_failed_packages
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import jdownloader_pause
+from rsscrawler.myjd import jdownloader_start
+from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import CutLog
@@ -392,7 +395,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd/", methods=['GET'])
     def myjd_info():
         if request.method == 'GET':
-            myjd = get_info(configfile, dbfile)
+            myjd = get_info(configfile)
             if myjd:
                 return jsonify(
                     {
@@ -413,7 +416,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd_failed/", methods=['GET'])
     def myjd_failed():
         if request.method == 'GET':
-            myjd = check_failed_packages(configfile, dbfile)
+            myjd = check_failed_packages(configfile)
             if myjd:
                 return jsonify(
                     {
@@ -426,10 +429,12 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_update/", methods=['POST'])
-    def myjd_update():
+    @app.route(prefix + "/api/myjd_move_to_downloads/<linkids>&<uuids>", methods=['POST'])
+    def myjd_move_to_downloads(linkids, uuids):
         if request.method == 'POST':
-            myjd = update_jdownloader(configfile, dbfile)
+            linkids = ast.literal_eval(linkids)
+            uuids = ast.literal_eval(uuids)
+            myjd = move_to_downloads(configfile, linkids, uuids)
             if myjd:
                 return "Success", 200
             else:
@@ -437,12 +442,43 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_move_to_downloads/<linkids>&<uuids>", methods=['POST'])
-    def myjd_move_to_downloads(linkids, uuids):
+    @app.route(prefix + "/api/myjd_update/", methods=['POST'])
+    def myjd_update():
         if request.method == 'POST':
-            linkids = ast.literal_eval(linkids)
-            uuids = ast.literal_eval(uuids)
-            myjd = move_to_downloads(configfile, dbfile, linkids, uuids)
+            myjd = update_jdownloader(configfile)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_start/", methods=['POST'])
+    def myjd_start():
+        if request.method == 'POST':
+            myjd = jdownloader_start(configfile)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_pause/", methods=['POST'])
+    def myjd_pause():
+        if request.method == 'POST':
+            myjd = jdownloader_pause(configfile)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
+    def myjd_stop():
+        if request.method == 'POST':
+            myjd = jdownloader_stop(configfile)
             if myjd:
                 return "Success", 200
             else:

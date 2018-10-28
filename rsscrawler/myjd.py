@@ -3,34 +3,12 @@
 # Projekt von https://github.com/rix1337
 
 import rsscrawler.myjdapi
+from rsscrawler.common import readable_size
+from rsscrawler.common import readable_time
 from rsscrawler.rssconfig import RssConfig
 
 
-def readable_size(size):
-    size = size // 1048576
-    if size < 1024:
-        size = str(size) + " MB"
-    else:
-        size = size // 1024
-        size = str(size) + " GB"
-    return size
-
-
-def readable_time(time):
-    if time < 0:
-        return "-"
-    if time < 60:
-        time = str(time) + " s"
-    elif time < 3600:
-        time = time // 60
-        time = str(time) + " m"
-    else:
-        time = time // 3600
-        time = str(time) + " h"
-    return time
-
-
-def get_device(configfile, dbfile):
+def get_device(configfile):
     jd = rsscrawler.myjdapi.Myjdapi()
     jd.set_app_key('RSScrawler')
 
@@ -40,7 +18,6 @@ def get_device(configfile, dbfile):
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
-    # TODO save token/encryption key for reuse
     try:
         jd.connect(myjd_user, myjd_pass)
         jd.update_devices()
@@ -51,36 +28,6 @@ def get_device(configfile, dbfile):
     return device
 
 
-def download_link(configfile, title, subdir, links, password):
-    device = get_device()
-
-    links = ",".join(links)
-    crawljobs = RssConfig('Crawljobs', configfile)
-    autostart = crawljobs.get("autostart")
-    usesubdir = crawljobs.get("subdir")
-    priority = "DEFAULT"
-
-    if usesubdir:
-        subdir = subdir + "/"
-    else:
-        subdir = ""
-    if subdir == "RSScrawler/Remux/":
-        priority = "LOWER"
-
-    device.linkgrabber.add_links(params=[
-        {
-            "autostart": autostart,
-            "links": links,
-            "packageName": title,
-            "extractPassword": password,
-            "priority": priority,
-            "downloadPassword": password,
-            "destinationFolder": subdir + "<jd:packagename>",
-            "overwritePackagizerRules": False
-        }])
-    return True
-
-
 def get_packages_in_downloader(device):
     links = device.downloads.query_links()
 
@@ -88,7 +35,7 @@ def get_packages_in_downloader(device):
         "bytesLoaded": True,
         "bytesTotal": True,
         "comment": False,
-        "enabled": False,
+        "enabled": True,
         "eta": True,
         "priority": False,
         "finished": True,
@@ -97,7 +44,7 @@ def get_packages_in_downloader(device):
         "status": True,
         "childCount": True,
         "hosts": True,
-        "saveTo": False,
+        "saveTo": True,
         "maxResults": -1,
         "startAt": 0,
     }])
@@ -107,6 +54,7 @@ def get_packages_in_downloader(device):
         for package in downloader_packages:
             name = package.get('name')
             total_links = package.get('childCount')
+            enabled = package.get('enabled')
             size = package.get('bytesTotal')
             done = package.get('bytesLoaded')
             completed = 100 * done // size
@@ -116,6 +64,7 @@ def get_packages_in_downloader(device):
             if speed:
                 speed = readable_size(speed) + "/s"
             hosts = package.get('hosts')
+            save_to = package.get('saveTo')
             eta = package.get('eta')
             if eta:
                 eta = readable_time(eta)
@@ -130,7 +79,9 @@ def get_packages_in_downloader(device):
                     linkids.append(link.get('uuid'))
             packages.append({"name": name,
                              "links": total_links,
+                             "enabled": enabled,
                              "hosts": hosts,
+                             "path": save_to,
                              "size": size,
                              "done": done,
                              "percentage": completed,
@@ -158,26 +109,28 @@ def get_packages_in_linkgrabber(device):
                 "bytesLoaded": False,
                 "bytesTotal": True,
                 "comment": False,
-                "enabled": False,
+                "enabled": True,
                 "eta": False,
                 "priority": False,
                 "finished": False,
                 "running": False,
                 "speed": False,
-                "status": False,
+                "status": True,
                 "childCount": True,
                 "hosts": True,
-                "saveTo": False,
+                "saveTo": True,
                 "maxResults": -1,
                 "startAt": 0,
             }])
         for package in grabbed_packages:
             name = package.get('name')
             total_links = package.get('childCount')
+            enabled = package.get('enabled')
             size = package.get('bytesTotal')
             if size:
                 size = readable_size(size)
             hosts = package.get('hosts')
+            save_to = package.get('saveTo')
             uuid = package.get('uuid')
             urls = []
             linkids = []
@@ -193,13 +146,16 @@ def get_packages_in_linkgrabber(device):
                     decrypt_failed = True
             if decrypt_failed:
                 failed.append({"name": name,
+                               "path": save_to,
                                "urls": urls,
                                "linkids": linkids,
                                "uuid": uuid})
             else:
                 decrypted.append({"name": name,
                                   "links": total_links,
+                                  "enabled": enabled,
                                   "hosts": hosts,
+                                  "path": save_to,
                                   "size": size,
                                   "urls": urls,
                                   "linkids": linkids,
@@ -213,51 +169,140 @@ def get_packages_in_linkgrabber(device):
         return [False, False]
 
 
-def update_jdownloader(configfile, dbfile):
-    device = get_device(configfile, dbfile)
-    if device:
-        device.update.run_update_check()
-        update = device.update.is_update_available()
-        if update:
-            device.update.restart_and_update()
+def check_failed_packages(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            grabber_collecting = device.linkgrabber.is_collecting()
+            packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+            packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+
+            return [grabber_collecting, packages_in_linkgrabber_failed]
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def get_info(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            downloader_state = device.downloadcontroller.get_current_state()
+            grabber_collecting = device.linkgrabber.is_collecting()
+
+            packages_in_downloader = get_packages_in_downloader(device)
+            packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+            packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+            packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
+
+            return [downloader_state, grabber_collecting,
+                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def move_to_downloads(configfile, linkids, uuid):
+    try:
+        device = get_device(configfile)
+        if device:
+            device.linkgrabber.move_to_downloadlist(linkids, uuid)
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def download_link(configfile, title, subdir, links, password):
+    device = get_device()
+
+    links = ",".join(links)
+    crawljobs = RssConfig('Crawljobs', configfile)
+    autostart = crawljobs.get("autostart")
+    usesubdir = crawljobs.get("subdir")
+    priority = "DEFAULT"
+
+    if usesubdir:
+        subdir = subdir + "/"
+    else:
+        subdir = ""
+    if subdir == "RSScrawler/Remux/":
+        priority = "LOWER"
+
+    try:
+        device.linkgrabber.add_links(params=[
+            {
+                "autostart": autostart,
+                "links": links,
+                "packageName": title,
+                "extractPassword": password,
+                "priority": priority,
+                "downloadPassword": password,
+                "destinationFolder": subdir + "<jd:packagename>",
+                "overwritePackagizerRules": False
+            }])
         return True
-    else:
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def check_failed_packages(configfile, dbfile):
-    device = get_device(configfile, dbfile)
-    if device:
-        grabber_collecting = device.linkgrabber.is_collecting()
-        packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-        packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-
-        return [grabber_collecting, packages_in_linkgrabber_failed]
-    else:
+def update_jdownloader(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            device.update.run_update_check()
+            update = device.update.is_update_available()
+            if update:
+                device.update.restart_and_update()
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def get_info(configfile, dbfile):
-    device = get_device(configfile, dbfile)
-    if device:
-        downloader_state = device.downloadcontroller.get_current_state()
-        grabber_collecting = device.linkgrabber.is_collecting()
-
-        packages_in_downloader = get_packages_in_downloader(device)
-        packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-        packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-        packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
-
-        return [downloader_state, grabber_collecting,
-                [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
-    else:
+def jdownloader_start(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            device.downloadcontroller.start_downloads()
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def move_to_downloads(configfile, dbfile, linkids, uuid):
-    device = get_device(configfile, dbfile)
-    if device:
-        device.linkgrabber.move_to_downloadlist(linkids, uuid)
-        return True
-    else:
+def jdownloader_pause(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            device.downloadcontroller.pause_downloads()
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def jdownloader_stop(configfile):
+    try:
+        device = get_device(configfile)
+        if device:
+            device.downloadcontroller.stop_downloads()
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False

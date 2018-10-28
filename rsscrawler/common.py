@@ -153,3 +153,27 @@ def decode_base64(value):
         return value.decode("base64")
     else:
         return base64.b64decode(value).decode()
+
+
+def readable_size(size):
+    size = size // 1048576
+    if size < 1024:
+        size = str(size) + " MB"
+    else:
+        size = size // 1024
+        size = str(size) + " GB"
+    return size
+
+
+def readable_time(time):
+    if time < 0:
+        return "-"
+    if time < 60:
+        time = str(time) + " s"
+    elif time < 3600:
+        time = time // 60
+        time = str(time) + " m"
+    else:
+        time = time // 3600
+        time = str(time) + " h"
+    return time
