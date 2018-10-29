@@ -25,6 +25,7 @@ from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import CutLog
@@ -438,6 +439,19 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
             linkids = ast.literal_eval(linkids)
             uuids = ast.literal_eval(uuids)
             myjd = move_to_downloads(configfile, device, linkids, uuids)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
+    def myjd_remove(linkids, uuids):
+        if request.method == 'POST':
+            linkids = ast.literal_eval(linkids)
+            uuids = ast.literal_eval(uuids)
+            myjd = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if myjd:
                 return "Success", 200
             else:
