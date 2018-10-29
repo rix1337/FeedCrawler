@@ -408,6 +408,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getMyJD() {
         $http.get('api/myjd/')
             .then(function (res) {
+                $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
                 $("#myjd_state").show();
                 $scope.myjd_state = res.data.downloader_state;
@@ -529,7 +530,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             getMyJD();
             $scope.checMyJD();
-        }, 20000)
+        }, 10000)
     };
 
     $scope.checMyJD();

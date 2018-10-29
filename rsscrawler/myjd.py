@@ -254,36 +254,91 @@ def move_to_downloads(configfile, device, linkids, uuid):
         return False
 
 
-def download_link(configfile, device, title, subdir, links, password):
+def remove_from_linkgrabber(configfile, device, linkids, uuid):
+    try:
+        if not device:
+            device = get_device(configfile)
+        if device:
+            device.linkgrabber.remove_links(linkids, uuid)
+            return True
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def download(configfile, device, title, subdir, links, password, full_path=None):
     try:
         if not device:
             device = get_device(configfile)
 
-        links = ",".join(links)
+        links = str(links)
         crawljobs = RssConfig('Crawljobs', configfile)
         autostart = crawljobs.get("autostart")
         usesubdir = crawljobs.get("subdir")
         priority = "DEFAULT"
 
-        if usesubdir:
-            subdir = subdir + "/"
+        if full_path:
+            path = full_path
         else:
-            subdir = ""
-        if subdir == "RSScrawler/Remux/":
-            priority = "LOWER"
+            if usesubdir:
+                path = subdir + "/<jd:packagename>"
+            else:
+                path = "<jd:packagename>"
+            if subdir == "RSScrawler/Remux/":
+                priority = "LOWER"
 
-            device.linkgrabber.add_links(params=[
+        device.linkgrabber.add_links(params=[
+            {
+                "autostart": autostart,
+                "links": links,
+                "packageName": title,
+                "extractPassword": password,
+                "priority": priority,
+                "downloadPassword": password,
+                "destinationFolder": path,
+                "overwritePackagizerRules": False
+            }])
+        return True
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def retry_decrypt(configfile, device, linkids, uuid, links):
+    try:
+        if not device:
+            device = get_device(configfile)
+        if device:
+            package = device.linkgrabber.query_packages(params=[
                 {
-                    "autostart": autostart,
-                    "links": links,
-                    "packageName": title,
-                    "extractPassword": password,
-                    "priority": priority,
-                    "downloadPassword": password,
-                    "destinationFolder": subdir + "<jd:packagename>",
-                    "overwritePackagizerRules": False
+                    "availableOfflineCount": True,
+                    "availableOnlineCount": True,
+                    "availableTempUnknownCount": True,
+                    "availableUnknownCount": True,
+                    "bytesTotal": True,
+                    "childCount": True,
+                    "comment": True,
+                    "enabled": True,
+                    "hosts": True,
+                    "maxResults": -1,
+                    "packageUUIDs": uuid,
+                    "priority": True,
+                    "saveTo": True,
+                    "startAt": 0,
+                    "status": True
                 }])
-            return True
+            if package:
+                remove_from_linkgrabber(configfile, device, linkids, uuid)
+                title = package[0].get('name')
+                full_path = package[0].get('saveTo')
+                download(configfile, device, title, None, links, None, full_path)
+                return True
+            else:
+                return False
+        else:
+            return False
     except rsscrawler.myjdapi.MYJDException as e:
         print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False

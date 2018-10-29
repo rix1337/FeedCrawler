@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import ast
+import json
 import logging
 import os
 import re
@@ -17,12 +18,14 @@ from six.moves import StringIO
 
 from rsscrawler import search
 from rsscrawler import version
+from rsscrawler.common import decode_base64
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
@@ -429,12 +432,27 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_move_to_downloads/<linkids>&<uuids>", methods=['POST'])
-    def myjd_move_to_downloads(linkids, uuids):
+    @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
+    def myjd_move(linkids, uuids):
         if request.method == 'POST':
             linkids = ast.literal_eval(linkids)
             uuids = ast.literal_eval(uuids)
             myjd = move_to_downloads(configfile, device, linkids, uuids)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<links>", methods=['POST'])
+    def myjd_retry(linkids, uuids, links):
+        if request.method == 'POST':
+            linkids = ast.literal_eval(linkids)
+            uuids = ast.literal_eval(uuids)
+            links = decode_base64(links)
+            links = ast.literal_eval(links)
+            myjd = retry_decrypt(configfile, device, linkids, uuids, links)
             if myjd:
                 return "Success", 200
             else:
@@ -466,7 +484,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
 
     @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
     def myjd_pause(bl):
-        bl = bool(bl)
+        bl = json.loads(bl)
         if request.method == 'POST':
             myjd = jdownloader_pause(configfile, device, bl)
             if myjd:

@@ -235,9 +235,9 @@ class Linkgrabber:
         """
         Moves packages and/or links to download list.
 
-        :param packages: Packages UUID.
+        :param packages: Packages UUIDs.
         :type: list of strings.
-        :param links: Links UUID.
+        :param links: Links UUIDs.
         """
         params = [links_ids, packages_ids]
         resp = self.device.action(self.url + "/moveToDownloadlist", params)
@@ -439,12 +439,10 @@ class Linkgrabber:
         """
         pass
 
-    def remove_links(self):
-        """
-        No idea what parameters i have to pass and/or i don't know what it does.
-        If i find out i will implement it :P
-        """
-        pass
+    def remove_links(self, links_ids, packages_ids):
+        params = [links_ids, packages_ids]
+        resp = self.device.action(self.url + "/removeLinks", params)
+        return resp
 
     def get_downfolderhistoryselectbase(self):
         """
