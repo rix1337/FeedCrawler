@@ -156,24 +156,27 @@ def decode_base64(value):
 
 
 def readable_size(size):
-    size = size // 1048576
-    if size < 1024:
-        size = str(size) + " MB"
-    else:
-        size = size // 1024
-        size = str(size) + " GB"
+    power = 2 ** 10
+    n = 0
+    powers = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    while size > power:
+        size /= power
+        n += 1
+    size = round(size, 2)
+    size = str(size) + " " + powers[n] + 'B'
     return size
 
 
 def readable_time(time):
     if time < 0:
-        return "-"
-    if time < 60:
-        time = str(time) + " s"
-    elif time < 3600:
-        time = time // 60
-        time = str(time) + " m"
+        return ""
     else:
-        time = time // 3600
-        time = str(time) + " h"
+        days = time // 86400
+        hours = (time - days * 86400) // 3600
+        minutes = (time - days * 86400 - hours * 3600) // 60
+        seconds = time - days * 86400 - hours * 3600 - minutes * 60
+        time = ("{}d:".format(days) if days else "") + \
+               ("{}h:".format(hours) if hours else "") + \
+               ("{}m:".format(minutes) if minutes else "") + \
+               ("{}s".format(seconds) if seconds else "")
     return time

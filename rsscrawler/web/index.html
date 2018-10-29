@@ -32,7 +32,7 @@
             <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item"><span ng-bind="x.done"></span>/<span ng-bind="x.size"></span></li>
+            <li class="list-group-item"><span ng-bind="x.done"></span> / <span ng-bind="x.size"></span></li>
             <li class="list-group-item">
                 <div class="progress">
                     <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
@@ -56,7 +56,6 @@
             <li class="list-group-item"><span ng-bind="y.size"></span></li>
             <li class="list-group-item">
                 <a href="#myjd" ng-click="myJDadd()"><i class="myjd_state fas fa-play" title="Download starten"></i></a>
-                <a href="#myjd" ng-click="myJDremove()"><i class="myjd_state fas fa-trash" title="Entfernen"></i></a>
             </li>
         </ul>
     </div>
@@ -86,7 +85,7 @@
                                                                   title="Download starten"></i></a>
         <a href="#myjd" id="myjd_pause" ng-click="myJDpause(true)"><i class="myjd_state fas fa-pause"
                                                                       title="Download pausieren"></i></a>
-        <a href="#myjd" id="myjd_unpause" ng-click="myJDpause(false)"><i class="myjd_state fas fa-pause"
+        <a href="#myjd" id="myjd_unpause" ng-click="myJDpause(false)"><i class="myjd_state fas fa-fast-forward"
                                                                          title="Download fortsetzen"></i></a>
         <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="myjd_state fas fa-stop"
                                                                 title="Download anhalten"></i></a>
@@ -94,6 +93,7 @@
     </p>
 
     <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
+    <p id="myjd_no_packages">Downloadliste und Linksammler sind leer.</p>
     <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
 </div>
 

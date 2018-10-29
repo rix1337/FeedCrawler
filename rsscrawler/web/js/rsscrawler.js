@@ -410,7 +410,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
-                $("#myjd_state").show();
                 $scope.myjd_state = res.data.downloader_state;
                 if ($scope.myjd_state == "RUNNING") {
                     $('#myjd_unpause').hide();
@@ -451,6 +450,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('.myjd-failed').show();
                 } else {
                     $('.myjd-failed').hide();
+                }
+                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed) {
+                    $("#myjd_no_packages").show();
+                } else {
+                    $("#myjd_no_packages").hide();
+
+                }
+                if ($scope.myjd_downloads) {
+                    $("#myjd_state").show();
+                } else {
+                    $("#myjd_state").hide();
                 }
                 console.log('JDownloader abgerufen!');
             }, function (res) {

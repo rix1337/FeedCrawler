@@ -459,12 +459,12 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<links>", methods=['POST'])
-    def myjd_retry(linkids, uuids, links):
+    @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
+    def myjd_retry(linkids, uuids, b64_links):
         if request.method == 'POST':
             linkids = ast.literal_eval(linkids)
             uuids = ast.literal_eval(uuids)
-            links = decode_base64(links)
+            links = decode_base64(b64_links)
             links = ast.literal_eval(links)
             myjd = retry_decrypt(configfile, device, linkids, uuids, links)
             if myjd:
