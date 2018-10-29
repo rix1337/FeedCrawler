@@ -28,19 +28,7 @@ body {
     max-width: 80em;
 }
 
-#myjd {
-    display: none;
-}
-
-.myjd-downloads {
-    display: none;
-}
-
-.myjd-decrypted {
-    display: none;
-}
-
-.myjd-failed {
+#myjd_no_login, #myjd_state, #myjd_grabbing, .myjd-downloads, .myjd-decrypted, .myjd-failed {
     display: none;
 }
 
@@ -79,8 +67,15 @@ body {
     display: inline-block;
 }
 
-#myjd_state {
+#myjd_state, #spinner-myjd {
     font-size: 2em;
+}
+
+.isDisabled {
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
 }
 
 .blinking {

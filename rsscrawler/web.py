@@ -464,10 +464,11 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_unpause/", methods=['POST'])
-    def myjd_pause():
+    @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
+    def myjd_pause(bl):
+        bl = bool(bl)
         if request.method == 'POST':
-            myjd = jdownloader_pause(configfile, False)
+            myjd = jdownloader_pause(configfile, bl)
             if myjd:
                 return "Success", 200
             else:

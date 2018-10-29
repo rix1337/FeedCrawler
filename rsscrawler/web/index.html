@@ -22,6 +22,79 @@
     </p>
 </div>
 
+
+<div name="myjd" id="myjd" class="container app col">
+    <h1><i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
+
+    <p class="myjd-downloads">
+    <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
+        <div class="card-header">
+            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span ng-bind="x.done"></span>/<span ng-bind="x.size"></span></li>
+            <li class="list-group-item">
+                <div class="progress">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                         aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
+                         ng-style="{ 'width': x.percentage + '%' }">
+                        <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
+        </ul>
+    </div>
+    </p>
+
+    <p class="myjd-decrypted">
+    <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
+        <div class="card-header">
+            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item"><span ng-bind="y.size"></span></li>
+            <li class="list-group-item">
+                <a href="#myjd" ng-click="myJDadd()"><i class="myjd_state fas fa-play" title="Download starten"></i></a>
+                <a href="#myjd" ng-click="myJDremove()"><i class="myjd_state fas fa-trash" title="Entfernen"></i></a>
+            </li>
+        </ul>
+    </div>
+    </p>
+
+    <p class="myjd-failed">
+    <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
+        <div class="card-header">
+            <strong ng-bind="z.name"></strong>
+        </div>
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item" ng-repeat="url in urls"><span ng-bind="url"></span></li>
+            <li class="list-group-item">
+                <a href="#myjd" ng-click="myJDrestart()"><i class="myjd_state fas fa-undo"
+                                                            title="Erneut hinzufügen"></i></a>
+                <a href="#myjd" ng-click="myJDremove()"><i class="myjd_state fas fa-trash" title="Entfernen"></i></a>
+            </li>
+        </ul>
+    </div>
+    </p>
+
+    <p id="myjd_state">
+        <a href="#myjd" id="myjd_start" ng-click="myJDstart()"><i class="myjd_state fas fa-play"
+                                                                  title="Download starten"></i></a>
+        <a href="#myjd" id="myjd_pause" ng-click="myJDpause(true)"><i class="myjd_state fas fa-pause"
+                                                                      title="Download pausieren"></i></a>
+        <a href="#myjd" id="myjd_unpause" ng-click="myJDpause(false)"><i class="myjd_state fas fa-pause"
+                                                                         title="Download fortsetzen"></i></a>
+        <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="myjd_state fas fa-stop"
+                                                                title="Download anhalten"></i></a>
+        <i id="myjd_grabbing" class="myjd_state fas fa-search blinking" title="Linkgrabber läuft"></i>
+    </p>
+
+    <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
+    <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
+</div>
+
+
 <form ng-submit="searchNow()">
     <div name="search" id="search" class="container app col">
         <h1>
@@ -54,60 +127,6 @@
     <div bind-html-compile="log" class="log form-control"></div>
     <a href="#log" ng-click="deleteLog()" class="btn btn-dark">
         <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
-</div>
-
-<div name="myjd" id="myjd" class="container app col">
-    <h1><i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
-
-    <p class="myjd-downloads">
-    <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
-        <div class="card-header">
-            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
-        </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item"><span ng-bind="x.done"></span>/<span ng-bind="x.size"></span></li>
-            <li class="list-group-item">
-                <div class="progress">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                         aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
-                         ng-style="{ 'width': x.percentage + '%' }">
-                        <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
-                    </div>
-                </div>
-            </li>
-            <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
-        </ul>
-    </div>
-    </p>
-
-    <p class="myjd-decrypted">
-    <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
-        <div class="card-header">
-            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
-        </div>
-        <ul class="list-group list-group-flush">
-            <span ng-bind="y.size"></span></li>
-        </ul>
-    </div>
-    </p>
-
-    <p class="myjd-failed">
-    <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
-        <div class="card-header">
-            <strong ng-bind="z.name"></strong>
-        </div>
-    </div>
-    </p>
-
-    <p id="myjd_state">
-        <a href="#myjd" id="myjd_start" ng-click="myJDstart()"><i class="myjd_state fas fa-play"
-                                                                  title="Download starten"></i></a>
-        <a href="#myjd" id="myjd_unpause" ng-click="myJDunpause()"><i class="myjd_state fas fa-pause"
-                                                                      title="Download fortsetzen"></i></a>
-        <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="myjd_state fas fa-stop"
-                                                                title="Download anhalten"></i></a>
-        <i id="myjd_grabbing" class="blinking" title="Linkgrabber läuft"></i>
-    </p>
 </div>
 
 

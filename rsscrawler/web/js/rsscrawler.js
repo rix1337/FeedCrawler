@@ -141,8 +141,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDstart();
     };
 
-    $scope.myJDunpause = function () {
-        myJDunpause();
+    $scope.myJDpause = function (bl) {
+        myJDpause(bl);
     };
 
     $scope.myJDstop = function () {
@@ -162,9 +162,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getAll() {
         getVersion()
         getLog()
-        getMyJD()
         getLists()
         getSettings()
+        getMyJD()
     }
 
 
@@ -187,10 +187,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                    $("#myjd").show();
+                    $("#myjd_no_login").hide();
                     $("#pfad").prop("disabled", true);
+                } else {
+                    $("#spinner-myjd").hide();
+                    $("#myjd_state").hide();
+                    $("#myjd_no_login").show();
                 }
-                ;
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
@@ -321,25 +324,29 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDstart() {
-        $('#myjd_start').addClass('blinking');
+        $('#myjd_start').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_start/')
             .then(function (res) {
                 getMyJDstate()
                 console.log('Download gestartet!');
-                showSuccess('Download gestartet!');
             }, function (res) {
                 console.log('Konnte Downloads nicht starten!');
                 showDanger('Konnte Downloads nicht starten!');
             });
     }
 
-    function myJDunpause() {
-        $('#myjd_unpause').addClass('blinking');
-        $http.post('api/myjd_unpause/')
+    function myJDpause(bl) {
+        $('#myjd_pause').addClass('blinking').addClass('isDisabled');
+        $('#myjd_unpause').addClass('blinking').addClass('isDisabled');
+        $http.post('api/myjd_pause/' + bl)
             .then(function (res) {
                 getMyJDstate()
-                console.log('Download fortgesetzt!');
-                showSuccess('Download fortgesetzt!');
+                if (bl) {
+                    console.log('Download pausiert!');
+                }
+                else {
+                    console.log('Download fortgesetzt!');
+                }
             }, function (res) {
                 console.log('Konnte Downloads nicht fortsetzen!');
                 showDanger('Konnte Downloads nicht fortsetzen!');
@@ -347,12 +354,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDstop() {
-        $('#myjd_stop').addClass('blinking');
+        $('#myjd_stop').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_stop/')
             .then(function (res) {
                 getMyJDstate()
                 console.log('Download angehalten!');
-                showSuccess('Download angehalten!');
             }, function (res) {
                 console.log('Konnte Downloads nicht anhalten!');
                 showDanger('Konnte Downloads nicht anhalten!');
@@ -363,32 +369,38 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.get('api/myjd_state/')
             .then(function (res) {
                 $scope.myjd_state = res.data.downloader_state;
+                $("#myjd_state").show();
                 if ($scope.myjd_state == "RUNNING") {
-                    $('#myjd_unpause').hide();
-                    $('#myjd_start').hide();
-                    $('#myjd_stop').show();
+                    $('#myjd_unpause').hide().removeClass('isDisabled');
+                    $('#myjd_start').hide().removeClass('isDisabled');
+                    $('#myjd_pause').show().removeClass('isDisabled');
+                    $('#myjd_stop').show().removeClass('isDisabled');
                 } else if ($scope.myjd_state == "PAUSE") {
-                    $('#myjd_start').hide();
-                    $('#myjd_stop').hide();
-                    $('#myjd_unpause').show();
+                    $('#myjd_start').hide().removeClass('isDisabled');
+                    $('#myjd_pause').hide().removeClass('isDisabled');
+                    $('#myjd_stop').hide().removeClass('isDisabled');
+                    $('#myjd_unpause').show().removeClass('isDisabled');
                 } else {
-                    $('#myjd_unpause').hide();
-                    $('#myjd_stop').hide();
-                    $('#myjd_start').show();
+                    $('#myjd_pause').hide().removeClass('isDisabled');
+                    $('#myjd_unpause').hide().removeClass('isDisabled');
+                    $('#myjd_stop').hide().removeClass('isDisabled');
+                    $('#myjd_start').show().removeClass('isDisabled');
                 }
                 ;
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').addClass('fas').addClass('fa-search');
+                    $('#myjd_grabbing').show();
                 } else {
-                    $('#myjd_grabbing').removeClass('fas').removeClass('fa-search');
+                    $('#myjd_grabbing').hide();
                 }
                 ;
                 $('#myjd_start').removeClass('blinking');
+                $('#myjd_pause').removeClass('blinking');
                 $('#myjd_unpause').removeClass('blinking');
                 $('#myjd_stop').removeClass('blinking');
                 console.log('JDownloader Status abgerufen!');
             }, function (res) {
+                $("#myjd_state").hide();
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
             });
@@ -397,16 +409,21 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getMyJD() {
         $http.get('api/myjd/')
             .then(function (res) {
+                $("#spinner-myjd").hide();
+                $("#myjd_state").show();
                 $scope.myjd_state = res.data.downloader_state;
                 if ($scope.myjd_state == "RUNNING") {
                     $('#myjd_unpause').hide();
                     $('#myjd_start').hide();
+                    $('#myjd_pause').show();
                     $('#myjd_stop').show();
                 } else if ($scope.myjd_state == "PAUSE") {
                     $('#myjd_start').hide();
+                    $('#myjd_pause').hide();
                     $('#myjd_stop').hide();
                     $('#myjd_unpause').show();
                 } else {
+                    $('#myjd_pause').hide();
                     $('#myjd_unpause').hide();
                     $('#myjd_stop').hide();
                     $('#myjd_start').show();
@@ -414,9 +431,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 ;
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').addClass('fas').addClass('fa-search');
+                    $('#myjd_grabbing').show();
                 } else {
-                    $('#myjd_grabbing').removeClass('fas').removeClass('fa-search');
+                    $('#myjd_grabbing').hide();
                 }
                 ;
                 $scope.myjd_downloads = res.data.packages.downloader;
@@ -467,22 +484,19 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function showSuccess(message) {
-        $(".alert-success").html(message);
-        $(".alert-success").fadeTo(3000, 500).slideUp(500, function () {
+        $(".alert-success").html(message).fadeTo(3000, 500).slideUp(500, function () {
             $(".alert-success").slideUp(500);
         });
     }
 
     function showInfo(message) {
-        $(".alert-info").html(message);
-        $(".alert-info").fadeTo(10000, 500).slideUp(500, function () {
+        $(".alert-info").html(message).fadeTo(10000, 500).slideUp(500, function () {
             $(".alert-info").slideUp(500);
         });
     }
 
     function showDanger(message) {
-        $(".alert-danger").html(message);
-        $(".alert-danger").fadeTo(5000, 500).slideUp(500, function () {
+        $(".alert-danger").html(message).fadeTo(5000, 500).slideUp(500, function () {
             $(".alert-danger").slideUp(500);
         });
     }
