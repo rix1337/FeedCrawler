@@ -71,6 +71,11 @@ body {
     font-size: 2em;
 }
 
+.urls {
+    height: 4em;
+    resize: none;
+}
+
 .isDisabled {
     color: currentColor;
     cursor: not-allowed;

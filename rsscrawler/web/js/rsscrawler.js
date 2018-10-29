@@ -29,14 +29,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             },
             sj: {
                 id: "Link",
-                title: "Title",
+                title: "Title"
             }
         }
     ];
 
     $scope.bools = [
         {value: true, label: 'Aktiviert'},
-        {value: false, label: 'Deaktiviert'},
+        {value: false, label: 'Deaktiviert'}
     ];
 
     $scope.mb_hosters = [
@@ -46,7 +46,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
         {value: '.*?openload.*?', label: 'Openload*'},
         {value: '.*?zippyshare.*?', label: 'Zippyshare*'},
-        {value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**'},
+        {value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**'}
     ];
 
     $scope.mb_search = [
@@ -56,14 +56,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '10', label: '300 Einträge'},
         {value: '15', label: '450 Einträge'},
         {value: '30', label: '900 Einträge'},
-        {value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)'},
+        {value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)'}
     ];
 
     $scope.sj_hosters = [
         {value: '.*?share-online.*?', label: 'Share-Online'},
         {value: '.*?uploaded.*?', label: 'Uploaded'},
         {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
-        {value: '.*', label: 'ALLE**'},
+        {value: '.*', label: 'ALLE**'}
     ];
 
     $scope.dd_hosters = [
@@ -72,14 +72,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '.*rapidgator.*', label: 'Rapidgator'},
         {value: '.*k2s.*', label: 'Keep2Share'},
         {value: '.*filefactory.*', label: 'FileFactory'},
-        {value: '.*', label: 'ALLE'},
+        {value: '.*', label: 'ALLE'}
     ];
 
     $scope.resolutions = [
         {value: '480p', label: '480p (SD)'},
         {value: '720p', label: '720p (HD)'},
         {value: '1080p', label: '1080p (Full-HD)'},
-        {value: '2160p', label: '2160p (4K)'},
+        {value: '2160p', label: '2160p (4K)'}
     ];
 
     $scope.sources = [
@@ -95,12 +95,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {
             value: 'web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip',
             label: 'BluRay/WebRetail (TVS/4SJ)'
-        },
+        }
     ];
 
     $scope.types_3d = [
         {value: 'hsbs', label: 'H-SBS'},
-        {value: 'hou', label: 'H-OU'},
+        {value: 'hou', label: 'H-OU'}
     ];
 
     $scope.init = getAll();
@@ -160,11 +160,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
 
     function getAll() {
-        getVersion()
-        getLog()
-        getLists()
-        getSettings()
-        getMyJD()
+        getVersion();
+        getLog();
+        getLists();
+        getSettings();
+        getMyJD();
     }
 
 
@@ -185,7 +185,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $scope.settings = res.data.settings;
                 console.log('Einstellungen abgerufen!');
-                year = (new Date).getFullYear();
+                var year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                     $("#myjd_no_login").hide();
@@ -223,7 +223,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.docker) {
                     $(".docker").prop("disabled", true);
                 }
-                year = (new Date).getFullYear();
+                var year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.update) {
                     $("#updateready").show();
@@ -304,7 +304,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function searchNow() {
         spinSearch();
-        title = $scope.search;
+        var title = $scope.search;
         $http.get('api/search/' + title)
             .then(function (res) {
                 $scope.results = res.data.results;
@@ -328,7 +328,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('#myjd_start').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_start/')
             .then(function (res) {
-                getMyJDstate()
+                getMyJDstate();
                 console.log('Download gestartet!');
             }, function (res) {
                 console.log('Konnte Downloads nicht starten!');
@@ -341,7 +341,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('#myjd_unpause').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_pause/' + bl)
             .then(function (res) {
-                getMyJDstate()
+                getMyJDstate();
                 if (bl) {
                     console.log('Download pausiert!');
                 }
@@ -358,7 +358,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('#myjd_stop').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_stop/')
             .then(function (res) {
-                getMyJDstate()
+                getMyJDstate();
                 console.log('Download angehalten!');
             }, function (res) {
                 console.log('Konnte Downloads nicht anhalten!');
@@ -387,14 +387,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_stop').hide().removeClass('isDisabled');
                     $('#myjd_start').show().removeClass('isDisabled');
                 }
-                ;
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
                 } else {
                     $('#myjd_grabbing').hide();
                 }
-                ;
                 $('#myjd_start').removeClass('blinking');
                 $('#myjd_pause').removeClass('blinking');
                 $('#myjd_unpause').removeClass('blinking');
@@ -429,35 +427,30 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_stop').hide();
                     $('#myjd_start').show();
                 }
-                ;
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
                 } else {
                     $('#myjd_grabbing').hide();
                 }
-                ;
                 $scope.myjd_downloads = res.data.packages.downloader;
                 if ($scope.myjd_downloads) {
                     $('.myjd-downloads').show();
                 } else {
                     $('.myjd-downloads').hide();
                 }
-                ;
                 $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
                 if ($scope.myjd_decrypted) {
                     $('.myjd-decrypted').show();
                 } else {
                     $('.myjd-decrypted').hide();
                 }
-                ;
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
                 if ($scope.myjd_failed) {
                     $('.myjd-failed').show();
                 } else {
                     $('.myjd-failed').hide();
                 }
-                ;
                 console.log('JDownloader abgerufen!');
             }, function (res) {
                 $("#myjd_no_login").show();

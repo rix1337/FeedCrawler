@@ -68,7 +68,10 @@
             <strong ng-bind="z.name"></strong>
         </div>
         <ul class="list-group list-group-flush">
-            <li class="list-group-item" ng-repeat="url in urls"><span ng-bind="url"></span></li>
+            <li class="list-group-item">
+                <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip" data-placement="top"
+                          title="Alternativ hier unverschlüsselte Links eintragen, um Captchas zu vermeiden."></textarea>
+            </li>
             <li class="list-group-item">
                 <a href="#myjd" ng-click="myJDrestart()"><i class="myjd_state fas fa-undo"
                                                             title="Erneut hinzufügen"></i></a>
