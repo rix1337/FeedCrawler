@@ -31,7 +31,7 @@ from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 
 
-def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger):
+def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger, device):
     app = Flask(__name__, template_folder='web')
 
     general = RssConfig('RSScrawler', configfile)
@@ -395,7 +395,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd/", methods=['GET'])
     def myjd_info():
         if request.method == 'GET':
-            myjd = get_info(configfile)
+            myjd = get_info(configfile, device)
             if myjd:
                 return jsonify(
                     {
@@ -416,7 +416,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd_state/", methods=['GET'])
     def myjd_state():
         if request.method == 'GET':
-            myjd = get_state(configfile)
+            myjd = get_state(configfile, device)
             if myjd:
                 return jsonify(
                     {
@@ -434,7 +434,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         if request.method == 'POST':
             linkids = ast.literal_eval(linkids)
             uuids = ast.literal_eval(uuids)
-            myjd = move_to_downloads(configfile, linkids, uuids)
+            myjd = move_to_downloads(configfile, device, linkids, uuids)
             if myjd:
                 return "Success", 200
             else:
@@ -445,7 +445,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd_update/", methods=['POST'])
     def myjd_update():
         if request.method == 'POST':
-            myjd = update_jdownloader(configfile)
+            myjd = update_jdownloader(configfile, device)
             if myjd:
                 return "Success", 200
             else:
@@ -456,7 +456,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd_start/", methods=['POST'])
     def myjd_start():
         if request.method == 'POST':
-            myjd = jdownloader_start(configfile)
+            myjd = jdownloader_start(configfile, device)
             if myjd:
                 return "Success", 200
             else:
@@ -468,7 +468,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     def myjd_pause(bl):
         bl = bool(bl)
         if request.method == 'POST':
-            myjd = jdownloader_pause(configfile, bl)
+            myjd = jdownloader_pause(configfile, device, bl)
             if myjd:
                 return "Success", 200
             else:
@@ -479,7 +479,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
     def myjd_stop():
         if request.method == 'POST':
-            myjd = jdownloader_stop(configfile)
+            myjd = jdownloader_stop(configfile, device)
             if myjd:
                 return "Success", 200
             else:
@@ -542,7 +542,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     http_server.serve_forever()
 
 
-def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_format):
+def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_format, device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
@@ -578,4 +578,4 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
         print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
+    app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger, device)

@@ -11,6 +11,11 @@ import six
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
+try:
+    from html.parser import HTMLParser
+except ImportError:
+    from HTMLParser import HTMLParser
+
 from rsscrawler import common
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
@@ -159,11 +164,7 @@ def rate(title, configfile):
 
 
 def html_to_str(unescape):
-    if six.PY2:
-        six.moves.html_parser.unescape(unescape)
-    else:
-        import html
-        return html.unescape(unescape)
+    return HTMLParser().unescape(unescape)
 
 
 def best_result_mb(title, configfile, dbfile):
@@ -215,7 +216,7 @@ def best_result_mb(title, configfile, dbfile):
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             cont = ""
-        if not title in cont:
+        if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
     if not common.cutoff(best_title, 1, dbfile):
@@ -224,7 +225,7 @@ def best_result_mb(title, configfile, dbfile):
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             cont = ""
-        if not title in cont:
+        if title not in cont:
             ListDb(dbfile, liste).store(title)
         return best_link
     else:
@@ -264,7 +265,7 @@ def best_result_sj(title, configfile, dbfile):
             cont = ListDb(dbfile, liste).retrieve()
             if not cont:
                 cont = ""
-            if not title in cont:
+            if title not in cont:
                 ListDb(dbfile, liste).store(title)
             return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
@@ -277,7 +278,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
     search_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/"
     feedsearch_title = \
         fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
-    if not '.dl.' in feedsearch_title.lower():
+    if '.dl.' not in feedsearch_title.lower():
         logging.debug(
             "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
         return False
@@ -288,7 +289,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         links = {}
         for url_hoster in reversed(url_hosters):
-            if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and not "https://goo.gl/" in url_hoster[0]:
+            if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                 link_hoster = url_hoster[1].lower().replace(
                     'target="_blank">', '')
                 if re.match(hoster, link_hoster):

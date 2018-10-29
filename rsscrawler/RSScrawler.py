@@ -54,6 +54,8 @@ from rsscrawler import files
 from rsscrawler import version
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
+from rsscrawler.myjd import get_device
+from rsscrawler.myjd import get_if_one_device
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import CutLog
@@ -69,11 +71,11 @@ from rsscrawler.web import start
 version = version.get_version()
 
 
-def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format):
-    start(port, docker, jd, cfg, db, log_level, log_file, log_format)
+def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format, device):
+    start(port, docker, jd, cfg, db, log_level, log_file, log_format, device)
 
 
-def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format):
+def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format, device):
     global added_items
     added_items = []
     global jdownloaderpath
@@ -196,7 +198,7 @@ class YT:
         self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
 
-    def readInput(self, liste):
+    def read_input(self, liste):
         cont = ListDb(dbfile, liste).retrieve()
         return cont if cont else ""
 
@@ -206,7 +208,7 @@ class YT:
             return
         channels = []
         videos = []
-        self.allInfos = self.readInput(self.youtube)
+        self.allInfos = self.read_input(self.youtube)
 
         for item in self.allInfos:
             if len(item) > 0:
@@ -394,7 +396,7 @@ class SJ:
             self.level = 0
 
     def periodical_task(self):
-        self.pattern = "|".join(self.getSeriesList(
+        self.pattern = "|".join(self.get_series_list(
             self.filename, self.level)).lower()
 
         if self.filename == 'SJ_Serien_Regex':
@@ -657,8 +659,8 @@ class SJ:
                                                      ".*").replace("+", ".*")
             try:
                 for count in range(int(number1), (int(number2) + 1)):
-                    NR = re.match(r"E\d{1,2}", str(count))
-                    if NR:
+                    nr = re.match(r"E\d{1,2}", str(count))
+                    if nr:
                         title1 = title_cut[0][0] + \
                                  str(count) + ".*" + title_cut[0][-1].replace(
                             "(", ".*").replace(")", ".*").replace("+", ".*")
@@ -669,7 +671,7 @@ class SJ:
                             "(", ".*").replace(")", ".*").replace("+", ".*")
                         self.range_parse(link, title1, englisch, title)
             except ValueError as e:
-                logging.error("Fehler in Variablenwert: %s" % e.message)
+                logging.error("Fehler in Variablenwert: " + e)
         self.parse_download(link, title, englisch)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
@@ -751,13 +753,13 @@ class SJ:
             self.log_info(log_entry)
             added_items.append(log_entry)
 
-    def getSeriesList(self, liste, type):
+    def get_series_list(self, liste, series_type):
         loginfo = ""
-        if type == 1:
+        if series_type == 1:
             loginfo = " (RegEx)"
-        elif type == 2:
+        elif series_type == 2:
             loginfo = " (Staffeln)"
-        elif type == 3:
+        elif series_type == 3:
             loginfo = " (Staffeln/RegEx)"
         cont = ListDb(dbfile, liste).retrieve()
         titles = []
@@ -769,9 +771,9 @@ class SJ:
         if not titles:
             self.log_debug(
                 "Liste ist leer. Stoppe Suche für Serien!" + loginfo)
-            if type == 1:
+            if series_type == 1:
                 self.empty_list = True
-            elif type == 2:
+            elif series_type == 2:
                 self.empty_list = True
             else:
                 self.empty_list = True
@@ -840,7 +842,7 @@ class BL:
         self.dictWithNamesAndLinks = {}
         self.empty_list = False
 
-    def readInput(self, liste):
+    def read_input(self, liste):
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             self.empty_list = True
@@ -848,14 +850,14 @@ class BL:
         else:
             return cont
 
-    def getPatterns(self, patterns, **kwargs):
+    def get_patterns(self, patterns, **kwargs):
         if not patterns:
             self.empty_list = True
         if kwargs:
             return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
         return {x: x for x in patterns}
 
-    def searchLinks(self, feed, site):
+    def search_links(self, feed, site):
         if self.empty_list:
             return
         ignore = "|".join(
@@ -1667,8 +1669,8 @@ class BL:
             if not self.config.get('crawlseasons'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.filename),
+                set({key: value for (key, value) in self.get_patterns(
+                    self.read_input(self.filename),
                     quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
                 ).items()}.items()
                     )
@@ -1677,8 +1679,8 @@ class BL:
             if not self.config.get('regex'):
                 return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.filename)
+                set({key: value for (key, value) in self.get_patterns(
+                    self.read_input(self.filename)
                 ).items()}.items()
                     ) if self.config.get('regex') else []
             )
@@ -1689,8 +1691,8 @@ class BL:
                 if not self.config.get('crawl3d'):
                     return
             self.allInfos = dict(
-                set({key: value for (key, value) in self.getPatterns(
-                    self.readInput(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
+                set({key: value for (key, value) in self.get_patterns(
+                    self.read_input(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
                 ).items()}.items()
                     )
             )
@@ -1822,7 +1824,7 @@ class BL:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
-                    for (key, value, pattern) in self.searchLinks(mb_parsed_url, "MB"):
+                    for (key, value, pattern) in self.search_links(mb_parsed_url, "MB"):
                         self.feed_download(key, value)
                     i += 1
             i = 0
@@ -1832,7 +1834,7 @@ class BL:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(get_url(url, configfile, dbfile))
-                    for (key, value, pattern) in self.searchLinks(hw_parsed_url, "HW"):
+                    for (key, value, pattern) in self.search_links(hw_parsed_url, "HW"):
                         self.feed_download(key, value)
                         i += 1
 
@@ -1858,10 +1860,10 @@ class BL:
 def main():
     arguments = docopt(__doc__, version='RSScrawler')
 
-    print("┌────────────────────────────────────────────────────────┐")
-    print("  Programminfo:    RSScrawler " + version + " von RiX")
-    print("  Projektseite:    https://github.com/rix1337/RSScrawler")
-    print("└────────────────────────────────────────────────────────┘")
+    print("┌──────────────────────────────────────────────┐")
+    print("  RSScrawler " + version + " von RiX")
+    print("  https://github.com/rix1337/RSScrawler")
+    print("└──────────────────────────────────────────────┘")
 
     if arguments['--docker']:
         configpath = "/config"
@@ -1878,71 +1880,93 @@ def main():
     log_format = '%(asctime)s - %(message)s'
 
     if not os.path.exists(configfile):
-        if not arguments['--jd-pfad']:
-            if files.jd_input(configfile, arguments['--port']):
-                print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
-            elif arguments['--port']:
-                files.startup(configfile,
-                              "Muss unbedingt vergeben werden!", arguments['--port'])
-            else:
-                files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
-                print(
-                    'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-                print('Diese liegt unter ' + configfile)
-                print(u'Viel Spaß! Beende RSScrawler!')
-                sys.exit(0)
-        else:
-            if arguments['--port']:
-                files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
-            else:
-                files.startup(configfile, arguments['--jd-pfad'], "9090")
-                print(
-                    'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
-    elif arguments['--jd-pfad'] and arguments['--port']:
-        files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
-    elif arguments['--jd-pfad']:
-        files.startup(configfile, arguments['--jd-pfad'], None)
-    elif arguments['--port']:
-        files.startup(configfile, None, arguments['--port'])
-
-    rsscrawler = RssConfig('RSScrawler', configfile)
-
-    if arguments['--jd-pfad']:
-        jdownloaderpath = arguments['--jd-pfad']
+        device = files.myjd_input(configfile, arguments['--port'])
     else:
-        jdownloaderpath = rsscrawler.get("jdownloader")
-    if arguments['--docker']:
-        jdownloaderpath = '/jd2'
-        print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
-    elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
-        jdownloaderpath = files.jd_input(configfile, arguments['--port'])
-        if jdownloaderpath:
-            print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+        rsscrawler = RssConfig('RSScrawler', configfile)
+        jdownloaderpath = ""
+        user = rsscrawler.get('myjd_user')
+        password = rsscrawler.get('myjd_pass')
+        if user and password:
+            device = get_device(configfile)
+            if not device:
+                device = get_if_one_device(user, password)
+                if device:
+                    print(u"Gerätename " + device + " automatisch ermittelt.")
+                    rsscrawler.save('myjd_device', device)
+                    device = get_device(configfile)
+                else:
+                    print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+                    sys.exit(0)
+
+    if not device:
+        if not os.path.exists(configfile):
+            if not arguments['--jd-pfad']:
+                if files.jd_input(configfile, arguments['--port']):
+                    print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+                elif arguments['--port']:
+                    files.startup(configfile,
+                                  "Muss unbedingt vergeben werden!", arguments['--port'])
+                else:
+                    files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
+                    print(
+                        'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+                    print('Diese liegt unter ' + configfile)
+                    print(u'Viel Spaß! Beende RSScrawler!')
+                    sys.exit(0)
+            else:
+                if arguments['--port']:
+                    files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
+                else:
+                    files.startup(configfile, arguments['--jd-pfad'], "9090")
+                    print(
+                        'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+        elif arguments['--jd-pfad'] and arguments['--port']:
+            files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
+        elif arguments['--jd-pfad']:
+            files.startup(configfile, arguments['--jd-pfad'], None)
+        elif arguments['--port']:
+            files.startup(configfile, None, arguments['--port'])
+
+        rsscrawler = RssConfig('RSScrawler', configfile)
+
+        if arguments['--jd-pfad']:
+            jdownloaderpath = arguments['--jd-pfad']
         else:
-            print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-            print('Diese liegt unter ' + configfile)
+            jdownloaderpath = rsscrawler.get("jdownloader")
+        if arguments['--docker']:
+            jdownloaderpath = '/jd2'
+            print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
+        elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
+            jdownloaderpath = files.jd_input(configfile, arguments['--port'])
+            if jdownloaderpath:
+                print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+            else:
+                print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+                print('Diese liegt unter ' + configfile)
+                print('Beende RSScrawler...')
+                sys.exit(0)
+
+        jdownloaderpath = jdownloaderpath.replace("\\", "/")
+        jdownloaderpath = jdownloaderpath[:-
+        1] if jdownloaderpath.endswith('/') else jdownloaderpath
+
+        print('Nutze das "folderwatch" Unterverzeichnis von "' +
+              jdownloaderpath + u'" für Crawljobs')
+
+        if not os.path.exists(jdownloaderpath):
+            print('Der Pfad des JDownloaders existiert nicht.')
+            rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
             print('Beende RSScrawler...')
             sys.exit(0)
 
-    jdownloaderpath = jdownloaderpath.replace("\\", "/")
-    jdownloaderpath = jdownloaderpath[:-
-    1] if jdownloaderpath.endswith('/') else jdownloaderpath
-
-    print('Nutze das "folderwatch" Unterverzeichnis von "' +
-          jdownloaderpath + u'" für Crawljobs')
-
-    if not os.path.exists(jdownloaderpath):
-        print('Der Pfad des JDownloaders existiert nicht.')
-        rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-        print('Beende RSScrawler...')
-        sys.exit(0)
-
-    if not os.path.exists(jdownloaderpath + "/folderwatch"):
-        print(
-            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-        rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-        print('Beende RSScrawler...')
-        sys.exit(0)
+        if not os.path.exists(jdownloaderpath + "/folderwatch"):
+            print(
+                u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+            rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
+            print('Beende RSScrawler...')
+            sys.exit(0)
+    else:
+        print("Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     port = int(rsscrawler.get("port"))
     docker = False
@@ -1965,12 +1989,12 @@ def main():
         RssDb(dbfile, 'cdc').reset()
 
     p = Process(target=web_server, args=(
-        port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format))
+        port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format, device))
     p.start()
 
     if not arguments['--testlauf']:
         c = Process(target=crawler, args=(jdownloaderpath, configfile, dbfile,
-                                          rsscrawler, log_level, log_file, log_format,))
+                                          rsscrawler, log_level, log_file, log_format, device))
         c.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')
@@ -1990,7 +2014,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(jdownloaderpath, configfile, dbfile, rsscrawler, log_level, log_file, log_format)
+        crawler(jdownloaderpath, configfile, dbfile, rsscrawler, log_level, log_file, log_format, device)
         p.terminate()
         sys.exit(0)
 

@@ -28,6 +28,23 @@ def get_device(configfile):
     return device
 
 
+def get_if_one_device(myjd_user, myjd_pass):
+    jd = rsscrawler.myjdapi.Myjdapi()
+    jd.set_app_key('RSScrawler')
+
+    try:
+        jd.connect(myjd_user, myjd_pass)
+        jd.update_devices()
+        devices = jd.list_devices()
+        if len(devices) == 1:
+            return devices[0].get('name')
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def get_packages_in_downloader(device):
     links = device.downloads.query_links()
 
@@ -169,9 +186,10 @@ def get_packages_in_linkgrabber(device):
         return [False, False]
 
 
-def check_failed_packages(configfile):
+def check_failed_packages(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             grabber_collecting = device.linkgrabber.is_collecting()
             packages_in_linkgrabber = get_packages_in_linkgrabber(device)
@@ -185,9 +203,10 @@ def check_failed_packages(configfile):
         return False
 
 
-def get_state(configfile):
+def get_state(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             downloader_state = device.downloadcontroller.get_current_state()
             grabber_collecting = device.linkgrabber.is_collecting()
@@ -198,9 +217,11 @@ def get_state(configfile):
         print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
-def get_info(configfile):
+
+def get_info(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             downloader_state = device.downloadcontroller.get_current_state()
             grabber_collecting = device.linkgrabber.is_collecting()
@@ -219,9 +240,10 @@ def get_info(configfile):
         return False
 
 
-def move_to_downloads(configfile, linkids, uuid):
+def move_to_downloads(configfile, device, linkids, uuid):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             device.linkgrabber.move_to_downloadlist(linkids, uuid)
             return True
@@ -232,43 +254,45 @@ def move_to_downloads(configfile, linkids, uuid):
         return False
 
 
-def download_link(configfile, title, subdir, links, password):
-    device = get_device()
-
-    links = ",".join(links)
-    crawljobs = RssConfig('Crawljobs', configfile)
-    autostart = crawljobs.get("autostart")
-    usesubdir = crawljobs.get("subdir")
-    priority = "DEFAULT"
-
-    if usesubdir:
-        subdir = subdir + "/"
-    else:
-        subdir = ""
-    if subdir == "RSScrawler/Remux/":
-        priority = "LOWER"
-
+def download_link(configfile, device, title, subdir, links, password):
     try:
-        device.linkgrabber.add_links(params=[
-            {
-                "autostart": autostart,
-                "links": links,
-                "packageName": title,
-                "extractPassword": password,
-                "priority": priority,
-                "downloadPassword": password,
-                "destinationFolder": subdir + "<jd:packagename>",
-                "overwritePackagizerRules": False
-            }])
-        return True
+        if not device:
+            device = get_device(configfile)
+
+        links = ",".join(links)
+        crawljobs = RssConfig('Crawljobs', configfile)
+        autostart = crawljobs.get("autostart")
+        usesubdir = crawljobs.get("subdir")
+        priority = "DEFAULT"
+
+        if usesubdir:
+            subdir = subdir + "/"
+        else:
+            subdir = ""
+        if subdir == "RSScrawler/Remux/":
+            priority = "LOWER"
+
+            device.linkgrabber.add_links(params=[
+                {
+                    "autostart": autostart,
+                    "links": links,
+                    "packageName": title,
+                    "extractPassword": password,
+                    "priority": priority,
+                    "downloadPassword": password,
+                    "destinationFolder": subdir + "<jd:packagename>",
+                    "overwritePackagizerRules": False
+                }])
+            return True
     except rsscrawler.myjdapi.MYJDException as e:
         print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def update_jdownloader(configfile):
+def update_jdownloader(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             device.update.run_update_check()
             update = device.update.is_update_available()
@@ -282,9 +306,10 @@ def update_jdownloader(configfile):
         return False
 
 
-def jdownloader_start(configfile):
+def jdownloader_start(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             device.downloadcontroller.start_downloads()
             return True
@@ -295,11 +320,12 @@ def jdownloader_start(configfile):
         return False
 
 
-def jdownloader_pause(configfile, bool):
+def jdownloader_pause(configfile, device, bl):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
-            device.downloadcontroller.pause_downloads(bool)
+            device.downloadcontroller.pause_downloads(bl)
             return True
         else:
             return False
@@ -308,9 +334,10 @@ def jdownloader_pause(configfile, bool):
         return False
 
 
-def jdownloader_stop(configfile):
+def jdownloader_stop(configfile, device):
     try:
-        device = get_device(configfile)
+        if not device:
+            device = get_device(configfile)
         if device:
             device.downloadcontroller.stop_downloads()
             return True

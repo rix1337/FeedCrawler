@@ -180,6 +180,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function getSettings() {
+        $("#spinner-myjd").show();
         $http.get('api/settings/')
             .then(function (res) {
                 $scope.settings = res.data.settings;
@@ -459,6 +460,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 ;
                 console.log('JDownloader abgerufen!');
             }, function (res) {
+                $("#myjd_no_login").show();
+                $scope.myjd_grabbing = null;
+                $scope.myjd_downloads = null;
+                $scope.myjd_decrypted = null;
+                $scope.myjd_failed = null;
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
             });

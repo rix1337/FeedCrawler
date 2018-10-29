@@ -66,7 +66,7 @@ class ListDb(object):
 
     def store_list(self, keys):
         items = []
-        if not "_Regex" in self._table:
+        if "_Regex" not in self._table:
             for k in keys:
                 if k:
                     key = ()

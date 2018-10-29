@@ -85,7 +85,7 @@ class RssConfig(object):
         except configparser.DuplicateSectionError:
             print('Doppelte Sektion in der Konfigurationsdatei.')
             raise
-        except configparser.Error:
+        except:
             print(
                 'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise

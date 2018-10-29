@@ -7,6 +7,8 @@ import sys
 
 import six
 
+from rsscrawler.myjd import get_device
+from rsscrawler.myjd import get_if_one_device
 from rsscrawler.rssconfig import RssConfig
 
 
@@ -48,6 +50,28 @@ def jd_input(configfile, port=None):
     elif len(jdownloaderpath) > 0:
         startup(configfile, jdownloaderpath, '9090')
     return jdownloaderpath
+
+
+def myjd_input(configfile, port=None):
+    print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
+    user = six.moves.input("Nutzername/Email:")
+    password = six.moves.input("Passwort:")
+    device = get_if_one_device(user, password)
+    if device:
+        print(u"Gerätename " + device + " automatisch ermittelt.")
+    else:
+        device = six.moves.input(u"Gerätename:")
+    if not port:
+        port = '9090'
+    startup(configfile, None, port)
+    RssConfig('RSScrawler', configfile).save("myjd_user", user)
+    RssConfig('RSScrawler', configfile).save("myjd_pass", password)
+    RssConfig('RSScrawler', configfile).save("myjd_device", device)
+    device = get_device(configfile)
+    if device:
+        return device
+    else:
+        return False
 
 
 def startup(configfile, jdownloader=None, port=None):
