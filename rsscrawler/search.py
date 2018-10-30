@@ -273,7 +273,6 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def mb(link, device, configfile, dbfile):
-    # TODO myjd_download with device isntead of jdpath
     link = link.replace("+", "/")
     url = get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile, dbfile)
     config = RssConfig('MB', configfile)
@@ -373,51 +372,34 @@ def mb(link, device, configfile, dbfile):
                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
 
     if download_links:
-        notify_array = []
         if staffel:
-            myjd_download(
-                key,
-                key,
-                download_links,
-                jdownloaderpath + "/folderwatch",
-                "RSScrawler",
-                configfile
-            )
-            db.store(
-                key.replace(".COMPLETE", "").replace(".Complete", ""),
-                'notdl' if config.get(
-                    'enforcedl') and '.dl.' not in key.lower() else 'added'
-            )
-            log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
-            logging.info(log_entry)
-            notify_array.append(log_entry)
-            notify(notify_array, configfile)
-            return True
+            if myjd_download(configfile, device, key, "RSScrawler", download_links, ""):
+                db.store(
+                    key.replace(".COMPLETE", "").replace(".Complete", ""),
+                    'notdl' if config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                logging.info(log_entry)
+                notify([log_entry], configfile)
+                return True
         elif '.3d.' in key.lower():
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
                     if cutoff(key, '2', dbfile):
                         retail = True
-            myjd_download(
-                key,
-                key,
-                download_links,
-                jdownloaderpath + "/folderwatch",
-                "RSScrawler",
-                configfile
-            )
-            db.store(
-                key,
-                'notdl' if config.get(
-                    'enforcedl') and '.dl.' not in key.lower() else 'added'
-            )
-            log_entry = '[Suche/Film] - <b>' + (
-                'Retail/' if retail else "") + '3D</b> - ' + key
-            logging.info(log_entry)
-            notify_array.append(log_entry)
-            notify(notify_array, configfile)
-            return True
+            if myjd_download(configfile, device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                db.store(
+                    key,
+                    'notdl' if config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[Suche/Film] - <b>' + (
+                    'Retail/' if retail else "") + '3D</b> - ' + key
+                logging.info(log_entry)
+                notify([log_entry], configfile)
+                return True
         else:
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
@@ -427,32 +409,23 @@ def mb(link, device, configfile, dbfile):
                 else:
                     if cutoff(key, '0', dbfile):
                         retail = True
-            myjd_download(
-                key,
-                key,
-                download_links,
-                jdownloaderpath + "/folderwatch",
-                "RSScrawler",
-                configfile
-            )
-            db.store(
-                key,
-                'notdl' if config.get(
-                    'enforcedl') and '.dl.' not in key.lower() else 'added'
-            )
-            log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                            '<b>Retail</b> - ' if not englisch and retail else "") + key
-            logging.info(log_entry)
-            notify_array.append(log_entry)
-            notify(notify_array, configfile)
-            return True
+            if myjd_download(configfile, device, key, "RSScrawler", download_links, ""):
+                db.store(
+                    key,
+                    'notdl' if config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
+                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                '<b>Retail</b> - ' if not englisch and retail else "") + key
+                logging.info(log_entry)
+                notify([log_entry], configfile)
+                return True
     else:
         return False
 
 
 def sj(sj_id, special, device, configfile, dbfile):
-    # TODO myjd_download with device isntead of jdpath
     url = get_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(sj_id), configfile, dbfile)
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(
@@ -636,12 +609,14 @@ def sj(sj_id, special, device, configfile, dbfile):
             db = RssDb(dbfile, 'rsscrawler')
 
             if re.match(hoster, dl_hoster.lower()):
-                myjd_download(configfile, device, dl_title, "RSScrawler", dl_link,
-                              decode_base64("c2VyaWVuanVua2llcy5vcmc="))
-                db.store(dl_title, 'added')
-                log_entry = '[Suche/Serie] - ' + dl_title
-                logging.info(log_entry)
-                notify_array.append(log_entry)
+                if myjd_download(configfile, device, dl_title, "RSScrawler", dl_link,
+                                 decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
+                    db.store(dl_title, 'added')
+                    log_entry = '[Suche/Serie] - ' + dl_title
+                    logging.info(log_entry)
+                    notify_array.append(log_entry)
+                else:
+                    return False
         if len(best_matching_links) > 0:
             something_found = True
         notify(notify_array, configfile)

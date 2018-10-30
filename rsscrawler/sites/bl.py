@@ -513,86 +513,55 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                    myjd_download(
-                        key,
-                        key,
-                        download_links,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler/Remux",
-                        self.configfile
-                    )
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get(
-                            'enforcedl') and '.dl.' in key.lower() else 'added'
-                    )
-                    log_entry = '[Film] - <b>' + (
-                        'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
-                    return True
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                        self.db.store(
+                            key,
+                            'dl' if self.config.get(
+                                'enforcedl') and '.dl.' in key.lower() else 'added'
+                        )
+                        log_entry = '[Film] - <b>' + (
+                            'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
+                        self.log_info(log_entry)
+                        return log_entry
                 elif self.filename == 'MB_3D':
                     retail = False
                     if self.config.get('cutoff'):
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                    myjd_download(
-                        key,
-                        key,
-                        download_links,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler/3Dcrawler",
-                        self.configfile
-                    )
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get(
-                            'enforcedl') and '.dl.' in key.lower() else 'added'
-                    )
-                    log_entry = '[Film] - <b>' + (
-                        'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
-                    return True
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                        self.db.store(
+                            key,
+                            'dl' if self.config.get(
+                                'enforcedl') and '.dl.' in key.lower() else 'added'
+                        )
+                        log_entry = '[Film] - <b>' + (
+                            'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
+                        self.log_info(log_entry)
+                        return log_entry
                 elif self.filename == 'MB_Regex':
-                    myjd_download(
-                        key,
-                        key,
-                        download_links,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler",
-                        self.configfile
-                    )
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get(
-                            'enforcedl') and '.dl.' in key.lower() else 'added'
-                    )
-                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
-                    return True
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                        self.db.store(
+                            key,
+                            'dl' if self.config.get(
+                                'enforcedl') and '.dl.' in key.lower() else 'added'
+                        )
+                        log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key
+                        self.log_info(log_entry)
+                        return log_entry
                 else:
-                    myjd_download(
-                        key,
-                        key,
-                        download_links,
-                        jdownloaderpath + "/folderwatch",
-                        "RSScrawler/Remux",
-                        self.configfile
-                    )
-                    self.db.store(
-                        key,
-                        'dl' if self.config.get(
-                            'enforcedl') and '.dl.' in key.lower() else 'added'
-                    )
-                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key
-                    self.log_info(log_entry)
-                    added_items.append(log_entry)
-                    return True
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                        self.db.store(
+                            key,
+                            'dl' if self.config.get(
+                                'enforcedl') and '.dl.' in key.lower() else 'added'
+                        )
+                        log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key
+                        self.log_info(log_entry)
+                        return log_entry
 
     def imdb_download(self, key, download_links, score, download_imdb, details):
         if download_links:
+            added_items = []
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy50by8=")
                 if url in download_link:
@@ -650,25 +619,18 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[IMDB ' + score + '/Film] - ' + (
-                    '<b>Englisch</b> - ' if englisch and not retail else "") + (
-                                '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                '<b>Retail</b> - ' if not englisch and retail else "") + key
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[IMDB ' + score + '/Film] - ' + (
+                        '<b>Englisch</b> - ' if englisch and not retail else "") + (
+                                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                    '<b>Retail</b> - ' if not englisch and retail else "") + key
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
             else:
                 retail = False
                 if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
@@ -677,27 +639,22 @@ class BL:
                         if self.config.get('enforcedl'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[IMDB ' + score + '/Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D</b> - ' + key
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[IMDB ' + score + '/Film] - <b>' + (
+                        'Retail/' if retail else "") + '3D</b> - ' + key
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
+            return added_items
 
     def feed_download(self, key, content):
         download_links = self.get_download_links(content)
         if download_links:
+            added_items = []
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy50by8=")
                 if url in download_link:
@@ -800,24 +757,17 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '0', self.dbfile):
                             retail = True
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                '<b>Retail</b> - ' if not englisch and retail else "") + key
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
+                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
+                                    '<b>Retail</b> - ' if not englisch and retail else "") + key
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
             elif self.filename == 'MB_3D':
                 retail = False
                 if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
@@ -830,58 +780,38 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D</b> - ' + key
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Film] - <b>' + (
+                        'Retail/' if retail else "") + '3D</b> - ' + key
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key.replace(".COMPLETE", "").replace(
-                        ".Complete", ""),
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                    self.db.store(
+                        key.replace(".COMPLETE", "").replace(
+                            ".Complete", ""),
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
             else:
-                myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler",
-                    self.configfile
-                )
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Film/Serie/RegEx] - ' + key
-                self.log_info(log_entry)
-                added_items.append(log_entry)
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                    self.db.store(
+                        key,
+                        'notdl' if self.config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Film/Serie/RegEx] - ' + key
+                    self.log_info(log_entry)
+                    added_items.append(log_entry)
+            return added_items
 
     def periodical_task(self):
         imdb = self.imdb
