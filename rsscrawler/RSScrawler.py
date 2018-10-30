@@ -194,7 +194,7 @@ def main():
     configfile = os.path.join(configpath, "RSScrawler.ini")
     dbfile = os.path.join(configpath, "RSScrawler.db")
 
-    print(u"Nutze das Verzeichnis " + configpath + " für Einstellungen/Logs")
+    print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 
     log_level = logging.__dict__[
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
