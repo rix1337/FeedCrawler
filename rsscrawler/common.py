@@ -13,6 +13,7 @@ import socket
 
 import six
 
+from rsscrawler.myjd import download
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -22,8 +23,18 @@ log_error = logging.error
 log_debug = logging.debug
 
 
-# TODO add myjd_download and check if either device or valid path are available. require password to be passed
-def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir, configfile):
+def myjd_download(configfile, device, title, subdir, links, password=""):
+    if device:
+        if download(configfile, device, title, subdir, links, password):
+            return True
+    else:
+        if write_crawljob_file(configfile, title, subdir, links):
+            return True
+    return False
+
+
+def write_crawljob_file(configfile, package_name, subdir, link_text):
+    crawljob_dir = "holsdir aus der config + folderwatch"
     try:
         crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
             re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
@@ -56,11 +67,11 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file.write('forcedStart=' + autostart + '\n')
         file.write('autoConfirm=' + autostart + '\n')
         if not subdir == "":
-            file.write('downloadFolder=' + subdir + "/" + '%s\n' % folder_name)
+            file.write('downloadFolder=' + subdir + "/" + '%s\n' % package_name)
             if subdir == "RSScrawler/Remux":
                 file.write('priority=Lower\n')
         else:
-            file.write('downloadFolder=' + '%s\n' % folder_name)
+            file.write('downloadFolder=' + '%s\n' % package_name)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
         file.write('text=%s\n' % link_text)
         file.close()

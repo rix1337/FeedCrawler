@@ -97,7 +97,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
     return title, eps
 
 
-def ombi(configfile, dbfile, jdpath, log_debug):
+def ombi(configfile, dbfile, device, log_debug):
     db = RssDb(dbfile, 'Ombi')
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
@@ -131,7 +131,7 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                 title = mdb(configfile, dbfile, tmdbid, mdb_api)
                 best_result = search.best_result_mb(title, configfile, dbfile)
                 if best_result:
-                    search.mb(best_result, jdpath, configfile, dbfile)
+                    search.mb(best_result, device, configfile, dbfile)
                 # TODO repeat for english title if setting is enabled
                 db.store('tmdb_' + str(tmdbid), 'added')
 
@@ -175,9 +175,9 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                                     se = s + "E" + e
                                     best_result = search.best_result_sj(title, configfile, dbfile)
                                     if best_result:
-                                        add_episode = search.sj(best_result, se, jdpath, configfile, dbfile)
+                                        add_episode = search.sj(best_result, se, device, configfile, dbfile)
                                         if not add_episode:
-                                            add_season = search.sj(best_result, s, jdpath, configfile, dbfile)
+                                            add_season = search.sj(best_result, s, device, configfile, dbfile)
                                             for e in eps:
                                                 e = str(e)
                                                 if len(e) == 1:
@@ -191,7 +191,7 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                             else:
                                 best_result = search.best_result_sj(title, configfile, dbfile)
                                 if best_result:
-                                    search.sj(best_result, s, jdpath, configfile, dbfile)
+                                    search.sj(best_result, s, device, configfile, dbfile)
                                 for ep in eps:
                                     e = str(ep)
                                     if len(e) == 1:

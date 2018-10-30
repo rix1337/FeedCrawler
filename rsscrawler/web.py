@@ -74,7 +74,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
                 logfile = open(log_file)
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
-                    # TODO remove this in 5.1.5
                     line = re.sub(r' - <a href.*<\/a>', '', line).replace('<b>', '').replace('</b>', '')
                     output.write(line)
                 log = output.getvalue()

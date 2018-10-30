@@ -2,7 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
-# https://github.com/mmarquezs/My.Jdownloader-API-Python-Library/blob/master/myjdapi/myjdapi.py
+# https://github.com/mmarquezs/My.Jdownloader-API-Python-Library/
 #
 # The MIT License (MIT)
 #
