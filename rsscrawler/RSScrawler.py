@@ -202,8 +202,11 @@ def main():
     log_format = '%(asctime)s - %(message)s'
 
     if not os.path.exists(configfile):
-        # TODO travis needs to run the whole script without waiting for MyJD input + handle myjd arguments
-        device = files.myjd_input(configfile, arguments['--port'])
+        if not arguments['--jd-pfad']:
+            device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                      arguments['--jd-device'])
+        else:
+            device = False
     else:
         rsscrawler = RssConfig('RSScrawler', configfile)
         user = rsscrawler.get('myjd_user')
@@ -220,7 +223,7 @@ def main():
                     print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
                     sys.exit(0)
         else:
-            device = None
+            device = False
 
     if not device:
         if not os.path.exists(configfile):

@@ -52,15 +52,20 @@ def jd_input(configfile, port=None):
     return jdownloaderpath
 
 
-def myjd_input(configfile, port=None):
-    print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
-    user = six.moves.input("Nutzername/Email:")
-    password = six.moves.input("Passwort:")
-    device = get_if_one_device(user, password)
-    if device:
-        print(u"Gerätename " + device + " automatisch ermittelt.")
+def myjd_input(configfile, port, user, password, device):
+    if user and password and not device:
+        device = get_if_one_device(user, password)
+        if device:
+            print(u"Gerätename " + device + " automatisch ermittelt.")
     else:
-        device = six.moves.input(u"Gerätename:")
+        print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
+        user = six.moves.input("Nutzername/Email:")
+        password = six.moves.input("Passwort:")
+        device = get_if_one_device(user, password)
+        if device:
+            print(u"Gerätename " + device + " automatisch ermittelt.")
+        else:
+            device = six.moves.input(u"Gerätename:")
     if not port:
         port = '9090'
     startup(configfile, "", port)
