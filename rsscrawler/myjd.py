@@ -420,7 +420,7 @@ def jdownloader_stop(configfile, device):
         return False
 
 
-def myjd_download(configfile, device, title, subdir, links, password=""):
+def myjd_download(configfile, device, title, subdir, links, password):
     if device:
         if download(configfile, device, title, subdir, links, password):
             return True

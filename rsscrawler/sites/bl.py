@@ -328,12 +328,16 @@ class BL:
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
+                        if "MB" in site:
+                            password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+                        else:
+                            password = decode_base64("aGQtd29ybGQub3Jn")
                         if '.3d.' not in post.title.lower():
                             found = self.imdb_download(
-                                post.title, download_pages, str(download_score), download_imdb, details)
+                                post.title, download_pages, str(download_score), download_imdb, details, password)
                         else:
                             found = self.imdb_download(
-                                post.title, download_pages, str(download_score), download_imdb, details)
+                                post.title, download_pages, str(download_score), download_imdb, details, password)
                         for i in found:
                             added_items.append(i)
         return added_items
@@ -517,7 +521,8 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -532,7 +537,8 @@ class BL:
                     if self.config.get('cutoff'):
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
+                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -543,7 +549,8 @@ class BL:
                         self.log_info(log_entry)
                         return log_entry
                 elif self.filename == 'MB_Regex':
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -553,7 +560,8 @@ class BL:
                         self.log_info(log_entry)
                         return log_entry
                 else:
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links, ""):
+                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -563,7 +571,7 @@ class BL:
                         self.log_info(log_entry)
                         return log_entry
 
-    def imdb_download(self, key, download_links, score, download_imdb, details):
+    def imdb_download(self, key, download_links, score, download_imdb, details, password):
         if download_links:
             added_items = []
             for download_link in download_links:
@@ -626,7 +634,7 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -646,7 +654,7 @@ class BL:
                         if self.config.get('enforcedl'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password):
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -658,7 +666,7 @@ class BL:
                     added_items.append(log_entry)
             return added_items
 
-    def feed_download(self, key, content):
+    def feed_download(self, key, content, password):
         download_links = self.get_download_links(content)
         if download_links:
             added_items = []
@@ -770,7 +778,7 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '0', self.dbfile):
                             retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -793,7 +801,7 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password):
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -804,7 +812,7 @@ class BL:
                     self.log_info(log_entry)
                     added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
                     self.db.store(
                         key.replace(".COMPLETE", "").replace(
                             ".Complete", ""),
@@ -815,7 +823,7 @@ class BL:
                     self.log_info(log_entry)
                     added_items.append(log_entry)
             else:
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, ""):
+                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -983,7 +991,8 @@ class BL:
                         if i == 0:
                             mb_parsed_url = first_page_mb
                         else:
-                            mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
+                            mb_parsed_url = feedparser.parse(
+                                get_url(url, self.configfile, self.dbfile))
                         found = self.imdb_search(imdb, mb_parsed_url, "MB")
                         if found:
                             for f in found:
@@ -995,7 +1004,8 @@ class BL:
                         if i == 0:
                             hw_parsed_url = first_page_hw
                         else:
-                            hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
+                            hw_parsed_url = feedparser.parse(
+                                get_url(url, self.configfile, self.dbfile))
                         found = self.imdb_search(imdb, hw_parsed_url, "HW")
                         if found:
                             for f in found:
@@ -1008,9 +1018,10 @@ class BL:
                     if i == 0:
                         mb_parsed_url = first_page_mb
                     else:
-                        mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
+                        mb_parsed_url = feedparser.parse(
+                            get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(mb_parsed_url, "MB"):
-                        found = self.feed_download(key, value)
+                        found = self.feed_download(key, value, decode_base64("bW92aWUtYmxvZy5vcmc="))
                         if found:
                             for f in found:
                                 added_items.append(f)
@@ -1021,9 +1032,10 @@ class BL:
                     if i == 0:
                         hw_parsed_url = first_page_hw
                     else:
-                        hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
+                        hw_parsed_url = feedparser.parse(
+                            get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(hw_parsed_url, "HW"):
-                        found = self.feed_download(key, value)
+                        found = self.feed_download(key, value, decode_base64("aGQtd29ybGQub3Jn"))
                         if found:
                             for f in found:
                                 added_items.append(f)
@@ -1046,10 +1058,20 @@ class BL:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HW-CDC!")
         if not mb_304:
-            self.cdc.delete("MBHeaders-" + self.filename)
-            self.cdc.store("MBHeaders-" + self.filename, first_mb.headers['Last-Modified'])
+            try:
+                header = first_mb.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("MBHeaders-" + self.filename)
+                self.cdc.store("MBHeaders-" + self.filename, header)
         if not hw_304:
-            self.cdc.delete("HWHeaders-" + self.filename)
-            self.cdc.store("HWHeaders-" + self.filename, first_hw.headers['Last-Modified'])
+            try:
+                header = first_hw.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("HWHeaders-" + self.filename)
+                self.cdc.store("HWHeaders-" + self.filename, header)
 
         return added_items

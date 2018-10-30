@@ -373,7 +373,8 @@ def mb(link, device, configfile, dbfile):
 
     if download_links:
         if staffel:
-            if myjd_download(configfile, device, key, "RSScrawler", download_links, ""):
+            if myjd_download(configfile, device, key, "RSScrawler", download_links,
+                             decode_base64("bW92aWUtYmxvZy5vcmc=")):
                 db.store(
                     key.replace(".COMPLETE", "").replace(".Complete", ""),
                     'notdl' if config.get(
@@ -389,7 +390,8 @@ def mb(link, device, configfile, dbfile):
                 if config.get('enforcedl'):
                     if cutoff(key, '2', dbfile):
                         retail = True
-            if myjd_download(configfile, device, key, "RSScrawler/3Dcrawler", download_links, ""):
+            if myjd_download(configfile, device, key, "RSScrawler/3Dcrawler", download_links,
+                             decode_base64("bW92aWUtYmxvZy5vcmc=")):
                 db.store(
                     key,
                     'notdl' if config.get(
@@ -409,7 +411,8 @@ def mb(link, device, configfile, dbfile):
                 else:
                     if cutoff(key, '0', dbfile):
                         retail = True
-            if myjd_download(configfile, device, key, "RSScrawler", download_links, ""):
+            if myjd_download(configfile, device, key, "RSScrawler", download_links,
+                             decode_base64("bW92aWUtYmxvZy5vcmc=")):
                 db.store(
                     key,
                     'notdl' if config.get(
