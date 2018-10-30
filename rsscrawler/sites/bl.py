@@ -133,6 +133,7 @@ class BL:
                 yield (post.title, content, title)
 
     def imdb_search(self, imdb, feed, site):
+        added_items = []
         settings = str(self.settings)
         score = str(self.imdb)
         for post in feed.entries:
@@ -328,11 +329,14 @@ class BL:
                         ",", "."))
                     if download_score > imdb:
                         if '.3d.' not in post.title.lower():
-                            self.imdb_download(
+                            found = self.imdb_download(
                                 post.title, download_pages, str(download_score), download_imdb, details)
                         else:
-                            self.imdb_download(
+                            found = self.imdb_download(
                                 post.title, download_pages, str(download_score), download_imdb, details)
+                        for i in found:
+                            added_items.append(i)
+        return added_items
 
     def feed_search(self, feed, site):
         if self.empty_list:
@@ -603,7 +607,10 @@ class BL:
                     self.log_debug(
                         "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
-                    if not self.dual_download(key) and not englisch:
+                    dual_found = self.dual_download(key)
+                    if dual_found:
+                        added_items.append(dual_found)
+                    elif not dual_found and not englisch:
                         self.log_debug(
                             "%s - Kein zweisprachiges Release gefunden!" % key)
                         return
@@ -717,7 +724,10 @@ class BL:
                             self.log_debug(
                                 "%s - Keine passende Film-IMDB-Seite gefunden" % key)
                 if not imdb_id:
-                    if not self.dual_download(key):
+                    dual_found = self.dual_download(key)
+                    if dual_found:
+                        added_items.append(dual_found)
+                    else:
                         self.log_debug(
                             "%s - Kein zweisprachiges Release gefunden." % key)
                         self.dl_unsatisfied = True
@@ -737,7 +747,10 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
-                        if not self.dual_download(key) and not englisch:
+                        dual_found = self.dual_download(key)
+                        if dual_found:
+                            added_items.append(dual_found)
+                        elif not dual_found and not englisch:
                             self.log_debug(
                                 "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                             self.dl_unsatisfied = True
@@ -961,6 +974,7 @@ class BL:
                     except:
                         sha_hw = None
 
+        added_items = []
         if self.filename == "IMDB":
             if imdb > 0:
                 i = 0
@@ -970,7 +984,9 @@ class BL:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
-                        self.imdb_search(imdb, mb_parsed_url, "MB")
+                        found = self.imdb_search(imdb, mb_parsed_url, "MB")
+                        for i in found:
+                            added_items.append(i)
                         i += 1
                 i = 0
                 for url in hw_urls:
@@ -979,7 +995,9 @@ class BL:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
-                        self.imdb_search(imdb, hw_parsed_url, "HW")
+                        found = self.imdb_search(imdb, hw_parsed_url, "HW")
+                        for i in found:
+                            added_items.append(i)
                         i += 1
         else:
             i = 0
@@ -990,7 +1008,9 @@ class BL:
                     else:
                         mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(mb_parsed_url, "MB"):
-                        self.feed_download(key, value)
+                        found = self.feed_download(key, value)
+                        for i in found:
+                            added_items.append(i)
                     i += 1
             i = 0
             for url in hw_urls:
@@ -1000,8 +1020,10 @@ class BL:
                     else:
                         hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(hw_parsed_url, "HW"):
-                        self.feed_download(key, value)
-                        i += 1
+                        found = self.feed_download(key, value)
+                        for i in found:
+                            added_items.append(i)
+                    i += 1
 
         self.cdc.delete("MBHWSet-" + self.filename)
         self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
@@ -1025,3 +1047,5 @@ class BL:
         if not hw_304:
             self.cdc.delete("HWHeaders-" + self.filename)
             self.cdc.store("HWHeaders-" + self.filename, first_hw.headers['Last-Modified'])
+
+        return added_items
