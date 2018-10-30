@@ -63,7 +63,7 @@ def myjd_input(configfile, port=None):
         device = six.moves.input(u"Gerätename:")
     if not port:
         port = '9090'
-    startup(configfile, None, port)
+    startup(configfile, "", port)
     RssConfig('RSScrawler', configfile).save("myjd_user", user)
     RssConfig('RSScrawler', configfile).save("myjd_pass", password)
     RssConfig('RSScrawler', configfile).save("myjd_device", device)

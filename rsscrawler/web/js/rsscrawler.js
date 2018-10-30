@@ -180,7 +180,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                     $("#myjd_no_login").hide();
-                    $("#pfad").prop("disabled", true);
+                    $("#pfad").hide();
                 } else {
                     $("#spinner-myjd").hide();
                     $("#myjd_state").hide();
@@ -246,13 +246,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         spinSettings();
         $http.post('api/settings/', $scope.settings, 'application/json')
             .then(function (res) {
-                console.log('Einstellungen gespeichert! Einige Änderungen erfordern einen Neustart.');
-                showSuccess('Einstellungen gespeichert! Einige Änderungen erfordern einen Neustart.');
+                console.log('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
+                showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
                 getSettings();
             }, function (res) {
-                $('#headingTwoOne').addClass('show');
-                console.log('Konnte Einstellungen nicht speichern!');
-                showDanger('Konnte Einstellungen nicht speichern!');
+                getSettings()
+                console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
+                showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
             });
     }
 
@@ -548,7 +548,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.checMyJD = function () {
         $timeout(function () {
-            getMyJD();
+            if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                getMyJD();
+            }
             $scope.checMyJD();
         }, 10000)
     };

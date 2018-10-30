@@ -22,6 +22,7 @@ log_error = logging.error
 log_debug = logging.debug
 
 
+# TODO add myjd_download and check if either device or valid path are available. require password to be passed
 def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir, configfile):
     try:
         crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(

@@ -19,6 +19,8 @@ from six.moves import StringIO
 from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.common import decode_base64
+from rsscrawler.myjd import check_device
+from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
@@ -176,14 +178,41 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
             data = request.json
 
             section = RssConfig("RSScrawler", configfile)
-            section.save("myjd_user",
-                         to_str(data['general']['myjd_user']))
-            section.save("myjd_pass",
-                         to_str(data['general']['myjd_pass']))
-            section.save("myjd_device",
-                         to_str(data['general']['myjd_device']))
-            section.save("jdownloader",
-                         to_str(data['general']['pfad']))
+            myjd_user = to_str(data['general']['myjd_user'])
+            myjd_pass = to_str(data['general']['myjd_pass'])
+            myjd_device = to_str(data['general']['myjd_device'])
+
+            if myjd_user and myjd_pass and not myjd_device:
+                myjd_device = get_if_one_device(myjd_user, myjd_pass)
+                if myjd_device:
+                    print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+
+            if myjd_user and myjd_pass and myjd_device:
+                device_check = check_device(myjd_user, myjd_pass, myjd_device)
+                jdownloader = ""
+                if not device_check:
+                    myjd_device = get_if_one_device(myjd_user, myjd_pass)
+                    if myjd_device:
+                        print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                    else:
+                        print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                        return "Failed", 400
+            else:
+                jdownloader = to_str(data['general']['pfad'])
+                if not jdownloader:
+                    print(u"Ohne My JDownloader Zugangsdaten oder JDownloader-Pfad funktioniert RSScrawler nicht!")
+                    print(u"Bitte vor dem Speichern prüfen")
+                    return "Failed", 400
+                else:
+                    if not os.path.exists(jdownloader + "/folderwatch"):
+                        print(
+                            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+                        return "Failed", 400
+
+            section.save("myjd_user", myjd_user)
+            section.save("myjd_pass", myjd_pass)
+            section.save("myjd_device", myjd_device)
+            section.save("jdownloader", jdownloader)
             section.save(
                 "port", to_str(data['general']['port']))
             section.save(

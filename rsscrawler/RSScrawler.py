@@ -132,6 +132,8 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format, devic
     if not arguments['--testlauf']:
         while True:
             try:
+                if not device:
+                    device = get_device(configfile)
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
@@ -161,6 +163,8 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format, devic
                 traceback.print_exc()
     else:
         try:
+            if not device:
+                device = get_device(configfile)
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
@@ -1939,6 +1943,8 @@ def main():
             print('Beende RSScrawler...')
             sys.exit(0)
     else:
+        rsscrawler = RssConfig('RSScrawler', configfile)
+        jdownloaderpath = ""
         print("Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     port = int(rsscrawler.get("port"))

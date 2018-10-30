@@ -407,6 +407,12 @@
                     <input ng-model="settings.general.myjd_device" class="form-control docker" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben"/>
+                    <div id="pfad"><h4>JDownloader-Pfad</h4>
+                        <input ng-model="settings.general.pfad" class="form-control docker"
+                               data-toggle="tooltip"
+                               data-placement="top"
+                               title="Wird nur genutzt, wenn oben keine MyJDownloader-Zugangsdaten hinterlegt wurden: Exakt das Verzeichnis des JDownloaders angeben - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
+                    </div>
                 </div>
             </div>
         </div>
@@ -422,10 +428,6 @@
 
             <div id="collapseTwoOne" class="collapse" aria-labelledby="headingTwoOne" data-parent="#settings">
                 <div class="card-body">
-                    <h4>JDownloader-Pfad</h4>
-                    <input ng-model="settings.general.pfad" class="form-control docker" id="pfad" data-toggle="tooltip"
-                           data-placement="top"
-                           title="Nur aktiv, wenn oben keine MyJDownloader-Zugangsdaten hinterlegt wurden: Exakt das Verzeichnis des JDownloaders angeben - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
                     <h4>Port</h4>
                     <input required type="number" min="1024" max="65535" ng-model="settings.general.port"
                            class="form-control docker" data-toggle="tooltip"

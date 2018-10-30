@@ -18,6 +18,22 @@ def get_device(configfile):
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
+    if myjd_user and myjd_pass and myjd_device:
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            device = jd.get_device(myjd_device)
+        except rsscrawler.myjdapi.MYJDException as e:
+            print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        return device
+    else:
+        return False
+
+
+def check_device(myjd_user, myjd_pass, myjd_device):
+    jd = rsscrawler.myjdapi.Myjdapi()
+    jd.set_app_key('RSScrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
         jd.update_devices()
