@@ -5,6 +5,7 @@
 import rsscrawler.myjdapi
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
+from rsscrawler.common import write_crawljob_file
 from rsscrawler.rssconfig import RssConfig
 
 
@@ -417,3 +418,13 @@ def jdownloader_stop(configfile, device):
     except rsscrawler.myjdapi.MYJDException as e:
         print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
+
+
+def myjd_download(configfile, device, title, subdir, links, password=""):
+    if device:
+        if download(configfile, device, title, subdir, links, password):
+            return True
+    else:
+        if write_crawljob_file(configfile, title, subdir, links):
+            return True
+    return False

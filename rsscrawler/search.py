@@ -18,7 +18,7 @@ except ImportError:
 from rsscrawler.common import decode_base64
 from rsscrawler.common import sanitize
 from rsscrawler.common import cutoff
-from rsscrawler.common import myjd_download
+from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb

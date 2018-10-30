@@ -6,7 +6,7 @@ import re
 
 from six.moves.urllib.error import HTTPError
 
-from rsscrawler.common import myjd_download
+from rsscrawler.myjd import myjd_download
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb

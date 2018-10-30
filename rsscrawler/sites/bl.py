@@ -13,8 +13,8 @@ import six
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
-from rsscrawler.common import myjd_download
 from rsscrawler.common import retail_sub
+from rsscrawler.myjd import myjd_download
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -985,8 +985,9 @@ class BL:
                         else:
                             mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                         found = self.imdb_search(imdb, mb_parsed_url, "MB")
-                        for i in found:
-                            added_items.append(i)
+                        if found:
+                            for f in found:
+                                added_items.append(f)
                         i += 1
                 i = 0
                 for url in hw_urls:
@@ -996,8 +997,9 @@ class BL:
                         else:
                             hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                         found = self.imdb_search(imdb, hw_parsed_url, "HW")
-                        for i in found:
-                            added_items.append(i)
+                        if found:
+                            for f in found:
+                                added_items.append(f)
                         i += 1
         else:
             i = 0
@@ -1009,8 +1011,9 @@ class BL:
                         mb_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(mb_parsed_url, "MB"):
                         found = self.feed_download(key, value)
-                        for i in found:
-                            added_items.append(i)
+                        if found:
+                            for f in found:
+                                added_items.append(f)
                     i += 1
             i = 0
             for url in hw_urls:
@@ -1021,8 +1024,9 @@ class BL:
                         hw_parsed_url = feedparser.parse(get_url(url, self.configfile, self.dbfile))
                     for (key, value, pattern) in self.feed_search(hw_parsed_url, "HW"):
                         found = self.feed_download(key, value)
-                        for i in found:
-                            added_items.append(i)
+                        if found:
+                            for f in found:
+                                added_items.append(f)
                     i += 1
 
         self.cdc.delete("MBHWSet-" + self.filename)

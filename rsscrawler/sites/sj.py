@@ -11,7 +11,7 @@ import feedparser
 from bs4 import BeautifulSoup
 
 from rsscrawler.common import decode_base64
-from rsscrawler.common import myjd_download
+from rsscrawler.myjd import myjd_download
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -35,8 +35,6 @@ class SJ:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.hoster = re.compile(self.config.get("hoster"))
-        self.pattern = "|".join(self.get_series_list(
-            self.filename, self.level)).lower()
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
@@ -58,6 +56,8 @@ class SJ:
             self.level = 1
         else:
             self.level = 0
+        self.pattern = "|".join(self.get_series_list(
+            self.filename, self.level)).lower()
 
     def get_series_list(self, liste, series_type):
         loginfo = ""

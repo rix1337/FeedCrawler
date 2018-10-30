@@ -13,7 +13,6 @@ import socket
 
 import six
 
-from rsscrawler.myjd import download
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -21,16 +20,6 @@ from rsscrawler.rssdb import RssDb
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
-
-
-def myjd_download(configfile, device, title, subdir, links, password=""):
-    if device:
-        if download(configfile, device, title, subdir, links, password):
-            return True
-    else:
-        if write_crawljob_file(configfile, title, subdir, links):
-            return True
-    return False
 
 
 def write_crawljob_file(configfile, package_name, subdir, link_text):

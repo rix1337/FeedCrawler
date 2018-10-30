@@ -121,8 +121,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool:
                     items = task.periodical_task()
-                    for i in items:
-                        added_items.append(i)
+                    if items:
+                        for i in items:
+                            added_items.append(i)
                     log_debug("-----------Suchfunktion ausgeführt!-----------")
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -154,8 +155,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             ombi(configfile, dbfile, device, log_debug)
             for task in search_pool:
                 items = task.periodical_task()
-                for i in items:
-                    added_items.append(i)
+                if items:
+                    for i in items:
+                        added_items.append(i)
                 log_debug("-----------Suchfunktion ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
