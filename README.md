@@ -46,19 +46,18 @@ Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werde
 
 ## Startparameter
 
-  ```--config="<CFGPFAD>"```      Legt den Ablageort für Einstellungen und Logs fest
-
-  ```--testlauf```                Einmalige Ausführung von RSScrawler
-  
-  ```--docker```                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
-
-  ```--port=<PORT>```             Legt den Port des Webservers fest
-  
-  ```--jd-pfad="<JDPFAD>"```      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
-
-  ``` --cdc-reset```              Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
-
-  ```--log-level=<LOGLEVEL>```    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET)
+| Parameter | Erläuterung |
+|---|---|
+| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
+| ```--config="<CFGPFAD>"``` | Legt den Ablageort für Einstellungen und Logs fest |
+| ```--port=<PORT>``` | Legt den Port des Webservers fest |
+| ```--jd-user=<NUTZERNAME>``` | Legt den Nutzernamen für My JDownloader fest |
+| ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
+| ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
+| ```--jd-pfad="<JDPFAD>"``` | Legt den Pfad von JDownloader fest (nicht empfohlen - stattdessen My JDownloader nutzen) |
+| ``` --cdc-reset``` | _Intern: Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf_ |
+| ```--testlauf``` | _Intern: Einmalige Ausführung von RSScrawler_ |
+| ```--docker``` | _Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)_ |
 
 ## Credits
 

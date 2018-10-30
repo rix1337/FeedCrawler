@@ -142,11 +142,7 @@ def sanitize(key):
 
 
 def fullhd_title(key):
-    key = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-        ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(
-        ".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.")
-    return key
+    return key.replace("720p", "DL.1080p")
 
 
 def decode_base64(value):

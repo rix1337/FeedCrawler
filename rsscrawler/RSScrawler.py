@@ -18,16 +18,16 @@ Usage:
                 [--log-level=<LOGLEVEL>]
 
 Options:
+  --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
   --config="<CFGPFAD>"      Legt den Ablageort für Einstellungen und Logs fest
-  --testlauf                Einmalige Ausführung von RSScrawler
-  --docker                  Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
   --port=<PORT>             Legt den Port des Webservers fest
   --jd-user=NUTZERNAME      Legt den Nutzernamen für My JDownloader fest
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
-  --cdc-reset               Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
-  --log-level=<LOGLEVEL>    Legt fest, wie genau geloggt wird (CRITICAL, ERROR, WARNING, INFO, DEBUG, NOTSET )
+  --cdc-reset               Intern: Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
+  --testlauf                Intern: Einmalige Ausführung von RSScrawler
+  --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
 import logging

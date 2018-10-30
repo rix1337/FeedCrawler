@@ -350,7 +350,7 @@ class BL:
             "ignore") else r"^unmatchable$"
 
         for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key).lower()
+            s = re.sub(self.SUBSTITUTE, ".", "^" + key + '.(\d{4}|German|\d{3,4}p).*').lower()
             settings = str(self.settings)
             liste = str(self.allInfos)
             for post in feed.entries:
@@ -369,6 +369,7 @@ class BL:
                         break
 
                 found = re.search(s, post.title.lower())
+
                 if found:
                     content = post.content[0].value
                     if re.search(r'.*([mM][kK][vV]).*', content):
@@ -921,7 +922,7 @@ class BL:
             set_mbhw = str(self.settings) + str(self.allInfos)
             set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
             if self.last_set_mbhw == set_mbhw:
-                if first_mb.status_code == 304:
+                if not self.historical and first_mb.status_code == 304:
                     mb_304 = True
                     mb_urls = []
                     self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
@@ -930,12 +931,12 @@ class BL:
             set_mbhw = str(self.settings) + str(self.allInfos)
             set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
             if self.last_set_mbhw == set_mbhw:
-                if first_hw.status_code == 304:
+                if not self.historical and first_hw.status_code == 304:
                     hw_304 = True
                     hw_urls = []
                     self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
 
-        if mb_304 and hw_304:
+        if not self.historical and mb_304 and hw_304:
             return
 
         sha_mb = None
@@ -1015,7 +1016,7 @@ class BL:
             i = 0
             for url in mb_urls:
                 if not self.mb_done:
-                    if i == 0:
+                    if not self.historical and i == 0:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(
@@ -1029,7 +1030,7 @@ class BL:
             i = 0
             for url in hw_urls:
                 if not self.hw_done:
-                    if i == 0:
+                    if not self.historical and i == 0:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(
