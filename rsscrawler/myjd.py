@@ -111,6 +111,7 @@ def get_packages_in_downloader(device):
                     if url not in urls:
                         urls.append(url)
                     linkids.append(link.get('uuid'))
+            urls = "\n".join(urls)
             packages.append({"name": name,
                              "links": total_links,
                              "enabled": enabled,
@@ -174,6 +175,7 @@ def get_packages_in_linkgrabber(device):
                     if url not in urls:
                         urls.append(url)
                     linkids.append(link.get('uuid'))
+            urls = "\n".join(urls)
             decrypt_failed = False
             for h in hosts:
                 if h == 'linkcrawlerretry':

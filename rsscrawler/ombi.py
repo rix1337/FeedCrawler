@@ -106,6 +106,7 @@ def ombi(configfile, dbfile, device, log_debug):
     tvd_api = config.get('tvd_api')
     tvd_user = config.get('tvd_user')
     tvd_userkey = config.get('tvd_userkey')
+    english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
         if mdb_api:
@@ -132,7 +133,10 @@ def ombi(configfile, dbfile, device, log_debug):
                 best_result = search.best_result_mb(title, configfile, dbfile)
                 if best_result:
                     search.mb(best_result, device, configfile, dbfile)
-                # TODO repeat for english title if setting is enabled
+                if english:
+                    best_result = search.best_result_mb(r.get('title'), configfile, dbfile)
+                    if best_result:
+                        search.mb(best_result, device, configfile, dbfile)
                 db.store('tmdb_' + str(tmdbid), 'added')
 
     for r in requested_shows:
