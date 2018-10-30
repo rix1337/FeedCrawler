@@ -456,8 +456,20 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
     def myjd_move(linkids, uuids):
         if request.method == 'POST':
-            linkids = ast.literal_eval(linkids)
-            uuids = ast.literal_eval(uuids)
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
             myjd = move_to_downloads(configfile, device, linkids, uuids)
             if myjd:
                 return "Success", 200
@@ -469,8 +481,20 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
     def myjd_remove(linkids, uuids):
         if request.method == 'POST':
-            linkids = ast.literal_eval(linkids)
-            uuids = ast.literal_eval(uuids)
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
             myjd = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if myjd:
                 return "Success", 200
@@ -482,10 +506,22 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
     def myjd_retry(linkids, uuids, b64_links):
         if request.method == 'POST':
-            linkids = ast.literal_eval(linkids)
-            uuids = ast.literal_eval(uuids)
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
             links = decode_base64(b64_links)
-            links = ast.literal_eval(links)
+            links = links.split("\n")
             myjd = retry_decrypt(configfile, device, linkids, uuids, links)
             if myjd:
                 return "Success", 200
