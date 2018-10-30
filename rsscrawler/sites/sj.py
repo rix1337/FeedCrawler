@@ -56,8 +56,8 @@ class SJ:
             self.level = 1
         else:
             self.level = 0
-        self.pattern = "|".join(self.get_series_list(
-            self.filename, self.level)).lower()
+
+        self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
 
     def get_series_list(self, liste, series_type):
         loginfo = ""
