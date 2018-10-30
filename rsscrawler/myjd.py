@@ -25,7 +25,7 @@ def get_device(configfile):
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except rsscrawler.myjdapi.MYJDException as e:
-            print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
         return device
     else:
@@ -40,7 +40,7 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
     return device
 
@@ -58,7 +58,7 @@ def get_if_one_device(myjd_user, myjd_pass):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -218,7 +218,7 @@ def check_failed_packages(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -233,7 +233,7 @@ def get_state(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -255,7 +255,7 @@ def get_info(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -269,7 +269,7 @@ def move_to_downloads(configfile, device, linkids, uuid):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -283,7 +283,7 @@ def remove_from_linkgrabber(configfile, device, linkids, uuid):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -321,7 +321,7 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
             }])
         return True
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -359,7 +359,7 @@ def retry_decrypt(configfile, device, linkids, uuid, links):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -376,7 +376,7 @@ def update_jdownloader(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -390,7 +390,7 @@ def jdownloader_start(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -404,7 +404,7 @@ def jdownloader_pause(configfile, device, bl):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
@@ -418,7 +418,7 @@ def jdownloader_stop(configfile, device):
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
-        print("Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 

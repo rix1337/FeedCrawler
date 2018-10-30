@@ -83,11 +83,10 @@ class RssConfig(object):
                 self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except configparser.DuplicateSectionError:
-            print('Doppelte Sektion in der Konfigurationsdatei.')
+            print(u'Doppelte Sektion in der Konfigurationsdatei.')
             raise
         except:
-            print(
-                'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
+            print(u'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
     def _set_default_config(self, section):

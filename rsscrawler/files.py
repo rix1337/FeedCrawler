@@ -22,7 +22,7 @@ def config(configpath):
         f = open(configfile, "r")
         configpath = f.readline()
     else:
-        print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
         configpath = six.moves.input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(configfile, "w")
@@ -43,7 +43,7 @@ def config(configpath):
 
 
 def jd_input(configfile, port=None):
-    print("Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
+    print(u"Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
     jdownloaderpath = six.moves.input("Pfad angeben:")
     if len(jdownloaderpath) > 0 and port:
         startup(configfile, jdownloaderpath, port)

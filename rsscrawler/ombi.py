@@ -131,13 +131,13 @@ def ombi(configfile, dbfile, device, log_debug):
             if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                 title = mdb(configfile, dbfile, tmdbid, mdb_api)
                 best_result = search.best_result_mb(title, configfile, dbfile)
-                print("Film: " + title + u"durch Ombi hinzugefügt.")
+                print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                 if best_result:
                     search.mb(best_result, device, configfile, dbfile)
                 if english:
                     title = r.get('title')
                     best_result = search.best_result_mb(title, configfile, dbfile)
-                    print("Film: " + title + u"durch Ombi hinzugefügt.")
+                    print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                     if best_result:
                         search.mb(best_result, device, configfile, dbfile)
                 db.store('tmdb_' + str(tmdbid), 'added')
@@ -205,4 +205,4 @@ def ombi(configfile, dbfile, device, log_debug):
                                         e = "0" + e
                                     se = s + "E" + e
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
-                        print("Serie/Staffel/Episode: " + title + u"durch Ombi hinzugefügt.")
+                        print(u"Serie/Staffel/Episode: " + title + u"durch Ombi hinzugefügt.")

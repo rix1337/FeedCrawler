@@ -331,7 +331,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
             if version.update_check()[0]:
                 updateready = True
                 updateversion = version.update_check()[1]
-                print('Update steht bereit (' + updateversion +
+                print(u'Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
             else:
                 updateready = False
@@ -661,7 +661,7 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, dev
 
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
-        print('Update steht bereit (' + updateversion +
+        print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
     app_container(port, docker, configfile, dbfile, log_file, no_logger, device)

@@ -182,10 +182,10 @@ def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format
 def main():
     arguments = docopt(__doc__, version='RSScrawler')
 
-    print("┌──────────────────────────────────────────────┐")
-    print("  RSScrawler " + version + " von RiX")
-    print("  https://github.com/rix1337/RSScrawler")
-    print("└──────────────────────────────────────────────┘")
+    print(u"┌──────────────────────────────────────────────┐")
+    print(u"  RSScrawler " + version + " von RiX")
+    print(u"  https://github.com/rix1337/RSScrawler")
+    print(u"└──────────────────────────────────────────────┘")
 
     if arguments['--docker']:
         configpath = "/config"
@@ -194,7 +194,7 @@ def main():
     configfile = os.path.join(configpath, "RSScrawler.ini")
     dbfile = os.path.join(configpath, "RSScrawler.db")
 
-    print("Nutze das Verzeichnis " + configpath + " für Einstellungen/Logs")
+    print(u"Nutze das Verzeichnis " + configpath + " für Einstellungen/Logs")
 
     log_level = logging.__dict__[
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
@@ -229,15 +229,14 @@ def main():
         if not os.path.exists(configfile):
             if not arguments['--jd-pfad']:
                 if files.jd_input(configfile, arguments['--port']):
-                    print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+                    print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
                 elif arguments['--port']:
                     files.startup(configfile,
                                   "Muss unbedingt vergeben werden!", arguments['--port'])
                 else:
                     files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
-                    print(
-                        'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-                    print('Diese liegt unter ' + configfile)
+                    print(u'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
+                    print(u'Diese liegt unter ' + configfile)
                     print(u'Viel Spaß! Beende RSScrawler!')
                     sys.exit(0)
             else:
@@ -245,8 +244,7 @@ def main():
                     files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
                 else:
                     files.startup(configfile, arguments['--jd-pfad'], "9090")
-                    print(
-                        'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
+                    print(u'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
         elif arguments['--jd-pfad'] and arguments['--port']:
             files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
         elif arguments['--jd-pfad']:
@@ -266,34 +264,34 @@ def main():
         elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
             jdownloaderpath = files.jd_input(configfile, arguments['--port'])
             if jdownloaderpath:
-                print("Der Pfad wurde in der RSScrawler.ini gespeichert.")
+                print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
             else:
-                print('Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-                print('Diese liegt unter ' + configfile)
-                print('Beende RSScrawler...')
+                print(u'Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
+                print(u'Diese liegt unter ' + configfile)
+                print(u'Beende RSScrawler...')
                 sys.exit(0)
 
         jdownloaderpath = jdownloaderpath.replace("\\", "/")
         jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
 
-        print('Nutze das "folderwatch" Unterverzeichnis von "' +
+        print(u'Nutze das "folderwatch" Unterverzeichnis von "' +
               jdownloaderpath + u'" für Crawljobs')
 
         if not os.path.exists(jdownloaderpath):
-            print('Der Pfad des JDownloaders existiert nicht.')
+            print(u'Der Pfad des JDownloaders existiert nicht.')
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-            print('Beende RSScrawler...')
+            print(u'Beende RSScrawler...')
             sys.exit(0)
 
         if not os.path.exists(jdownloaderpath + "/folderwatch"):
             print(
                 u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-            print('Beende RSScrawler...')
+            print(u'Beende RSScrawler...')
             sys.exit(0)
     else:
         rsscrawler = RssConfig('RSScrawler', configfile)
-        print("Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
+        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     port = int(rsscrawler.get("port"))
     docker = False
@@ -308,11 +306,11 @@ def main():
     else:
         prefix = ''
     if not arguments['--docker']:
-        print('Der Webserver ist erreichbar unter http://' +
+        print(u'Der Webserver ist erreichbar unter http://' +
               common.check_ip() + ':' + str(port) + prefix)
 
     if arguments['--cdc-reset']:
-        print("CDC-Tabelle geleert!")
+        print(u"CDC-Tabelle geleert!")
         RssDb(dbfile, 'cdc').reset()
 
     p = Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
@@ -325,7 +323,7 @@ def main():
         print(u'Drücke [Strg] + [C] zum Beenden')
 
         def signal_handler(signal, frame):
-            print('Beende RSScrawler...')
+            print(u'Beende RSScrawler...')
             p.terminate()
             c.terminate()
             sys.exit(0)
