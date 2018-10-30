@@ -28,11 +28,9 @@ from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
-from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 
 
 def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger, device):
@@ -74,8 +72,10 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
                 logfile = open(log_file)
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
-                    output.write("<p>" + line.replace("\n", "</p>"))
-                    log = output.getvalue()
+                    # TODO remove this in 5.1.5
+                    line = re.sub(r' - <a href.*<\/a>', '', line).replace('<b>', '').replace('</b>', '')
+                    output.write(line)
+                log = output.getvalue()
             return jsonify(
                 {
                     "log": log,
@@ -316,15 +316,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
                     }
                 }
             )
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
-    def delete_title(title):
-        if request.method == 'DELETE':
-            db = RssDb(dbfile, 'rsscrawler')
-            db.delete(title)
-            return "Success", 200
         else:
             return "Failed", 405
 
@@ -582,7 +573,6 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
 
     console = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter(log_format)
-    console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
     logfile = logging.handlers.RotatingFileHandler(log_file)

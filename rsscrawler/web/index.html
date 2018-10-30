@@ -55,7 +55,10 @@
         <ul class="list-group list-group-flush">
             <li class="list-group-item"><span ng-bind="y.size"></span></li>
             <li class="list-group-item">
-                <a href="#myjd" ng-click="myJDadd()"><i class="myjd_state fas fa-play" title="Download starten"></i></a>
+                <a href="#myjd" ng-click="myJDmove(y.linkids, y.uuid)"><i class="myjd_state fas fa-play"
+                                                                          title="Download starten"></i></a>
+                <a href="#myjd" ng-click="myJDremove(y.linkids, y.uuid)"><i class="myjd_state fas fa-trash"
+                                                                            title="Entfernen"></i></a>
             </li>
         </ul>
     </div>
@@ -72,9 +75,10 @@
                           title="Alternativ hier unverschlüsselte Links eintragen, um Captchas zu vermeiden."></textarea>
             </li>
             <li class="list-group-item">
-                <a href="#myjd" ng-click="myJDrestart()"><i class="myjd_state fas fa-undo"
-                                                            title="Erneut hinzufügen"></i></a>
-                <a href="#myjd" ng-click="myJDremove()"><i class="myjd_state fas fa-trash" title="Entfernen"></i></a>
+                <a href="#myjd" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="myjd_state fas fa-undo"
+                                                                                   title="Erneut hinzufügen"></i></a>
+                <a href="#myjd" ng-click="myJDremove(z.linkids, z.uuid)"><i class="myjd_state fas fa-trash"
+                                                                            title="Entfernen"></i></a>
             </li>
         </ul>
     </div>
@@ -127,7 +131,7 @@
 <div name="log" id="log" class="container app col">
     <h1>
         <i class="fas fa-history"></i> Log</h1>
-    <div bind-html-compile="log" class="log form-control"></div>
+    <textarea ng-bind="log" class="log form-control" readonly></textarea>
     <a href="#log" ng-click="deleteLog()" class="btn btn-dark">
         <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
 </div>

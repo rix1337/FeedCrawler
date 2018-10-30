@@ -2,9 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import logging
-import re
-
 
 class Unbuffered(object):
     def __init__(self, stream):
@@ -20,13 +17,3 @@ class Unbuffered(object):
 
     def __getattr__(self, attr):
         return getattr(self.stream, attr)
-
-
-class CutLog(logging.Formatter):
-    @staticmethod
-    def _filter(s):
-        return re.sub(r' - <a href.*<\/a>', '', s).replace('<b>', '').replace('</b>', '')
-
-    def format(self, record):
-        original = logging.Formatter.format(self, record)
-        return self._filter(original)

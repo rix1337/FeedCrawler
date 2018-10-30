@@ -58,7 +58,6 @@ from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
-from rsscrawler.output import CutLog
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -94,7 +93,6 @@ def crawler(jdpath, cfgfile, dfile, rssc, log_level, log_file, log_format, devic
 
     console = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter(log_format)
-    console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
     logfile = logging.handlers.RotatingFileHandler(log_file)
@@ -293,8 +291,7 @@ class YT:
                         video,
                         'added'
                     )
-                    log_entry = '[YouTube] - ' + video_title + ' (' + channel + ') - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                video + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[YouTube] - ' + video_title + ' (' + channel + ')'
                     self.log_info(log_entry)
                     added_items.append(log_entry)
 
@@ -352,9 +349,7 @@ class DD:
                                 key,
                                 'added'
                             )
-                            log_entry = '[DD] - <b>Englisch</b> - ' + key + ' - <a href="' + feed_link + \
-                                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                            log_entry = '[DD] - <b>Englisch</b> - ' + key
                             self.log_info(log_entry)
                             added_items.append(log_entry)
                     else:
@@ -747,9 +742,7 @@ class SJ:
             common.write_crawljob_file(
                 title, title, links, jdownloaderpath + "/folderwatch", "RSScrawler", configfile)
             self.db.store(title, 'added')
-            log_entry = link_placeholder + title + ' - <a href="' + link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+            log_entry = link_placeholder + title
             self.log_info(log_entry)
             added_items.append(log_entry)
 
@@ -1050,9 +1043,7 @@ class BL:
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + (
-                        'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                        'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1075,9 +1066,7 @@ class BL:
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
                     log_entry = '[Film] - <b>' + (
-                        'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                        'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1095,9 +1084,7 @@ class BL:
                         'dl' if self.config.get(
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1115,9 +1102,7 @@ class BL:
                         'dl' if self.config.get(
                             'enforcedl') and '.dl.' in key.lower() else 'added'
                     )
-                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                                '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                                key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key
                     self.log_info(log_entry)
                     added_items.append(log_entry)
                     return True
@@ -1414,10 +1399,7 @@ class BL:
                 log_entry = '[IMDB ' + score + '/Film] - ' + (
                     '<b>Englisch</b> - ' if englisch and not retail else "") + (
                                 '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + \
-                            download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                '<b>Retail</b> - ' if not englisch and retail else "") + key
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             else:
@@ -1442,9 +1424,7 @@ class BL:
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[IMDB ' + score + '/Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    'Retail/' if retail else "") + '3D</b> - ' + key
                 self.log_info(log_entry)
                 added_items.append(log_entry)
 
@@ -1582,9 +1562,7 @@ class BL:
                 )
                 log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
                     '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                                '<b>Retail</b> - ' if not englisch and retail else "") + key
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             elif self.filename == 'MB_3D':
@@ -1613,8 +1591,7 @@ class BL:
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    'Retail/' if retail else "") + '3D</b> - ' + key
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
@@ -1632,12 +1609,7 @@ class BL:
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
-                    ".Complete",
-                    "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key.replace(".COMPLETE", "").replace(
-                                ".Complete",
-                                "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
                 self.log_info(log_entry)
                 added_items.append(log_entry)
             else:
@@ -1654,9 +1626,7 @@ class BL:
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film/Serie/RegEx] - ' + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Film/Serie/RegEx] - ' + key
                 self.log_info(log_entry)
                 added_items.append(log_entry)
 
@@ -1880,6 +1850,7 @@ def main():
     log_format = '%(asctime)s - %(message)s'
 
     if not os.path.exists(configfile):
+        # TODO travis needs to run the whole script without waiting for MyJD input
         device = files.myjd_input(configfile, arguments['--port'])
     else:
         rsscrawler = RssConfig('RSScrawler', configfile)
@@ -1897,6 +1868,8 @@ def main():
                 else:
                     print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
                     sys.exit(0)
+        else:
+            device = None
 
     if not device:
         if not os.path.exists(configfile):

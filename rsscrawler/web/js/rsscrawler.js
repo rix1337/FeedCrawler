@@ -1,20 +1,4 @@
-app = angular.module('crwlApp', [])
-    .directive('bindHtmlCompile', function ($compile) {
-        return {
-            restrict: "A",
-            scope: {
-                bindHtmlCompile: "="
-            },
-            link: function (scope, elem) {
-                scope.$watch("bindHtmlCompile", function (newVal) {
-                    elem.html('');
-                    var newElem = angular.element(newVal);
-                    var compileNewElem = $compile(newElem)(scope.$parent);
-                    elem.append(compileNewElem);
-                });
-            }
-        };
-    });
+var app = angular.module('crwlApp', []);
 
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
@@ -125,10 +109,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         downloadSJ(id, special);
     };
 
-    $scope.resetTitle = function (title) {
-        resetTitle(title);
-    };
-
     $scope.saveLists = function () {
         setLists();
     };
@@ -158,6 +138,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getMyJD();
     };
 
+    $scope.myJDmove = function (linkids, uuid) {
+        myJDmove(linkids, uuid);
+    };
+
+    $scope.myJDremove = function (linkids, uuid) {
+        myJDremove(linkids, uuid);
+    };
+
+    $scope.myJDretry = function (linkids, uuid, links) {
+        myJDretry(linkids, uuid, links);
+    };
 
     function getAll() {
         getVersion();
@@ -474,15 +465,34 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function resetTitle(title) {
-        $http.delete('api/delete/' + title)
+    function myJDmove(linkids, uuid) {
+        $http.post('api/myjd_move/' + linkids + "&" + uuid)
             .then(function (res) {
-                console.log('Download von ' + title + ' zurückgesetzt!');
-                showSuccess('Download von ' + title + ' zurückgesetzt!');
-                getLog();
+                getMyJD();
             }, function (res) {
-                console.log('Konnte Download von ' + title + ' nicht zurück setzen!');
-                showDanger('Konnte Download von ' + title + ' nicht zurück setzen!');
+                console.log('Konnte Download nicht starten!');
+                showDanger('Konnte Download nicht starten!');
+            });
+    }
+
+    function myJDremove(linkids, uuid) {
+        $http.post('api/myjd_remove/' + linkids + "&" + uuid)
+            .then(function (res) {
+                getMyJD();
+            }, function (res) {
+                console.log('Konnte Download nicht entfernen!');
+                showDanger('Konnte Download nicht entfernen!');
+            });
+    }
+
+    function myJDretry(linkids, uuid, links) {
+        links = btoa(links)
+        $http.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
+            .then(function (res) {
+                getMyJD();
+            }, function (res) {
+                console.log('Konnte Download nicht erneut hinzufügen!');
+                showDanger('Konnte Download nicht erneut hinzufügen!');
             });
     }
 

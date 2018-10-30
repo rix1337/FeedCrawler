@@ -316,9 +316,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
                     'dl' if config.get(
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
-                log_entry = '[Suche/Staffel] - <b>Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Suche/Staffel] - <b>Zweisprachig</b> - ' + key
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array, configfile)
@@ -342,9 +340,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
                 log_entry = '[Suche/Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array, configfile)
@@ -372,9 +368,7 @@ def download_dl(title, jdownloaderpath, hoster, staffel, db, config, configfile,
                         'enforcedl') and '.dl.' in key.lower() else 'added'
                 )
                 log_entry = '[Suche/Film] - <b>' + (
-                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key + ' - <a href="' + download_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
                 logging.info(log_entry)
                 notify_array.append(log_entry)
                 notify(notify_array, configfile)
@@ -498,12 +492,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
                 'notdl' if config.get(
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
-            log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(
-                ".Complete",
-                "") + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key.replace(".COMPLETE", "").replace(
-                            ".Complete",
-                            "") + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+            log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array, configfile)
@@ -528,8 +517,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
                     'enforcedl') and '.dl.' not in key.lower() else 'added'
             )
             log_entry = '[Suche/Film] - <b>' + (
-                'Retail/' if retail else "") + '3D</b> - ' + key + ' - <a href="' + download_link + '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                'Retail/' if retail else "") + '3D</b> - ' + key
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array, configfile)
@@ -558,9 +546,7 @@ def mb(link, jdownloaderpath, configfile, dbfile):
             )
             log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
                 '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                            '<b>Retail</b> - ' if not englisch and retail else "") + key + ' - <a href="' + download_link + \
-                        '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                        key + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                            '<b>Retail</b> - ' if not englisch and retail else "") + key
             logging.info(log_entry)
             notify_array.append(log_entry)
             notify(notify_array, configfile)
@@ -756,9 +742,7 @@ def sj(sj_id, special, jdownloaderpath, configfile, dbfile):
                 common.write_crawljob_file(
                     dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler", configfile)
                 db.store(dl_title, 'added')
-                log_entry = '[Suche/Serie] - ' + dl_title + ' - <a href="' + dl_link + \
-                            '" target="_blank" title="Link &ouml;ffnen"><i class="fas fa-link"></i></a> <a href="#log" ng-click="resetTitle(&#39;' + \
-                            dl_title + '&#39;)" title="Download f&uuml;r n&auml;chsten Suchlauf zur&uuml;cksetzen"><i class="fas fa-undo"></i></a>'
+                log_entry = '[Suche/Serie] - ' + dl_title
                 logging.info(log_entry)
                 notify_array.append(log_entry)
         if len(best_matching_links) > 0:
