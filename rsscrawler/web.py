@@ -35,7 +35,7 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 
 
-def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger, device):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, device):
     app = Flask(__name__, template_folder='web')
 
     general = RssConfig('RSScrawler', configfile)
@@ -366,7 +366,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     def download_movie(title):
         if request.method == 'POST':
             best_result = search.best_result_mb(title, configfile, dbfile)
-            if best_result and search.mb(best_result, jdpath, configfile, dbfile):
+            if best_result and search.mb(best_result, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -383,7 +383,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
             special = None
         if request.method == 'POST':
             best_result = search.best_result_sj(title, configfile, dbfile)
-            if best_result and search.sj(best_result, special, jdpath, configfile, dbfile):
+            if best_result and search.sj(best_result, special, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -393,7 +393,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
     def download_mb(permalink):
         if request.method == 'POST':
-            if search.mb(permalink, jdpath, configfile, dbfile):
+            if search.mb(permalink, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -408,7 +408,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
         if special == "null":
             special = None
         if request.method == 'POST':
-            if search.sj(sj_id, special, jdpath, configfile, dbfile):
+            if search.sj(sj_id, special, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -629,7 +629,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger,
     http_server.serve_forever()
 
 
-def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_format, device):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
@@ -664,4 +664,4 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
         print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger, device)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, device)

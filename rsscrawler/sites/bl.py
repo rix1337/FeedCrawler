@@ -949,27 +949,40 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return
 
-        first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
-        first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
-        first_page_mb = feedparser.parse(first_mb.content)
-        first_page_hw = feedparser.parse(first_hw.content)
-
         mb_304 = False
         hw_304 = False
 
-        set_mbhw = str(self.settings) + str(self.allInfos)
-        set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
+        try:
+            first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
+            first_page_mb = feedparser.parse(first_mb.content)
+        except:
+            mb_304 = True
+            self.log_error("Fehler beim Abruf von MB - breche Suche ab!")
 
-        if self.last_set_mbhw == set_mbhw:
-            if first_mb.status_code == 304:
-                mb_304 = True
-                mb_urls = []
-                self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+        try:
+            first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
+            first_page_hw = feedparser.parse(first_hw.content)
+        except:
+            hw_304 = True
+            self.log_error("Fehler beim Abruf von HW - breche Suche ab!")
 
-            if first_hw.status_code == 304:
-                hw_304 = True
-                hw_urls = []
-                self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+        if not mb_304:
+            set_mbhw = str(self.settings) + str(self.allInfos)
+            set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
+            if self.last_set_mbhw == set_mbhw:
+                if first_mb.status_code == 304:
+                    mb_304 = True
+                    mb_urls = []
+                    self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+
+        if not hw_304:
+            set_mbhw = str(self.settings) + str(self.allInfos)
+            set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
+            if self.last_set_mbhw == set_mbhw:
+                if first_hw.status_code == 304:
+                    hw_304 = True
+                    hw_urls = []
+                    self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
 
         if mb_304 and hw_304:
             return
@@ -1062,15 +1075,20 @@ class BL:
 
         self.cdc.delete("MBHWSet-" + self.filename)
         self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
-        if sha_mb and sha_hw:
+        if sha_mb:
             if not self.dl_unsatisfied:
                 self.cdc.delete("MB-" + self.filename)
-                self.cdc.delete("HW-" + self.filename)
                 self.cdc.store("MB-" + self.filename, sha_mb)
+            else:
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues MB-CDC!")
+        if sha_hw:
+            if not self.dl_unsatisfied:
+                self.cdc.delete("HW-" + self.filename)
                 self.cdc.store("HW-" + self.filename, sha_hw)
             else:
                 self.log_debug(
-                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues CDC!")
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HW-CDC!")
         if not mb_304:
             self.cdc.delete("MBHeaders-" + self.filename)
             self.cdc.store("MBHeaders-" + self.filename, first_mb.headers['Last-Modified'])

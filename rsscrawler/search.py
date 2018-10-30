@@ -6,7 +6,6 @@ import json
 import logging
 import re
 
-import feedparser
 import six
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
@@ -16,16 +15,17 @@ try:
 except ImportError:
     from HTMLParser import HTMLParser
 
-from rsscrawler import common
 from rsscrawler.common import decode_base64
-from rsscrawler.common import fullhd_title
 from rsscrawler.common import sanitize
+from rsscrawler.common import cutoff
+from rsscrawler.common import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
 from rsscrawler.url import post_url
+from rsscrawler.sites.bl import BL
 
 
 def get(title, configfile, dbfile):
@@ -219,7 +219,7 @@ def best_result_mb(title, configfile, dbfile):
         if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
-    if not common.cutoff(best_title, 1, dbfile):
+    if not cutoff(best_title, 1, dbfile):
         logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -270,118 +270,6 @@ def best_result_sj(title, configfile, dbfile):
             return
     logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_id
-
-
-def dual_download(title, device, hoster, staffel, db, config, configfile, dbfile):
-    # TODO myjd_download with device isntead of jdpath
-    search_title = \
-        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ", "+")
-    search_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/"
-    feedsearch_title = \
-        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
-    if '.dl.' not in feedsearch_title.lower():
-        logging.debug(
-            "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
-        return False
-    for (key, value, pattern) in dual_search(feedparser.parse(search_url), feedsearch_title):
-        req_page = get_url(value[0], configfile, dbfile)
-        soup = BeautifulSoup(req_page, 'lxml')
-        download = soup.find("div", {"id": "content"})
-        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        links = {}
-        for url_hoster in reversed(url_hosters):
-            if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                link_hoster = url_hoster[1].lower().replace(
-                    'target="_blank">', '')
-                if re.match(hoster, link_hoster):
-                    links[link_hoster] = url_hoster[0]
-        download_links = links.values() if six.PY2 else list(links.values())
-
-        if download_links:
-            download_link = download_links[0]
-            notify_array = []
-            if decode_base64("aHR0cDovL3d3dy5tb3ZpZS1ibG9nLm9yZy8yMDEw") in download_link:
-                logging.debug("Fake-Link erkannt!")
-                return False
-            elif staffel:
-                common.myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler/Remux",
-                    configfile
-                )
-                db.store(
-                    key,
-                    'dl' if config.get(
-                        'enforcedl') and '.dl.' in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Staffel] - <b>Zweisprachig</b> - ' + key
-                logging.info(log_entry)
-                notify_array.append(log_entry)
-                notify(notify_array, configfile)
-                return True
-            elif '.3d.' in key.lower():
-                retail = False
-                if config.get('cutoff'):
-                    if common.cutoff(key, '2', dbfile):
-                        retail = True
-                common.myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler/3Dcrawler",
-                    configfile
-                )
-                db.store(
-                    key,
-                    'dl' if config.get(
-                        'enforcedl') and '.dl.' in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
-                logging.info(log_entry)
-                notify_array.append(log_entry)
-                notify(notify_array, configfile)
-                return True
-            else:
-                retail = False
-                if config.get('cutoff'):
-                    if config.get('enforcedl'):
-                        if common.cutoff(key, '1', dbfile):
-                            retail = True
-                    else:
-                        if common.cutoff(key, '0', dbfile):
-                            retail = True
-                common.myjd_download(
-                    key,
-                    key,
-                    download_links,
-                    jdownloaderpath + "/folderwatch",
-                    "RSScrawler/Remux",
-                    configfile
-                )
-                db.store(
-                    key,
-                    'dl' if config.get(
-                        'enforcedl') and '.dl.' in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Film] - <b>' + (
-                    'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
-                logging.info(log_entry)
-                notify_array.append(log_entry)
-                notify(notify_array, configfile)
-                return True
-
-
-def dual_search(feed, title):
-    s = re.sub(r"[&#\s/]", ".", title).lower()
-    for post in feed.entries:
-        found = re.search(s, post.title.lower())
-        if found:
-            yield (post.title, [post.link], title)
 
 
 def mb(link, device, configfile, dbfile):
@@ -453,8 +341,16 @@ def mb(link, device, configfile, dbfile):
                 if no_series is False:
                     logging.debug(
                         "%s - Keine passende Film-IMDB-Seite gefunden" % key)
+
+        if staffel:
+            filename = 'MB_Staffeln'
+        else:
+            filename = 'MB_Filme'
+
+        bl = BL(configfile, dbfile, device, logging, filename=filename)
+
         if not imdb_id:
-            if not dual_download(key, jdownloaderpath, hoster, staffel, db, config, configfile, dbfile):
+            if not bl.dual_download(key):
                 logging.debug(
                     "%s - Kein zweisprachiges Release gefunden." % key)
         else:
@@ -472,16 +368,14 @@ def mb(link, device, configfile, dbfile):
                 logging.debug(
                     "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
             else:
-                if not dual_download(key, jdownloaderpath, hoster, staffel, db, config, configfile,
-                                     dbfile) and not englisch:
+                if not bl.dual_download(key) and not englisch:
                     logging.debug(
                         "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
 
     if download_links:
-        download_link = download_links[0]
         notify_array = []
         if staffel:
-            common.myjd_download(
+            myjd_download(
                 key,
                 key,
                 download_links,
@@ -503,9 +397,9 @@ def mb(link, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if common.cutoff(key, '2', dbfile):
+                    if cutoff(key, '2', dbfile):
                         retail = True
-            common.myjd_download(
+            myjd_download(
                 key,
                 key,
                 download_links,
@@ -528,12 +422,12 @@ def mb(link, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if common.cutoff(key, '1', dbfile):
+                    if cutoff(key, '1', dbfile):
                         retail = True
                 else:
-                    if common.cutoff(key, '0', dbfile):
+                    if cutoff(key, '0', dbfile):
                         retail = True
-            common.myjd_download(
+            myjd_download(
                 key,
                 key,
                 download_links,
@@ -742,8 +636,8 @@ def sj(sj_id, special, device, configfile, dbfile):
             db = RssDb(dbfile, 'rsscrawler')
 
             if re.match(hoster, dl_hoster.lower()):
-                common.myjd_download(
-                    dl_title, dl_title, dl_link, jdownloaderpath + "/folderwatch", "RSScrawler", configfile)
+                myjd_download(configfile, device, dl_title, "RSScrawler", dl_link,
+                              decode_base64("c2VyaWVuanVua2llcy5vcmc="))
                 db.store(dl_title, 'added')
                 log_entry = '[Suche/Serie] - ' + dl_title
                 logging.info(log_entry)

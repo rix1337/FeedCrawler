@@ -173,8 +173,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             traceback.print_exc()
 
 
-def web_server(port, docker, jd, cfg, db, log_level, log_file, log_format, device):
-    start(port, docker, jd, cfg, db, log_level, log_file, log_format, device)
+def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
+    start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
 
 
 def main():
@@ -288,7 +288,6 @@ def main():
             sys.exit(0)
     else:
         rsscrawler = RssConfig('RSScrawler', configfile)
-        jdownloaderpath = ""
         print("Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     port = int(rsscrawler.get("port"))
@@ -311,13 +310,11 @@ def main():
         print("CDC-Tabelle geleert!")
         RssDb(dbfile, 'cdc').reset()
 
-    p = Process(target=web_server, args=(
-        port, docker, jdownloaderpath, configfile, dbfile, log_level, log_file, log_format, device))
+    p = Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
     p.start()
 
     if not arguments['--testlauf']:
-        c = Process(target=crawler, args=(jdownloaderpath, configfile, dbfile,
-                                          rsscrawler, log_level, log_file, log_format, device))
+        c = Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
         c.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')
