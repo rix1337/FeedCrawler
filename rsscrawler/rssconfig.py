@@ -8,6 +8,9 @@ from six.moves import configparser
 class RssConfig(object):
     _DEFAULT_CONFIG = {
         'RSScrawler': [
+            ("myjd_user", "str", ""),
+            ("myjd_pass", "str", ""),
+            ("myjd_device", "str", ""),
             ("jdownloader", "str", ""),
             ("port", "int", "9090"),
             ("prefix", "str", ""),
@@ -80,11 +83,10 @@ class RssConfig(object):
                 self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except configparser.DuplicateSectionError:
-            print('Doppelte Sektion in der Konfigurationsdatei.')
+            print(u'Doppelte Sektion in der Konfigurationsdatei.')
             raise
-        except configparser.Error:
-            print(
-                'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
+        except:
+            print(u'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
     def _set_default_config(self, section):

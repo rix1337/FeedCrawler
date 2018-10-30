@@ -22,7 +22,8 @@ log_error = logging.error
 log_debug = logging.debug
 
 
-def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subdir, configfile):
+def write_crawljob_file(configfile, package_name, subdir, link_text):
+    crawljob_dir = "holsdir aus der config + folderwatch"
     try:
         crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
             re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
@@ -55,11 +56,11 @@ def write_crawljob_file(package_name, folder_name, link_text, crawljob_dir, subd
         file.write('forcedStart=' + autostart + '\n')
         file.write('autoConfirm=' + autostart + '\n')
         if not subdir == "":
-            file.write('downloadFolder=' + subdir + "/" + '%s\n' % folder_name)
+            file.write('downloadFolder=' + subdir + "/" + '%s\n' % package_name)
             if subdir == "RSScrawler/Remux":
                 file.write('priority=Lower\n')
         else:
-            file.write('downloadFolder=' + '%s\n' % folder_name)
+            file.write('downloadFolder=' + '%s\n' % package_name)
         file.write('packageName=%s\n' % package_name.replace(' ', ''))
         file.write('text=%s\n' % link_text)
         file.close()
@@ -131,21 +132,17 @@ def cutoff(key, identifier, dbfile):
 
 
 def sanitize(key):
-    sanitize = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace(
+    key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace(
         u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß', 'ss').replace('(',
                                                                                                             '').replace(
         ')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!',
                                                                                                                '').replace(
         ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
-    return sanitize
+    return key
 
 
 def fullhd_title(key):
-    key = key.replace(".German.720p.", ".German.DL.1080p.").replace(".German.DTS.720p.",
-                                                                    ".German.DTS.DL.1080p.").replace(
-        ".German.AC3.720p.", ".German.AC3.DL.1080p.").replace(".German.AC3LD.720p.", ".German.AC3LD.DL.1080p.").replace(
-        ".German.AC3.Dubbed.720p.", ".German.AC3.Dubbed.DL.1080p.")
-    return key
+    return key.replace("720p", "DL.1080p")
 
 
 def decode_base64(value):
@@ -153,3 +150,30 @@ def decode_base64(value):
         return value.decode("base64")
     else:
         return base64.b64decode(value).decode()
+
+
+def readable_size(size):
+    power = 2 ** 10
+    n = 0
+    powers = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+    while size > power:
+        size /= power
+        n += 1
+    size = round(size, 2)
+    size = str(size) + " " + powers[n] + 'B'
+    return size
+
+
+def readable_time(time):
+    if time < 0:
+        return ""
+    else:
+        days = time // 86400
+        hours = (time - days * 86400) // 3600
+        minutes = (time - days * 86400 - hours * 3600) // 60
+        seconds = time - days * 86400 - hours * 3600 - minutes * 60
+        time = ("{}d:".format(days) if days else "") + \
+               ("{}h:".format(hours) if hours else "") + \
+               ("{}m:".format(minutes) if minutes else "") + \
+               ("{}s".format(seconds) if seconds else "")
+    return time

@@ -4,6 +4,8 @@
 
 import json
 
+import requests
+
 from rsscrawler import search
 from rsscrawler.common import sanitize
 from rsscrawler.rssconfig import RssConfig
@@ -95,7 +97,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
     return title, eps
 
 
-def ombi(configfile, dbfile, jdpath, log_debug):
+def ombi(configfile, dbfile, device, log_debug):
     db = RssDb(dbfile, 'Ombi')
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
@@ -104,17 +106,17 @@ def ombi(configfile, dbfile, jdpath, log_debug):
     tvd_api = config.get('tvd_api')
     tvd_user = config.get('tvd_user')
     tvd_userkey = config.get('tvd_userkey')
+    english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
         if mdb_api:
-            requested_movies = get_url_headers(url + '/api/v1/Request/movie', configfile, dbfile,
-                                               headers={'ApiKey': api})
+            requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
             requested_movies = json.loads(requested_movies.text)
         else:
             requested_movies = []
             log_debug("Aufgrund fehlender API-Zugangsdaten werden keine Filme aus Ombi importiert.")
         if tvd_api and tvd_user and tvd_userkey:
-            requested_shows = get_url_headers(url + '/api/v1/Request/tv', configfile, dbfile, headers={'ApiKey': api})
+            requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
             requested_shows = json.loads(requested_shows.text)
         else:
             requested_shows = []
@@ -129,8 +131,15 @@ def ombi(configfile, dbfile, jdpath, log_debug):
             if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
                 title = mdb(configfile, dbfile, tmdbid, mdb_api)
                 best_result = search.best_result_mb(title, configfile, dbfile)
+                print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                 if best_result:
-                    search.mb(best_result, jdpath, configfile, dbfile)
+                    search.mb(best_result, device, configfile, dbfile)
+                if english:
+                    title = r.get('title')
+                    best_result = search.best_result_mb(title, configfile, dbfile)
+                    print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                    if best_result:
+                        search.mb(best_result, device, configfile, dbfile)
                 db.store('tmdb_' + str(tmdbid), 'added')
 
     for r in requested_shows:
@@ -173,9 +182,9 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                                     se = s + "E" + e
                                     best_result = search.best_result_sj(title, configfile, dbfile)
                                     if best_result:
-                                        add_episode = search.sj(best_result, se, jdpath, configfile, dbfile)
+                                        add_episode = search.sj(best_result, se, device, configfile, dbfile)
                                         if not add_episode:
-                                            add_season = search.sj(best_result, s, jdpath, configfile, dbfile)
+                                            add_season = search.sj(best_result, s, device, configfile, dbfile)
                                             for e in eps:
                                                 e = str(e)
                                                 if len(e) == 1:
@@ -189,10 +198,11 @@ def ombi(configfile, dbfile, jdpath, log_debug):
                             else:
                                 best_result = search.best_result_sj(title, configfile, dbfile)
                                 if best_result:
-                                    search.sj(best_result, s, jdpath, configfile, dbfile)
+                                    search.sj(best_result, s, device, configfile, dbfile)
                                 for ep in eps:
                                     e = str(ep)
                                     if len(e) == 1:
                                         e = "0" + e
                                     se = s + "E" + e
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                        print(u"Serie/Staffel/Episode: " + title + u"durch Ombi hinzugefügt.")

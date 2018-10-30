@@ -11,6 +11,7 @@ flask
 fuzzywuzzy
 gevent
 lxml
+pycryptodome
 python-dateutil
 requests[socks]
 six

@@ -7,6 +7,8 @@ import sys
 
 import six
 
+from rsscrawler.myjd import get_device
+from rsscrawler.myjd import get_if_one_device
 from rsscrawler.rssconfig import RssConfig
 
 
@@ -20,7 +22,7 @@ def config(configpath):
         f = open(configfile, "r")
         configpath = f.readline()
     else:
-        print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
         configpath = six.moves.input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(configfile, "w")
@@ -41,13 +43,40 @@ def config(configpath):
 
 
 def jd_input(configfile, port=None):
-    print("Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
+    print(u"Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
     jdownloaderpath = six.moves.input("Pfad angeben:")
     if len(jdownloaderpath) > 0 and port:
         startup(configfile, jdownloaderpath, port)
     elif len(jdownloaderpath) > 0:
         startup(configfile, jdownloaderpath, '9090')
     return jdownloaderpath
+
+
+def myjd_input(configfile, port, user, password, device):
+    if user and password and not device:
+        device = get_if_one_device(user, password)
+        if device:
+            print(u"Gerätename " + device + " automatisch ermittelt.")
+    else:
+        print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
+        user = six.moves.input("Nutzername/Email:")
+        password = six.moves.input("Passwort:")
+        device = get_if_one_device(user, password)
+        if device:
+            print(u"Gerätename " + device + " automatisch ermittelt.")
+        else:
+            device = six.moves.input(u"Gerätename:")
+    if not port:
+        port = '9090'
+    startup(configfile, "", port)
+    RssConfig('RSScrawler', configfile).save("myjd_user", user)
+    RssConfig('RSScrawler', configfile).save("myjd_pass", password)
+    RssConfig('RSScrawler', configfile).save("myjd_device", device)
+    device = get_device(configfile)
+    if device:
+        return device
+    else:
+        return False
 
 
 def startup(configfile, jdownloader=None, port=None):

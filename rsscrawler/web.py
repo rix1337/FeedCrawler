@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import ast
+import json
 import logging
 import os
 import re
@@ -16,14 +18,24 @@ from six.moves import StringIO
 
 from rsscrawler import search
 from rsscrawler import version
-from rsscrawler.output import CutLog
+from rsscrawler.common import decode_base64
+from rsscrawler.myjd import check_device
+from rsscrawler.myjd import get_if_one_device
+from rsscrawler.myjd import get_info
+from rsscrawler.myjd import get_state
+from rsscrawler.myjd import jdownloader_pause
+from rsscrawler.myjd import jdownloader_start
+from rsscrawler.myjd import jdownloader_stop
+from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import remove_from_linkgrabber
+from rsscrawler.myjd import retry_decrypt
+from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 
 
-def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, device):
     app = Flask(__name__, template_folder='web')
 
     general = RssConfig('RSScrawler', configfile)
@@ -62,8 +74,9 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                 logfile = open(log_file)
                 output = StringIO()
                 for line in reversed(logfile.readlines()):
-                    output.write("<p>" + line.replace("\n", "</p>"))
-                    log = output.getvalue()
+                    line = re.sub(r' - <a href.*<\/a>', '', line).replace('<b>', '').replace('</b>', '')
+                    output.write(line)
+                log = output.getvalue()
             return jsonify(
                 {
                     "log": log,
@@ -94,6 +107,9 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                 {
                     "settings": {
                         "general": {
+                            "myjd_user": general_conf.get("myjd_user"),
+                            "myjd_pass": general_conf.get("myjd_pass"),
+                            "myjd_device": general_conf.get("myjd_device"),
                             "pfad": general_conf.get("jdownloader"),
                             "port": to_int(general_conf.get("port")),
                             "prefix": general_conf.get("prefix"),
@@ -161,8 +177,41 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
             data = request.json
 
             section = RssConfig("RSScrawler", configfile)
-            section.save("jdownloader",
-                         to_str(data['general']['pfad']))
+            myjd_user = to_str(data['general']['myjd_user'])
+            myjd_pass = to_str(data['general']['myjd_pass'])
+            myjd_device = to_str(data['general']['myjd_device'])
+
+            if myjd_user and myjd_pass and not myjd_device:
+                myjd_device = get_if_one_device(myjd_user, myjd_pass)
+                if myjd_device:
+                    print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+
+            if myjd_user and myjd_pass and myjd_device:
+                device_check = check_device(myjd_user, myjd_pass, myjd_device)
+                jdownloader = ""
+                if not device_check:
+                    myjd_device = get_if_one_device(myjd_user, myjd_pass)
+                    if myjd_device:
+                        print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                    else:
+                        print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                        return "Failed", 400
+            else:
+                jdownloader = to_str(data['general']['pfad'])
+                if not jdownloader:
+                    print(u"Ohne My JDownloader Zugangsdaten oder JDownloader-Pfad funktioniert RSScrawler nicht!")
+                    print(u"Bitte vor dem Speichern prüfen")
+                    return "Failed", 400
+                else:
+                    if not os.path.exists(jdownloader + "/folderwatch"):
+                        print(
+                            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
+                        return "Failed", 400
+
+            section.save("myjd_user", myjd_user)
+            section.save("myjd_pass", myjd_pass)
+            section.save("myjd_device", myjd_device)
+            section.save("jdownloader", jdownloader)
             section.save(
                 "port", to_str(data['general']['port']))
             section.save(
@@ -282,7 +331,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
             if version.update_check()[0]:
                 updateready = True
                 updateversion = version.update_check()[1]
-                print('Update steht bereit (' + updateversion +
+                print(u'Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
             else:
                 updateready = False
@@ -295,15 +344,6 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
                     }
                 }
             )
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/api/delete/<title>", methods=['DELETE'])
-    def delete_title(title):
-        if request.method == 'DELETE':
-            db = RssDb(dbfile, 'rsscrawler')
-            db.delete(title)
-            return "Success", 200
         else:
             return "Failed", 405
 
@@ -326,7 +366,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     def download_movie(title):
         if request.method == 'POST':
             best_result = search.best_result_mb(title, configfile, dbfile)
-            if best_result and search.mb(best_result, jdpath, configfile, dbfile):
+            if best_result and search.mb(best_result, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -343,7 +383,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
             special = None
         if request.method == 'POST':
             best_result = search.best_result_sj(title, configfile, dbfile)
-            if best_result and search.sj(best_result, special, jdpath, configfile, dbfile):
+            if best_result and search.sj(best_result, special, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -353,7 +393,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
     def download_mb(permalink):
         if request.method == 'POST':
-            if search.mb(permalink, jdpath, configfile, dbfile):
+            if search.mb(permalink, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -368,7 +408,166 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
         if special == "null":
             special = None
         if request.method == 'POST':
-            if search.sj(sj_id, special, jdpath, configfile, dbfile):
+            if search.sj(sj_id, special, device, configfile, dbfile):
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd/", methods=['GET'])
+    def myjd_info():
+        if request.method == 'GET':
+            myjd = get_info(configfile, device)
+            if myjd:
+                return jsonify(
+                    {
+                        "downloader_state": myjd[0],
+                        "grabber_collecting": myjd[1],
+                        "packages": {
+                            "downloader": myjd[2][0],
+                            "linkgrabber_decrypted": myjd[2][1],
+                            "linkgrabber_failed": myjd[2][2]
+                        }
+                    }
+                ), 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_state/", methods=['GET'])
+    def myjd_state():
+        if request.method == 'GET':
+            myjd = get_state(configfile, device)
+            if myjd:
+                return jsonify(
+                    {
+                        "downloader_state": myjd[0],
+                        "grabber_collecting": myjd[1]
+                    }
+                ), 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
+    def myjd_move(linkids, uuids):
+        if request.method == 'POST':
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            myjd = move_to_downloads(configfile, device, linkids, uuids)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
+    def myjd_remove(linkids, uuids):
+        if request.method == 'POST':
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            myjd = remove_from_linkgrabber(configfile, device, linkids, uuids)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
+    def myjd_retry(linkids, uuids, b64_links):
+        if request.method == 'POST':
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            links = decode_base64(b64_links)
+            links = links.split("\n")
+            myjd = retry_decrypt(configfile, device, linkids, uuids, links)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_update/", methods=['POST'])
+    def myjd_update():
+        if request.method == 'POST':
+            myjd = update_jdownloader(configfile, device)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_start/", methods=['POST'])
+    def myjd_start():
+        if request.method == 'POST':
+            myjd = jdownloader_start(configfile, device)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
+    def myjd_pause(bl):
+        bl = json.loads(bl)
+        if request.method == 'POST':
+            myjd = jdownloader_pause(configfile, device, bl)
+            if myjd:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
+    def myjd_stop():
+        if request.method == 'POST':
+            myjd = jdownloader_stop(configfile, device)
+            if myjd:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -430,7 +629,7 @@ def app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
     http_server.serve_forever()
 
 
-def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_format):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
@@ -438,7 +637,6 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
 
     console = logging.StreamHandler(stream=sys.stdout)
     formatter = logging.Formatter(log_format)
-    console.setFormatter(CutLog(log_format))
     console.setLevel(log_level)
 
     logfile = logging.handlers.RotatingFileHandler(log_file)
@@ -463,7 +661,7 @@ def start(port, docker, jdpath, configfile, dbfile, log_level, log_file, log_for
 
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
-        print('Update steht bereit (' + updateversion +
+        print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, jdpath, configfile, dbfile, log_file, no_logger)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, device)

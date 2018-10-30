@@ -5,7 +5,6 @@
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
 import logging
-import re
 
 import six
 from six.moves.urllib.error import HTTPError
@@ -29,15 +28,11 @@ def api_request_cutter(l, n):
         yield l[i:i + n]
 
 
-def notify(added_items, configfile):
+def notify(items, configfile):
     notifications = RssConfig('Notifications', configfile)
     homeassistant_settings = notifications.get("homeassistant").split(',')
     pushbullet_token = notifications.get("pushbullet")
     pushover_settings = notifications.get("pushover").split(',')
-    items = []
-    for item in added_items:
-        item = re.sub(r' - <a href.*<\/a>', '', item).replace('<b>', '').replace('</b>', '')
-        items.append(item)
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))
         if len(notifications.get("homeassistant")) > 0:

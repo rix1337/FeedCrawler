@@ -28,6 +28,10 @@ body {
     max-width: 80em;
 }
 
+#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, .myjd-downloads, .myjd-decrypted, .myjd-failed {
+    display: none;
+}
+
 .alert {
     margin-bottom: 1em;
     max-width: 20em;
@@ -55,3 +59,40 @@ body {
     max-width: 20em;
 }
 
+.progress {
+    height: 2em;
+}
+
+#percentage {
+    display: inline-block;
+}
+
+#myjd_state, #spinner-myjd {
+    font-size: 2em;
+}
+
+.urls {
+    height: 4em;
+    resize: none;
+}
+
+.isDisabled {
+    color: currentColor;
+    cursor: not-allowed;
+    opacity: 0.5;
+    text-decoration: none;
+}
+
+.blinking {
+
+    animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

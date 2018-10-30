@@ -20,7 +20,7 @@ def fake_user_agent():
 
 def check_url(configfile, dbfile):
     sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
-    mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==")
+    mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8v")
     proxy = RssConfig('RSScrawler', configfile).get('proxy')
     scraper = cfscrape.create_scraper(delay=10)
     agent = fake_user_agent()
@@ -64,7 +64,7 @@ def get_url(url, configfile, dbfile):
     agent = fake_user_agent()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
-        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy50bw==")
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
@@ -86,7 +86,7 @@ def get_url_headers(url, configfile, dbfile, headers):
     headers.update({'User-Agent': agent})
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
-        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy50bw==")
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
@@ -107,7 +107,7 @@ def post_url(url, configfile, dbfile, data):
     agent = fake_user_agent()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
-        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy50bw==")
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
@@ -128,7 +128,7 @@ def post_url_json(url, configfile, dbfile, json):
     agent = fake_user_agent()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
-        mb = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        mb = decode_base64("bW92aWUtYmxvZy50bw==")
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
