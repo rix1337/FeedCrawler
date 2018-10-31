@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 
 from rsscrawler.common import decode_base64
 from rsscrawler.myjd import myjd_download
+from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -213,6 +214,7 @@ class SJ:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title
                 self.log_info(log_entry)
+                notify([log_entry], self.configfile)
                 return log_entry
 
     def periodical_task(self):

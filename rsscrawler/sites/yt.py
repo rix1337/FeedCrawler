@@ -7,6 +7,7 @@ import re
 from six.moves.urllib.error import HTTPError
 
 from rsscrawler.myjd import myjd_download
+from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -120,5 +121,6 @@ class YT:
                         )
                         log_entry = '[YouTube] - ' + video_title + ' (' + channel + ')'
                         self.log_info(log_entry)
+                        notify([log_entry], self.configfile)
                         added_items.append(log_entry)
         return added_items

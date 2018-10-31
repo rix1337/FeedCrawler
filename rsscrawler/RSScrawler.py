@@ -49,7 +49,6 @@ from rsscrawler import version
 from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
-from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
@@ -108,8 +107,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         BL(configfile, dbfile, device, logging, filename='MB_3D')
     ]
 
-    added_items = []
-
     arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
@@ -127,15 +124,10 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     except AttributeError:
                         file = ""
                     log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                    items = task.periodical_task()
-                    if items:
-                        for i in items:
-                            added_items.append(i)
+                    task.periodical_task()
                     log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
                 end_time = time.time()
                 total_time = end_time - start_time
-                notify(added_items, configfile)
-                added_items = []
                 interval = int(rsscrawler.get('interval')) * 60
                 random_range = random.randrange(0, interval // 4)
                 wait = interval + random_range
@@ -164,14 +156,10 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                items = task.periodical_task()
-                if items:
-                    for i in items:
-                        added_items.append(i)
+                task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
-            notify(added_items, configfile)
             log_debug(
                 "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +

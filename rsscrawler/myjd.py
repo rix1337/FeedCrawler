@@ -254,12 +254,15 @@ def get_info(configfile, device):
             downloader_state = device.downloadcontroller.get_current_state()
             grabber_collecting = device.linkgrabber.is_collecting()
 
+            device.update.run_update_check()
+            update_ready = device.update.is_update_available()
+
             packages_in_downloader = get_packages_in_downloader(device)
             packages_in_linkgrabber = get_packages_in_linkgrabber(device)
             packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
             packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
 
-            return [downloader_state, grabber_collecting,
+            return [downloader_state, grabber_collecting, update_ready,
                     [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
         else:
             return False
@@ -377,10 +380,7 @@ def update_jdownloader(configfile, device):
         if not device:
             device = get_device(configfile)
         if device:
-            device.update.run_update_check()
-            update = device.update.is_update_available()
-            if update:
-                device.update.restart_and_update()
+            device.update.restart_and_update()
             return True
         else:
             return False

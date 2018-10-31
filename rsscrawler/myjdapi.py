@@ -1088,13 +1088,6 @@ class Myjdapi:
                 return None
         if encrypted_response.status_code == 403:
             try:
-                error_msg = json.loads(encrypted_response.text)
-            except:
-                try:
-                    error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
-                except:
-                    raise MYJDException("Failed to decode response: {}", encrypted_response.text)
-            if 'TOKEN_INVALID' in error_msg["type"]:
                 self.connect(self.__myjd_user, self.__myjd_pass)
                 if not api:
                     api = self.__api_url
@@ -1159,6 +1152,9 @@ class Myjdapi:
                             timeout=3)
                     except requests.exceptions.RequestException as e:
                         return None
+            except:
+                raise MYJDException(
+                    "Failed to regain Token. This should only happen if you recently changed your account data.")
         if encrypted_response.status_code != 200:
             try:
                 error_msg = json.loads(encrypted_response.text)

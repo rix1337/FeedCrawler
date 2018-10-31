@@ -10,6 +10,7 @@ import feedparser
 from dateutil import parser
 
 from rsscrawler.myjd import myjd_download
+from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
@@ -67,6 +68,7 @@ class DD:
                                 )
                                 log_entry = '[DD] - <b>Englisch</b> - ' + key
                                 self.log_info(log_entry)
+                                notify([log_entry], self.configfile)
                                 added_items.append(log_entry)
                     else:
                         self.log_debug(
