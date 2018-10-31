@@ -1093,10 +1093,10 @@ class Myjdapi:
             else:
                 try:
                     error_msg = json.loads(encrypted_response.text)
-                except json.JSONDecodeError:
+                except json.ValueError:
                     try:
                         error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
-                    except json.JSONDecodeError:
+                    except json.ValueError:
                         raise MYJDException("Failed to decode response: {}", encrypted_response.text)
                 msg = "\n\tSOURCE: " + error_msg["src"] + "\n\tTYPE: " + \
                       error_msg["type"] + "\n------\nREQUEST_URL: " + \
