@@ -117,6 +117,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         setSettings();
     };
 
+    $scope.myJDupdate = function () {
+        myJDupdate();
+    };
+
+
     $scope.myJDstart = function () {
         myJDstart();
     };
@@ -315,6 +320,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('.search').show();
     }
 
+    function myJDupdate() {
+        $('#myjd_update').addClass('blinking').addClass('isDisabled');
+        $http.post('api/myjd_update/')
+            .then(function (res) {
+                getMyJDstate();
+                console.log('JDownloader geupdatet!');
+            }, function (res) {
+                console.log('Konnte JDownloader nicht updaten!');
+                showDanger('Konnte JDownloader nicht updaten!');
+            });
+    }
+
     function myJDstart() {
         $('#myjd_start').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_start/')
@@ -384,10 +401,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $('#myjd_grabbing').hide();
                 }
+                $scope.update_ready = res.data.update_ready;
+                if ($scope.update_ready) {
+                    $('#myjd_update').show();
+                } else {
+                    $('#myjd_update').hide();
+                }
                 $('#myjd_start').removeClass('blinking');
                 $('#myjd_pause').removeClass('blinking');
                 $('#myjd_unpause').removeClass('blinking');
                 $('#myjd_stop').removeClass('blinking');
+                $('#myjd_update').removeClass('blinking').removeClass('isDisabled');
                 console.log('JDownloader Status abgerufen!');
             }, function (res) {
                 $("#myjd_state").hide();
@@ -458,6 +482,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_grabbing').show();
                 } else {
                     $('#myjd_grabbing').hide();
+                }
+                $scope.update_ready = res.data.update_ready;
+                if ($scope.update_ready) {
+                    $('#myjd_update').show();
+                } else {
+                    $('#myjd_update').hide();
                 }
                 console.log('JDownloader abgerufen!');
             }, function (res) {

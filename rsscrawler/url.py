@@ -82,14 +82,14 @@ def get_url(url, configfile, dbfile):
             response = scraper.get(url, headers={'User-Agent': agent}, proxies=proxies, timeout=30).text
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
             response = scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
 
 
@@ -114,14 +114,14 @@ def get_url_headers(url, configfile, dbfile, headers):
             response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
             response = scraper.get(url, headers=headers, timeout=30)
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
 
 
@@ -145,14 +145,14 @@ def post_url(url, configfile, dbfile, data):
             response = scraper.post(url, data, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
             response = scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
 
 
@@ -176,12 +176,12 @@ def post_url_json(url, configfile, dbfile, json):
             response = scraper.post(url, json=json, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
             response = scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + e)
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""

@@ -424,10 +424,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
                     {
                         "downloader_state": myjd[0],
                         "grabber_collecting": myjd[1],
+                        "update_ready": myjd[2],
                         "packages": {
-                            "downloader": myjd[2][0],
-                            "linkgrabber_decrypted": myjd[2][1],
-                            "linkgrabber_failed": myjd[2][2]
+                            "downloader": myjd[3][0],
+                            "linkgrabber_decrypted": myjd[3][1],
+                            "linkgrabber_failed": myjd[3][2]
                         }
                     }
                 ), 200

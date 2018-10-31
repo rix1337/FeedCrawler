@@ -28,7 +28,7 @@ body {
     max-width: 80em;
 }
 
-#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, .myjd-downloads, .myjd-decrypted, .myjd-failed {
+#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed {
     display: none;
 }
 
@@ -67,7 +67,7 @@ body {
     display: inline-block;
 }
 
-#myjd_state, #spinner-myjd, #myjd_grabbing {
+#myjd_state, #spinner-myjd, #myjd_grabbing, #myjd_update {
     font-size: 2em;
 }
 
