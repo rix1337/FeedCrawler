@@ -23,7 +23,7 @@ log_debug = logging.debug
 
 
 def write_crawljob_file(configfile, package_name, subdir, link_text):
-    crawljob_dir = "holsdir aus der config + folderwatch"
+    crawljob_dir = RssConfig('RSScrawler', configfile).get('jdownloader') + '/folderwatch'
     try:
         crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
             re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
