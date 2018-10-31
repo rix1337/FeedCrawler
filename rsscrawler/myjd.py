@@ -27,6 +27,16 @@ def get_device(configfile):
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
         return device
+    elif myjd_user and myjd_pass:
+        myjd_device = get_if_one_device(myjd_user, myjd_pass)
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            device = jd.get_device(myjd_device)
+        except rsscrawler.myjdapi.MYJDException as e:
+            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        return device
     else:
         return False
 
