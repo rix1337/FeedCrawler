@@ -10,16 +10,25 @@ from rsscrawler.rssconfig import RssConfig
 
 
 def get_device(configfile):
-    jd = rsscrawler.myjdapi.Myjdapi()
-    jd.set_app_key('RSScrawler')
-
     conf = RssConfig('RSScrawler', configfile)
-
     myjd_user = str(conf.get('myjd_user'))
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
+    jd = rsscrawler.myjdapi.Myjdapi(myjd_user, myjd_pass)
+    jd.set_app_key('RSScrawler')
+
     if myjd_user and myjd_pass and myjd_device:
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            device = jd.get_device(myjd_device)
+        except rsscrawler.myjdapi.MYJDException as e:
+            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        return device
+    elif myjd_user and myjd_pass:
+        myjd_device = get_if_one_device(myjd_user, myjd_pass)
         try:
             jd.connect(myjd_user, myjd_pass)
             jd.update_devices()
@@ -33,7 +42,7 @@ def get_device(configfile):
 
 
 def check_device(myjd_user, myjd_pass, myjd_device):
-    jd = rsscrawler.myjdapi.Myjdapi()
+    jd = rsscrawler.myjdapi.Myjdapi(myjd_user, myjd_pass)
     jd.set_app_key('RSScrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
@@ -46,7 +55,7 @@ def check_device(myjd_user, myjd_pass, myjd_device):
 
 
 def get_if_one_device(myjd_user, myjd_pass):
-    jd = rsscrawler.myjdapi.Myjdapi()
+    jd = rsscrawler.myjdapi.Myjdapi(myjd_user, myjd_pass)
     jd.set_app_key('RSScrawler')
 
     try:

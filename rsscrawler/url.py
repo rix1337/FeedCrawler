@@ -3,7 +3,8 @@
 # Projekt von https://github.com/rix1337
 
 import cfscrape
-import fake_useragent
+from fake_useragent import FakeUserAgentError
+from fake_useragent import UserAgent
 
 from rsscrawler.common import decode_base64
 from rsscrawler.rssconfig import RssConfig
@@ -11,11 +12,15 @@ from rsscrawler.rssdb import RssDb
 
 
 def fake_user_agent():
+    fallback = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0"
     try:
-        agent = fake_useragent.UserAgent().random
-    except:
-        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0"
-    return agent
+        ua = UserAgent(fallback=fallback).random
+    except FakeUserAgentError:
+        ua = False
+        pass
+    if not ua:
+        ua = fallback
+        return ua
 
 
 def check_url(configfile, dbfile):
