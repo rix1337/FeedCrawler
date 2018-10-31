@@ -15,6 +15,7 @@ from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
 from rsscrawler.myjd import myjd_download
+from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -532,6 +533,7 @@ class BL:
                         log_entry = '[Film] - <b>' + (
                             'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
                         self.log_info(log_entry)
+                        notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_3D':
                     retail = False
@@ -548,6 +550,7 @@ class BL:
                         log_entry = '[Film] - <b>' + (
                             'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
                         self.log_info(log_entry)
+                        notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_Regex':
                     if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
@@ -559,6 +562,7 @@ class BL:
                         )
                         log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key
                         self.log_info(log_entry)
+                        notify([log_entry], self.configfile)
                         return log_entry
                 else:
                     if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
@@ -570,6 +574,7 @@ class BL:
                         )
                         log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key
                         self.log_info(log_entry)
+                        notify([log_entry], self.configfile)
                         return log_entry
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password):
@@ -646,6 +651,7 @@ class BL:
                                     '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
                                     '<b>Retail</b> - ' if not englisch and retail else "") + key
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
                 retail = False
@@ -664,6 +670,7 @@ class BL:
                     log_entry = '[IMDB ' + score + '/Film] - <b>' + (
                         'Retail/' if retail else "") + '3D</b> - ' + key
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             return added_items
 
@@ -789,6 +796,7 @@ class BL:
                         '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
                                     '<b>Retail</b> - ' if not englisch and retail else "") + key
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             elif self.filename == 'MB_3D':
                 retail = False
@@ -811,6 +819,7 @@ class BL:
                     log_entry = '[Film] - <b>' + (
                         'Retail/' if retail else "") + '3D</b> - ' + key
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
                 if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
@@ -822,6 +831,7 @@ class BL:
                     )
                     log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
                 if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
@@ -832,6 +842,7 @@ class BL:
                     )
                     log_entry = '[Film/Serie/RegEx] - ' + key
                     self.log_info(log_entry)
+                    notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             return added_items
 

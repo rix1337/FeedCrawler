@@ -78,9 +78,19 @@ def get_url(url, configfile, dbfile):
             if db.retrieve("MB") and config.get("fallback"):
                 return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
         proxies = {'http': proxy, 'https': proxy}
-        return scraper.get(url, headers={'User-Agent': agent}, proxies=proxies, timeout=30).text
+        try:
+            response = scraper.get(url, headers={'User-Agent': agent}, proxies=proxies, timeout=30).text
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
     else:
-        return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
+        try:
+            response = scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
 
 
 def get_url_headers(url, configfile, dbfile, headers):
@@ -100,9 +110,19 @@ def get_url_headers(url, configfile, dbfile, headers):
             if db.retrieve("MB") and config.get("fallback"):
                 return scraper.get(url, headers=headers, timeout=30)
         proxies = {'http': proxy, 'https': proxy}
-        return scraper.get(url, headers=headers, proxies=proxies, timeout=30)
+        try:
+            response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
     else:
-        return scraper.get(url, headers=headers, timeout=30)
+        try:
+            response = scraper.get(url, headers=headers, timeout=30)
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
 
 
 def post_url(url, configfile, dbfile, data):
@@ -121,9 +141,19 @@ def post_url(url, configfile, dbfile, data):
             if db.retrieve("MB") and config.get("fallback"):
                 return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
         proxies = {'http': proxy, 'https': proxy}
-        return scraper.post(url, data, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
+        try:
+            response = scraper.post(url, data, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
     else:
-        return scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
+        try:
+            response = scraper.post(url, data, headers={'User-Agent': agent}, timeout=30).content
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
 
 
 def post_url_json(url, configfile, dbfile, json):
@@ -142,6 +172,16 @@ def post_url_json(url, configfile, dbfile, json):
             if db.retrieve("MB") and config.get("fallback"):
                 return scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
         proxies = {'http': proxy, 'https': proxy}
-        return scraper.post(url, json=json, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
+        try:
+            response = scraper.post(url, json=json, headers={'User-Agent': agent}, proxies=proxies, timeout=30).content
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""
     else:
-        return scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
+        try:
+            response = scraper.post(url, json=json, headers={'User-Agent': agent}, timeout=30).content
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + e)
+            return ""

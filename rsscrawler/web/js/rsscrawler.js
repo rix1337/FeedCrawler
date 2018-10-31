@@ -453,6 +453,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $("#myjd_state").hide();
                 }
+                $scope.myjd_grabbing = res.data.grabber_collecting;
+                if ($scope.myjd_grabbing) {
+                    $('#myjd_grabbing').show();
+                } else {
+                    $('#myjd_grabbing').hide();
+                }
                 console.log('JDownloader abgerufen!');
             }, function (res) {
                 $("#myjd_no_login").show();

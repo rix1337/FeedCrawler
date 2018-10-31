@@ -67,7 +67,7 @@ body {
     display: inline-block;
 }
 
-#myjd_state, #spinner-myjd {
+#myjd_state, #spinner-myjd, #myjd_grabbing {
     font-size: 2em;
 }
 
