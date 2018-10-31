@@ -60,7 +60,7 @@ class DD:
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:
-                            if myjd_download(self.configfile, self.device, key, "RSScrawler", links):
+                            if myjd_download(self.configfile, self.device, key, "RSScrawler", links, ""):
                                 self.db.store(
                                     key,
                                     'added'

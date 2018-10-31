@@ -786,7 +786,7 @@ class Myjdapi:
 
     """
 
-    def __init__(self):
+    def __init__(self, myjd_user, myjd_pass):
         """
         This functions initializates the myjdapi object.
 
@@ -803,6 +803,8 @@ class Myjdapi:
         self.__server_encryption_token = None
         self.__device_encryption_token = None
         self.__connected = False
+        self.__myjd_user = myjd_user
+        self.__myjd_pass = myjd_pass
 
     def get_session_token(self):
         return self.__session_token
@@ -1085,23 +1087,26 @@ class Myjdapi:
             except requests.exceptions.RequestException as e:
                 return None
         if encrypted_response.status_code != 200:
-
-            try:
-                error_msg = json.loads(encrypted_response.text)
-            except json.JSONDecodeError:
+            if 'TOKEN_INVALID' in encrypted_response.text and path != "/my/reconnect" and path != "/my/connect":
+                self.connect(self.__myjd_user, self.__myjd_pass)
+                raise MYJDException("My JDownloader Session ist abgelaufen und wurde erneuert.")
+            else:
                 try:
-                    error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
+                    error_msg = json.loads(encrypted_response.text)
                 except json.JSONDecodeError:
-                    raise MYJDException("Failed to decode response: {}", encrypted_response.text)
-            msg = "\n\tSOURCE: " + error_msg["src"] + "\n\tTYPE: " + \
-                  error_msg["type"] + "\n------\nREQUEST_URL: " + \
-                  api + path
-            if http_method == "GET":
-                msg += query
-            msg += "\n"
-            if data is not None:
-                msg += "DATA:\n" + data
-            raise (MYJDException(msg))
+                    try:
+                        error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
+                    except json.JSONDecodeError:
+                        raise MYJDException("Failed to decode response: {}", encrypted_response.text)
+                msg = "\n\tSOURCE: " + error_msg["src"] + "\n\tTYPE: " + \
+                      error_msg["type"] + "\n------\nREQUEST_URL: " + \
+                      api + path
+                if http_method == "GET":
+                    msg += query
+                msg += "\n"
+                if data is not None:
+                    msg += "DATA:\n" + data
+                raise (MYJDException(msg))
         if action is None:
             if not self.__server_encryption_token:
                 response = self.__decrypt(self.__login_secret,
