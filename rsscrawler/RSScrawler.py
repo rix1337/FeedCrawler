@@ -46,6 +46,7 @@ from docopt import docopt
 from rsscrawler import common
 from rsscrawler import files
 from rsscrawler import version
+from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.notifiers import notify
@@ -120,27 +121,30 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool:
+                    name = task._INTERNAL_NAME
+                    try:
+                        file = " - Liste: " + task.filename
+                    except AttributeError:
+                        file = ""
+                    log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
                     items = task.periodical_task()
                     if items:
                         for i in items:
                             added_items.append(i)
-                    log_debug("-----------Suchfunktion ausgeführt!-----------")
+                    log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
                 end_time = time.time()
                 total_time = end_time - start_time
-                total_unit = " Sekunden"
-                if total_time > 60:
-                    total_time = total_time / 60
-                    total_unit = " Minuten"
-                total_time = str(round(total_time, 1)) + total_unit
                 notify(added_items, configfile)
                 added_items = []
                 interval = int(rsscrawler.get('interval')) * 60
                 random_range = random.randrange(0, interval // 4)
                 wait = interval + random_range
                 log_debug(
-                    "-----Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")! Warte " + str(wait) + " Sekunden.")
+                    "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                        total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      u" - Alle Suchfunktion ausgeführt (Dauer: " + total_time + ")! Warte " + str(wait) + " Sekunden.")
+                      u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                    total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 time.sleep(wait)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
@@ -154,23 +158,24 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             log_debug("--------Testlauf gestartet.--------")
             ombi(configfile, dbfile, device, log_debug)
             for task in search_pool:
+                name = task._INTERNAL_NAME
+                try:
+                    file = " - Liste: " + task.filename
+                except AttributeError:
+                    file = ""
+                log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
                 items = task.periodical_task()
                 if items:
                     for i in items:
                         added_items.append(i)
-                log_debug("-----------Suchfunktion ausgeführt!-----------")
+                log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
-            total_unit = " Sekunden"
-            if total_time > 60:
-                total_time = total_time / 60
-                total_unit = " Minuten"
-            total_time = str(round(total_time, 1)) + total_unit
             notify(added_items, configfile)
             log_debug(
-                "---Testlauf ausgeführt (Dauer: " + total_time + ")!---")
+                "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Testlauf ausgeführt (Dauer: " + total_time + ")!")
+                  u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!")
         except Exception:
             traceback.print_exc()
 
