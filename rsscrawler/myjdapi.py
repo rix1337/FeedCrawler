@@ -1086,27 +1086,96 @@ class Myjdapi:
                     timeout=3)
             except requests.exceptions.RequestException as e:
                 return None
-        if encrypted_response.status_code != 200:
-            if 'TOKEN_INVALID' in encrypted_response.text and path != "/my/reconnect" and path != "/my/connect":
-                self.connect(self.__myjd_user, self.__myjd_pass)
-                raise MYJDException("My JDownloader Session ist abgelaufen und wurde erneuert.")
-            else:
+        if encrypted_response.status_code == 403:
+            try:
+                error_msg = json.loads(encrypted_response.text)
+            except:
                 try:
-                    error_msg = json.loads(encrypted_response.text)
+                    error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
                 except:
-                    try:
-                        error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
-                    except:
-                        raise MYJDException("Failed to decode response: {}", encrypted_response.text)
-                msg = "\n\tSOURCE: " + error_msg["src"] + "\n\tTYPE: " + \
-                      error_msg["type"] + "\n------\nREQUEST_URL: " + \
-                      api + path
+                    raise MYJDException("Failed to decode response: {}", encrypted_response.text)
+            if 'TOKEN_INVALID' in error_msg["type"]:
+                self.connect(self.__myjd_user, self.__myjd_pass)
+                if not api:
+                    api = self.__api_url
+                data = None
+                if not self.is_connected() and path != "/my/connect":
+                    raise (MYJDException("No connection established\n"))
                 if http_method == "GET":
-                    msg += query
-                msg += "\n"
-                if data is not None:
-                    msg += "DATA:\n" + data
-                raise (MYJDException(msg))
+                    query = [path + "?"]
+                    if params is not None:
+                        for param in params:
+                            if param[0] != "encryptedLoginSecret":
+                                query += ["%s=%s" % (param[0], quote(param[1]))]
+                            else:
+                                query += ["&%s=%s" % (param[0], param[1])]
+                    query += ["rid=" + str(self.__request_id)]
+                    if self.__server_encryption_token is None:
+                        query += [
+                            "signature=" \
+                            + str(self.__signature_create(self.__login_secret,
+                                                          query[0] + "&".join(query[1:])))
+                        ]
+                    else:
+                        query += [
+                            "signature=" \
+                            + str(self.__signature_create(self.__server_encryption_token,
+                                                          query[0] + "&".join(query[1:])))
+                        ]
+                    query = query[0] + "&".join(query[1:])
+                    encrypted_response = requests.get(api + query, timeout=3)
+                else:
+                    params_request = []
+                    if params is not None:
+                        for param in params:
+                            if not isinstance(param, list):
+                                # params_request+=[str(param).replace("'",'\"').replace("True","true").replace("False","false").replace('None',"null")]
+                                params_request += [json.dumps(param)]
+                            else:
+                                params_request += [param]
+                    params_request = {
+                        "apiVer": self.__api_version,
+                        "url": path,
+                        "params": params_request,
+                        "rid": self.__request_id
+                    }
+                    data = json.dumps(params_request)
+                    # Removing quotes around null elements.
+                    data = data.replace('"null"', "null")
+                    data = data.replace("'null'", "null")
+                    encrypted_data = self.__encrypt(self.__device_encryption_token,
+                                                    data)
+                    if action is not None:
+                        request_url = api + action + path
+                    else:
+                        request_url = api + path
+                    try:
+                        encrypted_response = requests.post(
+                            request_url,
+                            headers={
+                                "Content-Type": "application/aesjson-jd; charset=utf-8"
+                            },
+                            data=encrypted_data,
+                            timeout=3)
+                    except requests.exceptions.RequestException as e:
+                        return None
+        if encrypted_response.status_code != 200:
+            try:
+                error_msg = json.loads(encrypted_response.text)
+            except:
+                try:
+                    error_msg = json.loads(self.__decrypt(self.__device_encryption_token, encrypted_response.text))
+                except:
+                    raise MYJDException("Failed to decode response: {}", encrypted_response.text)
+            msg = "\n\tSOURCE: " + error_msg["src"] + "\n\tTYPE: " + \
+                  error_msg["type"] + "\n------\nREQUEST_URL: " + \
+                  api + path
+            if http_method == "GET":
+                msg += query
+            msg += "\n"
+            if data is not None:
+                msg += "DATA:\n" + data
+            raise (MYJDException(msg))
         if action is None:
             if not self.__server_encryption_token:
                 response = self.__decrypt(self.__login_secret,

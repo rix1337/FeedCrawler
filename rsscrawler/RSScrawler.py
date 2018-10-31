@@ -207,7 +207,13 @@ def main():
     log_format = '%(asctime)s - %(message)s'
 
     if not os.path.exists(configfile):
-        if not arguments['--jd-pfad']:
+        if arguments['--docker']:
+            if arguments['--jd-user'] and arguments['--jd-pass']:
+                device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                          arguments['--jd-pass'], arguments['--jd-device'])
+            else:
+                device = False
+        elif not arguments['--jd-pfad']:
             device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
                                       arguments['--jd-device'])
         else:
