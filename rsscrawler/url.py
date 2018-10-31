@@ -13,8 +13,8 @@ from rsscrawler.rssdb import RssDb
 def fake_user_agent():
     try:
         agent = fake_useragent.UserAgent().random
-    except fake_useragent.errors.FakeUserAgentError:
-        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:62.0) Gecko/20100101 Firefox/62.0"
+    except:
+        agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0"
     return agent
 
 
