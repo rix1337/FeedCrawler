@@ -191,7 +191,7 @@ class SJ:
     def send_package(self, title, links, englisch_info):
         englisch = ""
         if englisch_info:
-            englisch = "<b>Englisch</b> - "
+            englisch = "Englisch - "
         if self.filename == 'SJ_Serien_Regex':
             link_placeholder = '[Episode/RegEx] - ' + englisch
         elif self.filename == 'SJ_Serien':

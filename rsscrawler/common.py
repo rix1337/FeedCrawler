@@ -153,15 +153,18 @@ def decode_base64(value):
 
 
 def readable_size(size):
-    power = 2 ** 10
-    n = 0
-    powers = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
-    while size > power:
-        size /= power
-        n += 1
-    size = round(size, 2)
-    size = str(size) + " " + powers[n] + 'B'
-    return size
+    if size:
+        power = 2 ** 10
+        n = 0
+        powers = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}
+        while size > power:
+            size /= power
+            n += 1
+        size = round(size, 2)
+        size = str(size) + " " + powers[n] + 'B'
+        return size
+    else:
+        return ""
 
 
 def readable_time(time):

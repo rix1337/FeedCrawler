@@ -66,7 +66,7 @@ class DD:
                                     key,
                                     'added'
                                 )
-                                log_entry = '[DD] - <b>Englisch</b> - ' + key
+                                log_entry = '[DD] - Englisch - ' + key
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 added_items.append(log_entry)

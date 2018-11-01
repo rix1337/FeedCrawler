@@ -397,8 +397,8 @@ def mb(link, device, configfile, dbfile):
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Suche/Film] - <b>' + (
-                    'Retail/' if retail else "") + '3D</b> - ' + key
+                log_entry = '[Suche/Film] - ' + (
+                    'Retail/' if retail else "") + '3D - ' + key
                 logging.info(log_entry)
                 notify([log_entry], configfile)
                 return True
@@ -418,9 +418,9 @@ def mb(link, device, configfile, dbfile):
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Suche/Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                '<b>Retail</b> - ' if not englisch and retail else "") + key
+                log_entry = '[Suche/Film] - ' + ('Englisch - ' if englisch and not retail else "") + (
+                    'Englisch/Retail - ' if englisch and retail else "") + (
+                                'Retail - ' if not englisch and retail else "") + key
                 logging.info(log_entry)
                 notify([log_entry], configfile)
                 return True
