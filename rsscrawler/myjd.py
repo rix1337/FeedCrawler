@@ -100,7 +100,10 @@ def get_packages_in_downloader(device):
             enabled = package.get('enabled')
             size = package.get('bytesTotal')
             done = package.get('bytesLoaded')
-            completed = 100 * done // size
+            if done and size:
+                completed = 100 * done // size
+            else:
+                completed = 0
             size = readable_size(size)
             done = readable_size(done)
             speed = package.get('speed')
@@ -120,7 +123,8 @@ def get_packages_in_downloader(device):
                     if url not in urls:
                         urls.append(url)
                     linkids.append(link.get('uuid'))
-            urls = "\n".join(urls)
+            if urls:
+                urls = "\n".join(urls)
             packages.append({"name": name,
                              "links": total_links,
                              "enabled": enabled,
@@ -178,18 +182,21 @@ def get_packages_in_linkgrabber(device):
             uuid = package.get('uuid')
             urls = []
             linkids = []
+            package_failed = False
             for link in links:
                 if uuid == link.get('packageUUID'):
+                    if link.get('availability') == 'OFFLINE':
+                        package_failed = True
                     url = link.get('url')
                     if url not in urls:
                         urls.append(url)
                     linkids.append(link.get('uuid'))
-            urls = "\n".join(urls)
-            decrypt_failed = False
+            if urls:
+                urls = "\n".join(urls)
             for h in hosts:
                 if h == 'linkcrawlerretry':
-                    decrypt_failed = True
-            if decrypt_failed:
+                    package_failed = True
+            if package_failed:
                 failed.append({"name": name,
                                "path": save_to,
                                "urls": urls,

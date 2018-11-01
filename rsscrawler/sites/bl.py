@@ -530,8 +530,8 @@ class BL:
                             'dl' if self.config.get(
                                 'enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - <b>' + (
-                            'Retail/' if retail else "") + 'Zweisprachig</b> - ' + key
+                        log_entry = '[Film] - ' + (
+                            'Retail/' if retail else "") + 'Zweisprachig - ' + key
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
@@ -547,8 +547,8 @@ class BL:
                             'dl' if self.config.get(
                                 'enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                        log_entry = '[Film] - <b>' + (
-                            'Retail/' if retail else "") + '3D/Zweisprachig</b> - ' + key
+                        log_entry = '[Film] - ' + (
+                            'Retail/' if retail else "") + '3D/Zweisprachig - ' + key
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
@@ -560,7 +560,7 @@ class BL:
                             'dl' if self.config.get(
                                 'enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                        log_entry = '[Film/Serie/RegEx] - <b>Zweisprachig</b> - ' + key
+                        log_entry = '[Film/Serie/RegEx] - Zweisprachig - ' + key
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
@@ -572,7 +572,7 @@ class BL:
                             'dl' if self.config.get(
                                 'enforcedl') and '.dl.' in key.lower() else 'added'
                         )
-                        log_entry = '[Staffel] - <b>Zweisprachig</b> - ' + key
+                        log_entry = '[Staffel] - Zweisprachig - ' + key
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
@@ -647,9 +647,9 @@ class BL:
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film] - ' + (
-                        '<b>Englisch</b> - ' if englisch and not retail else "") + (
-                                    '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                    '<b>Retail</b> - ' if not englisch and retail else "") + key
+                        'Englisch - ' if englisch and not retail else "") + (
+                                    'Englisch/Retail - ' if englisch and retail else "") + (
+                                    'Retail - ' if not englisch and retail else "") + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -667,8 +667,8 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - <b>' + (
-                        'Retail/' if retail else "") + '3D</b> - ' + key
+                    log_entry = '[IMDB ' + score + '/Film] - ' + (
+                        'Retail/' if retail else "") + '3D - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -792,9 +792,9 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - ' + ('<b>Englisch</b> - ' if englisch and not retail else "") + (
-                        '<b>Englisch/Retail</b> - ' if englisch and retail else "") + (
-                                    '<b>Retail</b> - ' if not englisch and retail else "") + key
+                    log_entry = '[Film] - ' + ('Englisch - ' if englisch and not retail else "") + (
+                        'Englisch/Retail - ' if englisch and retail else "") + (
+                                    'Retail - ' if not englisch and retail else "") + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -816,8 +816,8 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - <b>' + (
-                        'Retail/' if retail else "") + '3D</b> - ' + key
+                    log_entry = '[Film] - ' + (
+                        'Retail/' if retail else "") + '3D - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
