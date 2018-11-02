@@ -120,8 +120,10 @@ def get_packages_in_downloader(device):
             for link in links:
                 if uuid == link.get('packageUUID'):
                     url = link.get('url')
-                    if url not in urls:
-                        urls.append(url)
+                    if url:
+                        url = str(url)
+                        if url not in urls:
+                            urls.append(url)
                     linkids.append(link.get('uuid'))
             if urls:
                 urls = "\n".join(urls)
@@ -188,8 +190,10 @@ def get_packages_in_linkgrabber(device):
                     if link.get('availability') == 'OFFLINE':
                         package_failed = True
                     url = link.get('url')
-                    if url not in urls:
-                        urls.append(url)
+                    if url:
+                        url = str(url)
+                        if url not in urls:
+                            urls.append(url)
                     linkids.append(link.get('uuid'))
             if urls:
                 urls = "\n".join(urls)
