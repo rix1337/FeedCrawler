@@ -137,7 +137,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                         total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
                       u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                    total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
+                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 time.sleep(wait)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
