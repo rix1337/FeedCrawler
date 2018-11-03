@@ -339,8 +339,9 @@ class BL:
                         else:
                             found = self.imdb_download(
                                 post.title, download_pages, str(download_score), download_imdb, details, password)
-                        for i in found:
-                            added_items.append(i)
+                        if found:
+                            for i in found:
+                                added_items.append(i)
         return added_items
 
     def feed_search(self, feed, site):
@@ -929,6 +930,8 @@ class BL:
         try:
             first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
             first_page_mb = feedparser.parse(first_mb.content)
+            if first_mb.status_code == 304:
+                mb_304 = True
         except:
             mb_304 = True
             self.log_error("Fehler beim Abruf von MB - breche Suche ab!")
@@ -936,6 +939,8 @@ class BL:
         try:
             first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
             first_page_hw = feedparser.parse(first_hw.content)
+            if first_hw.status_code == 304:
+                hw_304 = True
         except:
             hw_304 = True
             self.log_error("Fehler beim Abruf von HW - breche Suche ab!")
@@ -968,42 +973,25 @@ class BL:
             if self.filename != 'IMDB':
                 if not mb_304:
                     for i in first_page_mb.entries:
-                        concat_mb = i.title + i.published + \
-                                    str(self.settings) + str(self.allInfos)
-                        sha_mb = hashlib.sha256(concat_mb.encode(
-                            'ascii', 'ignore')).hexdigest()
+                        concat_mb = i.title + i.published + str(self.settings) + str(self.allInfos)
+                        sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
                 if not hw_304:
                     for i in first_page_mb.entries:
-                        concat_hw = i.title + i.published + \
-                                    str(self.settings) + str(self.allInfos)
-                        sha_hw = hashlib.sha256(concat_hw.encode(
-                            'ascii', 'ignore')).hexdigest()
+                        concat_hw = i.title + i.published + str(self.settings) + str(self.allInfos)
+                        sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
             else:
                 if not mb_304:
                     for i in first_page_mb.entries:
-                        concat_mb = i.title + i.published + \
-                                    str(self.settings) + str(self.imdb)
-                        sha_mb = hashlib.sha256(concat_mb.encode(
-                            'ascii', 'ignore')).hexdigest()
+                        concat_mb = i.title + i.published + str(self.settings) + str(self.imdb)
+                        sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
                 if not hw_304:
                     for i in first_page_mb.entries:
-                        concat_hw = i.title + i.published + \
-                                    str(self.settings) + str(self.imdb)
-                        sha_hw = hashlib.sha256(concat_hw.encode(
-                            'ascii', 'ignore')).hexdigest()
+                        concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
+                        sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
-
-                if not hw_304:
-                    try:
-                        first_post_hw = first_page_hw.entries[0]
-                        concat_hw = first_post_hw.title + first_post_hw.published + str(self.settings) + str(self.imdb)
-                        sha_hw = hashlib.sha256(concat_hw.encode(
-                            'ascii', 'ignore')).hexdigest()
-                    except:
-                        sha_hw = None
 
         added_items = []
         if self.filename == "IMDB":
