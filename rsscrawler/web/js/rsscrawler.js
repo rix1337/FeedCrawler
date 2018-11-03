@@ -1,4 +1,4 @@
-var app = angular.module('crwlApp', []);
+let app = angular.module('crwlApp', []);
 
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
@@ -181,7 +181,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $scope.settings = res.data.settings;
                 console.log('Einstellungen abgerufen!');
-                var year = (new Date).getFullYear();
+                let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                     $("#myjd_no_login").hide();
@@ -219,7 +219,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.docker) {
                     $(".docker").prop("disabled", true);
                 }
-                var year = (new Date).getFullYear();
+                let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.update) {
                     $("#updateready").show();
@@ -300,7 +300,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function searchNow() {
         spinSearch();
-        var title = $scope.search;
+        let title = $scope.search;
         $http.get('api/search/' + title)
             .then(function (res) {
                 $scope.results = res.data.results;
@@ -460,11 +460,25 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $('.myjd-decrypted').hide();
                 }
-                $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+                if (!$scope.myjd_failed) {
+                    $scope.myjd_failed = res.data.packages.linkgrabber_failed
+                }
+                let uuids = []
                 if ($scope.myjd_failed) {
-                    $('.myjd-failed').show();
-                } else {
-                    $('.myjd-failed').hide();
+                    for (let existing_package of $scope.myjd_failed) {
+                        let uuid = existing_package['uuid']
+                        uuids.push(uuid)
+                    }
+                    const failed_packages = Object.entries(res.data.packages.linkgrabber_failed);
+                    for (let failed_package of failed_packages) {
+                        let uuid = failed_package[1]['uuid']
+                        if (!uuids.includes(uuid)) {
+                            $scope.myjd_failed.push(failed_package[1])
+                        }
+                    }
+                }
+                if ($scope.myjd_failed.length == 0) {
+                    $scope.myjd_failed = false
                 }
                 if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed) {
                     $("#myjd_no_packages").show();
@@ -482,6 +496,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_grabbing').show();
                 } else {
                     $('#myjd_grabbing').hide();
+                }
+                if ($scope.myjd_failed) {
+                    $('.myjd-failed').show();
+                } else {
+                    $('.myjd-failed').hide();
                 }
                 $scope.update_ready = res.data.update_ready;
                 if ($scope.update_ready) {
@@ -514,6 +533,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDremove(linkids, uuid) {
         $http.post('api/myjd_remove/' + linkids + "&" + uuid)
             .then(function (res) {
+                for (let failed_package of $scope.myjd_failed) {
+                    let existing_uuid = failed_package['uuid']
+                    if (uuid == existing_uuid) {
+                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        $scope.myjd_failed.splice(index, 1)
+                    }
+                }
                 getMyJD();
             }, function (res) {
                 console.log('Konnte Download nicht entfernen!');

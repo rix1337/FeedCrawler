@@ -56,7 +56,7 @@
             <li class="list-group-item"><span ng-bind="y.size"></span></li>
             <li class="list-group-item">
                 <a href="#myjd" ng-click="myJDmove(y.linkids, y.uuid)"><i class="myjd_state fas fa-play"
-                                                                          title="Download starten"></i></a>
+                                                                          title="Download starten"></i> </a>
                 <a href="#myjd" ng-click="myJDremove(y.linkids, y.uuid)"><i class="myjd_state fas fa-trash"
                                                                             title="Entfernen"></i></a>
             </li>
@@ -76,7 +76,7 @@
             </li>
             <li class="list-group-item">
                 <a href="#myjd" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="myjd_state fas fa-undo"
-                                                                                   title="Erneut hinzufügen"></i></a>
+                                                                                   title="Erneut hinzufügen"></i> </a>
                 <a href="#myjd" ng-click="myJDremove(z.linkids, z.uuid)"><i class="myjd_state fas fa-trash"
                                                                             title="Entfernen"></i></a>
             </li>
@@ -239,6 +239,21 @@
     <h1>
         <i class="fas fa-question"></i> Hilfe</h1>
     <div class="card">
+        <div class="card-header" id="headingOneZero">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneZero" aria-expanded="true"
+                        aria-controls="collapseOneZero">
+                    <h3>Bedanken</h3>
+                </button>
+            </h5>
+        </div>
+        <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
+            <div class="card-body">
+                <a href="https://gitter.im/rix1337" target="_blank">Anfrage per PN auf Gitter</a>
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <div class="card-header" id="headingOneOne">
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneOne" aria-expanded="true"
@@ -317,7 +332,7 @@
                 <h3>Beispiele für SJ</h3>
                 <div class="row">
                     <div class="col text-right">
-                        <i>DEUTSCH.*Serien.Titel.*.S01.*.720p.*-GROUP</i>
+                        <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
                     </div>
                     <div class="col text-left">sucht nach Releases der GROUP von Staffel 1 der Serien Titel in 720p auf
                         Deutsch.
@@ -336,12 +351,6 @@
                         <i>Serien.Titel.*.DL.*.720p.*</i>
                     </div>
                     <div class="col text-left">sucht nach zweisprachigen Releases in 720p von Serien Titel.</div>
-                </div>
-                <div class="row">
-                    <div class="col text-right">
-                        <i>ENGLISCH.*Serien.Titel.*.1080p.*</i>
-                    </div>
-                    <div class="col text-left">sucht nach englischen Releases in Full-HD von Serien Titel.</div>
                 </div>
                 <div class="row">
                     <div class="col text-right">

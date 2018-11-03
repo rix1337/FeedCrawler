@@ -209,8 +209,9 @@ class SJ:
         if storage == 'added':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            if myjd_download(self.configfile, self.device, title, "RSScrawler", links,
-                             decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
+            self.device = myjd_download(self.configfile, self.device, title, "RSScrawler", links,
+                                        decode_base64("c2VyaWVuanVua2llcy5vcmc="))
+            if self.device:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title
                 self.log_info(log_entry)
@@ -218,21 +219,20 @@ class SJ:
                 return log_entry
 
     def periodical_task(self):
-
         if self.filename == 'SJ_Serien_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für SJ-Regex deaktiviert!")
-                return
+                return self.device
         elif self.filename == 'SJ_Staffeln_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für SJ-Regex deaktiviert!")
-                return
+                return self.device
         elif self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
                 self.log_debug("Suche für SJ-Staffeln deaktiviert!")
-                return
+                return self.device
         if self.empty_list:
-            return
+            return self.device
         try:
             reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
                 self.config.get("rejectlist")) > 0 else r"^unmatchable$"
@@ -269,7 +269,7 @@ class SJ:
                 if response.status_code == 304:
                     self.log_debug(
                         "SJ-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
-                    return
+                    return self.device
                 header = True
         else:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
@@ -399,7 +399,7 @@ class SJ:
                                 except Exception as e:
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return
+                                    return self.device
                                 if storage == 'added':
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
@@ -437,7 +437,7 @@ class SJ:
                                 except Exception as e:
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return
+                                    return self.device
                                 if storage == 'added':
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
@@ -454,3 +454,5 @@ class SJ:
         if header and response:
             self.cdc.delete("SJHeaders-" + self.filename)
             self.cdc.store("SJHeaders-" + self.filename, response.headers['Last-Modified'])
+
+        return self.device

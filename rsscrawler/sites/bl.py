@@ -523,8 +523,9 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
+                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
+                    if self.device:
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -540,8 +541,10 @@ class BL:
                     if self.config.get('cutoff'):
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
-                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
+                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
+                                                download_links,
+                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
+                    if self.device:
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -553,8 +556,9 @@ class BL:
                         notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_Regex':
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
+                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
+                    if self.device:
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -565,8 +569,9 @@ class BL:
                         notify([log_entry], self.configfile)
                         return log_entry
                 else:
-                    if myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                     decode_base64("bW92aWUtYmxvZy5vcmc=")):
+                    self.device = (self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                   decode_base64("bW92aWUtYmxvZy5vcmc="))
+                    if self.device:
                         self.db.store(
                             key,
                             'dl' if self.config.get(
@@ -640,7 +645,8 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -661,7 +667,8 @@ class BL:
                         if self.config.get('enforcedl'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -786,7 +793,8 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '0', self.dbfile):
                             retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -810,7 +818,8 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                if myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -822,7 +831,8 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key.replace(".COMPLETE", "").replace(
                             ".Complete", ""),
@@ -834,7 +844,8 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
-                if myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password):
+                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                if self.device:
                     self.db.store(
                         key,
                         'notdl' if self.config.get(
@@ -853,7 +864,7 @@ class BL:
 
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
-                return
+                return self.device
             self.allInfos = dict(
                 set({key: value for (key, value) in self.get_patterns(
                     self.read_input(self.filename),
@@ -863,7 +874,7 @@ class BL:
             )
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
-                return
+                return self.device
             self.allInfos = dict(
                 set({key: value for (key, value) in self.get_patterns(
                     self.read_input(self.filename)
@@ -875,7 +886,7 @@ class BL:
         else:
             if self.filename == 'MB_3D':
                 if not self.config.get('crawl3d'):
-                    return
+                    return self.device
             self.allInfos = dict(
                 set({key: value for (key, value) in self.get_patterns(
                     self.read_input(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
@@ -906,11 +917,11 @@ class BL:
             if self.empty_list:
                 self.log_debug(
                     "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
-                return
+                return self.device
         elif imdb == 0:
             self.log_debug(
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
-            return
+            return self.device
 
         mb_304 = False
         hw_304 = False
@@ -948,7 +959,7 @@ class BL:
                     self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
 
         if not self.historical and mb_304 and hw_304:
-            return
+            return self.device
 
         sha_mb = None
         sha_hw = None
@@ -1086,4 +1097,4 @@ class BL:
                 self.cdc.delete("HWHeaders-" + self.filename)
                 self.cdc.store("HWHeaders-" + self.filename, header)
 
-        return added_items
+        return self.device

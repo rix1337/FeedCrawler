@@ -36,7 +36,7 @@ class YT:
     def periodical_task(self):
         if not self.config.get('youtube'):
             self.log_debug("Suche für YouTube deaktiviert!")
-            return
+            return self.device
         added_items = []
         channels = []
         videos = []
@@ -47,7 +47,7 @@ class YT:
                 if self.config.get("youtube") is False:
                     self.log_debug(
                         "Liste ist leer. Stoppe Suche für YouTube!")
-                    return
+                    return self.device
                 channels.append(item)
 
         for channel in channels:
@@ -70,7 +70,7 @@ class YT:
                     if cnotfound:
                         self.log_debug("YouTube-Kanal: " +
                                        channel + " nicht gefunden!")
-                        return
+                        break
 
             links = re.findall(
                 r'VideoRenderer":{"videoId":"(.*?)",".*?[Tt]ext":"(.*?)"}', response)
@@ -113,8 +113,9 @@ class YT:
                         self.log_debug(video_title + " (" + channel + ") " +
                                        "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
-                    if myjd_download(self.configfile, self.device, "YouTube/" + channel, "RSScrawler", download_link,
-                                     ""):
+                    self.device = myjd_download(self.configfile, self.device, "YouTube/" + channel, "RSScrawler",
+                                                download_link, "")
+                    if self.device:
                         self.db.store(
                             video,
                             'added'
@@ -123,4 +124,4 @@ class YT:
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         added_items.append(log_entry)
-        return added_items
+        return self.device

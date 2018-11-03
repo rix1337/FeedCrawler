@@ -24,7 +24,6 @@ class DD:
         self.dbfile = dbfile
         self.device = device
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.device = device
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -61,7 +60,8 @@ class DD:
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:
-                            if myjd_download(self.configfile, self.device, key, "RSScrawler", links, ""):
+                            self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", links, "")
+                            if self.device:
                                 self.db.store(
                                     key,
                                     'added'
@@ -73,4 +73,4 @@ class DD:
                     else:
                         self.log_debug(
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
-            return added_items
+        return self.device

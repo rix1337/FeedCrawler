@@ -46,6 +46,7 @@ from docopt import docopt
 from rsscrawler import common
 from rsscrawler import files
 from rsscrawler import version
+from rsscrawler.common import is_device
 from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
@@ -111,7 +112,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
     if not arguments['--testlauf']:
         while True:
             try:
-                if not device:
+                if not device or not is_device(device):
                     device = get_device(configfile)
                 check_url(configfile, dbfile)
                 start_time = time.time()
@@ -124,7 +125,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     except AttributeError:
                         file = ""
                     log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                    task.periodical_task()
+                    device = task.periodical_task()
                     log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
                 end_time = time.time()
                 total_time = end_time - start_time
@@ -136,14 +137,14 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                         total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
                       u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                    total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
+                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 time.sleep(wait)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
                 traceback.print_exc()
     else:
         try:
-            if not device:
+            if not device or not is_device(device):
                 device = get_device(configfile)
             check_url(configfile, dbfile)
             start_time = time.time()
@@ -156,7 +157,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                task.periodical_task()
+                device = task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time

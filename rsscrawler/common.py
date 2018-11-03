@@ -13,6 +13,7 @@ import socket
 
 import six
 
+from rsscrawler import myjdapi
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -180,3 +181,7 @@ def readable_time(time):
                ("{}m:".format(minutes) if minutes else "") + \
                ("{}s".format(seconds) if seconds else "")
     return time
+
+
+def is_device(device):
+    return isinstance(device, (type, myjdapi.Jddevice))
