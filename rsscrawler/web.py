@@ -35,7 +35,10 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 
 
-def app_container(port, docker, configfile, dbfile, log_file, no_logger, device):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
+    global device
+    device = _device
+
     app = Flask(__name__, template_folder='web')
 
     general = RssConfig('RSScrawler', configfile)
@@ -364,6 +367,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
     def download_movie(title):
+        global device
         if request.method == 'POST':
             best_result = search.best_result_mb(title, configfile, dbfile)
             if best_result and search.mb(best_result, device, configfile, dbfile):
@@ -375,6 +379,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/download_show/<title>", methods=['POST'])
     def download_show(title):
+        global device
         if ";" in title:
             split = title.split(";")
             title = split[0]
@@ -392,6 +397,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
     def download_mb(permalink):
+        global device
         if request.method == 'POST':
             if search.mb(permalink, device, configfile, dbfile):
                 return "Success", 200
@@ -402,6 +408,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
     def download_sj(info):
+        global device
         split = info.split(";")
         sj_id = split[0]
         special = split[1]
@@ -417,18 +424,20 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd/", methods=['GET'])
     def myjd_info():
+        global device
         if request.method == 'GET':
             myjd = get_info(configfile, device)
+            device = myjd[0]
             if myjd:
                 return jsonify(
                     {
-                        "downloader_state": myjd[0],
-                        "grabber_collecting": myjd[1],
-                        "update_ready": myjd[2],
+                        "downloader_state": myjd[1],
+                        "grabber_collecting": myjd[2],
+                        "update_ready": myjd[3],
                         "packages": {
-                            "downloader": myjd[3][0],
-                            "linkgrabber_decrypted": myjd[3][1],
-                            "linkgrabber_failed": myjd[3][2]
+                            "downloader": myjd[4][0],
+                            "linkgrabber_decrypted": myjd[4][1],
+                            "linkgrabber_failed": myjd[4][2]
                         }
                     }
                 ), 200
@@ -439,13 +448,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_state/", methods=['GET'])
     def myjd_state():
+        global device
         if request.method == 'GET':
             myjd = get_state(configfile, device)
+            device = myjd[0]
             if myjd:
                 return jsonify(
                     {
-                        "downloader_state": myjd[0],
-                        "grabber_collecting": myjd[1]
+                        "downloader_state": myjd[1],
+                        "grabber_collecting": myjd[2]
                     }
                 ), 200
             else:
@@ -455,6 +466,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
     def myjd_move(linkids, uuids):
+        global device
         if request.method == 'POST':
             linkids_raw = ast.literal_eval(linkids)
             linkids = []
@@ -470,8 +482,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
                     uuids.append(uuid)
             else:
                 uuids.append(uuids_raw)
-            myjd = move_to_downloads(configfile, device, linkids, uuids)
-            if myjd:
+            device = move_to_downloads(configfile, device, linkids, uuids)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -480,6 +492,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
     def myjd_remove(linkids, uuids):
+        global device
         if request.method == 'POST':
             linkids_raw = ast.literal_eval(linkids)
             linkids = []
@@ -495,8 +508,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
                     uuids.append(uuid)
             else:
                 uuids.append(uuids_raw)
-            myjd = remove_from_linkgrabber(configfile, device, linkids, uuids)
-            if myjd:
+            device = remove_from_linkgrabber(configfile, device, linkids, uuids)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -505,6 +518,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
     def myjd_retry(linkids, uuids, b64_links):
+        global device
         if request.method == 'POST':
             linkids_raw = ast.literal_eval(linkids)
             linkids = []
@@ -522,8 +536,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
                 uuids.append(uuids_raw)
             links = decode_base64(b64_links)
             links = links.split("\n")
-            myjd = retry_decrypt(configfile, device, linkids, uuids, links)
-            if myjd:
+            device = retry_decrypt(configfile, device, linkids, uuids, links)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -532,9 +546,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_update/", methods=['POST'])
     def myjd_update():
+        global device
         if request.method == 'POST':
-            myjd = update_jdownloader(configfile, device)
-            if myjd:
+            device = update_jdownloader(configfile, device)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -543,9 +558,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_start/", methods=['POST'])
     def myjd_start():
+        global device
         if request.method == 'POST':
-            myjd = jdownloader_start(configfile, device)
-            if myjd:
+            device = jdownloader_start(configfile, device)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -554,10 +570,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
     def myjd_pause(bl):
+        global device
         bl = json.loads(bl)
         if request.method == 'POST':
-            myjd = jdownloader_pause(configfile, device, bl)
-            if myjd:
+            device = jdownloader_pause(configfile, device, bl)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -566,9 +583,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
 
     @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
     def myjd_stop():
+        global device
         if request.method == 'POST':
-            myjd = jdownloader_stop(configfile, device)
-            if myjd:
+            device = jdownloader_stop(configfile, device)
+            if device:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -630,7 +648,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
     http_server.serve_forever()
 
 
-def start(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('')
@@ -665,4 +683,4 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, dev
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, configfile, dbfile, log_file, no_logger, device)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device)

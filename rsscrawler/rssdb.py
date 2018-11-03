@@ -75,9 +75,9 @@ class ListDb(object):
                     items.append(key)
         else:
             for k in keys:
+                k = k.replace("DEUTSCH.*", "").replace("ENGLISCH.*", "")
                 if k:
                     key = ()
-                    k.replace("DEUTSCH.*", "").replace("ENGLISCH.*")
                     key = key + (k,)
                     items.append(key)
         self._conn.execute("DELETE FROM %s" % self._table)

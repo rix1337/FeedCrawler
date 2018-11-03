@@ -48,6 +48,10 @@ class MYJDException(BaseException):
     pass
 
 
+class TokenExpiredException(BaseException):
+    pass
+
+
 def PAD(s):
     try:
         return s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()
@@ -774,7 +778,6 @@ class Jddevice:
             # the response.
             self.__refresh_direct_connections()
             return response['data']
-        return False
 
     def __action_url(self):
         return "/t_" + self.myjd.get_session_token() + "_" + self.device_id
@@ -786,7 +789,7 @@ class Myjdapi:
 
     """
 
-    def __init__(self, myjd_user, myjd_pass):
+    def __init__(self):
         """
         This functions initializates the myjdapi object.
 
@@ -803,8 +806,6 @@ class Myjdapi:
         self.__server_encryption_token = None
         self.__device_encryption_token = None
         self.__connected = False
-        self.__myjd_user = myjd_user
-        self.__myjd_pass = myjd_pass
 
     def get_session_token(self):
         return self.__session_token
@@ -1087,74 +1088,7 @@ class Myjdapi:
             except requests.exceptions.RequestException as e:
                 return None
         if encrypted_response.status_code == 403:
-            try:
-                self.connect(self.__myjd_user, self.__myjd_pass)
-                if not api:
-                    api = self.__api_url
-                data = None
-                if not self.is_connected() and path != "/my/connect":
-                    raise (MYJDException("No connection established\n"))
-                if http_method == "GET":
-                    query = [path + "?"]
-                    if params is not None:
-                        for param in params:
-                            if param[0] != "encryptedLoginSecret":
-                                query += ["%s=%s" % (param[0], quote(param[1]))]
-                            else:
-                                query += ["&%s=%s" % (param[0], param[1])]
-                    query += ["rid=" + str(self.__request_id)]
-                    if self.__server_encryption_token is None:
-                        query += [
-                            "signature=" \
-                            + str(self.__signature_create(self.__login_secret,
-                                                          query[0] + "&".join(query[1:])))
-                        ]
-                    else:
-                        query += [
-                            "signature=" \
-                            + str(self.__signature_create(self.__server_encryption_token,
-                                                          query[0] + "&".join(query[1:])))
-                        ]
-                    query = query[0] + "&".join(query[1:])
-                    encrypted_response = requests.get(api + query, timeout=3)
-                else:
-                    params_request = []
-                    if params is not None:
-                        for param in params:
-                            if not isinstance(param, list):
-                                # params_request+=[str(param).replace("'",'\"').replace("True","true").replace("False","false").replace('None',"null")]
-                                params_request += [json.dumps(param)]
-                            else:
-                                params_request += [param]
-                    params_request = {
-                        "apiVer": self.__api_version,
-                        "url": path,
-                        "params": params_request,
-                        "rid": self.__request_id
-                    }
-                    data = json.dumps(params_request)
-                    # Removing quotes around null elements.
-                    data = data.replace('"null"', "null")
-                    data = data.replace("'null'", "null")
-                    encrypted_data = self.__encrypt(self.__device_encryption_token,
-                                                    data)
-                    if action is not None:
-                        request_url = api + action + path
-                    else:
-                        request_url = api + path
-                    try:
-                        encrypted_response = requests.post(
-                            request_url,
-                            headers={
-                                "Content-Type": "application/aesjson-jd; charset=utf-8"
-                            },
-                            data=encrypted_data,
-                            timeout=3)
-                    except requests.exceptions.RequestException as e:
-                        return None
-            except:
-                raise MYJDException(
-                    "Failed to regain Token. This should only happen if you recently changed your account data.")
+            raise TokenExpiredException
         if encrypted_response.status_code != 200:
             try:
                 error_msg = json.loads(encrypted_response.text)

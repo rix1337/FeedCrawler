@@ -65,6 +65,7 @@ body {
 
 #percentage {
     display: inline-block;
+    white-space: nowrap;
 }
 
 #myjd_state, #spinner-myjd, #myjd_grabbing, #myjd_update {
