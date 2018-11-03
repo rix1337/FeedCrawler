@@ -27,6 +27,8 @@ def get_device(configfile):
         except rsscrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
+        if not device or not is_device(device):
+            return False
         return device
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -36,6 +38,8 @@ def get_device(configfile):
             device = jd.get_device(myjd_device)
         except rsscrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        if not device or not is_device(device):
             return False
         return device
     else:
@@ -236,6 +240,8 @@ def check_failed_packages(configfile, device):
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
@@ -258,6 +264,8 @@ def get_state(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 downloader_state = device.downloadcontroller.get_current_state()
                 grabber_collecting = device.linkgrabber.is_collecting()
             return [device, downloader_state, grabber_collecting]
@@ -284,6 +292,8 @@ def get_info(configfile, device):
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 downloader_state = device.downloadcontroller.get_current_state()
                 grabber_collecting = device.linkgrabber.is_collecting()
                 device.update.run_update_check()
@@ -311,6 +321,8 @@ def move_to_downloads(configfile, device, linkids, uuid):
                 device.linkgrabber.move_to_downloadlist(linkids, uuid)
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.linkgrabber.move_to_downloadlist(linkids, uuid)
             return device
         else:
@@ -329,6 +341,8 @@ def remove_from_linkgrabber(configfile, device, linkids, uuid):
                 device.linkgrabber.remove_links(linkids, uuid)
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.linkgrabber.remove_links(linkids, uuid)
             return device
         else:
@@ -373,6 +387,8 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
                 }])
         except rsscrawler.myjdapi.TokenExpiredException:
             device = get_device(configfile)
+            if not device or not is_device(device):
+                return False
             device.linkgrabber.add_links(params=[
                 {
                     "autostart": autostart,
@@ -416,6 +432,8 @@ def retry_decrypt(configfile, device, linkids, uuid, links):
                     }])
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 package = device.linkgrabber.query_packages(params=[
                     {
                         "availableOfflineCount": True,
@@ -458,6 +476,8 @@ def update_jdownloader(configfile, device):
                 device.update.restart_and_update()
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.update.restart_and_update()
             return device
         else:
@@ -476,6 +496,8 @@ def jdownloader_start(configfile, device):
                 device.downloadcontroller.start_downloads()
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.downloadcontroller.start_downloads()
             return device
         else:
@@ -494,6 +516,8 @@ def jdownloader_pause(configfile, device, bl):
                 device.downloadcontroller.pause_downloads(bl)
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.downloadcontroller.pause_downloads(bl)
             return device
         else:
@@ -512,6 +536,8 @@ def jdownloader_stop(configfile, device):
                 device.downloadcontroller.stop_downloads()
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
                 device.downloadcontroller.stop_downloads()
             return device
         else:
