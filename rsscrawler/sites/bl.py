@@ -36,7 +36,6 @@ class BL:
         self.dbfile = dbfile
         self.device = device
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.device = device
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -570,8 +569,8 @@ class BL:
                         notify([log_entry], self.configfile)
                         return log_entry
                 else:
-                    self.device = (self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                   decode_base64("bW92aWUtYmxvZy5vcmc="))
+                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
+                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
                     if self.device:
                         self.db.store(
                             key,
@@ -646,7 +645,7 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
                 if self.device:
                     self.db.store(
                         key,
@@ -668,7 +667,8 @@ class BL:
                         if self.config.get('enforcedl'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                self.device = (self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
+                                            password)
                 if self.device:
                     self.db.store(
                         key,
@@ -794,7 +794,7 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '0', self.dbfile):
                             retail = True
-                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
                 if self.device:
                     self.db.store(
                         key,
@@ -819,7 +819,8 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                self.device = (self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
+                                            password)
                 if self.device:
                     self.db.store(
                         key,
@@ -832,7 +833,7 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
-                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
                 if self.device:
                     self.db.store(
                         key.replace(".COMPLETE", "").replace(
@@ -845,7 +846,7 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
-                self.device = (self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
                 if self.device:
                     self.db.store(
                         key,
