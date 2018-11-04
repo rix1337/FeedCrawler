@@ -27,7 +27,6 @@ class SJ:
         self.dbfile = dbfile
         self.device = device
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.device = device
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
