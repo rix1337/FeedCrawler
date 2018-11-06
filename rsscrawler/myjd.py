@@ -154,6 +154,7 @@ def get_packages_in_linkgrabber(device):
 
     if grabber_packages > 0:
         failed = []
+        offline = []
         decrypted = []
 
         links = device.linkgrabber.query_links()
@@ -186,30 +187,41 @@ def get_packages_in_linkgrabber(device):
             hosts = package.get('hosts')
             save_to = package.get('saveTo')
             uuid = package.get('uuid')
+            url = False
             urls = []
             linkids = []
             package_failed = False
+            package_offline = False
             for link in links:
                 if uuid == link.get('packageUUID'):
                     if link.get('availability') == 'OFFLINE':
-                        package_failed = True
+                        package_offline = True
                     url = link.get('url')
                     if url:
                         url = str(url)
                         if url not in urls:
                             urls.append(url)
                     linkids.append(link.get('uuid'))
-            if urls:
-                urls = "\n".join(urls)
             for h in hosts:
                 if h == 'linkcrawlerretry':
                     package_failed = True
-            if package_failed:
+                    package_offline = False
+            if package_failed and not package_offline and len(urls) == 1:
+                url = urls[0]
+                urls = False
+            elif urls:
+                urls = "\n".join(urls)
+            if package_failed and not package_offline:
                 failed.append({"name": name,
                                "path": save_to,
                                "urls": urls,
+                               "url": url,
                                "linkids": linkids,
                                "uuid": uuid})
+            elif package_offline:
+                offline.append({"name": name,
+                                "linkids": linkids,
+                                "uuid": uuid})
             else:
                 decrypted.append({"name": name,
                                   "links": total_links,
@@ -222,11 +234,13 @@ def get_packages_in_linkgrabber(device):
                                   "uuid": uuid})
         if not failed:
             failed = False
+        if not offline:
+            offline = False
         if not decrypted:
             decrypted = False
-        return [failed, decrypted]
+        return [failed, offline, decrypted]
     else:
-        return [False, False]
+        return [False, False, False]
 
 
 def check_failed_packages(configfile, device):
@@ -289,7 +303,8 @@ def get_info(configfile, device):
                 packages_in_downloader = get_packages_in_downloader(device)
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
+                packages_in_offline = packages_in_linkgrabber[1]
+                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
                 if not device or not is_device(device):
@@ -301,10 +316,12 @@ def get_info(configfile, device):
                 packages_in_downloader = get_packages_in_downloader(device)
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[1]
+                packages_in_offline = packages_in_linkgrabber[1]
+                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
 
             return [device, downloader_state, grabber_collecting, update_ready,
-                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_failed]]
+                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_offline,
+                     packages_in_linkgrabber_failed]]
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
