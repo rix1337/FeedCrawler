@@ -3,9 +3,11 @@
 # Projekt von https://github.com/rix1337
 
 from fuzzywuzzy import fuzz
+from fuzzywuzzy import process
 
 import rsscrawler.myjdapi
 from rsscrawler.common import is_device
+from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
 from rsscrawler.common import write_crawljob_file
@@ -580,7 +582,7 @@ def myjd_download(configfile, device, title, subdir, links, password):
     return False
 
 
-def cnl_match_packages(configfile, device):
+def package_match(configfile, device):
     failed = check_failed_packages(configfile, device)
     if failed:
         device = failed[0]
@@ -589,42 +591,81 @@ def cnl_match_packages(configfile, device):
     else:
         failed_packages = False
         decrypted_packages = False
+
+    mergables = []
+    if decrypted_packages:
+        for dp in decrypted_packages:
+            mergable = package_merge(dp, decrypted_packages)
+            if len(mergable[0][0]) > 1:
+                if mergable not in mergables:
+                    mergables.append(mergable)
+
+    if mergables:
+        for m in mergables:
+            title = longest_substr(m[0][0])
+            uuids = m[0][1]
+            linkids = m[0][2]
+            # TODO movetonewpackage
+            failed = check_failed_packages(configfile, device)
+            if failed:
+                device = failed[0]
+                failed_packages = failed[2]
+                decrypted_packages = failed[3]
+            else:
+                failed_packages = False
+                decrypted_packages = False
+
     if failed_packages:
-        packages = {}
-        for package in failed_packages:
-            best_ratio = 20
-            if decrypted_packages:
-                found = {}
-                for dp in decrypted_packages:
-                    title = dp['name']
-                    uuid = dp['uuid']
-                    ratio = fuzz.ratio(title, package['name'])
-                    if ratio > best_ratio:
-                        best_ratio = ratio
-                        better_match = True
-                        try:
-                            existing_uuid = packages[title]
-                        except KeyError:
-                            existing_uuid = False
-                        if existing_uuid:
-                            if ratio < existing_uuid['ratio']:
-                                better_match = False
-                        if better_match:
-                            found['title'] = title
-                            found['old_title'] = package['name']
-                            found['ratio'] = ratio
-                            found['urls'] = dp['urls']
-                            found['cnl-uuid'] = uuid
-                            found['cnl-linkids'] = dp['linkids']
-                            found['old-uuid'] = package['uuid']
-                            found['old-linkids'] = package['linkids']
-                            packages[title] = found
+        packages = []
+        # TODO get matching decrypted package for failed packages by title
+        if decrypted_packages:
+            for dp in decrypted_packages:
+                fps = []
+                title = dp['name']
+                for fp in failed_packages:
+                    f_title = fp['name']
+                    ratio = fuzz.ratio(title, f_title)
+                    fps.append(f_title)
+                best_match = process.extractOne(title, fps)
+                packages.append(best_match)
         if packages:
             return [device, packages]
     return [device, False]
 
 
-def replace_package_links(device, uuid, linkids, links):
+def package_merge(decrypted_package, decrypted_packages):
+    title = decrypted_package['name']
+    mergable = []
+    mergable_titles = []
+    mergable_uuids = []
+    mergable_linkids = []
+    for dp in decrypted_packages:
+        dp_title = dp['name']
+        ratio = fuzz.ratio(title, dp_title)
+        if ratio > 95:
+            mergable_titles.append(dp_title)
+            mergable_uuids.append(dp['uuid'])
+            for l in dp['linkids']:
+                mergable_linkids.append(l)
+    mergable.append([mergable_titles, mergable_uuids, mergable_linkids])
+    mergable.sort()
+    return mergable
+
+
+def package_to_replace(failed_package, decrypted_package, ratio):
+    matched = {}
+    matched['title'] = decrypted_package['name']
+    matched['old_title'] = failed_package['name']
+    matched['ratio'] = ratio
+    matched['urls'] = decrypted_package['urls']
+    matched['cnl-uuid'] = decrypted_package['uuid']
+    matched['cnl-linkids'] = decrypted_package['linkids']
+    matched['old-uuid'] = failed_package['uuid']
+    matched['old-linkids'] = failed_package['linkids']
+    return matched
+
+
+def package_replace(device, uuid, linkids, links):
     # TODO this essentially needs to replace the links within a failed package with the ones found through click n load
     # begin with highest ratio packages to prevent wrong matches
     # check if the failed package still exists, before overwriting
