@@ -27,6 +27,7 @@ from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import package_match
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
@@ -426,6 +427,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def myjd_info():
         global device
         if request.method == 'GET':
+            package_match(configfile, device)
             myjd = get_info(configfile, device)
             device = myjd[0]
             if myjd:

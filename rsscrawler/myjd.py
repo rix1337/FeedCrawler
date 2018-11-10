@@ -624,10 +624,15 @@ def package_match(configfile, device):
                 title = dp['name']
                 for fp in failed_packages:
                     f_title = fp['name']
-                    ratio = fuzz.ratio(title, f_title)
                     fps.append(f_title)
-                best_match = process.extractOne(title, fps)
-                packages.append(best_match)
+                best_match = process.extractOne(title, fps, scorer=fuzz.token_set_ratio)
+                op = False
+                for fp in failed_packages:
+                    if fp['name'] == best_match[0]:
+                        op = fp
+                if op:
+                    replace = package_to_replace(op, dp)
+                    packages.append(replace)
         if packages:
             return [device, packages]
     return [device, False]
@@ -652,11 +657,10 @@ def package_to_merge(decrypted_package, decrypted_packages):
     return mergable
 
 
-def package_to_replace(failed_package, decrypted_package, ratio):
+def package_to_replace(failed_package, decrypted_package):
     matched = {}
     matched['title'] = decrypted_package['name']
     matched['old_title'] = failed_package['name']
-    matched['ratio'] = ratio
     matched['urls'] = decrypted_package['urls']
     matched['cnl-uuid'] = decrypted_package['uuid']
     matched['cnl-linkids'] = decrypted_package['linkids']
