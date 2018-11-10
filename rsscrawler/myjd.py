@@ -123,14 +123,15 @@ def get_packages_in_downloader(device):
             uuid = package.get('uuid')
             urls = []
             linkids = []
-            for link in links:
-                if uuid == link.get('packageUUID'):
-                    url = link.get('url')
-                    if url:
-                        url = str(url)
-                        if url not in urls:
-                            urls.append(url)
-                    linkids.append(link.get('uuid'))
+            if links:
+                for link in links:
+                    if uuid == link.get('packageUUID'):
+                        url = link.get('url')
+                        if url:
+                            url = str(url)
+                            if url not in urls:
+                                urls.append(url)
+                        linkids.append(link.get('uuid'))
             if urls:
                 urls = "\n".join(urls)
             packages.append({"name": name,
@@ -194,16 +195,17 @@ def get_packages_in_linkgrabber(device):
             linkids = []
             package_failed = False
             package_offline = False
-            for link in links:
-                if uuid == link.get('packageUUID'):
-                    if link.get('availability') == 'OFFLINE':
-                        package_offline = True
-                    url = link.get('url')
-                    if url:
-                        url = str(url)
-                        if url not in urls:
-                            urls.append(url)
-                    linkids.append(link.get('uuid'))
+            if links:
+                for link in links:
+                    if uuid == link.get('packageUUID'):
+                        if link.get('availability') == 'OFFLINE':
+                            package_offline = True
+                        url = link.get('url')
+                        if url:
+                            url = str(url)
+                            if url not in urls:
+                                urls.append(url)
+                        linkids.append(link.get('uuid'))
             for h in hosts:
                 if h == 'linkcrawlerretry':
                     package_failed = True
@@ -586,17 +588,20 @@ def cnl_match_packages(configfile, device):
         decrypted_packages = failed[3]
     else:
         failed_packages = False
+        decrypted_packages = False
     if failed_packages:
         packages = []
         for package in failed_packages:
-            best_ratio = 10
+            best_ratio = 20
             if decrypted_packages:
                 found = {}
                 for dp in decrypted_packages:
                     title = dp['name']
                     ratio = fuzz.ratio(title, package['name'])
                     if ratio > best_ratio:
-                        print(u'Für ' + title + u" wurden Links durch Click'n'Load hinzugefügt.")
+                        best_ratio = ratio
+                        found['title'] = title
+                        found['ratio'] = ratio
                         found['urls'] = dp['urls']
                         found['cnl-uuid'] = dp['uuid']
                         found['cnl-linkids'] = dp['linkids']
@@ -611,4 +616,5 @@ def cnl_match_packages(configfile, device):
 
 def replace_package_links(device, uuid, linkids, links):
     # TODO this essentially needs to replace the links within a failed package with the ones found through click n load
+    # if ratio is below 15 do not autostart
     return
