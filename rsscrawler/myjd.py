@@ -595,7 +595,7 @@ def package_match(configfile, device):
     mergables = []
     if decrypted_packages:
         for dp in decrypted_packages:
-            mergable = package_merge(dp, decrypted_packages)
+            mergable = package_to_merge(dp, decrypted_packages)
             if len(mergable[0][0]) > 1:
                 if mergable not in mergables:
                     mergables.append(mergable)
@@ -605,7 +605,7 @@ def package_match(configfile, device):
             title = longest_substr(m[0][0])
             uuids = m[0][1]
             linkids = m[0][2]
-            # TODO movetonewpackage
+            package_merge(configfile, device, title, uuids, linkids)
             failed = check_failed_packages(configfile, device)
             if failed:
                 device = failed[0]
@@ -633,7 +633,7 @@ def package_match(configfile, device):
     return [device, False]
 
 
-def package_merge(decrypted_package, decrypted_packages):
+def package_to_merge(decrypted_package, decrypted_packages):
     title = decrypted_package['name']
     mergable = []
     mergable_titles = []
@@ -663,6 +663,26 @@ def package_to_replace(failed_package, decrypted_package, ratio):
     matched['old-uuid'] = failed_package['uuid']
     matched['old-linkids'] = failed_package['linkids']
     return matched
+
+
+def package_merge(configfile, device, title, uuids, linkids):
+    try:
+        if not device or not is_device(device):
+            device = get_device(configfile)
+        if device:
+            try:
+                device.linkgrabber.move_to_new_package(linkids, uuids, title, "<jd:packagename>")
+            except rsscrawler.myjdapi.TokenExpiredException:
+                device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
+                device.linkgrabber.move_to_new_package(linkids, uuids, title, "<jd:packagename>")
+            return device
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
 
 
 def package_replace(device, uuid, linkids, links):

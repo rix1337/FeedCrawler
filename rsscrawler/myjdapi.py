@@ -476,6 +476,11 @@ class Linkgrabber:
         """
         pass
 
+    def move_to_new_package(self, links_ids, packages_ids, new_pkg_name, download_path):
+        params = links_ids, packages_ids, new_pkg_name, download_path
+        resp = self.device.action(self.url + "/movetoNewPackage", params)
+        return resp
+
     def set_variant(self):
         """
         No idea what parameters i have to pass and/or i don't know what it does.
