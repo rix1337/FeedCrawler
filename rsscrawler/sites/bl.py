@@ -1053,8 +1053,9 @@ class BL:
                                 added_items.append(f)
                     i += 1
 
-        self.cdc.delete("MBHWSet-" + self.filename)
-        self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
+        if set_mbhw:
+            self.cdc.delete("MBHWSet-" + self.filename)
+            self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
         if sha_mb:
             if not self.dl_unsatisfied:
                 self.cdc.delete("MB-" + self.filename)

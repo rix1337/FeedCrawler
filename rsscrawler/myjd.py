@@ -590,25 +590,35 @@ def cnl_match_packages(configfile, device):
         failed_packages = False
         decrypted_packages = False
     if failed_packages:
-        packages = []
+        packages = {}
         for package in failed_packages:
             best_ratio = 20
             if decrypted_packages:
                 found = {}
                 for dp in decrypted_packages:
                     title = dp['name']
+                    uuid = dp['uuid']
                     ratio = fuzz.ratio(title, package['name'])
                     if ratio > best_ratio:
                         best_ratio = ratio
-                        found['title'] = title
-                        found['ratio'] = ratio
-                        found['urls'] = dp['urls']
-                        found['cnl-uuid'] = dp['uuid']
-                        found['cnl-linkids'] = dp['linkids']
-                        found['old-uuid'] = package['uuid']
-                        found['old-linkids'] = package['linkids']
-                if found:
-                    packages.append(found)
+                        better_match = True
+                        try:
+                            existing_uuid = packages[title]
+                        except KeyError:
+                            existing_uuid = False
+                        if existing_uuid:
+                            if ratio < existing_uuid['ratio']:
+                                better_match = False
+                        if better_match:
+                            found['title'] = title
+                            found['old_title'] = package['name']
+                            found['ratio'] = ratio
+                            found['urls'] = dp['urls']
+                            found['cnl-uuid'] = uuid
+                            found['cnl-linkids'] = dp['linkids']
+                            found['old-uuid'] = package['uuid']
+                            found['old-linkids'] = package['linkids']
+                            packages[title] = found
         if packages:
             return [device, packages]
     return [device, False]
@@ -616,5 +626,6 @@ def cnl_match_packages(configfile, device):
 
 def replace_package_links(device, uuid, linkids, links):
     # TODO this essentially needs to replace the links within a failed package with the ones found through click n load
-    # if ratio is below 15 do not autostart
+    # begin with highest ratio packages to prevent wrong matches
+    # check if the failed package still exists, before overwriting
     return
