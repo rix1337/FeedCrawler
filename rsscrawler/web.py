@@ -437,7 +437,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "packages": {
                             "downloader": myjd[4][0],
                             "linkgrabber_decrypted": myjd[4][1],
-                            "linkgrabber_failed": myjd[4][2]
+                            "linkgrabber_offline": myjd[4][2],
+                            "linkgrabber_failed": myjd[4][3]
                         }
                     }
                 ), 200

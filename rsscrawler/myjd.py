@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from fuzzywuzzy import fuzz
+
 import rsscrawler.myjdapi
 from rsscrawler.common import is_device
 from rsscrawler.common import readable_size
@@ -252,6 +254,7 @@ def check_failed_packages(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
                 if not device or not is_device(device):
@@ -259,8 +262,8 @@ def check_failed_packages(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-
-            return [device, grabber_collecting, packages_in_linkgrabber_failed]
+                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
+            return [device, grabber_collecting, packages_in_linkgrabber_failed, packages_in_linkgrabber_decrypted]
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
@@ -573,3 +576,39 @@ def myjd_download(configfile, device, title, subdir, links, password):
         if write_crawljob_file(configfile, title, subdir, links):
             return True
     return False
+
+
+def cnl_match_packages(configfile, device):
+    failed = check_failed_packages(configfile, device)
+    if failed:
+        device = failed[0]
+        failed_packages = failed[2]
+        decrypted_packages = failed[3]
+    else:
+        failed_packages = False
+    if failed_packages:
+        packages = []
+        for package in failed_packages:
+            best_ratio = 10
+            if decrypted_packages:
+                found = {}
+                for dp in decrypted_packages:
+                    title = dp['name']
+                    ratio = fuzz.ratio(title, package['name'])
+                    if ratio > best_ratio:
+                        print(u'Für ' + title + u" wurden Links durch Click'n'Load hinzugefügt.")
+                        found['urls'] = dp['urls']
+                        found['cnl-uuid'] = dp['uuid']
+                        found['cnl-linkids'] = dp['linkids']
+                        found['old-uuid'] = package['uuid']
+                        found['old-linkids'] = package['linkids']
+                if found:
+                    packages.append(found)
+        if packages:
+            return [device, packages]
+    return [device, False]
+
+
+def replace_package_links(device, uuid, linkids, links):
+    # TODO this essentially needs to replace the links within a failed package with the ones found through click n load
+    return
