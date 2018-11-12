@@ -155,6 +155,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDretry(linkids, uuid, links);
     };
 
+    $scope.myJDcnl = function (url, uuid) {
+        myJDcnl(url, uuid)
+    };
+
     function getAll() {
         getVersion();
         getLog();
@@ -565,6 +569,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Download nicht erneut hinzufügen!');
                 showDanger('Konnte Download nicht erneut hinzufügen!');
             });
+    }
+
+    function myJDcnl(uuid) {
+        $http.post('api/myjd_cnl/' + uuid);
     }
 
     function scrollingTitle(titleText) {

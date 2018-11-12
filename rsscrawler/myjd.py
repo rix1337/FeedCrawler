@@ -3,7 +3,6 @@
 # Projekt von https://github.com/rix1337
 
 from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
 
 import rsscrawler.myjdapi
 from rsscrawler.common import is_device
@@ -582,16 +581,7 @@ def myjd_download(configfile, device, title, subdir, links, password):
     return False
 
 
-def package_match(configfile, device):
-    failed = check_failed_packages(configfile, device)
-    if failed:
-        device = failed[0]
-        failed_packages = failed[2]
-        decrypted_packages = failed[3]
-    else:
-        failed_packages = False
-        decrypted_packages = False
-
+def package_merge_check(configfile, device, decrypted_packages):
     mergables = []
     if decrypted_packages:
         for dp in decrypted_packages:
@@ -606,38 +596,9 @@ def package_match(configfile, device):
             uuids = m[0][1]
             linkids = m[0][2]
             package_merge(configfile, device, title, uuids, linkids)
-            failed = check_failed_packages(configfile, device)
-            if failed:
-                device = failed[0]
-                failed_packages = failed[2]
-                decrypted_packages = failed[3]
-            else:
-                failed_packages = False
-                decrypted_packages = False
-
-    if failed_packages:
-        packages = []
-        if decrypted_packages:
-            for dp in decrypted_packages:
-                fps = []
-                title = dp['name']
-                for fp in failed_packages:
-                    f_title = fp['name']
-                    fps.append(f_title)
-                best_match = process.extractOne(title, fps, scorer=fuzz.token_set_ratio)
-                op = False
-                for fp in failed_packages:
-                    if fp['name'] == best_match[0]:
-                        op = fp
-                if op:
-                    replace = package_to_replace(op, dp)
-                    packages.append(replace)
-        if packages:
-            # Replace the packages
-            for package in packages:
-                package_replace(device, uuids, )
-            return [device, packages]
-    return [device, False]
+        return device
+    else:
+        return False
 
 
 def package_to_merge(decrypted_package, decrypted_packages):
@@ -657,18 +618,6 @@ def package_to_merge(decrypted_package, decrypted_packages):
     mergable.append([mergable_titles, mergable_uuids, mergable_linkids])
     mergable.sort()
     return mergable
-
-
-def package_to_replace(failed_package, decrypted_package):
-    matched = {}
-    matched['title'] = decrypted_package['name']
-    matched['old_title'] = failed_package['name']
-    matched['urls'] = decrypted_package['urls']
-    matched['cnl-uuid'] = decrypted_package['uuid']
-    matched['cnl-linkids'] = decrypted_package['linkids']
-    matched['old-uuid'] = failed_package['uuid']
-    matched['old-linkids'] = failed_package['linkids']
-    return matched
 
 
 def package_merge(configfile, device, title, uuids, linkids):
@@ -691,8 +640,20 @@ def package_merge(configfile, device, title, uuids, linkids):
         return False
 
 
-def package_replace(device, uuid, linkids, links):
-    # TODO this essentially needs to replace the links within a failed package with the ones found through click n load
-    # begin with highest ratio packages to prevent wrong matches
-    # check if the failed package still exists, before overwriting
-    return
+def package_replace(configfile, device, old_package, cnl_package):
+    title = old_package['name']
+    path = old_package['path']
+    links = cnl_package['urls']
+    linkids = cnl_package['linkids']
+    uuid = [cnl_package['uuid']]
+    device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+    if device:
+        device = download(configfile, device, title, "", links, "", path)
+        if device:
+            linkids = old_package['linkids']
+            uuid = [old_package['uuid']]
+            device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+            if device:
+                print(u"Click'n'Load-Automatik erfolgreich: " + title)
+                return device
+    return False

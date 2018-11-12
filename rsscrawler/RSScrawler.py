@@ -50,7 +50,6 @@ from rsscrawler.common import is_device
 from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
-from rsscrawler.myjd import package_match
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
@@ -115,7 +114,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             try:
                 if not device or not is_device(device):
                     device = get_device(configfile)
-                package_match(configfile, device)
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
@@ -148,7 +146,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
-            package_match(configfile, device)
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")

@@ -80,8 +80,8 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item" ng-if="z.url">
-                            <a class="btn btn-secondary" target="_blank" ng-href="{{z.url}}"
-                               title="Captcha lösen und Links per Click'n'Load automatisch entschlüsseln!">Click'n'Load</a>
+                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" class="btn btn-secondary" type="submit"
+                               target="_blank" title="Click'n'Load innerhalb von 2 Minuten auslösen!">Click'n'Load-Automatik</a>
                         </li>
                         <li class="list-group-item" ng-if="z.urls">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
