@@ -100,7 +100,7 @@ def get_packages_in_downloader(device):
         "startAt": 0,
     }])
 
-    if len(downloader_packages) > 0:
+    if downloader_packages and len(downloader_packages) > 0:
         packages = []
         for package in downloader_packages:
             name = package.get('name')
@@ -617,7 +617,6 @@ def package_match(configfile, device):
 
     if failed_packages:
         packages = []
-        # TODO get matching decrypted package for failed packages by title
         if decrypted_packages:
             for dp in decrypted_packages:
                 fps = []
@@ -634,6 +633,9 @@ def package_match(configfile, device):
                     replace = package_to_replace(op, dp)
                     packages.append(replace)
         if packages:
+            # Replace the packages
+            for package in packages:
+                package_replace(device, uuids, )
             return [device, packages]
     return [device, False]
 
