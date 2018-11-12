@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+{% raw %}<!DOCTYPE html>
 <html ng-app="crwlApp" ng-controller="crwlCtrl" lang="de">
 
 <head>
@@ -24,83 +24,117 @@
 
 
 <div name="myjd" id="myjd" class="container app col">
-    <h1><i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
-
-    <p class="myjd-downloads">
-    <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
-        <div class="card-header">
-            <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
+    <div class="card">
+        <div class="card-header myjdheader" id="headingOne">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true"
+                        aria-controls="collapseOne">
+                    <h1><i class="fas fa-cloud-download-alt"></i> JDownloader</h1>
+                </button>
+            </h5>
         </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item"><span ng-bind="x.done"></span> / <span ng-bind="x.size"></span></li>
-            <li class="list-group-item">
-                <div class="progress">
-                    <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                         aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
-                         ng-style="{ 'width': x.percentage + '%' }">
-                        <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+            <div class="card-body">
+                <p class="myjd-downloads">
+                <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
+                    <div class="card-header">
+                        <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
                     </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><span ng-bind="x.done"></span> / <span ng-bind="x.size"></span></li>
+                        <li class="list-group-item">
+                            <div class="progress">
+                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                                     aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
+                                     ng-style="{ 'width': x.percentage + '%' }">
+                                    <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
+                    </ul>
                 </div>
-            </li>
-            <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
-        </ul>
-    </div>
-    </p>
+                </p>
 
-    <p class="myjd-decrypted">
-    <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
-        <div class="card-header">
-            <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
+                <p class="myjd-decrypted">
+                <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
+                    <div class="card-header">
+                        <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><span ng-bind="y.size"></span></li>
+                        <li class="list-group-item">
+                            <a href="#myjd" ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"
+                                                                                      title="Download starten"></i> </a>
+                            <a href="#myjd" ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"
+                                                                                        title="Entfernen"></i></a>
+                        </li>
+                    </ul>
+                </div>
+                </p>
+
+                <p class="myjd-failed">
+                <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
+                    <div class="card-header">
+                        <strong ng-bind="z.name"></strong>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item" ng-if="z.url">
+                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" class="btn btn-secondary" type="submit"
+                               target="_blank" title="Click'n'Load innerhalb von 2 Minuten auslösen!">Click'n'Load-Automatik</a>
+                        </li>
+                        <li class="list-group-item" ng-if="z.urls">
+                            <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
+                                      data-placement="top"
+                                      title="Automatische Entschlüsselung fehlgeschlagen. Alternativ hier entschlüsselte Links eintragen!"></textarea>
+                        </li>
+                        <li class="list-group-item">
+                            <a href="#myjd" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i
+                                    class="fas fa-undo"
+                                    title="Erneut hinzufügen"></i> </a>
+                            <a href="#myjd" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
+                                                                                        title="Entfernen"></i></a>
+                        </li>
+
+                    </ul>
+                </div>
+                </p>
+
+                <p class="myjd-offline">
+                <div class="card bg-danger" title="Links offline" ng-repeat="z in myjd_offline">
+                    <div class="card-header">
+                        <strong ng-bind="z.name"></strong>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                            <a href="#myjd" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
+                                                                                        title="Entfernen"></i></a>
+                        </li>
+
+                    </ul>
+                </div>
+                </p>
+
+                <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
+                <p id="myjd_no_packages">Downloadliste und Linksammler sind leer.</p>
+                <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
+
+                <p id="myjd_state">
+                    <a href="#myjd" id="myjd_start" ng-click="myJDstart()"><i class="fas fa-play"
+                                                                              title="Download starten"></i></a>
+                    <a href="#myjd" id="myjd_pause" ng-click="myJDpause(true)"><i class="fas fa-pause"
+                                                                                  title="Download pausieren"></i></a>
+                    <a href="#myjd" id="myjd_unpause" ng-click="myJDpause(false)"><i class="fas fa-fast-forward"
+                                                                                     title="Download fortsetzen"></i></a>
+                    <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="fas fa-stop"
+                                                                            title="Download anhalten"></i></a>
+                </p>
+                <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber läuft"></i>
+                <a href="#myjd" id="myjd_update" ng-click="myJDupdate()"><i class="fas fa-wrench"
+                                                                            title="JDownloader updaten"></i></a>
+            </div>
         </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item"><span ng-bind="y.size"></span></li>
-            <li class="list-group-item">
-                <a href="#myjd" ng-click="myJDmove(y.linkids, y.uuid)"><i class="myjd_state fas fa-play"
-                                                                          title="Download starten"></i> </a>
-                <a href="#myjd" ng-click="myJDremove(y.linkids, y.uuid)"><i class="myjd_state fas fa-trash"
-                                                                            title="Entfernen"></i></a>
-            </li>
-        </ul>
     </div>
-    </p>
-
-    <p class="myjd-failed">
-    <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
-        <div class="card-header">
-            <strong ng-bind="z.name"></strong>
-        </div>
-        <ul class="list-group list-group-flush">
-            <li class="list-group-item">
-                <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip" data-placement="top"
-                          title="Automatische Entschlüsselung fehlgeschlagen. Alternativ hier entschlüsselte Links eintragen!"></textarea>
-            </li>
-            <li class="list-group-item">
-                <a href="#myjd" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="myjd_state fas fa-undo"
-                                                                                   title="Erneut hinzufügen"></i> </a>
-                <a href="#myjd" ng-click="myJDremove(z.linkids, z.uuid)"><i class="myjd_state fas fa-trash"
-                                                                            title="Entfernen"></i></a>
-            </li>
-        </ul>
-    </div>
-    </p>
-
-    <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
-    <p id="myjd_no_packages">Downloadliste und Linksammler sind leer.</p>
-    <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
-
-    <p id="myjd_state">
-        <a href="#myjd" id="myjd_start" ng-click="myJDstart()"><i class="fas fa-play"
-                                                                  title="Download starten"></i></a>
-        <a href="#myjd" id="myjd_pause" ng-click="myJDpause(true)"><i class="fas fa-pause"
-                                                                      title="Download pausieren"></i></a>
-        <a href="#myjd" id="myjd_unpause" ng-click="myJDpause(false)"><i class="fas fa-fast-forward"
-                                                                         title="Download fortsetzen"></i></a>
-        <a href="#myjd" id="myjd_stop" ng-click="myJDstop()"><i class="fas fa-stop"
-                                                                title="Download anhalten"></i></a>
-    </p>
-    <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber läuft"></i>
-    <a href="#myjd" id="myjd_update" ng-click="myJDupdate()"><i class="fas fa-wrench"
-                                                                title="JDownloader updaten"></i></a>
 </div>
 
 
@@ -108,8 +142,10 @@
     <div name="search" id="search" class="container app col">
         <h1>
             <i class="fas fa-search"></i> Suchen</h1>
-        <a href="#search" ng-click="showSearch()" style="display: none;" class="results btn btn-danger" type="submit">Zurück</a>
-        <input ng-model="search" class="search form-control mr-sm-2" type="search" placeholder="Filme und Serien suchen"
+        <a href="#search" ng-click="showSearch()" style="display: none;" class="results btn btn-danger"
+           type="submit">Zurück</a>
+        <input ng-model="search" class="search form-control mr-sm-2" type="search"
+               placeholder="Filme und Serien suchen"
                aria-label="Search"
                data-toggle="tooltip" data-placement="top"
                title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
@@ -224,7 +260,8 @@
             <div id="collapseZeroFour" class="collapse" aria-labelledby="headingZeroFour" data-parent="#lists">
                 <div class="card-body">
                     <h4>Kanäle/Playlisten</h4>
-                    <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control" data-toggle="tooltip"
+                    <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"
+                              data-toggle="tooltip"
                               data-placement="top"
                               title="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals - Playlisten-IDs immer inklusive list= angeben"></textarea>
                 </div>
@@ -241,7 +278,8 @@
     <div class="card">
         <div class="card-header" id="headingOneZero">
             <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneZero" aria-expanded="true"
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneZero"
+                        aria-expanded="true"
                         aria-controls="collapseOneZero">
                     <h3>Bedanken</h3>
                 </button>
@@ -256,7 +294,8 @@
     <div class="card">
         <div class="card-header" id="headingOneOne">
             <h5 class="mb-0">
-                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneOne" aria-expanded="true"
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneOne"
+                        aria-expanded="true"
                         aria-controls="collapseOneOne">
                     <h3>Captchas</h3>
                 </button>
@@ -306,7 +345,8 @@
                     <div class="col text-right">
                         <i>Film.*.Titel.*</i>
                     </div>
-                    <div class="col text-left">Sucht nach allen Filmen die mit Film beginnen und Titel enthalten.</div>
+                    <div class="col text-left">Sucht nach allen Filmen die mit Film beginnen und Titel enthalten.
+                    </div>
                 </div>
                 <div class="row">
                     <div class="col text-right">
@@ -325,7 +365,8 @@
                     <div class="col text-right">
                         <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
                     </div>
-                    <div class="col text-left">sucht nach HD-BluRay Releases von Film Titel, zweisprachig und in 720p
+                    <div class="col text-left">sucht nach HD-BluRay Releases von Film Titel, zweisprachig und in
+                        720p
                         der GROUP.
                     </div>
                 </div>
@@ -334,7 +375,8 @@
                     <div class="col text-right">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
                     </div>
-                    <div class="col text-left">sucht nach Releases der GROUP von Staffel 1 der Serien Titel in 720p auf
+                    <div class="col text-left">sucht nach Releases der GROUP von Staffel 1 der Serien Titel in 720p
+                        auf
                         Deutsch.
                     </div>
                 </div>
@@ -342,7 +384,8 @@
                     <div class="col text-right">
                         <i>Serien.Titel.*</i>
                     </div>
-                    <div class="col text-left">sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst HDTV
+                    <div class="col text-left">sucht nach allen Releases von Serien Titel (nützlich, wenn man sonst
+                        HDTV
                         aussortiert).
                     </div>
                 </div>
@@ -356,7 +399,8 @@
                     <div class="col text-right">
                         <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
                     </div>
-                    <div class="col text-left">sucht nach Serie (aber nicht Diese Serie oder Andere Serie), zweisprachig
+                    <div class="col text-left">sucht nach Serie (aber nicht Diese Serie oder Andere Serie),
+                        zweisprachig
                         und in 720p und ausschließlich
                         nach Releases von GROUP oder ANDEREGROUP.
                     </div>
@@ -588,7 +632,8 @@
                             data-placement="top"
                             title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
                     <h4>Filterliste</h4>
-                    <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
+                    <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
                     <h4>Auch per RegEx suchen</h4>
                     <select ng-model="settings.mb.regex" ng-options="o.value as o.label for o in bools"
@@ -648,7 +693,8 @@
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
                     <h4>Filterliste</h4>
-                    <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
+                    <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
                     <h4>Auch per RegEx suchen</h4>
                     <select ng-model="settings.sj.regex" ng-options="o.value as o.label for o in bools"
@@ -707,7 +753,8 @@
                             class="form-control" data-toggle="tooltip"
                             data-placement="top" title="Hier den/die gewünschten Hoster wählen."></select>
                     <h4>Feeds</h4>
-                    <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip" data-placement="top"
+                    <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
                            title="Hier Feeds von DD eintragen (durch Kommata getrennt)"/>
                 </div>
             </div>
@@ -732,7 +779,8 @@
                            data-toggle="tooltip" data-placement="top"
                            title="Die Maximale Anzahl hinzuzufügender Videos (1-50)"/>
                     <h4>Filterliste</h4>
-                    <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip" data-placement="top"
+                    <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
                            title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)"/>
                 </div>
             </div>
@@ -750,9 +798,8 @@
 <script src="js/jquery.slim.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
-<script src="js/angular-sanitize.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?myjd"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
-</html>
+</html>{% endraw %}

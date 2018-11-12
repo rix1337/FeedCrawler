@@ -228,7 +228,7 @@ def main():
     if not device:
         if not os.path.exists(configfile):
             if not arguments['--jd-pfad']:
-                if files.jd_input(configfile, arguments['--port']):
+                if files.jd_input(configfile, arguments['--port'], arguments['--docker']):
                     print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
                 elif arguments['--port']:
                     files.startup(configfile,
@@ -262,7 +262,7 @@ def main():
             jdownloaderpath = '/jd2'
             print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
         elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
-            jdownloaderpath = files.jd_input(configfile, arguments['--port'])
+            jdownloaderpath = files.jd_input(configfile, arguments['--port'], arguments['--docker'])
             if jdownloaderpath:
                 print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
             else:
@@ -278,12 +278,17 @@ def main():
               jdownloaderpath + u'" für Crawljobs')
 
         if not os.path.exists(jdownloaderpath):
-            print(u'Der Pfad des JDownloaders existiert nicht.')
+            print(u'Der Pfad des JDownloaders existiert nicht: ' + jdownloaderpath)
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
             print(u'Beende RSScrawler...')
             sys.exit(0)
 
         if not os.path.exists(jdownloaderpath + "/folderwatch"):
+            if arguments['--docker']:
+                print(
+                    u'Das Readme des Docker-Images muss aufmerksam befolgt werden. Falsche Angaben verhindern den Programmstart!')
+                print(
+                    u'Da keine My JDownloader-Zugangsdaten angegeben wurden, wird ein Ordner "folderwatch" unterhalb des "/jd2/"-Volumens benögigt.')
             print(
                 u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")

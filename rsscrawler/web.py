@@ -8,6 +8,7 @@ import logging
 import os
 import re
 import sys
+import time
 from logging import handlers
 
 import gevent
@@ -20,6 +21,7 @@ from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.common import decode_base64
 from rsscrawler.myjd import check_device
+from rsscrawler.myjd import check_failed_packages
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
@@ -27,6 +29,8 @@ from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import package_merge_check
+from rsscrawler.myjd import package_replace
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
@@ -437,7 +441,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "packages": {
                             "downloader": myjd[4][0],
                             "linkgrabber_decrypted": myjd[4][1],
-                            "linkgrabber_failed": myjd[4][2]
+                            "linkgrabber_offline": myjd[4][2],
+                            "linkgrabber_failed": myjd[4][3]
                         }
                     }
                 ), 200
@@ -586,6 +591,73 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'POST':
             device = jdownloader_stop(configfile, device)
+            if device:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    def get_list(liste):
+        cont = ListDb(dbfile, liste).retrieve()
+        return "\n".join(cont) if cont else ""
+
+    @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
+    def myjd_cnl(uuid):
+        global device
+        if request.method == 'POST':
+            failed = check_failed_packages(configfile, device)
+            if failed:
+                device = failed[0]
+                failed_packages = failed[2]
+                decrypted_packages = failed[3]
+            else:
+                failed_packages = False
+                decrypted_packages = False
+            if not failed_packages:
+                return "Failed", 500
+
+            old_package = False
+            for op in failed_packages:
+                if str(op['uuid']) == str(uuid):
+                    old_package = op
+                    break
+            if not old_package:
+                return "Failed", 500
+
+            known_decrypted = []
+            if decrypted_packages:
+                for dp in decrypted_packages:
+                    known_decrypted.append(dp['uuid'])
+
+            cnl_package = False
+            i = 24
+            while i > 0:
+                i -= 1
+                time.sleep(5)
+                failed = check_failed_packages(configfile, device)
+                if failed:
+                    device = failed[0]
+                    grabber_collecting = failed[1]
+                    if not grabber_collecting:
+                        decrypted_packages = failed[3]
+                        another_device = package_merge_check(configfile, device, decrypted_packages)
+                        if another_device:
+                            device = another_device
+                            failed = check_failed_packages(configfile, device)
+                            if failed:
+                                device = failed[0]
+                                decrypted_packages = failed[3]
+                        if decrypted_packages:
+                            for dp in decrypted_packages:
+                                if dp['uuid'] not in known_decrypted:
+                                    cnl_package = dp
+                                    i = 0
+
+            if not cnl_package:
+                return "No Package added through Click'n'Load in Time - You had 2 minutes!", 504
+
+            device = package_replace(configfile, device, old_package, cnl_package)
             if device:
                 return "Success", 200
             else:

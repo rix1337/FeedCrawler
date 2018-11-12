@@ -28,8 +28,12 @@ body {
     max-width: 80em;
 }
 
-#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed {
+#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
     display: none;
+}
+
+.myjdheader {
+    padding: 0;
 }
 
 .alert {

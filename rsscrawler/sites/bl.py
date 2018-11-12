@@ -935,7 +935,7 @@ class BL:
                 mb_304 = True
         except:
             mb_304 = True
-            self.log_error("Fehler beim Abruf von MB - breche Suche ab!")
+            self.log_debug("Fehler beim Abruf von MB - breche Suche ab!")
 
         try:
             first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
@@ -944,7 +944,7 @@ class BL:
                 hw_304 = True
         except:
             hw_304 = True
-            self.log_error("Fehler beim Abruf von HW - breche Suche ab!")
+            self.log_debug("Fehler beim Abruf von HW - breche Suche ab!")
 
         if not mb_304:
             set_mbhw = str(self.settings) + str(self.allInfos)
@@ -1053,8 +1053,9 @@ class BL:
                                 added_items.append(f)
                     i += 1
 
-        self.cdc.delete("MBHWSet-" + self.filename)
-        self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
+        if set_mbhw:
+            self.cdc.delete("MBHWSet-" + self.filename)
+            self.cdc.store("MBHWSet-" + self.filename, set_mbhw)
         if sha_mb:
             if not self.dl_unsatisfied:
                 self.cdc.delete("MB-" + self.filename)

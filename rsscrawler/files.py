@@ -42,9 +42,12 @@ def config(configpath):
     return configpath
 
 
-def jd_input(configfile, port=None):
-    print(u"Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
-    jdownloaderpath = six.moves.input("Pfad angeben:")
+def jd_input(configfile, port, docker):
+    if docker:
+        jdownloaderpath = "/jd2"
+    else:
+        print(u"Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
+        jdownloaderpath = six.moves.input("Pfad angeben:")
     if len(jdownloaderpath) > 0 and port:
         startup(configfile, jdownloaderpath, port)
     elif len(jdownloaderpath) > 0:
