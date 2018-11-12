@@ -572,7 +572,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDcnl(uuid) {
-        $http.post('api/myjd_cnl/' + uuid);
+        $http.post('api/myjd_cnl/' + uuid)
+            .then(function (res) {
+                for (let failed_package of $scope.myjd_failed) {
+                    let existing_uuid = failed_package['uuid']
+                    if (uuid == existing_uuid) {
+                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        $scope.myjd_failed.splice(index, 1)
+                    }
+                }
+            });
     }
 
     function scrollingTitle(titleText) {
