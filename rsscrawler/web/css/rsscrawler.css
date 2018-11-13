@@ -28,7 +28,7 @@ body {
     max-width: 80em;
 }
 
-#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
+.cnl-spinner, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
     display: none;
 }
 
@@ -72,7 +72,7 @@ body {
     white-space: nowrap;
 }
 
-#myjd_state, #spinner-myjd, #myjd_grabbing, #myjd_update {
+#myjd_state, .cnl-spinner, #spinner-myjd, #myjd_grabbing, #myjd_update {
     font-size: 2em;
 }
 

@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import re
+
 from fuzzywuzzy import fuzz
 
 import rsscrawler.myjdapi
@@ -193,6 +195,7 @@ def get_packages_in_linkgrabber(device):
             uuid = package.get('uuid')
             url = False
             urls = []
+            filenames = []
             linkids = []
             package_failed = False
             package_offline = False
@@ -206,6 +209,9 @@ def get_packages_in_linkgrabber(device):
                             url = str(url)
                             if url not in urls:
                                 urls.append(url)
+                            filename = str(link.get('name'))
+                            if filename not in filenames:
+                                filenames.append(filename)
                         linkids.append(link.get('uuid'))
             for h in hosts:
                 if h == 'linkcrawlerretry':
@@ -235,6 +241,7 @@ def get_packages_in_linkgrabber(device):
                                   "path": save_to,
                                   "size": size,
                                   "urls": urls,
+                                  "filenames": filenames,
                                   "linkids": linkids,
                                   "uuid": uuid})
         if not failed:
@@ -257,6 +264,7 @@ def check_failed_packages(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
@@ -265,8 +273,10 @@ def check_failed_packages(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
+                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-            return [device, grabber_collecting, packages_in_linkgrabber_failed, packages_in_linkgrabber_decrypted]
+            return [device, grabber_collecting, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_offline,
+                    packages_in_linkgrabber_failed]
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
@@ -309,7 +319,7 @@ def get_info(configfile, device):
                 packages_in_downloader = get_packages_in_downloader(device)
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_offline = packages_in_linkgrabber[1]
+                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
@@ -322,11 +332,11 @@ def get_info(configfile, device):
                 packages_in_downloader = get_packages_in_downloader(device)
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_offline = packages_in_linkgrabber[1]
+                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
 
             return [device, downloader_state, grabber_collecting, update_ready,
-                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_offline,
+                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_offline,
                      packages_in_linkgrabber_failed]]
         else:
             return False
@@ -581,7 +591,38 @@ def myjd_download(configfile, device, title, subdir, links, password):
     return False
 
 
-def package_merge_check(configfile, device, decrypted_packages):
+def package_merge_check(configfile, device, decrypted_packages, title, known_packages):
+    se = re.findall(r'.*(S(\d{1,3})E(\d{1,3})).*', title)
+    delete_packages = []
+    if se:
+        se = se[0]
+        sse = (str(se[1]) + str(se[2])).lower()
+        se = se[0].lower()
+        if decrypted_packages and len(decrypted_packages) > 1:
+            for dp in decrypted_packages:
+                if dp['uuid'] not in known_packages:
+                    delete = True
+                    dname = dp['name'].lower()
+                    fnames = dp['filenames']
+                    if se in dname or sse in dname:
+                        delete = False
+                    for fn in fnames:
+                        if se in fn.lower() or sse in fn.lower():
+                            delete = False
+                    if delete:
+                        delete_packages.append(dp)
+
+    if delete_packages and len(delete_packages) < len(decrypted_packages):
+        delete_linkids = []
+        delete_uuids = []
+        for dp in delete_packages:
+            for linkid in dp['linkids']:
+                delete_linkids.append(linkid)
+            delete_uuids.append(dp['uuid'])
+            decrypted_packages.remove(dp)
+        if delete_linkids and delete_uuids:
+            device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+
     mergables = []
     if decrypted_packages:
         for dp in decrypted_packages:
