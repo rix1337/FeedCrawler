@@ -431,8 +431,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'GET':
             myjd = get_info(configfile, device)
-            device = myjd[0]
             if myjd:
+                device = myjd[0]
                 return jsonify(
                     {
                         "downloader_state": myjd[1],
@@ -456,8 +456,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'GET':
             myjd = get_state(configfile, device)
-            device = myjd[0]
             if myjd:
+                device = myjd[0]
                 return jsonify(
                     {
                         "downloader_state": myjd[1],
@@ -609,8 +609,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             failed = check_failed_packages(configfile, device)
             if failed:
                 device = failed[0]
-                failed_packages = failed[2]
-                decrypted_packages = failed[3]
+                decrypted_packages = failed[2]
+                failed_packages = failed[4]
             else:
                 failed_packages = False
                 decrypted_packages = False
@@ -620,18 +620,19 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             old_package = False
             for op in failed_packages:
                 if str(op['uuid']) == str(uuid):
+                    title = op['name']
                     old_package = op
                     break
             if not old_package:
                 return "Failed", 500
 
-            known_decrypted = []
+            known_packages = []
             if decrypted_packages:
                 for dp in decrypted_packages:
-                    known_decrypted.append(dp['uuid'])
+                    known_packages.append(dp['uuid'])
 
             cnl_package = False
-            i = 24
+            i = 12
             while i > 0:
                 i -= 1
                 time.sleep(5)
@@ -640,22 +641,31 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     device = failed[0]
                     grabber_collecting = failed[1]
                     if not grabber_collecting:
-                        decrypted_packages = failed[3]
-                        another_device = package_merge_check(configfile, device, decrypted_packages)
+                        decrypted_packages = failed[2]
+                        offline_packages = failed[3]
+                        another_device = package_merge_check(configfile, device, decrypted_packages, title,
+                                                             known_packages)
                         if another_device:
                             device = another_device
                             failed = check_failed_packages(configfile, device)
                             if failed:
                                 device = failed[0]
-                                decrypted_packages = failed[3]
-                        if decrypted_packages:
+                                grabber_collecting = failed[1]
+                                decrypted_packages = failed[2]
+                                offline_packages = failed[3]
+                        if not grabber_collecting and decrypted_packages:
                             for dp in decrypted_packages:
-                                if dp['uuid'] not in known_decrypted:
+                                if dp['uuid'] not in known_packages:
                                     cnl_package = dp
+                                    i = 0
+                        if not grabber_collecting and offline_packages:
+                            for op in offline_packages:
+                                if op['uuid'] not in known_packages:
+                                    cnl_package = op
                                     i = 0
 
             if not cnl_package:
-                return "No Package added through Click'n'Load in Time - You had 2 minutes!", 504
+                return "No Package added through Click'n'Load in time!", 504
 
             device = package_replace(configfile, device, old_package, cnl_package)
             if device:

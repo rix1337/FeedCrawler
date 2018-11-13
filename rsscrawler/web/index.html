@@ -80,8 +80,11 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item" ng-if="z.url">
-                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" class="btn btn-secondary" type="submit"
-                               target="_blank" title="Click'n'Load innerhalb von 2 Minuten auslösen!">Click'n'Load-Automatik</a>
+                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)"
+                               class="cnl-button btn btn-secondary" type="submit"
+                               target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!">Click'n'Load-Automatik</a>
+                            <i title="Click'n'Load-Automatik ist noch aktiv!" style="display: none;"
+                               class="cnl-spinner fas fa-sync fa-spin"></i>
                         </li>
                         <li class="list-group-item" ng-if="z.urls">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -799,7 +802,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?cnlauto"></script>
 </body>
 
 </html>{% endraw %}

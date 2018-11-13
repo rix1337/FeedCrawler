@@ -155,8 +155,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDretry(linkids, uuid, links);
     };
 
-    $scope.myJDcnl = function (url, uuid) {
-        myJDcnl(url, uuid)
+    $scope.myJDcnl = function (uuid) {
+        myJDcnl(uuid)
     };
 
     function getAll() {
@@ -493,7 +493,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_failed.length == 0) {
                     $scope.myjd_failed = false
                 }
-                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed) {
+                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
                     $("#myjd_no_packages").show();
                 } else {
                     $("#myjd_no_packages").hide();
@@ -572,8 +572,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDcnl(uuid) {
+        $(".cnl-button").hide();
+        $(".cnl-spinner").show();
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
+                $(".cnl-spinner").hide();
+                $(".cnl-button").show();
                 for (let failed_package of $scope.myjd_failed) {
                     let existing_uuid = failed_package['uuid']
                     if (uuid == existing_uuid) {
