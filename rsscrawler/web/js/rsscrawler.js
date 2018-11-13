@@ -155,8 +155,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDretry(linkids, uuid, links);
     };
 
-    $scope.myJDcnl = function (uuid, name) {
-        myJDcnl(uuid, name)
+    $scope.myJDcnl = function (uuid) {
+        myJDcnl(uuid)
     };
 
     function getAll() {
@@ -571,7 +571,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function myJDcnl(uuid, name) {
+    function myJDcnl(uuid) {
         $(".cnl-button").hide();
         $(".cnl-spinner").show();
         $http.post('api/myjd_cnl/' + uuid)

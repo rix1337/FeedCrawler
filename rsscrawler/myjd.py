@@ -652,7 +652,7 @@ def package_to_merge(decrypted_package, decrypted_packages):
     for dp in decrypted_packages:
         dp_title = dp['name']
         ratio = fuzz.ratio(title, dp_title)
-        if ratio > 95:
+        if ratio > 90:
             mergable_titles.append(dp_title)
             mergable_uuids.append(dp['uuid'])
             for l in dp['linkids']:
