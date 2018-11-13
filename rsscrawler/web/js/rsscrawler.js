@@ -493,7 +493,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_failed.length == 0) {
                     $scope.myjd_failed = false
                 }
-                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed) {
+                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
                     $("#myjd_no_packages").show();
                 } else {
                     $("#myjd_no_packages").hide();

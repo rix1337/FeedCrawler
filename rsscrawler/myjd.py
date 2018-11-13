@@ -232,6 +232,7 @@ def get_packages_in_linkgrabber(device):
             elif package_offline:
                 offline.append({"name": name,
                                 "linkids": linkids,
+                                "urls": urls,
                                 "uuid": uuid})
             else:
                 decrypted.append({"name": name,
