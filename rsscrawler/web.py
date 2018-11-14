@@ -633,9 +633,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if decrypted_packages:
                 for dp in decrypted_packages:
                     known_packages.append(dp['uuid'])
-            known_packages = []
+
             cnl_package = False
             i = 12
+            subdir = RssConfig('Crawljobs', configfile).get('subdir')
             while i > 0:
                 i -= 1
                 time.sleep(5)
@@ -658,11 +659,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                                 offline_packages = failed[3]
                         if not grabber_collecting and decrypted_packages:
                             for dp in decrypted_packages:
+                                if subdir and 'RSScrawler' in dp['path']:
+                                    known_packages.append(dp['uuid'])
                                 if dp['uuid'] not in known_packages:
                                     cnl_package = dp
                                     i = 0
                         if not grabber_collecting and offline_packages:
                             for op in offline_packages:
+                                if subdir and 'RSScrawler' in op['path']:
+                                    known_packages.append(dp['uuid'])
                                 if op['uuid'] not in known_packages:
                                     cnl_package = op
                                     i = 0
