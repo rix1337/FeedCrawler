@@ -617,13 +617,16 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not failed_packages:
                 return "Failed", 500
 
+            title = False
             old_package = False
-            for op in failed_packages:
-                if str(op['uuid']) == str(uuid):
-                    title = op['name']
-                    old_package = op
-                    break
-            if not old_package:
+            if failed_packages:
+                for op in failed_packages:
+                    if str(op['uuid']) == str(uuid):
+                        title = op['name']
+                        old_package = op
+                        break
+
+            if not old_package or not title:
                 return "Failed", 500
 
             known_packages = []
@@ -633,6 +636,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             cnl_package = False
             i = 12
+            subdir = RssConfig('Crawljobs', configfile).get('subdir')
             while i > 0:
                 i -= 1
                 time.sleep(5)
@@ -655,11 +659,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                                 offline_packages = failed[3]
                         if not grabber_collecting and decrypted_packages:
                             for dp in decrypted_packages:
+                                if subdir and 'RSScrawler' in dp['path']:
+                                    known_packages.append(dp['uuid'])
                                 if dp['uuid'] not in known_packages:
                                     cnl_package = dp
                                     i = 0
                         if not grabber_collecting and offline_packages:
                             for op in offline_packages:
+                                if subdir and 'RSScrawler' in op['path']:
+                                    known_packages.append(dp['uuid'])
                                 if op['uuid'] not in known_packages:
                                     cnl_package = op
                                     i = 0

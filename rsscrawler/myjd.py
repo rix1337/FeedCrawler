@@ -595,25 +595,47 @@ def myjd_download(configfile, device, title, subdir, links, password):
 def package_merge_check(configfile, device, decrypted_packages, title, known_packages):
     se = re.findall(r'.*(S(\d{1,3})E(\d{1,3})).*', title)
     delete_packages = []
+    delete_linkids = []
+    delete_uuids = []
+    keep_linkids = []
+    keep_uuids = []
     if se:
         se = se[0]
         sse = (str(se[1]) + str(se[2])).lower()
+        if sse.startswith('0'):
+            sse = sse[1:]
         se = se[0].lower()
         if decrypted_packages and len(decrypted_packages) > 1:
             for dp in decrypted_packages:
+                linkids = dp['linkids']
+                for l in linkids:
+                    delete_linkids.append(l)
+                uuid = dp['uuid']
+                delete_uuids.append(uuid)
                 if dp['uuid'] not in known_packages:
                     delete = True
                     dname = dp['name'].lower()
                     fnames = dp['filenames']
                     if se in dname or sse in dname:
                         delete = False
+                    i = 0
                     for fn in fnames:
                         if se in fn.lower() or sse in fn.lower():
+                            keep_linkids.append(linkids[i])
+                            if uuid not in keep_uuids:
+                                keep_uuids.append(uuid)
                             delete = False
+                            i += 1
                     if delete:
                         delete_packages.append(dp)
 
-    if delete_packages and len(delete_packages) < len(decrypted_packages):
+    if keep_linkids and keep_uuids:
+        for k in keep_linkids:
+            delete_linkids.remove(k)
+        device = device.linkgrabber.move_to_new_package(keep_linkids, keep_uuids, title, "<jd:packagename>")
+        device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+        return device
+    elif delete_packages and len(delete_packages) < len(decrypted_packages):
         delete_linkids = []
         delete_uuids = []
         for dp in delete_packages:
@@ -627,10 +649,12 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
     mergables = []
     if decrypted_packages:
         for dp in decrypted_packages:
-            mergable = package_to_merge(dp, decrypted_packages)
-            if len(mergable[0][0]) > 1:
-                if mergable not in mergables:
-                    mergables.append(mergable)
+            mergable = package_to_merge(dp, decrypted_packages, known_packages)
+            if mergable:
+                break
+        if len(mergable[0][0]) > 1:
+            if mergable not in mergables:
+                mergables.append(mergable)
 
     if mergables:
         for m in mergables:
@@ -643,20 +667,27 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
         return False
 
 
-def package_to_merge(decrypted_package, decrypted_packages):
+def package_to_merge(decrypted_package, decrypted_packages, known_packages):
     title = decrypted_package['name']
     mergable = []
     mergable_titles = []
     mergable_uuids = []
     mergable_linkids = []
     for dp in decrypted_packages:
-        dp_title = dp['name']
-        ratio = fuzz.ratio(title, dp_title)
-        if ratio > 90:
-            mergable_titles.append(dp_title)
-            mergable_uuids.append(dp['uuid'])
-            for l in dp['linkids']:
-                mergable_linkids.append(l)
+        if dp['uuid'] not in known_packages:
+            dp_title = dp['name']
+            ratio = fuzz.ratio(title, dp_title)
+            if ratio > 90:
+                mergable_titles.append(dp_title)
+                mergable_uuids.append(dp['uuid'])
+                for l in dp['linkids']:
+                    mergable_linkids.append(l)
+            elif dp['name'] == "Verschiedene Dateien":
+                mergable_titles.append(dp_title)
+                mergable_uuids.append(dp['uuid'])
+                for l in dp['linkids']:
+                    mergable_linkids.append(l)
+
     mergable.append([mergable_titles, mergable_uuids, mergable_linkids])
     mergable.sort()
     return mergable
