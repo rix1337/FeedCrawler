@@ -617,20 +617,23 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not failed_packages:
                 return "Failed", 500
 
+            title = False
             old_package = False
-            for op in failed_packages:
-                if str(op['uuid']) == str(uuid):
-                    title = op['name']
-                    old_package = op
-                    break
-            if not old_package:
+            if failed_packages:
+                for op in failed_packages:
+                    if str(op['uuid']) == str(uuid):
+                        title = op['name']
+                        old_package = op
+                        break
+
+            if not old_package or not title:
                 return "Failed", 500
 
             known_packages = []
             if decrypted_packages:
                 for dp in decrypted_packages:
                     known_packages.append(dp['uuid'])
-
+            known_packages = []
             cnl_package = False
             i = 12
             while i > 0:
