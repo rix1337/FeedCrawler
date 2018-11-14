@@ -1,16 +1,11 @@
+dist: xenial
 language: python
 python:
   - "2.7"
   - "3.5"
   - "3.6"
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
-    - python: 3.8-dev
-      dist: xenial
-      sudo: true
+  - "3.7"
+  - "3.8-dev"
 allow_failures:
   - python: 3.8-dev
 cache: pip
