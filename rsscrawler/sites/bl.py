@@ -41,7 +41,7 @@ class BL:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
-        self.allInfos = self.filename
+        self.pattern = False
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.db_retail = RssDb(self.dbfile, 'retail')
         self.hoster = re.compile(self.config.get("hoster"))
@@ -53,12 +53,16 @@ class BL:
             search = 3
         i = 2
         while i <= search:
-            self.MB_FEED_URLS.append(self.MB_URL + "?paged=" + str(i))
+            page_url = self.MB_URL + "?paged=" + str(i)
+            if page_url not in self.MB_FEED_URLS:
+                self.MB_FEED_URLS.append(page_url)
             i += 1
 
         i = 2
         while i <= search:
-            self.HW_FEED_URLS.append(self.HW_URL + "?paged=" + str(i))
+            page_url = self.HW_URL + "?paged=" + str(i)
+            if page_url not in self.HW_FEED_URLS:
+                self.HW_FEED_URLS.append(page_url)
             i += 1
 
         self.cdc = RssDb(self.dbfile, 'cdc')
@@ -86,23 +90,16 @@ class BL:
             self.imdb = float(self.config.get('imdb'))
         except:
             self.imdb = 0.0
-        self.dictWithNamesAndLinks = {}
-        self.empty_list = False
 
-    def read_input(self, liste):
+    def get_movies_list(self, liste):
         cont = ListDb(self.dbfile, liste).retrieve()
-        if not cont:
-            self.empty_list = True
-            return ""
-        else:
-            return cont
-
-    def get_patterns(self, patterns, **kwargs):
-        if not patterns:
-            self.empty_list = True
-        if kwargs:
-            return {line: (kwargs['quality'], kwargs['rg'], kwargs['sf']) for line in patterns}
-        return {x: x for x in patterns}
+        titles = []
+        if cont:
+            for title in cont:
+                if title:
+                    title = title.replace(" ", ".")
+                    titles.append(title)
+        return titles
 
     def get_download_links(self, content):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
@@ -130,7 +127,7 @@ class BL:
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                     continue
-                yield (post.title, content, title)
+                yield (post.title, content)
 
     def imdb_search(self, imdb, feed, site):
         added_items = []
@@ -344,152 +341,147 @@ class BL:
         return added_items
 
     def feed_search(self, feed, site):
-        if self.empty_list:
+        if not self.pattern:
             return
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
 
-        for key in self.allInfos:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + key + '.(\d{4}|German|\d{3,4}p).*').lower()
-            settings = str(self.settings)
-            liste = str(self.allInfos)
-            for post in feed.entries:
-                concat = post.title + post.published + \
-                         settings + liste
-                sha = hashlib.sha256(concat.encode(
-                    'ascii', 'ignore')).hexdigest()
-                if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
-                    if not self.historical:
+        s = re.sub(self.SUBSTITUTE, ".", "^" + self.pattern + '.(\d{4}|German|\d{3,4}p).*').lower()
+        settings = str(self.settings)
+        liste = str(self.pattern)
+        for post in feed.entries:
+            concat = post.title + post.published + \
+                     settings + liste
+            sha = hashlib.sha256(concat.encode(
+                'ascii', 'ignore')).hexdigest()
+            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
+                if not self.historical:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
+                    if "MB" in site:
+                        self.mb_done = True
+                    elif "HW" in site:
+                        self.hw_done = True
+                    break
+
+            found = re.search(s, post.title.lower())
+
+            if found:
+                content = post.content[0].value
+                if re.search(r'.*([mM][kK][vV]).*', content):
+                    found = re.search(ignore, post.title.lower())
+                    if found:
                         self.log_debug(
-                            site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche nach '" + key + "' ab!")
-                        if "MB" in site:
-                            self.mb_done = True
-                        elif "HW" in site:
-                            self.hw_done = True
-                        break
-
-                found = re.search(s, post.title.lower())
-
-                if found:
-                    content = post.content[0].value
-                    if re.search(r'.*([mM][kK][vV]).*', content):
-                        found = re.search(ignore, post.title.lower())
-                        if found:
+                            "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                        continue
+                    if self.rsscrawler.get("surround"):
+                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
                             self.log_debug(
-                                "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                                post.title + " - Release ignoriert (kein Mehrkanalton)")
                             continue
-                        if self.rsscrawler.get("surround"):
-                            if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
-                                self.log_debug(
-                                    post.title + " - Release ignoriert (kein Mehrkanalton)")
+                    if self.filename == 'MB_Staffeln':
+                        ss = self.config.get('seasonsquality')
+                    elif 'Regex' not in self.filename:
+                        ss = self.config.get('quality')
+                    else:
+                        ss = False
+                    if self.filename == 'MB_Filme':
+                        if ss == "480p":
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
-                        ss = self.allInfos[key][0].lower()
-                        if self.filename == 'MB_Filme':
-                            if ss == "480p":
-                                if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
-                                    continue
-                                found = True
-                            else:
-                                found = re.search(ss, post.title.lower())
-                            if found:
-                                sss = r"[\.-]+" + self.allInfos[key][1].lower()
-                                found = re.search(sss, post.title.lower())
-                                if self.allInfos[key][2]:
-                                    found = all([word in post.title.lower()
-                                                 for word in self.allInfos[key][2]])
-                                if found:
-                                    episode = re.search(
-                                        r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                                    if episode:
-                                        self.log_debug(
-                                            "%s - Release ignoriert (Serienepisode)" % post.title)
-                                        continue
-                                    yield (post.title, content, key)
-                        elif self.filename == 'MB_3D':
-                            if '.3d.' in post.title.lower():
-                                if self.config.get('crawl3d') and (
-                                        "1080p" in post.title.lower() or "1080i" in post.title.lower()):
-                                    if not self.config.get("crawl3dtype"):
-                                        c3d_type = "hsbs"
-                                    else:
-                                        c3d_type = self.config.get("crawl3dtype")
-                                    if c3d_type == "hsbs":
-                                        if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                            self.log_debug(
-                                                "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                            continue
-                                    elif c3d_type == "hou":
-                                        if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                            self.log_debug(
-                                                "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                            continue
-                                    found = True
-                                else:
-                                    continue
-                            if found:
-                                sss = r"[\.-]+" + self.allInfos[key][1].lower()
-                                found = re.search(sss, post.title.lower())
-                                if self.allInfos[key][2]:
-                                    found = all([word in post.title.lower()
-                                                 for word in self.allInfos[key][2]])
-                                if found:
-                                    episode = re.search(
-                                        r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                                    if episode:
-                                        self.log_debug(
-                                            "%s - Release ignoriert (Serienepisode)" % post.title)
-                                        continue
-                                    yield (post.title, content, key)
-
-                        elif self.filename == 'MB_Staffeln':
-                            validsource = re.search(self.config.get(
-                                "seasonssource"), post.title.lower())
-                            if not validsource:
-                                self.log_debug(
-                                    post.title + " - Release hat falsche Quelle")
-                                continue
-                            if ".complete." not in post.title.lower():
-                                self.log_debug(
-                                    post.title + " - Staffel noch nicht komplett")
-                                continue
-                            season = re.search(r"\.s\d", post.title.lower())
-                            if not season:
-                                self.log_debug(
-                                    post.title + " - Release ist keine Staffel")
-                                continue
-                            if not self.config.get("seasonpacks"):
-                                staffelpack = re.search(
-                                    r"s\d.*(-|\.).*s\d", post.title.lower())
-                                if staffelpack:
-                                    self.log_debug(
-                                        "%s - Release ignoriert (Staffelpaket)" % post.title)
-                                    continue
-                            ss = self.allInfos[key][0].lower()
-
-                            if ss == "480p":
-                                if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
-                                    continue
-                                found = True
-                            else:
-                                found = re.search(ss, post.title.lower())
-                            if found:
-                                sss = r"[\.-]+" + self.allInfos[key][1].lower()
-                                found = re.search(sss, post.title.lower())
-
-                                if self.allInfos[key][2]:
-                                    found = all([word in post.title.lower()
-                                                 for word in self.allInfos[key][2]])
-                                if found:
-                                    episode = re.search(
-                                        r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                                    if episode:
-                                        self.log_debug(
-                                            "%s - Release ignoriert (Serienepisode)" % post.title)
-                                        continue
-                                    yield (post.title, content, key)
+                            found = True
                         else:
-                            yield (post.title, content, key)
+                            found = re.search(ss, post.title.lower())
+                        if found:
+                            if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
+                                continue
+                            episode = re.search(
+                                r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                            if episode:
+                                self.log_debug(
+                                    "%s - Release ignoriert (Serienepisode)" % post.title)
+                                continue
+                            yield (post.title, content)
+                    elif self.filename == 'MB_3D':
+                        if '.3d.' in post.title.lower():
+                            if self.config.get('crawl3d') and (
+                                    "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                                if not self.config.get("crawl3dtype"):
+                                    c3d_type = "hsbs"
+                                else:
+                                    c3d_type = self.config.get("crawl3dtype")
+                                if c3d_type == "hsbs":
+                                    if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
+                                elif c3d_type == "hou":
+                                    if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
+                                        self.log_debug(
+                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
+                                        continue
+                                found = True
+                            else:
+                                continue
+                        if found:
+                            if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
+                                continue
+                            episode = re.search(
+                                r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                            if episode:
+                                self.log_debug(
+                                    "%s - Release ignoriert (Serienepisode)" % post.title)
+                                continue
+                            yield (post.title, content)
+
+                    elif self.filename == 'MB_Staffeln':
+                        validsource = re.search(self.config.get(
+                            "seasonssource"), post.title.lower())
+                        if not validsource:
+                            self.log_debug(
+                                post.title + " - Release hat falsche Quelle")
+                            continue
+                        if ".complete." not in post.title.lower():
+                            self.log_debug(
+                                post.title + " - Staffel noch nicht komplett")
+                            continue
+                        season = re.search(r"\.s\d", post.title.lower())
+                        if not season:
+                            self.log_debug(
+                                post.title + " - Release ist keine Staffel")
+                            continue
+                        if not self.config.get("seasonpacks"):
+                            staffelpack = re.search(
+                                r"s\d.*(-|\.).*s\d", post.title.lower())
+                            if staffelpack:
+                                self.log_debug(
+                                    "%s - Release ignoriert (Staffelpaket)" % post.title)
+                                continue
+                        if self.filename == 'MB_Staffeln':
+                            ss = self.config.get('seasonsquality')
+                        elif 'Regex' not in self.filename:
+                            ss = self.config.get('quality')
+                        else:
+                            ss = False
+                        if ss == "480p":
+                            if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
+                                continue
+                            found = True
+                        else:
+                            found = re.search(ss, post.title.lower())
+                        if found:
+                            if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
+                                continue
+                            episode = re.search(
+                                r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
+                            if episode:
+                                self.log_debug(
+                                    "%s - Release ignoriert (Serienepisode)" % post.title)
+                                continue
+                            yield (post.title, content)
+                    else:
+                        yield (post.title, content)
 
     def dual_download(self, title):
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
@@ -500,7 +492,7 @@ class BL:
             self.log_debug(
                 "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
             return False
-        for (key, value, pattern) in self.dual_search(
+        for (key, value) in self.dual_search(
                 feedparser.parse(get_url(search_url, self.configfile, self.dbfile)),
                 feedsearch_title):
             download_links = self.get_download_links(value)
@@ -867,37 +859,31 @@ class BL:
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
                 return self.device
-            self.allInfos = dict(
-                set({key: value for (key, value) in self.get_patterns(
-                    self.read_input(self.filename),
-                    quality=self.config.get('seasonsquality'), rg='.*', sf='.complete.'
-                ).items()}.items()
-                    )
-            )
+            liste = self.get_movies_list(self.filename)
+            if liste:
+                self.pattern = r'(' + "|".join(liste).lower() + ').*'
         elif self.filename == 'MB_Regex':
             if not self.config.get('regex'):
+                self.log_debug(
+                    "Regex deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
                 return self.device
-            self.allInfos = dict(
-                set({key: value for (key, value) in self.get_patterns(
-                    self.read_input(self.filename)
-                ).items()}.items()
-                    ) if self.config.get('regex') else []
-            )
+            liste = self.get_movies_list(self.filename)
+            if liste:
+                self.pattern = r'(' + "|".join(liste).lower() + ').*'
         elif self.filename == "IMDB":
-            self.allInfos = self.filename
+            self.pattern = self.filename
         else:
             if self.filename == 'MB_3D':
                 if not self.config.get('crawl3d'):
+                    self.log_debug(
+                        "3D-Suche deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
                     return self.device
-            self.allInfos = dict(
-                set({key: value for (key, value) in self.get_patterns(
-                    self.read_input(self.filename), quality=self.config.get('quality'), rg='.*', sf=None
-                ).items()}.items()
-                    )
-            )
+            liste = self.get_movies_list(self.filename)
+            if liste:
+                self.pattern = r'(' + "|".join(liste).lower() + ').*'
         if self.filename != 'MB_Regex' and self.filename != 'IMDB':
             if self.historical:
-                for xline in self.allInfos.keys():
+                for xline in self.get_movies_list(self.filename):
                     if len(xline) > 0 and not xline.startswith("#"):
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
@@ -915,12 +901,12 @@ class BL:
             for URL in self.HW_FEED_URLS:
                 hw_urls.append(URL)
 
-        if self.filename != 'IMDB':
-            if self.empty_list:
-                self.log_debug(
-                    "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
-                return self.device
-        elif imdb == 0:
+        if not self.pattern:
+            self.log_debug(
+                "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
+            return self.device
+
+        if self.filename == 'IMDB' and imdb == 0:
             self.log_debug(
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
@@ -947,7 +933,7 @@ class BL:
             self.log_debug("Fehler beim Abruf von HW - breche Suche ab!")
 
         if not mb_304:
-            set_mbhw = str(self.settings) + str(self.allInfos)
+            set_mbhw = str(self.settings) + str(self.pattern)
             set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
             if self.last_set_mbhw == set_mbhw:
                 if not self.historical and first_mb.status_code == 304:
@@ -956,7 +942,7 @@ class BL:
                     self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
 
         if not hw_304:
-            set_mbhw = str(self.settings) + str(self.allInfos)
+            set_mbhw = str(self.settings) + str(self.pattern)
             set_mbhw = hashlib.sha256(set_mbhw.encode('ascii', 'ignore')).hexdigest()
             if self.last_set_mbhw == set_mbhw:
                 if not self.historical and first_hw.status_code == 304:
@@ -974,12 +960,12 @@ class BL:
             if self.filename != 'IMDB':
                 if not mb_304:
                     for i in first_page_mb.entries:
-                        concat_mb = i.title + i.published + str(self.settings) + str(self.allInfos)
+                        concat_mb = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
                 if not hw_304:
                     for i in first_page_mb.entries:
-                        concat_hw = i.title + i.published + str(self.settings) + str(self.allInfos)
+                        concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
             else:
@@ -1032,7 +1018,7 @@ class BL:
                     else:
                         mb_parsed_url = feedparser.parse(
                             get_url(url, self.configfile, self.dbfile))
-                    for (key, value, pattern) in self.feed_search(mb_parsed_url, "MB"):
+                    for (key, value) in self.feed_search(mb_parsed_url, "MB"):
                         found = self.feed_download(key, value, decode_base64("bW92aWUtYmxvZy5vcmc="))
                         if found:
                             for f in found:
@@ -1046,7 +1032,7 @@ class BL:
                     else:
                         hw_parsed_url = feedparser.parse(
                             get_url(url, self.configfile, self.dbfile))
-                    for (key, value, pattern) in self.feed_search(hw_parsed_url, "HW"):
+                    for (key, value) in self.feed_search(hw_parsed_url, "HW"):
                         found = self.feed_download(key, value, decode_base64("aGQtd29ybGQub3Jn"))
                         if found:
                             for f in found:
