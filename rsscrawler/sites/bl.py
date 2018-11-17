@@ -135,23 +135,25 @@ class BL:
         score = str(self.imdb)
         for post in feed.entries:
             if site == "MB":
-                if self.mb_done:
+                if self.i_mb_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
                     return added_items
             else:
-                if self.hw_done:
+                if self.i_hw_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
                     return added_items
+
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
-                self.log_debug(
-                    site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
                 if "MB" in site:
                     self.i_mb_done = True
-                    return added_items
                 elif "HW" in site:
                     self.i_hw_done = True
-                    return added_items
+
             content = post.content[0].value
             if "mkv" in content.lower():
                 post_imdb = re.findall(
@@ -364,23 +366,24 @@ class BL:
         for post in feed.entries:
             if site == "MB":
                 if self.mb_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
                     return added_items
             else:
                 if self.hw_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
                     return added_items
+
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
                 if not self.historical:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
                     if "MB" in site:
                         self.mb_done = True
-                        return added_items
                     elif "HW" in site:
                         self.hw_done = True
-                        return added_items
 
             found = re.search(s, post.title.lower())
 
