@@ -998,7 +998,7 @@ class BL:
                         sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
                 if not hw_304:
-                    for i in first_page_mb.entries:
+                    for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
@@ -1009,7 +1009,7 @@ class BL:
                         sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
                 if not hw_304:
-                    for i in first_page_mb.entries:
+                    for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
