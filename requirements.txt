@@ -5,7 +5,6 @@
 bs4
 cfscrape
 docopt
-fake-useragent
 feedparser
 flask
 fuzzywuzzy
