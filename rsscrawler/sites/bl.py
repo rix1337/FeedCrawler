@@ -343,6 +343,11 @@ class BL:
     def feed_search(self, feed, site):
         if not self.pattern:
             return
+        added_items = []
+        if "MB" in site:
+            password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        else:
+            password = decode_base64("aGQtd29ybGQub3Jn")
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -402,7 +407,10 @@ class BL:
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            yield (post.title, content)
+                            found = self.feed_download(post.title, content, password)
+                            if found:
+                                for i in found:
+                                    added_items.append(i)
                     elif self.filename == 'MB_3D':
                         if '.3d.' in post.title.lower():
                             if self.config.get('crawl3d') and (
@@ -433,7 +441,10 @@ class BL:
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            yield (post.title, content)
+                            found = self.feed_download(post.title, content, password)
+                            if found:
+                                for i in found:
+                                    added_items.append(i)
 
                     elif self.filename == 'MB_Staffeln':
                         validsource = re.search(self.config.get(
@@ -479,9 +490,16 @@ class BL:
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            yield (post.title, content)
+                            found = self.feed_download(post.title, content, password)
+                            if found:
+                                for i in found:
+                                    added_items.append(i)
                     else:
-                        yield (post.title, content)
+                        found = self.feed_download(post.title, content, password)
+                        if found:
+                            for i in found:
+                                added_items.append(i)
+        return added_items
 
     def dual_download(self, title):
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
@@ -1018,11 +1036,10 @@ class BL:
                     else:
                         mb_parsed_url = feedparser.parse(
                             get_url(url, self.configfile, self.dbfile))
-                    for (key, value) in self.feed_search(mb_parsed_url, "MB"):
-                        found = self.feed_download(key, value, decode_base64("bW92aWUtYmxvZy5vcmc="))
-                        if found:
-                            for f in found:
-                                added_items.append(f)
+                    found = self.feed_search(mb_parsed_url, "MB")
+                    if found:
+                        for f in found:
+                            added_items.append(f)
                     i += 1
             i = 0
             for url in hw_urls:
@@ -1032,11 +1049,10 @@ class BL:
                     else:
                         hw_parsed_url = feedparser.parse(
                             get_url(url, self.configfile, self.dbfile))
-                    for (key, value) in self.feed_search(hw_parsed_url, "HW"):
-                        found = self.feed_download(key, value, decode_base64("aGQtd29ybGQub3Jn"))
-                        if found:
-                            for f in found:
-                                added_items.append(f)
+                    found = self.feed_search(hw_parsed_url, "HW")
+                    if found:
+                        for f in found:
+                            added_items.append(f)
                     i += 1
 
         if set_mbhw:
