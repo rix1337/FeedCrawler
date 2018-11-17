@@ -28,7 +28,7 @@ class YT:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
-        self.liste = self.read_input(self.youtube)
+        self.liste = ""
 
     def read_input(self, liste):
         cont = ListDb(self.dbfile, liste).retrieve()
@@ -41,6 +41,8 @@ class YT:
         added_items = []
         channels = []
         videos = []
+
+        self.liste = self.read_input(self.youtube)
 
         if not self.liste:
             self.log_debug("Liste ist leer. Stoppe Suche für YouTube!")
