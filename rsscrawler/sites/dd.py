@@ -73,4 +73,6 @@ class DD:
                     else:
                         self.log_debug(
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
+        else:
+            self.log_debug("Liste ist leer. Stoppe Suche für DD!")
         return self.device
