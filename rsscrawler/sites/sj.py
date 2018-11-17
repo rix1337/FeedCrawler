@@ -58,15 +58,15 @@ class SJ:
             self.level = 0
 
         self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+        self.listtype = ""
 
     def get_series_list(self, liste, series_type):
-        loginfo = ""
         if series_type == 1:
-            loginfo = " (RegEx)"
+            self.listtype = " (RegEx)"
         elif series_type == 2:
-            loginfo = " (Staffeln)"
+            self.listtype = " (Staffeln)"
         elif series_type == 3:
-            loginfo = " (Staffeln/RegEx)"
+            self.listtype = " (Staffeln/RegEx)"
         cont = ListDb(self.dbfile, liste).retrieve()
         titles = []
         if cont:
@@ -75,14 +75,7 @@ class SJ:
                     title = title.replace(" ", ".")
                     titles.append(title)
         if not titles:
-            self.log_debug(
-                "Liste ist leer. Stoppe Suche für Serien!" + loginfo)
-            if series_type == 1:
-                self.empty_list = True
-            elif series_type == 2:
-                self.empty_list = True
-            else:
-                self.empty_list = True
+            self.empty_list = True
         return titles
 
     def range_checkr(self, link, title, language_ok):
@@ -231,6 +224,8 @@ class SJ:
                 self.log_debug("Suche für SJ-Staffeln deaktiviert!")
                 return self.device
         if self.empty_list:
+            self.log_debug(
+                "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
             return self.device
         try:
             reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
