@@ -276,11 +276,15 @@ class SJ:
                     self.dbfile))
             response = False
 
-        first_post_sj = feed.entries[0]
-        concat_sj = first_post_sj.title + first_post_sj.published + \
-                    str(self.settings) + str(self.pattern)
-        sha_sj = hashlib.sha256(concat_sj.encode(
-            'ascii', 'ignore')).hexdigest()
+        if feed.entries:
+            first_post_sj = feed.entries[0]
+            concat_sj = first_post_sj.title + first_post_sj.published + str(self.settings) + str(self.pattern)
+            sha_sj = hashlib.sha256(concat_sj.encode(
+                'ascii', 'ignore')).hexdigest()
+        else:
+            self.log_debug(
+                "Feed ist leer - breche  Suche ab!")
+            return False
 
         for post in feed.entries:
             if not post.link:
