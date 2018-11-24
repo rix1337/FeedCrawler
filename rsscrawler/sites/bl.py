@@ -9,6 +9,7 @@ import re
 
 import feedparser
 import six
+from bs4 import BeautifulSoup
 
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
@@ -100,6 +101,41 @@ class BL:
                     title = title.replace(" ", ".")
                     titles.append(title)
         return titles
+
+    def ha_to_feedparser_obj(self, url):
+        ha_soup = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
+        items_head = ha_soup.find_all("div", {"class": "topbox"})
+        items_download = ha_soup.find_all("div", {"class": "download"})
+
+        entries = []
+
+        i = 0
+        for item in items_head:
+            contents = item.contents
+            title = contents[1].a["title"]
+            published = contents[1].text.replace(title, "").replace("\n", "").replace("...", "")
+            content = []
+            imdb = contents[3]
+            content.append(str(imdb).replace("\n", ""))
+            download = items_download[i].find_all("span", {"style": "display:inline;"}, text=True)
+            for link in download:
+                link = link.a
+                text = link.text.strip()
+                if text:
+                    content.append(str(link))
+            content = "".join(content)
+
+            entries.append({
+                "title": title,
+                "published": published,
+                "content": [{
+                    "value": content}]
+            })
+
+            i += 1
+
+        feed = {"entries": entries}
+        return feed
 
     def get_download_links(self, content):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
