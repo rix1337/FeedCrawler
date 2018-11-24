@@ -15,7 +15,7 @@ from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
-from rsscrawler.fakefeed import ha_to_feedparser_obj
+from rsscrawler.fakefeed import ha_to_feedparser_dict
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -78,13 +78,14 @@ class BL:
 
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhwha = self.cdc.retrieve("MBHWSet-" + self.filename)
+        self.last_set_mbhwha = self.cdc.retrieve("MBHWHASet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
         self.headers_ha = {'If-Modified-Since': str(self.cdc.retrieve("HAHeaders-" + self.filename))}
 
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
+        self.last_sha_ha = self.cdc.retrieve("HA-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb", "hoster"]
         self.settings = []
@@ -94,6 +95,7 @@ class BL:
             self.settings.append(self.config.get(s))
         self.i_mb_done = False
         self.i_hw_done = False
+        self.i_ha_done = False
         self.mb_done = False
         self.hw_done = False
         self.ha_done = False
@@ -116,7 +118,7 @@ class BL:
 
     def ha_content_to_soup(self, url):
         content = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
-        return ha_to_feedparser_obj(content)
+        return ha_to_feedparser_dict(content)
 
     def get_download_links(self, content):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
@@ -124,7 +126,7 @@ class BL:
         for url_hoster in reversed(url_hosters):
             url = decode_base64("bW92aWUtYmxvZy50by8=")
             if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                hoster = url_hoster[1].lower().replace('target="_blank">', '')
+                hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
         return links.values() if six.PY2 else list(links.values())
@@ -154,22 +156,30 @@ class BL:
             if site == "MB":
                 if self.i_mb_done:
                     self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche MB-Suche ab!")
                     return added_items
-            else:
+            elif site == "HW":
                 if self.i_hw_done:
                     self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche Suche ab!")
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche HW-Suche ab!")
+                    return added_items
+            else:
+                if self.i_ha_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HA-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
+            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
+                    "HA" in site and sha == self.last_sha_ha):
                 if "MB" in site:
                     self.i_mb_done = True
                 elif "HW" in site:
                     self.i_hw_done = True
+                else:
+                    self.i_ha_done = True
 
             content = post.content[0].value
             if "mkv" in content.lower():
@@ -352,8 +362,10 @@ class BL:
                     if download_score > imdb:
                         if "MB" in site:
                             password = decode_base64("bW92aWUtYmxvZy5vcmc=")
-                        else:
+                        elif "HW" in site:
                             password = decode_base64("aGQtd29ybGQub3Jn")
+                        else:
+                            password = decode_base64("aGQtYXJlYS5vcmc=")
                         if '.3d.' not in post.title.lower():
                             found = self.imdb_download(
                                 post.title, download_pages, str(download_score), download_imdb, details, password)
@@ -371,8 +383,10 @@ class BL:
         added_items = []
         if "MB" in site:
             password = decode_base64("bW92aWUtYmxvZy5vcmc=")
-        else:
+        elif "HW" in site:
             password = decode_base64("aGQtd29ybGQub3Jn")
+        else:
+            password = decode_base64("aGQtYXJlYS5vcmc=")
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -384,23 +398,31 @@ class BL:
             if site == "MB":
                 if self.mb_done:
                     self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche MB-Suche ab!")
                     return added_items
-            else:
+            elif site == "HW":
                 if self.hw_done:
                     self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche Suche ab!")
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HW-Suche ab!")
+                    return added_items
+            else:
+                if self.ha_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HA-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
+            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
+                    "HA" in site and sha == self.last_sha_ha):
                 if not self.historical:
                     if "MB" in site:
                         self.mb_done = True
                     elif "HW" in site:
                         self.hw_done = True
+                    else:
+                        self.ha_done = True
 
             found = re.search(s, post.title.lower())
 
@@ -534,6 +556,7 @@ class BL:
         return added_items
 
     def dual_download(self, title):
+        # TODO this needs to work for HW and HA as well
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
                                                                                                                  "+")
         search_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/"
@@ -990,7 +1013,7 @@ class BL:
         ha_304 = False
         try:
             first_ha = get_url_headers(ha_urls[0], self.configfile, self.dbfile, self.headers_ha)
-            first_page_ha = ha_to_feedparser_obj(BeautifulSoup(first_ha.content, 'lxml'))
+            first_page_ha = ha_to_feedparser_dict(BeautifulSoup(first_ha.content, 'lxml'))
             if first_ha.status_code == 304:
                 hw_304 = True
         except:
@@ -1044,6 +1067,11 @@ class BL:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
+                if not ha_304:
+                    for i in first_page_ha.entries:
+                        concat_ha = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_ha = hashlib.sha256(concat_ha.encode('ascii', 'ignore')).hexdigest()
+                        break
             else:
                 if not mb_304:
                     for i in first_page_mb.entries:
@@ -1054,6 +1082,11 @@ class BL:
                     for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
+                        break
+                if not ha_304:
+                    for i in first_page_ha.entries:
+                        concat_ha = i.title + i.published + str(self.settings) + str(self.imdb)
+                        sha_ha = hashlib.sha256(concat_ha.encode('ascii', 'ignore')).hexdigest()
                         break
 
         added_items = []
@@ -1081,6 +1114,18 @@ class BL:
                             hw_parsed_url = feedparser.parse(
                                 get_url(url, self.configfile, self.dbfile))
                         found = self.imdb_search(imdb, hw_parsed_url, "HW")
+                        if found:
+                            for f in found:
+                                added_items.append(f)
+                        i += 1
+                i = 0
+                for url in ha_urls:
+                    if not self.i_ha_done:
+                        if i == 0:
+                            ha_parsed_url = first_page_ha
+                        else:
+                            ha_parsed_url = self.ha_content_to_soup(url)
+                        found = self.imdb_search(imdb, ha_parsed_url, "HA")
                         if found:
                             for f in found:
                                 added_items.append(f)
@@ -1126,8 +1171,8 @@ class BL:
                     i += 1
 
         if set_mbhwha:
-            self.cdc.delete("MBHWSet-" + self.filename)
-            self.cdc.store("MBHWSet-" + self.filename, set_mbhwha)
+            self.cdc.delete("MBHWHASet-" + self.filename)
+            self.cdc.store("MBHWHASet-" + self.filename, set_mbhwha)
         if sha_mb:
             if not self.dl_unsatisfied:
                 self.cdc.delete("MB-" + self.filename)

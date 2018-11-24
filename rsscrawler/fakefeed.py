@@ -11,9 +11,9 @@ class FakeFeedParserDict(dict):
             raise AttributeError("No such attribute: " + name)
 
 
-def ha_to_feedparser_obj(content):
-    items_head = content.find_all("div", {"class": "topbox"})
-    items_download = content.find_all("div", {"class": "download"})
+def ha_to_feedparser_dict(beautifulsoup_object):
+    items_head = beautifulsoup_object.find_all("div", {"class": "topbox"})
+    items_download = beautifulsoup_object.find_all("div", {"class": "download"})
 
     entries = []
 
@@ -24,21 +24,22 @@ def ha_to_feedparser_obj(content):
         published = contents[1].text.replace(title, "").replace("\n", "").replace("...", "")
         content = []
         imdb = contents[3]
-        content.append(str(imdb).replace("\n", ""))
+        content.append(str(imdb).replace("http://dontknow.me/at/?", "").replace("\n", ""))
         download = items_download[i].find_all("span", {"style": "display:inline;"}, text=True)
         for link in download:
             link = link.a
             text = link.text.strip()
             if text:
                 content.append(str(link))
+        content.append("<span>mkv</span>")
         content = "".join(content)
 
-        entries.append({
+        entries.append(FakeFeedParserDict({
             "title": title,
             "published": published,
-            "content": [{
-                "value": content}]
-        })
+            "content": [FakeFeedParserDict({
+                "value": content})]
+        }))
 
         i += 1
 
