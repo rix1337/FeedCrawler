@@ -15,6 +15,7 @@ from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
+from rsscrawler.fakefeed import ha_search_to_feedparser_dict
 from rsscrawler.fakefeed import ha_to_feedparser_dict
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
@@ -116,9 +117,23 @@ class BL:
                     titles.append(title)
         return titles
 
-    def ha_content_to_soup(self, url):
+    def ha_url_to_soup(self, url):
         content = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
         return ha_to_feedparser_dict(content)
+
+    def ha_search_to_soup(self, url):
+        # TODO solve pagination
+        search = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
+        results = search.find("div", {"id": "content"}).find_all("a")
+        content = []
+        for r in results:
+            title = r["title"]
+            details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
+            content.append({
+                "key": title,
+                "value": details
+            })
+        return ha_search_to_feedparser_dict(content)
 
     def get_download_links(self, content):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
@@ -556,96 +571,102 @@ class BL:
         return added_items
 
     def dual_download(self, title):
-        # TODO this needs to work for HW and HA as well
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
                                                                                                                  "+")
-        search_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/"
         feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
-        if '.dl.' not in feedsearch_title.lower():
-            self.log_debug(
-                "%s - Release ignoriert (nicht zweisprachig, da wahrscheinlich nicht Retail)" % feedsearch_title)
-            return False
-        for (key, value) in self.dual_search(
-                feedparser.parse(get_url(search_url, self.configfile, self.dbfile)),
-                feedsearch_title):
-            download_links = self.get_download_links(value)
-            if download_links:
-                for download_link in download_links:
-                    if decode_base64("bW92aWUtYmxvZy50by8=") in download_link:
-                        self.log_debug("Fake-Link erkannt!")
-                        break
-                if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl' or str(
-                        self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
-                    self.log_debug(
-                        "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
-                    return True
-                elif self.filename == 'MB_Filme' or 'IMDB':
-                    retail = False
-                    if self.config.get('cutoff'):
-                        if self.config.get('enforcedl'):
-                            if cutoff(key, '1', self.dbfile):
+        search_results = []
+        search_results.append(feedparser.parse(
+            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
+                    self.configfile, self.dbfile)))
+        search_results.append(feedparser.parse(
+            get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
+                    self.configfile, self.dbfile)))
+        search_results.append(
+            self.ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title))
+
+        for content in search_results:
+            for (key, value) in self.dual_search(content, feedsearch_title):
+                download_links = self.get_download_links(value)
+                if download_links:
+                    for download_link in download_links:
+                        if decode_base64("bW92aWUtYmxvZy50by8=") in download_link:
+                            self.log_debug("Fake-Link erkannt!")
+                            break
+                    if str(self.db.retrieve(key)) == 'added' or str(self.db.retrieve(key)) == 'dl' or str(
+                            self.db.retrieve(key.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                        self.log_debug(
+                            "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                        return True
+                    elif self.filename == 'MB_Filme' or 'IMDB':
+                        retail = False
+                        if self.config.get('cutoff'):
+                            if self.config.get('enforcedl'):
+                                if cutoff(key, '1', self.dbfile):
+                                    retail = True
+                            else:
+                                if cutoff(key, '0', self.dbfile):
+                                    retail = True
+                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                                                    download_links,
+                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                        if self.device:
+                            self.db.store(
+                                key,
+                                'dl' if self.config.get(
+                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                            )
+                            log_entry = '[Film] - ' + (
+                                'Retail/' if retail else "") + 'Zweisprachig - ' + key
+                            self.log_info(log_entry)
+                            notify([log_entry], self.configfile)
+                            return log_entry
+                    elif self.filename == 'MB_3D':
+                        retail = False
+                        if self.config.get('cutoff'):
+                            if cutoff(key, '2', self.dbfile):
                                 retail = True
-                        else:
-                            if cutoff(key, '0', self.dbfile):
-                                retail = True
-                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
-                    if self.device:
-                        self.db.store(
-                            key,
-                            'dl' if self.config.get(
-                                'enforcedl') and '.dl.' in key.lower() else 'added'
-                        )
-                        log_entry = '[Film] - ' + (
-                            'Retail/' if retail else "") + 'Zweisprachig - ' + key
-                        self.log_info(log_entry)
-                        notify([log_entry], self.configfile)
-                        return log_entry
-                elif self.filename == 'MB_3D':
-                    retail = False
-                    if self.config.get('cutoff'):
-                        if cutoff(key, '2', self.dbfile):
-                            retail = True
-                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
-                                                download_links,
-                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
-                    if self.device:
-                        self.db.store(
-                            key,
-                            'dl' if self.config.get(
-                                'enforcedl') and '.dl.' in key.lower() else 'added'
-                        )
-                        log_entry = '[Film] - ' + (
-                            'Retail/' if retail else "") + '3D/Zweisprachig - ' + key
-                        self.log_info(log_entry)
-                        notify([log_entry], self.configfile)
-                        return log_entry
-                elif self.filename == 'MB_Regex':
-                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
-                    if self.device:
-                        self.db.store(
-                            key,
-                            'dl' if self.config.get(
-                                'enforcedl') and '.dl.' in key.lower() else 'added'
-                        )
-                        log_entry = '[Film/Serie/RegEx] - Zweisprachig - ' + key
-                        self.log_info(log_entry)
-                        notify([log_entry], self.configfile)
-                        return log_entry
-                else:
-                    self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux", download_links,
-                                                decode_base64("bW92aWUtYmxvZy5vcmc="))
-                    if self.device:
-                        self.db.store(
-                            key,
-                            'dl' if self.config.get(
-                                'enforcedl') and '.dl.' in key.lower() else 'added'
-                        )
-                        log_entry = '[Staffel] - Zweisprachig - ' + key
-                        self.log_info(log_entry)
-                        notify([log_entry], self.configfile)
-                        return log_entry
+                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
+                                                    download_links,
+                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                        if self.device:
+                            self.db.store(
+                                key,
+                                'dl' if self.config.get(
+                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                            )
+                            log_entry = '[Film] - ' + (
+                                'Retail/' if retail else "") + '3D/Zweisprachig - ' + key
+                            self.log_info(log_entry)
+                            notify([log_entry], self.configfile)
+                            return log_entry
+                    elif self.filename == 'MB_Regex':
+                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                                                    download_links,
+                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                        if self.device:
+                            self.db.store(
+                                key,
+                                'dl' if self.config.get(
+                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                            )
+                            log_entry = '[Film/Serie/RegEx] - Zweisprachig - ' + key
+                            self.log_info(log_entry)
+                            notify([log_entry], self.configfile)
+                            return log_entry
+                    else:
+                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                                                    download_links,
+                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                        if self.device:
+                            self.db.store(
+                                key,
+                                'dl' if self.config.get(
+                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                            )
+                            log_entry = '[Staffel] - Zweisprachig - ' + key
+                            self.log_info(log_entry)
+                            notify([log_entry], self.configfile)
+                            return log_entry
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password):
         if download_links:
@@ -1124,7 +1145,7 @@ class BL:
                         if i == 0:
                             ha_parsed_url = first_page_ha
                         else:
-                            ha_parsed_url = self.ha_content_to_soup(url)
+                            ha_parsed_url = self.ha_url_to_soup(url)
                         found = self.imdb_search(imdb, ha_parsed_url, "HA")
                         if found:
                             for f in found:
@@ -1163,7 +1184,7 @@ class BL:
                     if not self.historical and i == 0:
                         ha_parsed_url = first_page_ha
                     else:
-                        ha_parsed_url = self.ha_content_to_soup(url)
+                        ha_parsed_url = self.ha_url_to_soup(url)
                     found = self.feed_search(ha_parsed_url, "HA")
                     if found:
                         for f in found:
