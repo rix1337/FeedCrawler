@@ -125,6 +125,7 @@ class BL:
         content = []
         search = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
         results = search.find("div", {"id": "content"}).find_all("a")
+        pagination = False
         for r in results:
             try:
                 title = r["title"]
@@ -133,7 +134,6 @@ class BL:
                     "key": title,
                     "value": details
                 })
-                pagination = False
             except:
                 pagination = r["href"]
         if pagination:
@@ -141,6 +141,7 @@ class BL:
             while i > 0:
                 search = BeautifulSoup(get_url(pagination, self.configfile, self.dbfile), 'lxml')
                 results = search.find("div", {"id": "content"}).find_all("a")
+                more_pages = False
                 for r in results:
                     try:
                         title = r["title"]
@@ -149,7 +150,6 @@ class BL:
                             "key": title,
                             "value": details
                         })
-                        more_pages = False
                     except:
                         more_pages = r["href"]
                 if not more_pages:
@@ -1008,7 +1008,7 @@ class BL:
                         mb_urls.append(
                             decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/%s/feed/rss2/' % xn)
                         hw_urls.append(decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
-                        # TODO search handling for HA
+                        ha_urls.append(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
@@ -1035,34 +1035,37 @@ class BL:
             return self.device
 
         mb_304 = False
-        try:
-            first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
-            first_page_mb = feedparser.parse(first_mb.content)
-            if first_mb.status_code == 304:
+        if not self.historical:
+            try:
+                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
+                first_page_mb = feedparser.parse(first_mb.content)
+                if first_mb.status_code == 304:
+                    mb_304 = True
+            except:
                 mb_304 = True
-        except:
-            mb_304 = True
-            self.log_debug("Fehler beim Abruf von MB - breche MB-Suche ab!")
+                self.log_debug("Fehler beim Abruf von MB - breche MB-Suche ab!")
 
         hw_304 = False
-        try:
-            first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
-            first_page_hw = feedparser.parse(first_hw.content)
-            if first_hw.status_code == 304:
+        if not self.historical:
+            try:
+                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
+                first_page_hw = feedparser.parse(first_hw.content)
+                if first_hw.status_code == 304:
+                    hw_304 = True
+            except:
                 hw_304 = True
-        except:
-            hw_304 = True
-            self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
+                self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
 
         ha_304 = False
-        try:
-            first_ha = get_url_headers(ha_urls[0], self.configfile, self.dbfile, self.headers_ha)
-            first_page_ha = ha_to_feedparser_dict(BeautifulSoup(first_ha.content, 'lxml'))
-            if first_ha.status_code == 304:
+        if not self.historical:
+            try:
+                first_ha = get_url_headers(ha_urls[0], self.configfile, self.dbfile, self.headers_ha)
+                first_page_ha = ha_to_feedparser_dict(BeautifulSoup(first_ha.content, 'lxml'))
+                if first_ha.status_code == 304:
+                    hw_304 = True
+            except:
                 hw_304 = True
-        except:
-            hw_304 = True
-            self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
+                self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
 
         if not mb_304:
             set_mbhwha = str(self.settings) + str(self.pattern)
@@ -1207,7 +1210,10 @@ class BL:
                     if not self.historical and i == 0:
                         ha_parsed_url = first_page_ha
                     else:
-                        ha_parsed_url = self.ha_url_to_soup(url)
+                        if "search" not in url:
+                            ha_parsed_url = self.ha_url_to_soup(url)
+                        else:
+                            ha_parsed_url = self.ha_search_to_soup(url)
                     found = self.feed_search(ha_parsed_url, "HA")
                     if found:
                         for f in found:
