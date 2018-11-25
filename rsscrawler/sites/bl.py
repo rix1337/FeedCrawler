@@ -15,8 +15,9 @@ from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
-from rsscrawler.fakefeed import ha_search_to_feedparser_dict
+from rsscrawler.fakefeed import ha_search_to_soup
 from rsscrawler.fakefeed import ha_to_feedparser_dict
+from rsscrawler.fakefeed import ha_url_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -116,47 +117,6 @@ class BL:
                     title = title.replace(" ", ".")
                     titles.append(title)
         return titles
-
-    def ha_url_to_soup(self, url):
-        content = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
-        return ha_to_feedparser_dict(content)
-
-    def ha_search_to_soup(self, url):
-        content = []
-        search = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
-        results = search.find("div", {"id": "content"}).find_all("a")
-        pagination = False
-        for r in results:
-            try:
-                title = r["title"]
-                details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
-                content.append({
-                    "key": title,
-                    "value": details
-                })
-            except:
-                pagination = r["href"]
-        if pagination:
-            i = 3
-            while i > 0:
-                search = BeautifulSoup(get_url(pagination, self.configfile, self.dbfile), 'lxml')
-                results = search.find("div", {"id": "content"}).find_all("a")
-                more_pages = False
-                for r in results:
-                    try:
-                        title = r["title"]
-                        details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
-                        content.append({
-                            "key": title,
-                            "value": details
-                        })
-                    except:
-                        more_pages = r["href"]
-                if not more_pages:
-                    break
-                i -= 1
-
-        return ha_search_to_feedparser_dict(content)
 
     def get_download_links(self, content):
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
@@ -593,7 +553,7 @@ class BL:
                                 added_items.append(i)
         return added_items
 
-    def dual_download(self, title):
+    def dual_download(self, title, password):
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
                                                                                                                  "+")
         feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
@@ -605,7 +565,8 @@ class BL:
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)))
         search_results.append(
-            self.ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title))
+            ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title,
+                              self.configfile, self.dbfile))
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):
@@ -631,7 +592,7 @@ class BL:
                                     retail = True
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -650,7 +611,7 @@ class BL:
                                 retail = True
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -665,7 +626,7 @@ class BL:
                     elif self.filename == 'MB_Regex':
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -679,7 +640,7 @@ class BL:
                     else:
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -735,7 +696,7 @@ class BL:
                     self.log_debug(
                         "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
-                    dual_found = self.dual_download(key)
+                    dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
                     elif not dual_found and not englisch:
@@ -857,7 +818,7 @@ class BL:
                             self.log_debug(
                                 "%s - Keine passende Film-IMDB-Seite gefunden" % key)
                 if not imdb_id:
-                    dual_found = self.dual_download(key)
+                    dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
                     else:
@@ -880,7 +841,7 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
-                        dual_found = self.dual_download(key)
+                        dual_found = self.dual_download(key, password)
                         if dual_found:
                             added_items.append(dual_found)
                         elif not dual_found and not englisch:
@@ -1067,6 +1028,8 @@ class BL:
                 hw_304 = True
                 self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
 
+        set_mbhwha = False
+
         if not mb_304:
             set_mbhwha = str(self.settings) + str(self.pattern)
             set_mbhwha = hashlib.sha256(set_mbhwha.encode('ascii', 'ignore')).hexdigest()
@@ -1142,7 +1105,7 @@ class BL:
                 i = 0
                 for url in mb_urls:
                     if not self.i_mb_done:
-                        if i == 0:
+                        if not self.historical and i == 0:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(
@@ -1155,7 +1118,7 @@ class BL:
                 i = 0
                 for url in hw_urls:
                     if not self.i_hw_done:
-                        if i == 0:
+                        if not self.historical and i == 0:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(
@@ -1168,10 +1131,10 @@ class BL:
                 i = 0
                 for url in ha_urls:
                     if not self.i_ha_done:
-                        if i == 0:
+                        if not self.historical and i == 0:
                             ha_parsed_url = first_page_ha
                         else:
-                            ha_parsed_url = self.ha_url_to_soup(url)
+                            ha_parsed_url = ha_url_to_soup(url, self.configfile, self.dbfile)
                         found = self.imdb_search(imdb, ha_parsed_url, "HA")
                         if found:
                             for f in found:
@@ -1211,9 +1174,9 @@ class BL:
                         ha_parsed_url = first_page_ha
                     else:
                         if "search" not in url:
-                            ha_parsed_url = self.ha_url_to_soup(url)
+                            ha_parsed_url = ha_url_to_soup(url, self.configfile, self.dbfile)
                         else:
-                            ha_parsed_url = self.ha_search_to_soup(url)
+                            ha_parsed_url = ha_search_to_soup(url, self.configfile, self.dbfile)
                     found = self.feed_search(ha_parsed_url, "HA")
                     if found:
                         for f in found:
@@ -1244,7 +1207,7 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HA-CDC!")
-        if not mb_304:
+        if not mb_304 and not self.historical:
             try:
                 header = first_mb.headers['Last-Modified']
             except KeyError:
@@ -1252,7 +1215,7 @@ class BL:
             if header:
                 self.cdc.delete("MBHeaders-" + self.filename)
                 self.cdc.store("MBHeaders-" + self.filename, header)
-        if not hw_304:
+        if not hw_304 and not self.historical:
             try:
                 header = first_hw.headers['Last-Modified']
             except KeyError:
@@ -1260,7 +1223,7 @@ class BL:
             if header:
                 self.cdc.delete("HWHeaders-" + self.filename)
                 self.cdc.store("HWHeaders-" + self.filename, header)
-        if not ha_304:
+        if not ha_304 and not self.historical:
             try:
                 header = first_ha.headers['Last-Modified']
             except KeyError:

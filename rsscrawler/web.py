@@ -373,8 +373,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def download_movie(title):
         global device
         if request.method == 'POST':
-            best_result = search.best_result_mb(title, configfile, dbfile)
-            if best_result and search.mb(best_result, device, configfile, dbfile):
+            best_result = search.best_result_bl(title, configfile, dbfile)
+            if best_result and search.download_bl(best_result, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -392,18 +392,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             special = None
         if request.method == 'POST':
             best_result = search.best_result_sj(title, configfile, dbfile)
-            if best_result and search.sj(best_result, special, device, configfile, dbfile):
+            if best_result and search.download_sj(best_result, special, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/download_mb/<permalink>", methods=['POST'])
-    def download_mb(permalink):
+    @app.route(prefix + "/api/download_bl/<permalink>", methods=['POST'])
+    def download_bl(permalink):
         global device
         if request.method == 'POST':
-            if search.mb(permalink, device, configfile, dbfile):
+            if search.download_bl(permalink, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -419,7 +419,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         if special == "null":
             special = None
         if request.method == 'POST':
-            if search.sj(sj_id, special, device, configfile, dbfile):
+            if search.download_sj(sj_id, special, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
