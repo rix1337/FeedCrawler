@@ -16,6 +16,7 @@ except ImportError:
     from HTMLParser import HTMLParser
 
 from rsscrawler.common import decode_base64
+from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
 from rsscrawler.common import cutoff
 from rsscrawler.myjd import myjd_download
@@ -26,6 +27,7 @@ from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
 from rsscrawler.url import post_url
 from rsscrawler.sites.bl import BL
+from rsscrawler.fakefeed import ha_search_results
 
 
 def get(title, configfile, dbfile):
@@ -41,33 +43,37 @@ def get(title, configfile, dbfile):
         special = split[1].upper()
     else:
         special = None
-    config = RssConfig('MB', configfile)
-    quality = config.get('quality')
+
     query = title.replace(".", " ").replace(" ", "+")
     if special:
-        mb_query = query + "+" + special
+        bl_query = query + "+" + special
     else:
-        mb_query = query
-    mb_search = get_url(
-        decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + mb_query + "+" + quality + '/feed/rss2/',
-        configfile, dbfile)
-    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
+        bl_query = query
 
     unrated = []
+
+    mb_search = get_url(
+        decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + '/feed/rss2/',
+        configfile, dbfile)
+    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
     for result in mb_results:
         if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
             unrated.append(
-                [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
+                [rate(result[0], configfile), encode_base64(result[1]), result[0] + " (MB)"])
 
-    if config.get("crawl3d"):
-        mb_search = get_url(
-            decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + mb_query + "+3D+1080p" + '/feed/rss2/',
-            configfile, dbfile)
-        mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
-        for result in mb_results:
-            if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
-                unrated.append(
-                    [rate(result[0], configfile), result[1].replace("/", "+"), result[0]])
+    hw_search = get_url(
+        decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+" + '/feed/rss2/',
+        configfile, dbfile)
+    hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', hw_search)
+    for result in hw_results:
+        unrated.append(
+            [rate(result[0], configfile), encode_base64(result[1]), result[0] + " (HW)"])
+
+    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query
+    ha_results = ha_search_results(ha_search, configfile, dbfile)
+    for result in ha_results:
+        unrated.append(
+            [rate(result[0], configfile), encode_base64(result[1]), result[0] + " (HA)"])
 
     rated = sorted(unrated, reverse=True)
 
@@ -167,7 +173,7 @@ def html_to_str(unescape):
     return HTMLParser().unescape(unescape)
 
 
-def best_result_mb(title, configfile, dbfile):
+def best_result_bl(title, configfile, dbfile):
     title = sanitize(title)
     try:
         mb_results = get(title, configfile, dbfile)[0]
@@ -272,21 +278,35 @@ def best_result_sj(title, configfile, dbfile):
     return best_id
 
 
-def mb(link, device, configfile, dbfile):
-    link = link.replace("+", "/")
-    url = get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cub3JnLw==") + link, configfile, dbfile)
+def download_bl(link, device, configfile, dbfile):
+    # TODO set password correctly
+    link = decode_base64(link)
+    url = get_url(link, configfile, dbfile)
     config = RssConfig('MB', configfile)
     hoster = re.compile(config.get('hoster'))
     db = RssDb(dbfile, 'rsscrawler')
 
     soup = BeautifulSoup(url, 'lxml')
     download = soup.find("div", {"id": "content"})
-    key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
-    url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+    try:
+        key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
+        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+    except:
+        items_head = soup.find("div", {"class": "topbox"})
+        key = items_head.contents[1].a["title"]
+        items_download = soup.find("div", {"class": "download"})
+        url_hosters = []
+        download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
+        for link in download:
+            link = link.a
+            text = link.text.strip()
+            if text:
+                url_hosters.append([str(link["href"]), str(text)])
+
     links = {}
     for url_hoster in reversed(url_hosters):
         if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-            link_hoster = url_hoster[1].lower().replace('target="_blank">', '')
+            link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
     download_links = links.values() if six.PY2 else list(links.values())
@@ -428,7 +448,7 @@ def mb(link, device, configfile, dbfile):
         return False
 
 
-def sj(sj_id, special, device, configfile, dbfile):
+def download_sj(sj_id, special, device, configfile, dbfile):
     url = get_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(sj_id), configfile, dbfile)
     season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     season_links = re.findall(

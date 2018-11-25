@@ -266,7 +266,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function downloadMB(link) {
-        $http.post('api/download_mb/' + link)
+        $http.post('api/download_bl/' + link)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
@@ -356,8 +356,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 getMyJDstate();
                 if (bl) {
                     console.log('Download pausiert!');
-                }
-                else {
+                } else {
                     console.log('Download fortgesetzt!');
                 }
             }, function (res) {

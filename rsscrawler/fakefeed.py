@@ -3,6 +3,11 @@
 # Projekt von https://github.com/rix1337
 
 
+from bs4 import BeautifulSoup
+
+from rsscrawler.url import get_url
+
+
 class FakeFeedParserDict(dict):
     def __getattr__(self, name):
         if name in self:
@@ -83,3 +88,58 @@ def ha_search_to_feedparser_dict(beautifulsoup_object_list):
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def ha_url_to_soup(url, configfile, dbfile):
+    content = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    return ha_to_feedparser_dict(content)
+
+
+def ha_search_to_soup(url, configfile, dbfile):
+    content = []
+    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    results = search.find("div", {"id": "content"}).find_all("a")
+    pagination = False
+    for r in results:
+        try:
+            title = r["title"]
+            details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
+            content.append({
+                "key": title,
+                "value": details
+            })
+        except:
+            pagination = r["href"]
+    if pagination:
+        i = 3
+        while i > 0:
+            search = BeautifulSoup(get_url(pagination, configfile, dbfile), 'lxml')
+            results = search.find("div", {"id": "content"}).find_all("a")
+            more_pages = False
+            for r in results:
+                try:
+                    title = r["title"]
+                    details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
+                    content.append({
+                        "key": title,
+                        "value": details
+                    })
+                except:
+                    more_pages = r["href"]
+            if not more_pages:
+                break
+            i -= 1
+
+    return ha_search_to_feedparser_dict(content)
+
+
+def ha_search_results(url, configfile, dbfile):
+    content = []
+    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    results = search.find("div", {"id": "content"}).find_all("a")
+    for r in results:
+        try:
+            content.append((r["title"], r["href"]))
+        except:
+            break
+    return content
