@@ -553,8 +553,7 @@ class BL:
                                 added_items.append(i)
         return added_items
 
-    def dual_download(self, title):
-        # TODO set password correctly
+    def dual_download(self, title, password):
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
                                                                                                                  "+")
         feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
@@ -593,7 +592,7 @@ class BL:
                                     retail = True
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -612,7 +611,7 @@ class BL:
                                 retail = True
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -627,7 +626,7 @@ class BL:
                     elif self.filename == 'MB_Regex':
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -641,7 +640,7 @@ class BL:
                     else:
                         self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
-                                                    decode_base64("bW92aWUtYmxvZy5vcmc="))
+                                                    password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -697,7 +696,7 @@ class BL:
                     self.log_debug(
                         "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
-                    dual_found = self.dual_download(key)
+                    dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
                     elif not dual_found and not englisch:
@@ -819,7 +818,7 @@ class BL:
                             self.log_debug(
                                 "%s - Keine passende Film-IMDB-Seite gefunden" % key)
                 if not imdb_id:
-                    dual_found = self.dual_download(key)
+                    dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
                     else:
@@ -842,7 +841,7 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                     else:
-                        dual_found = self.dual_download(key)
+                        dual_found = self.dual_download(key, password)
                         if dual_found:
                             added_items.append(dual_found)
                         elif not dual_found and not englisch:

@@ -613,7 +613,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function spinSearch() {
-        $("#spinner-search").fadeIn().delay(1000).fadeOut();
+        $("#spinner-search").fadeIn().delay(5000).fadeOut();
     }
 
     function spinLog() {
