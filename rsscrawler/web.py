@@ -757,7 +757,7 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
 
     if log_level == 10:
         logfile_debug = logging.handlers.RotatingFileHandler(
-            log_file.replace("RSScrawler.log", "RSScrawler_DEBUG.log"), maxBytes=100000, backupCount=5)
+            log_file.replace("RSScrawler.log", "RSScrawler_DEBUG.log"))
         logfile_debug.setFormatter(formatter)
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)

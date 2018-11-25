@@ -122,17 +122,40 @@ class BL:
         return ha_to_feedparser_dict(content)
 
     def ha_search_to_soup(self, url):
-        # TODO solve pagination
+        content = []
         search = BeautifulSoup(get_url(url, self.configfile, self.dbfile), 'lxml')
         results = search.find("div", {"id": "content"}).find_all("a")
-        content = []
         for r in results:
-            title = r["title"]
-            details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
-            content.append({
-                "key": title,
-                "value": details
-            })
+            try:
+                title = r["title"]
+                details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
+                content.append({
+                    "key": title,
+                    "value": details
+                })
+                pagination = False
+            except:
+                pagination = r["href"]
+        if pagination:
+            i = 3
+            while i > 0:
+                search = BeautifulSoup(get_url(pagination, self.configfile, self.dbfile), 'lxml')
+                results = search.find("div", {"id": "content"}).find_all("a")
+                for r in results:
+                    try:
+                        title = r["title"]
+                        details = BeautifulSoup(get_url(r["href"], self.configfile, self.dbfile), 'lxml')
+                        content.append({
+                            "key": title,
+                            "value": details
+                        })
+                        more_pages = False
+                    except:
+                        more_pages = r["href"]
+                if not more_pages:
+                    break
+                i -= 1
+
         return ha_search_to_feedparser_dict(content)
 
     def get_download_links(self, content):
