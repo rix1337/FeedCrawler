@@ -98,37 +98,18 @@ def ha_url_to_soup(url, configfile, dbfile):
 def ha_search_to_soup(url, configfile, dbfile):
     content = []
     search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
-    results = search.find("div", {"id": "content"}).find_all("a")
-    pagination = False
-    for r in results:
-        try:
-            title = r["title"]
-            details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
-            content.append({
-                "key": title,
-                "value": details
-            })
-        except:
-            pagination = r["href"]
-    if pagination:
-        i = 3
-        while i > 0:
-            search = BeautifulSoup(get_url(pagination, configfile, dbfile), 'lxml')
-            results = search.find("div", {"id": "content"}).find_all("a")
-            more_pages = False
-            for r in results:
-                try:
-                    title = r["title"]
-                    details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
-                    content.append({
-                        "key": title,
-                        "value": details
-                    })
-                except:
-                    more_pages = r["href"]
-            if not more_pages:
-                break
-            i -= 1
+    if search:
+        results = search.find("div", {"id": "content"}).find_all("a")
+        for r in results:
+            try:
+                title = r["title"]
+                details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
+                content.append({
+                    "key": title,
+                    "value": details
+                })
+            except:
+                pagination = r["href"]
 
     return ha_search_to_feedparser_dict(content)
 
@@ -136,10 +117,11 @@ def ha_search_to_soup(url, configfile, dbfile):
 def ha_search_results(url, configfile, dbfile):
     content = []
     search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
-    results = search.find("div", {"id": "content"}).find_all("a")
-    for r in results:
-        try:
-            content.append((r["title"], r["href"]))
-        except:
-            break
+    if search:
+        results = search.find("div", {"id": "content"}).find_all("a")
+        for r in results:
+            try:
+                content.append((r["title"], r["href"]))
+            except:
+                break
     return content

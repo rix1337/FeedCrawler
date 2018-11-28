@@ -3,30 +3,26 @@
 # Projekt von https://github.com/rix1337
 
 import re
+from distutils.version import StrictVersion as version
 
+from bs4 import BeautifulSoup
 from six.moves.urllib.request import urlopen
 
 
 def get_version():
-    return "v.5.3.2"
+    return "v.5.3.3"
 
 
 def update_check():
-    localversion = get_version().replace("v.", "").split(".")
+    localversion = get_version().replace("v.", "")
     try:
-        onlineversion = re.search(r'Release (v\.\d{1,2}\.\d{1,2}\.\d{1,2})', urlopen(
-            'https://github.com/rix1337/RSScrawler/releases/latest').read()).group(1).replace("v.", "").split(".")
-        if localversion == onlineversion:
-            update = False
+        latest = urlopen('https://github.com/rix1337/RSScrawler/releases/latest').read()
+        latest_title = BeautifulSoup(latest, 'lxml').find("title").text
+        onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title).group()
+        if version(localversion) < version(onlineversion):
+            update = True
         else:
-            if localversion[2] < onlineversion[2]:
-                update = True
-            elif localversion[1] < onlineversion[1]:
-                update = True
-            elif localversion[0] < onlineversion[0]:
-                update = True
-            else:
-                update = False
+            update = False
         if update:
             return True, "v." + ".".join(onlineversion)
         else:
