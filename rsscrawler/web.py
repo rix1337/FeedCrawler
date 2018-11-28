@@ -667,7 +667,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         if not grabber_collecting and offline_packages:
                             for op in offline_packages:
                                 if subdir and 'RSScrawler' in op['path']:
-                                    known_packages.append(dp['uuid'])
+                                    known_packages.append(op['uuid'])
                                 if op['uuid'] not in known_packages:
                                     cnl_package = op
                                     i = 0
