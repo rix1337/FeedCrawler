@@ -60,6 +60,18 @@ class SJ:
         self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         self.listtype = ""
 
+    def settings_hash(self, refresh):
+        if refresh:
+            settings = ["quality", "rejectlist", "regex", "hoster"]
+            self.settings = []
+            self.settings.append(self.rsscrawler.get("english"))
+            self.settings.append(self.rsscrawler.get("surround"))
+            for s in settings:
+                self.settings.append(self.config.get(s))
+            self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+        set_sj = str(self.settings) + str(self.pattern)
+        return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
+
     def get_series_list(self, liste, series_type):
         if series_type == 1:
             self.listtype = " (RegEx)"
@@ -233,9 +245,7 @@ class SJ:
         except TypeError:
             reject = r"^unmatchable$"
 
-        set_sj = str(self.settings) + str(self.pattern)
-        set_sj = hashlib.sha256(set_sj.encode(
-            'ascii', 'ignore')).hexdigest()
+        set_sj = self.settings_hash(False)
 
         header = False
         if self.last_set_sj == set_sj:
@@ -444,6 +454,8 @@ class SJ:
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
+
+        set_sj = self.settings_hash(True)
 
         self.cdc.delete("SJSet-" + self.filename)
         self.cdc.store("SJSet-" + self.filename, set_sj)
