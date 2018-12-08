@@ -493,9 +493,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.myjd_failed = false
                 }
                 if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
+                    $("#myjd_collapse").addClass('collapsed');
+                    $("#collapseOne").removeClass('show');
                     $("#myjd_no_packages").show();
                 } else {
                     $("#myjd_no_packages").hide();
+                    $("#collapseOne").addClass('show');
+                    $("#myjd_collapse").removeClass('collapsed');
 
                 }
                 if ($scope.myjd_downloads) {
