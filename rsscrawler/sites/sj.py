@@ -455,12 +455,13 @@ class SJ:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
-        set_sj = self.settings_hash(True)
-
-        self.cdc.delete("SJSet-" + self.filename)
-        self.cdc.store("SJSet-" + self.filename, set_sj)
-        self.cdc.delete("SJ-" + self.filename)
-        self.cdc.store("SJ-" + self.filename, sha_sj)
+        if set_sj:
+            new_set_sj = self.settings_hash(True)
+            if set_sj == new_set_sj:
+                self.cdc.delete("SJSet-" + self.filename)
+                self.cdc.store("SJSet-" + self.filename, set_sj)
+                self.cdc.delete("SJ-" + self.filename)
+                self.cdc.store("SJ-" + self.filename, sha_sj)
         if header and response:
             self.cdc.delete("SJHeaders-" + self.filename)
             self.cdc.store("SJHeaders-" + self.filename, response.headers['Last-Modified'])

@@ -10,7 +10,7 @@ from six.moves.urllib.request import urlopen
 
 
 def get_version():
-    return "v.5.3.5"
+    return "v.5.3.6"
 
 
 def update_check():
@@ -24,8 +24,8 @@ def update_check():
         else:
             update = False
         if update:
-            return True, "v." + ".".join(onlineversion)
+            return True, "v." + "".join(onlineversion)
         else:
-            return False, "v." + ".".join(localversion)
+            return False, "v." + "".join(localversion)
     except:
         return False, "Error"

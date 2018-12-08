@@ -1197,26 +1197,30 @@ class BL:
                             added_items.append(f)
                     i += 1
 
+        settings_changed = False
         if set_mbhwha:
-            set_mbhwha = self.settings_hash(True)
-            self.cdc.delete("MBHWHASet-" + self.filename)
-            self.cdc.store("MBHWHASet-" + self.filename, set_mbhwha)
+            new_set_mbhwha = self.settings_hash(True)
+            if set_mbhwha == new_set_mbhwha:
+                self.cdc.delete("MBHWHASet-" + self.filename)
+                self.cdc.store("MBHWHASet-" + self.filename, new_set_mbhwha)
+            else:
+                settings_changed = True
         if sha_mb:
-            if not self.dl_unsatisfied:
+            if not self.dl_unsatisfied and not settings_changed:
                 self.cdc.delete("MB-" + self.filename)
                 self.cdc.store("MB-" + self.filename, sha_mb)
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues MB-CDC!")
         if sha_hw:
-            if not self.dl_unsatisfied:
+            if not self.dl_unsatisfied and not settings_changed:
                 self.cdc.delete("HW-" + self.filename)
                 self.cdc.store("HW-" + self.filename, sha_hw)
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HW-CDC!")
         if sha_ha:
-            if not self.dl_unsatisfied:
+            if not self.dl_unsatisfied and not settings_changed:
                 self.cdc.delete("HA-" + self.filename)
                 self.cdc.store("HA-" + self.filename, sha_ha)
             else:
