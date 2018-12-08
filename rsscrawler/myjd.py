@@ -183,69 +183,70 @@ def get_packages_in_linkgrabber(device):
                 "maxResults": -1,
                 "startAt": 0,
             }])
-        for package in grabbed_packages:
-            name = package.get('name')
-            total_links = package.get('childCount')
-            enabled = package.get('enabled')
-            size = package.get('bytesTotal')
-            if size:
-                size = readable_size(size)
-            hosts = package.get('hosts')
-            save_to = package.get('saveTo')
-            uuid = package.get('uuid')
-            url = False
-            urls = []
-            filenames = []
-            linkids = []
-            package_failed = False
-            package_offline = False
-            if links:
-                for link in links:
-                    if uuid == link.get('packageUUID'):
-                        if link.get('availability') == 'OFFLINE':
-                            package_offline = True
-                        url = link.get('url')
-                        if url:
-                            url = str(url)
-                            if url not in urls:
-                                urls.append(url)
-                            filename = str(link.get('name'))
-                            if filename not in filenames:
-                                filenames.append(filename)
-                        linkids.append(link.get('uuid'))
-            for h in hosts:
-                if h == 'linkcrawlerretry':
-                    package_failed = True
-                    package_offline = False
-            if package_failed and not package_offline and len(urls) == 1:
-                url = urls[0]
-                urls = False
-            elif urls:
-                urls = "\n".join(urls)
-            if package_failed and not package_offline:
-                failed.append({"name": name,
-                               "path": save_to,
-                               "urls": urls,
-                               "url": url,
-                               "linkids": linkids,
-                               "uuid": uuid})
-            elif package_offline:
-                offline.append({"name": name,
-                                "path": save_to,
-                                "urls": urls,
-                                "linkids": linkids,
-                                "uuid": uuid})
-            else:
-                decrypted.append({"name": name,
-                                  "links": total_links,
-                                  "enabled": enabled,
-                                  "hosts": hosts,
-                                  "path": save_to,
-                                  "size": size,
-                                  "urls": urls,
-                                  "filenames": filenames,
-                                  "linkids": linkids,
-                                  "uuid": uuid})
+        if grabbed_packages:
+            for package in grabbed_packages:
+                name = package.get('name')
+                total_links = package.get('childCount')
+                enabled = package.get('enabled')
+                size = package.get('bytesTotal')
+                if size:
+                    size = readable_size(size)
+                hosts = package.get('hosts')
+                save_to = package.get('saveTo')
+                uuid = package.get('uuid')
+                url = False
+                urls = []
+                filenames = []
+                linkids = []
+                package_failed = False
+                package_offline = False
+                if links:
+                    for link in links:
+                        if uuid == link.get('packageUUID'):
+                            if link.get('availability') == 'OFFLINE':
+                                package_offline = True
+                            url = link.get('url')
+                            if url:
+                                url = str(url)
+                                if url not in urls:
+                                    urls.append(url)
+                                filename = str(link.get('name'))
+                                if filename not in filenames:
+                                    filenames.append(filename)
+                            linkids.append(link.get('uuid'))
+                for h in hosts:
+                    if h == 'linkcrawlerretry':
+                        package_failed = True
+                        package_offline = False
+                if package_failed and not package_offline and len(urls) == 1:
+                    url = urls[0]
+                    urls = False
+                elif urls:
+                    urls = "\n".join(urls)
+                if package_failed and not package_offline:
+                    failed.append({"name": name,
+                                   "path": save_to,
+                                   "urls": urls,
+                                   "url": url,
+                                   "linkids": linkids,
+                                   "uuid": uuid})
+                elif package_offline:
+                    offline.append({"name": name,
+                                    "path": save_to,
+                                    "urls": urls,
+                                    "linkids": linkids,
+                                    "uuid": uuid})
+                else:
+                    decrypted.append({"name": name,
+                                      "links": total_links,
+                                      "enabled": enabled,
+                                      "hosts": hosts,
+                                      "path": save_to,
+                                      "size": size,
+                                      "urls": urls,
+                                      "filenames": filenames,
+                                      "linkids": linkids,
+                                      "uuid": uuid})
         if not failed:
             failed = False
         if not offline:
