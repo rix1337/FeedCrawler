@@ -41,6 +41,7 @@ def check_url(configfile, dbfile):
                 mb_blocked_proxy = True
         else:
             db.delete("MB")
+    # TODO check if HA is working!
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(
                 scraper.get(sj_url, headers={'User-Agent': agent}, timeout=30, allow_redirects=False).headers.get(
