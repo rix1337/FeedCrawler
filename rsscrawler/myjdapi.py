@@ -39,7 +39,7 @@ except:  # For Python 2
     # from urllib import urlopen
 import base64
 import requests
-from Crypto.Cipher import AES
+from Cryptodome.Cipher import AES
 
 BS = 16
 
