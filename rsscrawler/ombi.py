@@ -206,3 +206,5 @@ def ombi(configfile, dbfile, device, log_debug):
                                     se = s + "E" + e
                                     db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
                         print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+
+    return device

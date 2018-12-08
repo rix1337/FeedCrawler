@@ -99,17 +99,19 @@ def ha_search_to_soup(url, configfile, dbfile):
     content = []
     search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
     if search:
-        results = search.find("div", {"id": "content"}).find_all("a")
-        for r in results:
-            try:
-                title = r["title"]
-                details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
-                content.append({
-                    "key": title,
-                    "value": details
-                })
-            except:
-                pagination = r["href"]
+        results = search.find("div", {"id": "content"})
+        if results:
+            results = results.find_all("a")
+            for r in results:
+                try:
+                    title = r["title"]
+                    details = BeautifulSoup(get_url(r["href"], configfile, dbfile), 'lxml')
+                    content.append({
+                        "key": title,
+                        "value": details
+                    })
+                except:
+                    pagination = r["href"]
 
     return ha_search_to_feedparser_dict(content)
 
@@ -118,10 +120,12 @@ def ha_search_results(url, configfile, dbfile):
     content = []
     search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
     if search:
-        results = search.find("div", {"id": "content"}).find_all("a")
-        for r in results:
-            try:
-                content.append((r["title"], r["href"]))
-            except:
-                break
+        results = search.find("div", {"id": "content"})
+        if results:
+            results = results.find_all("a")
+            for r in results:
+                try:
+                    content.append((r["title"], r["href"]))
+                except:
+                    break
     return content

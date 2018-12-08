@@ -108,6 +108,23 @@ class BL:
         except:
             self.imdb = 0.0
 
+    def settings_hash(self, refresh):
+        if refresh:
+            settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
+                        "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb", "hoster"]
+            self.settings = []
+            self.settings.append(self.rsscrawler.get("english"))
+            self.settings.append(self.rsscrawler.get("surround"))
+            for s in settings:
+                self.settings.append(self.config.get(s))
+            if self.filename == "IMDB":
+                self.pattern = self.filename
+            else:
+                liste = self.get_movies_list(self.filename)
+                self.pattern = r'(' + "|".join(liste).lower() + ').*'
+        set_mbhwha = str(self.settings) + str(self.pattern)
+        return hashlib.sha256(set_mbhwha.encode('ascii', 'ignore')).hexdigest()
+
     def get_movies_list(self, liste):
         cont = ListDb(self.dbfile, liste).retrieve()
         titles = []
@@ -1031,8 +1048,7 @@ class BL:
         set_mbhwha = False
 
         if not mb_304:
-            set_mbhwha = str(self.settings) + str(self.pattern)
-            set_mbhwha = hashlib.sha256(set_mbhwha.encode('ascii', 'ignore')).hexdigest()
+            set_mbhwha = self.settings_hash(False)
             if self.last_set_mbhwha == set_mbhwha:
                 if not self.historical and first_mb.status_code == 304:
                     mb_304 = True
@@ -1040,8 +1056,7 @@ class BL:
                     self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche MB-Suche ab!")
 
         if not hw_304:
-            set_mbhwha = str(self.settings) + str(self.pattern)
-            set_mbhwha = hashlib.sha256(set_mbhwha.encode('ascii', 'ignore')).hexdigest()
+            set_mbhwha = self.settings_hash(False)
             if self.last_set_mbhwha == set_mbhwha:
                 if not self.historical and first_hw.status_code == 304:
                     hw_304 = True
@@ -1049,8 +1064,7 @@ class BL:
                     self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
 
         if not ha_304:
-            set_mbhwha = str(self.settings) + str(self.pattern)
-            set_mbhwha = hashlib.sha256(set_mbhwha.encode('ascii', 'ignore')).hexdigest()
+            set_mbhwha = self.settings_hash(False)
             if self.last_set_mbhwha == set_mbhwha:
                 if not self.historical and first_ha.status_code == 304:
                     hw_304 = True
@@ -1184,6 +1198,7 @@ class BL:
                     i += 1
 
         if set_mbhwha:
+            set_mbhwha = self.settings_hash(True)
             self.cdc.delete("MBHWHASet-" + self.filename)
             self.cdc.store("MBHWHASet-" + self.filename, set_mbhwha)
         if sha_mb:

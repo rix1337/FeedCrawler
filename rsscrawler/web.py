@@ -37,6 +37,7 @@ from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -515,6 +516,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             device = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if device:
+                # TODO remove from db.failed with title
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -675,8 +677,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not cnl_package:
                 return "No Package added through Click'n'Load in time!", 504
 
-            device = package_replace(configfile, device, old_package, cnl_package)
+            replaced = package_replace(configfile, device, old_package, cnl_package)
+            device = replaced[0]
             if device:
+                title = replaced[1]
+                db = RssDb(dbfile, 'failed')
+                db.delete(title)
                 return "Success", 200
             else:
                 return "Failed", 400

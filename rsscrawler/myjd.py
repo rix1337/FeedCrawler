@@ -729,5 +729,5 @@ def package_replace(configfile, device, old_package, cnl_package):
             device = remove_from_linkgrabber(configfile, device, linkids, uuid)
             if device:
                 print(u"Click'n'Load-Automatik erfolgreich: " + title)
-                return device
+                return [device, title]
     return False

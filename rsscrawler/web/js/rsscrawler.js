@@ -303,7 +303,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function searchNow() {
-        spinSearch();
+        $("#spinner-search").fadeIn();
         let title = $scope.search;
         $http.get('api/search/' + title)
             .then(function (res) {
@@ -313,9 +313,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Nach ' + title + ' gesucht!');
                 getLog();
                 getLists();
+                $("#spinner-search").fadeOut();
             }, function (res) {
                 console.log('Konnte ' + title + ' nicht suchen!');
                 showDanger('Konnte  ' + title + ' nicht suchen!');
+                $("#spinner-search").fadeOut();
             });
     }
 
@@ -493,9 +495,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.myjd_failed = false
                 }
                 if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
+                    $("#myjd_collapse").addClass('collapsed');
+                    $("#collapseOne").removeClass('show');
                     $("#myjd_no_packages").show();
                 } else {
                     $("#myjd_no_packages").hide();
+                    $("#collapseOne").addClass('show');
+                    $("#myjd_collapse").removeClass('collapsed');
 
                 }
                 if ($scope.myjd_downloads) {
@@ -610,10 +616,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $(".alert-danger").html(message).fadeTo(5000, 500).slideUp(500, function () {
             $(".alert-danger").slideUp(500);
         });
-    }
-
-    function spinSearch() {
-        $("#spinner-search").fadeIn().delay(5000).fadeOut();
     }
 
     function spinLog() {
