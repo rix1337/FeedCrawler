@@ -409,7 +409,7 @@ class BL:
         if "Regex" not in self.filename:
             s = re.sub(self.SUBSTITUTE, ".", "^" + self.pattern + r'.(\d{4}|German|\d{3,4}p).*').lower()
         else:
-            s = re.sub(self.SUBSTITUTE, ".", "^" + self.pattern).lower()
+            s = re.sub(self.SUBSTITUTE, ".", self.pattern).lower()
         settings = str(self.settings)
         liste = str(self.pattern)
         for post in feed.entries:
@@ -441,6 +441,7 @@ class BL:
                         self.hw_done = True
                     else:
                         self.ha_done = True
+
             found = re.search(s, post.title.lower())
 
             if found:

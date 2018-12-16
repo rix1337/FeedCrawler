@@ -14,7 +14,7 @@ Usage:
                 [--jd-pass=<PASSWORT>]
                 [--jd-device=<GERÄTENAME>]
                 [--jd-pfad="<JDPATH>"]
-                [--cdc-reset]
+                [--keep-cdc]
                 [--log-level=<LOGLEVEL>]
 
 Options:
@@ -25,7 +25,7 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
-  --cdc-reset               Intern: Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf
+  --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
   --testlauf                Intern: Einmalige Ausführung von RSScrawler
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
@@ -324,8 +324,9 @@ def main():
         print(u'Der Webserver ist erreichbar unter http://' +
               common.check_ip() + ':' + str(port) + prefix)
 
-    if arguments['--cdc-reset']:
-        print(u"CDC-Tabelle geleert!")
+    if arguments['--keep-cdc']:
+        print(u"CDC-Tabelle nicht geleert!")
+    else:
         RssDb(dbfile, 'cdc').reset()
 
     p = Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
