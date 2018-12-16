@@ -55,7 +55,7 @@ Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werde
 | ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ```--jd-pfad="<JDPFAD>"``` | Legt den Pfad von JDownloader fest (nicht empfohlen - stattdessen My JDownloader nutzen) |
-| ``` --cdc-reset``` | _Intern: Leert die CDC-Tabelle (Feed ab hier bereits gecrawlt) vor dem ersten Suchlauf_ |
+| ``` --keep-cdc``` | _Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf_ |
 | ```--testlauf``` | _Intern: Einmalige Ausführung von RSScrawler_ |
 | ```--docker``` | _Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)_ |
 

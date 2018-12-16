@@ -247,7 +247,7 @@ def best_result_bl(title, configfile, dbfile):
         best_link = best_result.get('link')
         if re.search(ignore, best_title.lower()):
             best_title = None
-        elif not re.search(r'^' + title.replace(" ", ".") + '.(\d{4}|German|\d{3,4}p).*', best_title):
+        elif not re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*', best_title):
             best_title = None
     else:
         best_title = None

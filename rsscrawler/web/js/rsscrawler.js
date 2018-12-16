@@ -512,6 +512,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
+                    $("#collapseOne").addClass('show');
+                    $("#myjd_collapse").removeClass('collapsed');
                 } else {
                     $('#myjd_grabbing').hide();
                 }
