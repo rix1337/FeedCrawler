@@ -120,9 +120,10 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 failed_packages = check_failed_packages(configfile, device)
-                device = failed_packages[0]
-                notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-                notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+                if failed_packages:
+                    device = failed_packages[0]
+                    notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
+                    notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
                 device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool:
                     name = task._INTERNAL_NAME
@@ -156,9 +157,10 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             failed_packages = check_failed_packages(configfile, device)
-            device = failed_packages[0]
-            notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-            notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+            if failed_packages:
+                device = failed_packages[0]
+                notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
+                notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
             device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool:
                 name = task._INTERNAL_NAME
