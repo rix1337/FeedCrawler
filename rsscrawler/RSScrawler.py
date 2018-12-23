@@ -155,7 +155,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                device = task.periodical_task()
+                task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
