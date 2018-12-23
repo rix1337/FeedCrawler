@@ -1048,35 +1048,22 @@ class BL:
                 hw_304 = True
                 self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
 
-        set_mbhwha = False
+        set_mbhwha = self.settings_hash(False)
 
-        if not mb_304:
-            set_mbhwha = self.settings_hash(False)
-            if self.last_set_mbhwha == set_mbhwha:
-                if not self.historical and first_mb.status_code == 304:
-                    mb_304 = True
+        if self.last_set_mbhwha == set_mbhwha:
+            if not self.historical:
+                if mb_304 and hw_304 and ha_304:
+                    self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+                    return self.device
+                if mb_304:
                     mb_urls = []
                     self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche MB-Suche ab!")
-
-        if not hw_304:
-            set_mbhwha = self.settings_hash(False)
-            if self.last_set_mbhwha == set_mbhwha:
-                if not self.historical and first_hw.status_code == 304:
-                    hw_304 = True
+                if hw_304:
                     hw_urls = []
                     self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
-
-        if not ha_304:
-            set_mbhwha = self.settings_hash(False)
-            if self.last_set_mbhwha == set_mbhwha:
-                if not self.historical and first_ha.status_code == 304:
-                    hw_304 = True
+                if ha_304:
                     hw_urls = []
                     self.log_debug("HA-Feed seit letztem Aufruf nicht aktualisiert - breche HA-Suche ab!")
-
-        if not self.historical and mb_304 and hw_304 and ha_304:
-            self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
-            return self.device
 
         sha_mb = None
         sha_hw = None

@@ -96,20 +96,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     log_debug = logging.debug
 
-    search_pool = [
-        YT(configfile, dbfile, device, logging),
-        DD(configfile, dbfile, device, logging),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Serien', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Staffeln_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='MB_Staffeln', internal_name='MB'),
-        BL(configfile, dbfile, device, logging, filename='MB_Regex'),
-        BL(configfile, dbfile, device, logging, filename='IMDB'),
-        BL(configfile, dbfile, device, logging, filename='MB_Filme'),
-        BL(configfile, dbfile, device, logging, filename='MB_Staffeln'),
-        BL(configfile, dbfile, device, logging, filename='MB_3D')
-    ]
-
     arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
@@ -120,11 +106,12 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 failed_packages = check_failed_packages(configfile, device)
-                device = failed_packages[0]
-                notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-                notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+                if failed_packages:
+                    device = failed_packages[0]
+                    notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
+                    notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
                 device = ombi(configfile, dbfile, device, log_debug)
-                for task in search_pool:
+                for task in search_pool(configfile, dbfile, device, logging):
                     name = task._INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
@@ -156,18 +143,19 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             failed_packages = check_failed_packages(configfile, device)
-            device = failed_packages[0]
-            notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-            notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+            if failed_packages:
+                device = failed_packages[0]
+                notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
+                notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
             device = ombi(configfile, dbfile, device, log_debug)
-            for task in search_pool:
+            for task in search_pool(configfile, dbfile, device, logging):
                 name = task._INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                device = task.periodical_task()
+                task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
@@ -181,6 +169,22 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
 def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
     start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
+
+
+def search_pool(configfile, dbfile, device, logging):
+    return [
+        YT(configfile, dbfile, device, logging),
+        DD(configfile, dbfile, device, logging),
+        SJ(configfile, dbfile, device, logging, filename='SJ_Serien', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, filename='SJ_Staffeln_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, filename='MB_Staffeln', internal_name='MB'),
+        BL(configfile, dbfile, device, logging, filename='MB_Regex'),
+        BL(configfile, dbfile, device, logging, filename='IMDB'),
+        BL(configfile, dbfile, device, logging, filename='MB_Filme'),
+        BL(configfile, dbfile, device, logging, filename='MB_Staffeln'),
+        BL(configfile, dbfile, device, logging, filename='MB_3D')
+    ]
 
 
 def main():
@@ -231,7 +235,7 @@ def main():
                     device = get_device(configfile)
                 else:
                     print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
-                    sys.exit(0)
+                    sys.exit(1)
         else:
             device = False
 
@@ -248,7 +252,7 @@ def main():
                     print(u'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
                     print(u'Diese liegt unter ' + configfile)
                     print(u'Viel Spaß! Beende RSScrawler!')
-                    sys.exit(0)
+                    sys.exit(1)
             else:
                 if arguments['--port']:
                     files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
@@ -279,7 +283,7 @@ def main():
                 print(u'Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
                 print(u'Diese liegt unter ' + configfile)
                 print(u'Beende RSScrawler...')
-                sys.exit(0)
+                sys.exit(1)
 
         jdownloaderpath = jdownloaderpath.replace("\\", "/")
         jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
@@ -291,7 +295,7 @@ def main():
             print(u'Der Pfad des JDownloaders existiert nicht: ' + jdownloaderpath)
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
             print(u'Beende RSScrawler...')
-            sys.exit(0)
+            sys.exit(1)
 
         if not os.path.exists(jdownloaderpath + "/folderwatch"):
             if arguments['--docker']:
@@ -303,7 +307,7 @@ def main():
                 u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
             rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
             print(u'Beende RSScrawler...')
-            sys.exit(0)
+            sys.exit(1)
     else:
         rsscrawler = RssConfig('RSScrawler', configfile)
         print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
