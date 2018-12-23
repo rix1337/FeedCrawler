@@ -55,30 +55,49 @@ def get(title, configfile, dbfile):
     config = RssConfig('MB', configfile)
 
     quality = config.get('quality')
+    if "480p" not in quality:
+        search_quality = "+" + quality
+    else:
+        search_quality = ""
 
     mb_search = get_url(
-        decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+" + quality + '/feed/rss2/',
+        decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/',
         configfile, dbfile)
     mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
     password = decode_base64("bW92aWUtYmxvZy5vcmc=")
     for result in mb_results:
-        if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        if not result[0].endswith("-MB") and not result[0].endswith(".MB"):
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (MB)"])
 
     hw_search = get_url(
-        decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+" + quality + '/feed/rss2/',
+        decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/',
         configfile, dbfile)
     hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', hw_search)
     password = decode_base64("aGQtd29ybGQub3Jn")
     for result in hw_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
 
-    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + quality
+    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + search_quality
     ha_results = ha_search_results(ha_search, configfile, dbfile)
     password = decode_base64("aGQtYXJlYS5vcmc=")
     for result in ha_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HA)"])
 
@@ -247,7 +266,12 @@ def best_result_bl(title, configfile, dbfile):
         best_link = best_result.get('link')
         if re.search(ignore, best_title.lower()):
             best_title = None
-        elif not re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*', best_title):
+        quality = conf.get('quality')
+        if "480p" not in quality and not re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
+                                                   best_title):
+            best_title = None
+        elif "480p" in quality and re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
+                                             best_title):
             best_title = None
     else:
         best_title = None
