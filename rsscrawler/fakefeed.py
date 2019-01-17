@@ -3,8 +3,11 @@
 # Projekt von https://github.com/rix1337
 
 
+import re
+
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import decode_base64
 from rsscrawler.url import get_url
 
 
@@ -128,4 +131,34 @@ def ha_search_results(url, configfile, dbfile):
                     content.append((r["title"], r["href"]))
                 except:
                     break
+    return content
+
+
+def dj_to_feedparser_dict(beautifulsoup_object):
+    content_area = beautifulsoup_object.find("div", attrs={"id": "page_post"})
+    items = content_area.select("a[href*=" + decode_base64("ZG9rdWp1bmtpZXMub3Jn") + "]")
+
+    entries = []
+
+    for item in items:
+        title = item.text
+        link = item.attrs["href"]
+
+        # Todo this is still wrong
+        published = re.findall(r"Updates.{3}(.*Uhr)", item.parent.parent.parent.text)[0]
+
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "published": published,
+            "link": link
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def dj_content_to_soup(content):
+    content = BeautifulSoup(content, 'lxml')
+    content = dj_to_feedparser_dict(content)
     return content
