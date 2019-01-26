@@ -35,11 +35,12 @@ class DJ:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.hoster = re.compile(self.config.get("hoster"))
+        self.genres = re.compile(self.config.get("genres"))
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set_dj = self.cdc.retrieve("DJSet-" + self.filename)
         self.last_sha_dj = self.cdc.retrieve("DJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("DJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hoster"]
+        settings = ["quality", "rejectlist", "regex", "hoster", "genres"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -57,7 +58,7 @@ class DJ:
 
     def settings_hash(self, refresh):
         if refresh:
-            settings = ["quality", "rejectlist", "regex", "hoster"]
+            settings = ["quality", "rejectlist", "regex", "hoster", "genres"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
@@ -261,6 +262,8 @@ class DJ:
             link = post.link
             title = post.title
             genre = post.genre
+            if not re.match(self.genres, genre):
+                self.log_debug(title + " - Release aufgrund unerwünschten Genres blockiert (" + genre + ")")
 
             if self.filename == 'DJ_Dokus_Regex':
                 if self.config.get("regex"):

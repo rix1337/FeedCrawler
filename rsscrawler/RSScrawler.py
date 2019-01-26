@@ -176,8 +176,8 @@ def search_pool(configfile, dbfile, device, logging):
     return [
         YT(configfile, dbfile, device, logging),
         DD(configfile, dbfile, device, logging),
-        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus', internal_name='SJ'),
-        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus_Regex', internal_name='SJ'),
+        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus', internal_name='DJ'),
+        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus_Regex', internal_name='DJ'),
         SJ(configfile, dbfile, device, logging, filename='SJ_Serien', internal_name='SJ'),
         SJ(configfile, dbfile, device, logging, filename='SJ_Serien_Regex', internal_name='SJ'),
         SJ(configfile, dbfile, device, logging, filename='SJ_Staffeln_Regex', internal_name='SJ'),

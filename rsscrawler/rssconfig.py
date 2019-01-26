@@ -44,6 +44,13 @@ class RssConfig(object):
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False")
         ],
+        'DJ': [
+            ("hoster", "str", ".*?share-online.*?"),
+            ("quality", "str", "720p"),
+            ("rejectlist", "str", "XviD,Subbed"),
+            ("regex", "bool", "False"),
+            ("genres", "str", ".*")
+        ],
         'DD': [
             ("hoster", "str", ".*"),
             ("feeds", "str", "")

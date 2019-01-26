@@ -105,6 +105,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             crawljobs = RssConfig('Crawljobs', configfile)
             mb = RssConfig('MB', configfile)
             sj = RssConfig('SJ', configfile)
+            dj = RssConfig('DJ', configfile)
             dd = RssConfig('DD', configfile)
             yt = RssConfig('YT', configfile)
             if not mb.get("crawl3dtype"):
@@ -168,6 +169,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "quality": mb.get("seasonsquality"),
                             "packs": mb.get("seasonpacks"),
                             "source": mb.get("seasonssource"),
+                        },
+                        "dj": {
+                            "hoster": dj.get("hoster"),
+                            "quality": dj.get("quality"),
+                            "ignore": dj.get("rejectlist"),
+                            "regex": dj.get("regex"),
+                            "genres": dj.get("genres"),
                         },
                         "dd": {
                             "hoster": dd.get("hoster"),
