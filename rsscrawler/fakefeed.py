@@ -135,24 +135,32 @@ def ha_search_results(url, configfile, dbfile):
 
 
 def dj_to_feedparser_dict(beautifulsoup_object):
-    content_area = beautifulsoup_object.findAll("fieldset")
+    content_areas = beautifulsoup_object.findAll("fieldset")
     entries = []
 
-    for area in content_area:
-        published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
-        items = area.select("a")
+    for area in content_areas:
+        try:
+            published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
+        except:
+            published = "ERROR"
 
-        for item in items:
-            titles = item.text.split('\n')
-            link = item.attrs["href"]
+        genres = area.find_all("div", {"class": "grey-box"})
 
+        for genre in genres:
+            items = genre.select("a")
+            type = str(genre.previous.previous)
 
-            for title in titles:
-                entries.append(FakeFeedParserDict({
-                    "title": title,
-                    "published": published,
-                    "link": link
-                }))
+            for item in items:
+                titles = item.text.split('\n')
+                link = item.attrs["href"]
+
+                for title in titles:
+                    entries.append(FakeFeedParserDict({
+                        "title": title,
+                        "published": published,
+                        "genre": type,
+                        "link": link
+                    }))
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)

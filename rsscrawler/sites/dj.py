@@ -81,7 +81,7 @@ class DJ:
             self.empty_list = True
         return titles
 
-    def range_checkr(self, link, title, language_ok):
+    def range_checkr(self, link, title, language_ok, genre):
         englisch = False
         if language_ok == 2:
             englisch = True
@@ -110,18 +110,18 @@ class DJ:
                         title1 = title_cut[0][0] + \
                                  str(count) + ".*" + title_cut[0][-1].replace(
                             "(", ".*").replace(")", ".*").replace("+", ".*")
-                        added_items.append(self.range_parse(link, title1, englisch, title))
+                        added_items.append(self.range_parse(link, title1, englisch, title, genre))
                     else:
                         title1 = title_cut[0][0] + "0" + \
                                  str(count) + ".*" + title_cut[0][-1].replace(
                             "(", ".*").replace(")", ".*").replace("+", ".*")
-                        added_items.append(self.range_parse(link, title1, englisch, title))
+                        added_items.append(self.range_parse(link, title1, englisch, title, genre))
                 return added_items
             except ValueError as e:
                 self.log_error("Fehler in Variablenwert: " + str(e))
-        return self.parse_download(link, title, englisch)
+        return self.parse_download(link, title, englisch, genre)
 
-    def range_parse(self, series_url, search_title, englisch, fallback_title):
+    def range_parse(self, series_url, search_title, englisch, fallback_title, genre):
         req_page = get_url(series_url, self.configfile, self.dbfile)
         soup = BeautifulSoup(req_page, 'lxml')
         try:
@@ -131,14 +131,14 @@ class DJ:
                 titles = soup.findAll(text=re.compile(fallback_title))
             for title in titles:
                 if self.quality != '480p' and self.quality in title:
-                    added_items.append(self.parse_download(series_url, title, englisch))
+                    added_items.append(self.parse_download(series_url, title, englisch, genre))
                 if self.quality == '480p' and not (('.720p.' in title) or ('.1080p.' in title) or ('.2160p.' in title)):
-                    added_items.append(self.parse_download(series_url, title, englisch))
+                    added_items.append(self.parse_download(series_url, title, englisch, genre))
             return added_items
         except re.error as e:
             self.log_error('Konstantenfehler: %s' % e)
 
-    def parse_download(self, series_url, search_title, englisch):
+    def parse_download(self, series_url, search_title, englisch, genre):
         req_page = get_url(series_url, self.configfile, self.dbfile)
 
         soup = BeautifulSoup(req_page, 'lxml')
@@ -164,16 +164,20 @@ class DJ:
                 self.log_debug(
                     "%s - Release ignoriert (kein passender Link gefunden)" % search_title)
             else:
-                return self.send_package(search_title, links, englisch)
+                return self.send_package(search_title, links, englisch, genre)
 
-    def send_package(self, title, links, englisch_info):
+    def send_package(self, title, links, englisch_info, genre):
+        if genre == "Doku":
+            genre = ""
+        else:
+            genre = "/" + genre
         englisch = ""
         if englisch_info:
             englisch = "Englisch - "
         if self.filename == 'DJ_Dokus_Regex':
-            link_placeholder = '[Doku/RegEx] - ' + englisch
-        elif self.filename == 'DJ_Dokus':
-            link_placeholder = '[Doku] - ' + englisch
+            link_placeholder = '[Doku' + genre + '/RegEx] - ' + englisch
+        else:
+            link_placeholder = '[Doku' + genre + '] - ' + englisch
         try:
             storage = self.db.retrieve(title)
         except Exception as e:
@@ -220,6 +224,7 @@ class DJ:
                 feed = dj_content_to_soup(response.content)
             except:
                 response = False
+                feed = False
             if response:
                 if response.status_code == 304:
                     self.log_debug(
@@ -231,7 +236,7 @@ class DJ:
                 get_url(decode_base64('aHR0cDovL2Rva3VqdW5raWVzLm9yZy8='), self.configfile, self.dbfile))
             response = False
 
-        if feed.entries:
+        if feed and feed.entries:
             first_post_dj = feed.entries[0]
             concat_dj = first_post_dj.title + first_post_dj.published + str(self.settings) + str(self.pattern)
             sha_dj = hashlib.sha256(concat_dj.encode(
@@ -245,8 +250,7 @@ class DJ:
             if not post.link:
                 continue
 
-            concat = post.title + post.published + \
-                     str(self.settings) + str(self.pattern)
+            concat = post.title + post.published + str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if sha == self.last_sha_dj:
@@ -256,6 +260,7 @@ class DJ:
 
             link = post.link
             title = post.title
+            genre = post.genre
 
             if self.filename == 'DJ_Dokus_Regex':
                 if self.config.get("regex"):
@@ -267,7 +272,7 @@ class DJ:
                         language_ok = 0
                     if language_ok:
                         m = re.search(self.pattern, title.lower())
-                        if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                        if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
                             m = re.search(self.pattern.replace(
                                 "480p", "."), title.lower())
                             self.quality = "480p"
@@ -283,7 +288,7 @@ class DJ:
                                 self.log_debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
-                            self.range_checkr(link, title, language_ok)
+                            self.range_checkr(link, title, language_ok, genre)
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -294,7 +299,7 @@ class DJ:
                 if self.config.get("quality") != '480p':
                     m = re.search(self.pattern, title.lower())
                     if m:
-                        if '[DEUTSCH]' in title:
+                        if 'german' in title.lower():
                             language_ok = 1
                         elif self.rsscrawler.get('english'):
                             language_ok = 2
@@ -324,7 +329,7 @@ class DJ:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                self.range_checkr(link, title, language_ok)
+                                self.range_checkr(link, title, language_ok, genre)
                         else:
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -362,7 +367,7 @@ class DJ:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                self.range_checkr(link, title, language_ok)
+                                self.range_checkr(link, title, language_ok, genre)
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
