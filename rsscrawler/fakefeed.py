@@ -135,23 +135,24 @@ def ha_search_results(url, configfile, dbfile):
 
 
 def dj_to_feedparser_dict(beautifulsoup_object):
-    content_area = beautifulsoup_object.find("div", attrs={"id": "page_post"})
-    items = content_area.select("a[href*=" + decode_base64("ZG9rdWp1bmtpZXMub3Jn") + "]")
-
+    content_area = beautifulsoup_object.findAll("fieldset")
     entries = []
 
-    for item in items:
-        title = item.text
-        link = item.attrs["href"]
+    for area in content_area:
+        published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
+        items = area.select("a")
 
-        # Todo this is still wrong
-        published = re.findall(r"Updates.{3}(.*Uhr)", item.parent.parent.parent.text)[0]
+        for item in items:
+            titles = item.text.split('\n')
+            link = item.attrs["href"]
 
-        entries.append(FakeFeedParserDict({
-            "title": title,
-            "published": published,
-            "link": link
-        }))
+
+            for title in titles:
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "link": link
+                }))
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
