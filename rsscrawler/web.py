@@ -292,6 +292,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                          to_str(data['sj']['ignore']).lower())
             section.save("regex",
                          to_str(data['sj']['regex']))
+            section = RssConfig("DJ", configfile)
+            section.save("hoster",
+                         to_str(data['dj']['hoster']))
+            section.save("quality",
+                         to_str(data['dj']['quality']))
+            section.save("rejectlist",
+                         to_str(data['dj']['ignore']).lower())
+            section.save("regex",
+                         to_str(data['dj']['regex']))
+            section.save("genres",
+                         to_str(data['dj']['genres']))
             section = RssConfig("DD", configfile)
             section.save("hoster",
                          to_str(data['dd']['hoster']))

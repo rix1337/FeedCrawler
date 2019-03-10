@@ -262,8 +262,6 @@ class DJ:
             link = post.link
             title = post.title
             genre = post.genre
-            if not re.match(self.genres, genre):
-                self.log_debug(title + " - Release aufgrund unerwünschten Genres blockiert (" + genre + ")")
 
             if self.filename == 'DJ_Dokus_Regex':
                 if self.config.get("regex"):
@@ -280,6 +278,10 @@ class DJ:
                                 "480p", "."), title.lower())
                             self.quality = "480p"
                         if m:
+                            if not re.match(self.genres, genre.lower()):
+                                self.log_debug(
+                                    title + " - Release aufgrund unerwünschten Genres ignoriert (" + genre + ")")
+                                continue
                             if "720p" in title.lower():
                                 self.quality = "720p"
                             if "1080p" in title.lower():
@@ -302,6 +304,9 @@ class DJ:
                 if self.config.get("quality") != '480p':
                     m = re.search(self.pattern, title.lower())
                     if m:
+                        if not re.match(self.genres, genre.lower()):
+                            self.log_debug(title + " - Release aufgrund unerwünschten Genres ignoriert (" + genre + ")")
+                            continue
                         if 'german' in title.lower():
                             language_ok = 1
                         elif self.rsscrawler.get('english'):
