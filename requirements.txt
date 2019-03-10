@@ -10,6 +10,7 @@ flask
 fuzzywuzzy
 gevent
 lxml
+passlib
 pycryptodomex
 python-dateutil
 requests[socks]
