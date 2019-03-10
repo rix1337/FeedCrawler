@@ -105,6 +105,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             crawljobs = RssConfig('Crawljobs', configfile)
             mb = RssConfig('MB', configfile)
             sj = RssConfig('SJ', configfile)
+            dj = RssConfig('DJ', configfile)
             dd = RssConfig('DD', configfile)
             yt = RssConfig('YT', configfile)
             if not mb.get("crawl3dtype"):
@@ -168,6 +169,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "quality": mb.get("seasonsquality"),
                             "packs": mb.get("seasonpacks"),
                             "source": mb.get("seasonssource"),
+                        },
+                        "dj": {
+                            "hoster": dj.get("hoster"),
+                            "quality": dj.get("quality"),
+                            "ignore": dj.get("rejectlist"),
+                            "regex": dj.get("regex"),
+                            "genres": dj.get("genres"),
                         },
                         "dd": {
                             "hoster": dd.get("hoster"),
@@ -284,6 +292,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                          to_str(data['sj']['ignore']).lower())
             section.save("regex",
                          to_str(data['sj']['regex']))
+            section = RssConfig("DJ", configfile)
+            section.save("hoster",
+                         to_str(data['dj']['hoster']))
+            section.save("quality",
+                         to_str(data['dj']['quality']))
+            section.save("rejectlist",
+                         to_str(data['dj']['ignore']).lower())
+            section.save("regex",
+                         to_str(data['dj']['regex']))
+            section.save("genres",
+                         to_str(data['dj']['genres']))
             section = RssConfig("DD", configfile)
             section.save("hoster",
                          to_str(data['dd']['hoster']))
@@ -709,6 +728,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "regex": get_list('SJ_Serien_Regex'),
                             "staffeln_regex": get_list('SJ_Staffeln_Regex'),
                         },
+                        "dj": {
+                            "dokus": get_list('DJ_Dokus'),
+                            "regex": get_list('DJ_Dokus_Regex'),
+                        },
                         "mbsj": {
                             "staffeln": get_list('MB_Staffeln'),
                         },
@@ -734,6 +757,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 data['sj']['regex'].split('\n'))
             ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
                 data['sj']['staffeln_regex'].split('\n'))
+            ListDb(dbfile, "DJ_Dokus").store_list(
+                data['dj']['dokus'].split('\n'))
+            ListDb(dbfile, "DJ_Dokus_Regex").store_list(
+                data['dj']['regex'].split('\n'))
             ListDb(dbfile, "YT_Channels").store_list(
                 data['yt']['kanaele_playlisten'].split('\n'))
             return "Success", 201

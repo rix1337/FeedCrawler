@@ -227,7 +227,7 @@
                     <h4>Serien (RegEx)</h4>
                     <textarea ng-model="lists.sj.regex" class="liste form-control" data-toggle="tooltip"
                               data-placement="top"
-                              title="Pro Zeile Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert"></textarea>
+                              title="Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert"></textarea>
                     <h4>Staffeln (RegEx)</h4>
                     <textarea ng-model="lists.sj.staffeln_regex" class="liste form-control" data-toggle="tooltip"
                               data-placement="top"
@@ -257,11 +257,32 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFour"
                             aria-expanded="false" aria-controls="collapseZeroFour">
-                        <h3>YouTube</h3>
+                        <h3>DJ</h3>
                     </button>
                 </h5>
             </div>
             <div id="collapseZeroFour" class="collapse" aria-labelledby="headingZeroFour" data-parent="#lists">
+                <div class="card-body">
+                    <h4>Dokus</h4>
+                    <textarea ng-model="lists.dj.dokus" class="liste form-control" data-toggle="tooltip"
+                              data-placement="top" title="Pro Zeile ein Dokutitel"></textarea>
+                    <h4>Dokus (RegEx)</h4>
+                    <textarea ng-model="lists.dj.regex" class="liste form-control" data-toggle="tooltip"
+                              data-placement="top"
+                              title="Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingZeroFive">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFive"
+                            aria-expanded="false" aria-controls="collapseZeroFive">
+                        <h3>YouTube</h3>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseZeroFive" class="collapse" aria-labelledby="headingZeroFive" data-parent="#lists">
                 <div class="card-body">
                     <h4>Kanäle/Playlisten</h4>
                     <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"
@@ -746,11 +767,48 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoEight"
                             aria-expanded="false" aria-controls="collapseTwoEight">
-                        <h3>DD</h3>
+                        <h3>DJ</h3>
                     </button>
                 </h5>
             </div>
             <div id="collapseTwoEight" class="collapse" aria-labelledby="headingTwoEight" data-parent="#settings">
+                <div class="card-body">
+                    <h4>Hoster</h4>
+                    <select ng-model="settings.dj.hoster" ng-options="h.value as h.label for h in dj_hosters"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Hier den/die gewünschten Hoster wählen *steht nicht immer zur Verfügung **extremen Captcha-Bedarf beachten!"></select>
+                    <h4>Auflösung</h4>
+                    <select ng-model="settings.dj.quality" ng-options="r.value as r.label for r in resolutions"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top" title="Die Release-Auflösung, nach der gesucht wird"></select>
+                    <h4>Genres</h4>
+                    <select ng-model="settings.dj.genres" ng-options="g.value as g.label for g in dj_genres"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Hier die gewünschten Genres wählen (gilt auch für RegEx)"></select>
+                    <h4>Filterliste</h4>
+                    <input ng-model="settings.dj.ignore" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)"/>
+                    <h4>Auch per RegEx suchen</h4>
+                    <select ng-model="settings.dj.regex" ng-options="o.value as o.label for o in bools"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht"></select>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingTwoNine">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoNine"
+                            aria-expanded="false" aria-controls="collapseTwoNine">
+                        <h3>DD</h3>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseTwoNine" class="collapse" aria-labelledby="headingTwoNine" data-parent="#settings">
                 <div class="card-body">
                     <h4>Hoster</h4>
                     <select ng-model="settings.dd.hoster" ng-options="h.value as h.label for h in dd_hosters"
@@ -764,15 +822,15 @@
             </div>
         </div>
         <div class="card">
-            <div class="card-header" id="headingTwoNine">
+            <div class="card-header" id="headingTwoTen">
                 <h5 class="mb-0">
-                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoNine"
-                            aria-expanded="false" aria-controls="collapseTwoNine">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwoTen"
+                            aria-expanded="false" aria-controls="collapseTwoTen">
                         <h3>YouTube</h3>
                     </button>
                 </h5>
             </div>
-            <div id="collapseTwoNine" class="collapse" aria-labelledby="headingTwoNine" data-parent="#settings">
+            <div id="collapseTwoTen" class="collapse" aria-labelledby="headingTwoTen" data-parent="#settings">
                 <div class="card-body">
                     <h4>Suche aktivieren</h4>
                     <select ng-model="settings.yt.enabled" ng-options="o.value as o.label for o in bools"

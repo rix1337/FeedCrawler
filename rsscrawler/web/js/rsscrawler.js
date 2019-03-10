@@ -50,6 +50,22 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '.*', label: 'ALLE**'}
     ];
 
+    $scope.dj_hosters = [
+        {value: '.*?share-online.*?', label: 'Share-Online'},
+        {value: '.*?uploaded.*?', label: 'Uploaded'},
+        {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
+        {value: '.*', label: 'ALLE**'}
+    ];
+
+    $scope.dj_genres = [
+        {value: 'doku', label: 'Doku'},
+        {value: 'lernen', label: 'Lernen'},
+        {value: 'reality\\/entertainment', label: 'Reality\/Entertainment'},
+        {value: 'sport', label: 'Sport'},
+        {value: '(doku|lernen|reality\\/entertainment|sport)', label: 'ALLE (außer ReUps)'},
+        {value: '.*', label: 'ALLE (inkl. ReUps)'}
+    ];
+
     $scope.dd_hosters = [
         {value: '.*ironfiles.*', label: 'IronFiles'},
         {value: '.*oboom.*', label: 'OBOOM'},
