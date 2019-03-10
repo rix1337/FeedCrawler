@@ -38,7 +38,10 @@ Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern n
 
 ## Sicherheitshinweis
 
-Der Webserver sollte nie ohne adequate Absicherung im Internet freigegeben werden. Dazu empfiehlt sich ein Reverse-Proxy bspw. über nginx mit Letsencrypt (automatisches, kostenloses HTTPs-Zertifikat), HTTPauth (Passwortschutz - Nur sicher über HTTPs!) und fail2ban (limitiert falsche Logins pro IP).
+Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden.
+Dazu lassen sich im Webinterface Nutzername und Passwort festlegen.
+
+Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 
 ## Starten
 

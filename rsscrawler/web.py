@@ -13,7 +13,9 @@ from logging import handlers
 
 import gevent
 import six
-from flask import Flask, request, send_from_directory, render_template, jsonify
+from functools import wraps
+from flask import Flask, request, send_from_directory, render_template, jsonify, Response
+from passlib.hash import pbkdf2_sha256
 from gevent.pywsgi import WSGIServer
 from six.moves import StringIO
 
@@ -52,6 +54,38 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     else:
         prefix = ""
 
+    def check_auth(config, username, password):
+        auth_hash = config.get("auth_hash")
+        if auth_hash and "$pbkdf2-sha256" not in auth_hash:
+            auth_hash = pbkdf2_sha256.hash(auth_hash)
+            config.save(
+                "auth_hash", to_str(auth_hash))
+        return username == config.get("auth_user") and pbkdf2_sha256.verify(password, auth_hash)
+
+    def authenticate():
+        return Response(
+            '''<html>
+                <head><title>401 Authorization Required</title></head>
+                <body bgcolor="white">
+                <center><h1>401 Authorization Required</h1></center>
+                <hr><center>RSScrawler</center>
+                </body>
+                </html>
+                ''', 401,
+            {'WWW-Authenticate': 'Basic realm="RSScrawler"'})
+
+    def requires_auth(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            config = RssConfig('RSScrawler', configfile)
+            if config.get("auth_user") and config.get("auth_hash"):
+                auth = request.authorization
+                if not auth or not check_auth(config, auth.username, auth.password):
+                    return authenticate()
+            return f(*args, **kwargs)
+
+        return decorated
+
     def to_int(i):
         if six.PY3:
             if isinstance(i, bytes):
@@ -67,14 +101,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         return '' if i is None else str(i)
 
     @app.route(prefix + '/<path:path>')
+    @requires_auth
     def send_html(path):
         return send_from_directory('web', path)
 
     @app.route(prefix + '/')
+    @requires_auth
     def index():
         return render_template('index.html')
 
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
+    @requires_auth
     def get_delete_log():
         if request.method == 'GET':
             log = ''
@@ -97,6 +134,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/settings/", methods=['GET', 'POST'])
+    @requires_auth
     def get_post_settings():
         if request.method == 'GET':
             general_conf = RssConfig('RSScrawler', configfile)
@@ -116,6 +154,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 {
                     "settings": {
                         "general": {
+                            "auth_user": general_conf.get("auth_user"),
+                            "auth_hash": general_conf.get("auth_hash"),
                             "myjd_user": general_conf.get("myjd_user"),
                             "myjd_pass": general_conf.get("myjd_pass"),
                             "myjd_device": general_conf.get("myjd_device"),
@@ -193,6 +233,16 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             data = request.json
 
             section = RssConfig("RSScrawler", configfile)
+
+            section.save(
+                "auth_user", to_str(data['general']['auth_user']))
+
+            auth_hash = data['general']['auth_hash']
+            if auth_hash and "$pbkdf2-sha256" not in auth_hash:
+                auth_hash = pbkdf2_sha256.hash(auth_hash)
+            section.save(
+                "auth_hash", to_str(auth_hash))
+
             myjd_user = to_str(data['general']['myjd_user'])
             myjd_pass = to_str(data['general']['myjd_pass'])
             myjd_device = to_str(data['general']['myjd_device'])
@@ -352,6 +402,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/version/", methods=['GET'])
+    @requires_auth
     def get_version():
         if request.method == 'GET':
             ver = version.get_version()
@@ -375,6 +426,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/search/<title>", methods=['GET'])
+    @requires_auth
     def search_title(title):
         if request.method == 'GET':
             results = search.get(title, configfile, dbfile)
@@ -390,6 +442,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
+    @requires_auth
     def download_movie(title):
         global device
         if request.method == 'POST':
@@ -402,6 +455,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/download_show/<title>", methods=['POST'])
+    @requires_auth
     def download_show(title):
         global device
         if ";" in title:
@@ -420,6 +474,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/download_bl/<permalink>", methods=['POST'])
+    @requires_auth
     def download_bl(permalink):
         global device
         if request.method == 'POST':
@@ -431,6 +486,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
+    @requires_auth
     def download_sj(info):
         global device
         split = info.split(";")
@@ -447,6 +503,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd/", methods=['GET'])
+    @requires_auth
     def myjd_info():
         global device
         if request.method == 'GET':
@@ -472,6 +529,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_state/", methods=['GET'])
+    @requires_auth
     def myjd_state():
         global device
         if request.method == 'GET':
@@ -490,6 +548,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
+    @requires_auth
     def myjd_move(linkids, uuids):
         global device
         if request.method == 'POST':
@@ -516,6 +575,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
+    @requires_auth
     def myjd_remove(linkids, uuids):
         global device
         if request.method == 'POST':
@@ -543,6 +603,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
+    @requires_auth
     def myjd_retry(linkids, uuids, b64_links):
         global device
         if request.method == 'POST':
@@ -571,6 +632,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_update/", methods=['POST'])
+    @requires_auth
     def myjd_update():
         global device
         if request.method == 'POST':
@@ -583,6 +645,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_start/", methods=['POST'])
+    @requires_auth
     def myjd_start():
         global device
         if request.method == 'POST':
@@ -595,6 +658,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
+    @requires_auth
     def myjd_pause(bl):
         global device
         bl = json.loads(bl)
@@ -608,6 +672,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return "Failed", 405
 
     @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
+    @requires_auth
     def myjd_stop():
         global device
         if request.method == 'POST':
@@ -624,6 +689,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         return "\n".join(cont) if cont else ""
 
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
+    @requires_auth
     def myjd_cnl(uuid):
         global device
         if request.method == 'POST':
@@ -713,6 +779,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         return "\n".join(cont) if cont else ""
 
     @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
+    @requires_auth
     def get_post_lists():
         if request.method == 'GET':
             return jsonify(

@@ -516,6 +516,14 @@
                     <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)"/>
+                    <h4>Nutzername</h4>
+                    <input ng-model="settings.general.auth_user" class="form-control" data-toggle="tooltip"
+                           data-placement="top"
+                           title="Hier den Nutzernamen für RSScrawler eingeben (erfordert gesetztes Passwort!)"/>
+                    <h4>Passwort</h4>
+                    <input ng-model="settings.general.auth_hash" class="form-control" data-toggle="tooltip"
+                           data-placement="top" type="password"
+                           title="Hier das Passwort für RSScrawler angeben (erfordert gesetzten Nutzernamen!)"/>
                     <h4>Suchintervall</h4>
                     <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
                            class="form-control" data-toggle="tooltip"
