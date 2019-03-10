@@ -148,7 +148,7 @@ def dj_to_feedparser_dict(beautifulsoup_object):
 
         for genre in genres:
             items = genre.select("a")
-            type = str(genre.previous.previous)
+            dj_type = str(genre.previous.previous)
 
             for item in items:
                 titles = item.text.split('\n')
@@ -158,7 +158,7 @@ def dj_to_feedparser_dict(beautifulsoup_object):
                     entries.append(FakeFeedParserDict({
                         "title": title,
                         "published": published,
-                        "genre": type,
+                        "genre": dj_type,
                         "link": link
                     }))
 

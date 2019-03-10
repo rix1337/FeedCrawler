@@ -227,7 +227,7 @@
                     <h4>Serien (RegEx)</h4>
                     <textarea ng-model="lists.sj.regex" class="liste form-control" data-toggle="tooltip"
                               data-placement="top"
-                              title="Pro Zeile Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert"></textarea>
+                              title="Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert"></textarea>
                     <h4>Staffeln (RegEx)</h4>
                     <textarea ng-model="lists.sj.staffeln_regex" class="liste form-control" data-toggle="tooltip"
                               data-placement="top"
@@ -257,11 +257,32 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFour"
                             aria-expanded="false" aria-controls="collapseZeroFour">
-                        <h3>YouTube</h3>
+                        <h3>DJ</h3>
                     </button>
                 </h5>
             </div>
             <div id="collapseZeroFour" class="collapse" aria-labelledby="headingZeroFour" data-parent="#lists">
+                <div class="card-body">
+                    <h4>Dokus</h4>
+                    <textarea ng-model="lists.dj.dokus" class="liste form-control" data-toggle="tooltip"
+                              data-placement="top" title="Pro Zeile ein Dokutitel"></textarea>
+                    <h4>Dokus (RegEx)</h4>
+                    <textarea ng-model="lists.dj.regex" class="liste form-control" data-toggle="tooltip"
+                              data-placement="top"
+                              title="Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert"></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header" id="headingZeroFive">
+                <h5 class="mb-0">
+                    <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFive"
+                            aria-expanded="false" aria-controls="collapseZeroFive">
+                        <h3>YouTube</h3>
+                    </button>
+                </h5>
+            </div>
+            <div id="collapseZeroFive" class="collapse" aria-labelledby="headingZeroFive" data-parent="#lists">
                 <div class="card-body">
                     <h4>Kanäle/Playlisten</h4>
                     <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"

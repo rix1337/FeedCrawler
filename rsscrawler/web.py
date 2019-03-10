@@ -728,6 +728,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "regex": get_list('SJ_Serien_Regex'),
                             "staffeln_regex": get_list('SJ_Staffeln_Regex'),
                         },
+                        "dj": {
+                            "dokus": get_list('DJ_Dokus'),
+                            "regex": get_list('DJ_Dokus_Regex'),
+                        },
                         "mbsj": {
                             "staffeln": get_list('MB_Staffeln'),
                         },
@@ -753,6 +757,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 data['sj']['regex'].split('\n'))
             ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
                 data['sj']['staffeln_regex'].split('\n'))
+            ListDb(dbfile, "DJ_Dokus").store_list(
+                data['dj']['dokus'].split('\n'))
+            ListDb(dbfile, "DJ_Dokus_Regex").store_list(
+                data['dj']['regex'].split('\n'))
             ListDb(dbfile, "YT_Channels").store_list(
                 data['yt']['kanaele_playlisten'].split('\n'))
             return "Success", 201
