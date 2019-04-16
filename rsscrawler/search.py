@@ -267,11 +267,13 @@ def best_result_bl(title, configfile, dbfile):
         if re.search(ignore, best_title.lower()):
             best_title = None
         quality = conf.get('quality')
-        if "480p" not in quality and not re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
-                                                   best_title):
+        if "480p" not in quality and best_title and not re.search(
+                r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
+                best_title):
             best_title = None
-        elif "480p" in quality and re.search(r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
-                                             best_title):
+        elif "480p" in quality and best_title and re.search(
+                r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
+                best_title):
             best_title = None
     else:
         best_title = None

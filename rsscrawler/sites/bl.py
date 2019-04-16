@@ -645,7 +645,7 @@ class BL:
                         if self.config.get('cutoff'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler",
+                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler/Remux",
                                                     download_links,
                                                     password)
                         if self.device:

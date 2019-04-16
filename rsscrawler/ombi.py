@@ -102,6 +102,10 @@ def ombi(configfile, dbfile, device, log_debug):
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
+
+    if not url or not api:
+        return device
+
     mdb_api = config.get('mdb_api')
     tvd_api = config.get('tvd_api')
     tvd_user = config.get('tvd_user')
