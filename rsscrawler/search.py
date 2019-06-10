@@ -404,7 +404,10 @@ def download_bl(payload, device, configfile, dbfile):
                 search_page)
             total_results = len(search_results)
             if staffel:
-                imdb_id = search_results[0][0]
+                try:
+                    imdb_id = search_results[0][0]
+                except:
+                    imdb_id = False
             else:
                 no_series = False
                 while total_results > 0:
@@ -509,10 +512,18 @@ def download_bl(payload, device, configfile, dbfile):
 
 def download_sj(sj_id, special, device, configfile, dbfile):
     url = get_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(sj_id), configfile, dbfile)
-    season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
+    try:
+        season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
+    except:
+        logging.debug(u'Keine Staffeln gefunden.')
+        return False
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
-    title = html_to_str(re.findall(r'>(.{1,85}?) &#', season_pool).pop())
+    try:
+        title = html_to_str(re.findall(r'<title>(.*?) » ', url).pop())
+    except:
+        logging.debug(u'Kein Serientitel gefunden.')
+        return False
 
     rsscrawler = RssConfig('RSScrawler', configfile)
 

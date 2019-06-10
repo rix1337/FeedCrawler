@@ -210,7 +210,7 @@ class SJ:
             self.log_debug(
                 "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
             return
-        if storage == 'added':
+        if storage == 'added' or storage == 'notdl':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             self.device = myjd_download(self.configfile, self.device, title, "RSScrawler", links,

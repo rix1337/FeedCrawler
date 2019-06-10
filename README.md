@@ -13,10 +13,8 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ##  Vorraussetzungen
 
 * [Python ab 3.5 empfohlen (2.7 wird noch unterstützt)](https://www.python.org/downloads/)
-* [pip, falls nicht vorhanden](https://pip.pypa.io/en/stable/installing/)
-* [JDownloader 2 (benötigt JRE)](http://www.jdownloader.org/jdownloader2)
-* [Zusatzpakete](https://github.com/rix1337/RSScrawler/blob/master/requirements.txt)
-* [Optional, aber empfohlen: node.js](https://nodejs.org/en/)
+* [pip (wird normalerweise von Python mitinstalliert)](https://pip.pypa.io/en/stable/installing/)
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2)
 
 ## Installation
 
@@ -28,7 +26,6 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern nur auf Systemseite:
 
-* Kommt es direkt beim Programmstart zu einem _UnicodeEncodeError_ einfach `export PYTHONIOENCODING=utf-8` vor Programmstart ausführen
 * Python _Levenshtein_ wird aussschließlich in der Suche per Webinterface/API von der _fuzzywuzzy_ Bibliothek verwendet, die notfalls auf eine langsamere Alternative ausweicht. Die Warnung beim Start, dass das Modul fehlt, lässt sich optional per `pip install python-Levenshtein` vermeiden.
 * Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://visualstudio.microsoft.com/de/visual-cpp-build-tools/) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
@@ -38,8 +35,7 @@ Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern n
 
 ## Sicherheitshinweis
 
-Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden.
-Dazu lassen sich im Webinterface Nutzername und Passwort festlegen.
+Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername und Passwort festlegen.
 
 Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 
