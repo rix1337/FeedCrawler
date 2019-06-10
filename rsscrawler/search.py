@@ -520,7 +520,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     try:
-        title = html_to_str(re.findall(r'>(.{1,85}?) &#', season_pool).pop())
+        title = html_to_str(re.findall(r'<title>(.*?) » ', url).pop())
     except:
         logging.debug(u'Kein Serientitel gefunden.')
         return False
