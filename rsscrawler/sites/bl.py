@@ -267,6 +267,7 @@ class BL:
                     ignore = "|".join(
                         [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
                         "ignore") else r"^unmatchable$"
+                    post.title = post.title.strip(u'\u200b')
                     found = re.search(ignore, post.title.lower())
                     if found:
                         self.log_debug(
@@ -463,6 +464,7 @@ class BL:
                     content = False
                 if content:
                     if re.search(r'.*([mM][kK][vV]).*', content):
+                        post.title = post.title.strip(u'\u200b')
                         found = re.search(ignore, post.title.lower())
                         if found:
                             self.log_debug(
