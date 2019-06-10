@@ -404,7 +404,10 @@ def download_bl(payload, device, configfile, dbfile):
                 search_page)
             total_results = len(search_results)
             if staffel:
-                imdb_id = search_results[0][0]
+                try:
+                    imdb_id = search_results[0][0]
+                except:
+                    imdb_id = False
             else:
                 no_series = False
                 while total_results > 0:
