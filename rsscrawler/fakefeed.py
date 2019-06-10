@@ -7,7 +7,6 @@ import re
 
 from bs4 import BeautifulSoup
 
-from rsscrawler.common import decode_base64
 from rsscrawler.url import get_url
 
 

@@ -406,8 +406,8 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
                 path = subdir + "/<jd:packagename>"
             else:
                 path = "<jd:packagename>"
-            if subdir == "RSScrawler/Remux":
-                priority = "LOWER"
+        if "Remux" in path:
+            priority = "LOWER"
 
         try:
             device.linkgrabber.add_links(params=[
