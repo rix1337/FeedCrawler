@@ -10,10 +10,10 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![GitHub stars](https://img.shields.io/github/stars/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/network)
 
-##  Vorraussetzungen
+##  Voraussetzungen
 
 * [Python 3.7](https://www.python.org/downloads/)
-* [pip (normalerweise mit Python installiert)](https://pip.pypa.io/en/stable/installing/)
+* [pip](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2)
 
 ## Installation
@@ -26,7 +26,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern nur auf Systemseite:
 
-* Python _Levenshtein_ wird aussschließlich in der Suche per Webinterface/API von der _fuzzywuzzy_ Bibliothek verwendet, die notfalls auf eine langsamere Alternative ausweicht. Die Warnung beim Start, dass das Modul fehlt, lässt sich optional per `pip install python-Levenshtein` vermeiden.
+* Python _Levenshtein_ wird ausschließlich in der Suche per Webinterface/API von der _fuzzywuzzy_ Bibliothek verwendet, die notfalls auf eine langsamere Alternative ausweicht. Die Warnung beim Start, dass das Modul fehlt, lässt sich optional per `pip install python-Levenshtein` vermeiden.
 * Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://visualstudio.microsoft.com/de/visual-cpp-build-tools/) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 ## Update
