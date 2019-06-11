@@ -12,8 +12,8 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ##  Vorraussetzungen
 
-* [Python ab 3.5 empfohlen (2.7 wird noch unterstützt)](https://www.python.org/downloads/)
-* [pip (wird normalerweise von Python mitinstalliert)](https://pip.pypa.io/en/stable/installing/)
+* [Python 3.7](https://www.python.org/downloads/)
+* [pip (normalerweise mit Python installiert)](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2)
 
 ## Installation
