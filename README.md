@@ -10,6 +10,8 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![GitHub stars](https://img.shields.io/github/stars/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/network)
 
+[![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/J3J4Y2R6)
+
 ##  Voraussetzungen
 
 * [Python 3.7](https://www.python.org/downloads/)
