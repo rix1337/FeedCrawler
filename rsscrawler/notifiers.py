@@ -52,6 +52,7 @@ def notify(items, configfile):
     notifications = RssConfig('Notifications', configfile)
     homeassistant_settings = notifications.get("homeassistant").split(',')
     pushbullet_token = notifications.get("pushbullet")
+    telegram_settings = notifications.get("telegram").split(',')
     pushover_settings = notifications.get("pushover").split(',')
     if len(items) > 0:
         cut_items = list(api_request_cutter(items, 5))
@@ -63,6 +64,11 @@ def notify(items, configfile):
                                homeassistant_password)
         if len(notifications.get("pushbullet")) > 0:
             pushbullet(items, pushbullet_token)
+        if len(notifications.get("telegram")) > 0:
+            for cut_item in cut_items:
+                telegram_token = telegram_settings[0]
+                telegram_chatId = telegram_settings[1]
+                telegram(cut_item, telegram_token, telegram_chatId)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]
@@ -92,6 +98,28 @@ def home_assistant(items, homassistant_url, homeassistant_password):
         log_debug('Home Assistant Erfolgreich versendet')
     else:
         log_debug('FEHLER - Konnte nicht an Home Assistant Senden')
+
+
+def telegram(items, token, chatid):
+    data = urlencode({
+        'chat_id': chatid,
+        'text': "\n\n".join(items)
+    })
+
+    if six.PY3:
+        data = data.encode("utf-8")
+
+    try:
+        req = Request("https://api.telegram.org/bot" + token + "/sendMessage", data)
+        response = urlopen(req)
+    except HTTPError:
+        log_debug('FEHLER - Konnte Telegram API nicht erreichen')
+        return False
+    res = json.load(response)
+    if res['ok'] == True:
+        log_debug('Telegram Erfolgreich versendet')
+    else:
+        log_debug('FEHLER - Konnte nicht an Telegram Senden')
 
 
 def pushbullet(items, token):

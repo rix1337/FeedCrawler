@@ -65,6 +65,7 @@ class RssConfig(object):
         'Notifications': [
             ("homeassistant", "str", ""),
             ("pushbullet", "str", ""),
+            ("telegram", "str", ""),
             ("pushover", "str", "")
         ],
         'Ombi': [
