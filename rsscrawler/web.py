@@ -172,6 +172,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "pushbullet": alerts.get("pushbullet"),
                             "pushover": alerts.get("pushover"),
                             "homeassistant": alerts.get("homeassistant"),
+                            "telegram": alerts.get("telegram"),
                         },
                         "ombi": {
                             "url": ombi.get("url"),
@@ -377,6 +378,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                          to_str(data['alerts']['pushbullet']))
             section.save("pushover",
                          to_str(data['alerts']['pushover']))
+            section.save("telegram",
+                         to_str(data['alerts']['telegram']))
             section.save("homeassistant",
                          to_str(data['alerts']['homeassistant']))
             section = RssConfig("Ombi", configfile)
