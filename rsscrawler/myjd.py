@@ -154,10 +154,12 @@ def check_packages_types(links, packages):
         done = package.get('bytesLoaded')
         if done and size:
             completed = 100 * done // size
-            size = readable_size(size)
-            done = readable_size(done)
         else:
             completed = 0
+        size = readable_size(size)
+        done = readable_size(done)
+        if not done:
+            done = "0"
         speed = package.get('speed')
         if speed:
             speed = readable_size(speed) + "/s"
@@ -237,35 +239,6 @@ def check_packages_types(links, packages):
     if not decrypted:
         decrypted = False
     return [failed, offline, decrypted]
-
-
-def check_failed_packages(configfile, device):
-    try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
-            try:
-                grabber_collecting = device.linkgrabber.is_collecting()
-                packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-                packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-            except rsscrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
-                    return False
-                grabber_collecting = device.linkgrabber.is_collecting()
-                packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-                packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-            return [device, grabber_collecting, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_offline,
-                    packages_in_linkgrabber_failed]
-        else:
-            return False
-    except rsscrawler.myjdapi.MYJDException as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-        return False
 
 
 def get_state(configfile, device):
@@ -381,11 +354,13 @@ def remove_from_linkgrabber(configfile, device, linkids, uuid):
         if device:
             try:
                 device.linkgrabber.remove_links(linkids, uuid)
+                device.downloads.remove_links(linkids, uuid)
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
                 if not device or not is_device(device):
                     return False
                 device.linkgrabber.remove_links(linkids, uuid)
+                device.downloads.remove_links(linkids, uuid)
             return device
         else:
             return False
@@ -494,6 +469,50 @@ def retry_decrypt(configfile, device, linkids, uuid, links):
                         "startAt": 0,
                         "status": True
                     }])
+            if not package:
+                try:
+                    package = device.downloads.query_packages(params=[
+                        {
+                            "bytesLoaded": True,
+                            "bytesTotal": True,
+                            "comment": True,
+                            "enabled": True,
+                            "eta": True,
+                            "priority": True,
+                            "finished": True,
+                            "running": True,
+                            "speed": True,
+                            "status": True,
+                            "childCount": True,
+                            "hosts": True,
+                            "saveTo": True,
+                            "maxResults": -1,
+                            "packageUUIDs": uuid,
+                            "startAt": 0,
+                        }])
+                except rsscrawler.myjdapi.TokenExpiredException:
+                    device = get_device(configfile)
+                    if not device or not is_device(device):
+                        return False
+                    package = device.downloads.query_packages(params=[
+                        {
+                            "bytesLoaded": True,
+                            "bytesTotal": True,
+                            "comment": True,
+                            "enabled": True,
+                            "eta": True,
+                            "priority": True,
+                            "finished": True,
+                            "running": True,
+                            "speed": True,
+                            "status": True,
+                            "childCount": True,
+                            "hosts": True,
+                            "saveTo": True,
+                            "maxResults": -1,
+                            "packageUUIDs": uuid,
+                            "startAt": 0,
+                        }])
             if package:
                 remove_from_linkgrabber(configfile, device, linkids, uuid)
                 title = package[0].get('name')
