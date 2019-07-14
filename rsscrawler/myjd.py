@@ -176,8 +176,11 @@ def check_packages_types(links, packages):
         if links:
             for link in links:
                 if uuid == link.get('packageUUID'):
-                    if link.get('availability') == 'OFFLINE':
+                    if link.get('availability') == 'OFFLINE' or link.get('status') == 'Datei nicht gefunden':
                         package_offline = True
+                    if 'Falscher Captcha Code!' in link.get('name') or (
+                            link.get('comment') and 'BLOCK_HOSTER' in link.get('comment')):
+                        package_failed = True
                     url = link.get('url')
                     if url:
                         url = str(url)
@@ -190,7 +193,10 @@ def check_packages_types(links, packages):
         for h in hosts:
             if h == 'linkcrawlerretry':
                 package_failed = True
-                package_offline = False
+        if package.get('status') and 'Ein Fehler ist aufgetreten!' in package.get('status'):
+            package_failed = True
+        if package_failed:
+            package_offline = False
         if package_failed and not package_offline and len(urls) == 1:
             url = urls[0]
             urls = False
@@ -241,7 +247,6 @@ def check_failed_packages(configfile, device):
             try:
                 grabber_collecting = device.linkgrabber.is_collecting()
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
-                packages_in_downloader = get_packages_in_downloader()
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
@@ -295,7 +300,12 @@ def get_info(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 device.update.run_update_check()
                 update_ready = device.update.is_update_available()
+
                 packages_in_downloader = get_packages_in_downloader(device)
+                packages_in_downloader_failed = packages_in_downloader[0]
+                packages_in_downloader_offline = packages_in_downloader[1]
+                packages_in_downloader_decrypted = packages_in_downloader[2]
+
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
@@ -308,15 +318,35 @@ def get_info(configfile, device):
                 grabber_collecting = device.linkgrabber.is_collecting()
                 device.update.run_update_check()
                 update_ready = device.update.is_update_available()
+
                 packages_in_downloader = get_packages_in_downloader(device)
+                packages_in_downloader_failed = packages_in_downloader[0]
+                packages_in_downloader_offline = packages_in_downloader[1]
+                packages_in_downloader_decrypted = packages_in_downloader[2]
+
                 packages_in_linkgrabber = get_packages_in_linkgrabber(device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
 
+            if packages_in_downloader_failed and packages_in_linkgrabber_failed:
+                packages_failed = packages_in_downloader_failed + packages_in_linkgrabber_failed
+            elif packages_in_downloader_failed:
+                packages_failed = packages_in_downloader_failed
+            else:
+                packages_failed = packages_in_linkgrabber_failed
+
+            if packages_in_downloader_offline and packages_in_linkgrabber_offline:
+                packages_offline = packages_in_downloader_offline + packages_in_linkgrabber_offline
+            elif packages_in_downloader_offline:
+                packages_offline = packages_in_downloader_offline
+            else:
+                packages_offline = packages_in_linkgrabber_offline
+
             return [device, downloader_state, grabber_collecting, update_ready,
-                    [packages_in_downloader, packages_in_linkgrabber_decrypted, packages_in_linkgrabber_offline,
-                     packages_in_linkgrabber_failed]]
+                    [packages_in_downloader_decrypted, packages_in_linkgrabber_decrypted,
+                     packages_offline,
+                     packages_failed]]
         else:
             return False
     except rsscrawler.myjdapi.MYJDException as e:
