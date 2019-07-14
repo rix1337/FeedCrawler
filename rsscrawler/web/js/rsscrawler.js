@@ -588,6 +588,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
             .then(function (res) {
                 getMyJD();
+                for (let failed_package of $scope.myjd_failed) {
+                    let existing_uuid = failed_package['uuid']
+                    if (uuid == existing_uuid) {
+                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        $scope.myjd_failed.splice(index, 1)
+                    }
+                }
             }, function (res) {
                 console.log('Konnte Download nicht erneut hinzufügen!');
                 showDanger('Konnte Download nicht erneut hinzufügen!');

@@ -23,7 +23,6 @@ from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.common import decode_base64
 from rsscrawler.myjd import check_device
-from rsscrawler.myjd import check_failed_packages
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
@@ -696,11 +695,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def myjd_cnl(uuid):
         global device
         if request.method == 'POST':
-            failed = check_failed_packages(configfile, device)
+            failed = get_info(configfile, device)
             if failed:
                 device = failed[0]
-                decrypted_packages = failed[2]
-                failed_packages = failed[4]
+                decrypted_packages = failed[4][1]
+                failed_packages = failed[4][3]
             else:
                 failed_packages = False
                 decrypted_packages = False
@@ -730,23 +729,23 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             while i > 0:
                 i -= 1
                 time.sleep(5)
-                failed = check_failed_packages(configfile, device)
+                failed = get_info(configfile, device)
                 if failed:
                     device = failed[0]
-                    grabber_collecting = failed[1]
+                    grabber_collecting = failed[2]
                     if not grabber_collecting:
-                        decrypted_packages = failed[2]
-                        offline_packages = failed[3]
+                        decrypted_packages = failed[4][1]
+                        offline_packages = failed[4][2]
                         another_device = package_merge_check(configfile, device, decrypted_packages, title,
                                                              known_packages)
                         if another_device:
                             device = another_device
-                            failed = check_failed_packages(configfile, device)
+                            failed = get_info(configfile, device)
                             if failed:
                                 device = failed[0]
-                                grabber_collecting = failed[1]
-                                decrypted_packages = failed[2]
-                                offline_packages = failed[3]
+                                grabber_collecting = failed[2]
+                                decrypted_packages = failed[4][1]
+                                offline_packages = failed[4][2]
                         if not grabber_collecting and decrypted_packages:
                             for dp in decrypted_packages:
                                 if subdir and 'RSScrawler' in dp['path']:

@@ -48,8 +48,8 @@ from rsscrawler import files
 from rsscrawler import version
 from rsscrawler.common import is_device
 from rsscrawler.common import readable_time
-from rsscrawler.myjd import check_failed_packages
 from rsscrawler.myjd import get_device
+from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.notifiers import notify_new_failed_packages
 from rsscrawler.ombi import ombi
@@ -106,11 +106,11 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
-                failed_packages = check_failed_packages(configfile, device)
+                failed_packages = get_info(configfile, device)
                 if failed_packages:
                     device = failed_packages[0]
-                    notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-                    notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+                    notify_new_failed_packages(failed_packages[4][2], True, configfile, dbfile)
+                    notify_new_failed_packages(failed_packages[4][3], False, configfile, dbfile)
                 device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
                     name = task._INTERNAL_NAME
@@ -143,11 +143,11 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
-            failed_packages = check_failed_packages(configfile, device)
+            failed_packages = get_info(configfile, device)
             if failed_packages:
                 device = failed_packages[0]
-                notify_new_failed_packages(failed_packages[3], True, configfile, dbfile)
-                notify_new_failed_packages(failed_packages[4], False, configfile, dbfile)
+                notify_new_failed_packages(failed_packages[4][2], True, configfile, dbfile)
+                notify_new_failed_packages(failed_packages[4][3], False, configfile, dbfile)
             device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
                 name = task._INTERNAL_NAME
@@ -238,6 +238,7 @@ def main():
                     device = get_device(configfile)
                 else:
                     print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+                    time.sleep(10)
                     sys.exit(1)
         else:
             device = False

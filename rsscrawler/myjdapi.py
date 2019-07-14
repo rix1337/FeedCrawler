@@ -624,6 +624,7 @@ class Downloads:
                            "hosts": True,
                            "saveTo": True,
                            "maxResults": -1,
+                           "packageUUIDs": [],
                            "startAt": 0,
                        }]):
         """
@@ -656,6 +657,11 @@ class Downloads:
         params = [links_ids, packages_ids]
         params += [action, mode, selection_type]
         resp = self.device.action(self.url + "/cleanup", params)
+        return resp
+
+    def remove_links(self, links_ids, packages_ids):
+        params = [links_ids, packages_ids]
+        resp = self.device.action(self.url + "/removeLinks", params)
         return resp
 
 
