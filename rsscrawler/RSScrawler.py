@@ -238,6 +238,7 @@ def main():
                     device = get_device(configfile)
                 else:
                     print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+                    time.sleep(10)
                     sys.exit(1)
         else:
             device = False
