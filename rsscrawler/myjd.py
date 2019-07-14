@@ -201,7 +201,6 @@ def check_packages_types(links, packages):
             package_offline = False
         if package_failed and not package_offline and len(urls) == 1:
             url = urls[0]
-            urls = False
         elif urls:
             urls = "\n".join(urls)
         if package_failed and not package_offline:
