@@ -368,6 +368,28 @@ def remove_from_linkgrabber(configfile, device, linkids, uuid):
         return False
 
 
+def move_to_new_package(configfile, device, linkids, package_id, new_title, new_path):
+    try:
+        if not device or not is_device(device):
+            device = get_device(configfile)
+        if device:
+            try:
+                device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+            except rsscrawler.myjdapi.TokenExpiredException:
+                device = get_device(configfile)
+                if not device or not is_device(device):
+                    return False
+                device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+            return device
+        else:
+            return False
+    except rsscrawler.myjdapi.MYJDException as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def download(configfile, device, title, subdir, links, password, full_path=None):
     try:
         if not device or not is_device(device):
@@ -607,8 +629,42 @@ def jdownloader_stop(configfile, device):
         return False
 
 
+def check_failed_link_exists(links, configfile, device):
+    failed = get_info(configfile, device)
+    failed_packages = failed[4][3]
+    for link in links:
+        for package in failed_packages:
+            for url in package['urls']:
+                if link == url:
+                    device = failed[0]
+                    return [device, package['linkids'], package['uuid'], package['name'], package['path']]
+    return False
+
+
 def myjd_download(configfile, device, title, subdir, links, password):
     if device:
+        is_episode = re.findall(r'[\w\.\s]*S\d{1,2}(E\d{1,2})[\w\.\s]*', title)
+        if is_episode:
+            exists = check_failed_link_exists(links, configfile, device)
+            if exists:
+                device = exists[0]
+                old_title = exists[3]
+                old_path = exists[4]
+
+                new_episode = is_episode.pop()
+                old_episode = re.findall(
+                    r'[\w\.\s]*S\d{1,2}((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w\.\s]*',
+                    old_title).pop()
+                combined_episodes = old_episode + '-' + new_episode
+
+                linkids = exists[1]
+                package_id = [exists[2]]
+                new_title = title.replace(new_episode, combined_episodes)
+                new_path = old_path.replace(old_title, new_title)
+
+                device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
+                return device
+
         device = download(configfile, device, title, subdir, links, password)
         if device:
             return device
@@ -658,7 +714,7 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
     if keep_linkids and keep_uuids:
         for k in keep_linkids:
             delete_linkids.remove(k)
-        device = device.linkgrabber.move_to_new_package(keep_linkids, keep_uuids, title, "<jd:packagename>")
+        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
         device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
         return device
     elif delete_packages and len(delete_packages) < len(decrypted_packages):
@@ -725,12 +781,12 @@ def package_merge(configfile, device, title, uuids, linkids):
             device = get_device(configfile)
         if device:
             try:
-                device.linkgrabber.move_to_new_package(linkids, uuids, title, "<jd:packagename>")
+                move_to_new_package(configfile, device, linkids, uuids, title, "<jd:packagename>")
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
                 if not device or not is_device(device):
                     return False
-                device.linkgrabber.move_to_new_package(linkids, uuids, title, "<jd:packagename>")
+                move_to_new_package(configfile, device, linkids, uuids, title, "<jd:packagename>")
             return device
         else:
             return False

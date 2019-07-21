@@ -659,6 +659,11 @@ class Downloads:
         resp = self.device.action(self.url + "/cleanup", params)
         return resp
 
+    def move_to_new_package(self, links_ids, packages_ids, new_pkg_name, download_path):
+        params = links_ids, packages_ids, new_pkg_name, download_path
+        resp = self.device.action(self.url + "/movetoNewPackage", params)
+        return resp
+
     def remove_links(self, links_ids, packages_ids):
         params = [links_ids, packages_ids]
         resp = self.device.action(self.url + "/removeLinks", params)
