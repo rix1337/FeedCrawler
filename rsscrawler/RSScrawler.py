@@ -111,6 +111,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     device = failed_packages[0]
                     notify_new_failed_packages(failed_packages[4][2], True, configfile, dbfile)
                     notify_new_failed_packages(failed_packages[4][3], False, configfile, dbfile)
+                else:
+                    db = RssDb(dbfile, 'failed')
+                    db.reset()
                 device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
                     name = task._INTERNAL_NAME
@@ -148,6 +151,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 device = failed_packages[0]
                 notify_new_failed_packages(failed_packages[4][2], True, configfile, dbfile)
                 notify_new_failed_packages(failed_packages[4][3], False, configfile, dbfile)
+            else:
+                db = RssDb(dbfile, 'failed')
+                db.reset()
             device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
                 name = task._INTERNAL_NAME
