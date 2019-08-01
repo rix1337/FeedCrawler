@@ -180,7 +180,7 @@ def check_packages_types(links, packages):
                 if uuid == link.get('packageUUID'):
                     if link.get('availability') == 'OFFLINE' or link.get('status') == 'Datei nicht gefunden':
                         package_offline = True
-                    if 'Falscher Captcha Code!' in link.get('name') or (
+                    if 'Falscher Captcha Code!' in link.get('name') or 'Wrong Captcha!' in link.get('name') or (
                             link.get('comment') and 'BLOCK_HOSTER' in link.get('comment')):
                         package_failed = True
                     url = link.get('url')
@@ -195,7 +195,8 @@ def check_packages_types(links, packages):
         for h in hosts:
             if h == 'linkcrawlerretry':
                 package_failed = True
-        if package.get('status') and 'Ein Fehler ist aufgetreten!' in package.get('status'):
+        if package.get('status') and 'Ein Fehler ist aufgetreten!' in package.get(
+                'status') or 'An error occurred!' in package.get('status'):
             package_failed = True
         if package_failed:
             package_offline = False
@@ -663,6 +664,7 @@ def myjd_download(configfile, device, title, subdir, links, password):
                 new_path = old_path.replace(old_title, new_title)
 
                 device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
+                # TODO ensure that click n load picks up all episodes from the new title and doesnt add false positives!
                 return device
 
         device = download(configfile, device, title, subdir, links, password)
