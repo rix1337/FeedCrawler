@@ -24,24 +24,38 @@ def check_url(configfile, dbfile):
     if proxy:
         db = RssDb(dbfile, 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
-        if "block." in str(
-                scraper.get(sj_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30,
-                            allow_redirects=False).headers.get("location")):
+        try:
+            if "block." in str(
+                    scraper.get(sj_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30,
+                                allow_redirects=False).headers.get("location")):
+                sj_blocked_proxy = True
+            else:
+                db.delete("SJ")
+        except:
+            sj_blocked_proxy = True
+
+        if sj_blocked_proxy:
             print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("SJ", "Blocked")
             sj_blocked_proxy = True
-        else:
-            db.delete("SJ")
-        if "<Response [403]>" in str(
-                scraper.get(mb_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30, allow_redirects=False)):
+
+        try:
+            if "<Response [403]>" in str(
+                    scraper.get(mb_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30, allow_redirects=False)):
+                    mb_blocked_proxy = True
+            else:
+                db.delete("MB")
+        except:
+            mb_blocked_proxy = True
+
+        if mb_blocked_proxy:
             print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("MB", "Blocked")
-                mb_blocked_proxy = True
-        else:
-            db.delete("MB")
-    # TODO check if HA is working!
+
+        # TODO check if HA is working!
+
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(
                 scraper.get(sj_url, headers={'User-Agent': agent}, timeout=30, allow_redirects=False).headers.get(
