@@ -195,9 +195,10 @@ def check_packages_types(links, packages):
         for h in hosts:
             if h == 'linkcrawlerretry':
                 package_failed = True
-        if package.get('status') and 'Ein Fehler ist aufgetreten!' in package.get(
-                'status') or 'An error occurred!' in package.get('status'):
-            package_failed = True
+        status = package.get('status')
+        if status:
+            if 'Ein Fehler ist aufgetreten!' in status or 'An error occurred!' in status:
+                package_failed = True
         if package_failed:
             package_offline = False
         if package_failed and not package_offline and len(urls) == 1:
