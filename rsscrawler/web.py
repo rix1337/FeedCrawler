@@ -597,7 +597,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             device = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if device:
-                # TODO remove from db.failed with title
                 return "Success", 200
             else:
                 return "Failed", 400
