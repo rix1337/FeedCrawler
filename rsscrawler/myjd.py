@@ -635,11 +635,12 @@ def check_failed_link_exists(links, configfile, device):
     failed = get_info(configfile, device)
     failed_packages = failed[4][3]
     for link in links:
-        for package in failed_packages:
-            for url in package['urls']:
-                if link == url:
-                    device = failed[0]
-                    return [device, package['linkids'], package['uuid'], package['name'], package['path']]
+        if failed_packages:
+            for package in failed_packages:
+                for url in package['urls']:
+                    if link == url:
+                        device = failed[0]
+                        return [device, package['linkids'], package['uuid'], package['name'], package['path']]
     return False
 
 
