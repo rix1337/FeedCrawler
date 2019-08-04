@@ -103,7 +103,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: 'hou', label: 'H-OU'}
     ];
 
+    $scope.myjd_collapse_manual = false;
+
     $scope.init = getAll();
+
+    $scope.manualCollapse = function () {
+        manualCollapse();
+    };
 
     $scope.showSearch = function () {
         showSearch();
@@ -183,6 +189,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getMyJD();
     }
 
+    function manualCollapse() {
+        $scope.myjd_collapse_manual = true;
+    }
 
     function getLog() {
         $http.get('api/log/')
@@ -511,13 +520,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $scope.myjd_failed = false
                 }
                 if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
-                    $("#myjd_collapse").addClass('collapsed');
-                    $("#collapseOne").removeClass('show');
+                    if (!$scope.myjd_collapse_manual) {
+                        $("#myjd_collapse").addClass('collapsed');
+                        $("#collapseOne").removeClass('show');
+                    }
                     $("#myjd_no_packages").show();
                 } else {
                     $("#myjd_no_packages").hide();
-                    $("#collapseOne").addClass('show');
-                    $("#myjd_collapse").removeClass('collapsed');
+                    if (!$scope.myjd_collapse_manual) {
+                        $("#collapseOne").addClass('show');
+                        $("#myjd_collapse").removeClass('collapsed');
+                    }
 
                 }
                 if ($scope.myjd_downloads) {
@@ -528,8 +541,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
-                    $("#collapseOne").addClass('show');
-                    $("#myjd_collapse").removeClass('collapsed');
+                    if (!$scope.myjd_collapse_manual) {
+                        $("#collapseOne").addClass('show');
+                        $("#myjd_collapse").removeClass('collapsed');
+                    }
                 } else {
                     $('#myjd_grabbing').hide();
                 }
