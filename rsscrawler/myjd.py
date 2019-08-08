@@ -679,12 +679,32 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
 
 def package_merge_check(configfile, device, decrypted_packages, title, known_packages):
-    se = re.findall(r'.*(S(\d{1,3})E(\d{1,3})).*', title)
+    episodes = re.findall(r'E(\d{1,3})', title)
+    if episodes:
+        int_episodes = []
+        for ep in episodes:
+            int_episodes.append(int(ep))
+        if len(int_episodes) > 1:
+            sorted_eps = sorted(int_episodes)
+            min_ep = sorted_eps[0]
+            max_ep = sorted_eps[-1]
+            all_episodes = list(range(min_ep, max_ep + 1))
+        else:
+            all_episodes = list(int_episodes)
+
+        # Remove all characters common between all filenames, this should remove everything except the episode number
+        # To make sure, just extract number now
+
+        # Remove all filenames that do not belong to episodes from the Package title
+
+    # delete this
     delete_packages = []
     delete_linkids = []
     delete_uuids = []
     keep_linkids = []
     keep_uuids = []
+
+    se = re.findall(r'.*(S(\d{1,3})E(\d{1,3})).*', title)
     if se:
         se = se[0]
         sse = (str(se[1]) + str(se[2])).lower()
@@ -715,6 +735,7 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
                     if delete:
                         delete_packages.append(dp)
 
+    # keep this
     if keep_linkids and keep_uuids:
         for k in keep_linkids:
             delete_linkids.remove(k)
