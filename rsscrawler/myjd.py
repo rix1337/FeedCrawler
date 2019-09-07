@@ -13,6 +13,7 @@ from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
 from rsscrawler.common import write_crawljob_file
 from rsscrawler.rssconfig import RssConfig
+import time
 
 
 def get_device(configfile):
@@ -633,12 +634,15 @@ def jdownloader_stop(configfile, device):
 
 def check_failed_link_exists(links, configfile, device):
     failed = get_info(configfile, device)
+    if failed[2]:
+        time.sleep(3)
+        failed = get_info(configfile, device)
     failed_packages = failed[4][3]
     for link in links:
         if failed_packages:
             for package in failed_packages:
                 for url in package['urls']:
-                    if link == url:
+                    if link == url or url in link or link in url:
                         device = failed[0]
                         return [device, package['linkids'], package['uuid'], package['name'], package['path']]
     return False
@@ -692,50 +696,49 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
         else:
             all_episodes = list(int_episodes)
 
-        # Remove all characters common between all filenames, this should remove everything except the episode number
-        # To make sure, just extract number now
+        delete_packages = []
+        delete_linkids = []
+        delete_uuids = []
+        keep_linkids = []
+        keep_uuids = []
 
-        # Remove all filenames that do not belong to episodes from the Package title
-
-    # delete this
-    delete_packages = []
-    delete_linkids = []
-    delete_uuids = []
-    keep_linkids = []
-    keep_uuids = []
-
-    se = re.findall(r'.*(S(\d{1,3})E(\d{1,3})).*', title)
-    if se:
-        se = se[0]
-        sse = (str(se[1]) + str(se[2])).lower()
-        if sse.startswith('0'):
-            sse = sse[1:]
-        se = se[0].lower()
         if decrypted_packages and len(decrypted_packages) > 1:
+            fname_episodes = []
+            for dp in decrypted_packages:
+                if dp['uuid'] not in known_packages:
+                    fnames = dp['filenames']
+                    # Regex only numbers from filenames (to get only season and episode numbers)
+                    for fname in fnames:
+                        fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
+                        fname_episodes.append(fname_episode)
+                    # Remove common_substring from all numbers (to remove season) episodes should remain
+            replacer = longest_substr(fname_episodes)
+
+            i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
                 delete_uuids.append(uuid)
-                if dp['uuid'] not in known_packages:
+                if uuid not in known_packages:
                     delete = True
                     dname = dp['name'].lower()
                     fnames = dp['filenames']
-                    if se in dname or sse in dname:
-                        delete = False
-                    i = 0
-                    for fn in fnames:
-                        if se in fn.lower() or sse in fn.lower():
-                            keep_linkids.append(linkids[i])
+                    j = 0
+                    for fname in fnames:
+                        fname_episode = int(fname_episodes[i].replace(replacer, ""))
+                        i += 1
+
+                        if fname_episode in all_episodes:
+                            keep_linkids.append(linkids[j])
                             if uuid not in keep_uuids:
                                 keep_uuids.append(uuid)
                             delete = False
-                            i += 1
+                            j += 1
                     if delete:
                         delete_packages.append(dp)
 
-    # keep this
     if keep_linkids and keep_uuids:
         for k in keep_linkids:
             delete_linkids.remove(k)
