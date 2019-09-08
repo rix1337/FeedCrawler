@@ -650,7 +650,7 @@ def check_failed_link_exists(links, configfile, device):
 
 def myjd_download(configfile, device, title, subdir, links, password):
     if device:
-        is_episode = re.findall(r'[\w\.\s]*S\d{1,2}(E\d{1,2})[\w\.\s]*', title)
+        is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
             exists = check_failed_link_exists(links, configfile, device)
             if exists:
@@ -660,9 +660,9 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
                 new_episode = is_episode.pop()
                 old_episode = re.findall(
-                    r'[\w\.\s]*S\d{1,2}((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w\.\s]*',
+                    r'[\w.\s]*S\d{1,2}((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w.\s]*',
                     old_title).pop()
-                combined_episodes = old_episode + '-' + new_episode
+                combined_episodes = new_episode + '-' + old_episode
 
                 linkids = exists[1]
                 package_id = [exists[2]]
@@ -670,7 +670,6 @@ def myjd_download(configfile, device, title, subdir, links, password):
                 new_path = old_path.replace(old_title, new_title)
 
                 device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                # TODO ensure that click n load picks up all episodes from the new title and doesnt add false positives!
                 return device
 
         device = download(configfile, device, title, subdir, links, password)
@@ -683,6 +682,12 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
 
 def package_merge_check(configfile, device, decrypted_packages, title, known_packages):
+    delete_packages = []
+    delete_linkids = []
+    delete_uuids = []
+    keep_linkids = []
+    keep_uuids = []
+
     episodes = re.findall(r'E(\d{1,3})', title)
     if episodes:
         int_episodes = []
@@ -695,12 +700,6 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
             all_episodes = list(range(min_ep, max_ep + 1))
         else:
             all_episodes = list(int_episodes)
-
-        delete_packages = []
-        delete_linkids = []
-        delete_uuids = []
-        keep_linkids = []
-        keep_uuids = []
 
         if decrypted_packages and len(decrypted_packages) > 1:
             fname_episodes = []
@@ -723,7 +722,6 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
                     delete = True
-                    dname = dp['name'].lower()
                     fnames = dp['filenames']
                     j = 0
                     for fname in fnames:
@@ -762,9 +760,10 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
             mergable = package_to_merge(dp, decrypted_packages, known_packages)
             if mergable:
                 break
-        if len(mergable[0][0]) > 1:
-            if mergable not in mergables:
-                mergables.append(mergable)
+        if mergable:
+            if len(mergable[0][0]) > 1:
+                if mergable not in mergables:
+                    mergables.append(mergable)
 
     if mergables:
         for m in mergables:
