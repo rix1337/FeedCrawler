@@ -69,8 +69,12 @@
                         <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
                     </div>
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><span ng-bind="y.size"></span></li>
                         <li class="list-group-item">
+                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
+                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                        </li>
+                        <li class="list-group-item"><span ng-bind="y.size"></span></li>
+                        <li class="list-group-item cnl-blockers" style="display: none;">
                             <a href="" ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"
                                                                                  title="Download starten"></i> </a>
                             <a href="" ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"
@@ -87,18 +91,18 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item" ng-if="z.url">
-                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)"
+                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" style="display: none;"
                                class="cnl-button btn btn-secondary" type="submit"
                                target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!">Click'n'Load-Automatik</a>
-                            <i title="Click'n'Load-Automatik ist noch aktiv!" style="display: none;"
-                               class="cnl-spinner fas fa-sync fa-spin"></i>
+                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
+                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
                         </li>
-                        <li class="list-group-item" ng-if="z.urls">
+                        <li class="list-group-item cnl-blockers" ng-if="z.urls" style="display: none;">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
                                       data-placement="top"
                                       title="Automatische Entschlüsselung fehlgeschlagen. Bitte die Click'n'Load-Automatik nutzen. Alternativ hier entschlüsselte Links eintragen und 'Erneut hinzufügen' drücken!"></textarea>
                         </li>
-                        <li class="list-group-item">
+                        <li class="list-group-item cnl-blockers" style="display: none;">
                             <a href="" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i
                                     class="fas fa-undo"
                                     title="Erneut hinzufügen"></i> </a>
@@ -844,7 +848,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?update"></script>
 </body>
 
 </html>{% endraw %}

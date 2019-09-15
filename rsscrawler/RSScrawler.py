@@ -106,17 +106,18 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 check_url(configfile, dbfile)
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
-                failed_packages = get_info(configfile, device)
-                offline_packages = failed_packages[4][2]
-                encrypted_packages = failed_packages[4][3]
-                if offline_packages or encrypted_packages:
-                    device = failed_packages[0]
-                    notify_new_failed_packages(offline_packages, True, configfile, dbfile)
-                    notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
-                else:
-                    db = RssDb(dbfile, 'failed')
-                    db.reset()
-                device = ombi(configfile, dbfile, device, log_debug)
+                if device:
+                    failed_packages = get_info(configfile, device)
+                    offline_packages = failed_packages[4][2]
+                    encrypted_packages = failed_packages[4][3]
+                    if offline_packages or encrypted_packages:
+                        device = failed_packages[0]
+                        notify_new_failed_packages(offline_packages, True, configfile, dbfile)
+                        notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
+                    else:
+                        db = RssDb(dbfile, 'failed')
+                        db.reset()
+                    device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
                     name = task._INTERNAL_NAME
                     try:
@@ -148,16 +149,18 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
-            failed_packages = get_info(configfile, device)
-            offline_packages = failed_packages[4][2]
-            encrypted_packages = failed_packages[4][3]
-            if offline_packages or encrypted_packages:
-                device = failed_packages[0]
-                notify_new_failed_packages(offline_packages, True, configfile, dbfile)
-                notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
-            else:
-                db = RssDb(dbfile, 'failed')
-            device = ombi(configfile, dbfile, device, log_debug)
+            if device:
+                failed_packages = get_info(configfile, device)
+                offline_packages = failed_packages[4][2]
+                encrypted_packages = failed_packages[4][3]
+                if offline_packages or encrypted_packages:
+                    device = failed_packages[0]
+                    notify_new_failed_packages(offline_packages, True, configfile, dbfile)
+                    notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
+                else:
+                    db = RssDb(dbfile, 'failed')
+                    db.reset()
+                device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
                 name = task._INTERNAL_NAME
                 try:

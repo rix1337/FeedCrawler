@@ -104,6 +104,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.myjd_collapse_manual = false;
+    $scope.was_grabbing = false;
+
 
     $scope.init = getAll();
 
@@ -455,6 +457,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
+
                 $scope.myjd_state = res.data.downloader_state;
                 if ($scope.myjd_state == "RUNNING") {
                     $('#myjd_unpause').hide();
@@ -471,12 +474,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_unpause').hide();
                     $('#myjd_stop').hide();
                     $('#myjd_start').show();
-                }
-                $scope.myjd_grabbing = res.data.grabber_collecting;
-                if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').show();
-                } else {
-                    $('#myjd_grabbing').hide();
                 }
                 $scope.myjd_downloads = res.data.packages.downloader;
                 if ($scope.myjd_downloads) {
@@ -496,9 +493,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $('.myjd_offline').hide();
                 }
-                if (!$scope.myjd_failed) {
-                    $scope.myjd_failed = res.data.packages.linkgrabber_failed
-                }
+
+                $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+
                 let uuids = []
                 if ($scope.myjd_failed) {
                     $('.myjd_failed').show();
@@ -541,12 +538,33 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
+                    $('.cnl-spinner').show();
+                    $('.cnl-button').hide();
+                    $('.cnl-blockers').hide();
+                    $scope.was_grabbing = true;
                     if (!$scope.myjd_collapse_manual) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
                 } else {
-                    $('#myjd_grabbing').hide();
+                    if ($scope.was_grabbing) {
+                        $('.cnl-spinner').show();
+                        setTimeout(function () {
+                            $('#myjd_grabbing').hide();
+                            $('.cnl-spinner').hide();
+                            $('.cnl-button').show();
+                            $('.cnl-blockers').show();
+                            $scope.was_grabbing = false;
+                            getMyJD();
+                        }, 15000);
+                    } else {
+                        setTimeout(function () {
+                            $('#myjd_grabbing').hide();
+                            $('.cnl-spinner').hide();
+                            $('.cnl-button').show();
+                            $('.cnl-blockers').show();
+                        }, 1);
+                    }
                 }
                 if ($scope.myjd_failed) {
                     $('.myjd-failed').show();
@@ -618,11 +636,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function myJDcnl(uuid) {
         $(".cnl-button").hide();
+        $(".cnl-blockers").hide();
         $(".cnl-spinner").show();
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
-                $(".cnl-spinner").hide();
-                $(".cnl-button").show();
                 for (let failed_package of $scope.myjd_failed) {
                     let existing_uuid = failed_package['uuid']
                     if (uuid == existing_uuid) {
@@ -679,16 +696,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateLog();
 
-    $scope.checMyJD = function () {
+    $scope.checkMyJD = function () {
         $timeout(function () {
             if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                 getMyJD();
             }
-            $scope.checMyJD();
+            $scope.checkMyJD();
         }, 10000)
     };
 
-    $scope.checMyJD();
+    $scope.checkMyJD();
 
     $scope.updateChecker = function () {
         $timeout(function () {
