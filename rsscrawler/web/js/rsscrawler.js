@@ -472,12 +472,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_stop').hide();
                     $('#myjd_start').show();
                 }
-                $scope.myjd_grabbing = res.data.grabber_collecting;
-                if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').show();
-                } else {
-                    $('#myjd_grabbing').hide();
-                }
                 $scope.myjd_downloads = res.data.packages.downloader;
                 if ($scope.myjd_downloads) {
                     $('.myjd-downloads').show();
@@ -541,12 +535,23 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
+                    $('.cnl-spinner').show();
+                    $('.cnl-button').hide();
+                    $scope.was_grabbing = true;
                     if (!$scope.myjd_collapse_manual) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
                 } else {
-                    $('#myjd_grabbing').hide();
+                    setTimeout(function () {
+                        $('#myjd_grabbing').hide();
+                        $('.cnl-spinner').hide();
+                        $('.cnl-button').show();
+                        if ($scope.was_grabbing) {
+                            $scope.was_grabbing = false;
+                            getMyJD();
+                        }
+                    }, 15000);
                 }
                 if ($scope.myjd_failed) {
                     $('.myjd-failed').show();
@@ -621,8 +626,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $(".cnl-spinner").show();
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
-                $(".cnl-spinner").hide();
-                $(".cnl-button").show();
                 for (let failed_package of $scope.myjd_failed) {
                     let existing_uuid = failed_package['uuid']
                     if (uuid == existing_uuid) {
@@ -679,16 +682,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateLog();
 
-    $scope.checMyJD = function () {
+    $scope.checkMyJD = function () {
         $timeout(function () {
             if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                 getMyJD();
             }
-            $scope.checMyJD();
+            $scope.checkMyJD();
         }, 10000)
     };
 
-    $scope.checMyJD();
+    $scope.checkMyJD();
 
     $scope.updateChecker = function () {
         $timeout(function () {

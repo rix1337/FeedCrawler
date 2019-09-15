@@ -44,7 +44,7 @@ def get(title, configfile, dbfile):
     else:
         special = None
 
-    query = title.replace(".", " ").replace(" ", "+")
+    query = title.replace(" ", "+")
     if special:
         bl_query = query + "+" + special
     else:
