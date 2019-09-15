@@ -681,7 +681,7 @@ def myjd_download(configfile, device, title, subdir, links, password):
     return False
 
 
-def package_merge_check(configfile, device, decrypted_packages, title, known_packages):
+def package_merge(configfile, device, decrypted_packages, title, known_packages):
     delete_packages = []
     delete_linkids = []
     delete_uuids = []
@@ -706,11 +706,9 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
             for dp in decrypted_packages:
                 if dp['uuid'] not in known_packages:
                     fnames = dp['filenames']
-                    # Regex only numbers from filenames (to get only season and episode numbers)
                     for fname in fnames:
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
                         fname_episodes.append(fname_episode)
-                    # Remove common_substring from all numbers (to remove season) episodes should remain
             replacer = longest_substr(fname_episodes)
 
             i = 0
@@ -754,6 +752,12 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
         if delete_linkids and delete_uuids:
             device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
 
+    package_merge_check(device, configfile, decrypted_packages, known_packages)
+
+    return device
+
+
+def package_merge_check(device, configfile, decrypted_packages, known_packages):
     mergables = []
     if decrypted_packages:
         for dp in decrypted_packages:
@@ -770,8 +774,10 @@ def package_merge_check(configfile, device, decrypted_packages, title, known_pac
             title = longest_substr(m[0][0])
             uuids = m[0][1]
             linkids = m[0][2]
-            package_merge(configfile, device, title, uuids, linkids)
-        return device
+            do_package_merge(configfile, device, title, uuids, linkids)
+            time.sleep(3)
+            decrypted_packages = get_info(configfile, device)[4][1]
+        return [device, decrypted_packages]
     else:
         return False
 
@@ -791,7 +797,7 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
                 mergable_uuids.append(dp['uuid'])
                 for l in dp['linkids']:
                     mergable_linkids.append(l)
-            elif dp['name'] == "Verschiedene Dateien":
+            elif "Verschiedene Dateien" in dp['name'] or "Various package" in dp['name']:
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
                 for l in dp['linkids']:
@@ -802,7 +808,7 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
     return mergable
 
 
-def package_merge(configfile, device, title, uuids, linkids):
+def do_package_merge(configfile, device, title, uuids, linkids):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
@@ -822,7 +828,7 @@ def package_merge(configfile, device, title, uuids, linkids):
         return False
 
 
-def package_replace(configfile, device, old_package, cnl_package):
+def do_package_replace(configfile, device, old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
     links = cnl_package['urls']

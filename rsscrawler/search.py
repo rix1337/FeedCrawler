@@ -89,7 +89,7 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
 
-    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + search_quality
+    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + quality
     ha_results = ha_search_results(ha_search, configfile, dbfile)
     password = decode_base64("aGQtYXJlYS5vcmc=")
     for result in ha_results:

@@ -30,8 +30,8 @@ from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
-from rsscrawler.myjd import package_merge_check
-from rsscrawler.myjd import package_replace
+from rsscrawler.myjd import package_merge
+from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
@@ -735,16 +735,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     if not grabber_collecting:
                         decrypted_packages = failed[4][1]
                         offline_packages = failed[4][2]
-                        another_device = package_merge_check(configfile, device, decrypted_packages, title,
+                        another_device = package_merge(configfile, device, decrypted_packages, title,
                                                              known_packages)
                         if another_device:
                             device = another_device
-                            failed = get_info(configfile, device)
-                            if failed:
-                                device = failed[0]
-                                grabber_collecting = failed[2]
-                                decrypted_packages = failed[4][1]
-                                offline_packages = failed[4][2]
+                            info = get_info(configfile, device)
+                            if info:
+                                device = info[0]
+                                grabber_collecting = info[2]
+                                decrypted_packages = info[4][1]
+                                offline_packages = info[4][2]
+
                         if not grabber_collecting and decrypted_packages:
                             for dp in decrypted_packages:
                                 if subdir and 'RSScrawler' in dp['path']:
@@ -763,7 +764,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not cnl_package:
                 return "No Package added through Click'n'Load in time!", 504
 
-            replaced = package_replace(configfile, device, old_package, cnl_package)
+            replaced = do_package_replace(configfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
                 title = replaced[1]
