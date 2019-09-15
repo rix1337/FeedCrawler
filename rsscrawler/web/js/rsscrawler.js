@@ -104,6 +104,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.myjd_collapse_manual = false;
+    $scope.was_grabbing = false;
+
 
     $scope.init = getAll();
 
@@ -455,6 +457,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
+
                 $scope.myjd_state = res.data.downloader_state;
                 if ($scope.myjd_state == "RUNNING") {
                     $('#myjd_unpause').hide();
@@ -490,9 +493,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $('.myjd_offline').hide();
                 }
-                if (!$scope.myjd_failed) {
-                    $scope.myjd_failed = res.data.packages.linkgrabber_failed
-                }
+
+                $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+
                 let uuids = []
                 if ($scope.myjd_failed) {
                     $('.myjd_failed').show();
@@ -537,21 +540,31 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('#myjd_grabbing').show();
                     $('.cnl-spinner').show();
                     $('.cnl-button').hide();
+                    $('.cnl-blockers').hide();
                     $scope.was_grabbing = true;
                     if (!$scope.myjd_collapse_manual) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
                 } else {
-                    setTimeout(function () {
-                        $('#myjd_grabbing').hide();
-                        $('.cnl-spinner').hide();
-                        $('.cnl-button').show();
-                        if ($scope.was_grabbing) {
+                    if ($scope.was_grabbing) {
+                        $('.cnl-spinner').show();
+                        setTimeout(function () {
+                            $('#myjd_grabbing').hide();
+                            $('.cnl-spinner').hide();
+                            $('.cnl-button').show();
+                            $('.cnl-blockers').show();
                             $scope.was_grabbing = false;
                             getMyJD();
-                        }
-                    }, 15000);
+                        }, 15000);
+                    } else {
+                        setTimeout(function () {
+                            $('#myjd_grabbing').hide();
+                            $('.cnl-spinner').hide();
+                            $('.cnl-button').show();
+                            $('.cnl-blockers').show();
+                        }, 1);
+                    }
                 }
                 if ($scope.myjd_failed) {
                     $('.myjd-failed').show();
@@ -623,6 +636,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function myJDcnl(uuid) {
         $(".cnl-button").hide();
+        $(".cnl-blockers").hide();
         $(".cnl-spinner").show();
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
