@@ -117,7 +117,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                         db.reset()
                     device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
-                    name = task.INTERNAL_NAME
+                    name = task._INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
                     except AttributeError:
@@ -160,7 +160,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     db.reset()
                 device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
-                name = task.INTERNAL_NAME
+                name = task._INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
@@ -249,7 +249,8 @@ def main():
                         rsscrawler.save('myjd_device', device)
                         device = get_device(configfile)
             else:
-                device = False
+                device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                          arguments['--jd-pass'], arguments['--jd-device'])
 
         if not device and not arguments['--testlauf']:
             print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
