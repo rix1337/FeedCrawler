@@ -15,13 +15,13 @@ from rsscrawler.url import get_url
 
 
 class YT:
-    INTERNAL_NAME = 'YT'
+    _INTERNAL_NAME = 'YT'
 
     def __init__(self, configfile, dbfile, device, logging):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
-        self.config = RssConfig(self.INTERNAL_NAME, self.configfile)
+        self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug

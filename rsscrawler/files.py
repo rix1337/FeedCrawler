@@ -46,7 +46,7 @@ def myjd_input(configfile, port, user, password, device):
         if device:
             print(u"Gerätename " + device + " automatisch ermittelt.")
     else:
-        print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
+        print(u"Bitte die Zugangsdaten für My JDownloader angeben:")
         user = input("Nutzername/Email:")
         password = input("Passwort:")
         device = get_if_one_device(user, password)
