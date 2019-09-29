@@ -42,19 +42,6 @@ def config(configpath):
     return configpath
 
 
-def jd_input(configfile, port, docker):
-    if docker:
-        jdownloaderpath = "/jd2"
-    else:
-        print(u"Wo ist der JDownloader installiert? Leer lassen um die RSScrawler.ini manuell zu bearbeiten.")
-        jdownloaderpath = six.moves.input("Pfad angeben:")
-    if len(jdownloaderpath) > 0 and port:
-        startup(configfile, jdownloaderpath, port)
-    elif len(jdownloaderpath) > 0:
-        startup(configfile, jdownloaderpath, '9090')
-    return jdownloaderpath
-
-
 def myjd_input(configfile, port, user, password, device):
     if user and password and not device:
         device = get_if_one_device(user, password)
@@ -71,7 +58,14 @@ def myjd_input(configfile, port, user, password, device):
             device = six.moves.input(u"Gerätename:")
     if not port:
         port = '9090'
-    startup(configfile, "", port)
+
+    sections = ['RSScrawler', 'MB', 'SJ', 'DD',
+                'YT', 'Notifications', 'Crawljobs']
+    for section in sections:
+        RssConfig(section, configfile)
+    if port:
+        RssConfig('RSScrawler', configfile).save("port", port)
+
     RssConfig('RSScrawler', configfile).save("myjd_user", user)
     RssConfig('RSScrawler', configfile).save("myjd_pass", password)
     RssConfig('RSScrawler', configfile).save("myjd_device", device)
@@ -80,15 +74,3 @@ def myjd_input(configfile, port, user, password, device):
         return device
     else:
         return False
-
-
-def startup(configfile, jdownloader=None, port=None):
-    if jdownloader or port:
-        sections = ['RSScrawler', 'MB', 'SJ', 'DD',
-                    'YT', 'Notifications', 'Crawljobs']
-        for section in sections:
-            RssConfig(section, configfile)
-        if jdownloader:
-            RssConfig('RSScrawler', configfile).save("jdownloader", jdownloader)
-        if port:
-            RssConfig('RSScrawler', configfile).save("port", port)
