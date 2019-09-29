@@ -222,42 +222,43 @@ def main():
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    if not os.path.exists(configfile):
-        if arguments['--docker']:
-            if arguments['--jd-user'] and arguments['--jd-pass']:
+    if arguments['--testlauf']:
+        device = False
+    else:
+        if not os.path.exists(configfile):
+            if arguments['--docker']:
+                if arguments['--jd-user'] and arguments['--jd-pass']:
+                    device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                              arguments['--jd-pass'], arguments['--jd-device'])
+                else:
+                    device = False
+            else:
                 device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                          arguments['--jd-pass'], arguments['--jd-device'])
+                                          arguments['--jd-pass'],
+                                          arguments['--jd-device'])
+        else:
+            rsscrawler = RssConfig('RSScrawler', configfile)
+            user = rsscrawler.get('myjd_user')
+            password = rsscrawler.get('myjd_pass')
+            if user and password:
+                device = get_device(configfile)
+                if not device:
+                    device = get_if_one_device(user, password)
+                    if device:
+                        print(u"Gerätename " + device + " automatisch ermittelt.")
+                        rsscrawler.save('myjd_device', device)
+                        device = get_device(configfile)
             else:
                 device = False
-        else:
-            device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
-                                      arguments['--jd-device'])
-    else:
-        rsscrawler = RssConfig('RSScrawler', configfile)
-        user = rsscrawler.get('myjd_user')
-        password = rsscrawler.get('myjd_pass')
-        if user and password:
-            device = get_device(configfile)
-            if not device:
-                device = get_if_one_device(user, password)
-                if device:
-                    print(u"Gerätename " + device + " automatisch ermittelt.")
-                    rsscrawler.save('myjd_device', device)
-                    device = get_device(configfile)
-        else:
-            device = False
 
-    rsscrawler = RssConfig('RSScrawler', configfile)
-
-    if not device:
-        if arguments['--testlauf']:
-            print(u'My JDownloader Zugangsdaten fehlerhaft! Führe Testlauf dennoch aus...')
-        else:
+        if not device and not arguments['--testlauf']:
             print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
             time.sleep(10)
             sys.exit(1)
-    else:
-        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
+        else:
+            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
+
+    rsscrawler = RssConfig('RSScrawler', configfile)
 
     port = int(rsscrawler.get("port"))
     docker = False
