@@ -397,7 +397,7 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
         if not device or not is_device(device):
             device = get_device(configfile)
 
-        links = str(links)
+        links = str(links).replace(" ", "")
         crawljobs = RssConfig('Crawljobs', configfile)
         autostart = crawljobs.get("autostart")
         usesubdir = crawljobs.get("subdir")
@@ -678,6 +678,9 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
 
 def package_merge(configfile, device, decrypted_packages, title, known_packages):
+    if not decrypted_packages:
+        return False
+
     delete_packages = []
     delete_linkids = []
     delete_uuids = []
@@ -697,12 +700,13 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
         else:
             all_episodes = list(int_episodes)
 
-        if decrypted_packages and len(decrypted_packages) > 1:
+        if decrypted_packages:
             fname_episodes = []
             for dp in decrypted_packages:
                 if dp['uuid'] not in known_packages:
                     fnames = dp['filenames']
                     for fname in fnames:
+                        fname = fname.replace("hddl8", "").replace("dd51", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
                         fname_episodes.append(fname_episode)
             replacer = longest_substr(fname_episodes)
