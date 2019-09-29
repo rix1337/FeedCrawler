@@ -9,6 +9,8 @@ import re
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
+import html
+
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
@@ -39,10 +41,11 @@ def get(title, configfile, dbfile):
         special = None
 
     query = title.replace(" ", "+")
+    mb_query = sanitize(title).replace(" ", "+")
     if special:
-        bl_query = query + "+" + special
+        bl_query = mb_query + "+" + special
     else:
-        bl_query = query
+        bl_query = mb_query
 
     unrated = []
 
@@ -217,7 +220,7 @@ def rate(title, configfile):
 
 
 def html_to_str(unescape):
-    return unescape(unescape)
+    return html.unescape(unescape)
 
 
 def best_result_bl(title, configfile, dbfile):
