@@ -13,7 +13,6 @@ Usage:
                 [--jd-user=<NUTZERNAME>]
                 [--jd-pass=<PASSWORT>]
                 [--jd-device=<GERÄTENAME>]
-                [--jd-pfad="<JDPATH>"]
                 [--keep-cdc]
                 [--log-level=<LOGLEVEL>]
 
@@ -24,9 +23,8 @@ Options:
   --jd-user=NUTZERNAME      Legt den Nutzernamen für My JDownloader fest
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
-  --jd-pfad="<JDPFAD>"      Legt den Pfad von JDownloader fest um nicht die RSScrawler.ini direkt bearbeiten zu müssen
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
-  --testlauf                Intern: Einmalige Ausführung von RSScrawler
+  --testlauf                Intern: Einmalige Ausführung von RSScrawler (ohne auf MyJDownloader-Konto zu achten)
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
@@ -119,7 +117,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                         db.reset()
                     device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
-                    name = task._INTERNAL_NAME
+                    name = task.INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
                     except AttributeError:
@@ -162,7 +160,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     db.reset()
                 device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
-                name = task._INTERNAL_NAME
+                name = task.INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
@@ -224,109 +222,43 @@ def main():
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    if not os.path.exists(configfile):
-        if arguments['--docker']:
-            if arguments['--jd-user'] and arguments['--jd-pass']:
+    if arguments['--testlauf']:
+        device = False
+    else:
+        if not os.path.exists(configfile):
+            if arguments['--docker']:
+                if arguments['--jd-user'] and arguments['--jd-pass']:
+                    device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                              arguments['--jd-pass'], arguments['--jd-device'])
+                else:
+                    device = False
+            else:
                 device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                          arguments['--jd-pass'], arguments['--jd-device'])
+                                          arguments['--jd-pass'],
+                                          arguments['--jd-device'])
+        else:
+            rsscrawler = RssConfig('RSScrawler', configfile)
+            user = rsscrawler.get('myjd_user')
+            password = rsscrawler.get('myjd_pass')
+            if user and password:
+                device = get_device(configfile)
+                if not device:
+                    device = get_if_one_device(user, password)
+                    if device:
+                        print(u"Gerätename " + device + " automatisch ermittelt.")
+                        rsscrawler.save('myjd_device', device)
+                        device = get_device(configfile)
             else:
                 device = False
-        elif not arguments['--jd-pfad']:
-            device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
-                                      arguments['--jd-device'])
-        else:
-            device = False
-    else:
-        rsscrawler = RssConfig('RSScrawler', configfile)
-        user = rsscrawler.get('myjd_user')
-        password = rsscrawler.get('myjd_pass')
-        if user and password:
-            device = get_device(configfile)
-            if not device:
-                device = get_if_one_device(user, password)
-                if device:
-                    print(u"Gerätename " + device + " automatisch ermittelt.")
-                    rsscrawler.save('myjd_device', device)
-                    device = get_device(configfile)
-                else:
-                    print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
-                    time.sleep(10)
-                    sys.exit(1)
-        else:
-            device = False
 
-    if not device:
-        if not os.path.exists(configfile):
-            if not arguments['--jd-pfad']:
-                if files.jd_input(configfile, arguments['--port'], arguments['--docker']):
-                    print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
-                elif arguments['--port']:
-                    files.startup(configfile,
-                                  "Muss unbedingt vergeben werden!", arguments['--port'])
-                else:
-                    files.startup(configfile, "Muss unbedingt vergeben werden!", "9090")
-                    print(u'Der Pfad des JDownloaders muss jetzt unbedingt in der RSScrawler.ini hinterlegt werden.')
-                    print(u'Diese liegt unter ' + configfile)
-                    print(u'Viel Spaß! Beende RSScrawler!')
-                    sys.exit(1)
-            else:
-                if arguments['--port']:
-                    files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
-                else:
-                    files.startup(configfile, arguments['--jd-pfad'], "9090")
-                    print(u'Die Einstellungen und Listen sind jetzt im Webinterface anpassbar.')
-        elif arguments['--jd-pfad'] and arguments['--port']:
-            files.startup(configfile, arguments['--jd-pfad'], arguments['--port'])
-        elif arguments['--jd-pfad']:
-            files.startup(configfile, arguments['--jd-pfad'], None)
-        elif arguments['--port']:
-            files.startup(configfile, None, arguments['--port'])
-
-        rsscrawler = RssConfig('RSScrawler', configfile)
-
-        if arguments['--jd-pfad']:
-            jdownloaderpath = arguments['--jd-pfad']
-        else:
-            jdownloaderpath = rsscrawler.get("jdownloader")
-        if arguments['--docker']:
-            jdownloaderpath = '/jd2'
-            print(u'Docker-Modus: JDownloader-Pfad und Port können nur per Docker-Run angepasst werden!')
-        elif jdownloaderpath == 'Muss unbedingt vergeben werden!':
-            jdownloaderpath = files.jd_input(configfile, arguments['--port'], arguments['--docker'])
-            if jdownloaderpath:
-                print(u"Der Pfad wurde in der RSScrawler.ini gespeichert.")
-            else:
-                print(u'Der Pfad des JDownloaders muss unbedingt in der RSScrawler.ini hinterlegt werden.')
-                print(u'Diese liegt unter ' + configfile)
-                print(u'Beende RSScrawler...')
-                sys.exit(1)
-
-        jdownloaderpath = jdownloaderpath.replace("\\", "/")
-        jdownloaderpath = jdownloaderpath[:-1] if jdownloaderpath.endswith('/') else jdownloaderpath
-
-        print(u'Nutze das "folderwatch" Unterverzeichnis von "' +
-              jdownloaderpath + u'" für Crawljobs')
-
-        if not os.path.exists(jdownloaderpath):
-            print(u'Der Pfad des JDownloaders existiert nicht: ' + jdownloaderpath)
-            rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-            print(u'Beende RSScrawler...')
+        if not device and not arguments['--testlauf']:
+            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+            time.sleep(10)
             sys.exit(1)
+        else:
+            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
-        if not os.path.exists(jdownloaderpath + "/folderwatch"):
-            if arguments['--docker']:
-                print(
-                    u'Das Readme des Docker-Images muss aufmerksam befolgt werden. Falsche Angaben verhindern den Programmstart!')
-                print(
-                    u'Da keine My JDownloader-Zugangsdaten angegeben wurden, wird ein Ordner "folderwatch" unterhalb des "/jd2/"-Volumens benögigt.')
-            print(
-                u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-            rsscrawler.save("jdownloader", "Muss unbedingt vergeben werden!")
-            print(u'Beende RSScrawler...')
-            sys.exit(1)
-    else:
-        rsscrawler = RssConfig('RSScrawler', configfile)
-        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
+    rsscrawler = RssConfig('RSScrawler', configfile)
 
     port = int(rsscrawler.get("port"))
     docker = False

@@ -11,7 +11,6 @@ from rsscrawler.common import is_device
 from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
-from rsscrawler.common import write_crawljob_file
 from rsscrawler.rssconfig import RssConfig
 import time
 
@@ -675,9 +674,6 @@ def myjd_download(configfile, device, title, subdir, links, password):
         device = download(configfile, device, title, subdir, links, password)
         if device:
             return device
-    else:
-        if write_crawljob_file(configfile, title, subdir, links):
-            return True
     return False
 
 

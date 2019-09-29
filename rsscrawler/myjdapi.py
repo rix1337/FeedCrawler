@@ -31,12 +31,7 @@ import hmac
 import json
 import time
 
-try:
-    # from urllib.request import urlopen
-    from urllib.parse import quote
-except:  # For Python 2
-    from urllib import quote
-    # from urllib import urlopen
+from urllib.parse import quote
 import base64
 import requests
 from Cryptodome.Cipher import AES
@@ -239,9 +234,9 @@ class Linkgrabber:
         """
         Moves packages and/or links to download list.
 
-        :param packages: Packages UUIDs.
+        :param links_ids:
+        :param packages_ids:
         :type: list of strings.
-        :param links: Links UUIDs.
         """
         params = [links_ids, packages_ids]
         resp = self.device.action(self.url + "/moveToDownloadlist", params)
@@ -352,9 +347,9 @@ class Linkgrabber:
         """
         Gets download urls from Linkgrabber.
 
+        :param links_ids:
         :param packages_ids: Packages UUID.
         :type: List of strings.
-        :param Links_ids: Links UUID.
         :type: List of strings
         :param url_display_type: No clue. Not documented
         :type: Dictionary
@@ -740,9 +735,10 @@ class Jddevice:
         All the info of which params are required and what are they default value, type,etc
         can be found in the MY.Jdownloader API Specifications ( https://goo.gl/pkJ9d1 ).
 
+        :param path:
+        :param http_action:
         :param params: Params in the url, in a list of tuples. Example:
         /example?param1=ex&param2=ex2 [("param1","ex"),("param2","ex2")]
-        :param postparams: List of Params that are send in the post.
         """
         action_url = self.__action_url()
         if not self.__direct_connection_enabled or self.__direct_connection_info is None \
@@ -1010,8 +1006,9 @@ class Myjdapi:
     def get_device(self, device_name=None, device_id=None):
         """
         Returns a jddevice instance of the device
+        :param device_name:
+        :param device_id:
 
-        :param deviceid:
         """
         if not self.is_connected():
             raise (MYJDException("No connection established\n"))

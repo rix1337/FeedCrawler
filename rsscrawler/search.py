@@ -6,28 +6,22 @@ import json
 import logging
 import re
 
-import six
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
-try:
-    from html.parser import HTMLParser
-except ImportError:
-    from HTMLParser import HTMLParser
-
+from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
-from rsscrawler.common import cutoff
+from rsscrawler.fakefeed import ha_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
+from rsscrawler.sites.bl import BL
 from rsscrawler.url import get_url
 from rsscrawler.url import post_url
-from rsscrawler.sites.bl import BL
-from rsscrawler.fakefeed import ha_search_results
 
 
 def get(title, configfile, dbfile):
@@ -223,7 +217,7 @@ def rate(title, configfile):
 
 
 def html_to_str(unescape):
-    return HTMLParser().unescape(unescape)
+    return unescape(unescape)
 
 
 def best_result_bl(title, configfile, dbfile):
@@ -371,7 +365,7 @@ def download_bl(payload, device, configfile, dbfile):
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
             if re.match(hoster, link_hoster):
                 links[link_hoster] = url_hoster[0]
-    download_links = links.values() if six.PY2 else list(links.values())
+    download_links = list(links.values())
 
     englisch = False
     if "*englisch*" in key.lower():

@@ -9,20 +9,20 @@ import os
 import re
 import sys
 import time
+from functools import wraps
+from io import StringIO
 from logging import handlers
 
 import gevent
-import six
-from functools import wraps
 from flask import Flask, request, send_from_directory, render_template, jsonify, Response
-from passlib.hash import pbkdf2_sha256
 from gevent.pywsgi import WSGIServer
-from six.moves import StringIO
+from passlib.hash import pbkdf2_sha256
 
 from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.common import decode_base64
 from rsscrawler.myjd import check_device
+from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
@@ -31,7 +31,6 @@ from rsscrawler.myjd import jdownloader_start
 from rsscrawler.myjd import jdownloader_stop
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import package_merge
-from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
@@ -86,9 +85,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         return decorated
 
     def to_int(i):
-        if six.PY3:
-            if isinstance(i, bytes):
-                i = i.decode()
+        if isinstance(i, bytes):
+            i = i.decode()
         i = i.strip().replace("None", "")
         return int(i) if i else ""
 
@@ -685,10 +683,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    def get_list(liste):
-        cont = ListDb(dbfile, liste).retrieve()
-        return "\n".join(cont) if cont else ""
-
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
@@ -736,7 +730,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         decrypted_packages = failed[4][1]
                         offline_packages = failed[4][2]
                         another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                             known_packages)
+                                                       known_packages)
                         if another_device:
                             device = another_device
                             info = get_info(configfile, device)

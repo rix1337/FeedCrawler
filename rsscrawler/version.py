@@ -6,11 +6,11 @@ import re
 from distutils.version import StrictVersion as version
 
 from bs4 import BeautifulSoup
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
 
 
 def get_version():
-    return "v.5.7.3"
+    return "v.5.9.0"
 
 
 def update_check():

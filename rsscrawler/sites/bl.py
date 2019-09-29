@@ -8,7 +8,6 @@ import hashlib
 import re
 
 import feedparser
-import six
 from bs4 import BeautifulSoup
 
 from rsscrawler.common import cutoff
@@ -144,7 +143,7 @@ class BL:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                 if re.match(self.hoster, hoster):
                     links[hoster] = url_hoster[0]
-        return links.values() if six.PY2 else list(links.values())
+        return list(links.values())
 
     def dual_search(self, feed, title):
         ignore = "|".join(
@@ -218,8 +217,9 @@ class BL:
                     replaced = retail_sub(post.title)
                     retailtitle = self.db_retail.retrieve(replaced[0])
                     retailyear = self.db_retail.retrieve(replaced[1])
-                    if str(self.db.retrieve(post.title)) == 'added' or str(self.db.retrieve(post.title)) == 'notdl' or str(
-                            self.db.retrieve(post.title.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
+                    if str(self.db.retrieve(post.title)) == 'added' or str(
+                            self.db.retrieve(post.title)) == 'notdl' or str(
+                        self.db.retrieve(post.title.replace(".COMPLETE", "").replace(".Complete", ""))) == 'added':
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
                         continue
@@ -246,7 +246,8 @@ class BL:
                             self.log_debug(
                                 "%s - Release ignoriert (3D-Suche deaktiviert)" % post.title)
                             return
-                        if self.config.get('crawl3d') and ("1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                        if self.config.get('crawl3d') and (
+                                "1080p" in post.title.lower() or "1080i" in post.title.lower()):
                             if not self.config.get("crawl3dtype"):
                                 c3d_type = "hsbs"
                             else:
@@ -380,7 +381,8 @@ class BL:
                                 ".", "").replace(",", ""))
                         if vote_count < 1500:
                             self.log_debug(
-                                post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + str(vote_count) + ")")
+                                post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + str(
+                                    vote_count) + ")")
                             continue
                         download_score = re.findall(
                             r'ratingValue">(.*?)<\/span>', details)
@@ -595,16 +597,13 @@ class BL:
         search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
                                                                                                                  "+")
         feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
-        search_results = []
-        search_results.append(feedparser.parse(
+        search_results = [feedparser.parse(
             get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)))
-        search_results.append(feedparser.parse(
+                    self.configfile, self.dbfile)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)))
-        search_results.append(
+                    self.configfile, self.dbfile)),
             ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title,
-                              self.configfile, self.dbfile))
+                              self.configfile, self.dbfile)]
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):

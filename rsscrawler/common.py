@@ -7,72 +7,16 @@
 
 import base64
 import logging
-import os
 import re
 import socket
 
-import six
-
 from rsscrawler import myjdapi
-from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
-
-
-def write_crawljob_file(configfile, package_name, subdir, link_text):
-    crawljob_dir = RssConfig('RSScrawler', configfile).get('jdownloader') + '/folderwatch'
-    try:
-        crawljob_file = crawljob_dir + '/%s.crawljob' % unicode(
-            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
-    except NameError:
-        crawljob_file = crawljob_dir + '/%s.crawljob' % (
-            re.sub(r'[^\w\s\.-]', '', package_name.replace(' ', '')).strip().lower())
-
-    crawljobs = RssConfig('Crawljobs', configfile)
-    autostart = crawljobs.get("autostart")
-    usesubdir = crawljobs.get("subdir")
-    if not usesubdir:
-        subdir = ""
-    if autostart:
-        autostart = "TRUE"
-    else:
-        autostart = "FALSE"
-    try:
-        file = open(crawljob_file, 'w')
-        file.write('enabled=TRUE\n')
-        file.write('autoStart=' + autostart + '\n')
-        file.write(
-            'extractPasswords=["' + decode_base64("bW92aWUtYmxvZy5vcmc=") + '","' + decode_base64(
-                "c2VyaWVuanVua2llcy5vcmc=") + '","' +
-            decode_base64("aGQtYXJlYS5vcmc=") + '","' + decode_base64("aGQtd29ybGQub3Jn") + '","' + decode_base64(
-                "d2FyZXotd29ybGQub3Jn") + '"]\n')
-        file.write('downloadPassword=' +
-                   decode_base64("c2VyaWVuanVua2llcy5vcmc=") + '\n')
-
-        file.write('extractAfterDownload=TRUE\n')
-        file.write('forcedStart=' + autostart + '\n')
-        file.write('autoConfirm=' + autostart + '\n')
-        if not subdir == "":
-            file.write('downloadFolder=' + subdir + "/" + '%s\n' % package_name)
-            if subdir == "RSScrawler/Remux":
-                file.write('priority=Lower\n')
-        else:
-            file.write('downloadFolder=' + '%s\n' % package_name)
-        file.write('packageName=%s\n' % package_name.replace(' ', ''))
-        file.write('text=%s\n' % link_text)
-        file.close()
-        return True
-    except UnicodeEncodeError as e:
-        log_error("Beim Schreibversuch des Crawljobs: %s FEHLER: %s" %
-                  (crawljob_file, e.message))
-        if os.path.isfile(crawljob_file):
-            log_info("Entferne defekten Crawljob: %s" % crawljob_file)
-            os.remove(crawljob_file)
-        return False
 
 
 def check_ip():
@@ -148,17 +92,11 @@ def fullhd_title(key):
 
 def decode_base64(value):
     value = value.replace("-", "/")
-    if six.PY2:
-        return value.decode("base64")
-    else:
-        return base64.b64decode(value).decode()
+    return base64.b64decode(value).decode()
 
 
 def encode_base64(value):
-    if six.PY2:
-        return str(value.encode("base64")).replace("/", "-")
-    else:
-        return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
+    return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
 
 
 def readable_size(size):

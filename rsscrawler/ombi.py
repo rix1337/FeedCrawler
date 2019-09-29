@@ -14,16 +14,25 @@ from rsscrawler.url import get_url_headers
 from rsscrawler.url import post_url_json
 
 
-def mdb(configfile, dbfile, tmdbid, mdb_api):
+def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
     get_title = get_url_headers(
         'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=de-DE', configfile,
         dbfile, headers={'Content-Type': 'application/json'})
     raw_title = json.loads(get_title.text).get("title")
-    title = sanitize(raw_title)
-    return title
+    if not raw_title:
+        get_title = get_url_headers(
+            'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=en-US', configfile,
+            dbfile, headers={'Content-Type': 'application/json'})
+        raw_title = json.loads(get_title.text).get("title")
+    if raw_title:
+        title = sanitize(raw_title)
+        return title
+    else:
+        log_debug("Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
+        return False
 
 
-def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api):
+def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug):
     db = RssDb(dbfile, 'Ombi')
     response = post_url_json("https://api.thetvdb.com/login", configfile, dbfile, json={
         'username': tvd_user,
@@ -34,67 +43,82 @@ def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api):
     token = response.get('token')
     db.delete("tvdb_token")
     db.store("tvdb_token", token)
-    return token
+
+    if token:
+        return token
+    else:
+        log_debug("Aufgrund fehlerhafter API-Zugangsdaten werden keine Serien aus Ombi importiert.")
+        return False
 
 
-def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api):
+def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
     db = RssDb(dbfile, 'Ombi')
     token = db.retrieve('tvdb_token')
 
     if not token:
-        token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api)
+        token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
 
-    get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                               headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                        'Accept': 'application/json', 'Accept-Language': 'de'})
-
-    if get_info.status_code == 401:
-        token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api)
+    if token:
         get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
                                    headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
                                             'Accept': 'application/json', 'Accept-Language': 'de'})
 
-    raw_data = json.loads(get_info.text)
-    raw_info = raw_data.get('data')
-    raw_title = raw_info.get('seriesName')
-    if not raw_title:
-        get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                            'Accept': 'application/json', 'Accept-Language': 'en'})
+        if get_info.status_code == 401:
+            token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
+            if token:
+                get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
+                                           headers={'Authorization': 'Bearer ' + token,
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json', 'Accept-Language': 'de'})
+            else:
+                return False
+
         raw_data = json.loads(get_info.text)
         raw_info = raw_data.get('data')
         raw_title = raw_info.get('seriesName')
-    title = sanitize(raw_title)
-    get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                            'Accept': 'application/json', 'Accept-Language': 'de'})
-    raw_episode_data = json.loads(get_episodes.text)
-    episodes = raw_episode_data.get('data')
-    total_pages = raw_episode_data.get('links')
-    pages = total_pages.get('last')
-    if pages > 1:
-        page = 2
-        while page <= pages:
-            get_episodes = get_url_headers(
-                'https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes?page=' + str(page), configfile, dbfile,
-                headers={'Authorization': 'Bearer ' + token,
-                         'Content-Type': 'application/json',
-                         'Accept': 'application/json', 'Accept-Language': 'de'})
-            raw_episode_data = json.loads(get_episodes.text)
-            more_episodes = raw_episode_data.get('data')
-            episodes = episodes + more_episodes
-            page += 1
-    eps = {}
-    for e in episodes:
-        season = e.get("airedSeason")
-        if season > 0:
-            episode = e.get("airedEpisodeNumber")
-            current = eps.get(season)
-            if current:
-                eps[season] = current + [episode]
-            else:
-                eps[season] = [episode]
-    return title, eps
+        if not raw_title:
+            get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
+                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
+                                                'Accept': 'application/json', 'Accept-Language': 'en'})
+            raw_data = json.loads(get_info.text)
+            raw_info = raw_data.get('data')
+            raw_title = raw_info.get('seriesName')
+        title = sanitize(raw_title)
+        get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile,
+                                       dbfile,
+                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
+                                                'Accept': 'application/json', 'Accept-Language': 'de'})
+        raw_episode_data = json.loads(get_episodes.text)
+        episodes = raw_episode_data.get('data')
+        total_pages = raw_episode_data.get('links')
+        if total_pages:
+            pages = total_pages.get('last')
+            if pages > 1:
+                page = 2
+                while page <= pages:
+                    get_episodes = get_url_headers(
+                        'https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes?page=' + str(page), configfile,
+                        dbfile,
+                        headers={'Authorization': 'Bearer ' + token,
+                                 'Content-Type': 'application/json',
+                                 'Accept': 'application/json', 'Accept-Language': 'de'})
+                    raw_episode_data = json.loads(get_episodes.text)
+                    more_episodes = raw_episode_data.get('data')
+                    episodes = episodes + more_episodes
+                    page += 1
+            eps = {}
+            for e in episodes:
+                season = e.get("airedSeason")
+                if season > 0:
+                    episode = e.get("airedEpisodeNumber")
+                    current = eps.get(season)
+                    if current:
+                        eps[season] = current + [episode]
+                    else:
+                        eps[season] = [episode]
+            return title, eps
+        return title, False
+    return False
 
 
 def ombi(configfile, dbfile, device, log_debug):
@@ -133,18 +157,19 @@ def ombi(configfile, dbfile, device, log_debug):
         if bool(r.get("approved")):
             tmdbid = r.get("theMovieDbId")
             if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                title = mdb(configfile, dbfile, tmdbid, mdb_api)
-                best_result = search.best_result_bl(title, configfile, dbfile)
-                print(u"Film: " + title + u" durch Ombi hinzugefügt.")
-                if best_result:
-                    search.download_bl(best_result, device, configfile, dbfile)
-                if english:
-                    title = r.get('title')
+                title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
+                if title:
                     best_result = search.best_result_bl(title, configfile, dbfile)
-                    print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                    print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                     if best_result:
                         search.download_bl(best_result, device, configfile, dbfile)
-                db.store('tmdb_' + str(tmdbid), 'added')
+                    if english:
+                        title = r.get('title')
+                        best_result = search.best_result_bl(title, configfile, dbfile)
+                        print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                        if best_result:
+                            search.download_bl(best_result, device, configfile, dbfile)
+                    db.store('tmdb_' + str(tmdbid), 'added')
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
@@ -171,44 +196,51 @@ def ombi(configfile, dbfile, device, log_debug):
                             eps.append(enr)
                     if eps:
                         if not infos:
-                            infos = tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api)
-                        title = infos[0]
-                        all_eps = infos[1]
-                        check_sn = all_eps.get(sn)
-                        if check_sn:
-                            sn_length = len(eps)
-                            check_sn_length = len(check_sn)
-                            if check_sn_length > sn_length:
-                                for ep in eps:
-                                    e = str(ep)
-                                    if len(e) == 1:
-                                        e = "0" + e
-                                    se = s + "E" + e
+                            infos = tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug)
+                        if infos:
+                            title = infos[0]
+                            all_eps = infos[1]
+                            if all_eps:
+                                check_sn = all_eps.get(sn)
+                            else:
+                                check_sn = False
+                            if check_sn:
+                                sn_length = len(eps)
+                                check_sn_length = len(check_sn)
+                                if check_sn_length > sn_length:
+                                    for ep in eps:
+                                        e = str(ep)
+                                        if len(e) == 1:
+                                            e = "0" + e
+                                        se = s + "E" + e
+                                        best_result = search.best_result_sj(title, configfile, dbfile)
+                                        if best_result:
+                                            add_episode = search.download_sj(best_result, se, device, configfile,
+                                                                             dbfile)
+                                            if not add_episode:
+                                                add_season = search.download_sj(best_result, s, device, configfile,
+                                                                                dbfile)
+                                                for e in eps:
+                                                    e = str(e)
+                                                    if len(e) == 1:
+                                                        e = "0" + e
+                                                    se = s + "E" + e
+                                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                                if not add_season:
+                                                    log_debug(
+                                                        u"Konnte kein Release für " + title + " " + se + "finden.")
+                                                break
+                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                else:
                                     best_result = search.best_result_sj(title, configfile, dbfile)
                                     if best_result:
-                                        add_episode = search.download_sj(best_result, se, device, configfile, dbfile)
-                                        if not add_episode:
-                                            add_season = search.download_sj(best_result, s, device, configfile, dbfile)
-                                            for e in eps:
-                                                e = str(e)
-                                                if len(e) == 1:
-                                                    e = "0" + e
-                                                se = s + "E" + e
-                                                db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
-                                            if not add_season:
-                                                log_debug(u"Konnte kein Release für " + title + " " + se + "finden.")
-                                            break
-                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
-                            else:
-                                best_result = search.best_result_sj(title, configfile, dbfile)
-                                if best_result:
-                                    search.download_sj(best_result, s, device, configfile, dbfile)
-                                for ep in eps:
-                                    e = str(ep)
-                                    if len(e) == 1:
-                                        e = "0" + e
-                                    se = s + "E" + e
-                                    db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
-                        print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+                                        search.download_sj(best_result, s, device, configfile, dbfile)
+                                    for ep in eps:
+                                        e = str(ep)
+                                        if len(e) == 1:
+                                            e = "0" + e
+                                        se = s + "E" + e
+                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
 
     return device

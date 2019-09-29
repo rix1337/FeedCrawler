@@ -1,14 +1,10 @@
 dist: xenial
 language: python
 python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
   - "3.7"
 cache: pip
 install:
   - mkdir -p /home/travis/config
-  - mkdir -p /home/travis/jd2/folderwatch
   - pip install -r requirements.txt
 script:
-  - python RSScrawler.py --port=9090 --config="/home/travis/config" --jd-pfad="/home/travis/jd2" --testlauf --log-level=DEBUG
+  - python RSScrawler.py --port=9090 --config="/home/travis/config" --testlauf --log-level=DEBUG
