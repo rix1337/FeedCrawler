@@ -24,7 +24,7 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
-  --testlauf                Intern: Einmalige Ausführung von RSScrawler
+  --testlauf                Intern: Einmalige Ausführung von RSScrawler (ohne auf MyJDownloader-Konto zu achten)
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
@@ -247,12 +247,16 @@ def main():
         else:
             device = False
 
+    rsscrawler = RssConfig('RSScrawler', configfile)
+
     if not device:
-        print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
-        time.sleep(10)
-        sys.exit(1)
+        if arguments['--testlauf']:
+            print(u'My JDownloader Zugangsdaten fehlerhaft! Führe Testlauf dennoch aus...')
+        else:
+            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+            time.sleep(10)
+            sys.exit(1)
     else:
-        rsscrawler = RssConfig('RSScrawler', configfile)
         print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     port = int(rsscrawler.get("port"))

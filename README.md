@@ -55,7 +55,7 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 | ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ``` --keep-cdc``` | _Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf_ |
-| ```--testlauf``` | _Intern: Einmalige Ausführung von RSScrawler_ |
+| ```--testlauf``` | _Intern: Einmalige Ausführung von RSScrawler (ohne auf MyJDownloader-Konto zu achten)_ |
 | ```--docker``` | _Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)_ |
 
 ## Credits
