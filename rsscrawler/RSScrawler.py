@@ -117,7 +117,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                         db.reset()
                     device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
-                    name = task._INTERNAL_NAME
+                    name = task.INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
                     except AttributeError:
@@ -160,7 +160,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     db.reset()
                 device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
-                name = task._INTERNAL_NAME
+                name = task.INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:

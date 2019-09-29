@@ -5,19 +5,14 @@
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
 import logging
+from urllib.error import HTTPError
+from urllib.parse import urlencode
+from urllib.request import urlopen, Request
 
-import six
-from six.moves.urllib.error import HTTPError
-from six.moves.urllib.parse import urlencode
-from six.moves.urllib.request import urlopen, Request
+import simplejson as json
 
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 log_info = logging.info
 log_error = logging.error
@@ -80,10 +75,7 @@ def home_assistant(items, homassistant_url, homeassistant_password):
     data = urlencode({
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
-    })
-
-    if six.PY3:
-        data = data.encode("utf-8")
+    }).encode("utf-8")
 
     try:
         req = Request(homassistant_url, data)
@@ -104,10 +96,7 @@ def telegram(items, token, chatid):
     data = urlencode({
         'chat_id': chatid,
         'text': "\n\n".join(items)
-    })
-
-    if six.PY3:
-        data = data.encode("utf-8")
+    }).encode("utf-8")
 
     try:
         req = Request("https://api.telegram.org/bot" + token + "/sendMessage", data)
@@ -116,7 +105,7 @@ def telegram(items, token, chatid):
         log_debug('FEHLER - Konnte Telegram API nicht erreichen')
         return False
     res = json.load(response)
-    if res['ok'] == True:
+    if res['ok']:
         log_debug('Telegram Erfolgreich versendet')
     else:
         log_debug('FEHLER - Konnte nicht an Telegram Senden')
@@ -127,10 +116,7 @@ def pushbullet(items, token):
         'type': 'note',
         'title': 'RSScrawler:',
         'body': "\n\n".join(items)
-    })
-
-    if six.PY3:
-        data = data.encode("utf-8")
+    }).encode("utf-8")
 
     try:
         req = Request('https://api.pushbullet.com/v2/pushes', data)
@@ -152,9 +138,7 @@ def pushover(items, pushover_user, pushover_token):
         'token': pushover_token,
         'title': 'RSScrawler',
         'message': "\n\n".join(items)
-    })
-    if six.PY3:
-        data = data.encode("utf-8")
+    }).encode("utf-8")
     try:
         req = Request('https://api.pushover.net/1/messages.json', data)
         response = urlopen(req)

@@ -10,8 +10,6 @@ import logging
 import re
 import socket
 
-import six
-
 from rsscrawler import myjdapi
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -94,17 +92,11 @@ def fullhd_title(key):
 
 def decode_base64(value):
     value = value.replace("-", "/")
-    if six.PY2:
-        return value.decode("base64")
-    else:
-        return base64.b64decode(value).decode()
+    return base64.b64decode(value).decode()
 
 
 def encode_base64(value):
-    if six.PY2:
-        return str(value.encode("base64")).replace("/", "-")
-    else:
-        return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
+    return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
 
 
 def readable_size(size):

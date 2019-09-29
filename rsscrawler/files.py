@@ -5,8 +5,6 @@
 import os
 import sys
 
-import six
-
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.rssconfig import RssConfig
@@ -23,7 +21,7 @@ def config(configpath):
         configpath = f.readline()
     else:
         print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-        configpath = six.moves.input("Pfad angeben:")
+        configpath = input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(configfile, "w")
             f.write(configpath)
@@ -49,13 +47,13 @@ def myjd_input(configfile, port, user, password, device):
             print(u"Gerätename " + device + " automatisch ermittelt.")
     else:
         print(u"Bitte die Zugangsdaten für My JDownloader angeben (Leer lassen um Crawljobs zu nutzen):")
-        user = six.moves.input("Nutzername/Email:")
-        password = six.moves.input("Passwort:")
+        user = input("Nutzername/Email:")
+        password = input("Passwort:")
         device = get_if_one_device(user, password)
         if device:
             print(u"Gerätename " + device + " automatisch ermittelt.")
         else:
-            device = six.moves.input(u"Gerätename:")
+            device = input(u"Gerätename:")
     if not port:
         port = '9090'
 

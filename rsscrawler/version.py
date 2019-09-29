@@ -6,7 +6,7 @@ import re
 from distutils.version import StrictVersion as version
 
 from bs4 import BeautifulSoup
-from six.moves.urllib.request import urlopen
+from urllib.request import urlopen
 
 
 def get_version():

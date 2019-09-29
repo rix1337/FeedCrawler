@@ -10,7 +10,7 @@ from rsscrawler.rssdb import RssDb
 
 
 def fake_user_agent():
-    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0"
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0"
 
 
 def check_url(configfile, dbfile):

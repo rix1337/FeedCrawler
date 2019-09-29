@@ -14,4 +14,4 @@ passlib
 pycryptodomex
 python-dateutil
 requests[socks]
-six
+simplejson

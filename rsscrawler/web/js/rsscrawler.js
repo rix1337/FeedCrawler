@@ -286,7 +286,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
                 getSettings();
             }, function (res) {
-                getSettings()
+                getSettings();
                 console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
                 showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
             });
@@ -496,16 +496,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
 
-                let uuids = []
+                let uuids = [];
                 if ($scope.myjd_failed) {
                     $('.myjd_failed').show();
                     for (let existing_package of $scope.myjd_failed) {
-                        let uuid = existing_package['uuid']
+                        let uuid = existing_package['uuid'];
                         uuids.push(uuid)
                     }
                     const failed_packages = Object.entries(res.data.packages.linkgrabber_failed);
                     for (let failed_package of failed_packages) {
-                        let uuid = failed_package[1]['uuid']
+                        let uuid = failed_package[1]['uuid'];
                         if (!uuids.includes(uuid)) {
                             $scope.myjd_failed.push(failed_package[1])
                         }
@@ -603,9 +603,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.post('api/myjd_remove/' + linkids + "&" + uuid)
             .then(function (res) {
                 for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid']
+                    let existing_uuid = failed_package['uuid'];
                     if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        let index = $scope.myjd_failed.indexOf(failed_package);
                         $scope.myjd_failed.splice(index, 1)
                     }
                 }
@@ -617,14 +617,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDretry(linkids, uuid, links) {
-        links = btoa(links)
+        links = btoa(links);
         $http.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
             .then(function (res) {
                 getMyJD();
                 for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid']
+                    let existing_uuid = failed_package['uuid'];
                     if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        let index = $scope.myjd_failed.indexOf(failed_package);
                         $scope.myjd_failed.splice(index, 1)
                     }
                 }
@@ -641,9 +641,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid']
+                    let existing_uuid = failed_package['uuid'];
                     if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package)
+                        let index = $scope.myjd_failed.indexOf(failed_package);
                         $scope.myjd_failed.splice(index, 1)
                     }
                 }
