@@ -721,17 +721,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if uuid not in known_packages:
                     delete = True
                     fnames = dp['filenames']
-                    j = 0
                     for fname in fnames:
                         fname_episode = int(fname_episodes[i].replace(replacer, ""))
-                        i += 1
-
                         if fname_episode in all_episodes:
-                            keep_linkids.append(linkids[j])
+                            keep_linkids.append(linkids[i])
                             if uuid not in keep_uuids:
                                 keep_uuids.append(uuid)
                             delete = False
-                            j += 1
+                        i += 1
                     if delete:
                         delete_packages.append(dp)
 
