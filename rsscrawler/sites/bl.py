@@ -1041,6 +1041,7 @@ class BL:
                     mb_304 = True
             except:
                 mb_304 = True
+                first_page_mb = False
                 self.log_debug("Fehler beim Abruf von MB - breche MB-Suche ab!")
 
         hw_304 = False
@@ -1052,6 +1053,7 @@ class BL:
                     hw_304 = True
             except:
                 hw_304 = True
+                first_page_hw = False
                 self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
 
         ha_304 = False
@@ -1063,6 +1065,7 @@ class BL:
                     hw_304 = True
             except:
                 hw_304 = True
+                first_page_ha = False
                 self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
 
         set_mbhwha = self.settings_hash(False)
@@ -1126,7 +1129,7 @@ class BL:
                 i = 0
                 for url in mb_urls:
                     if not self.i_mb_done:
-                        if not self.historical and i == 0:
+                        if not self.historical and i == 0 and first_page_mb:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(
@@ -1139,7 +1142,7 @@ class BL:
                 i = 0
                 for url in hw_urls:
                     if not self.i_hw_done:
-                        if not self.historical and i == 0:
+                        if not self.historical and i == 0 and first_page_hw:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(
@@ -1152,7 +1155,7 @@ class BL:
                 i = 0
                 for url in ha_urls:
                     if not self.i_ha_done:
-                        if not self.historical and i == 0:
+                        if not self.historical and i == 0 and first_page_ha:
                             ha_parsed_url = first_page_ha
                         else:
                             ha_parsed_url = ha_url_to_soup(url, self.configfile, self.dbfile)
@@ -1165,7 +1168,7 @@ class BL:
             i = 0
             for url in mb_urls:
                 if not self.mb_done:
-                    if not self.historical and i == 0:
+                    if not self.historical and i == 0 and first_page_mb:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(
@@ -1178,7 +1181,7 @@ class BL:
             i = 0
             for url in hw_urls:
                 if not self.hw_done:
-                    if not self.historical and i == 0:
+                    if not self.historical and i == 0 and first_page_hw:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(
@@ -1191,7 +1194,7 @@ class BL:
             i = 0
             for url in ha_urls:
                 if not self.ha_done:
-                    if not self.historical and i == 0:
+                    if not self.historical and i == 0 and first_page_ha:
                         ha_parsed_url = first_page_ha
                     else:
                         if "search" not in url:

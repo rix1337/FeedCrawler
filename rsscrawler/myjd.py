@@ -653,23 +653,30 @@ def myjd_download(configfile, device, title, subdir, links, password):
         if is_episode:
             exists = check_failed_link_exists(links, configfile, device)
             if exists:
+                broken_title = False
                 device = exists[0]
                 old_title = exists[3]
                 old_path = exists[4]
+                try:
+                    new_episode = is_episode.pop()
+                except:
+                    broken_title = True
+                try:
+                    old_episode = re.findall(
+                        r'[\w.\s]*(?!S\d{1,2})((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w.\s]*',
+                        old_title).pop()
+                    combined_episodes = new_episode + '-' + old_episode
+                except:
+                    broken_title = True
 
-                new_episode = is_episode.pop()
-                old_episode = re.findall(
-                    r'[\w.\s]*S\d{1,2}((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w.\s]*',
-                    old_title).pop()
-                combined_episodes = new_episode + '-' + old_episode
+                if not broken_title:
+                    linkids = exists[1]
+                    package_id = [exists[2]]
+                    new_title = title.replace(new_episode, combined_episodes)
+                    new_path = old_path.replace(old_title, new_title)
 
-                linkids = exists[1]
-                package_id = [exists[2]]
-                new_title = title.replace(new_episode, combined_episodes)
-                new_path = old_path.replace(old_title, new_title)
-
-                device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                return device
+                    device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
+                    return device
 
         device = download(configfile, device, title, subdir, links, password)
         if device:
