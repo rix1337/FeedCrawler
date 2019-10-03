@@ -397,7 +397,7 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
         if not device or not is_device(device):
             device = get_device(configfile)
 
-        links = str(links)
+        links = str(links).replace(" ", "")
         crawljobs = RssConfig('Crawljobs', configfile)
         autostart = crawljobs.get("autostart")
         usesubdir = crawljobs.get("subdir")
@@ -653,23 +653,30 @@ def myjd_download(configfile, device, title, subdir, links, password):
         if is_episode:
             exists = check_failed_link_exists(links, configfile, device)
             if exists:
+                broken_title = False
                 device = exists[0]
                 old_title = exists[3]
                 old_path = exists[4]
+                try:
+                    new_episode = is_episode.pop()
+                except:
+                    broken_title = True
+                try:
+                    old_episode = re.findall(
+                        r'[\w.\s]*(?!S\d{1,2})((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w.\s]*',
+                        old_title).pop()
+                    combined_episodes = new_episode + '-' + old_episode
+                except:
+                    broken_title = True
 
-                new_episode = is_episode.pop()
-                old_episode = re.findall(
-                    r'[\w.\s]*S\d{1,2}((?:E\d{1,2}-E\d{1,2})|(?:E\d{1,2}E\d{1,2})|(?:E\d{1,2}-\d{1,2})|(?:E\d{1,2}))[\w.\s]*',
-                    old_title).pop()
-                combined_episodes = new_episode + '-' + old_episode
+                if not broken_title:
+                    linkids = exists[1]
+                    package_id = [exists[2]]
+                    new_title = title.replace(new_episode, combined_episodes)
+                    new_path = old_path.replace(old_title, new_title)
 
-                linkids = exists[1]
-                package_id = [exists[2]]
-                new_title = title.replace(new_episode, combined_episodes)
-                new_path = old_path.replace(old_title, new_title)
-
-                device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                return device
+                    device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
+                    return device
 
         device = download(configfile, device, title, subdir, links, password)
         if device:
@@ -678,6 +685,9 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
 
 def package_merge(configfile, device, decrypted_packages, title, known_packages):
+    if not decrypted_packages:
+        return False
+
     delete_packages = []
     delete_linkids = []
     delete_uuids = []
@@ -697,12 +707,13 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
         else:
             all_episodes = list(int_episodes)
 
-        if decrypted_packages and len(decrypted_packages) > 1:
+        if decrypted_packages:
             fname_episodes = []
             for dp in decrypted_packages:
                 if dp['uuid'] not in known_packages:
                     fnames = dp['filenames']
                     for fname in fnames:
+                        fname = fname.replace("hddl8", "").replace("dd51", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
                         fname_episodes.append(fname_episode)
             replacer = longest_substr(fname_episodes)
@@ -717,17 +728,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if uuid not in known_packages:
                     delete = True
                     fnames = dp['filenames']
-                    j = 0
                     for fname in fnames:
                         fname_episode = int(fname_episodes[i].replace(replacer, ""))
-                        i += 1
-
                         if fname_episode in all_episodes:
-                            keep_linkids.append(linkids[j])
+                            keep_linkids.append(linkids[i])
                             if uuid not in keep_uuids:
                                 keep_uuids.append(uuid)
                             delete = False
-                            j += 1
+                        i += 1
                     if delete:
                         delete_packages.append(dp)
 
