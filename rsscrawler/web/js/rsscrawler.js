@@ -216,7 +216,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                     $("#myjd_no_login").hide();
-                    $("#pfad").hide();
                 } else {
                     $("#spinner-myjd").hide();
                     $("#myjd_state").hide();

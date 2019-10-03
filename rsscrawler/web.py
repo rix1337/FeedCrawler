@@ -156,7 +156,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "myjd_user": general_conf.get("myjd_user"),
                             "myjd_pass": general_conf.get("myjd_pass"),
                             "myjd_device": general_conf.get("myjd_device"),
-                            "pfad": general_conf.get("jdownloader"),
                             "port": to_int(general_conf.get("port")),
                             "prefix": general_conf.get("prefix"),
                             "interval": to_int(general_conf.get("interval")),
@@ -252,7 +251,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             if myjd_user and myjd_pass and myjd_device:
                 device_check = check_device(myjd_user, myjd_pass, myjd_device)
-                jdownloader = ""
                 if not device_check:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
@@ -260,22 +258,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     else:
                         print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return "Failed", 400
-            else:
-                jdownloader = to_str(data['general']['pfad'])
-                if not jdownloader:
-                    print(u"Ohne My JDownloader Zugangsdaten oder JDownloader-Pfad funktioniert RSScrawler nicht!")
-                    print(u"Bitte vor dem Speichern prüfen")
-                    return "Failed", 400
-                else:
-                    if not os.path.exists(jdownloader + "/folderwatch"):
-                        print(
-                            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-                        return "Failed", 400
 
             section.save("myjd_user", myjd_user)
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
-            section.save("jdownloader", jdownloader)
             section.save(
                 "port", to_str(data['general']['port']))
             section.save(
