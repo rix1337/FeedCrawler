@@ -49,6 +49,7 @@ from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import move_to_downloads
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
@@ -192,15 +193,17 @@ def watchdog(configfile, dbfile):
                         for package in packages_in_downloader_decrypted:
                             if title == package['name']:
                                 if autostart:
-                                    # TODO run cnl check, then start
-                                    print("starte download")
+                                    # TODO run cnl check
+                                    device = move_to_downloads(configfile, device, package['linkids'],
+                                                               [package['uuid']])
                                 db.delete(title)
                     if packages_in_linkgrabber_decrypted:
                         for package in packages_in_linkgrabber_decrypted:
                             if title == package['name']:
                                 if autostart:
-                                    # TODO run cnl check, then start
-                                    print("starte download")
+                                    # TODO run cnl check
+                                    device = move_to_downloads(configfile, device, package['linkids'],
+                                                               [package['uuid']])
                                 db.delete(title)
 
                     if offline_packages:

@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import re
+import time
 
 from fuzzywuzzy import fuzz
 
@@ -11,9 +12,8 @@ from rsscrawler.common import is_device
 from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
-from rsscrawler.rssdb import ListDb
 from rsscrawler.rssconfig import RssConfig
-import time
+from rsscrawler.rssdb import ListDb
 
 
 def get_device(configfile):
@@ -393,7 +393,7 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, dbfile, device, title, subdir, links, password, full_path=None):
+def download(configfile, dbfile, device, title, subdir, links, password, full_path=None, autostart=False):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
@@ -416,7 +416,7 @@ def download(configfile, dbfile, device, title, subdir, links, password, full_pa
         try:
             device.linkgrabber.add_links(params=[
                 {
-                    "autostart": False,
+                    "autostart": autostart,
                     "links": links,
                     "packageName": title,
                     "extractPassword": password,
@@ -431,7 +431,7 @@ def download(configfile, dbfile, device, title, subdir, links, password, full_pa
                 return False
             device.linkgrabber.add_links(params=[
                 {
-                    "autostart": False,
+                    "autostart": autostart,
                     "links": links,
                     "packageName": title,
                     "extractPassword": password,
@@ -843,7 +843,7 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     uuid = [cnl_package['uuid']]
     device = remove_from_linkgrabber(configfile, device, linkids, uuid)
     if device:
-        device = download(configfile, dbfile, device, title, "", links, "", path)
+        device = download(configfile, dbfile, device, title, "", links, "", path, True)
         if device:
             linkids = old_package['linkids']
             uuid = [old_package['uuid']]
