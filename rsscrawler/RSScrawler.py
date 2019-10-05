@@ -31,6 +31,7 @@ Options:
 import logging
 import os
 import random
+import re
 import signal
 import sys
 import time
@@ -50,6 +51,7 @@ from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import package_merge
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
@@ -132,6 +134,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
                 traceback.print_exc()
+                time.sleep(10)
     else:
         try:
             if not device or not is_device(device):
@@ -158,6 +161,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                   u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!")
         except Exception:
             traceback.print_exc()
+            time.sleep(10)
 
 
 def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
@@ -184,46 +188,63 @@ def watchdog(configfile, dbfile):
             offline_packages = myjd_packages[4][2]
             encrypted_packages = myjd_packages[4][3]
 
-            notify_list = []
+            if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
+                notify_list = []
 
-            watched_titles = db.retrieve()
-            if watched_titles:
-                for title in watched_titles:
-                    if packages_in_downloader_decrypted:
-                        for package in packages_in_downloader_decrypted:
-                            if title == package['name']:
-                                if autostart:
-                                    # TODO run cnl check
-                                    device = move_to_downloads(configfile, device, package['linkids'],
-                                                               [package['uuid']])
-                                db.delete(title)
-                    if packages_in_linkgrabber_decrypted:
-                        for package in packages_in_linkgrabber_decrypted:
-                            if title == package['name']:
-                                if autostart:
-                                    # TODO run cnl check
-                                    device = move_to_downloads(configfile, device, package['linkids'],
-                                                               [package['uuid']])
-                                db.delete(title)
+                watched_titles = db.retrieve()
+                if watched_titles:
+                    for title in watched_titles:
+                        is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
 
-                    if offline_packages:
-                        for package in offline_packages:
-                            if title == package['name']:
-                                notify_list.append("[Offline] - " + title)
-                                print((u"[Offline] - " + title))
-                                db.delete(title)
-                    if encrypted_packages:
-                        for package in encrypted_packages:
-                            if title == package['name']:
-                                notify_list.append("[Click'n'Load notwendig] - " + title)
-                                print(u"[Click'n'Load notwendig] - " + title)
-                                db.delete(title)
-            if notify_list:
-                notify(notify_list, configfile)
+                        if packages_in_downloader_decrypted:
+                            for package in packages_in_downloader_decrypted:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    removed_links = False
+                                    if autostart:
+                                        if is_episode:
+                                            check = package_merge(configfile, device, [package], title, [0])
+                                            device = check[0]
+                                            removed_links = check[1]
+                                        device = move_to_downloads(configfile, device, package['linkids'],
+                                                                   [package['uuid']])
+                                    if not removed_links:
+                                        db.delete(title)
+                        if packages_in_linkgrabber_decrypted:
+                            for package in packages_in_linkgrabber_decrypted:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    removed_links = False
+                                    if autostart:
+                                        if is_episode:
+                                            check = package_merge(configfile, device, [package], title, [0])
+                                            device = check[0]
+                                            removed_links = check[1]
+                                        device = move_to_downloads(configfile, device, package['linkids'],
+                                                                   [package['uuid']])
+                                    if not removed_links:
+                                        db.delete(title)
+
+                        if offline_packages:
+                            for package in offline_packages:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    notify_list.append("[Offline] - " + title)
+                                    print((u"[Offline] - " + title))
+                                    db.delete(title)
+                        if encrypted_packages:
+                            for package in encrypted_packages:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    notify_list.append("[Click'n'Load notwendig] - " + title)
+                                    print(u"[Click'n'Load notwendig] - " + title)
+                                    db.delete(title)
+                if notify_list:
+                    notify(notify_list, configfile)
+            else:
+                if not grabber_collecting:
+                    db.reset()
 
             time.sleep(30)
         except Exception:
             traceback.print_exc()
+            time.sleep(10)
 
 
 def search_pool(configfile, dbfile, device, logging):

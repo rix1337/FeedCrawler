@@ -689,7 +689,7 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
 
 def package_merge(configfile, device, decrypted_packages, title, known_packages):
     if not decrypted_packages:
-        return False
+        return [False, False]
 
     delete_packages = []
     delete_linkids = []
@@ -747,7 +747,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             delete_linkids.remove(k)
         device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
         device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-        return device
+        return [device, True]
     elif delete_packages and len(delete_packages) < len(decrypted_packages):
         delete_linkids = []
         delete_uuids = []
@@ -761,7 +761,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
     package_merge_check(device, configfile, decrypted_packages, known_packages)
 
-    return device
+    return [device, False]
 
 
 def package_merge_check(device, configfile, decrypted_packages, known_packages):

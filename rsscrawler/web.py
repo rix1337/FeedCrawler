@@ -718,7 +718,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         decrypted_packages = failed[4][1]
                         offline_packages = failed[4][2]
                         another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                       known_packages)
+                                                       known_packages)[0]
                         if another_device:
                             device = another_device
                             info = get_info(configfile, device)

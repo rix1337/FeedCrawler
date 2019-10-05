@@ -94,3 +94,7 @@ class ListDb(object):
         self._conn.execute("DELETE FROM %s WHERE key='%s'" %
                            (self._table, key))
         self._conn.commit()
+
+    def reset(self):
+        self._conn.execute("DROP TABLE %s" % self._table)
+        self._conn.commit()
