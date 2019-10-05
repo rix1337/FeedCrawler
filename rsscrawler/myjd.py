@@ -722,6 +722,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             replacer = longest_substr(fname_episodes)
 
             i = 0
+            more_than_one_episode = False
             for dp in decrypted_packages:
                 linkids = dp['linkids']
                 for l in linkids:
@@ -732,7 +733,9 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     delete = True
                     fnames = dp['filenames']
                     for fname in fnames:
-                        fname_episode = int(fname_episodes[i].replace(replacer, ""))
+                        if not fname_episodes[i] == replacer:
+                            fname_episode = int(fname_episodes[i].replace(replacer, ""))
+                            more_than_one_episode = True
                         if fname_episode in all_episodes:
                             keep_linkids.append(linkids[i])
                             if uuid not in keep_uuids:
@@ -742,22 +745,23 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     if delete:
                         delete_packages.append(dp)
 
-    if keep_linkids and keep_uuids:
-        for k in keep_linkids:
-            delete_linkids.remove(k)
-        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
-        device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-        return [device, True]
-    elif delete_packages and len(delete_packages) < len(decrypted_packages):
-        delete_linkids = []
-        delete_uuids = []
-        for dp in delete_packages:
-            for linkid in dp['linkids']:
-                delete_linkids.append(linkid)
-            delete_uuids.append(dp['uuid'])
-            decrypted_packages.remove(dp)
-        if delete_linkids and delete_uuids:
+    if more_than_one_episode:
+        if keep_linkids and keep_uuids:
+            for k in keep_linkids:
+                delete_linkids.remove(k)
+            device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
             device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+            return [device, True]
+        elif delete_packages and len(delete_packages) < len(decrypted_packages):
+            delete_linkids = []
+            delete_uuids = []
+            for dp in delete_packages:
+                for linkid in dp['linkids']:
+                    delete_linkids.append(linkid)
+                delete_uuids.append(dp['uuid'])
+                decrypted_packages.remove(dp)
+            if delete_linkids and delete_uuids:
+                device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
 
     package_merge_check(device, configfile, decrypted_packages, known_packages)
 
