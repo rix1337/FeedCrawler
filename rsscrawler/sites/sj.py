@@ -213,7 +213,7 @@ class SJ:
         if storage == 'added' or storage == 'notdl':
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.device = myjd_download(self.configfile, self.device, title, "RSScrawler", links,
+            self.device = myjd_download(self.configfile, self.dbfile, self.device, title, "RSScrawler", links,
                                         decode_base64("c2VyaWVuanVua2llcy5vcmc="))
             if self.device:
                 self.db.store(title, 'added')

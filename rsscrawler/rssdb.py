@@ -64,6 +64,11 @@ class ListDb(object):
                            (self._table, key))
         self._conn.commit()
 
+    def store_unsanitized(self, key):
+        self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
+                           (self._table, key))
+        self._conn.commit()
+
     def store_list(self, keys):
         items = []
         if "_Regex" not in self._table:
@@ -88,4 +93,8 @@ class ListDb(object):
     def delete(self, key):
         self._conn.execute("DELETE FROM %s WHERE key='%s'" %
                            (self._table, key))
+        self._conn.commit()
+
+    def reset(self):
+        self._conn.execute("DROP TABLE %s" % self._table)
         self._conn.commit()

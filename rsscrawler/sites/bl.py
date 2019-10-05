@@ -627,7 +627,7 @@ class BL:
                             else:
                                 if cutoff(key, '0', self.dbfile):
                                     retail = True
-                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
                                                     password)
                         if self.device:
@@ -646,7 +646,8 @@ class BL:
                         if self.config.get('cutoff'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler/Remux",
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                    "RSScrawler/3Dcrawler/Remux",
                                                     download_links,
                                                     password)
                         if self.device:
@@ -661,7 +662,7 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                     elif self.filename == 'MB_Regex':
-                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
                                                     password)
                         if self.device:
@@ -675,7 +676,7 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                     else:
-                        self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/Remux",
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
                                                     password)
                         if self.device:
@@ -752,7 +753,8 @@ class BL:
                         else:
                             if cutoff(key, '0', self.dbfile):
                                 retail = True
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                            download_links, password)
                 if self.device:
                     self.db.store(
                         key,
@@ -774,7 +776,8 @@ class BL:
                         if self.config.get('enforcedl'):
                             if cutoff(key, '2', self.dbfile):
                                 retail = True
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
+                                            download_links,
                                             password)
                 if self.device:
                     self.db.store(
@@ -901,7 +904,8 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '0', self.dbfile):
                             retail = True
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                            download_links, password)
                 if self.device:
                     self.db.store(
                         key,
@@ -926,7 +930,8 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if cutoff(key, '2', self.dbfile):
                             retail = True
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler/3Dcrawler", download_links,
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
+                                            download_links,
                                             password)
                 if self.device:
                     self.db.store(
@@ -940,7 +945,8 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             elif self.filename == 'MB_Staffeln':
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                            download_links, password)
                 if self.device:
                     self.db.store(
                         key.replace(".COMPLETE", "").replace(
@@ -953,7 +959,8 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
-                self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", download_links, password)
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                            download_links, password)
                 if self.device:
                     self.db.store(
                         key,

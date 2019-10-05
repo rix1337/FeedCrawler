@@ -13,14 +13,14 @@ class RssConfig(object):
             ("myjd_user", "str", ""),
             ("myjd_pass", "str", ""),
             ("myjd_device", "str", ""),
-            ("jdownloader", "str", ""),
             ("port", "int", "9090"),
             ("prefix", "str", ""),
             ("interval", "int", "10"),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("proxy", "str", ""),
-            ("fallback", "bool", "False")
+            ("fallback", "bool", "False"),
+            ("closed_myjd_tab", "bool", "False")
         ],
         'MB': [
             ("hoster", "str", ".*?share-online.*?"),

@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import re
+import time
 
 from fuzzywuzzy import fuzz
 
@@ -12,7 +13,7 @@ from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
 from rsscrawler.rssconfig import RssConfig
-import time
+from rsscrawler.rssdb import ListDb
 
 
 def get_device(configfile):
@@ -392,14 +393,13 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, device, title, subdir, links, password, full_path=None):
+def download(configfile, dbfile, device, title, subdir, links, password, full_path=None, autostart=False):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
 
         links = str(links).replace(" ", "")
         crawljobs = RssConfig('Crawljobs', configfile)
-        autostart = crawljobs.get("autostart")
         usesubdir = crawljobs.get("subdir")
         priority = "DEFAULT"
 
@@ -440,13 +440,14 @@ def download(configfile, device, title, subdir, links, password, full_path=None)
                     "destinationFolder": path,
                     "overwritePackagizerRules": False
                 }])
+        ListDb(dbfile, 'watchdog').store_unsanitized(title)
         return device
     except rsscrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def retry_decrypt(configfile, device, linkids, uuid, links):
+def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
@@ -540,7 +541,7 @@ def retry_decrypt(configfile, device, linkids, uuid, links):
                 remove_from_linkgrabber(configfile, device, linkids, uuid)
                 title = package[0].get('name')
                 full_path = package[0].get('saveTo')
-                download(configfile, device, title, None, links, None, full_path)
+                download(configfile, dbfile, device, title, None, links, None, full_path)
                 return device
             else:
                 return False
@@ -647,7 +648,7 @@ def check_failed_link_exists(links, configfile, device):
     return False
 
 
-def myjd_download(configfile, device, title, subdir, links, password):
+def myjd_download(configfile, dbfile, device, title, subdir, links, password):
     if device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
@@ -676,9 +677,11 @@ def myjd_download(configfile, device, title, subdir, links, password):
                     new_path = old_path.replace(old_title, new_title)
 
                     device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
+                    ListDb(dbfile, 'watchdog').store_unsanitized(new_title)
+                    ListDb(dbfile, 'watchdog').delete(old_title)
                     return device
 
-        device = download(configfile, device, title, subdir, links, password)
+        device = download(configfile, dbfile, device, title, subdir, links, password)
         if device:
             return device
     return False
@@ -686,7 +689,7 @@ def myjd_download(configfile, device, title, subdir, links, password):
 
 def package_merge(configfile, device, decrypted_packages, title, known_packages):
     if not decrypted_packages:
-        return False
+        return [False, False]
 
     delete_packages = []
     delete_linkids = []
@@ -744,7 +747,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             delete_linkids.remove(k)
         device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
         device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-        return device
+        return [device, True]
     elif delete_packages and len(delete_packages) < len(decrypted_packages):
         delete_linkids = []
         delete_uuids = []
@@ -758,7 +761,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
     package_merge_check(device, configfile, decrypted_packages, known_packages)
 
-    return device
+    return [device, False]
 
 
 def package_merge_check(device, configfile, decrypted_packages, known_packages):
@@ -832,7 +835,7 @@ def do_package_merge(configfile, device, title, uuids, linkids):
         return False
 
 
-def do_package_replace(configfile, device, old_package, cnl_package):
+def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
     links = cnl_package['urls']
@@ -840,7 +843,7 @@ def do_package_replace(configfile, device, old_package, cnl_package):
     uuid = [cnl_package['uuid']]
     device = remove_from_linkgrabber(configfile, device, linkids, uuid)
     if device:
-        device = download(configfile, device, title, "", links, "", path)
+        device = download(configfile, dbfile, device, title, "", links, "", path, True)
         if device:
             linkids = old_package['linkids']
             uuid = [old_package['uuid']]

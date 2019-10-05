@@ -216,7 +216,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
                     $("#myjd_no_login").hide();
-                    $("#pfad").hide();
                 } else {
                     $("#spinner-myjd").hide();
                     $("#myjd_state").hide();
@@ -516,15 +515,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_failed.length == 0) {
                     $scope.myjd_failed = false
                 }
-                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline) {
+                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline || $scope.settings.general.closed_myjd_tab) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
                     }
-                    $("#myjd_no_packages").show();
+                    if (!$scope.settings.general.closed_myjd_tab) {
+                        $("#myjd_no_packages").show();
+                    }
                 } else {
                     $("#myjd_no_packages").hide();
-                    if (!$scope.myjd_collapse_manual) {
+                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
@@ -542,7 +543,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $('.cnl-button').hide();
                     $('.cnl-blockers').hide();
                     $scope.was_grabbing = true;
-                    if (!$scope.myjd_collapse_manual) {
+                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }

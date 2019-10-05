@@ -118,7 +118,8 @@ class YT:
                         self.log_debug(video_title + " (" + channel + ") " +
                                        "[" + video + "] - YouTube-Video ignoriert (basierend auf ignore-Einstellung)")
                         continue
-                    self.device = myjd_download(self.configfile, self.device, "YouTube/" + channel, "RSScrawler",
+                    self.device = myjd_download(self.configfile, self.dbfile, self.device, "YouTube/" + channel,
+                                                "RSScrawler",
                                                 download_link, "")
                     if self.device:
                         self.db.store(

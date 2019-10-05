@@ -462,12 +462,11 @@
                     <input ng-model="settings.general.myjd_device" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben"/>
-                    <div id="pfad"><h4>JDownloader-Pfad</h4>
-                        <input ng-model="settings.general.pfad" class="form-control docker"
-                               data-toggle="tooltip"
-                               data-placement="top"
-                               title="Wird nur genutzt, wenn oben keine MyJDownloader-Zugangsdaten hinterlegt wurden: Exakt das Verzeichnis des JDownloaders angeben - Die Orderüberwachung muss aktiv sein und auf dessen Unterordner folderwatch verweisen"/>
-                    </div>
+                    <h4>Bereich zuklappen</h4>
+                    <select ng-model="settings.general.closed_myjd_tab" ng-options="o.value as o.label for o in bools"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des RSScrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht."></select>
                 </div>
             </div>
         </div>
@@ -848,7 +847,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?update"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>{% endraw %}

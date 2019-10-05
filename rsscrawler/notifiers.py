@@ -12,7 +12,6 @@ from urllib.request import urlopen, Request
 import simplejson as json
 
 from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import RssDb
 
 log_info = logging.info
 log_error = logging.error
@@ -22,25 +21,6 @@ log_debug = logging.debug
 def api_request_cutter(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
-
-
-def notify_new_failed_packages(package, offline, configfile, dbfile):
-    to_notify = []
-    if package:
-        db = RssDb(dbfile, 'failed')
-        for failed in package:
-            name = failed["name"]
-            if not db.retrieve(name) == "failed":
-                if offline:
-                    to_notify.append("[Offline] - " + name)
-                else:
-                    to_notify.append("[Click'n'Load notwendig] - " + name)
-                db.store(name, "failed")
-    if to_notify:
-        notify(to_notify, configfile)
-        return True
-    else:
-        return False
 
 
 def notify(items, configfile):

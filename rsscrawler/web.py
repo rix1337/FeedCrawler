@@ -37,7 +37,6 @@ from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -156,7 +155,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "myjd_user": general_conf.get("myjd_user"),
                             "myjd_pass": general_conf.get("myjd_pass"),
                             "myjd_device": general_conf.get("myjd_device"),
-                            "pfad": general_conf.get("jdownloader"),
                             "port": to_int(general_conf.get("port")),
                             "prefix": general_conf.get("prefix"),
                             "interval": to_int(general_conf.get("interval")),
@@ -164,6 +162,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "surround": general_conf.get("surround"),
                             "proxy": general_conf.get("proxy"),
                             "fallback": general_conf.get("fallback"),
+                            "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                         },
                         "alerts": {
                             "pushbullet": alerts.get("pushbullet"),
@@ -252,7 +251,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             if myjd_user and myjd_pass and myjd_device:
                 device_check = check_device(myjd_user, myjd_pass, myjd_device)
-                jdownloader = ""
                 if not device_check:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
@@ -260,22 +258,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     else:
                         print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return "Failed", 400
-            else:
-                jdownloader = to_str(data['general']['pfad'])
-                if not jdownloader:
-                    print(u"Ohne My JDownloader Zugangsdaten oder JDownloader-Pfad funktioniert RSScrawler nicht!")
-                    print(u"Bitte vor dem Speichern prüfen")
-                    return "Failed", 400
-                else:
-                    if not os.path.exists(jdownloader + "/folderwatch"):
-                        print(
-                            u'Der Pfad des JDownloaders enthält nicht das "folderwatch" Unterverzeichnis. Sicher, dass der Pfad stimmt?')
-                        return "Failed", 400
 
             section.save("myjd_user", myjd_user)
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
-            section.save("jdownloader", jdownloader)
             section.save(
                 "port", to_str(data['general']['port']))
             section.save(
@@ -292,6 +278,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                          to_str(data['general']['proxy']))
             section.save("fallback",
                          to_str(data['general']['fallback']))
+            section.save("closed_myjd_tab",
+                         to_str(data['general']['closed_myjd_tab']))
             section = RssConfig("MB", configfile)
             section.save("hoster",
                          to_str(data['mb']['hoster']))
@@ -622,7 +610,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             links = decode_base64(b64_links)
             links = links.split("\n")
-            device = retry_decrypt(configfile, device, linkids, uuids, links)
+            device = retry_decrypt(configfile, dbfile, device, linkids, uuids, links)
             if device:
                 return "Success", 200
             else:
@@ -730,7 +718,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         decrypted_packages = failed[4][1]
                         offline_packages = failed[4][2]
                         another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                       known_packages)
+                                                       known_packages)[0]
                         if another_device:
                             device = another_device
                             info = get_info(configfile, device)
@@ -758,11 +746,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not cnl_package:
                 return "No Package added through Click'n'Load in time!", 504
 
-            replaced = do_package_replace(configfile, device, old_package, cnl_package)
+            replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
                 title = replaced[1]
-                db = RssDb(dbfile, 'failed')
+                db = ListDb(dbfile, 'watchdog')
                 db.delete(title)
                 return "Success", 200
             else:

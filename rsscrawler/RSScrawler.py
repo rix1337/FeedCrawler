@@ -31,6 +31,7 @@ Options:
 import logging
 import os
 import random
+import re
 import signal
 import sys
 import time
@@ -47,12 +48,15 @@ from rsscrawler import version
 from rsscrawler.common import is_device
 from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
-from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_if_one_device
-from rsscrawler.notifiers import notify_new_failed_packages
+from rsscrawler.myjd import get_info
+from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import package_merge
+from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
+from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
@@ -105,16 +109,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 start_time = time.time()
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 if device:
-                    failed_packages = get_info(configfile, device)
-                    offline_packages = failed_packages[4][2]
-                    encrypted_packages = failed_packages[4][3]
-                    if offline_packages or encrypted_packages:
-                        device = failed_packages[0]
-                        notify_new_failed_packages(offline_packages, True, configfile, dbfile)
-                        notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
-                    else:
-                        db = RssDb(dbfile, 'failed')
-                        db.reset()
                     device = ombi(configfile, dbfile, device, log_debug)
                 for task in search_pool(configfile, dbfile, device, logging):
                     name = task._INTERNAL_NAME
@@ -140,6 +134,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
                 traceback.print_exc()
+                time.sleep(10)
     else:
         try:
             if not device or not is_device(device):
@@ -148,16 +143,6 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             if device:
-                failed_packages = get_info(configfile, device)
-                offline_packages = failed_packages[4][2]
-                encrypted_packages = failed_packages[4][3]
-                if offline_packages or encrypted_packages:
-                    device = failed_packages[0]
-                    notify_new_failed_packages(offline_packages, True, configfile, dbfile)
-                    notify_new_failed_packages(encrypted_packages, False, configfile, dbfile)
-                else:
-                    db = RssDb(dbfile, 'failed')
-                    db.reset()
                 device = ombi(configfile, dbfile, device, log_debug)
             for task in search_pool(configfile, dbfile, device, logging):
                 name = task._INTERNAL_NAME
@@ -176,10 +161,90 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                   u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!")
         except Exception:
             traceback.print_exc()
+            time.sleep(10)
 
 
 def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
     start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
+
+
+def watchdog(configfile, dbfile):
+    crawljobs = RssConfig('Crawljobs', configfile)
+    autostart = crawljobs.get("autostart")
+    db = ListDb(dbfile, 'watchdog')
+
+    device = False
+
+    while True:
+        try:
+            if not device or not is_device(device):
+                device = get_device(configfile)
+
+            myjd_packages = get_info(configfile, device)
+
+            grabber_collecting = myjd_packages[2]
+            packages_in_downloader_decrypted = myjd_packages[4][0]
+            packages_in_linkgrabber_decrypted = myjd_packages[4][1]
+            offline_packages = myjd_packages[4][2]
+            encrypted_packages = myjd_packages[4][3]
+
+            if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
+                notify_list = []
+
+                watched_titles = db.retrieve()
+                if watched_titles:
+                    for title in watched_titles:
+                        is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
+
+                        if packages_in_downloader_decrypted:
+                            for package in packages_in_downloader_decrypted:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    removed_links = False
+                                    if autostart:
+                                        if is_episode:
+                                            check = package_merge(configfile, device, [package], title, [0])
+                                            device = check[0]
+                                            removed_links = check[1]
+                                        device = move_to_downloads(configfile, device, package['linkids'],
+                                                                   [package['uuid']])
+                                    if not removed_links:
+                                        db.delete(title)
+                        if packages_in_linkgrabber_decrypted:
+                            for package in packages_in_linkgrabber_decrypted:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    removed_links = False
+                                    if autostart:
+                                        if is_episode:
+                                            check = package_merge(configfile, device, [package], title, [0])
+                                            device = check[0]
+                                            removed_links = check[1]
+                                        device = move_to_downloads(configfile, device, package['linkids'],
+                                                                   [package['uuid']])
+                                    if not removed_links:
+                                        db.delete(title)
+
+                        if offline_packages:
+                            for package in offline_packages:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    notify_list.append("[Offline] - " + title)
+                                    print((u"[Offline] - " + title))
+                                    db.delete(title)
+                        if encrypted_packages:
+                            for package in encrypted_packages:
+                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                    notify_list.append("[Click'n'Load notwendig] - " + title)
+                                    print(u"[Click'n'Load notwendig] - " + title)
+                                    db.delete(title)
+                if notify_list:
+                    notify(notify_list, configfile)
+            else:
+                if not grabber_collecting:
+                    db.reset()
+
+            time.sleep(30)
+        except Exception:
+            traceback.print_exc()
+            time.sleep(10)
 
 
 def search_pool(configfile, dbfile, device, logging):
@@ -289,12 +354,16 @@ def main():
         c = Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
         c.start()
 
+        w = Process(target=watchdog, args=(configfile, dbfile))
+        w.start()
+
         print(u'Drücke [Strg] + [C] zum Beenden')
 
         def signal_handler(signal, frame):
             print(u'Beende RSScrawler...')
             p.terminate()
             c.terminate()
+            w.terminate()
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
