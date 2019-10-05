@@ -163,6 +163,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "surround": general_conf.get("surround"),
                             "proxy": general_conf.get("proxy"),
                             "fallback": general_conf.get("fallback"),
+                            "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                         },
                         "alerts": {
                             "pushbullet": alerts.get("pushbullet"),
@@ -278,6 +279,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                          to_str(data['general']['proxy']))
             section.save("fallback",
                          to_str(data['general']['fallback']))
+            section.save("closed_myjd_tab",
+                         to_str(data['general']['closed_myjd_tab']))
             section = RssConfig("MB", configfile)
             section.save("hoster",
                          to_str(data['mb']['hoster']))

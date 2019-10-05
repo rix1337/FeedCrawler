@@ -462,6 +462,11 @@
                     <input ng-model="settings.general.myjd_device" class="form-control" data-toggle="tooltip"
                            data-placement="top"
                            title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben"/>
+                    <h4>Bereich zuklappen</h4>
+                    <select ng-model="settings.general.closed_myjd_tab" ng-options="o.value as o.label for o in bools"
+                            class="form-control" data-toggle="tooltip"
+                            data-placement="top"
+                            title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des RSScrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht."></select>
                 </div>
             </div>
         </div>

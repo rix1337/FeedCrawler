@@ -19,7 +19,8 @@ class RssConfig(object):
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("proxy", "str", ""),
-            ("fallback", "bool", "False")
+            ("fallback", "bool", "False"),
+            ("closed_myjd_tab", "bool", "False")
         ],
         'MB': [
             ("hoster", "str", ".*?share-online.*?"),
