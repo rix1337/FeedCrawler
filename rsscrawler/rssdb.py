@@ -36,7 +36,7 @@ class RssDb(object):
         self._conn.commit()
 
     def reset(self):
-        self._conn.execute("DROP TABLE %s" % self._table)
+        self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
         self._conn.commit()
 
 
@@ -96,5 +96,5 @@ class ListDb(object):
         self._conn.commit()
 
     def reset(self):
-        self._conn.execute("DROP TABLE %s" % self._table)
+        self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
         self._conn.commit()
