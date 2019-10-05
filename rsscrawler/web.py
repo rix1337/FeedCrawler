@@ -611,7 +611,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             links = decode_base64(b64_links)
             links = links.split("\n")
-            device = retry_decrypt(configfile, device, linkids, uuids, links)
+            device = retry_decrypt(configfile, dbfile, device, linkids, uuids, links)
             if device:
                 return "Success", 200
             else:
@@ -747,11 +747,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if not cnl_package:
                 return "No Package added through Click'n'Load in time!", 504
 
-            replaced = do_package_replace(configfile, device, old_package, cnl_package)
+            replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
                 title = replaced[1]
-                db = RssDb(dbfile, 'failed')
+                db = ListDb(dbfile, 'watchdog')
                 db.delete(title)
                 return "Success", 200
             else:

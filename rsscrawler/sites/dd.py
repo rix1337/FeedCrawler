@@ -60,7 +60,8 @@ class DD:
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:
-                            self.device = myjd_download(self.configfile, self.device, key, "RSScrawler", links, "")
+                            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                                        links, "")
                             if self.device:
                                 self.db.store(
                                     key,

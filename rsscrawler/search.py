@@ -455,7 +455,7 @@ def download_bl(payload, device, configfile, dbfile):
 
     if download_links:
         if staffel:
-            if myjd_download(configfile, device, key, "RSScrawler", download_links, password):
+            if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                 db.store(
                     key.replace(".COMPLETE", "").replace(".Complete", ""),
                     'notdl' if config.get(
@@ -471,7 +471,7 @@ def download_bl(payload, device, configfile, dbfile):
                 if config.get('enforcedl'):
                     if cutoff(key, '2', dbfile):
                         retail = True
-            if myjd_download(configfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
+            if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
                 db.store(
                     key,
                     'notdl' if config.get(
@@ -491,7 +491,7 @@ def download_bl(payload, device, configfile, dbfile):
                 else:
                     if cutoff(key, '0', dbfile):
                         retail = True
-            if myjd_download(configfile, device, key, "RSScrawler", download_links, password):
+            if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                 db.store(
                     key,
                     'notdl' if config.get(
@@ -699,7 +699,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
             db = RssDb(dbfile, 'rsscrawler')
 
             if re.match(hoster, dl_hoster.lower()):
-                if myjd_download(configfile, device, dl_title, "RSScrawler", dl_link,
+                if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
                                  decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
                     db.store(dl_title, 'added')
                     log_entry = '[Suche/Serie] - ' + dl_title
