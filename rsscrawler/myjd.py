@@ -701,8 +701,9 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
     more_than_one_episode = False
 
     merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
-    device = merge_first[0]
-    decrypted_packages = merge_first[1]
+    if merge_first:
+        device = merge_first[0]
+        decrypted_packages = merge_first[1]
 
     if episodes:
         int_episodes = []
