@@ -699,6 +699,12 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
     episodes = re.findall(r'E(\d{1,3})', title)
     more_than_one_episode = False
+
+    merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
+    if merge_first:
+        device = merge_first[0]
+        decrypted_packages = merge_first[1]
+
     if episodes:
         int_episodes = []
         for ep in episodes:
@@ -737,7 +743,10 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                             fname_episode = int(fname_episodes[i].replace(replacer, ""))
                             more_than_one_episode = True
                         if fname_episode in all_episodes:
-                            keep_linkids.append(linkids[i])
+                            try:
+                                keep_linkids.append(linkids[i])
+                            except:
+                                pass
                             if uuid not in keep_uuids:
                                 keep_uuids.append(uuid)
                             delete = False
