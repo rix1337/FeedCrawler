@@ -1,4 +1,4 @@
-from rsscrawler import RSScrawler
+from rsscrawler import crawler
 
 if __name__=='__main__':
-	RSScrawler.main()
+	crawler.main()

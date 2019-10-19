@@ -6,7 +6,7 @@
 """RSScrawler.
 
 Usage:
-  RSScrawler.py [--config="<CFGPFAD>"]
+  crawler.py [--config="<CFGPFAD>"]
                 [--testlauf]
                 [--docker]
                 [--port=<PORT>]
@@ -188,10 +188,11 @@ def watchdog(configfile, dbfile):
             offline_packages = myjd_packages[4][2]
             encrypted_packages = myjd_packages[4][3]
 
-            if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
-                notify_list = []
+            watched_titles = db.retrieve()
+            notify_list = []
 
-                watched_titles = db.retrieve()
+            if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
+
                 if watched_titles:
                     for title in watched_titles:
                         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
@@ -235,11 +236,15 @@ def watchdog(configfile, dbfile):
                                     notify_list.append("[Click'n'Load notwendig] - " + title)
                                     print(u"[Click'n'Load notwendig] - " + title)
                                     db.delete(title)
-                if notify_list:
-                    notify(notify_list, configfile)
             else:
                 if not grabber_collecting:
+                    if watched_titles:
+                        for title in watched_titles:
+                            notify_list.append("[Verschwundenes Paket] - " + title)
                     db.reset()
+
+            if notify_list:
+                notify(notify_list, configfile)
 
             time.sleep(30)
         except Exception:

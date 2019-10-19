@@ -54,7 +54,7 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 | ```--jd-user=<NUTZERNAME>``` | Legt den Nutzernamen für My JDownloader fest |
 | ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
-| ``` --keep-cdc``` | _Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf_ |
+| ``` --keep-cdc``` | Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf |
 
 ## Credits
 
