@@ -538,12 +538,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
                     }
-                    if (!$scope.settings.general.closed_myjd_tab) {
+                    if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.closed_myjd_tab) {
                         $("#myjd_no_packages").show();
                     }
                 } else {
                     $("#myjd_no_packages").hide();
-                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
+                    if (!$scope.myjd_collapse_manual && (typeof $scope.settings !== 'undefined' && !$scope.settings.general.closed_myjd_tab)) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
