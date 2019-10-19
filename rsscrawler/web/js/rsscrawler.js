@@ -24,13 +24,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.mb_hosters = [
-        {value: '.*?share-online.*?', label: 'Share-Online'},
+        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
+        {value: '.*?uploaded.*?', label: 'Uploaded'},
         {value: '.*?oboom.*?', label: 'OBOOM'},
-        {value: '.*?uploaded.*?', label: 'Uploaded*'},
-        {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
+        {value: '.*?turbobit.*?', label: 'Turbobit*'},
         {value: '.*?openload.*?', label: 'Openload*'},
         {value: '.*?zippyshare.*?', label: 'Zippyshare*'},
-        {value: '.*?(share-online|oboom|uploaded|rapidgator|openload|zippyshare).*?', label: 'ALLE**'}
+        {value: '.*?(rapidgator|uploaded|oboom|turbobit|openload|zippyshare).*?', label: 'ALLE**'}
     ];
 
     $scope.mb_search = [
@@ -44,16 +44,30 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.sj_hosters = [
-        {value: '.*?share-online.*?', label: 'Share-Online'},
+        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
+        {value: '.*?turbobit.*?', label: 'Turbobit'},
         {value: '.*?uploaded.*?', label: 'Uploaded'},
-        {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
+        {value: '.*?ddl.*?', label: 'DDL*'},
+        {value: '.*?uptobox.*?', label: 'Uptobox*'},
+        {value: '.*?1fichier.*?', label: '1fichier*'},
+        {value: '.*?oboom.*?', label: 'Oboom*'},
+        {value: '.*?openload.*?', label: 'Openload*'},
+        {value: '.*?nitroflare.*?', label: 'Nitroflare*'},
+        {value: '.*?filer.*?', label: 'Filer*'},
         {value: '.*', label: 'ALLE**'}
     ];
 
     $scope.dj_hosters = [
-        {value: '.*?share-online.*?', label: 'Share-Online'},
+        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
+        {value: '.*?turbobit.*?', label: 'Turbobit'},
         {value: '.*?uploaded.*?', label: 'Uploaded'},
-        {value: '.*?rapidgator.*?', label: 'Rapidgator*'},
+        {value: '.*?ddl.*?', label: 'DDL*'},
+        {value: '.*?uptobox.*?', label: 'Uptobox*'},
+        {value: '.*?1fichier.*?', label: '1fichier*'},
+        {value: '.*?oboom.*?', label: 'Oboom*'},
+        {value: '.*?openload.*?', label: 'Openload*'},
+        {value: '.*?nitroflare.*?', label: 'Nitroflare*'},
+        {value: '.*?filer.*?', label: 'Filer*'},
         {value: '.*', label: 'ALLE**'}
     ];
 
@@ -220,6 +234,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $("#spinner-myjd").hide();
                     $("#myjd_state").hide();
                     $("#myjd_no_login").show();
+                }
+                if ($scope.settings.mb.hoster.includes('*?share-online.*?') || $scope.settings.sj.hoster.includes('*?share-online.*?') || $scope.settings.dj.hoster.includes('*?share-online.*?')) {
+                    showDanger('Der eingestellte Hoster existiert nicht - bitte die Einstellung anpassen!');
+                    scrollingTitle("Hoster existiert nicht! Einstellungen anpassen! ");
                 }
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
