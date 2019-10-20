@@ -188,7 +188,11 @@ def watchdog(configfile, dbfile):
             offline_packages = myjd_packages[4][2]
             encrypted_packages = myjd_packages[4][3]
 
-            watched_titles = db.retrieve()
+            try:
+                watched_titles = db.retrieve()
+            except:
+                watched_titles = False
+
             notify_list = []
 
             if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
