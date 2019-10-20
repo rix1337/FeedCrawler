@@ -440,7 +440,12 @@ def download(configfile, dbfile, device, title, subdir, links, password, full_pa
                     "destinationFolder": path,
                     "overwritePackagizerRules": False
                 }])
-        RssDb(dbfile, 'crawldog').store(title, 'added')
+        db = RssDb(dbfile, 'crawldog')
+        if db.retrieve(title):
+            db.delete(title)
+            db.store(title, 'retried')
+        else:
+            db.store(title, 'added')
         return device
     except rsscrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))

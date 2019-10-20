@@ -52,11 +52,11 @@ from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import package_merge
+from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
@@ -236,10 +236,17 @@ def crawldog(configfile, dbfile):
                                     db.delete(title[0])
                         if encrypted_packages:
                             for package in encrypted_packages:
-                                if title == package['name'] or title[0].replace(".", " ") == package['name']:
-                                    notify_list.append("[Click'n'Load notwendig] - " + title[0])
-                                    print(u"[Click'n'Load notwendig] - " + title[0])
-                                    db.delete(title[0])
+                                if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[1] == 'added':
+                                        if retry_decrypt(configfile, dbfile, device, package['linkids'],
+                                                         [package['uuid']],
+                                                         package['urls']):
+                                            db.delete(title[0])
+                                            db.store(title[0], 'retried')
+                                    else:
+                                        notify_list.append("[Click'n'Load notwendig] - " + title[0])
+                                        print(u"[Click'n'Load notwendig] - " + title[0])
+                                        db.delete(title[0])
             else:
                 if not grabber_collecting:
                     if watched_titles:
