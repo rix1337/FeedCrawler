@@ -8,4 +8,4 @@ install:
   - mkdir -p /home/travis/config
   - pip install -r requirements.txt
 script:
-  - python crawler.py --port=9090 --config="/home/travis/config" --testlauf --log-level=DEBUG
+  - python RSScrawler.py --port=9090 --config="/home/travis/config" --testlauf --log-level=DEBUG
