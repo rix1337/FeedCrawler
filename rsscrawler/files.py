@@ -41,7 +41,9 @@ def config(configpath):
 
 
 def myjd_input(configfile, port, user, password, device):
-    if user and password and not device:
+    if user and password and device:
+        print(u"Zugangsdaten aus den Parametern übernommen.")
+    elif user and password and not device:
         device = get_if_one_device(user, password)
         if device:
             print(u"Gerätename " + device + " automatisch ermittelt.")
