@@ -15,7 +15,6 @@ from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
-from rsscrawler.fakefeed import ha_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -86,18 +85,6 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
 
-    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + quality
-    ha_results = ha_search_results(ha_search, configfile, dbfile)
-    password = decode_base64("aGQtYXJlYS5vcmc=")
-    for result in ha_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HA)"])
-
     if config.get("crawl3d"):
         mb_search = get_url(
             decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p" + '/feed/rss2/',
@@ -116,14 +103,6 @@ def get(title, configfile, dbfile):
         for result in hw_results:
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HW)"])
-
-        ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=1080p"
-        ha_results = ha_search_results(ha_search, configfile, dbfile)
-        password = decode_base64("aGQtYXJlYS5vcmc=")
-        for result in ha_results:
-            if "3d" in result[0].lower():
-                unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HA)"])
 
     rated = sorted(unrated, reverse=True)
 

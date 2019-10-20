@@ -36,7 +36,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'rsscrawler = rsscrawler.RSScrawler:main',
+            'rsscrawler = rsscrawler.crawler:main',
         ],
 },
 )
