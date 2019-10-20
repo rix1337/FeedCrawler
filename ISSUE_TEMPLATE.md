@@ -21,4 +21,4 @@ Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein
 
 Nur Fehler des aktuellen Releases werden berücksichtigt.
 
-**Hier keine Links posten. Die Seiten heißen MB bzw. SJ!**
+**Hier keine Links posten. Die Seiten heißen MB, HW, DJ, DD bzw. SJ!**
