@@ -13,7 +13,7 @@ from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
 from rsscrawler.common import readable_time
 from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
 
 
 def get_device(configfile):
@@ -440,7 +440,12 @@ def download(configfile, dbfile, device, title, subdir, links, password, full_pa
                     "destinationFolder": path,
                     "overwritePackagizerRules": False
                 }])
-        ListDb(dbfile, 'watchdog').store_unsanitized(title)
+        db = RssDb(dbfile, 'crawldog')
+        if db.retrieve(title):
+            db.delete(title)
+            db.store(title, 'retried')
+        else:
+            db.store(title, 'added')
         return device
     except rsscrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
@@ -677,8 +682,8 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
                     new_path = old_path.replace(old_title, new_title)
 
                     device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                    ListDb(dbfile, 'watchdog').store_unsanitized(new_title)
-                    ListDb(dbfile, 'watchdog').delete(old_title)
+                    RssDb(dbfile, 'crawldog').store(new_title, 'added')
+                    RssDb(dbfile, 'crawldog').delete(old_title)
                     return device
 
         device = download(configfile, dbfile, device, title, subdir, links, password)

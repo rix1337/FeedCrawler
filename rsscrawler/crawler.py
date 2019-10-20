@@ -52,11 +52,11 @@ from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import package_merge
+from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
@@ -168,10 +168,10 @@ def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format
     start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
 
 
-def watchdog(configfile, dbfile):
+def crawldog(configfile, dbfile):
     crawljobs = RssConfig('Crawljobs', configfile)
     autostart = crawljobs.get("autostart")
-    db = ListDb(dbfile, 'watchdog')
+    db = RssDb(dbfile, 'crawldog')
 
     device = False
 
@@ -188,59 +188,70 @@ def watchdog(configfile, dbfile):
             offline_packages = myjd_packages[4][2]
             encrypted_packages = myjd_packages[4][3]
 
-            watched_titles = db.retrieve()
+            try:
+                watched_titles = db.retrieve_all()
+            except:
+                watched_titles = False
+
             notify_list = []
 
             if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
 
                 if watched_titles:
                     for title in watched_titles:
-                        is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
+                        is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title[0])
 
                         if packages_in_downloader_decrypted:
                             for package in packages_in_downloader_decrypted:
-                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
                                     if autostart:
                                         if is_episode:
-                                            check = package_merge(configfile, device, [package], title, [0])
+                                            check = package_merge(configfile, device, [package], title[0], [0])
                                             device = check[0]
                                             removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
-                                        db.delete(title)
+                                        db.delete(title[0])
                         if packages_in_linkgrabber_decrypted:
                             for package in packages_in_linkgrabber_decrypted:
-                                if title == package['name'] or title.replace(".", " ") == package['name']:
+                                if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
                                     if autostart:
                                         if is_episode:
-                                            check = package_merge(configfile, device, [package], title, [0])
+                                            check = package_merge(configfile, device, [package], title[0], [0])
                                             device = check[0]
                                             removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
-                                        db.delete(title)
+                                        db.delete(title[0])
 
                         if offline_packages:
                             for package in offline_packages:
-                                if title == package['name'] or title.replace(".", " ") == package['name']:
-                                    notify_list.append("[Offline] - " + title)
-                                    print((u"[Offline] - " + title))
-                                    db.delete(title)
+                                if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    notify_list.append("[Offline] - " + title[0])
+                                    print((u"[Offline] - " + title[0]))
+                                    db.delete(title[0])
                         if encrypted_packages:
                             for package in encrypted_packages:
-                                if title == package['name'] or title.replace(".", " ") == package['name']:
-                                    notify_list.append("[Click'n'Load notwendig] - " + title)
-                                    print(u"[Click'n'Load notwendig] - " + title)
-                                    db.delete(title)
+                                if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[1] == 'added':
+                                        if retry_decrypt(configfile, dbfile, device, package['linkids'],
+                                                         [package['uuid']],
+                                                         package['urls']):
+                                            db.delete(title[0])
+                                            db.store(title[0], 'retried')
+                                    else:
+                                        notify_list.append("[Click'n'Load notwendig] - " + title[0])
+                                        print(u"[Click'n'Load notwendig] - " + title[0])
+                                        db.delete(title[0])
             else:
                 if not grabber_collecting:
                     if watched_titles:
                         for title in watched_titles:
-                            notify_list.append("[Verschwundenes Paket] - " + title)
+                            notify_list.append("[Verschwundenes Paket] - " + title[0])
                     db.reset()
 
             if notify_list:
@@ -359,7 +370,7 @@ def main():
         c = Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
         c.start()
 
-        w = Process(target=watchdog, args=(configfile, dbfile))
+        w = Process(target=crawldog, args=(configfile, dbfile))
         w.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')

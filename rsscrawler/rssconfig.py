@@ -23,7 +23,7 @@ class RssConfig(object):
             ("closed_myjd_tab", "bool", "False")
         ],
         'MB': [
-            ("hoster", "str", ".*?share-online.*?"),
+            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
@@ -41,20 +41,20 @@ class RssConfig(object):
             ("imdb", "str", "0.0")
         ],
         'SJ': [
-            ("hoster", "str", ".*?share-online.*?"),
+            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False")
         ],
         'DJ': [
-            ("hoster", "str", ".*?share-online.*?"),
+            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
             ("genres", "str", ".*")
         ],
         'DD': [
-            ("hoster", "str", ".*"),
+            ("hoster", "str", ".*rapidgator.*"),
             ("feeds", "str", "")
         ],
         'YT': [
