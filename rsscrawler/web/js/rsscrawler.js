@@ -18,21 +18,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     ];
 
-    $scope.bools = [
-        {value: true, label: 'Aktiviert'},
-        {value: false, label: 'Deaktiviert'}
-    ];
-
-    $scope.mb_hosters = [
-        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
-        {value: '.*?uploaded.*?', label: 'Uploaded'},
-        {value: '.*?oboom.*?', label: 'OBOOM'},
-        {value: '.*?turbobit.*?', label: 'Turbobit*'},
-        {value: '.*?openload.*?', label: 'Openload*'},
-        {value: '.*?zippyshare.*?', label: 'Zippyshare*'},
-        {value: '.*?(rapidgator|uploaded|oboom|turbobit|openload|zippyshare).*?', label: 'ALLE**'}
-    ];
-
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
         {value: '3', label: '90 Einträge'},
@@ -43,34 +28,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)'}
     ];
 
-    $scope.sj_hosters = [
-        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
-        {value: '.*?turbobit.*?', label: 'Turbobit'},
-        {value: '.*?uploaded.*?', label: 'Uploaded'},
-        {value: '.*?ddl.*?', label: 'DDL*'},
-        {value: '.*?uptobox.*?', label: 'Uptobox*'},
-        {value: '.*?1fichier.*?', label: '1fichier*'},
-        {value: '.*?oboom.*?', label: 'Oboom*'},
-        {value: '.*?openload.*?', label: 'Openload*'},
-        {value: '.*?nitroflare.*?', label: 'Nitroflare*'},
-        {value: '.*?filer.*?', label: 'Filer*'},
-        {value: '.*', label: 'ALLE**'}
-    ];
-
-    $scope.dj_hosters = [
-        {value: '.*?rapidgator.*?', label: 'Rapidgator'},
-        {value: '.*?turbobit.*?', label: 'Turbobit'},
-        {value: '.*?uploaded.*?', label: 'Uploaded'},
-        {value: '.*?ddl.*?', label: 'DDL*'},
-        {value: '.*?uptobox.*?', label: 'Uptobox*'},
-        {value: '.*?1fichier.*?', label: '1fichier*'},
-        {value: '.*?oboom.*?', label: 'Oboom*'},
-        {value: '.*?openload.*?', label: 'Openload*'},
-        {value: '.*?nitroflare.*?', label: 'Nitroflare*'},
-        {value: '.*?filer.*?', label: 'Filer*'},
-        {value: '.*', label: 'ALLE**'}
-    ];
-
     $scope.dj_genres = [
         {value: 'doku', label: 'Doku'},
         {value: 'lernen', label: 'Lernen'},
@@ -78,15 +35,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: 'sport', label: 'Sport'},
         {value: '(doku|lernen|reality\\/entertainment|sport)', label: 'ALLE (außer ReUps)'},
         {value: '.*', label: 'ALLE (inkl. ReUps)'}
-    ];
-
-    $scope.dd_hosters = [
-        {value: '.*ironfiles.*', label: 'IronFiles'},
-        {value: '.*oboom.*', label: 'OBOOM'},
-        {value: '.*rapidgator.*', label: 'Rapidgator'},
-        {value: '.*k2s.*', label: 'Keep2Share'},
-        {value: '.*filefactory.*', label: 'FileFactory'},
-        {value: '.*', label: 'ALLE'}
     ];
 
     $scope.resolutions = [
