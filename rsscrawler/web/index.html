@@ -587,37 +587,39 @@
                 </h5>
             </div>
             <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
-                <div class="card-body">
+                <div class="card-body"
+                data-toggle="tooltip"
+                              title="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar, wird dieses übersprungen!">
                     <div class="row">
                         <div class="col-sm">
                             <h4>Rapidgator</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.rapidgator">
+                                       ng-model="settings.hosters.rapidgator">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Turbobit</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.turbobit">
+                                       ng-model="settings.hosters.turbobit">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Uploaded</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.uploaded">
+                                       ng-model="settings.hosters.uploaded">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Zippyshare</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.zippyshare">
+                                       ng-model="settings.hosters.zippyshare">
                                 <span class="slider round"></span>
                             </label>
                             <h4>OBOOM</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.oboom">
+                                       ng-model="settings.hosters.oboom">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -625,31 +627,31 @@
                             <h4>DDL</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.ddl">
+                                       ng-model="settings.hosters.ddl">
                                 <span class="slider round"></span>
                             </label>
                             <h4>FileFactory</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.filefactory">
+                                       ng-model="settings.hosters.filefactory">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Uptobox</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.uptobox">
+                                       ng-model="settings.hosters.uptobox">
                                 <span class="slider round"></span>
                             </label>
                             <h4>1Fichier</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.onefichier">
+                                       ng-model="settings.hosters.onefichier">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Filer</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.filer">
+                                       ng-model="settings.hosters.filer">
                                 <span class="slider round"></span>
                             </label>
                         </div>
@@ -657,25 +659,25 @@
                             <h4>Openload</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.openload">
+                                       ng-model="settings.hosters.openload">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Nitroflare</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.nitroflare">
+                                       ng-model="settings.hosters.nitroflare">
                                 <span class="slider round"></span>
                             </label>
                             <h4>IronFiles</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.ironfiles">
+                                       ng-model="settings.hosters.ironfiles">
                                 <span class="slider round"></span>
                             </label>
                             <h4>Keep2Share</h4>
                             <label class="switch">
                                 <input type="checkbox"
-                                       ng-model="settings.hoster.k2s">
+                                       ng-model="settings.hosters.k2s">
                                 <span class="slider round"></span>
                             </label>
                         </div>

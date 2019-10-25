@@ -135,6 +135,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def get_post_settings():
         if request.method == 'GET':
             general_conf = RssConfig('RSScrawler', configfile)
+            hosters = RssConfig('Hosters', configfile)
             alerts = RssConfig('Notifications', configfile)
             ombi = RssConfig('Ombi', configfile)
             crawljobs = RssConfig('Crawljobs', configfile)
@@ -165,6 +166,22 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "fallback": general_conf.get("fallback"),
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                         },
+                        "hosters": {
+                            "rapidgator": hosters.get("rapidgator"),
+                            "turbobit": hosters.get("turbobit"),
+                            "uploaded": hosters.get("uploaded"),
+                            "zippyshare": hosters.get("zippyshare"),
+                            "oboom": hosters.get("oboom"),
+                            "ddl": hosters.get("ddl"),
+                            "filefactory": hosters.get("filefactory"),
+                            "uptobox": hosters.get("uptobox"),
+                            "onefichier": hosters.get("1fichier"),
+                            "filer": hosters.get("filer"),
+                            "openload": hosters.get("openload"),
+                            "nitroflare": hosters.get("nitroflare"),
+                            "ironfiles": hosters.get("ironfiles"),
+                            "k2s": hosters.get("k2s"),
+                        },
                         "alerts": {
                             "pushbullet": alerts.get("pushbullet"),
                             "pushover": alerts.get("pushover"),
@@ -184,7 +201,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "subdir": crawljobs.get("subdir"),
                         },
                         "mb": {
-                            "hoster": mb.get("hoster"),
                             "quality": mb.get("quality"),
                             "search": mb.get("search"),
                             "ignore": mb.get("ignore"),
@@ -197,7 +213,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "crawl_3d_type": crawl_3d_type,
                         },
                         "sj": {
-                            "hoster": sj.get("hoster"),
                             "quality": sj.get("quality"),
                             "ignore": sj.get("rejectlist"),
                             "regex": sj.get("regex"),
@@ -209,14 +224,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "source": mb.get("seasonssource"),
                         },
                         "dj": {
-                            "hoster": dj.get("hoster"),
                             "quality": dj.get("quality"),
                             "ignore": dj.get("rejectlist"),
                             "regex": dj.get("regex"),
                             "genres": dj.get("genres"),
                         },
                         "dd": {
-                            "hoster": dd.get("hoster"),
                             "feeds": dd.get("feeds"),
                         },
                         "yt": {
@@ -263,53 +276,70 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("myjd_user", myjd_user)
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
-            section.save(
-                "port", to_str(data['general']['port']))
-            section.save(
-                "prefix", to_str(data['general']['prefix']).lower())
+            section.save("port", to_str(data['general']['port']))
+            section.save("prefix", to_str(data['general']['prefix']).lower())
             interval = to_str(data['general']['interval'])
             if to_int(interval) < 5:
                 interval = '5'
             section.save("interval", interval)
-            section.save("english",
-                         to_str(data['general']['english']))
-            section.save("surround",
-                         to_str(data['general']['surround']))
-            section.save("proxy",
-                         to_str(data['general']['proxy']))
-            section.save("fallback",
-                         to_str(data['general']['fallback']))
-            section.save("closed_myjd_tab",
-                         to_str(data['general']['closed_myjd_tab']))
+            section.save("english", to_str(data['general']['english']))
+            section.save("surround", to_str(data['general']['surround']))
+            section.save("proxy", to_str(data['general']['proxy']))
+            section.save("fallback", to_str(data['general']['fallback']))
+            section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
+
+            section = RssConfig("Crawljobs", configfile)
+
+            section.save("autostart", to_str(data['crawljobs']['autostart']))
+            section.save("subdir", to_str(data['crawljobs']['subdir']))
+
+            section = RssConfig("Notifications", configfile)
+
+            section.save("pushbullet", to_str(data['alerts']['pushbullet']))
+            section.save("pushover", to_str(data['alerts']['pushover']))
+            section.save("telegram", to_str(data['alerts']['telegram']))
+            section.save("homeassistant", to_str(data['alerts']['homeassistant']))
+
+            section = RssConfig("Hosters", configfile)
+
+            section.save("rapidgator", to_str(data['hosters']['rapidgator']))
+            section.save("turbobit", to_str(data['hosters']['turbobit']))
+            section.save("uploaded", to_str(data['hosters']['uploaded']))
+            section.save("zippyshare", to_str(data['hosters']['zippyshare']))
+            section.save("oboom", to_str(data['hosters']['oboom']))
+            section.save("ddl", to_str(data['hosters']['ddl']))
+            section.save("filefactory", to_str(data['hosters']['filefactory']))
+            section.save("uptobox", to_str(data['hosters']['uptobox']))
+            section.save("1fichier", to_str(data['hosters']['onefichier']))
+            section.save("filer", to_str(data['hosters']['filer']))
+            section.save("openload", to_str(data['hosters']['openload']))
+            section.save("nitroflare", to_str(data['hosters']['nitroflare']))
+            section.save("ironfiles", to_str(data['hosters']['ironfiles']))
+            section.save("k2s", to_str(data['hosters']['k2s']))
+
+            section = RssConfig("Ombi", configfile)
+
+            section.save("url", to_str(data['ombi']['url']))
+            section.save("api", to_str(data['ombi']['api']))
+            section.save("mdb_api", to_str(data['ombi']['mdb_api']))
+            section.save("tvd_api", to_str(data['ombi']['tvd_api']))
+            section.save("tvd_user", to_str(data['ombi']['tvd_user']))
+            section.save("tvd_userkey", to_str(data['ombi']['tvd_userkey']))
+
             section = RssConfig("MB", configfile)
-            section.save("hoster",
-                         to_str(data['mb']['hoster']))
-            section.save("quality",
-                         to_str(data['mb']['quality']))
-            section.save("search",
-                         to_str(data['mb']['search']))
-            section.save(
-                "ignore", to_str(data['mb']['ignore']).lower())
-            section.save("regex",
-                         to_str(data['mb']['regex']))
-            section.save("cutoff",
-                         to_str(data['mb']['cutoff']))
-            section.save("crawl3d",
-                         to_str(data['mb']['crawl_3d']))
-            section.save("crawl3dtype",
-                         to_str(data['mb']['crawl_3d_type']))
-            section.save("enforcedl",
-                         to_str(data['mb']['force_dl']))
-            section.save("crawlseasons",
-                         to_str(data['mbsj']['enabled']))
-            section.save("seasonsquality",
-                         to_str(data['mbsj']['quality']))
-            section.save("seasonpacks",
-                         to_str(data['mbsj']['packs']))
-            section.save("seasonssource",
-                         to_str(data['mbsj']['source']).lower())
-            section.save("imdbyear",
-                         to_str(data['mb']['imdb_year']))
+            section.save("quality", to_str(data['mb']['quality']))
+            section.save("search", to_str(data['mb']['search']))
+            section.save("ignore", to_str(data['mb']['ignore']).lower())
+            section.save("regex", to_str(data['mb']['regex']))
+            section.save("cutoff", to_str(data['mb']['cutoff']))
+            section.save("crawl3d", to_str(data['mb']['crawl_3d']))
+            section.save("crawl3dtype", to_str(data['mb']['crawl_3d_type']))
+            section.save("enforcedl", to_str(data['mb']['force_dl']))
+            section.save("crawlseasons", to_str(data['mbsj']['enabled']))
+            section.save("seasonsquality", to_str(data['mbsj']['quality']))
+            section.save("seasonpacks", to_str(data['mbsj']['packs']))
+            section.save("seasonssource", to_str(data['mbsj']['source']).lower())
+            section.save("imdbyear", to_str(data['mb']['imdb_year']))
             imdb = to_str(data['mb']['imdb_score'])
             if re.match('[^0-9]', imdb):
                 imdb = 0.0
@@ -320,34 +350,26 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if imdb > 10:
                 imdb = 10.0
             section.save("imdb", to_str(imdb))
+
             section = RssConfig("SJ", configfile)
-            section.save("hoster",
-                         to_str(data['sj']['hoster']))
-            section.save("quality",
-                         to_str(data['sj']['quality']))
-            section.save("rejectlist",
-                         to_str(data['sj']['ignore']).lower())
-            section.save("regex",
-                         to_str(data['sj']['regex']))
+
+            section.save("quality", to_str(data['sj']['quality']))
+            section.save("rejectlist", to_str(data['sj']['ignore']).lower())
+            section.save("regex", to_str(data['sj']['regex']))
+
             section = RssConfig("DJ", configfile)
-            section.save("hoster",
-                         to_str(data['dj']['hoster']))
-            section.save("quality",
-                         to_str(data['dj']['quality']))
-            section.save("rejectlist",
-                         to_str(data['dj']['ignore']).lower())
-            section.save("regex",
-                         to_str(data['dj']['regex']))
-            section.save("genres",
-                         to_str(data['dj']['genres']))
+
+            section.save("quality", to_str(data['dj']['quality']))
+            section.save("rejectlist", to_str(data['dj']['ignore']).lower())
+            section.save("regex", to_str(data['dj']['regex']))
+            section.save("genres", to_str(data['dj']['genres']))
+
             section = RssConfig("DD", configfile)
-            section.save("hoster",
-                         to_str(data['dd']['hoster']))
-            section.save("feeds",
-                         to_str(data['dd']['feeds']))
+
+            section.save("feeds", to_str(data['dd']['feeds']))
             section = RssConfig("YT", configfile)
-            section.save("youtube",
-                         to_str(data['yt']['enabled']))
+
+            section.save("youtube", to_str(data['yt']['enabled']))
             maxvideos = to_str(data['yt']['max'])
             if maxvideos == "":
                 maxvideos = "10"
@@ -357,35 +379,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 section.save("maxvideos", "50")
             else:
                 section.save("maxvideos", to_str(maxvideos))
-            section.save("ignore",
-                         to_str(data['yt']['ignore']))
-            section = RssConfig("Notifications", configfile)
-            section.save("pushbullet",
-                         to_str(data['alerts']['pushbullet']))
-            section.save("pushover",
-                         to_str(data['alerts']['pushover']))
-            section.save("telegram",
-                         to_str(data['alerts']['telegram']))
-            section.save("homeassistant",
-                         to_str(data['alerts']['homeassistant']))
-            section = RssConfig("Ombi", configfile)
-            section.save("url",
-                         to_str(data['ombi']['url']))
-            section.save("api",
-                         to_str(data['ombi']['api']))
-            section.save("mdb_api",
-                         to_str(data['ombi']['mdb_api']))
-            section.save("tvd_api",
-                         to_str(data['ombi']['tvd_api']))
-            section.save("tvd_user",
-                         to_str(data['ombi']['tvd_user']))
-            section.save("tvd_userkey",
-                         to_str(data['ombi']['tvd_userkey']))
-            section = RssConfig("Crawljobs", configfile)
-            section.save(
-                "autostart", to_str(data['crawljobs']['autostart']))
-            section.save("subdir",
-                         to_str(data['crawljobs']['subdir']))
+            section.save("ignore", to_str(data['yt']['ignore']))
             return "Success", 201
         else:
             return "Failed", 405

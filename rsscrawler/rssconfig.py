@@ -22,8 +22,41 @@ class RssConfig(object):
             ("fallback", "bool", "False"),
             ("closed_myjd_tab", "bool", "False")
         ],
+        'Crawljobs': [
+            ("autostart", "bool", "True"),
+            ("subdir", "bool", "True")
+        ],
+        'Notifications': [
+            ("homeassistant", "str", ""),
+            ("pushbullet", "str", ""),
+            ("telegram", "str", ""),
+            ("pushover", "str", "")
+        ],
+        'Hosters': [
+            ("rapidgator", "bool", "True"),
+            ("turbobit", "bool", "False"),
+            ("uploaded", "bool", "False"),
+            ("zippyshare", "bool", "False"),
+            ("oboom", "bool", "False"),
+            ("ddl", "bool", "False"),
+            ("filefactory", "bool", "False"),
+            ("uptobox", "bool", "False"),
+            ("1fichier", "bool", "False"),
+            ("filer", "bool", "False"),
+            ("openload", "bool", "False"),
+            ("nitroflare", "bool", "False"),
+            ("ironfiles", "bool", "False"),
+            ("k2s", "bool", "False")
+        ],
+        'Ombi': [
+            ("url", "str", ""),
+            ("api", "str", ""),
+            ("mdb_api", "str", ""),
+            ("tvd_api", "str", ""),
+            ("tvd_user", "str", ""),
+            ("tvd_userkey", "str", "")
+        ],
         'MB': [
-            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
@@ -41,44 +74,23 @@ class RssConfig(object):
             ("imdb", "str", "0.0")
         ],
         'SJ': [
-            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False")
         ],
         'DJ': [
-            ("hoster", "str", ".*?rapidgator.*?"),
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
             ("genres", "str", ".*")
         ],
         'DD': [
-            ("hoster", "str", ".*rapidgator.*"),
             ("feeds", "str", "")
         ],
         'YT': [
             ("youtube", "bool", "False"),
             ("maxvideos", "int", "10"),
             ("ignore", "str", "")
-        ],
-        'Notifications': [
-            ("homeassistant", "str", ""),
-            ("pushbullet", "str", ""),
-            ("telegram", "str", ""),
-            ("pushover", "str", "")
-        ],
-        'Ombi': [
-            ("url", "str", ""),
-            ("api", "str", ""),
-            ("mdb_api", "str", ""),
-            ("tvd_api", "str", ""),
-            ("tvd_user", "str", ""),
-            ("tvd_userkey", "str", "")
-        ],
-        'Crawljobs': [
-            ("autostart", "bool", "True"),
-            ("subdir", "bool", "True")
         ]
     }
     __config__ = []
