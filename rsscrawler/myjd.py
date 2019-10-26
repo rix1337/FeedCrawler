@@ -393,10 +393,15 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, dbfile, device, title, subdir, links, password, full_path=None, autostart=False):
+def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
+
+        links = []
+        for l in old_links:
+            if l not in links:
+                links.append(l)
 
         links = str(links).replace(" ", "")
         crawljobs = RssConfig('Crawljobs', configfile)

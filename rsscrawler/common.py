@@ -147,7 +147,7 @@ def longest_substr(data):
 def check_hoster(to_check, configfile):
     hosters = RssConfig("Hosters", configfile).get_section()
     for hoster in hosters:
-        if hosters[hoster]:
+        if hosters[hoster] == "True":
             if hoster in to_check.lower():
                 return True
     return False

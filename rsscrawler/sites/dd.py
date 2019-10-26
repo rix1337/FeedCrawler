@@ -54,7 +54,8 @@ class DD:
                             if check_hoster(link, self.configfile):
                                 links.append(str(link))
                         if not links:
-                            self.log_debug(
+                            # TODO: only do once
+                            self.log_info(
                                 "%s - Release ignoriert (kein passender Link gefunden)" % key)
                         elif self.db.retrieve(key) == 'added':
                             self.log_debug(

@@ -343,7 +343,7 @@ def download_bl(payload, device, configfile, dbfile):
 
     links = {}
     for url_hoster in reversed(url_hosters):
-        if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+        if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
             if check_hoster(link_hoster, configfile):
                 links[link_hoster] = url_hoster[0]
@@ -546,7 +546,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
 
     found_seasons = {}
     for dl in to_dl:
-        if len(dl[0]) is 1:
+        if len(dl[0]) == 1:
             sxx = "S0" + str(dl[0])
         else:
             sxx = "S" + str(dl[0])
