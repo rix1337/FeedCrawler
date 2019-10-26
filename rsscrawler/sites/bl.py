@@ -9,6 +9,7 @@ import re
 
 import feedparser
 
+from rsscrawler.common import check_hoster
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
@@ -43,7 +44,7 @@ class BL:
         self.pattern = False
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.db_retail = RssDb(self.dbfile, 'retail')
-        self.hoster = re.compile(self.config.get("hoster"))
+        self.hosters = RssConfig("Hosters", configfile).get_section()
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         self.historical = False
@@ -73,10 +74,11 @@ class BL:
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb", "hoster"]
+                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
         self.i_mb_done = False
@@ -93,10 +95,11 @@ class BL:
     def settings_hash(self, refresh):
         if refresh:
             settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                        "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb", "hoster"]
+                        "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
+            self.settings.append(self.hosters)
             for s in settings:
                 self.settings.append(self.config.get(s))
             if self.filename == "IMDB":
@@ -124,7 +127,7 @@ class BL:
             url = decode_base64("bW92aWUtYmxvZy50by8=")
             if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                if re.match(self.hoster, hoster):
+                if check_hoster(hoster, self.configfile):
                     links[hoster] = url_hoster[0]
         return list(links.values())
 

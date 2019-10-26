@@ -142,3 +142,7 @@ class RssConfig(object):
 
     def get(self, key):
         return self._get_from_config(self.__config__, key)
+
+    def get_section(self):
+        # TODO: change this to not use protected member _sections
+        return self._config._sections[self._section]

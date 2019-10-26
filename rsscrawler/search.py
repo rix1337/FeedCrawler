@@ -11,6 +11,7 @@ from fuzzywuzzy import fuzz
 
 import html
 
+from rsscrawler.common import check_hoster
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
@@ -321,7 +322,6 @@ def download_bl(payload, device, configfile, dbfile):
     password = payload[1]
     url = get_url(link, configfile, dbfile)
     config = RssConfig('MB', configfile)
-    hoster = re.compile(config.get('hoster'))
     db = RssDb(dbfile, 'rsscrawler')
 
     soup = BeautifulSoup(url, 'lxml')
@@ -345,7 +345,7 @@ def download_bl(payload, device, configfile, dbfile):
     for url_hoster in reversed(url_hosters):
         if not decode_base64("bW92aWUtYmxvZy50by8=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-            if re.match(hoster, link_hoster):
+            if check_hoster(link_hoster, configfile):
                 links[link_hoster] = url_hoster[0]
     download_links = list(links.values())
 
@@ -674,10 +674,9 @@ def download_sj(sj_id, special, device, configfile, dbfile):
             dl_hoster = best_link[1]
             dl_link = best_link[2]
             config = RssConfig('SJ', configfile)
-            hoster = re.compile(config.get('hoster'))
             db = RssDb(dbfile, 'rsscrawler')
 
-            if re.match(hoster, dl_hoster.lower()):
+            if check_hoster(dl_hoster, configfile):
                 if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
                                  decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
                     db.store(dl_title, 'added')
