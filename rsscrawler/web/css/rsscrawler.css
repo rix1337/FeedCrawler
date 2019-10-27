@@ -104,18 +104,33 @@ h4 {
 }
 
 @media (min-width: 768px) {
-    h1{
+    h1 {
         font-size: 2.5rem;
     }
+
     h3 {
         font-size: 2rem;
     }
-    h4{
+
+    h4 {
         font-size: 1.5rem;
     }
+
     .form-control {
         font-size: 1rem;
     }
+}
+
+.btn-secondary {
+    white-space: pre; /* CSS 2.0 */
+    white-space: pre-wrap; /* CSS 2.1 */
+    white-space: pre-line; /* CSS 3.0 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: -moz-pre-wrap; /* Mozilla */
+    white-space: -hp-pre-wrap; /* HP Printers */
+    word-wrap: break-word;
+    width: 100%
 }
 
 select {
