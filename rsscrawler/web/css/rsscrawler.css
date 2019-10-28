@@ -25,7 +25,7 @@ body {
     margin-top: 1em;
     margin-bottom: 2em;
     padding: 0.5em;
-    max-width: 80em;
+    max-width: 50em;
 }
 
 .cnl-spinner, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
@@ -81,6 +81,64 @@ body {
     resize: none;
 }
 
+.number {
+    max-width: 6em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+h1 {
+    font-size: 7vw;
+}
+
+h3 {
+    font-size: 3.5vw;
+}
+
+h4 {
+    font-size: 4vw;
+}
+
+.form-control {
+    font-size: 3.5vw;
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.5rem;
+    }
+
+    h3 {
+        font-size: 2rem;
+    }
+
+    h4 {
+        font-size: 1.5rem;
+    }
+
+    .form-control {
+        font-size: 1rem;
+    }
+}
+
+.btn-secondary {
+    white-space: pre; /* CSS 2.0 */
+    white-space: pre-wrap; /* CSS 2.1 */
+    white-space: pre-line; /* CSS 3.0 */
+    white-space: -pre-wrap; /* Opera 4-6 */
+    white-space: -o-pre-wrap; /* Opera 7 */
+    white-space: -moz-pre-wrap; /* Mozilla */
+    white-space: -hp-pre-wrap; /* HP Printers */
+    word-wrap: break-word;
+    width: 100%
+}
+
+select {
+    max-width: 16em;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .isDisabled {
     color: currentColor;
     cursor: not-allowed;
@@ -100,4 +158,65 @@ body {
     to {
         opacity: 1;
     }
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #343a40;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+}
+
+input:checked + .slider {
+    background-color: #007bff;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #007bff;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(26px);
+    -ms-transform: translateX(26px);
+    transform: translateX(26px);
+}
+
+.slider.round {
+    border-radius: 24px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
 }

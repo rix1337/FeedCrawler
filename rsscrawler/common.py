@@ -11,6 +11,7 @@ import re
 import socket
 
 from rsscrawler import myjdapi
+from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 
@@ -141,3 +142,12 @@ def longest_substr(data):
                 if j > len(substr) and all(data[0][i:i + j] in x for x in data):
                     substr = data[0][i:i + j]
     return substr
+
+
+def check_hoster(to_check, configfile):
+    hosters = RssConfig("Hosters", configfile).get_section()
+    for hoster in hosters:
+        if hosters[hoster] == "True":
+            if hoster in to_check.lower():
+                return True
+    return False

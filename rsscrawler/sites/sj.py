@@ -10,6 +10,7 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import check_hoster
 from rsscrawler.common import decode_base64
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
@@ -28,21 +29,22 @@ class SJ:
         self.device = device
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
+        self.hosters = RssConfig("Hosters", configfile).get_section()
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.filename = filename
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
-        self.hoster = re.compile(self.config.get("hoster"))
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hoster"]
+        settings = ["quality", "rejectlist", "regex"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
 
@@ -62,10 +64,11 @@ class SJ:
 
     def settings_hash(self, refresh):
         if refresh:
-            settings = ["quality", "rejectlist", "regex", "hoster"]
+            settings = ["quality", "rejectlist", "regex"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
+            self.settings.append(self.hosters)
             for s in settings:
                 self.settings.append(self.config.get(s))
             self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
@@ -182,11 +185,16 @@ class SJ:
                     r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
                 links = []
                 for url_hoster in url_hosters:
-                    if re.match(self.hoster, url_hoster[1]):
+                    if check_hoster(url_hoster[1], self.configfile):
                         links.append(url_hoster[0])
                 if not links:
-                    self.log_debug(
-                        "%s - Release ignoriert (kein passender Link gefunden)" % search_title)
+                    if not self.db.retrieve(title) == 'wrong_hoster':
+                        self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % search_title)
+                        self.db.store(title, 'wrong_hoster')
+                        notify(["%s - Release ignoriert (kein passender Link gefunden)" % search_title],
+                               self.configfile)
+                    else:
+                        self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % search_title)
                 else:
                     return self.send_package(search_title, links, englisch)
             else:

@@ -9,6 +9,7 @@ from time import time
 import feedparser
 from dateutil import parser
 
+from rsscrawler.common import check_hoster
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -34,7 +35,6 @@ class DD:
         if feeds:
             added_items = []
             feeds = feeds.replace(" ", "").split(',')
-            hoster = re.compile(self.config.get("hoster"))
             for feed in feeds:
                 feed = feedparser.parse(get_url(feed, self.configfile, self.dbfile))
                 for post in feed.entries:
@@ -51,11 +51,15 @@ class DD:
                         unicode_links = re.findall(r'(http.*)', link_pool)
                         links = []
                         for link in unicode_links:
-                            if re.match(hoster, link):
+                            if check_hoster(link, self.configfile):
                                 links.append(str(link))
                         if not links:
-                            self.log_debug(
-                                "%s - Release ignoriert (kein passender Link gefunden)" % key)
+                            if not self.db.retrieve(key) == 'wrong_hoster':
+                                self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                                self.db.store(key, 'wrong_hoster')
+                                notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+                            else:
+                                self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
                         elif self.db.retrieve(key) == 'added':
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
