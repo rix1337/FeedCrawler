@@ -283,8 +283,9 @@ class BL:
                                     re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
                                                post.title)[
                                         0].replace(
-                                        ".", "+").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace("Ae",
-                                                                                                                      u"Ä").replace(
+                                        ".", "+").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
+                                        "Ae",
+                                        u"Ä").replace(
                                         "Oe", u"Ö").replace("Ue", u"Ü")
                             except:
                                 break
@@ -376,17 +377,23 @@ class BL:
                                     password = decode_base64("aGQtYXJlYS5vcmc=")
                                 if '.3d.' not in post.title.lower():
                                     found = self.imdb_download(
-                                        post.title, download_pages, str(download_score), download_imdb, details, password)
+                                        post.title, download_pages, str(download_score), download_imdb, details,
+                                        password)
                                 else:
                                     found = self.imdb_download(
-                                        post.title, download_pages, str(download_score), download_imdb, details, password)
+                                        post.title, download_pages, str(download_score), download_imdb, details,
+                                        password)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
                     else:
-                        # TODO: only do once
-                        self.log_info(
-                            "%s - Release ignoriert (kein passender Link gefunden)" % post.title)
+                        if not self.db.retrieve(post.title) == 'wrong_hoster':
+                            self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % post.title)
+                            self.db.store(post.title, 'wrong_hoster')
+                            notify(["%s - Release ignoriert (kein passender Link gefunden)" % post.title],
+                                   self.configfile)
+                        else:
+                            self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % post.title)
         return added_items
 
     def feed_search(self, feed, site):
@@ -663,9 +670,12 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                 else:
-                    # TODO: only do once
-                    self.log_info(
-                        "%s - Release ignoriert (kein passender Link gefunden)" % key)
+                    if not self.db.retrieve(key) == 'wrong_hoster':
+                        self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                        self.db.store(key, 'wrong_hoster')
+                        notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+                    else:
+                        self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password):
         if download_links:
@@ -950,9 +960,12 @@ class BL:
                     added_items.append(log_entry)
             return added_items
         else:
-            # TODO: only do once
-            self.log_info(
-                "%s - Release ignoriert (kein passender Link gefunden)" % key)
+            if not self.db.retrieve(key) == 'wrong_hoster':
+                self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                self.db.store(key, 'wrong_hoster')
+                notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+            else:
+                self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
 
     def periodical_task(self):
         imdb = self.imdb

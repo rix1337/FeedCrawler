@@ -165,9 +165,12 @@ class DJ:
                 if check_hoster(url_hoster[1], self.configfile):
                     links.append(url_hoster[0])
             if not links:
-                # TODO: only do once
-                self.log_info(
-                    "%s - Release ignoriert (kein passender Link gefunden)" % search_title)
+                if not self.db.retrieve(title) == 'wrong_hoster':
+                    self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % search_title)
+                    self.db.store(title, 'wrong_hoster')
+                    notify(["%s - Release ignoriert (kein passender Link gefunden)" % search_title], self.configfile)
+                else:
+                    self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % search_title)
             else:
                 return self.send_package(search_title, links, englisch, genre)
 
