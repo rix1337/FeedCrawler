@@ -398,10 +398,13 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
         if not device or not is_device(device):
             device = get_device(configfile)
 
-        links = []
-        for l in old_links:
-            if l not in links:
-                links.append(l)
+        if isinstance(old_links, list):
+            links = []
+            for l in old_links:
+                if l not in links:
+                    links.append(l)
+        else:
+            links = [old_links]
 
         links = str(links).replace(" ", "")
         crawljobs = RssConfig('Crawljobs', configfile)

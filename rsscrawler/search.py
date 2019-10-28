@@ -2,14 +2,13 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import html
 import json
 import logging
 import re
 
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
-
-import html
 
 from rsscrawler.common import check_hoster
 from rsscrawler.common import cutoff
@@ -555,139 +554,101 @@ def download_sj(sj_id, special, device, configfile, dbfile):
             found_seasons[sxx] = link
 
     something_found = False
+    best_matching_links = []
+    sxx_retry = sxx.replace("S0", "S")
 
     for sxx, link in found_seasons.items():
         config = RssConfig('SJ', configfile)
         quality = config.get('quality')
         url = get_url(link, configfile, dbfile)
-        pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx + r'\..*?' + quality +
-                                       r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                            url)
-        folgen = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx +
-                                       r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                            url)
-        lq_pakete = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sxx + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-            url)
-        lq_folgen = re.findall(re.compile(
-            r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-            url)
 
-        if not pakete and not folgen and not lq_pakete and not lq_folgen:
-            sxx = sxx.replace("S0", "S")
-            pakete = re.findall(re.compile(r'<p><strong>(.*?\.' + sxx + r'\..*?' + quality +
-                                           r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                                url)
-            folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?' + quality + r'.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                url)
-            lq_pakete = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sxx + r'\..*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                url)
-            lq_folgen = re.findall(re.compile(
-                r'<p><strong>(.*?\.' + sxx + r'E\d{1,3}.*?)<.*?\n.*?href="(.*?)".*? \| (.*)<(?:.*?\n.*?href="(.*?)".*? \| (.*)<|)'),
-                url)
+        soup = BeautifulSoup(url, 'lxml')
+
+        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*' + quality + r'.*'))
+        if not results:
+            results = soup.findAll('strong', text=re.compile(r'.*' + sxx_retry + r'.*' + quality + r'.*'))
+        pakete = rated_titles(results, configfile)
+
+        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*E\d{1,3}.*?' + quality + r'.*'))
+        if not results:
+            results = soup.findAll('strong',
+                                   text=re.compile(r'.*' + sxx_retry + r'E\d{1,3}.*?' + quality + r'.*'))
+        folgen = rated_titles(results, configfile)
+
+        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*'))
+        if not results:
+            results = soup.findAll('strong', text=re.compile(r'.*' + sxx_retry + r'.*'))
+        lq_pakete = rated_titles(results, configfile)
+
+        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*E\d{1,3}.*?'))
+        if not results:
+            results = soup.findAll('strong',
+                                   text=re.compile(r'.*' + sxx_retry + r'.*E\d{1,3}.*?'))
+        lq_folgen = rated_titles(results, configfile)
 
         if special and "e" in special.lower():
             pakete = []
             lq_pakete = []
 
-        best_matching_links = []
-
         if pakete:
-            links = []
-            for x in pakete:
-                title = x[0]
-                score = rate(title, configfile)
-                hoster = [[x[2], x[1]], [x[4], x[3]]]
-                if special:
-                    if special.lower() in title.lower():
-                        links.append([score, title, hoster])
-                else:
-                    links.append([score, title, hoster])
-            if links:
-                highest_score = sorted(links, reverse=True)[0][0]
-                for l in links:
-                    if l[0] == highest_score:
-                        for hoster in l[2]:
-                            best_matching_links.append(
-                                [l[1], hoster[0], hoster[1]])
+            add = best_links(pakete)
+            for a in add:
+                best_matching_links.append(a)
         elif folgen:
-            links = []
-            for x in folgen:
-                title = x[0]
-                score = rate(title, configfile)
-                hoster = [[x[2], x[1]], [x[4], x[3]]]
-                if special:
-                    if special.lower() in title.lower():
-                        links.append([score, title, hoster])
-                else:
-                    links.append([score, title, hoster])
-            if links:
-                highest_score = sorted(links, reverse=True)[0][0]
-                for l in links:
-                    if l[0] == highest_score:
-                        for hoster in l[2]:
-                            best_matching_links.append(
-                                [l[1], hoster[0], hoster[1]])
+            add = best_links(folgen)
+            for a in add:
+                best_matching_links.append(a)
         elif lq_pakete:
-            links = []
-            for x in lq_pakete:
-                title = x[0]
-                score = rate(title, configfile)
-                hoster = [[x[2], x[1]], [x[4], x[3]]]
-                if special:
-                    if special.lower() in title.lower():
-                        links.append([score, title, hoster])
-                else:
-                    links.append([score, title, hoster])
-            if links:
-                highest_score = sorted(links, reverse=True)[0][0]
-                for l in links:
-                    if l[0] == highest_score:
-                        for hoster in l[2]:
-                            best_matching_links.append(
-                                [l[1], hoster[0], hoster[1]])
+            add = best_links(lq_pakete)
+            for a in add:
+                best_matching_links.append(a)
         elif lq_folgen:
-            links = []
-            for x in lq_folgen:
-                title = x[0]
-                score = rate(title, configfile)
-                hoster = [[x[2], x[1]], [x[4], x[3]]]
-                if special:
-                    if special.lower() in title.lower():
-                        links.append([score, title, hoster])
-                else:
-                    links.append([score, title, hoster])
-            if links:
-                highest_score = sorted(links, reverse=True)[0][0]
-                for l in links:
-                    if l[0] == highest_score:
-                        for hoster in l[2]:
-                            best_matching_links.append(
-                                [l[1], hoster[0], hoster[1]])
+            add = best_links(lq_folgen)
+            for a in add:
+                best_matching_links.append(a)
 
         notify_array = []
         for best_link in best_matching_links:
-            dl_title = best_link[0].replace(
-                "Staffelpack ", "").replace("Staffelpack.", "")
-            dl_hoster = best_link[1]
-            dl_link = best_link[2]
-            config = RssConfig('SJ', configfile)
+            dl_title = best_link[0]
+            dl_link = best_link[1]
             db = RssDb(dbfile, 'rsscrawler')
+            if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
+                             decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
+                something_found = True
+                db.store(dl_title, 'added')
+                log_entry = '[Suche/Serie] - ' + dl_title
+                logging.info(log_entry)
+                notify_array.append(log_entry)
+            else:
+                return False
 
-            if check_hoster(dl_hoster, configfile):
-                if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
-                                 decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
-                    db.store(dl_title, 'added')
-                    log_entry = '[Suche/Serie] - ' + dl_title
-                    logging.info(log_entry)
-                    notify_array.append(log_entry)
-                else:
-                    return False
-        if len(best_matching_links) > 0:
-            something_found = True
         notify(notify_array, configfile)
+
     if not something_found:
         return False
     return True
+
+
+def rated_titles(results, configfile):
+    to_return = []
+    last_link = ""
+    if results:
+        for r in results:
+            title = r.text.replace("Staffelpack ", "").replace("Staffelpack.", "")
+            hosters = re.findall(r'<a href="([^"\'>]*)".+?\| (.+?)<', str(r.parent))
+            for hoster in hosters:
+                if check_hoster(hoster[1], configfile):
+                    if hoster[0] not in last_link:
+                        last_link = hoster[0]
+                        score = rate(title, configfile)
+                        to_return.append([score, title, hoster[0]])
+    return to_return
+
+
+def best_links(pakete):
+    to_return = []
+    highest_score = sorted(pakete, reverse=True)[0][0]
+    for p in pakete:
+        if p[0] == highest_score:
+            to_return.append([p[1], p[2]])
+    return to_return
