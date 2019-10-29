@@ -8,12 +8,16 @@ import hashlib
 import re
 
 import feedparser
+from bs4 import BeautifulSoup
 
 from rsscrawler.common import check_hoster
 from rsscrawler.common import cutoff
 from rsscrawler.common import decode_base64
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
+from rsscrawler.fakefeed import ha_search_to_soup
+from rsscrawler.fakefeed import ha_to_feedparser_dict
+from rsscrawler.fakefeed import ha_url_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -29,6 +33,8 @@ class BL:
     MB_FEED_URLS = [MB_URL]
     HW_URL = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==")
     HW_FEED_URLS = [HW_URL]
+    HA_URL = decode_base64("aHR0cDovL2hkLWFyZWEub3JnLw==")
+    HA_FEED_URLS = [HA_URL]
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, filename):
@@ -65,14 +71,23 @@ class BL:
                 self.HW_FEED_URLS.append(page_url)
             i += 1
 
+        i = 2
+        while i <= search:
+            page_url = self.HA_URL + "?pg=" + str(i)
+            if page_url not in self.HA_FEED_URLS:
+                self.HA_FEED_URLS.append(page_url)
+            i += 1
+
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhw = self.cdc.retrieve("MBHWSet-" + self.filename)
+        self.last_set_mbhwha = self.cdc.retrieve("MBHWHASet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
+        self.headers_ha = {'If-Modified-Since': str(self.cdc.retrieve("HAHeaders-" + self.filename))}
 
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
+        self.last_sha_ha = self.cdc.retrieve("HA-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb"]
         self.settings = []
@@ -83,8 +98,10 @@ class BL:
             self.settings.append(self.config.get(s))
         self.i_mb_done = False
         self.i_hw_done = False
+        self.i_ha_done = False
         self.mb_done = False
         self.hw_done = False
+        self.ha_done = False
         self.dl_unsatisfied = False
 
         try:
@@ -163,20 +180,28 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche MB-Suche ab!")
                     return added_items
-            else:
+            elif site == "HW":
                 if self.i_hw_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche HW-Suche ab!")
+                    return added_items
+            else:
+                if self.i_ha_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HA-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
+            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
+                    "HA" in site and sha == self.last_sha_ha):
                 if "MB" in site:
                     self.i_mb_done = True
-                else:
+                elif "HW" in site:
                     self.i_hw_done = True
+                else:
+                    self.i_ha_done = True
 
             try:
                 content = post.content[0].value
@@ -422,21 +447,29 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche MB-Suche ab!")
                     return added_items
-            else:
+            elif site == "HW":
                 if self.hw_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HW-Suche ab!")
+                    return added_items
+            else:
+                if self.ha_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HA-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw):
+            if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
+                    "HA" in site and sha == self.last_sha_ha):
                 if not self.historical:
                     if "MB" in site:
                         self.mb_done = True
-                    else:
+                    elif "HW" in site:
                         self.hw_done = True
+                    else:
+                        self.ha_done = True
 
             found = re.search(s, post.title.lower())
 
@@ -583,7 +616,9 @@ class BL:
             get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile))]
+                    self.configfile, self.dbfile)),
+            ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title,
+                              self.configfile, self.dbfile)]
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):
@@ -1013,11 +1048,15 @@ class BL:
                     mb_urls.append(URL)
                 for URL in self.HW_FEED_URLS:
                     hw_urls.append(URL)
+                for URL in self.HA_FEED_URLS:
+                    ha_urls.append(URL)
         else:
             for URL in self.MB_FEED_URLS:
                 mb_urls.append(URL)
             for URL in self.HW_FEED_URLS:
                 hw_urls.append(URL)
+            for URL in self.HA_FEED_URLS:
+                ha_urls.append(URL)
 
         if not self.pattern:
             self.log_debug(
@@ -1053,11 +1092,23 @@ class BL:
                 first_page_hw = False
                 self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
 
-        set_mbhw = self.settings_hash(False)
+        ha_304 = False
+        if not self.historical:
+            try:
+                first_ha = get_url_headers(ha_urls[0], self.configfile, self.dbfile, self.headers_ha)
+                first_page_ha = ha_to_feedparser_dict(BeautifulSoup(first_ha.content, 'lxml'))
+                if first_ha.status_code == 304:
+                    hw_304 = True
+            except:
+                hw_304 = True
+                first_page_ha = False
+                self.log_debug("Fehler beim Abruf von HA - breche HA-Suche ab!")
 
-        if self.last_set_mbhw == set_mbhw:
+        set_mbhwha = self.settings_hash(False)
+
+        if self.last_set_mbhwha == set_mbhwha:
             if not self.historical:
-                if mb_304 and hw_304:
+                if mb_304 and hw_304 and ha_304:
                     self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
                     return self.device
                 if mb_304:
@@ -1066,9 +1117,13 @@ class BL:
                 if hw_304:
                     hw_urls = []
                     self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
+                if ha_304:
+                    hw_urls = []
+                    self.log_debug("HA-Feed seit letztem Aufruf nicht aktualisiert - breche HA-Suche ab!")
 
         sha_mb = None
         sha_hw = None
+        sha_ha = None
 
         if not self.historical:
             if self.filename != 'IMDB':
@@ -1082,6 +1137,11 @@ class BL:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
+                if not ha_304:
+                    for i in first_page_ha.entries:
+                        concat_ha = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_ha = hashlib.sha256(concat_ha.encode('ascii', 'ignore')).hexdigest()
+                        break
             else:
                 if not mb_304:
                     for i in first_page_mb.entries:
@@ -1092,6 +1152,11 @@ class BL:
                     for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
+                        break
+                if not ha_304:
+                    for i in first_page_ha.entries:
+                        concat_ha = i.title + i.published + str(self.settings) + str(self.imdb)
+                        sha_ha = hashlib.sha256(concat_ha.encode('ascii', 'ignore')).hexdigest()
                         break
 
         added_items = []
@@ -1123,6 +1188,18 @@ class BL:
                             for f in found:
                                 added_items.append(f)
                         i += 1
+                i = 0
+                for url in ha_urls:
+                    if not self.i_ha_done:
+                        if not self.historical and i == 0 and first_page_ha:
+                            ha_parsed_url = first_page_ha
+                        else:
+                            ha_parsed_url = ha_url_to_soup(url, self.configfile, self.dbfile)
+                        found = self.imdb_search(imdb, ha_parsed_url, "HA")
+                        if found:
+                            for f in found:
+                                added_items.append(f)
+                        i += 1
         else:
             i = 0
             for url in mb_urls:
@@ -1150,13 +1227,28 @@ class BL:
                         for f in found:
                             added_items.append(f)
                     i += 1
+            i = 0
+            for url in ha_urls:
+                if not self.ha_done:
+                    if not self.historical and i == 0 and first_page_ha:
+                        ha_parsed_url = first_page_ha
+                    else:
+                        if "search" not in url:
+                            ha_parsed_url = ha_url_to_soup(url, self.configfile, self.dbfile)
+                        else:
+                            ha_parsed_url = ha_search_to_soup(url, self.configfile, self.dbfile)
+                    found = self.feed_search(ha_parsed_url, "HA")
+                    if found:
+                        for f in found:
+                            added_items.append(f)
+                    i += 1
 
         settings_changed = False
-        if set_mbhw:
-            new_set_mbhw = self.settings_hash(True)
-            if set_mbhw == new_set_mbhw:
-                self.cdc.delete("MBHWSet-" + self.filename)
-                self.cdc.store("MBHWSet-" + self.filename, new_set_mbhw)
+        if set_mbhwha:
+            new_set_mbhwha = self.settings_hash(True)
+            if set_mbhwha == new_set_mbhwha:
+                self.cdc.delete("MBHWHASet-" + self.filename)
+                self.cdc.store("MBHWHASet-" + self.filename, new_set_mbhwha)
             else:
                 settings_changed = True
         if sha_mb:
@@ -1173,6 +1265,13 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HW-CDC!")
+        if sha_ha:
+            if not self.dl_unsatisfied and not settings_changed:
+                self.cdc.delete("HA-" + self.filename)
+                self.cdc.store("HA-" + self.filename, sha_ha)
+            else:
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HA-CDC!")
         if not mb_304 and not self.historical:
             try:
                 header = first_mb.headers['Last-Modified']
@@ -1189,5 +1288,13 @@ class BL:
             if header:
                 self.cdc.delete("HWHeaders-" + self.filename)
                 self.cdc.store("HWHeaders-" + self.filename, header)
+        if not ha_304 and not self.historical:
+            try:
+                header = first_ha.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("HAHeaders-" + self.filename)
+                self.cdc.store("HAHeaders-" + self.filename, header)
 
         return self.device

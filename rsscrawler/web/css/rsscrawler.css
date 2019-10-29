@@ -25,7 +25,7 @@ body {
     margin-top: 1em;
     margin-bottom: 2em;
     padding: 0.5em;
-    max-width: 50em;
+    max-width: 60em;
 }
 
 .cnl-spinner, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
@@ -88,22 +88,22 @@ body {
 }
 
 h1 {
-    font-size: 7vw;
+    font-size: 5vw;
 }
 
 h3 {
-    font-size: 3.5vw;
+    font-size: 2.7vw;
 }
 
 h4 {
     font-size: 4vw;
 }
 
-.form-control {
-    font-size: 3.5vw;
+.form-control, .col.card, .card p, .card-header, .btn, li {
+    font-size: 2vw;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 60em) {
     h1 {
         font-size: 2.5rem;
     }
@@ -116,7 +116,7 @@ h4 {
         font-size: 1.5rem;
     }
 
-    .form-control {
+    .form-control, .col.card, .card p, .card-header, .btn, li {
         font-size: 1rem;
     }
 }
@@ -137,6 +137,10 @@ select {
     max-width: 16em;
     margin-left: auto;
     margin-right: auto;
+}
+
+input, select {
+    margin-bottom: 16px;
 }
 
 .isDisabled {

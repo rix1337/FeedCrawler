@@ -42,9 +42,8 @@ def check_url(configfile, dbfile):
 
         try:
             if "<Response [403]>" in str(
-                    scraper.get(mb_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30,
-                                allow_redirects=False)):
-                mb_blocked_proxy = True
+                    scraper.get(mb_url, headers={'User-Agent': agent}, proxies=proxies, timeout=30, allow_redirects=False)):
+                    mb_blocked_proxy = True
             else:
                 db.delete("MB")
         except:
@@ -54,6 +53,8 @@ def check_url(configfile, dbfile):
             print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("MB", "Blocked")
+
+        # TODO check if HA is working!
 
     if not proxy or sj_blocked_proxy == True or mb_blocked_proxy == True:
         if "block." in str(
