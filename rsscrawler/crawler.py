@@ -50,6 +50,7 @@ from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import hoster_check
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import retry_decrypt
@@ -210,6 +211,10 @@ def crawldog(configfile, dbfile):
                                             check = package_merge(configfile, device, [package], title[0], [0])
                                             device = check[0]
                                             removed_links = check[1]
+                                        check = hoster_check(configfile, device, [package], title[0], [0])
+                                        device = check[0]
+                                        if not removed_links:
+                                            removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
@@ -222,6 +227,10 @@ def crawldog(configfile, dbfile):
                                         if is_episode:
                                             check = package_merge(configfile, device, [package], title[0], [0])
                                             device = check[0]
+                                            removed_links = check[1]
+                                        check = hoster_check(configfile, device, [package], title[0], [0])
+                                        device = check[0]
+                                        if not removed_links:
                                             removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])

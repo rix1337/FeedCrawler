@@ -188,9 +188,8 @@ class SJ:
                     if check_hoster(url_hoster[1], self.configfile):
                         links.append(url_hoster[0])
                 if not links:
-                    storage = self.db.retrieve(title)
-                    wrong_hoster = '[' + self._INTERNAL_NAME + '] - Gewünschter Hoster fehlt - ' + search_title
-                    if not storage == 'wrong_hoster' or not storage == 'added' or not storage == 'notdl':
+                    wrong_hoster = '[SJ] - Gewünschter Hoster fehlt - ' + search_title
+                    if not self.db.retrieve(title) == 'wrong_hoster':
                         self.log_info(wrong_hoster)
                         self.db.store(title, 'wrong_hoster')
                         notify([wrong_hoster], self.configfile)

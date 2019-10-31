@@ -8,6 +8,7 @@ import time
 from fuzzywuzzy import fuzz
 
 import rsscrawler.myjdapi
+from rsscrawler.common import check_hoster
 from rsscrawler.common import is_device
 from rsscrawler.common import longest_substr
 from rsscrawler.common import readable_size
@@ -700,6 +701,78 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
     return False
 
 
+def remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids, delete_linkids,
+                       delete_uuids, delete_packages, title):
+    if keep_linkids and keep_uuids:
+        for k in keep_linkids:
+            delete_linkids.remove(k)
+        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
+        device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+        return [device, True]
+    elif delete_packages and len(delete_packages) < len(decrypted_packages):
+        delete_linkids = []
+        delete_uuids = []
+        for dp in delete_packages:
+            for linkid in dp['linkids']:
+                delete_linkids.append(linkid)
+            delete_uuids.append(dp['uuid'])
+            decrypted_packages.remove(dp)
+        if delete_linkids and delete_uuids:
+            device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+
+    package_merge_check(device, configfile, decrypted_packages, known_packages)
+    return [device, False]
+
+
+def hoster_check(configfile, device, decrypted_packages, title, known_packages):
+    if not decrypted_packages:
+        return [False, False]
+
+    delete_packages = []
+    delete_linkids = []
+    delete_uuids = []
+    keep_linkids = []
+    keep_uuids = []
+
+    merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
+    if merge_first:
+        device = merge_first[0]
+        decrypted_packages = merge_first[1]
+
+    valid_links = False
+    if decrypted_packages:
+        i = 0
+        for dp in decrypted_packages:
+            linkids = dp['linkids']
+            for l in linkids:
+                delete_linkids.append(l)
+            uuid = dp['uuid']
+            delete_uuids.append(uuid)
+            if uuid not in known_packages:
+                delete = True
+                links = dp['urls'].split("\\n")
+                for link in links:
+                    if check_hoster(link, configfile):
+                        try:
+                            keep_linkids.append(linkids[i])
+                            valid_links = True
+                        except:
+                            pass
+                        if uuid not in keep_uuids:
+                            keep_uuids.append(uuid)
+                        delete = False
+                    i += 1
+                if delete:
+                    delete_packages.append(dp)
+
+    if valid_links:
+        removed = remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids,
+                                     delete_linkids,
+                                     delete_uuids, delete_packages, title)
+        return [removed[0], removed[1]]
+    return [device, False]
+
+
 def package_merge(configfile, device, decrypted_packages, title, known_packages):
     if not decrypted_packages:
         return [False, False]
@@ -712,6 +785,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
     episodes = re.findall(r'E(\d{1,3})', title)
     more_than_one_episode = False
+    valid_links = False
 
     merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
     if merge_first:
@@ -744,6 +818,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
+                links = dp['urls'].split("\\n")
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
@@ -756,8 +831,34 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                             fname_episode = int(fname_episodes[i].replace(replacer, ""))
                             more_than_one_episode = True
                         if fname_episode in all_episodes:
+                            if check_hoster(links[i], configfile):
+                                try:
+                                    keep_linkids.append(linkids[i])
+                                except:
+                                    pass
+                                if uuid not in keep_uuids:
+                                    keep_uuids.append(uuid)
+                                delete = False
+                        i += 1
+                    if delete:
+                        delete_packages.append(dp)
+    else:
+        if decrypted_packages:
+            i = 0
+            for dp in decrypted_packages:
+                linkids = dp['linkids']
+                for l in linkids:
+                    delete_linkids.append(l)
+                uuid = dp['uuid']
+                delete_uuids.append(uuid)
+                if uuid not in known_packages:
+                    delete = True
+                    links = dp['urls'].split("\\n")
+                    for link in links:
+                        if check_hoster(link, configfile):
                             try:
                                 keep_linkids.append(linkids[i])
+                                valid_links = True
                             except:
                                 pass
                             if uuid not in keep_uuids:
@@ -767,26 +868,11 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     if delete:
                         delete_packages.append(dp)
 
-    if more_than_one_episode:
-        if keep_linkids and keep_uuids:
-            for k in keep_linkids:
-                delete_linkids.remove(k)
-            device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
-            device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-            return [device, True]
-        elif delete_packages and len(delete_packages) < len(decrypted_packages):
-            delete_linkids = []
-            delete_uuids = []
-            for dp in delete_packages:
-                for linkid in dp['linkids']:
-                    delete_linkids.append(linkid)
-                delete_uuids.append(dp['uuid'])
-                decrypted_packages.remove(dp)
-            if delete_linkids and delete_uuids:
-                device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-
-    package_merge_check(device, configfile, decrypted_packages, known_packages)
-
+    if more_than_one_episode or valid_links:
+        removed = remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids,
+                                     delete_linkids,
+                                     delete_uuids, delete_packages, title)
+        return [removed[0], removed[1]]
     return [device, False]
 
 
@@ -875,6 +961,6 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
             uuid = [old_package['uuid']]
             device = remove_from_linkgrabber(configfile, device, linkids, uuid)
             if device:
-                print(u"Click'n'Load-Automatik erfolgreich: " + title)
+                print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]
     return False
