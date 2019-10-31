@@ -54,12 +54,14 @@ class DD:
                             if check_hoster(link, self.configfile):
                                 links.append(str(link))
                         if not links:
-                            if not self.db.retrieve(key) == 'wrong_hoster':
-                                self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                            storage = self.db.retrieve(key)
+                            wrong_hoster = '[' + self._INTERNAL_NAME + '] - Gewünschter Hoster fehlt - ' + key
+                            if not storage == 'wrong_hoster' or not storage == 'added' or not storage == 'notdl':
+                                self.log_info(wrong_hoster)
                                 self.db.store(key, 'wrong_hoster')
-                                notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+                                notify([wrong_hoster], self.configfile)
                             else:
-                                self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                                self.log_debug(wrong_hoster)
                         elif self.db.retrieve(key) == 'added':
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
