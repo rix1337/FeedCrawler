@@ -412,13 +412,13 @@ class BL:
                                     for i in found:
                                         added_items.append(i)
                     else:
+                        wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + post.title
                         if not self.db.retrieve(post.title) == 'wrong_hoster':
-                            self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % post.title)
+                            self.log_info(wrong_hoster)
                             self.db.store(post.title, 'wrong_hoster')
-                            notify(["%s - Release ignoriert (kein passender Link gefunden)" % post.title],
-                                   self.configfile)
+                            notify([wrong_hoster], self.configfile)
                         else:
-                            self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % post.title)
+                            self.log_debug(wrong_hoster)
         return added_items
 
     def feed_search(self, feed, site):
@@ -514,7 +514,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -548,7 +548,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -597,12 +597,12 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
                         else:
-                            found = self.feed_download(post.title, content, password)
+                            found = self.feed_download(post.title, content, password, site)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -705,12 +705,13 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                 else:
+                    wrong_hoster = '[DL-Suche] - Gewünschter Hoster fehlt - ' + search_title
                     if not self.db.retrieve(key) == 'wrong_hoster':
-                        self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                        self.log_info(wrong_hoster)
                         self.db.store(key, 'wrong_hoster')
-                        notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+                        notify([wrong_hoster], self.configfile)
                     else:
-                        self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                        self.log_debug(wrong_hoster)
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password):
         if download_links:
@@ -814,7 +815,7 @@ class BL:
                     added_items.append(log_entry)
             return added_items
 
-    def feed_download(self, key, content, password):
+    def feed_download(self, key, content, password, site):
         download_links = self.get_download_links(content)
         if download_links:
             added_items = []
@@ -995,12 +996,13 @@ class BL:
                     added_items.append(log_entry)
             return added_items
         else:
+            wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
             if not self.db.retrieve(key) == 'wrong_hoster':
-                self.log_info("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                self.log_info(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
-                notify(["%s - Release ignoriert (kein passender Link gefunden)" % key], self.configfile)
+                notify([wrong_hoster], self.configfile)
             else:
-                self.log_debug("%s - Release ignoriert (kein passender Link gefunden)" % key)
+                self.log_debug(wrong_hoster)
 
     def periodical_task(self):
         imdb = self.imdb

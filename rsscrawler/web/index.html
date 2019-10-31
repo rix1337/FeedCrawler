@@ -199,7 +199,7 @@
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
                             aria-expanded="true" aria-controls="collapseZeroOne">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -213,12 +213,14 @@
                     <textarea ng-model="lists.mb.filme" class="liste form-control" data-toggle="tooltip"
 
                               title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
-                    <h4>3D-Filme</h4>
-                    <textarea ng-model="lists.mb.filme3d" class="liste form-control" data-toggle="tooltip"
+                    <h4 ng-if="settings.mb.crawl_3d">3D-Filme</h4>
+                    <textarea ng-if="settings.mb.crawl_3d" ng-model="lists.mb.filme3d" class="liste form-control"
+                              data-toggle="tooltip"
 
                               title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
-                    <h4>Filme/Serien (RegEx)</h4>
-                    <textarea ng-model="lists.mb.regex" class="liste form-control" data-toggle="tooltip"
+                    <h4 ng-if="settings.mb.regex">Filme/Serien (RegEx)</h4>
+                    <textarea ng-if="settings.mb.regex" ng-model="lists.mb.regex" class="liste form-control"
+                              data-toggle="tooltip"
 
                               title="Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert."></textarea>
                 </div>
@@ -230,7 +232,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroTwo"
                             aria-expanded="false" aria-controls="collapseZeroTwo">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -242,13 +244,13 @@
                     <h4>Serien</h4>
                     <textarea ng-model="lists.sj.serien" class="liste form-control" data-toggle="tooltip"
                               title="Pro Zeile ein Serientitel für Episoden."></textarea>
-                    <h4>Serien (RegEx)</h4>
-                    <textarea ng-model="lists.sj.regex" class="liste form-control" data-toggle="tooltip"
-
+                    <h4 ng-if="settings.sj.regex">Serien (RegEx)</h4>
+                    <textarea ng-if="settings.sj.regex" ng-model="lists.sj.regex" class="liste form-control"
+                              data-toggle="tooltip"
                               title="Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert."></textarea>
-                    <h4>Staffeln (RegEx)</h4>
-                    <textarea ng-model="lists.sj.staffeln_regex" class="liste form-control" data-toggle="tooltip"
-
+                    <h4 ng-if="lists.sj.staffeln_regex">Staffeln (RegEx)</h4>
+                    <textarea ng-if="lists.sj.staffeln_regex" ng-model="lists.sj.staffeln_regex"
+                              class="liste form-control" data-toggle="tooltip"
                               title="Pro Zeile ein Serientitel im RegEx-Format für Staffeln - Die Filterliste wird hierbei ignoriert."></textarea>
                 </div>
             </div>
@@ -259,7 +261,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroThree"
                             aria-expanded="false" aria-controls="collapseZeroThree">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -280,7 +282,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFour"
                             aria-expanded="false" aria-controls="collapseZeroFour">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -292,9 +294,9 @@
                     <h4>Dokus</h4>
                     <textarea ng-model="lists.dj.dokus" class="liste form-control" data-toggle="tooltip"
                               title="Pro Zeile ein Dokutitel."></textarea>
-                    <h4>Dokus (RegEx)</h4>
-                    <textarea ng-model="lists.dj.regex" class="liste form-control" data-toggle="tooltip"
-
+                    <h4 ng-if="settings.dj.regex">Dokus (RegEx)</h4>
+                    <textarea ng-if="settings.dj.regex" ng-model="lists.dj.regex" class="liste form-control"
+                              data-toggle="tooltip"
                               title="Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert."></textarea>
                 </div>
             </div>
@@ -357,7 +359,7 @@
         <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
             <div id="helpText" class="card-body">
                 <h3>Beispiele für
-                    <script language="javascript">
+                    <script>
                         document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
                     </script>
                 </h3>
@@ -391,7 +393,7 @@
                     </div>
                 </div>
                 <h3>Beispiele für
-                    <script language="javascript">
+                    <script>
                         document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
                     </script>
                 </h3>
@@ -588,8 +590,8 @@
             </div>
             <div id="collapseTwoTwo" class="collapse" aria-labelledby="headingTwoTwo" data-parent="#settings">
                 <div class="card-body"
-                data-toggle="tooltip"
-                              title="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar, wird dieses übersprungen!">
+                     data-toggle="tooltip"
+                     title="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar, wird dieses übersprungen!">
                     <div class="row">
                         <div class="col-sm">
                             <h4>Rapidgator</h4>
@@ -765,7 +767,7 @@
                             data-target="#collapseTwoFive"
                             aria-expanded="false" aria-controls="collapseTwoFive">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -833,8 +835,9 @@
                               data-toggle="tooltip"
                               title="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases (in 1080p) unabhängig von der oben gesetzten Auflösung."></span>
                     </label>
-                    <h4>3D-Format</h4>
-                    <select ng-model="settings.mb.crawl_3d_type"
+                    <h4 ng-if="settings.mb.crawl_3d">3D-Format</h4>
+                    <select ng-if="settings.mb.crawl_3d"
+                            ng-model="settings.mb.crawl_3d_type"
                             ng-options="t.value as t.label for t in types_3d"
                             class="form-control" data-toggle="tooltip"
                             title="Das gewünschte Format der 3D-Filme wählen."></select>
@@ -848,7 +851,7 @@
                             data-target="#collapseTwoSix"
                             aria-expanded="false" aria-controls="collapseTwoSix">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -886,7 +889,7 @@
                             data-target="#collapseTwoSeven"
                             aria-expanded="false" aria-controls="collapseTwoSeven">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -933,7 +936,7 @@
                             data-target="#collapseTwoEight"
                             aria-expanded="false" aria-controls="collapseTwoEight">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
                             </script>
                         </h3>
@@ -976,7 +979,7 @@
                             data-target="#collapseTwoNine"
                             aria-expanded="false" aria-controls="collapseTwoNine">
                         <h3>
-                            <script language="javascript">
+                            <script>
                                 document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));
                             </script>
                         </h3>

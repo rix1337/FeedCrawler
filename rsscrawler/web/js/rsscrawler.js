@@ -183,10 +183,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $("#myjd_state").hide();
                     $("#myjd_no_login").show();
                 }
-                if ($scope.settings.mb.hoster.includes('*?share-online.*?') || $scope.settings.sj.hoster.includes('*?share-online.*?') || $scope.settings.dj.hoster.includes('*?share-online.*?')) {
-                    showDanger('Der eingestellte Hoster existiert nicht - bitte die Einstellung anpassen!');
-                    scrollingTitle("Hoster existiert nicht! Einstellungen anpassen! ");
-                }
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');

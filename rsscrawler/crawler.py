@@ -50,6 +50,7 @@ from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import hoster_check
 from rsscrawler.myjd import move_to_downloads
 from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import retry_decrypt
@@ -205,11 +206,15 @@ def crawldog(configfile, dbfile):
                             for package in packages_in_downloader_decrypted:
                                 if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
+                                    if is_episode:
+                                        check = package_merge(configfile, device, [package], title[0], [0])
+                                        device = check[0]
+                                        removed_links = check[1]
+                                    check = hoster_check(configfile, device, [package], title[0], [0])
+                                    device = check[0]
+                                    if not removed_links:
+                                        removed_links = check[1]
                                     if autostart:
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
@@ -218,11 +223,15 @@ def crawldog(configfile, dbfile):
                             for package in packages_in_linkgrabber_decrypted:
                                 if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
+                                    if is_episode:
+                                        check = package_merge(configfile, device, [package], title[0], [0])
+                                        device = check[0]
+                                        removed_links = check[1]
+                                    check = hoster_check(configfile, device, [package], title[0], [0])
+                                    device = check[0]
+                                    if not removed_links:
+                                        removed_links = check[1]
                                     if autostart:
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
@@ -252,6 +261,7 @@ def crawldog(configfile, dbfile):
                     if watched_titles:
                         for title in watched_titles:
                             notify_list.append("[Verschwundenes Paket] - " + title[0])
+                            print(u"[Verschwundenes Paket] - " + title[0])
                     db.reset()
 
             if notify_list:
