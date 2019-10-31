@@ -252,6 +252,7 @@ def crawldog(configfile, dbfile):
                     if watched_titles:
                         for title in watched_titles:
                             notify_list.append("[Verschwundenes Paket] - " + title[0])
+                            print(u"[Verschwundenes Paket] - " + title[0])
                     db.reset()
 
             if notify_list:
