@@ -413,7 +413,7 @@ class BL:
                                         added_items.append(i)
                     else:
                         storage = self.db.retrieve(post.title)
-                        wrong_hoster = '[' + self._INTERNAL_NAME + '] - Gewünschter Hoster fehlt - ' + post.title
+                        wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + post.title
                         if not storage == 'wrong_hoster' or not storage == 'added' or not storage == 'notdl':
                             self.log_info(wrong_hoster)
                             self.db.store(post.title, 'wrong_hoster')
@@ -515,7 +515,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -549,7 +549,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -598,12 +598,12 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password)
+                                found = self.feed_download(post.title, content, password, site)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
                         else:
-                            found = self.feed_download(post.title, content, password)
+                            found = self.feed_download(post.title, content, password, site)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -707,7 +707,7 @@ class BL:
                             return log_entry
                 else:
                     storage = self.db.retrieve(key)
-                    wrong_hoster = '[' + self._INTERNAL_NAME + '] - Gewünschter Hoster fehlt - ' + search_title
+                    wrong_hoster = '[DL-Suche] - Gewünschter Hoster fehlt - ' + search_title
                     if not storage == 'wrong_hoster' or not storage == 'added' or not storage == 'notdl':
                         self.log_info(wrong_hoster)
                         self.db.store(key, 'wrong_hoster')
@@ -817,7 +817,7 @@ class BL:
                     added_items.append(log_entry)
             return added_items
 
-    def feed_download(self, key, content, password):
+    def feed_download(self, key, content, password, site):
         download_links = self.get_download_links(content)
         if download_links:
             added_items = []
@@ -999,7 +999,7 @@ class BL:
             return added_items
         else:
             storage = self.db.retrieve(key)
-            wrong_hoster = '[' + self._INTERNAL_NAME + '] - Gewünschter Hoster fehlt - ' + key
+            wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
             if not storage == 'wrong_hoster' or not storage == 'added' or not storage == 'notdl':
                 self.log_info(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
