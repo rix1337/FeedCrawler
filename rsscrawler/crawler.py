@@ -206,15 +206,15 @@ def crawldog(configfile, dbfile):
                             for package in packages_in_downloader_decrypted:
                                 if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
-                                    if autostart:
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
-                                        check = hoster_check(configfile, device, [package], title[0], [0])
+                                    if is_episode:
+                                        check = package_merge(configfile, device, [package], title[0], [0])
                                         device = check[0]
-                                        if not removed_links:
-                                            removed_links = check[1]
+                                        removed_links = check[1]
+                                    check = hoster_check(configfile, device, [package], title[0], [0])
+                                    device = check[0]
+                                    if not removed_links:
+                                        removed_links = check[1]
+                                    if autostart:
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:
@@ -223,15 +223,15 @@ def crawldog(configfile, dbfile):
                             for package in packages_in_linkgrabber_decrypted:
                                 if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
                                     removed_links = False
-                                    if autostart:
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
-                                        check = hoster_check(configfile, device, [package], title[0], [0])
+                                    if is_episode:
+                                        check = package_merge(configfile, device, [package], title[0], [0])
                                         device = check[0]
-                                        if not removed_links:
-                                            removed_links = check[1]
+                                        removed_links = check[1]
+                                    check = hoster_check(configfile, device, [package], title[0], [0])
+                                    device = check[0]
+                                    if not removed_links:
+                                        removed_links = check[1]
+                                    if autostart:
                                         device = move_to_downloads(configfile, device, package['linkids'],
                                                                    [package['uuid']])
                                     if not removed_links:

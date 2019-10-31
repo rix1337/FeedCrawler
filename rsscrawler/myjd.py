@@ -750,7 +750,11 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
             delete_uuids.append(uuid)
             if uuid not in known_packages:
                 delete = True
-                links = dp['urls'].split("\\n")
+                links = dp['urls']
+                if '\\n' in links:
+                    links = links.split("\\n")
+                else:
+                    links = links.split("\n")
                 for link in links:
                     if check_hoster(link, configfile):
                         try:
@@ -818,7 +822,11 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                links = dp['urls'].split("\\n")
+                links = dp['urls']
+                if '\\n' in links:
+                    links = links.split("\\n")
+                else:
+                    links = links.split("\n")
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
@@ -853,7 +861,11 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
                     delete = True
-                    links = dp['urls'].split("\\n")
+                    links = dp['urls']
+                    if '\\n' in links:
+                        links = links.split("\\n")
+                    else:
+                        links = links.split("\n")
                     for link in links:
                         if check_hoster(link, configfile):
                             try:
