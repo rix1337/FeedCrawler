@@ -17,6 +17,14 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 
 
+def split_urls(urls):
+    if '\\n' in urls:
+        urls = urls.split("\\n")
+    else:
+        urls = urls.split("\n")
+    return urls
+
+
 def get_device(configfile):
     conf = RssConfig('RSScrawler', configfile)
     myjd_user = str(conf.get('myjd_user'))
@@ -273,11 +281,11 @@ def cryptor_url_first(failed_package):
         pk['name'] = p['name']
         pk['path'] = p['path']
         pk['urls'] = p['urls']
-        if '\\n' in pk['urls']:
-            links = pk['urls'].split("\\n")
-        else:
-            links = pk['urls'].split("\n")
+        pk['linkids'] = p['linkids']
+        pk['uuid'] = p['uuid']
+
         cryptor_found = False
+        links = split_urls(pk['urls'])
         for u in links:
             if not cryptor_found:
                 if "filecrypt" in u:
@@ -285,8 +293,7 @@ def cryptor_url_first(failed_package):
                     cryptor_found = True
         if not cryptor_found:
             pk['url'] = p['url']
-        pk['linkids'] = p['linkids']
-        pk['uuid'] = p['uuid']
+
         resorted_failed_package.append(pk)
     return resorted_failed_package
 
@@ -784,11 +791,7 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
             delete_uuids.append(uuid)
             if uuid not in known_packages:
                 delete = True
-                links = dp['urls']
-                if '\\n' in links:
-                    links = links.split("\\n")
-                else:
-                    links = links.split("\n")
+                links = split_urls(db['urls'])
                 for link in links:
                     if check_hoster(link, configfile):
                         try:
@@ -856,11 +859,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                links = dp['urls']
-                if '\\n' in links:
-                    links = links.split("\\n")
-                else:
-                    links = links.split("\n")
+                links = split_urls(dp['urls'])
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
@@ -895,11 +894,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
                     delete = True
-                    links = dp['urls']
-                    if '\\n' in links:
-                        links = links.split("\\n")
-                    else:
-                        links = links.split("\n")
+                    links = split_urls(dp['urls'])
                     for link in links:
                         if check_hoster(link, configfile):
                             try:
@@ -996,16 +991,17 @@ def do_package_merge(configfile, device, title, uuids, linkids):
 def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
-    links = cnl_package['urls']
+    links = old_package['urls'] + '\n' + cnl_package['urls']
+    links = links.replace(old_package['url'] + '\n', '').replace(old_package['url'], '')
     linkids = cnl_package['linkids']
     uuid = [cnl_package['uuid']]
     device = remove_from_linkgrabber(configfile, device, linkids, uuid)
     if device:
-        device = download(configfile, dbfile, device, title, "", links, "", path, True)
+        linkids = old_package['linkids']
+        uuid = [old_package['uuid']]
+        device = remove_from_linkgrabber(configfile, device, linkids, uuid)
         if device:
-            linkids = old_package['linkids']
-            uuid = [old_package['uuid']]
-            device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+            device = download(configfile, dbfile, device, title, "", links, "", path, True)
             if device:
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]
