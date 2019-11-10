@@ -43,7 +43,6 @@ class RssConfig(object):
             ("uptobox", "bool", "False"),
             ("1fichier", "bool", "False"),
             ("filer", "bool", "False"),
-            ("openload", "bool", "False"),
             ("nitroflare", "bool", "False"),
             ("ironfiles", "bool", "False"),
             ("k2s", "bool", "False")

@@ -412,13 +412,15 @@ class BL:
                                     for i in found:
                                         added_items.append(i)
                     else:
-                        wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + post.title
-                        if not self.db.retrieve(post.title) == 'wrong_hoster':
-                            self.log_info(wrong_hoster)
-                            self.db.store(post.title, 'wrong_hoster')
-                            notify([wrong_hoster], self.configfile)
-                        else:
-                            self.log_debug(wrong_hoster)
+                        storage = self.db.retrieve(post.title)
+                        if not storage == 'added' and not storage == 'notdl':
+                            wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + post.title
+                            if not storage == 'wrong_hoster':
+                                self.log_info(wrong_hoster)
+                                self.db.store(post.title, 'wrong_hoster')
+                                notify([wrong_hoster], self.configfile)
+                            else:
+                                self.log_debug(wrong_hoster)
         return added_items
 
     def feed_search(self, feed, site):
@@ -705,13 +707,15 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                 else:
-                    wrong_hoster = '[DL-Suche] - Gewünschter Hoster fehlt - ' + search_title
-                    if not self.db.retrieve(key) == 'wrong_hoster':
-                        self.log_info(wrong_hoster)
-                        self.db.store(key, 'wrong_hoster')
-                        notify([wrong_hoster], self.configfile)
-                    else:
-                        self.log_debug(wrong_hoster)
+                    storage = self.db.retrieve(key)
+                    if not storage == 'added' and not storage == 'notdl':
+                        wrong_hoster = '[DL-Suche] - Gewünschter Hoster fehlt - ' + key
+                        if not storage == 'wrong_hoster':
+                            self.log_info(wrong_hoster)
+                            self.db.store(key, 'wrong_hoster')
+                            notify([wrong_hoster], self.configfile)
+                        else:
+                            self.log_debug(wrong_hoster)
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password):
         if download_links:
@@ -996,13 +1000,15 @@ class BL:
                     added_items.append(log_entry)
             return added_items
         else:
-            wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
-            if not self.db.retrieve(key) == 'wrong_hoster':
-                self.log_info(wrong_hoster)
-                self.db.store(key, 'wrong_hoster')
-                notify([wrong_hoster], self.configfile)
-            else:
-                self.log_debug(wrong_hoster)
+            storage = self.db.retrieve(key)
+            if not storage == 'added' and not storage == 'notdl':
+                wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
+                if not storage == 'wrong_hoster':
+                    self.log_info(wrong_hoster)
+                    self.db.store(key, 'wrong_hoster')
+                    notify([wrong_hoster], self.configfile)
+                else:
+                    self.log_debug(wrong_hoster)
 
     def periodical_task(self):
         imdb = self.imdb

@@ -177,7 +177,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "uptobox": hosters.get("uptobox"),
                             "onefichier": hosters.get("1fichier"),
                             "filer": hosters.get("filer"),
-                            "openload": hosters.get("openload"),
                             "nitroflare": hosters.get("nitroflare"),
                             "ironfiles": hosters.get("ironfiles"),
                             "k2s": hosters.get("k2s"),
@@ -312,7 +311,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("uptobox", to_str(data['hosters']['uptobox']))
             section.save("1fichier", to_str(data['hosters']['onefichier']))
             section.save("filer", to_str(data['hosters']['filer']))
-            section.save("openload", to_str(data['hosters']['openload']))
             section.save("nitroflare", to_str(data['hosters']['nitroflare']))
             section.save("ironfiles", to_str(data['hosters']['ironfiles']))
             section.save("k2s", to_str(data['hosters']['k2s']))
