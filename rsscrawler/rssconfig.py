@@ -20,7 +20,8 @@ class RssConfig(object):
             ("surround", "bool", ""),
             ("proxy", "str", ""),
             ("fallback", "bool", "False"),
-            ("closed_myjd_tab", "bool", "False")
+            ("closed_myjd_tab", "bool", "False"),
+            ("one_mirror_policy", "bool", "True")
         ],
         'Crawljobs': [
             ("autostart", "bool", "True"),

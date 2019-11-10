@@ -165,6 +165,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "proxy": general_conf.get("proxy"),
                             "fallback": general_conf.get("fallback"),
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
+                            "one_mirror_policy": general_conf.get("one_mirror_policy"),
                         },
                         "hosters": {
                             "rapidgator": hosters.get("rapidgator"),
@@ -286,6 +287,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("proxy", to_str(data['general']['proxy']))
             section.save("fallback", to_str(data['general']['fallback']))
             section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
+            section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
 
             section = RssConfig("Crawljobs", configfile)
 
