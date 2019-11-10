@@ -703,10 +703,14 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
 
 def remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids, delete_linkids,
                        delete_uuids, delete_packages, title):
+    title = title.replace(" ", ".")
+    for package in decrypted_packages:
+        path = package['path']
+
     if keep_linkids and keep_uuids:
         for k in keep_linkids:
             delete_linkids.remove(k)
-        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, "<jd:packagename>")
+        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, path)
         device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
         return [device, True]
     elif delete_packages and len(delete_packages) < len(decrypted_packages):
