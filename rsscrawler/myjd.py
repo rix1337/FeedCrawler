@@ -17,6 +17,14 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 
 
+def split_urls(urls):
+    if '\\n' in urls:
+        urls = urls.split("\\n")
+    else:
+        urls = urls.split("\n")
+    return urls
+
+
 def get_device(configfile):
     conf = RssConfig('RSScrawler', configfile)
     myjd_user = str(conf.get('myjd_user'))
@@ -82,7 +90,7 @@ def get_if_one_device(myjd_user, myjd_pass):
         return False
 
 
-def get_packages_in_downloader(device):
+def get_packages_in_downloader(configfile, device):
     links = device.downloads.query_links()
 
     packages = device.downloads.query_packages([{
@@ -104,16 +112,17 @@ def get_packages_in_downloader(device):
     }])
 
     if links and packages and len(packages) > 0:
-        packages_by_type = check_packages_types(links, packages)
+        packages_by_type = check_packages_types(links, packages, configfile, device)
         failed = packages_by_type[0]
         offline = packages_by_type[1]
         decrypted = packages_by_type[2]
-        return [failed, offline, decrypted]
+        device = packages_by_type[3]
+        return [failed, offline, decrypted, device]
     else:
-        return [False, False, False]
+        return [False, False, False, device]
 
 
-def get_packages_in_linkgrabber(device):
+def get_packages_in_linkgrabber(configfile, device):
     links = device.linkgrabber.query_links()
 
     packages = device.linkgrabber.query_packages(params=[
@@ -135,16 +144,17 @@ def get_packages_in_linkgrabber(device):
             "startAt": 0,
         }])
     if links and packages and len(packages) > 0:
-        packages_by_type = check_packages_types(links, packages)
+        packages_by_type = check_packages_types(links, packages, configfile, device)
         failed = packages_by_type[0]
         offline = packages_by_type[1]
         decrypted = packages_by_type[2]
-        return [failed, offline, decrypted]
+        device = packages_by_type[3]
+        return [failed, offline, decrypted, device]
     else:
-        return [False, False, False]
+        return [False, False, False, device]
 
 
-def check_packages_types(links, packages):
+def check_packages_types(links, packages, configfile, device):
     decrypted = []
     failed = []
     offline = []
@@ -177,14 +187,23 @@ def check_packages_types(links, packages):
         linkids = []
         package_failed = False
         package_offline = False
+        package_online = False
         if links:
+            delete_linkids = []
             for link in links:
                 if uuid == link.get('packageUUID'):
-                    if link.get('availability') == 'OFFLINE' or link.get('status') == 'Datei nicht gefunden':
+                    linkid = link.get('uuid')
+                    linkids.append(linkid)
+                    if link.get('availability') == 'OFFLINE' or link.get(
+                            'status') == 'Datei nicht gefunden' or link.get('status') == 'File not found':
+                        delete_linkids.append(linkid)
                         package_offline = True
-                    if 'Falscher Captcha Code!' in link.get('name') or 'Wrong Captcha!' in link.get('name') or (
+                    elif 'Falscher Captcha Code!' in link.get('name') or 'Wrong Captcha!' in link.get('name') or (
                             link.get('comment') and 'BLOCK_HOSTER' in link.get('comment')):
+                        delete_linkids.append(linkid)
                         package_failed = True
+                    else:
+                        package_online = True
                     url = link.get('url')
                     if url:
                         url = str(url)
@@ -193,7 +212,10 @@ def check_packages_types(links, packages):
                         filename = str(link.get('name'))
                         if filename not in filenames:
                             filenames.append(filename)
-                    linkids.append(link.get('uuid'))
+            if RssConfig("RSScrawler", configfile).get('one_mirror_policy'):
+                if delete_linkids:
+                    if package_online:
+                        device = remove_from_linkgrabber(configfile, device, delete_linkids, [])
         for h in hosts:
             if h == 'linkcrawlerretry':
                 package_failed = True
@@ -241,7 +263,7 @@ def check_packages_types(links, packages):
         offline = False
     if not decrypted:
         decrypted = False
-    return [failed, offline, decrypted]
+    return [failed, offline, decrypted, device]
 
 
 def get_state(configfile, device):
@@ -273,11 +295,11 @@ def cryptor_url_first(failed_package):
         pk['name'] = p['name']
         pk['path'] = p['path']
         pk['urls'] = p['urls']
-        if '\\n' in pk['urls']:
-            links = pk['urls'].split("\\n")
-        else:
-            links = pk['urls'].split("\n")
+        pk['linkids'] = p['linkids']
+        pk['uuid'] = p['uuid']
+
         cryptor_found = False
+        links = split_urls(pk['urls'])
         for u in links:
             if not cryptor_found:
                 if "filecrypt" in u:
@@ -285,8 +307,7 @@ def cryptor_url_first(failed_package):
                     cryptor_found = True
         if not cryptor_found:
             pk['url'] = p['url']
-        pk['linkids'] = p['linkids']
-        pk['uuid'] = p['uuid']
+
         resorted_failed_package.append(pk)
     return resorted_failed_package
 
@@ -302,15 +323,17 @@ def get_info(configfile, device):
                 device.update.run_update_check()
                 update_ready = device.update.is_update_available()
 
-                packages_in_downloader = get_packages_in_downloader(device)
+                packages_in_downloader = get_packages_in_downloader(configfile, device)
                 packages_in_downloader_failed = packages_in_downloader[0]
                 packages_in_downloader_offline = packages_in_downloader[1]
                 packages_in_downloader_decrypted = packages_in_downloader[2]
+                device = packages_in_downloader[3]
 
-                packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+                packages_in_linkgrabber = get_packages_in_linkgrabber(configfile, device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
+                device = packages_in_linkgrabber[3]
             except rsscrawler.myjdapi.TokenExpiredException:
                 device = get_device(configfile)
                 if not device or not is_device(device):
@@ -320,15 +343,17 @@ def get_info(configfile, device):
                 device.update.run_update_check()
                 update_ready = device.update.is_update_available()
 
-                packages_in_downloader = get_packages_in_downloader(device)
+                packages_in_downloader = get_packages_in_downloader(configfile, device)
                 packages_in_downloader_failed = packages_in_downloader[0]
                 packages_in_downloader_offline = packages_in_downloader[1]
                 packages_in_downloader_decrypted = packages_in_downloader[2]
+                device = packages_in_downloader[3]
 
-                packages_in_linkgrabber = get_packages_in_linkgrabber(device)
+                packages_in_linkgrabber = get_packages_in_linkgrabber(configfile, device)
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
+                device = packages_in_linkgrabber[3]
 
             if packages_in_linkgrabber_failed:
                 packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
@@ -784,11 +809,7 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
             delete_uuids.append(uuid)
             if uuid not in known_packages:
                 delete = True
-                links = dp['urls']
-                if '\\n' in links:
-                    links = links.split("\\n")
-                else:
-                    links = links.split("\n")
+                links = split_urls(dp['urls'])
                 for link in links:
                     if check_hoster(link, configfile):
                         try:
@@ -856,11 +877,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                links = dp['urls']
-                if '\\n' in links:
-                    links = links.split("\\n")
-                else:
-                    links = links.split("\n")
+                links = split_urls(dp['urls'])
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
@@ -895,11 +912,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
                     delete = True
-                    links = dp['urls']
-                    if '\\n' in links:
-                        links = links.split("\\n")
-                    else:
-                        links = links.split("\n")
+                    links = split_urls(dp['urls'])
                     for link in links:
                         if check_hoster(link, configfile):
                             try:
@@ -996,16 +1009,17 @@ def do_package_merge(configfile, device, title, uuids, linkids):
 def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
-    links = cnl_package['urls']
+    links = old_package['urls'] + '\n' + cnl_package['urls']
+    links = links.replace(old_package['url'] + '\n', '').replace(old_package['url'], '')
     linkids = cnl_package['linkids']
     uuid = [cnl_package['uuid']]
     device = remove_from_linkgrabber(configfile, device, linkids, uuid)
     if device:
-        device = download(configfile, dbfile, device, title, "", links, "", path, True)
+        linkids = old_package['linkids']
+        uuid = [old_package['uuid']]
+        device = remove_from_linkgrabber(configfile, device, linkids, uuid)
         if device:
-            linkids = old_package['linkids']
-            uuid = [old_package['uuid']]
-            device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+            device = download(configfile, dbfile, device, title, "", links, "", path, True)
             if device:
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]

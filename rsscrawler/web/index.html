@@ -504,6 +504,14 @@
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!"></span>
                     </label>
+                    <h4>Ein Mirror genügt</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.general.one_mirror_policy">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik."></span>
+                    </label>
                     <h4>Bereich zuklappen</h4>
                     <label class="switch">
                         <input type="checkbox"
