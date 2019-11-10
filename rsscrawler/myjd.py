@@ -266,6 +266,31 @@ def get_state(configfile, device):
         return False
 
 
+def cryptor_url_first(failed_package):
+    resorted_failed_package = []
+    for p in failed_package:
+        pk = {}
+        pk['name'] = p['name']
+        pk['path'] = p['path']
+        pk['urls'] = p['urls']
+        if '\\n' in pk['urls']:
+            links = pk['urls'].split("\\n")
+        else:
+            links = pk['urls'].split("\n")
+        cryptor_found = False
+        for u in links:
+            if not cryptor_found:
+                if "filecrypt" in u:
+                    pk['url'] = u
+                    cryptor_found = True
+        if not cryptor_found:
+            pk['url'] = p['url']
+        pk['linkids'] = p['linkids']
+        pk['uuid'] = p['uuid']
+        resorted_failed_package.append(pk)
+    return resorted_failed_package
+
+
 def get_info(configfile, device):
     try:
         if not device or not is_device(device):
@@ -304,6 +329,11 @@ def get_info(configfile, device):
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
+
+            if packages_in_linkgrabber_failed:
+                packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
+            if packages_in_downloader_failed:
+                packages_in_downloader_failed = cryptor_url_first(packages_in_downloader_failed)
 
             if packages_in_downloader_failed and packages_in_linkgrabber_failed:
                 packages_failed = packages_in_downloader_failed + packages_in_linkgrabber_failed
