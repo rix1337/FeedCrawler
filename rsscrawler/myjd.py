@@ -18,7 +18,9 @@ from rsscrawler.rssdb import RssDb
 
 
 def split_urls(urls):
-    if '\\n' in urls:
+    if isinstance(urls, list):
+        return urls
+    elif '\\n' in urls:
         urls = urls.split("\\n")
     else:
         urls = urls.split("\n")
