@@ -27,6 +27,17 @@ def split_urls(urls):
     return urls
 
 
+def ensure_string(potential_list):
+    if isinstance(potential_list, list):
+        string = ""
+        for entry in potential_list:
+            string = entry + "\n" + string
+        return string
+    else:
+        string = potential_list
+        return string
+
+
 def get_device(configfile):
     conf = RssConfig('RSScrawler', configfile)
     myjd_user = str(conf.get('myjd_user'))
@@ -1011,7 +1022,7 @@ def do_package_merge(configfile, device, title, uuids, linkids):
 def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
-    links = old_package['urls'] + '\n' + cnl_package['urls']
+    links = (ensure_string(old_package['urls']) + '\n' + ensure_string(cnl_package['urls'])).replace("\n\n", "\n")
     links = links.replace(old_package['url'] + '\n', '').replace(old_package['url'], '')
     linkids = cnl_package['linkids']
     uuid = [cnl_package['uuid']]
