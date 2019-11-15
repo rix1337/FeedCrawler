@@ -576,12 +576,12 @@ def download_sj(sj_id, special, device, configfile, dbfile):
 
     something_found = False
     best_matching_links = []
-    sxx_retry = sxx.replace("S0", "S")
 
     for sxx, link in found_seasons.items():
         config = RssConfig('SJ', configfile)
         quality = config.get('quality')
         url = get_url(link, configfile, dbfile)
+        sxx_retry = sxx.replace("S0", "S")
 
         soup = BeautifulSoup(url, 'lxml')
 
