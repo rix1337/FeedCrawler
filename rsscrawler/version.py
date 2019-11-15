@@ -10,7 +10,7 @@ from urllib.request import urlopen
 
 
 def get_version():
-    return "v.6.0.10"
+    return "v.6.0.11"
 
 
 def update_check():
