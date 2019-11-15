@@ -717,7 +717,7 @@ def jdownloader_stop(configfile, device):
 def check_failed_link_exists(links, configfile, device):
     failed = get_info(configfile, device)
     if failed[2]:
-        time.sleep(3)
+        time.sleep(5)
         failed = get_info(configfile, device)
     failed_packages = failed[4][3]
     for link in links:
