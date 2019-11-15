@@ -130,13 +130,11 @@ class SJ:
                 for count in range(int(number1), (int(number2) + 1)):
                     nr = re.match(r"E\d{1,2}", str(count))
                     if nr:
-                        title1 = title_cut[0][0] + \
-                                 str(count) + ".*" + title_cut[0][-1].replace(
+                        title1 = title_cut[0][0] + str(count) + ".*" + title_cut[0][-1].replace(
                             "(", ".*").replace(")", ".*").replace("+", ".*")
                         added_items.append(self.range_parse(link, title1, englisch, title))
                     else:
-                        title1 = title_cut[0][0] + "0" + \
-                                 str(count) + ".*" + title_cut[0][-1].replace(
+                        title1 = title_cut[0][0] + "0" + str(count) + ".*" + title_cut[0][-1].replace(
                             "(", ".*").replace(")", ".*").replace("+", ".*")
                         added_items.append(self.range_parse(link, title1, englisch, title))
                 return added_items
@@ -169,7 +167,7 @@ class SJ:
         title = soup.find(text=re.compile(escape_brackets))
         if not title:
             try:
-                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets).pop()
+                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
                 escape_brackets_pack = escape_brackets.replace(episode, "")
                 title = soup.find(text=re.compile(escape_brackets_pack))
             except:
@@ -188,15 +186,36 @@ class SJ:
                     if check_hoster(url_hoster[1], self.configfile):
                         links.append(url_hoster[0])
                 if not links:
-                    storage = self.db.retrieve(search_title)
-                    if not storage == 'added' and not storage == 'notdl':
-                        wrong_hoster = '[SJ] - Gewünschter Hoster fehlt - ' + search_title
-                        if not storage == 'wrong_hoster':
-                            self.log_info(wrong_hoster)
-                            self.db.store(search_title, 'wrong_hoster')
-                            notify([wrong_hoster], self.configfile)
-                        else:
-                            self.log_debug(wrong_hoster)
+                    try:
+                        episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
+                        escape_brackets_pack = escape_brackets.replace(episode, "")
+                        title = soup.find(text=re.compile(escape_brackets_pack))
+                        if title:
+                            if self.filename == 'MB_Staffeln':
+                                valid = re.search(self.seasonssource, search_title.lower())
+                            else:
+                                valid = True
+                            if valid:
+                                url_hosters = re.findall(
+                                    r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+                                links = []
+                                for url_hoster in url_hosters:
+                                    if check_hoster(url_hoster[1], self.configfile):
+                                        links.append(url_hoster[0])
+                    except:
+                        self.log_debug(search_title + " - Kein Link gefunden")
+                    if not links:
+                        storage = self.db.retrieve(search_title)
+                        if not storage == 'added' and not storage == 'notdl':
+                            wrong_hoster = '[SJ] - Gewünschter Hoster fehlt - ' + search_title
+                            if not storage == 'wrong_hoster':
+                                self.log_info(wrong_hoster)
+                                self.db.store(search_title, 'wrong_hoster')
+                                notify([wrong_hoster], self.configfile)
+                            else:
+                                self.log_debug(wrong_hoster)
+                    else:
+                        return self.send_package(search_title, links, englisch)
                 else:
                     return self.send_package(search_title, links, englisch)
             else:
