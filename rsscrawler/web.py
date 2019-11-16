@@ -747,6 +747,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 title = replaced[1]
                 db = RssDb(dbfile, 'crawldog')
                 db.delete(title)
+                time.sleep(5)
                 return "Success", 200
             else:
                 return "Failed", 400

@@ -717,7 +717,7 @@ def jdownloader_stop(configfile, device):
 def check_failed_link_exists(links, configfile, device):
     failed = get_info(configfile, device)
     if failed[2]:
-        time.sleep(3)
+        time.sleep(5)
         failed = get_info(configfile, device)
     failed_packages = failed[4][3]
     for link in links:
@@ -882,10 +882,25 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if dp['uuid'] not in known_packages:
                     fnames = dp['filenames']
                     for fname in fnames:
-                        fname = fname.replace("hddl8", "").replace("dd51", "")
+                        fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
-                        fname_episodes.append(fname_episode)
+                        fname_episodes.append(str(int(fname_episode)))
             replacer = longest_substr(fname_episodes)
+
+            new_fname_episodes = []
+            for new_ep_fname in fname_episodes:
+                new_fname_episodes.append(str(int(new_ep_fname.replace(replacer, ""))))
+            replacer = longest_substr(new_fname_episodes)
+
+            newer_fname_episodes = []
+            for new_ep_fname in new_fname_episodes:
+                newer_fname_episodes.append(str(int(re.sub(replacer, "", new_ep_fname, 1))))
+
+            if not newer_fname_episodes:
+                if new_fname_episodes:
+                    fname_episode = new_fname_episodes
+            else:
+                fname_episodes = newer_fname_episodes
 
             i = 0
             for dp in decrypted_packages:
@@ -900,7 +915,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     fnames = dp['filenames']
                     for fname in fnames:
                         if not fname_episodes[i] == replacer:
-                            fname_episode = int(fname_episodes[i].replace(replacer, ""))
+                            fname_episode = int(fname_episodes[i])
                             more_than_one_episode = True
                         if fname_episode in all_episodes:
                             if check_hoster(links[i], configfile):
