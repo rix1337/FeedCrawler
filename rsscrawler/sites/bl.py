@@ -634,7 +634,7 @@ class BL:
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                     if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                         self.log_debug(
-                            "%s - Release ignoriert (bereits gefunden)" % key)
+                            "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                         return True
                     elif self.filename == 'MB_Filme' or 'IMDB':
                         retail = False
