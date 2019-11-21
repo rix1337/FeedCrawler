@@ -25,7 +25,15 @@ class RssDb(object):
             "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
         return res[0] if res else None
 
-    def retrieve_all(self):
+    def retrieve_all(self, key):
+        res = self._conn.execute(
+            "SELECT distinct value FROM %s WHERE key='%s' ORDER BY value" % (self._table, key))
+        items = []
+        for r in res:
+            items.append(str(r[0]))
+        return items
+
+    def retrieve_all_titles(self):
         res = self._conn.execute(
             "SELECT distinct key, value FROM %s ORDER BY key" % self._table)
         items = []

@@ -190,7 +190,7 @@ def crawldog(configfile, dbfile):
             encrypted_packages = myjd_packages[4][3]
 
             try:
-                watched_titles = db.retrieve_all()
+                watched_titles = db.retrieve_all_titles()
             except:
                 watched_titles = False
 
