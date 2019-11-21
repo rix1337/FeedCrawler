@@ -38,7 +38,7 @@ import time
 import traceback
 import warnings
 from logging import handlers
-from multiprocessing import Process
+import multiprocessing
 
 from docopt import docopt
 
@@ -190,7 +190,7 @@ def crawldog(configfile, dbfile):
             encrypted_packages = myjd_packages[4][3]
 
             try:
-                watched_titles = db.retrieve_all()
+                watched_titles = db.retrieve_all_titles()
             except:
                 watched_titles = False
 
@@ -373,14 +373,14 @@ def main():
     else:
         RssDb(dbfile, 'cdc').reset()
 
-    p = Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
+    p = multiprocessing.Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
     p.start()
 
     if not arguments['--testlauf']:
-        c = Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
+        c = multiprocessing.Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
         c.start()
 
-        w = Process(target=crawldog, args=(configfile, dbfile))
+        w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))
         w.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')
@@ -407,4 +407,5 @@ def main():
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()

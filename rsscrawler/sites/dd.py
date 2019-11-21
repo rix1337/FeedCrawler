@@ -53,17 +53,17 @@ class DD:
                         for link in unicode_links:
                             if check_hoster(link, self.configfile):
                                 links.append(str(link))
-                        storage = self.db.retrieve(key)
+                        storage = self.db.retrieve_all(key)
                         if not links:
-                            if not storage == 'added' and not storage == 'notdl':
+                            if 'added' not in storage and 'notdl' not in storage:
                                 wrong_hoster = '[DD] - Gewünschter Hoster fehlt - ' + key
-                                if not self.db.retrieve(key) == 'wrong_hoster':
+                                if 'wrong_hoster' not in storage:
                                     self.log_info(wrong_hoster)
                                     self.db.store(key, 'wrong_hoster')
                                     notify([wrong_hoster], self.configfile)
                                 else:
                                     self.log_debug(wrong_hoster)
-                        elif storage == 'added':
+                        elif 'added' in storage:
                             self.log_debug(
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:

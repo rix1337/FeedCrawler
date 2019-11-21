@@ -205,10 +205,10 @@ class SJ:
                     except:
                         self.log_debug(search_title + " - Kein Link gefunden")
                     if not links:
-                        storage = self.db.retrieve(search_title)
-                        if not storage == 'added' and not storage == 'notdl':
+                        storage = self.db.retrieve_all(search_title)
+                        if 'added' not in storage and 'notdl' not in storage:
                             wrong_hoster = '[SJ] - Gewünschter Hoster fehlt - ' + search_title
-                            if not storage == 'wrong_hoster':
+                            if 'wrong_hoster' not in storage:
                                 self.log_info(wrong_hoster)
                                 self.db.store(search_title, 'wrong_hoster')
                                 notify([wrong_hoster], self.configfile)
@@ -234,12 +234,12 @@ class SJ:
         else:
             link_placeholder = '[Staffel] - ' + englisch
         try:
-            storage = self.db.retrieve(title)
+            storage = self.db.retrieve_all(title)
         except Exception as e:
             self.log_debug(
                 "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
             return
-        if storage == 'added' or storage == 'notdl':
+        if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             self.device = myjd_download(self.configfile, self.dbfile, self.device, title, "RSScrawler", links,
@@ -432,12 +432,12 @@ class SJ:
                                         continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 try:
-                                    storage = self.db.retrieve(title)
+                                    storage = self.db.retrieve_all(title)
                                 except Exception as e:
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                     return self.device
-                                if storage == 'added':
+                                if 'added' in storage:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
@@ -470,12 +470,12 @@ class SJ:
                                         continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 try:
-                                    storage = self.db.retrieve(title)
+                                    storage = self.db.retrieve_all(title)
                                 except Exception as e:
                                     self.log_debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                     return self.device
-                                if storage == 'added':
+                                if 'added' in storage:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
