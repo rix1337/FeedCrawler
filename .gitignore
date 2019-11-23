@@ -5,6 +5,7 @@
 # Python
 *.pyc
 *.bak
+*.spec
 __pycache__
 
 # Build Tools
