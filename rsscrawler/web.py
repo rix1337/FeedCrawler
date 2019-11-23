@@ -44,7 +44,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     global device
     device = _device
 
-    app = Flask(__name__, template_folder='web')
+    base_dir = '.'
+    if getattr(sys, 'frozen', False):
+        base_dir = os.path.join(sys._MEIPASS)
+
+    app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
 
     general = RssConfig('RSScrawler', configfile)
     if general.get("prefix"):
@@ -100,7 +104,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @app.route(prefix + '/<path:path>')
     @requires_auth
     def send_html(path):
-        return send_from_directory('web', path)
+        return send_from_directory(os.path.join(base_dir, 'web'), path)
 
     @app.route(prefix + '/')
     @requires_auth
