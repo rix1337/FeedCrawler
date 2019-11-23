@@ -190,6 +190,12 @@ class SJ:
                         episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
                         escape_brackets_pack = escape_brackets.replace(episode, "")
                         title = soup.find(text=re.compile(escape_brackets_pack))
+                        if not title:
+                            if '-' in escape_brackets_pack:
+                                escape_brackets_pack = escape_brackets_pack.rsplit('-', 1)[0].replace(".AC3D",
+                                                                                                      "").replace(
+                                    ".AC3", "")
+                                title = soup.find(text=re.compile(escape_brackets_pack))
                         if title:
                             if self.filename == 'MB_Staffeln':
                                 valid = re.search(self.seasonssource, search_title.lower())

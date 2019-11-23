@@ -913,19 +913,19 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if uuid not in known_packages:
                     delete = True
                     fnames = dp['filenames']
-                    for fname in fnames:
+                    for _ in fnames:
                         if not fname_episodes[i] == replacer:
                             fname_episode = int(fname_episodes[i])
                             more_than_one_episode = True
                         if fname_episode in all_episodes:
-                            if check_hoster(links[i], configfile):
-                                try:
+                            try:
+                                if check_hoster(links[i], configfile):
                                     keep_linkids.append(linkids[i])
-                                except:
-                                    pass
-                                if uuid not in keep_uuids:
-                                    keep_uuids.append(uuid)
-                                delete = False
+                                    if uuid not in keep_uuids:
+                                        keep_uuids.append(uuid)
+                                    delete = False
+                            except:
+                                pass
                         i += 1
                     if delete:
                         delete_packages.append(dp)
@@ -997,8 +997,8 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
     for dp in decrypted_packages:
         if dp['uuid'] not in known_packages:
             dp_title = dp['name']
-            ratio = fuzz.ratio(title, dp_title)
-            if ratio > 90:
+            ratio = fuzz.partial_ratio(title, dp_title)
+            if ratio > 55:
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
                 for l in dp['linkids']:
