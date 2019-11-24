@@ -11,4 +11,5 @@ setup_upload_asset.sh github_api_token=%GH_TOKEN% owner=rix1337 repo=rsscrawler 
 setup_upload_asset.sh github_api_token=%GH_TOKEN% owner=rix1337 repo=rsscrawler version=v.%version% filename=./dist/rsscrawler-%version%-py3-none-any.whl
 DEL /Q file_version_info.txt
 DEL /Q version.txt
-start "" https://github.com/rix1337/RSScrawler/releases/latest
+curl -X POST "https://hub.docker.com/api/build/v1/source/%DH_TRIGGER%/call/"
+start "" https://github.com/rix1337/RSScrawler/releases
