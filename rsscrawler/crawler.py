@@ -67,7 +67,7 @@ from rsscrawler.sites.yt import YT
 from rsscrawler.url import check_url
 from rsscrawler.web import start
 
-version = version.get_version()
+version = "v." + version.get_version()
 
 
 def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format):

@@ -6,6 +6,8 @@
 *.pyc
 *.bak
 *.spec
+file_version_info.txt
+version.txt
 __pycache__
 
 # Build Tools
@@ -27,9 +29,6 @@ venv
 *.3
 *.4
 *.5
-
-# Visual Studio
-.vscode/
 
 # PyCharm
 .idea

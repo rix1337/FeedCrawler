@@ -18,7 +18,7 @@ with open('requirements.txt') as f:
 
 setuptools.setup(
     name="rsscrawler",
-    version=get_version().replace("v.", ""),
+    version=get_version(),
     author="rix1337",
     author_email="",
     description="Automating JDownloader Downloads (German!)",

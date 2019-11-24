@@ -392,7 +392,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def get_version():
         if request.method == 'GET':
-            ver = version.get_version()
+            ver = "v." + version.get_version()
             if version.update_check()[0]:
                 updateready = True
                 updateversion = version.update_check()[1]
