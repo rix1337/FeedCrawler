@@ -889,12 +889,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
             new_fname_episodes = []
             for new_ep_fname in fname_episodes:
-                new_fname_episodes.append(str(int(new_ep_fname.replace(replacer, ""))))
+                if new_ep_fname.replace(replacer, ""):
+                    new_fname_episodes.append(str(int(new_ep_fname.replace(replacer, ""))))
             replacer = longest_substr(new_fname_episodes)
 
             newer_fname_episodes = []
             for new_ep_fname in new_fname_episodes:
-                newer_fname_episodes.append(str(int(re.sub(replacer, "", new_ep_fname, 1))))
+                if re.sub(replacer, "", new_ep_fname, 1):
+                    newer_fname_episodes.append(str(int(re.sub(replacer, "", new_ep_fname, 1))))
 
             if not newer_fname_episodes:
                 if new_fname_episodes:
