@@ -67,8 +67,8 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <span class="cnl-spinner" title="Linkgrabber ist noch aktiv!" data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
                         </li>
                         <li class="list-group-item"><span ng-bind="y.size"></span></li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
@@ -92,8 +92,8 @@
                                class="cnl-button btn btn-secondary" type="submit"
                                target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
                                data-toggle="tooltip">Click'n'Load-Automatik</a>
-                            <span class="cnl-spinner" title="Linkgrabber ist noch aktiv!" data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
                         </li>
                         <li class="list-group-item cnl-blockers" ng-if="z.urls" style="display: none;">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -139,7 +139,7 @@
                     <a href="" id="myjd_stop" ng-click="myJDstop()"><i class="fas fa-stop" data-toggle="tooltip"
                                                                        title="Downloads anhalten"></i></a>
                 </p>
-                <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber läuft"
+                <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber ist derzeit aktiv"
                    data-toggle="tooltip"></i>
                 <a href="" id="myjd_update" ng-click="myJDupdate()"><i class="fas fa-wrench"
                                                                        title="JDownloader updaten"

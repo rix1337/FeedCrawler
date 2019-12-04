@@ -153,7 +153,7 @@ def get(title, configfile, dbfile):
     for result in sj_results:
         r_title = html_to_str(result[1])
         r_rating = fuzz.ratio(title.lower(), r_title)
-        if r_rating > 65:
+        if r_rating > 60:
             res = {"id": result[0], "title": r_title + append, "special": special}
             results["result" + str(i)] = res
             i += 1
@@ -645,10 +645,9 @@ def download_sj(sj_id, special, device, configfile, dbfile):
                 log_entry = '[Suche/Serie] - ' + dl_title
                 logging.info(log_entry)
                 notify_array.append(log_entry)
-            else:
-                return False
 
         notify(notify_array, configfile)
+        best_matching_links = []
 
     if not something_found:
         return False
