@@ -14,7 +14,7 @@ from io import StringIO
 from logging import handlers
 
 import gevent
-from flask import Flask, request, send_from_directory, render_template, jsonify, Response
+from flask import Flask, request, send_from_directory, render_template, jsonify, Response, redirect
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
 
@@ -100,6 +100,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
     def to_str(i):
         return '' if i is None else str(i)
+
+    if prefix:
+        @app.route('/')
+        @requires_auth
+        def index_prefix():
+            return redirect(prefix)
 
     @app.route(prefix + '/<path:path>')
     @requires_auth
