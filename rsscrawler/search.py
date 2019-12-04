@@ -367,6 +367,11 @@ def download_bl(payload, device, configfile, dbfile):
             link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
             if check_hoster(link_hoster, configfile):
                 links[link_hoster] = url_hoster[0]
+    if config.get("hoster_fallback") and not links:
+        for url_hoster in reversed(url_hosters):
+            if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                links[link_hoster] = url_hoster[0]
     download_links = list(links.values())
 
     englisch = False
@@ -655,6 +660,7 @@ def rated_titles(results, configfile):
     last_link = ""
     if results:
         for r in results:
+            to_append = []
             title = r.text.replace("Staffelpack ", "").replace("Staffelpack.", "")
             hosters = re.findall(r'<a href="([^"\'>]*)".+?\| (.+?)<', str(r.parent))
             for hoster in hosters:
@@ -662,7 +668,15 @@ def rated_titles(results, configfile):
                     if hoster[0] not in last_link:
                         last_link = hoster[0]
                         score = rate(title, configfile)
-                        to_return.append([score, title, hoster[0]])
+                        to_append.append([score, title, hoster[0]])
+            if RssConfig("SJ", configfile).get("hoster_fallback") and not to_append:
+                for hoster in hosters:
+                    if hoster[0] not in last_link:
+                        last_link = hoster[0]
+                        score = rate(title, configfile)
+                        to_append.append([score, title, hoster[0]])
+            for found in to_append:
+                to_return.append(found)
     return to_return
 
 

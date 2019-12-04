@@ -51,6 +51,7 @@ class BL:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.db_retail = RssDb(self.dbfile, 'retail')
         self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hoster_fallback = self.config.get("hoster_fallback")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         self.historical = False
@@ -89,7 +90,8 @@ class BL:
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
         self.last_sha_ha = self.cdc.retrieve("HA-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb"]
+                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
+                    "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -112,7 +114,8 @@ class BL:
     def settings_hash(self, refresh):
         if refresh:
             settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                        "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb"]
+                        "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
+                        "hoster_fallback"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
@@ -145,6 +148,12 @@ class BL:
             if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                 if check_hoster(hoster, self.configfile):
+                    links[hoster] = url_hoster[0]
+        if self.hoster_fallback and not links:
+            for url_hoster in reversed(url_hosters):
+                url = decode_base64("bW92aWUtYmxvZy4=")
+                if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                    hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                     links[hoster] = url_hoster[0]
         return list(links.values())
 
