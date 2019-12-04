@@ -53,6 +53,9 @@ class DD:
                         for link in unicode_links:
                             if check_hoster(link, self.configfile):
                                 links.append(str(link))
+                        if self.config.get("hoster_fallback") and not links:
+                            for link in unicode_links:
+                                links.append(str(link))
                         storage = self.db.retrieve_all(key)
                         if not links:
                             if 'added' not in storage and 'notdl' not in storage:
