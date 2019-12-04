@@ -81,47 +81,8 @@ body {
     resize: none;
 }
 
-.number {
-    max-width: 6em;
-    margin-left: auto;
-    margin-right: auto;
-}
 
-h1 {
-    font-size: 5vw;
-}
-
-h3 {
-    font-size: 2.7vw;
-}
-
-h4 {
-    font-size: 4vw;
-}
-
-.form-control, .col.card, .card p, .card-header, .btn, li {
-    font-size: 2vw;
-}
-
-@media (min-width: 60em) {
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    h3 {
-        font-size: 2rem;
-    }
-
-    h4 {
-        font-size: 1.5rem;
-    }
-
-    .form-control, .col.card, .card p, .card-header, .btn, li {
-        font-size: 1rem;
-    }
-}
-
-.btn-secondary {
+.btn-secondary, h3 {
     white-space: pre; /* CSS 2.0 */
     white-space: pre-wrap; /* CSS 2.1 */
     white-space: pre-line; /* CSS 3.0 */

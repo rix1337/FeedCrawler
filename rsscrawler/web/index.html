@@ -128,7 +128,7 @@
                     </ul>
                 </div>
                 </p>
-
+                <p id="initial-loading">Verbinde mit My JDownloader...</p>
                 <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
                 <p id="myjd_no_packages">Downloadliste und Linksammler sind leer.</p>
                 <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
@@ -164,16 +164,10 @@
                data-toggle="tooltip"
                title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
         <p class="results" data-ng-repeat="x in results.sj">
-            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-info" type="submit">
-                <i class="fas fa-download"></i> Serie:
-                <span ng-bind="x.title"></span>
-            </a>
+            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-info" type="submit"><i class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
         </p>
         <p class="results" data-ng-repeat="y in results.mb">
-            <a href="" ng-click="downloadMB(y.link)" class="btn btn-secondary" type="submit">
-                <i class="fas fa-download"></i>
-                <span ng-bind="y.title"></span>
-            </a>
+            <a href="" ng-click="downloadMB(y.link)" class="btn btn-secondary" type="submit"><i class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
         </p>
         <a href="" ng-click="searchNow()" class="search btn btn-dark" type="submit">
             <i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>
@@ -198,11 +192,7 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
                             aria-expanded="true" aria-controls="collapseZeroOne">
-                        <h3>
-                            <script>
-                                document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -231,11 +221,7 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroTwo"
                             aria-expanded="false" aria-controls="collapseZeroTwo">
-                        <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -260,11 +246,7 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroThree"
                             aria-expanded="false" aria-controls="collapseZeroThree">
-                        <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -281,11 +263,7 @@
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFour"
                             aria-expanded="false" aria-controls="collapseZeroFour">
-                        <h3>
-                            <script>
-                                document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -358,11 +336,7 @@
         </div>
         <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
             <div id="helpText" class="card-body">
-                <h3>Beispiele für
-                    <script>
-                        document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                    </script>
-                </h3>
+                <h3>Beispiele für <script>document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));</script></h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Film.*.Titel.*</i>
@@ -392,11 +366,7 @@
                         der GROUP.
                     </div>
                 </div>
-                <h3>Beispiele für
-                    <script>
-                        document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                    </script>
-                </h3>
+                <h3>Beispiele für <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script></h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -504,14 +474,6 @@
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!"></span>
                     </label>
-                    <h4>Ein Mirror genügt</h4>
-                    <label class="switch">
-                        <input type="checkbox"
-                               ng-model="settings.general.one_mirror_policy">
-                        <span class="slider round"
-                              data-toggle="tooltip"
-                              title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"></span>
-                    </label>
                     <h4>Bereich zuklappen</h4>
                     <label class="switch">
                         <input type="checkbox"
@@ -556,6 +518,14 @@
                            class="number form-control" data-toggle="tooltip"
 
                            title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
+                    <h4>Ein Mirror genügt</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.general.one_mirror_policy">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"></span>
+                    </label>
                     <h4>Englische Releases hinzufügen</h4>
                     <label class="switch">
                         <input type="checkbox"
@@ -768,11 +738,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse"
                             data-target="#collapseTwoFive"
                             aria-expanded="false" aria-controls="collapseTwoFive">
-                        <h3>
-                            <script>
-                                document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -843,6 +809,14 @@
                             ng-options="t.value as t.label for t in types_3d"
                             class="form-control" data-toggle="tooltip"
                             title="Das gewünschte Format der 3D-Filme wählen."></select>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.mb.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -852,11 +826,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse"
                             data-target="#collapseTwoSix"
                             aria-expanded="false" aria-controls="collapseTwoSix">
-                        <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -881,6 +851,14 @@
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."></span>
                     </label>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.sj.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -890,11 +868,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse"
                             data-target="#collapseTwoSeven"
                             aria-expanded="false" aria-controls="collapseTwoSeven">
-                        <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -937,11 +911,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse"
                             data-target="#collapseTwoEight"
                             aria-expanded="false" aria-controls="collapseTwoEight">
-                        <h3>
-                            <script>
-                                document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -971,6 +941,14 @@
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht."></span>
                     </label>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.dj.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -980,11 +958,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse"
                             data-target="#collapseTwoNine"
                             aria-expanded="false" aria-controls="collapseTwoNine">
-                        <h3>
-                            <script>
-                                document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));
-                            </script>
-                        </h3>
+                        <h3><script>document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));</script></h3>
                     </button>
                 </h5>
             </div>
@@ -995,6 +969,14 @@
                     <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip"
 
                            title="Hier Feed-URLs eintragen (durch Kommata getrennt)."/>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.dd.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>

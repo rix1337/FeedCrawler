@@ -426,6 +426,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getMyJD() {
         $http.get('api/myjd/')
             .then(function (res) {
+                $("#initial-loading").hide();
                 $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
 
