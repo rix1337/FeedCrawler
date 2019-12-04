@@ -183,6 +183,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $("#myjd_state").hide();
                     $("#myjd_no_login").show();
                 }
+                if ($scope.settings.mbsj.enabled) {
+                    $("#card-seasons").show();
+                } else {
+                    $("#card-seasons").hide();
+                }
+                if ($scope.settings.yt.enabled) {
+                    $("#card-youtube").show();
+                } else {
+                    $("#card-youtube").hide();
+                }
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
