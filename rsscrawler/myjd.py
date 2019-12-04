@@ -875,6 +875,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             all_episodes = list(range(min_ep, max_ep + 1))
         else:
             all_episodes = list(int_episodes)
+        all_episodes_merged = int("".join(str(int_episode) for int_episode in int_episodes))
 
         if decrypted_packages:
             fname_episodes = []
@@ -882,7 +883,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if dp['uuid'] not in known_packages:
                     fnames = dp['filenames']
                     for fname in fnames:
-                        fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265", "")
+                        try:
+                            if re.match(r'.*S\d{1,3}E\d{1,3}.*', fname, flags=re.IGNORECASE):
+                                fname = re.findall(r'S\d{1,3}E(\d{1,3})', fname, flags=re.IGNORECASE).pop()
+                            else:
+                                fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265",
+                                                                                                                  "")
+                        except:
+                            fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
                         fname_episodes.append(str(int(fname_episode)))
             replacer = longest_substr(fname_episodes)
@@ -902,7 +910,18 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 except:
                     pass
 
-            if not newer_fname_episodes:
+            replacer = longest_substr(newer_fname_episodes)
+
+            even_newer_fname_episodes = []
+            for newer_ep_fname in newer_fname_episodes:
+                try:
+                    even_newer_fname_episodes.append(str(int(re.sub(replacer, "", newer_ep_fname, 1))))
+                except:
+                    pass
+
+            if even_newer_fname_episodes:
+                fname_episodes = even_newer_fname_episodes
+            elif not newer_fname_episodes:
                 if new_fname_episodes:
                     fname_episode = new_fname_episodes
             else:
@@ -920,18 +939,17 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     delete = True
                     fnames = dp['filenames']
                     for _ in fnames:
-                        if not fname_episodes[i] == replacer:
-                            fname_episode = int(fname_episodes[i])
-                            more_than_one_episode = True
-                        if fname_episode in all_episodes:
-                            try:
-                                if check_hoster(links[i], configfile):
-                                    keep_linkids.append(linkids[i])
-                                    if uuid not in keep_uuids:
-                                        keep_uuids.append(uuid)
-                                    delete = False
-                            except:
-                                pass
+                        try:
+                            if not fname_episodes[i] == replacer:
+                                fname_episode = int(fname_episodes[i])
+                                more_than_one_episode = True
+                            if fname_episode in all_episodes or fname_episode == all_episodes_merged:
+                                keep_linkids.append(linkids[i])
+                                if uuid not in keep_uuids:
+                                    keep_uuids.append(uuid)
+                                delete = False
+                        except:
+                            pass
                         i += 1
                     if delete:
                         delete_packages.append(dp)
@@ -948,15 +966,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                     delete = True
                     links = split_urls(dp['urls'])
                     for link in links:
-                        if check_hoster(link, configfile):
-                            try:
-                                keep_linkids.append(linkids[i])
-                                valid_links = True
-                            except:
-                                pass
-                            if uuid not in keep_uuids:
-                                keep_uuids.append(uuid)
-                            delete = False
+                        try:
+                            keep_linkids.append(linkids[i])
+                            valid_links = True
+                        except:
+                            pass
+                        if uuid not in keep_uuids:
+                            keep_uuids.append(uuid)
+                        delete = False
                         i += 1
                     if delete:
                         delete_packages.append(dp)
@@ -972,10 +989,12 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 def package_merge_check(device, configfile, decrypted_packages, known_packages):
     mergables = []
     if decrypted_packages:
+        mergable = False
         for dp in decrypted_packages:
-            mergable = package_to_merge(dp, decrypted_packages, known_packages)
-            if mergable:
-                break
+            if "Verschiedene Dateien" not in dp['name'] and "Various files" not in dp['name']:
+                mergable = package_to_merge(dp, decrypted_packages, known_packages)
+                if mergable:
+                    break
         if mergable:
             if len(mergable[0][0]) > 1:
                 if mergable not in mergables:
@@ -1009,7 +1028,7 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
                 mergable_uuids.append(dp['uuid'])
                 for l in dp['linkids']:
                     mergable_linkids.append(l)
-            elif "Verschiedene Dateien" in dp['name'] or "Various package" in dp['name']:
+            elif "Verschiedene Dateien" in dp['name'] or "Various files" in dp['name']:
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
                 for l in dp['linkids']:
@@ -1053,7 +1072,7 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
         uuid = [old_package['uuid']]
         device = remove_from_linkgrabber(configfile, device, linkids, uuid)
         if device:
-            device = download(configfile, dbfile, device, title, "", links, "", path, True)
+            device = download(configfile, dbfile, device, title, "", links, "", path, False)
             if device:
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]

@@ -316,6 +316,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function searchNow() {
         $("#spinner-search").fadeIn();
+        $scope.currentPage = 0;
         let title = $scope.search;
         if (!title) {
             $scope.results = [];

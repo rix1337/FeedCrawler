@@ -7,7 +7,7 @@
 
     <link href="img/favicon.ico" rel="icon" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/rsscrawler.css?updated">
+    <link rel="stylesheet" href="css/rsscrawler.css">
 
     <title>RSScrawler</title>
 </head>
@@ -67,8 +67,8 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
+                            <span class="cnl-spinner" title="Warte auf hinzugefügte Links!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
                         </li>
                         <li class="list-group-item"><span ng-bind="y.size"></span></li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
@@ -92,8 +92,8 @@
                                class="cnl-button btn btn-secondary" type="submit"
                                target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
                                data-toggle="tooltip">Click'n'Load-Automatik</a>
-                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
+                            <span class="cnl-spinner" title="Warte auf hinzugefügte Links!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
                         </li>
                         <li class="list-group-item cnl-blockers" ng-if="z.urls" style="display: none;">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -1034,7 +1034,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?updated"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>{% endraw %}
