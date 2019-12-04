@@ -1,22 +1,36 @@
 let app = angular.module('crwlApp', []);
 
+app.filter('startFrom', function () {
+    return function (input, start) {
+        if (typeof input !== 'undefined') {
+            input = Object.values(input);
+            start = +start; //parse to int
+            return input.slice(start);
+        }
+    }
+});
+
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
     });
 
-    $scope.results = [
-        {
-            mb: {
-                link: "Link",
-                title: "Title"
-            },
-            sj: {
-                id: "Link",
-                title: "Title"
+    $scope.results = [];
+
+    $scope.currentPage = 0;
+    $scope.pageSize = 10;
+    $scope.resLength = 0;
+    $scope.numberOfPages = function () {
+        if (typeof $scope.results.mb !== 'undefined') {
+            $scope.resLength = Object.values($scope.results.mb).length;
+            if ($scope.resLength > 10) {
+                $(".btn-group").show();
+            } else {
+                $(".btn-group").hide();
             }
+            return Math.ceil($scope.resLength / $scope.pageSize);
         }
-    ];
+    };
 
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
@@ -183,6 +197,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $("#myjd_state").hide();
                     $("#myjd_no_login").show();
                 }
+                if ($scope.settings.mbsj.enabled) {
+                    $("#card-seasons").show();
+                } else {
+                    $("#card-seasons").hide();
+                }
+                if ($scope.settings.yt.enabled) {
+                    $("#card-youtube").show();
+                } else {
+                    $("#card-youtube").hide();
+                }
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
@@ -293,25 +317,26 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function searchNow() {
         $("#spinner-search").fadeIn();
         let title = $scope.search;
-        $http.get('api/search/' + title)
-            .then(function (res) {
-                $scope.results = res.data.results;
-                $(".results").show();
-                $(".search").hide();
-                console.log('Nach ' + title + ' gesucht!');
-                getLog();
-                getLists();
-                $("#spinner-search").fadeOut();
-            }, function (res) {
-                console.log('Konnte ' + title + ' nicht suchen!');
-                showDanger('Konnte  ' + title + ' nicht suchen!');
-                $("#spinner-search").fadeOut();
-            });
-    }
-
-    function showSearch() {
-        $('.results').hide();
-        $('.search').show();
+        if (!title) {
+            $scope.results = [];
+            $("#spinner-search").hide();
+            $(".results").hide();
+        } else {
+            $http.get('api/search/' + title)
+                .then(function (res) {
+                    $scope.results = res.data.results;
+                    $scope.search = "";
+                    $(".results").show();
+                    console.log('Nach ' + title + ' gesucht!');
+                    getLog();
+                    getLists();
+                    $("#spinner-search").fadeOut();
+                }, function (res) {
+                    console.log('Konnte ' + title + ' nicht suchen!');
+                    showDanger('Konnte  ' + title + ' nicht suchen!');
+                    $("#spinner-search").fadeOut();
+                });
+        }
     }
 
     function myJDupdate() {
@@ -391,8 +416,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
+                    $('.cnl-spinner').show();
+                    $('.cnl-button').hide();
+                    $('.cnl-blockers').hide();
                 } else {
                     $('#myjd_grabbing').hide();
+                    $('.cnl-spinner').hide();
+                    $('.cnl-button').show();
+                    $('.cnl-blockers').show();
                 }
                 $scope.update_ready = res.data.update_ready;
                 if ($scope.update_ready) {
@@ -416,6 +447,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getMyJD() {
         $http.get('api/myjd/')
             .then(function (res) {
+                $("#initial-loading").hide();
                 $("#myjd_no_login").hide();
                 $("#spinner-myjd").hide();
 

@@ -71,21 +71,25 @@ class RssConfig(object):
             ("seasonssource", "str",
              "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
-            ("imdb", "str", "0.0")
+            ("imdb", "str", "0.0"),
+            ("hoster_fallback", "bool", "False")
         ],
         'SJ': [
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
-            ("regex", "bool", "False")
+            ("regex", "bool", "False"),
+            ("hoster_fallback", "bool", "False")
         ],
         'DJ': [
             ("quality", "str", "720p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
-            ("genres", "str", ".*")
+            ("genres", "str", ".*"),
+            ("hoster_fallback", "bool", "False")
         ],
         'DD': [
-            ("feeds", "str", "")
+            ("feeds", "str", ""),
+            ("hoster_fallback", "bool", "False")
         ],
         'YT': [
             ("youtube", "bool", "False"),

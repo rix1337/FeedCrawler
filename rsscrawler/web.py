@@ -14,7 +14,7 @@ from io import StringIO
 from logging import handlers
 
 import gevent
-from flask import Flask, request, send_from_directory, render_template, jsonify, Response
+from flask import Flask, request, send_from_directory, render_template, jsonify, Response, redirect
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
 
@@ -100,6 +100,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
     def to_str(i):
         return '' if i is None else str(i)
+
+    if prefix:
+        @app.route('/')
+        @requires_auth
+        def index_prefix():
+            return redirect(prefix)
 
     @app.route(prefix + '/<path:path>')
     @requires_auth
@@ -215,11 +221,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "cutoff": mb.get("cutoff"),
                             "crawl_3d": mb.get("crawl3d"),
                             "crawl_3d_type": crawl_3d_type,
+                            "hoster_fallback": mb.get("hoster_fallback"),
                         },
                         "sj": {
                             "quality": sj.get("quality"),
                             "ignore": sj.get("rejectlist"),
                             "regex": sj.get("regex"),
+                            "hoster_fallback": sj.get("hoster_fallback"),
                         },
                         "mbsj": {
                             "enabled": mb.get("crawlseasons"),
@@ -232,9 +240,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "ignore": dj.get("rejectlist"),
                             "regex": dj.get("regex"),
                             "genres": dj.get("genres"),
+                            "hoster_fallback": dj.get("hoster_fallback"),
                         },
                         "dd": {
                             "feeds": dd.get("feeds"),
+                            "hoster_fallback": dd.get("hoster_fallback"),
                         },
                         "yt": {
                             "enabled": yt.get("youtube"),
@@ -354,12 +364,14 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if imdb > 10:
                 imdb = 10.0
             section.save("imdb", to_str(imdb))
+            section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
             section = RssConfig("SJ", configfile)
 
             section.save("quality", to_str(data['sj']['quality']))
             section.save("rejectlist", to_str(data['sj']['ignore']).lower())
             section.save("regex", to_str(data['sj']['regex']))
+            section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
             section = RssConfig("DJ", configfile)
 
@@ -367,10 +379,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("rejectlist", to_str(data['dj']['ignore']).lower())
             section.save("regex", to_str(data['dj']['regex']))
             section.save("genres", to_str(data['dj']['genres']))
+            section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
             section = RssConfig("DD", configfile)
 
             section.save("feeds", to_str(data['dd']['feeds']))
+            section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
+
             section = RssConfig("YT", configfile)
 
             section.save("youtube", to_str(data['yt']['enabled']))

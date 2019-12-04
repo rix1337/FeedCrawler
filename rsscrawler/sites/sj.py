@@ -30,6 +30,7 @@ class SJ:
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hoster_fallback = self.config.get("hoster_fallback")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -40,7 +41,7 @@ class SJ:
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex"]
+        settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -185,6 +186,9 @@ class SJ:
                 for url_hoster in url_hosters:
                     if check_hoster(url_hoster[1], self.configfile):
                         links.append(url_hoster[0])
+                if self.hoster_fallback and not links:
+                    for url_hoster in url_hosters:
+                        links.append(url_hoster[0])
                 if not links:
                     try:
                         episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
@@ -207,6 +211,9 @@ class SJ:
                                 links = []
                                 for url_hoster in url_hosters:
                                     if check_hoster(url_hoster[1], self.configfile):
+                                        links.append(url_hoster[0])
+                                if self.hoster_fallback and not links:
+                                    for url_hoster in url_hosters:
                                         links.append(url_hoster[0])
                     except:
                         self.log_debug(search_title + " - Kein Link gefunden")

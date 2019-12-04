@@ -30,6 +30,7 @@ class DJ:
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hoster_fallback = self.config.get("hoster_fallback")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -41,7 +42,7 @@ class DJ:
         self.last_set_dj = self.cdc.retrieve("DJSet-" + self.filename)
         self.last_sha_dj = self.cdc.retrieve("DJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("DJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "genres"]
+        settings = ["quality", "rejectlist", "regex", "genres", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -163,6 +164,9 @@ class DJ:
             links = []
             for url_hoster in url_hosters:
                 if check_hoster(url_hoster[1], self.configfile):
+                    links.append(url_hoster[0])
+            if self.hoster_fallback and not links:
+                for url_hoster in url_hosters:
                     links.append(url_hoster[0])
             if not links:
                 storage = self.db.retrieve_all(search_title)

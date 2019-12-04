@@ -21,10 +21,7 @@
         <span id="updateready" style="display: none;"> - Update verfügbar!</span>
     </p>
     <a href="https://github.com/users/rix1337/sponsorship" target="_blank" title="Einfach über Github Sponsorship..."
-       class="btn btn-dark"><img
-            style="height: 13px; width: 20px;"
-            src="img/cuplogo.svg" alt=""
-            data-toggle="tooltip"> Bedanken</a>
+       class="btn btn-dark" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Bedanken</a>
 </div>
 
 
@@ -70,15 +67,15 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
-                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
                         </li>
                         <li class="list-group-item"><span ng-bind="y.size"></span></li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
-                            <a href="" ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"
-                                                                                 title="Download starten"></i> </a>
-                            <a href="" ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-success" title="Download starten" data-toggle="tooltip"
+                               ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"></i> Download starten</a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                               ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
                     </ul>
                 </div>
@@ -93,23 +90,22 @@
                         <li class="list-group-item" ng-if="z.url">
                             <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" style="display: none;"
                                class="cnl-button btn btn-secondary" type="submit"
-                               target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!">Click'n'Load-Automatik</a>
-                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
-                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                               target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
+                               data-toggle="tooltip">Click'n'Load-Automatik</a>
+                            <span class="cnl-spinner" title="Linkgrabber ist derzeit aktiv!" data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Linkgrabber ist derzeit aktiv!</span>
                         </li>
                         <li class="list-group-item cnl-blockers" ng-if="z.urls" style="display: none;">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
-
                                       title="Automatische Entschlüsselung fehlgeschlagen. Bitte die Click'n'Load-Automatik nutzen. Alternativ hier entschlüsselte Links eintragen und 'Erneut hinzufügen' drücken!"></textarea>
                         </li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
-                            <a href="" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i
-                                    class="fas fa-undo"
-                                    title="Erneut hinzufügen"></i> </a>
-                            <a href="" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-info" title="Erneut hinzufügen" data-toggle="tooltip"
+                               ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="fas fa-undo"></i> Erneut
+                                hinzufügen</a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                               ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
-
                     </ul>
                 </div>
                 </p>
@@ -121,87 +117,100 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <a href="" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                               ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
-
                     </ul>
                 </div>
                 </p>
-
+                <p id="initial-loading">Verbinde mit My JDownloader...</p>
                 <p id="myjd_no_login">Keine Zugangsdaten für My JDownloader gefunden.</p>
                 <p id="myjd_no_packages">Downloadliste und Linksammler sind leer.</p>
                 <i id="spinner-myjd" class="fas fa-sync fa-spin"></i></a>
 
                 <p id="myjd_state">
-                    <a href="" id="myjd_start" ng-click="myJDstart()"><i class="fas fa-play"
-                                                                         title="Download starten"></i></a>
-                    <a href="" id="myjd_pause" ng-click="myJDpause(true)"><i class="fas fa-pause"
-                                                                             title="Download pausieren"></i></a>
+                    <a href="" id="myjd_start" ng-click="myJDstart()"><i class="fas fa-play" data-toggle="tooltip"
+                                                                         title="Downloads starten"></i></a>
+                    <a href="" id="myjd_pause" ng-click="myJDpause(true)"><i class="fas fa-pause" data-toggle="tooltip"
+                                                                             title="Downloads pausieren"></i></a>
                     <a href="" id="myjd_unpause" ng-click="myJDpause(false)"><i class="fas fa-fast-forward"
-                                                                                title="Download fortsetzen"></i></a>
-                    <a href="" id="myjd_stop" ng-click="myJDstop()"><i class="fas fa-stop"
-                                                                       title="Download anhalten"></i></a>
+                                                                                data-toggle="tooltip"
+                                                                                title="Downloads fortsetzen"></i></a>
+                    <a href="" id="myjd_stop" ng-click="myJDstop()"><i class="fas fa-stop" data-toggle="tooltip"
+                                                                       title="Downloads anhalten"></i></a>
                 </p>
-                <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber läuft"></i>
+                <i id="myjd_grabbing" class="fas fa-search blinking" title="Linkgrabber ist derzeit aktiv"
+                   data-toggle="tooltip"></i>
                 <a href="" id="myjd_update" ng-click="myJDupdate()"><i class="fas fa-wrench"
-                                                                       title="JDownloader updaten"></i></a>
+                                                                       title="JDownloader updaten"
+                                                                       data-toggle="tooltip"></i></a>
             </div>
         </div>
     </div>
 </div>
 
 
-<form ng-submit="searchNow()">
+<form>
     <div name="search" id="search" class="container app col">
-        <h3>
-            <i class="fas fa-search"></i> Suchen</h3>
-        <a href="" ng-click="showSearch()" style="display: none;" class="results btn btn-danger"
-           type="submit">Zurück</a>
-        <input ng-model="search" class="search form-control mr-sm-2" type="search"
+        <h3><i class="fas fa-search"></i> Suchen</h3>
+        <input ng-model="search" class="form-control mr-sm-2"
                placeholder="Filme und Serien suchen"
                aria-label="Search"
                data-toggle="tooltip"
+               ng-keypress="($event.charCode==13)? searchNow() : return"
                title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
-        <p class="results" data-ng-repeat="x in results.sj">
-            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-info" type="submit">
-                <i class="fas fa-download"></i> Serie:
-                <span ng-bind="x.title"></span>
-            </a>
-        </p>
-        <p class="results" data-ng-repeat="y in results.mb">
-            <a href="" ng-click="downloadMB(y.link)" class="btn btn-secondary" type="submit">
-                <i class="fas fa-download"></i>
-                <span ng-bind="y.title"></span>
-            </a>
-        </p>
-        <a href="" ng-click="searchNow()" class="search btn btn-dark" type="submit">
-            <i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>
+        <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"><i id="spinner-search"
+                                                                                style="display: none;"
+                                                                                class="fas fa-sync fa-spin"></i>
+            <span ng-show="search || (!results.sj && !results.mb)">Suchen</span>
+            <span ng-show="!search && (results.sj || results.mb)"> Leeren</span>
+        </a>
+        <div class="results">
+            </nav>
+            <p data-ng-repeat="x in results.sj" ng-hide="currentPage > 0">
+                <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i
+                        class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
+            </p>
+            <p data-ng-repeat="y in results.mb | startFrom:currentPage*pageSize | limitTo:pageSize">
+                <a href="" ng-click="downloadMB(y.link)" class="btn btn-outline-dark" type="submit"><i
+                        class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
+            </p>
+            <div class="btn-group">
+                <button class="btn btn-outline-info" ng-disabled="currentPage == 0"
+                        ng-click="currentPage=currentPage-1">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-info" ng-disabled="true">
+                    {{currentPage+1}} / {{numberOfPages()}}
+                </button>
+                <button class="btn btn-outline-info" ng-disabled="currentPage >= resLength/pageSize - 1"
+                        ng-click="currentPage=currentPage+1">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
     </div>
 </form>
 
 <div name="log" id="log" class="container app col">
-    <h3>
-        <i class="fas fa-history"></i> Log</h3>
+    <h3><i class="fas fa-history"></i> Log</h3>
     <textarea ng-bind="log" class="log form-control" readonly></textarea>
-    <a href="" ng-click="deleteLog()" class="btn btn-dark">
-        <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
+    <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
+                                                              class="fas fa-sync fa-spin"></i> Leeren</a>
 </div>
 
 
 <form>
     <div name="lists" id="lists" class="container app col">
-        <h3>
-            <i class="fas fa-bars"></i> Listen</h3>
+        <h3><i class="fas fa-bars"></i> Listen</h3>
         <div class="card">
             <div class="card-header" id="headingZeroOne">
                 <h5 class="mb-0">
                     <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
                             aria-expanded="true" aria-controls="collapseZeroOne">
                         <h3>
-                            <script>
-                                document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -211,17 +220,14 @@
                 <div class="card-body">
                     <h4>Filme</h4>
                     <textarea ng-model="lists.mb.filme" class="liste form-control" data-toggle="tooltip"
-
                               title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
                     <h4 ng-if="settings.mb.crawl_3d">3D-Filme</h4>
                     <textarea ng-if="settings.mb.crawl_3d" ng-model="lists.mb.filme3d" class="liste form-control"
                               data-toggle="tooltip"
-
                               title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
                     <h4 ng-if="settings.mb.regex">Filme/Serien (RegEx)</h4>
                     <textarea ng-if="settings.mb.regex" ng-model="lists.mb.regex" class="liste form-control"
                               data-toggle="tooltip"
-
                               title="Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert."></textarea>
                 </div>
             </div>
@@ -232,9 +238,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroTwo"
                             aria-expanded="false" aria-controls="collapseZeroTwo">
                         <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -255,15 +259,13 @@
                 </div>
             </div>
         </div>
-        <div class="card">
+        <div class="card" id="card-seasons">
             <div class="card-header" id="headingZeroThree">
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroThree"
                             aria-expanded="false" aria-controls="collapseZeroThree">
                         <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -282,9 +284,7 @@
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFour"
                             aria-expanded="false" aria-controls="collapseZeroFour">
                         <h3>
-                            <script>
-                                document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -301,7 +301,7 @@
                 </div>
             </div>
         </div>
-        <div class="card">
+        <div class="card" id="card-youtube">
             <div class="card-header" id="headingZeroFive">
                 <h5 class="mb-0">
                     <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseZeroFive"
@@ -315,19 +315,19 @@
                     <h4>Kanäle/Playlisten</h4>
                     <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"
                               data-toggle="tooltip"
-
                               title="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals - Playlisten-IDs immer inklusive list= angeben."></textarea>
                 </div>
             </div>
         </div>
-        <a href="" ng-click="saveLists()" class="btn btn-dark" type="submit">
-            <i id="spinner-lists" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
+        <a href="" ng-click="saveLists()" class="btn btn-dark" type="submit"><i id="spinner-lists"
+                                                                                style="display: none;"
+                                                                                class="fas fa-sync fa-spin"></i>
+            Speichern</a>
     </div>
 </form>
 
 <div id="help" class="container app col">
-    <h3>
-        <i class="fas fa-question"></i> Hilfe</h3>
+    <h3><i class="fas fa-question"></i> Hilfe</h3>
     <div class="card">
         <div class="card-header" id="headingOneZero">
             <h5 class="mb-0">
@@ -359,9 +359,7 @@
         <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
             <div id="helpText" class="card-body">
                 <h3>Beispiele für
-                    <script>
-                        document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                    </script>
+                    <script>document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));</script>
                 </h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
@@ -393,9 +391,7 @@
                     </div>
                 </div>
                 <h3>Beispiele für
-                    <script>
-                        document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                    </script>
+                    <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
                 </h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
@@ -460,8 +456,7 @@
 
 <form>
     <div name="settings" id="settings" class="container app col">
-        <h3>
-            <i class="fas fa-cog"></i> Einstellungen</h3>
+        <h3><i class="fas fa-cog"></i> Einstellungen</h3>
 
 
         <div class="card">
@@ -478,7 +473,6 @@
                 <div class="card-body">
                     <h4>Nutzername</h4>
                     <input ng-model="settings.general.myjd_user" class="form-control" data-toggle="tooltip"
-
                            title="Hier den Nutzernamen von My JDownloader angeben."/>
                     <h4>Passwort</h4>
                     <input ng-model="settings.general.myjd_pass" class="form-control" data-toggle="tooltip"
@@ -486,7 +480,6 @@
                            title="Hier das Passwort von My JDownloader angeben."/>
                     <h4>Gerätename</h4>
                     <input ng-model="settings.general.myjd_device" class="form-control" data-toggle="tooltip"
-
                            title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."/>
                     <h4>Autostart</h4>
                     <label class="switch">
@@ -503,14 +496,6 @@
                         <span class="slider round"
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!"></span>
-                    </label>
-                    <h4>Ein Mirror genügt</h4>
-                    <label class="switch">
-                        <input type="checkbox"
-                               ng-model="settings.general.one_mirror_policy">
-                        <span class="slider round"
-                              data-toggle="tooltip"
-                              title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"></span>
                     </label>
                     <h4>Bereich zuklappen</h4>
                     <label class="switch">
@@ -541,11 +526,9 @@
                            title="Hier den Port des Webservers wählen."/>
                     <h4>Prefix</h4>
                     <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
-
                            title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."/>
                     <h4>Nutzername</h4>
                     <input ng-model="settings.general.auth_user" class="form-control" data-toggle="tooltip"
-
                            title="Hier den Nutzernamen für RSScrawler eingeben (erfordert gesetztes Passwort!)."/>
                     <h4>Passwort</h4>
                     <input ng-model="settings.general.auth_hash" class="form-control" data-toggle="tooltip"
@@ -554,8 +537,15 @@
                     <h4>Suchintervall</h4>
                     <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
                            class="number form-control" data-toggle="tooltip"
-
                            title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
+                    <h4>Ein Mirror genügt</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.general.one_mirror_policy">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"></span>
+                    </label>
                     <h4>Englische Releases hinzufügen</h4>
                     <label class="switch">
                         <input type="checkbox"
@@ -574,7 +564,6 @@
                     </label>
                     <h4>Proxy</h4>
                     <input ng-model="settings.general.proxy" class="form-control" data-toggle="tooltip"
-
                            title="Hier die URL eines offenen (lokalen) Proxies eingeben; bspw. http://192.168.0.1:8080."/>
                     <h4>Proxy-Fallback</h4>
                     <label class="switch">
@@ -704,20 +693,16 @@
                 <div class="card-body">
                     <h4>Pushbullet</h4>
                     <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip"
-
                            title="Access-Token auf Pushbullet.com anlegen und hier angeben."/>
                     <h4>Pushover</h4>
                     <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip"
-
                            title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine App auf Pushover.net anlegen."/>
                     <h4>Home Assistant</h4>
                     <input ng-model="settings.alerts.homeassistant" class="form-control"
                            data-toggle="tooltip"
-
                            title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben."/>
                     <h4>Telegram</h4>
                     <input ng-model="settings.alerts.telegram" class="form-control" data-toggle="tooltip"
-
                            title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt."/>
                 </div>
             </div>
@@ -737,27 +722,21 @@
                 <div class="card-body">
                     <h4>Ombi URL</h4>
                     <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
-
                            title="Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
                     <h4>Ombi API-Key</h4>
                     <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
-
                            title="Hier den API-Key von Ombi angeben."/>
                     <h4>The Movie Database API-Key</h4>
                     <input ng-model="settings.ombi.mdb_api" class="form-control" data-toggle="tooltip"
-
                            title="Unter https://www.themoviedb.org/settings/api registrieren und einen API-Key anfordern."/>
                     <h4>TheTVDB API-Key</h4>
                     <input ng-model="settings.ombi.tvd_api" class="form-control" data-toggle="tooltip"
-
                            title="Unter https://www.thetvdb.com/member/api registrieren und einen API-Key generieren."/>
                     <h4>TheTVDB Username</h4>
                     <input ng-model="settings.ombi.tvd_user" class="form-control" data-toggle="tooltip"
-
                            title="Unter https://www.thetvdb.com/member/api registrieren und den Username angeben."/>
                     <h4>TheTVDB Unique ID</h4>
                     <input ng-model="settings.ombi.tvd_userkey" class="form-control" data-toggle="tooltip"
-
                            title="Unter https://www.thetvdb.com/member/api registrieren und die Unique ID angeben."/>
                 </div>
             </div>
@@ -769,9 +748,7 @@
                             data-target="#collapseTwoFive"
                             aria-expanded="false" aria-controls="collapseTwoFive">
                         <h3>
-                            <script>
-                                document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -783,16 +760,13 @@
                     <select ng-model="settings.mb.quality"
                             ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
-
                             title="Die Release-Auflösung, nach der gesucht wird."></select>
                     <h4>Suchtiefe</h4>
                     <select ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search"
                             class="form-control" data-toggle="tooltip"
-
                             title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip"
-
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                     <h4>Auch per RegEx suchen</h4>
                     <label class="switch">
@@ -806,12 +780,10 @@
                     <input required type="number" step="0.1" ng-model="settings.mb.imdb_score" min="0.0"
                            max="10.0"
                            class="number form-control" data-toggle="tooltip"
-
                            title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren."/>
                     <h4>IMDB hinzufügen ab Erscheinungsjahr</h4>
                     <input id="year" type="number" min="1900" max="2100" ng-model="settings.mb.imdb_year"
                            class="number form-control" data-toggle="tooltip"
-
                            title="Berücksichtige Filme bei IMDB-Suche erst ab diesem Erscheinungsjahr."/>
                     <h4>Zweisprachige Releases erzwingen</h4>
                     <label class="switch">
@@ -843,6 +815,14 @@
                             ng-options="t.value as t.label for t in types_3d"
                             class="form-control" data-toggle="tooltip"
                             title="Das gewünschte Format der 3D-Filme wählen."></select>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.mb.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -853,9 +833,7 @@
                             data-target="#collapseTwoSix"
                             aria-expanded="false" aria-controls="collapseTwoSix">
                         <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -867,11 +845,9 @@
                     <select ng-model="settings.sj.quality"
                             ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
-
                             title="Die Release-Auflösung, nach der gesucht wird."></select>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip"
-
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                     <h4>Auch per RegEx suchen</h4>
                     <label class="switch">
@@ -880,6 +856,14 @@
                         <span class="slider round"
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."></span>
+                    </label>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.sj.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
                     </label>
                 </div>
             </div>
@@ -891,9 +875,7 @@
                             data-target="#collapseTwoSeven"
                             aria-expanded="false" aria-controls="collapseTwoSeven">
                         <h3>
-                            <script>
-                                document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%2F%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F%2F%48%44%2D%57%6F%72%6C%64%2E%6F%72%67%2F%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -913,7 +895,6 @@
                     <select ng-model="settings.mbsj.quality"
                             ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
-
                             title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
                     <h4>Staffelpakete erlauben</h4>
                     <label class="switch">
@@ -926,7 +907,6 @@
                     <h4>Quellart der Staffeln</h4>
                     <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
                             class="form-control" data-toggle="tooltip"
-
                             title="Die Quellart der Staffeln, nach der gesucht wird."></select>
                 </div>
             </div>
@@ -938,9 +918,7 @@
                             data-target="#collapseTwoEight"
                             aria-expanded="false" aria-controls="collapseTwoEight">
                         <h3>
-                            <script>
-                                document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                            </script>
+                            <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -952,16 +930,13 @@
                     <select ng-model="settings.dj.quality"
                             ng-options="r.value as r.label for r in resolutions"
                             class="form-control" data-toggle="tooltip"
-
                             title="Die Release-Auflösung, nach der gesucht wird."></select>
                     <h4>Genres</h4>
                     <select ng-model="settings.dj.genres" ng-options="g.value as g.label for g in dj_genres"
                             class="form-control" data-toggle="tooltip"
-
                             title="Hier die gewünschten Genres wählen (gilt auch für RegEx)."></select>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.dj.ignore" class="form-control" data-toggle="tooltip"
-
                            title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                     <h4>Auch per RegEx suchen</h4>
                     <label class="switch">
@@ -970,6 +945,14 @@
                         <span class="slider round"
                               data-toggle="tooltip"
                               title="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht."></span>
+                    </label>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.dj.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
                     </label>
                 </div>
             </div>
@@ -981,9 +964,7 @@
                             data-target="#collapseTwoNine"
                             aria-expanded="false" aria-controls="collapseTwoNine">
                         <h3>
-                            <script>
-                                document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));
-                            </script>
+                            <script>document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));</script>
                         </h3>
                     </button>
                 </h5>
@@ -993,8 +974,15 @@
                 <div class="card-body">
                     <h4>Feeds</h4>
                     <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip"
-
                            title="Hier Feed-URLs eintragen (durch Kommata getrennt)."/>
+                    <h4>Hoster-Fallback</h4>
+                    <label class="switch">
+                        <input type="checkbox"
+                               ng-model="settings.dd.hoster_fallback">
+                        <span class="slider round"
+                              data-toggle="tooltip"
+                              title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
+                    </label>
                 </div>
             </div>
         </div>
@@ -1026,13 +1014,14 @@
                            title="Die Maximale Anzahl hinzuzufügender Videos (1-50)."/>
                     <h4>Filterliste</h4>
                     <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip"
-
                            title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)."/>
                 </div>
             </div>
         </div>
-        <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit">
-            <i id="spinner-settings" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
+        <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit"><i id="spinner-settings"
+                                                                                   style="display: none;"
+                                                                                   class="fas fa-sync fa-spin"></i>
+            Speichern</a>
     </div>
 </form>
 
