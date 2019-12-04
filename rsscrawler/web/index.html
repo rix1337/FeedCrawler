@@ -150,7 +150,7 @@
 </div>
 
 
-<form ng-submit="searchNow()">
+<form>
     <div name="search" id="search" class="container app col">
         <h3><i class="fas fa-search"></i> Suchen</h3>
         <input ng-model="search" class="form-control mr-sm-2"
@@ -162,10 +162,12 @@
         <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"><i id="spinner-search"
                                                                                 style="display: none;"
                                                                                 class="fas fa-sync fa-spin"></i>
-            Suchen</a>
+            <span ng-show="search || (!results.sj && !results.mb)">Suchen</span>
+            <span ng-show="!search && (results.sj || results.mb)"> Leeren</span>
+        </a>
         <div class="results">
             </nav>
-            <p data-ng-repeat="x in results.sj">
+            <p data-ng-repeat="x in results.sj" ng-hide="currentPage > 0">
                 <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i
                         class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
             </p>

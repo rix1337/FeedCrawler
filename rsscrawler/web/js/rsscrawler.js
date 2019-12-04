@@ -15,18 +15,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('[data-toggle="tooltip"]').tooltip()
     });
 
-    $scope.results = [
-        {
-            mb: {
-                link: "Link",
-                title: "Title"
-            },
-            sj: {
-                id: "Link",
-                title: "Title"
-            }
-        }
-    ];
+    $scope.results = [];
 
     $scope.currentPage = 0;
     $scope.pageSize = 10;
@@ -328,19 +317,26 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function searchNow() {
         $("#spinner-search").fadeIn();
         let title = $scope.search;
-        $http.get('api/search/' + title)
-            .then(function (res) {
-                $scope.results = res.data.results;
-                $(".results").show();
-                console.log('Nach ' + title + ' gesucht!');
-                getLog();
-                getLists();
-                $("#spinner-search").fadeOut();
-            }, function (res) {
-                console.log('Konnte ' + title + ' nicht suchen!');
-                showDanger('Konnte  ' + title + ' nicht suchen!');
-                $("#spinner-search").fadeOut();
-            });
+        if (!title) {
+            $scope.results = [];
+            $("#spinner-search").hide();
+            $(".results").hide();
+        } else {
+            $http.get('api/search/' + title)
+                .then(function (res) {
+                    $scope.results = res.data.results;
+                    $scope.search = "";
+                    $(".results").show();
+                    console.log('Nach ' + title + ' gesucht!');
+                    getLog();
+                    getLists();
+                    $("#spinner-search").fadeOut();
+                }, function (res) {
+                    console.log('Konnte ' + title + ' nicht suchen!');
+                    showDanger('Konnte  ' + title + ' nicht suchen!');
+                    $("#spinner-search").fadeOut();
+                });
+        }
     }
 
     function myJDupdate() {
