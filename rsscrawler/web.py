@@ -37,7 +37,6 @@ from rsscrawler.myjd import update_jdownloader
 from rsscrawler.output import Unbuffered
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -763,9 +762,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
-                title = replaced[1]
-                db = RssDb(dbfile, 'crawldog')
-                db.delete(title)
                 time.sleep(5)
                 return "Success", 200
             else:
