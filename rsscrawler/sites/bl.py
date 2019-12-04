@@ -718,8 +718,8 @@ class BL:
                             self.log_debug(wrong_hoster)
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password, site):
+        added_items = []
         if download_links:
-            added_items = []
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
                 if url in download_link:
@@ -830,9 +830,9 @@ class BL:
         return added_items
 
     def feed_download(self, key, content, password, site):
+        added_items = []
         download_links = self.get_download_links(content)
         if download_links:
-            added_items = []
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
                 if url in download_link:
