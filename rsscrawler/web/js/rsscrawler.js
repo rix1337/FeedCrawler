@@ -1,5 +1,15 @@
 let app = angular.module('crwlApp', []);
 
+app.filter('startFrom', function () {
+    return function (input, start) {
+        if (typeof input !== 'undefined') {
+            input = Object.values(input);
+            start = +start; //parse to int
+            return input.slice(start);
+        }
+    }
+});
+
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -17,6 +27,21 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }
         }
     ];
+
+    $scope.currentPage = 0;
+    $scope.pageSize = 10;
+    $scope.resLength = 0;
+    $scope.numberOfPages = function () {
+        if (typeof $scope.results.mb !== 'undefined') {
+            $scope.resLength = Object.values($scope.results.mb).length;
+            if ($scope.resLength > 10) {
+                $(".btn-group").show();
+            } else {
+                $(".btn-group").hide();
+            }
+            return Math.ceil($scope.resLength / $scope.pageSize);
+        }
+    };
 
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
@@ -307,7 +332,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $scope.results = res.data.results;
                 $(".results").show();
-                $(".search").hide();
                 console.log('Nach ' + title + ' gesucht!');
                 getLog();
                 getLists();
@@ -317,11 +341,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 showDanger('Konnte  ' + title + ' nicht suchen!');
                 $("#spinner-search").fadeOut();
             });
-    }
-
-    function showSearch() {
-        $('.results').hide();
-        $('.search').show();
     }
 
     function myJDupdate() {

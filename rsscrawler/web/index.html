@@ -153,25 +153,41 @@
 <form ng-submit="searchNow()">
     <div name="search" id="search" class="container app col">
         <h3><i class="fas fa-search"></i> Suchen</h3>
-        <a href="" ng-click="showSearch()" style="display: none;" class="results btn btn-danger"
-           type="submit">Zurück</a>
-        <input ng-model="search" class="search form-control mr-sm-2" type="search"
+        <input ng-model="search" class="form-control mr-sm-2"
                placeholder="Filme und Serien suchen"
                aria-label="Search"
                data-toggle="tooltip"
+               ng-keypress="($event.charCode==13)? searchNow() : return"
                title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
-        <p class="results" data-ng-repeat="x in results.sj">
-            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i
-                    class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
-        </p>
-        <p class="results" data-ng-repeat="y in results.mb">
-            <a href="" ng-click="downloadMB(y.link)" class="btn btn-outline-dark" type="submit"><i
-                    class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
-        </p>
-        <a href="" ng-click="searchNow()" class="search btn btn-dark" type="submit"><i id="spinner-search"
-                                                                                       style="display: none;"
-                                                                                       class="fas fa-sync fa-spin"></i>
+        <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"><i id="spinner-search"
+                                                                                style="display: none;"
+                                                                                class="fas fa-sync fa-spin"></i>
             Suchen</a>
+        <div class="results">
+            </nav>
+            <p data-ng-repeat="x in results.sj">
+                <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i
+                        class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
+            </p>
+            <p data-ng-repeat="y in results.mb | startFrom:currentPage*pageSize | limitTo:pageSize">
+                <a href="" ng-click="downloadMB(y.link)" class="btn btn-outline-dark" type="submit"><i
+                        class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
+            </p>
+            <div class="btn-group">
+                <button class="btn btn-outline-info" ng-disabled="currentPage == 0"
+                        ng-click="currentPage=currentPage-1">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="btn btn-outline-info" ng-disabled="true">
+                    {{currentPage+1}} / {{numberOfPages()}}
+                </button>
+                <button class="btn btn-outline-info" ng-disabled="currentPage >= resLength/pageSize - 1"
+                        ng-click="currentPage=currentPage+1">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
     </div>
 </form>
 

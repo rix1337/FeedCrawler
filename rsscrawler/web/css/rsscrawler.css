@@ -28,7 +28,7 @@ body {
     max-width: 60em;
 }
 
-#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
+.results, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
     display: none;
 }
 
@@ -100,8 +100,12 @@ select {
     margin-right: auto;
 }
 
-input, select {
+input, select, textarea {
     margin-bottom: 16px;
+}
+
+.results {
+    margin-top: 16px;
 }
 
 .isDisabled {
