@@ -21,10 +21,7 @@
         <span id="updateready" style="display: none;"> - Update verfügbar!</span>
     </p>
     <a href="https://github.com/users/rix1337/sponsorship" target="_blank" title="Einfach über Github Sponsorship..."
-       class="btn btn-dark"><img
-            style="height: 13px; width: 20px;"
-            src="img/cuplogo.svg" alt=""
-            data-toggle="tooltip"> Bedanken</a>
+       class="btn btn-dark" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Bedanken</a>
 </div>
 
 
@@ -70,15 +67,13 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
-                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                            <span class="cnl-spinner" title="Linkgrabber ist noch aktiv!">
+                                <i class="fas fa-sync fa-spin"></i> warte auf Links!</span>
                         </li>
                         <li class="list-group-item"><span ng-bind="y.size"></span></li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
-                            <a href="" ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"
-                                                                                 title="Download starten"></i> </a>
-                            <a href="" ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-success" title="Download starten" ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"></i> Download starten</a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
                     </ul>
                 </div>
@@ -94,8 +89,8 @@
                             <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)" style="display: none;"
                                class="cnl-button btn btn-secondary" type="submit"
                                target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!">Click'n'Load-Automatik</a>
-                            <span class="cnl-spinner"><i title="Click'n'Load-Automatik ist noch aktiv!"
-                                                         class="fas fa-sync fa-spin"></i> warte auf Links!</span>
+                            <span class="cnl-spinner" title="Linkgrabber ist noch aktiv!">
+                                <i class="fas fa-sync fa-spin"></i> warte auf Links!</span>
                         </li>
                         <li class="list-group-item cnl-blockers" ng-if="z.urls" style="display: none;">
                             <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -103,13 +98,9 @@
                                       title="Automatische Entschlüsselung fehlgeschlagen. Bitte die Click'n'Load-Automatik nutzen. Alternativ hier entschlüsselte Links eintragen und 'Erneut hinzufügen' drücken!"></textarea>
                         </li>
                         <li class="list-group-item cnl-blockers" style="display: none;">
-                            <a href="" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i
-                                    class="fas fa-undo"
-                                    title="Erneut hinzufügen"></i> </a>
-                            <a href="" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-info" title="Erneut hinzufügen" ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="fas fa-undo"></i> Erneut hinzufügen</a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
-
                     </ul>
                 </div>
                 </p>
@@ -121,10 +112,8 @@
                     </div>
                     <ul class="list-group list-group-flush">
                         <li class="list-group-item">
-                            <a href="" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"
-                                                                                   title="Entfernen"></i></a>
+                            <a href="" class="btn btn-outline-danger" title="Löschen" ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                         </li>
-
                     </ul>
                 </div>
                 </p>
@@ -154,8 +143,7 @@
 
 <form ng-submit="searchNow()">
     <div name="search" id="search" class="container app col">
-        <h3>
-            <i class="fas fa-search"></i> Suchen</h3>
+        <h3><i class="fas fa-search"></i> Suchen</h3>
         <a href="" ng-click="showSearch()" style="display: none;" class="results btn btn-danger"
            type="submit">Zurück</a>
         <input ng-model="search" class="search form-control mr-sm-2" type="search"
@@ -164,29 +152,25 @@
                data-toggle="tooltip"
                title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
         <p class="results" data-ng-repeat="x in results.sj">
-            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-info" type="submit"><i class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
+            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
         </p>
         <p class="results" data-ng-repeat="y in results.mb">
-            <a href="" ng-click="downloadMB(y.link)" class="btn btn-secondary" type="submit"><i class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
+            <a href="" ng-click="downloadMB(y.link)" class="btn btn-outline-dark" type="submit"><i class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
         </p>
-        <a href="" ng-click="searchNow()" class="search btn btn-dark" type="submit">
-            <i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>
+        <a href="" ng-click="searchNow()" class="search btn btn-dark" type="submit"><i id="spinner-search" style="display: none;" class="fas fa-sync fa-spin"></i> Suchen</a>
     </div>
 </form>
 
 <div name="log" id="log" class="container app col">
-    <h3>
-        <i class="fas fa-history"></i> Log</h3>
+    <h3><i class="fas fa-history"></i> Log</h3>
     <textarea ng-bind="log" class="log form-control" readonly></textarea>
-    <a href="" ng-click="deleteLog()" class="btn btn-dark">
-        <i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
+    <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;" class="fas fa-sync fa-spin"></i> Leeren</a>
 </div>
 
 
 <form>
     <div name="lists" id="lists" class="container app col">
-        <h3>
-            <i class="fas fa-bars"></i> Listen</h3>
+        <h3><i class="fas fa-bars"></i> Listen</h3>
         <div class="card">
             <div class="card-header" id="headingZeroOne">
                 <h5 class="mb-0">
@@ -298,14 +282,12 @@
                 </div>
             </div>
         </div>
-        <a href="" ng-click="saveLists()" class="btn btn-dark" type="submit">
-            <i id="spinner-lists" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
+        <a href="" ng-click="saveLists()" class="btn btn-dark" type="submit"><i id="spinner-lists" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
     </div>
 </form>
 
 <div id="help" class="container app col">
-    <h3>
-        <i class="fas fa-question"></i> Hilfe</h3>
+    <h3><i class="fas fa-question"></i> Hilfe</h3>
     <div class="card">
         <div class="card-header" id="headingOneZero">
             <h5 class="mb-0">
@@ -430,8 +412,7 @@
 
 <form>
     <div name="settings" id="settings" class="container app col">
-        <h3>
-            <i class="fas fa-cog"></i> Einstellungen</h3>
+        <h3><i class="fas fa-cog"></i> Einstellungen</h3>
 
 
         <div class="card">
@@ -1013,8 +994,7 @@
                 </div>
             </div>
         </div>
-        <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit">
-            <i id="spinner-settings" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
+        <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit"><i id="spinner-settings" style="display: none;" class="fas fa-sync fa-spin"></i> Speichern</a>
     </div>
 </form>
 

@@ -28,7 +28,7 @@ body {
     max-width: 60em;
 }
 
-.cnl-spinner, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
+#myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
     display: none;
 }
 
@@ -72,7 +72,7 @@ body {
     white-space: nowrap;
 }
 
-#myjd_state, .cnl-spinner, #spinner-myjd, #myjd_grabbing, #myjd_update {
+#myjd_state, #spinner-myjd, #myjd_grabbing, #myjd_update {
     font-size: 2em;
 }
 
@@ -81,17 +81,17 @@ body {
     resize: none;
 }
 
+#heart {
+    color: #d53343;
+}
 
-.btn-secondary, h3 {
-    white-space: pre; /* CSS 2.0 */
-    white-space: pre-wrap; /* CSS 2.1 */
-    white-space: pre-line; /* CSS 3.0 */
-    white-space: -pre-wrap; /* Opera 4-6 */
-    white-space: -o-pre-wrap; /* Opera 7 */
-    white-space: -moz-pre-wrap; /* Mozilla */
-    white-space: -hp-pre-wrap; /* HP Printers */
-    word-wrap: break-word;
-    width: 100%
+.btn-secondary {
+    width: 100%;
+}
+
+.btn, h3 {
+    white-space: inherit;
+    word-break: break-all;
 }
 
 select {

@@ -401,8 +401,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
                     $('#myjd_grabbing').show();
+                    $('.cnl-spinner').show();
+                    $('.cnl-button').hide();
+                    $('.cnl-blockers').hide();
                 } else {
                     $('#myjd_grabbing').hide();
+                    $('.cnl-spinner').hide();
+                    $('.cnl-button').show();
+                    $('.cnl-blockers').show();
                 }
                 $scope.update_ready = res.data.update_ready;
                 if ($scope.update_ready) {
