@@ -224,11 +224,12 @@
             </thead>
             <tbody id="logbody">
             <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
-                <td scope="row" class="text-left d-none d-lg-block">{{ x[0] }}</td>
+                <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
                 <td id="placeholder"></td>
-                <td scope="row" class="text-left d-none d-md-block">{{ x[1] }}</td>
-                <td scope="row" class="text-left">{{ x[2] }}</td>
-                <td scope="row" class="text-right"><i class="fas fa-trash remove"></i></td>
+                <td scope="row" class="text-left d-none d-md-block">{{ x[2] }}</td>
+                <td scope="row" class="text-left">{{ x[3] }}</td>
+                <td scope="row" class="text-right"><a href="" ng-click="deleteLogRow(x[0])"><i
+                        class="fas fa-trash remove"></i></a></td>
             </tr>
             </tbody>
         </table>

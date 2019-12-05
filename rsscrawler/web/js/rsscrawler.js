@@ -109,6 +109,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         deleteLog();
     };
 
+    $scope.deleteLogRow = function (row) {
+        deleteLogRow(row);
+    };
+
+
     $scope.searchNow = function () {
         searchNow();
     };
@@ -309,6 +314,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function (res) {
                 console.log('Konnte Log nicht leeren!');
                 showDanger('Konnte Log nicht leeren!');
+            });
+    }
+
+    function deleteLogRow(row) {
+        $http.delete('api/log_row/' + row)
+            .then(function (res) {
+                console.log('Logeintrag gelöscht!');
+                showSuccess('Logeintrag gelöscht!');
+                getLog();
+            }, function (res) {
+                console.log('Konnte Logeintrag nicht löschen!');
+                showDanger('Konnte Logeintrag nicht löschen!');
             });
     }
 
