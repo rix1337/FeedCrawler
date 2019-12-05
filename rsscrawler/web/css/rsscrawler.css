@@ -5,11 +5,22 @@ body {
 
 .log {
     height: 20em;
-    resize: none;
-    background-color: #f7f7f7;
-    color: black;
     overflow: auto;
+    resize: none;
+    color: black;
     text-align: left;
+    background-color: #f7f7f7;
+}
+
+thead {
+    position: sticky;
+    top: 0;
+    background-color: #f7f7f7;
+}
+
+.table thead th, .table td {
+    border-top: 0;
+    border-bottom: 0;
 }
 
 .liste {
@@ -63,6 +74,11 @@ body {
     height: 2em;
 }
 
+.placeholder {
+    padding: 0;
+    width: 0;
+}
+
 #percentage {
     display: inline-block;
     white-space: nowrap;
@@ -77,7 +93,7 @@ body {
     resize: none;
 }
 
-#heart {
+#heart, .remove {
     color: #d53343;
 }
 

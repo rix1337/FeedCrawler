@@ -10,7 +10,6 @@ import re
 import sys
 import time
 from functools import wraps
-from io import StringIO
 from logging import handlers
 
 import gevent
@@ -48,6 +47,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         base_dir = os.path.join(sys._MEIPASS)
 
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     general = RssConfig('RSScrawler', configfile)
     if general.get("prefix"):
@@ -120,14 +120,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def get_delete_log():
         if request.method == 'GET':
-            log = ''
+            log = []
             if os.path.isfile(log_file):
                 logfile = open(log_file)
-                output = StringIO()
                 for line in reversed(logfile.readlines()):
-                    line = re.sub(r' - <a href.*<\/a>', '', line).replace('<b>', '').replace('</b>', '')
-                    output.write(line)
-                log = output.getvalue()
+                    if line:
+                        line = line.split(" - ")
+                        log.append(line)
             return jsonify(
                 {
                     "log": log,

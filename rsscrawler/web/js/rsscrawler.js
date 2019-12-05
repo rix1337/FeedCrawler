@@ -3,9 +3,14 @@ let app = angular.module('crwlApp', []);
 app.filter('startFrom', function () {
     return function (input, start) {
         if (typeof input !== 'undefined') {
-            input = Object.values(input);
-            start = +start; //parse to int
-            return input.slice(start);
+            if (typeof input == 'object') {
+                input = Object.values(input);
+                start = +start; //parse to int
+                return input.slice(start);
+            } else {
+                start = +start; //parse to int
+                return input.slice(start);
+            }
         }
     }
 });
@@ -24,6 +29,16 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         if (typeof $scope.results.mb !== 'undefined') {
             $scope.resLength = Object.values($scope.results.mb).length;
             return Math.ceil($scope.resLength / $scope.pageSize);
+        }
+    };
+
+    $scope.currentPageLog = 0;
+    $scope.pageSizeLog = 5;
+    $scope.resLengthLog = 0;
+    $scope.numberOfPagesLog = function () {
+        if (typeof $scope.log !== 'undefined') {
+            $scope.resLengthLog = $scope.log.length;
+            return Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
         }
     };
 
