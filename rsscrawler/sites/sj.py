@@ -2,7 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 # Enthält Code von:
-# https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
+# https://github.com/Gutz-Pilz/
 
 import hashlib
 import re
