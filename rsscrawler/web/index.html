@@ -132,13 +132,13 @@
                 </div>
                 </p>
                 <p id="initial-loading" ng-if="!myjd_state"> Verbinde mit My JDownloader...</p>
+                <i id="spinner-myjd" ng-if="!myjd_state" class="fas fa-sync fa-spin"></i>
                 <p id="myjd_no_login" ng-if="myjd_connection_error">Keine Zugangsdaten für My JDownloader
                     gefunden.</p>
                 <p id="myjd_no_packages"
                    ng-show="myjd_state && (!myjd_downloads && !myjd_decrypted && !myjd_offline && !myjd_failed)">
                     Downloadliste und Linksammler sind
                     leer.</p>
-                <i id="spinner-myjd" ng-if="!myjd_state" class="fas fa-sync fa-spin"></i>
                 <p id="myjd_state" ng-show="myjd_downloads">
                     <a href="" id="myjd_start" ng-show="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'"
                        ng-click="myJDstart()"><i class="fas fa-play" data-toggle="tooltip"
@@ -212,7 +212,7 @@
 <div name="log" id="log" class="container app col">
     <h3><i class="fas fa-history"></i> Log</h3>
     <div class="card log">
-        <table class="table text-truncate">
+        <table class="table text-truncate" ng-show="log.length > 0">
             <thead>
             <tr>
                 <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
@@ -234,7 +234,7 @@
             </tbody>
         </table>
     </div>
-    <div class="btn-group-log" ng-show="resLengthLog>10">
+    <div class="btn-group-log" ng-show="resLengthLog>5">
         <button class="btn btn-outline-info" ng-disabled="currentPageLog == 0"
                 ng-click="currentPageLog=currentPageLog-1">
             <i class="fas fa-chevron-left"></i>
