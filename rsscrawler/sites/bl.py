@@ -90,7 +90,7 @@ class BL:
 
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhwhahss = self.cdc.retrieve("MBHWHAHSSet-" + self.filename)
+        self.last_set_mbhwhahs = self.cdc.retrieve("MBHWHAHSSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
         self.headers_ha = {'If-Modified-Since': str(self.cdc.retrieve("HAHeaders-" + self.filename))}
