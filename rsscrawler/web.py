@@ -10,7 +10,6 @@ import re
 import sys
 import time
 from functools import wraps
-from io import StringIO
 from logging import handlers
 
 import gevent
@@ -48,6 +47,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         base_dir = os.path.join(sys._MEIPASS)
 
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     general = RssConfig('RSScrawler', configfile)
     if general.get("prefix"):
@@ -120,21 +120,46 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def get_delete_log():
         if request.method == 'GET':
-            log = ''
+            log = []
             if os.path.isfile(log_file):
                 logfile = open(log_file)
-                output = StringIO()
+                i = 0
                 for line in reversed(logfile.readlines()):
-                    line = re.sub(r' - <a href.*<\/a>', '', line).replace('<b>', '').replace('</b>', '')
-                    output.write(line)
-                log = output.getvalue()
+                    if line and line is not "\n":
+                        payload = [i]
+                        line = line.split(" - ")
+                        for l in line:
+                            payload.append(l)
+                        log.append(payload)
+                    i += 1
             return jsonify(
                 {
                     "log": log,
                 }
             )
-        if request.method == 'DELETE':
+        elif request.method == 'DELETE':
             open(log_file, 'w').close()
+            return "Success", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/log_row/<row>", methods=['DELETE'])
+    @requires_auth
+    def get_delete_log_row(row):
+        row = to_int(row)
+        if request.method == 'DELETE':
+            log = []
+            if os.path.isfile(log_file):
+                logfile = open(log_file)
+                i = 0
+                for line in reversed(logfile.readlines()):
+                    if line and line is not "\n":
+                        if i != row:
+                            log.append(line)
+                    i += 1
+                log = "".join(reversed(log))
+                with open(log_file, 'w') as file:
+                    file.write(log)
             return "Success", 200
         else:
             return "Failed", 405

@@ -3,9 +3,14 @@ let app = angular.module('crwlApp', []);
 app.filter('startFrom', function () {
     return function (input, start) {
         if (typeof input !== 'undefined') {
-            input = Object.values(input);
-            start = +start; //parse to int
-            return input.slice(start);
+            if (typeof input == 'object') {
+                input = Object.values(input);
+                start = +start; //parse to int
+                return input.slice(start);
+            } else {
+                start = +start; //parse to int
+                return input.slice(start);
+            }
         }
     }
 });
@@ -23,12 +28,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.numberOfPages = function () {
         if (typeof $scope.results.mb !== 'undefined') {
             $scope.resLength = Object.values($scope.results.mb).length;
-            if ($scope.resLength > 10) {
-                $(".btn-group").show();
-            } else {
-                $(".btn-group").hide();
-            }
             return Math.ceil($scope.resLength / $scope.pageSize);
+        }
+    };
+
+    $scope.currentPageLog = 0;
+    $scope.pageSizeLog = 5;
+    $scope.resLengthLog = 0;
+    $scope.numberOfPagesLog = function () {
+        if (typeof $scope.log !== 'undefined') {
+            $scope.resLengthLog = $scope.log.length;
+            return Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
         }
     };
 
@@ -79,8 +89,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: 'hou', label: 'H-OU'}
     ];
 
+    $scope.cnl_active = false;
+    $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
-    $scope.was_grabbing = false;
+    $scope.searching = false;
 
 
     $scope.init = getAll();
@@ -96,6 +108,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.deleteLog = function () {
         deleteLog();
     };
+
+    $scope.deleteLogRow = function (row) {
+        deleteLogRow(row);
+    };
+
 
     $scope.searchNow = function () {
         searchNow();
@@ -183,7 +200,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function getSettings() {
-        $("#spinner-myjd").show();
         $http.get('api/settings/')
             .then(function (res) {
                 $scope.settings = res.data.settings;
@@ -191,21 +207,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                    $("#myjd_no_login").hide();
+                    $scope.myjd_connection_error = false;
                 } else {
-                    $("#spinner-myjd").hide();
-                    $("#myjd_state").hide();
-                    $("#myjd_no_login").show();
-                }
-                if ($scope.settings.mbsj.enabled) {
-                    $("#card-seasons").show();
-                } else {
-                    $("#card-seasons").hide();
-                }
-                if ($scope.settings.yt.enabled) {
-                    $("#card-youtube").show();
-                } else {
-                    $("#card-youtube").hide();
+                    $scope.myjd_connection_error = true;
                 }
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
@@ -238,7 +242,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.update) {
-                    $("#updateready").show();
                     scrollingTitle("RSScrawler - Update verfügbar! - ");
                     console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest');
                     showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">github.com</a>.');
@@ -314,20 +317,33 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
+    function deleteLogRow(row) {
+        $http.delete('api/log_row/' + row)
+            .then(function (res) {
+                console.log('Logeintrag gelöscht!');
+                showSuccess('Logeintrag gelöscht!');
+                getLog();
+            }, function (res) {
+                console.log('Konnte Logeintrag nicht löschen!');
+                showDanger('Konnte Logeintrag nicht löschen!');
+            });
+    }
+
     function searchNow() {
         $("#spinner-search").fadeIn();
         $scope.currentPage = 0;
         let title = $scope.search;
+        $scope.searching = true;
         if (!title) {
             $scope.results = [];
-            $("#spinner-search").hide();
-            $(".results").hide();
+            $scope.resLength = 0;
+            $scope.searching = false;
         } else {
             $http.get('api/search/' + title)
                 .then(function (res) {
                     $scope.results = res.data.results;
+                    $scope.resLength = Object.values($scope.results.mb).length;
                     $scope.search = "";
-                    $(".results").show();
                     console.log('Nach ' + title + ' gesucht!');
                     getLog();
                     getLists();
@@ -397,49 +413,15 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.get('api/myjd_state/')
             .then(function (res) {
                 $scope.myjd_state = res.data.downloader_state;
-                $("#myjd_state").show();
-                if ($scope.myjd_state == "RUNNING") {
-                    $('#myjd_unpause').hide().removeClass('isDisabled');
-                    $('#myjd_start').hide().removeClass('isDisabled');
-                    $('#myjd_pause').show().removeClass('isDisabled');
-                    $('#myjd_stop').show().removeClass('isDisabled');
-                } else if ($scope.myjd_state == "PAUSE") {
-                    $('#myjd_start').hide().removeClass('isDisabled');
-                    $('#myjd_pause').hide().removeClass('isDisabled');
-                    $('#myjd_stop').hide().removeClass('isDisabled');
-                    $('#myjd_unpause').show().removeClass('isDisabled');
-                } else {
-                    $('#myjd_pause').hide().removeClass('isDisabled');
-                    $('#myjd_unpause').hide().removeClass('isDisabled');
-                    $('#myjd_stop').hide().removeClass('isDisabled');
-                    $('#myjd_start').show().removeClass('isDisabled');
-                }
                 $scope.myjd_grabbing = res.data.grabber_collecting;
-                if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').show();
-                    $('.cnl-spinner').show();
-                    $('.cnl-button').hide();
-                    $('.cnl-blockers').hide();
-                } else {
-                    $('#myjd_grabbing').hide();
-                    $('.cnl-spinner').hide();
-                    $('.cnl-button').show();
-                    $('.cnl-blockers').show();
-                }
                 $scope.update_ready = res.data.update_ready;
-                if ($scope.update_ready) {
-                    $('#myjd_update').show();
-                } else {
-                    $('#myjd_update').hide();
-                }
-                $('#myjd_start').removeClass('blinking');
-                $('#myjd_pause').removeClass('blinking');
-                $('#myjd_unpause').removeClass('blinking');
-                $('#myjd_stop').removeClass('blinking');
+                $('#myjd_start').removeClass('blinking').removeClass('isDisabled');
+                $('#myjd_pause').removeClass('blinking').removeClass('isDisabled');
+                $('#myjd_unpause').removeClass('blinking').removeClass('isDisabled');
+                $('#myjd_stop').removeClass('blinking').removeClass('isDisabled');
                 $('#myjd_update').removeClass('blinking').removeClass('isDisabled');
                 console.log('JDownloader Status abgerufen!');
             }, function (res) {
-                $("#myjd_state").hide();
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
             });
@@ -448,51 +430,15 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getMyJD() {
         $http.get('api/myjd/')
             .then(function (res) {
-                $("#initial-loading").hide();
-                $("#myjd_no_login").hide();
-                $("#spinner-myjd").hide();
-
+                $scope.myjd_connection_error = false;
                 $scope.myjd_state = res.data.downloader_state;
-                if ($scope.myjd_state == "RUNNING") {
-                    $('#myjd_unpause').hide();
-                    $('#myjd_start').hide();
-                    $('#myjd_pause').show();
-                    $('#myjd_stop').show();
-                } else if ($scope.myjd_state == "PAUSE") {
-                    $('#myjd_start').hide();
-                    $('#myjd_pause').hide();
-                    $('#myjd_stop').hide();
-                    $('#myjd_unpause').show();
-                } else {
-                    $('#myjd_pause').hide();
-                    $('#myjd_unpause').hide();
-                    $('#myjd_stop').hide();
-                    $('#myjd_start').show();
-                }
                 $scope.myjd_downloads = res.data.packages.downloader;
-                if ($scope.myjd_downloads) {
-                    $('.myjd-downloads').show();
-                } else {
-                    $('.myjd-downloads').hide();
-                }
                 $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
-                if ($scope.myjd_decrypted) {
-                    $('.myjd-decrypted').show();
-                } else {
-                    $('.myjd-decrypted').hide();
-                }
                 $scope.myjd_offline = res.data.packages.linkgrabber_offline;
-                if ($scope.myjd_offline) {
-                    $('.myjd_offline').show();
-                } else {
-                    $('.myjd_offline').hide();
-                }
-
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
 
                 let uuids = [];
                 if ($scope.myjd_failed) {
-                    $('.myjd_failed').show();
                     for (let existing_package of $scope.myjd_failed) {
                         let uuid = existing_package['uuid'];
                         uuids.push(uuid)
@@ -504,82 +450,34 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                             $scope.myjd_failed.push(failed_package[1])
                         }
                     }
-                } else {
-                    $('.myjd_failed').hide();
-                }
-                if ($scope.myjd_failed.length == 0) {
-                    $scope.myjd_failed = false
                 }
                 if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
                     }
-                    if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.closed_myjd_tab) {
-                        $("#myjd_no_packages").show();
-                    }
                 } else {
-                    $("#myjd_no_packages").hide();
                     if (!$scope.myjd_collapse_manual && (typeof $scope.settings !== 'undefined' && !$scope.settings.general.closed_myjd_tab)) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
 
                 }
-                if ($scope.myjd_downloads) {
-                    $("#myjd_state").show();
-                } else {
-                    $("#myjd_state").hide();
-                }
                 $scope.myjd_grabbing = res.data.grabber_collecting;
                 if ($scope.myjd_grabbing) {
-                    $('#myjd_grabbing').show();
-                    $('.cnl-spinner').show();
-                    $('.cnl-button').hide();
-                    $('.cnl-blockers').hide();
-                    $scope.was_grabbing = true;
                     if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
-                } else {
-                    if ($scope.was_grabbing) {
-                        $('.cnl-spinner').show();
-                        setTimeout(function () {
-                            $('#myjd_grabbing').hide();
-                            $('.cnl-spinner').hide();
-                            $('.cnl-button').show();
-                            $('.cnl-blockers').show();
-                            $scope.was_grabbing = false;
-                            getMyJD();
-                        }, 15000);
-                    } else {
-                        setTimeout(function () {
-                            $('#myjd_grabbing').hide();
-                            $('.cnl-spinner').hide();
-                            $('.cnl-button').show();
-                            $('.cnl-blockers').show();
-                        }, 1);
-                    }
-                }
-                if ($scope.myjd_failed) {
-                    $('.myjd-failed').show();
-                } else {
-                    $('.myjd-failed').hide();
                 }
                 $scope.update_ready = res.data.update_ready;
-                if ($scope.update_ready) {
-                    $('#myjd_update').show();
-                } else {
-                    $('#myjd_update').hide();
-                }
                 console.log('JDownloader abgerufen!');
             }, function (res) {
-                $("#myjd_no_login").show();
                 $scope.myjd_grabbing = null;
                 $scope.myjd_downloads = null;
                 $scope.myjd_decrypted = null;
                 $scope.myjd_failed = null;
+                $scope.myjd_connection_error = true;
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
             });
@@ -631,11 +529,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDcnl(uuid) {
-        $(".cnl-button").hide();
-        $(".cnl-blockers").hide();
-        $(".cnl-spinner").show();
+        $scope.cnl_active = true;
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
+                $scope.cnl_active = false;
                 for (let failed_package of $scope.myjd_failed) {
                     let existing_uuid = failed_package['uuid'];
                     if (uuid == existing_uuid) {
@@ -687,7 +584,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             getLog();
             $scope.updateLog();
-        }, 10000)
+        }, 5000)
     };
 
     $scope.updateLog();
@@ -698,7 +595,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 getMyJD();
             }
             $scope.checkMyJD();
-        }, 10000)
+        }, 5000)
     };
 
     $scope.checkMyJD();
