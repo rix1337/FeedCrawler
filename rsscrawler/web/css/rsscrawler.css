@@ -28,10 +28,6 @@ body {
     max-width: 60em;
 }
 
-.results, #myjd_no_login, #myjd_no_packages, #myjd_state, #myjd_grabbing, #myjd_update, .myjd-downloads, .myjd-decrypted, .myjd-failed, .myjd-offline {
-    display: none;
-}
-
 .myjdheader {
     padding: 0;
 }
@@ -89,7 +85,12 @@ body {
     width: 100%;
 }
 
-.btn, h3 {
+h3 {
+    white-space: inherit;
+    word-break: normal;
+}
+
+.btn {
     white-space: inherit;
     word-break: break-all;
 }
@@ -104,7 +105,7 @@ input, select, textarea {
     margin-bottom: 16px;
 }
 
-.results {
+p {
     margin-top: 16px;
 }
 
