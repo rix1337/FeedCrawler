@@ -59,7 +59,7 @@ class DD:
                         storage = self.db.retrieve_all(key)
                         if not links:
                             if 'added' not in storage and 'notdl' not in storage:
-                                wrong_hoster = '[DD] - Gewünschter Hoster fehlt - ' + key
+                                wrong_hoster = '[DD/Hoster fehlt] - ' + key
                                 if 'wrong_hoster' not in storage:
                                     self.log_info(wrong_hoster)
                                     self.db.store(key, 'wrong_hoster')
@@ -77,7 +77,7 @@ class DD:
                                     key,
                                     'added'
                                 )
-                                log_entry = '[DD] - Englisch - ' + key
+                                log_entry = '[DD/Englisch] - ' + key
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 added_items.append(log_entry)

@@ -171,7 +171,7 @@ class DJ:
             if not links:
                 storage = self.db.retrieve_all(search_title)
                 if 'added' not in storage and 'notdl' not in storage:
-                    wrong_hoster = '[DJ] - Gewünschter Hoster fehlt - ' + search_title
+                    wrong_hoster = '[DJ/Hoster fehlt] - ' + search_title
                     if 'wrong_hoster' not in storage:
                         self.log_info(wrong_hoster)
                         self.db.store(search_title, 'wrong_hoster')

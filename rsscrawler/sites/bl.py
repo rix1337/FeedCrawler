@@ -233,6 +233,7 @@ class BL:
                     self.i_hs_done = True
 
             try:
+                # TODO this breaks with HS
                 content = post.content[0].value
             except:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
@@ -684,8 +685,8 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Film] - ' + (
-                                'Retail/' if retail else "") + 'Zweisprachig - ' + key
+                            log_entry = '[Film' + (
+                                '/Retail' if retail else "") + '/Zweisprachig] - ' + key
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -704,8 +705,8 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Film] - ' + (
-                                'Retail/' if retail else "") + '3D/Zweisprachig - ' + key
+                            log_entry = '[Film' + (
+                                '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -719,7 +720,7 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Film/Serie/RegEx] - Zweisprachig - ' + key
+                            log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -733,14 +734,14 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Staffel] - Zweisprachig - ' + key
+                            log_entry = '[Staffel/Zweisprachig] - ' + key
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
                 else:
                     storage = self.db.retrieve_all(key)
                     if 'added' not in storage and 'notdl' not in storage:
-                        wrong_hoster = '[DL-Suche] - Gewünschter Hoster fehlt - ' + key
+                        wrong_hoster = '[DL-Suche/Hoster fehlt] - ' + key
                         if 'wrong_hoster' not in storage:
                             self.log_info(wrong_hoster)
                             self.db.store(key, 'wrong_hoster')
@@ -819,10 +820,10 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - ' + (
-                        'Englisch - ' if englisch and not retail else "") + (
-                                    'Englisch/Retail - ' if englisch and retail else "") + (
-                                    'Retail - ' if not englisch and retail else "") + key
+                    log_entry = '[IMDB ' + score + '/Film' + (
+                        '/Englisch - ' if englisch and not retail else "") + (
+                                    '/Englisch/Retail - ' if englisch and retail else "") + (
+                                    '/Retail - ' if not englisch and retail else "") + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -843,15 +844,15 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[IMDB ' + score + '/Film] - ' + (
-                        'Retail/' if retail else "") + '3D - ' + key
+                    log_entry = '[IMDB ' + score + '/Film' + (
+                        '/Retail' if retail else "") + '/3D] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
         else:
             storage = self.db.retrieve_all(key)
             if 'added' not in storage and 'notdl' not in storage:
-                wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
+                wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
                     self.log_info(wrong_hoster)
                     self.db.store(key, 'wrong_hoster')
@@ -981,9 +982,9 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - ' + ('Englisch - ' if englisch and not retail else "") + (
-                        'Englisch/Retail - ' if englisch and retail else "") + (
-                                    'Retail - ' if not englisch and retail else "") + key
+                    log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
+                        '/Englisch/Retail' if englisch and retail else '') + (
+                                    '/Retail' if not englisch and retail else '') + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1043,7 +1044,7 @@ class BL:
         else:
             storage = self.db.retrieve_all(key)
             if 'added' not in storage and 'notdl' not in storage:
-                wrong_hoster = '[' + site + '] - Gewünschter Hoster fehlt - ' + key
+                wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
                     self.log_info(wrong_hoster)
                     self.db.store(key, 'wrong_hoster')

@@ -125,6 +125,8 @@ def get(title, configfile, dbfile):
                 unrated.append(
                     [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HA)"])
 
+    # TODO include HS
+
     rated = sorted(unrated, reverse=True)
 
     results = {}
@@ -481,8 +483,8 @@ def download_bl(payload, device, configfile, dbfile):
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Suche/Film] - ' + (
-                    'Retail/' if retail else "") + '3D - ' + key
+                log_entry = '[Suche/Film' + (
+                    '/Retail' if retail else "") + '/3D] - ' + key
                 logging.info(log_entry)
                 notify([log_entry], configfile)
                 return True
@@ -501,9 +503,9 @@ def download_bl(payload, device, configfile, dbfile):
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Suche/Film] - ' + ('Englisch - ' if englisch and not retail else "") + (
-                    'Englisch/Retail - ' if englisch and retail else "") + (
-                                'Retail - ' if not englisch and retail else "") + key
+                log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
+                    '/Englisch/Retail' if englisch and retail else '') + (
+                                '/Retail' if not englisch and retail else '') + '] - ' + key
                 logging.info(log_entry)
                 notify([log_entry], configfile)
                 return True

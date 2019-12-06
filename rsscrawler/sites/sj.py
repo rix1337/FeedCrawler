@@ -220,7 +220,7 @@ class SJ:
                     if not links:
                         storage = self.db.retrieve_all(search_title)
                         if 'added' not in storage and 'notdl' not in storage:
-                            wrong_hoster = '[SJ] - Gewünschter Hoster fehlt - ' + search_title
+                            wrong_hoster = '[SJ/Hoster fehlt] - ' + search_title
                             if 'wrong_hoster' not in storage:
                                 self.log_info(wrong_hoster)
                                 self.db.store(search_title, 'wrong_hoster')
@@ -237,15 +237,15 @@ class SJ:
     def send_package(self, title, links, englisch_info):
         englisch = ""
         if englisch_info:
-            englisch = "Englisch - "
+            englisch = "/Englisch"
         if self.filename == 'SJ_Serien_Regex':
-            link_placeholder = '[Episode/RegEx] - ' + englisch
+            link_placeholder = '[Episode/RegEx' + englisch + '] - '
         elif self.filename == 'SJ_Serien':
-            link_placeholder = '[Episode] - ' + englisch
+            link_placeholder = '[Episode' + englisch + '] - '
         elif self.filename == 'SJ_Staffeln_Regex]':
-            link_placeholder = '[Staffel/RegEx] - ' + englisch
+            link_placeholder = '[Staffel/RegEx' + englisch + '] - '
         else:
-            link_placeholder = '[Staffel] - ' + englisch
+            link_placeholder = '[Staffel' + englisch + '] - '
         try:
             storage = self.db.retrieve_all(title)
         except Exception as e:
