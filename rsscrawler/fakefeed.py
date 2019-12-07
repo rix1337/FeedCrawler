@@ -216,6 +216,22 @@ def hs_search_to_feedparser_dict(beautifulsoup_object_list):
     return feed
 
 
+def hs_search_results(url, configfile, dbfile):
+    content = []
+    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    if search:
+        results = search.find_all("item")
+        if results:
+            for r in results:
+                try:
+                    title = r.title.next
+                    link = r.contents[2]
+                    content.append((title, link))
+                except:
+                    break
+    return content
+
+
 def dj_to_feedparser_dict(beautifulsoup_object):
     content_areas = beautifulsoup_object.findAll("fieldset")
     entries = []

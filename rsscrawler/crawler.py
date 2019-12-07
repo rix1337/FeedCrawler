@@ -29,6 +29,7 @@ Options:
 """
 
 import logging
+import multiprocessing
 import os
 import random
 import re
@@ -38,7 +39,6 @@ import time
 import traceback
 import warnings
 from logging import handlers
-import multiprocessing
 
 from docopt import docopt
 
@@ -267,7 +267,7 @@ def crawldog(configfile, dbfile):
             if notify_list:
                 notify(notify_list, configfile)
 
-            time.sleep(30)
+            time.sleep(10)
         except Exception:
             traceback.print_exc()
             time.sleep(10)
@@ -373,11 +373,13 @@ def main():
     else:
         RssDb(dbfile, 'cdc').reset()
 
-    p = multiprocessing.Process(target=web_server, args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
+    p = multiprocessing.Process(target=web_server,
+                                args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
     p.start()
 
     if not arguments['--testlauf']:
-        c = multiprocessing.Process(target=crawler, args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
+        c = multiprocessing.Process(target=crawler,
+                                    args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
         c.start()
 
         w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))

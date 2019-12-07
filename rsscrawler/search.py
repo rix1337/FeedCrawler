@@ -16,6 +16,7 @@ from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
 from rsscrawler.fakefeed import ha_search_results
+from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -73,7 +74,7 @@ def get(title, configfile, dbfile):
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (MB)"])
 
     hw_search = get_url(
-        decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/',
+        decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/',
         configfile, dbfile)
     hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', hw_search)
     password = decode_base64("aGQtd29ybGQub3Jn")
@@ -98,9 +99,21 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HA)"])
 
+    hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
+    hs_results = hs_search_results(hs_search, configfile, dbfile)
+    password = decode_base64("aGQtc291cmNlLnRv")
+    for result in hs_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        unrated.append(
+            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HS)"])
+
     if config.get("crawl3d"):
         mb_search = get_url(
-            decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p" + '/feed/rss2/',
+            decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/",
             configfile, dbfile)
         mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', mb_search)
         for result in mb_results:
@@ -109,7 +122,7 @@ def get(title, configfile, dbfile):
                     [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-MB)"])
 
         hw_search = get_url(
-            decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p" + '/feed/rss2/',
+            decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p/feed/rss2/",
             configfile, dbfile)
         hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', hw_search)
         password = decode_base64("aGQtd29ybGQub3Jn")
@@ -125,7 +138,18 @@ def get(title, configfile, dbfile):
                 unrated.append(
                     [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HA)"])
 
-    # TODO include HS
+        hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
+        hs_results = hs_search_results(hs_search, configfile, dbfile)
+        password = decode_base64("aGQtc291cmNlLnRv")
+        for result in hs_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
+            unrated.append(
+                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HS)"])
 
     rated = sorted(unrated, reverse=True)
 
@@ -348,20 +372,25 @@ def download_bl(payload, device, configfile, dbfile):
 
     soup = BeautifulSoup(url, 'lxml')
     download = soup.find("div", {"id": "content"})
-    try:
-        key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
+    if download:
+        try:
+            key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
+            url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+        except:
+            items_head = soup.find("div", {"class": "topbox"})
+            key = items_head.contents[1].a["title"]
+            items_download = soup.find("div", {"class": "download"})
+            url_hosters = []
+            download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
+            for link in download:
+                link = link.a
+                text = link.text.strip()
+                if text:
+                    url_hosters.append([str(link["href"]), str(text)])
+    else:
+        download = soup.find("div", {"class": "entry-content"})
+        key = soup.find("h2", {"class": "entry-title"}).text
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-    except:
-        items_head = soup.find("div", {"class": "topbox"})
-        key = items_head.contents[1].a["title"]
-        items_download = soup.find("div", {"class": "download"})
-        url_hosters = []
-        download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
-        for link in download:
-            link = link.a
-            text = link.text.strip()
-            if text:
-                url_hosters.append([str(link["href"]), str(text)])
 
     links = {}
     for url_hoster in reversed(url_hosters):
@@ -467,7 +496,7 @@ def download_bl(payload, device, configfile, dbfile):
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
                 logging.info(log_entry)
                 notify([log_entry], configfile)
                 return True
