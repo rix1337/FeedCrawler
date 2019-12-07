@@ -17,9 +17,9 @@ from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
 from rsscrawler.fakefeed import ha_search_to_soup
 from rsscrawler.fakefeed import ha_to_feedparser_dict
-from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.fakefeed import ha_url_to_soup
-from rsscrawler.fakefeed import hs_url_to_content
+from rsscrawler.fakefeed import hs_feed_enricher
+from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -235,11 +235,7 @@ class BL:
                     self.i_hs_done = True
 
             try:
-                if site != "HS":
-                    content = post.content[0].value
-                else:
-                    content_url = post.links[0].href
-                    content = get_url(content_url, self.configfile, self.dbfile)
+                content = post.content[0].value
             except:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
@@ -513,11 +509,7 @@ class BL:
 
             if found:
                 try:
-                    if site != "HS":
-                        content = post.content[0].value
-                    else:
-                        content_url = post.links[0].href
-                        content = get_url(content_url, self.configfile, self.dbfile)
+                    content = post.content[0].value
                 except:
                     self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                     content = False
@@ -993,7 +985,7 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
+                    log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
                                     '/Retail' if not englisch and retail else '') + '] - ' + key
                     self.log_info(log_entry)
@@ -1176,7 +1168,7 @@ class BL:
         if not self.historical:
             try:
                 first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs)
-                first_page_hs = feedparser.parse(first_hs.content)
+                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile)
                 if first_hs.status_code == 304:
                     hs_304 = True
             except:
@@ -1300,8 +1292,8 @@ class BL:
                         if not self.historical and i == 0 and first_page_hs:
                             hs_parsed_url = first_page_hs
                         else:
-                            hs_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile))
+                            hs_parsed_url = hs_feed_enricher(
+                                get_url(url, self.configfile, self.dbfile), self.configfile, self.dbfile)
                         found = self.imdb_search(imdb, hs_parsed_url, "HS")
                         if found:
                             for f in found:
@@ -1355,8 +1347,8 @@ class BL:
                     if not self.historical and i == 0 and first_page_hs:
                         hs_parsed_url = first_page_hs
                     else:
-                        hs_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile))
+                        hs_parsed_url = hs_feed_enricher(
+                            get_url(url, self.configfile, self.dbfile), self.configfile, self.dbfile)
                     found = self.feed_search(hs_parsed_url, "HS")
                     if found:
                         for f in found:

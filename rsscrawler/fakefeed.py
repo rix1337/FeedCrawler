@@ -5,6 +5,7 @@
 
 import re
 
+import feedparser
 from bs4 import BeautifulSoup
 
 from rsscrawler.url import get_url
@@ -133,18 +134,33 @@ def ha_search_results(url, configfile, dbfile):
     return content
 
 
-def hs_url_to_content(feed, configfile, dbfile):
-    feed = get_url(feed, configfile, dbfile)
+def hs_feed_enricher(feed, configfile, dbfile):
+    feed = feedparser.parse(feed)
+
     entries = []
 
+    i = 0
     for post in feed.entries:
-        content_url = post.links[0].href
-        content = get_url(content_url, configfile, dbfile)
+        try:
+            title = post.title
+            content = []
+            content_url = post.links[0].href
+            details = get_url(content_url, configfile, dbfile)
+            published = BeautifulSoup(details, 'lxml').find("p", {"class": "blog-post-meta"}).contents[0]
+            data = BeautifulSoup(details, 'lxml').find("div", {"class": "entry-content"}).contents[2]
+            content.append(str(data).replace("\n", ""))
+            content = "".join(content)
 
-        entries.append(FakeFeedParserDict({
-            "title": post.title,
-            "content": [FakeFeedParserDict({"value": content})],
-        }))
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "published": published,
+                "content": [FakeFeedParserDict({
+                    "value": content})]
+            }))
+        except:
+            pass
+
+        i += 1
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)

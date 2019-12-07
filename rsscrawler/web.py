@@ -136,6 +136,9 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         line = line.replace("] - Zweisprachig - ", "/Zweisprachig] - ")
                         line = line.replace("] - Retail/3D - ", "/Retail/3D] - ")
                         line = line.replace("] - Retail - ", "/Retail] - ")
+                        line = line.replace("]", "")
+                        line = line.replace("[", "")
+                        line = re.sub(r",\d{3}", "", line)
                         line = line.split(" - ")
                         for l in line:
                             payload.append(l)
