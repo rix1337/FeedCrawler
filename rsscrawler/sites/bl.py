@@ -84,6 +84,8 @@ class BL:
             i += 1
 
         i = 2
+        if search > 3:
+            search = 3
         while i <= search:
             page_url = self.HS_URL + "?paged=" + str(i)
             if page_url not in self.HS_FEED_URLS:
