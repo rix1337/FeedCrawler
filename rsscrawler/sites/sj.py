@@ -186,9 +186,6 @@ class SJ:
                 for url_hoster in url_hosters:
                     if check_hoster(url_hoster[1], self.configfile):
                         links.append(url_hoster[0])
-                if self.hoster_fallback and not links:
-                    for url_hoster in url_hosters:
-                        links.append(url_hoster[0])
                 if not links:
                     try:
                         episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
