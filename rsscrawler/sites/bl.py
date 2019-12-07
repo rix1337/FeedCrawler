@@ -17,7 +17,9 @@ from rsscrawler.common import fullhd_title
 from rsscrawler.common import retail_sub
 from rsscrawler.fakefeed import ha_search_to_soup
 from rsscrawler.fakefeed import ha_to_feedparser_dict
+from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.fakefeed import ha_url_to_soup
+from rsscrawler.fakefeed import hs_url_to_content
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rssconfig import RssConfig
@@ -182,12 +184,8 @@ class BL:
                 try:
                     content = post.content[0].value
                 except:
-                    try:
-                        content_url = post.links[0].href
-                        content = get_url(content_url, self.configfile, self.dbfile)
-                    except:
-                        self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                        content = False
+                    self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                    content = False
                 if content:
                     found = re.search(ignore, post.title.lower())
                     if found:
@@ -663,7 +661,8 @@ class BL:
                     self.configfile, self.dbfile)),
             ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title,
                               self.configfile, self.dbfile),
-            get_url(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/')]
+            hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
+                              self.configfile, self.dbfile)]
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):

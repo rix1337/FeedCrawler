@@ -113,7 +113,7 @@ def ha_search_to_soup(url, configfile, dbfile):
                         "value": details
                     })
                 except:
-                    pagination = r["href"]
+                    pass
 
     return ha_search_to_feedparser_dict(content)
 
@@ -131,6 +131,73 @@ def ha_search_results(url, configfile, dbfile):
                 except:
                     break
     return content
+
+
+def hs_url_to_content(feed, configfile, dbfile):
+    feed = get_url(feed, configfile, dbfile)
+    entries = []
+
+    for post in feed.entries:
+        content_url = post.links[0].href
+        content = get_url(content_url, configfile, dbfile)
+
+        entries.append(FakeFeedParserDict({
+            "title": post.title,
+            "content": [FakeFeedParserDict({"value": content})],
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def hs_search_to_soup(url, configfile, dbfile):
+    content = []
+    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    if search:
+        results = search.find_all("item")
+        if results:
+            for r in results:
+                try:
+                    title = r.title.next
+                    details = BeautifulSoup(get_url(r.link.next, configfile, dbfile), 'lxml')
+                    content.append({
+                        "key": title,
+                        "value": details
+                    })
+                except:
+                    pass
+    return hs_search_to_feedparser_dict(content)
+
+
+def hs_search_to_feedparser_dict(beautifulsoup_object_list):
+    entries = []
+    for beautifulsoup_object in beautifulsoup_object_list:
+        title = beautifulsoup_object["key"]
+        item_head = beautifulsoup_object["value"].find_all("p", {"class": "blog-post-meta"})
+        item_download = beautifulsoup_object["value"].find_all("div", {"class": "entry-content"})
+
+        i = 0
+        for item in item_head:
+            contents = item_download[i].contents
+            published = item.contents[0]
+            content = []
+            data = contents[2]
+            content.append(str(data).replace("\n", ""))
+            content = "".join(content)
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "published": published,
+                "content": [FakeFeedParserDict({
+                    "value": content})]
+            }))
+
+            i += 1
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def dj_to_feedparser_dict(beautifulsoup_object):
