@@ -33,10 +33,11 @@ thead {
 
 .container {
     box-shadow: 0 0 5px 5px grey;
-    margin-top: 1em;
-    margin-bottom: 2em;
-    padding: 0.5em;
-    max-width: 60em;
+    border-radius: 0;
+    margin: 1em auto;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    max-width: 70em;
 }
 
 .myjdheader {
@@ -67,6 +68,8 @@ thead {
 }
 
 #head {
+    width: 20em;
+    min-width: 20em;
     max-width: 20em;
 }
 
