@@ -822,8 +822,8 @@ class BL:
                     )
                     log_entry = '[IMDB ' + score + '/Film' + (
                         '/Englisch - ' if englisch and not retail else "") + (
-                                    '/Englisch/Retail - ' if englisch and retail else "") + (
-                                    '/Retail - ' if not englisch and retail else "") + '] - ' + key
+                                    '/Englisch/Retail' if englisch and retail else "") + (
+                                    '/Retail' if not englisch and retail else "") + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)

@@ -38,7 +38,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.numberOfPagesLog = function () {
         if (typeof $scope.log !== 'undefined') {
             $scope.resLengthLog = $scope.log.length;
-            return Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
+            let numPagesLog = Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
+            if (($scope.currentPageLog + 1) > numPagesLog) {
+                $scope.currentPageLog = numPagesLog - 1;
+            }
+            return numPagesLog;
         }
     };
 
@@ -93,6 +97,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
     $scope.searching = false;
+    $scope.myjd_state = false;
 
 
     $scope.init = getAll();
@@ -348,6 +353,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     getLog();
                     getLists();
                     $("#spinner-search").fadeOut();
+                    $scope.searching = false;
                 }, function (res) {
                     console.log('Konnte ' + title + ' nicht suchen!');
                     showDanger('Konnte  ' + title + ' nicht suchen!');
