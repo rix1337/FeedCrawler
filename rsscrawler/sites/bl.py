@@ -182,8 +182,12 @@ class BL:
                 try:
                     content = post.content[0].value
                 except:
-                    self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                    content = False
+                    try:
+                        content_url = post.links[0].href
+                        content = get_url(content_url, self.configfile, self.dbfile)
+                    except:
+                        self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                        content = False
                 if content:
                     found = re.search(ignore, post.title.lower())
                     if found:
@@ -233,8 +237,11 @@ class BL:
                     self.i_hs_done = True
 
             try:
-                # TODO this breaks with HS
-                content = post.content[0].value
+                if site != "HS":
+                    content = post.content[0].value
+                else:
+                    content_url = post.links[0].href
+                    content = get_url(content_url, self.configfile, self.dbfile)
             except:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
@@ -429,7 +436,7 @@ class BL:
                             elif "HA" in site:
                                 password = decode_base64("aGQtYXJlYS5vcmc=")
                             else:
-                                password = decode_base64("aGQtc291cmNlLnRvCjA=")
+                                password = decode_base64("aGQtc291cmNlLnRv")
 
                             download_pages = self.get_download_links(content)
                             if '.3d.' not in post.title.lower():
@@ -456,7 +463,7 @@ class BL:
         elif "HA" in site:
             password = decode_base64("aGQtYXJlYS5vcmc=")
         else:
-            password = decode_base64("aGQtc291cmNlLnRvCjA=")
+            password = decode_base64("aGQtc291cmNlLnRv")
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -508,7 +515,11 @@ class BL:
 
             if found:
                 try:
-                    content = post.content[0].value
+                    if site != "HS":
+                        content = post.content[0].value
+                    else:
+                        content_url = post.links[0].href
+                        content = get_url(content_url, self.configfile, self.dbfile)
                 except:
                     self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                     content = False
@@ -651,7 +662,8 @@ class BL:
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)),
             ha_search_to_soup(decode_base64("aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=") + search_title,
-                              self.configfile, self.dbfile)]
+                              self.configfile, self.dbfile),
+            get_url(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/')]
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):
