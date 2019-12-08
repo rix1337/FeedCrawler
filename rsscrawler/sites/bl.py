@@ -1168,7 +1168,7 @@ class BL:
         if not self.historical:
             try:
                 first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs)
-                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile)
+                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile)
                 if first_hs.status_code == 304:
                     hs_304 = True
             except:
@@ -1293,7 +1293,7 @@ class BL:
                             hs_parsed_url = first_page_hs
                         else:
                             hs_parsed_url = hs_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile), self.configfile, self.dbfile)
+                                get_url(url, self.configfile, self.dbfile), self.configfile)
                         found = self.imdb_search(imdb, hs_parsed_url, "HS")
                         if found:
                             for f in found:
@@ -1348,7 +1348,7 @@ class BL:
                         hs_parsed_url = first_page_hs
                     else:
                         hs_parsed_url = hs_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile), self.configfile, self.dbfile)
+                            get_url(url, self.configfile, self.dbfile), self.configfile)
                     found = self.feed_search(hs_parsed_url, "HS")
                     if found:
                         for f in found:

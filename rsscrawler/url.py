@@ -2,6 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import concurrent.futures
+
 import cfscrape
 
 from rsscrawler.common import decode_base64
@@ -10,7 +12,7 @@ from rsscrawler.rssdb import RssDb
 
 
 def fake_user_agent():
-    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0"
+    return "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0"
 
 
 def check_url(configfile, dbfile):
@@ -95,6 +97,35 @@ def get_url(url, configfile, dbfile):
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
+
+
+def get_urls_asynch(urls, configfile):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    scraper = cfscrape.create_scraper(delay=10)
+    agent = fake_user_agent()
+    results = []
+
+    def load_url(url):
+        try:
+            if proxy:
+                proxies = {'http': proxy, 'https': proxy}
+                return scraper.get(url, headers={'User-Agent': agent}, proxies=proxies, timeout=30).text
+            else:
+                return scraper.get(url, headers={'User-Agent': agent}, timeout=30).text
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return ""
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
+        future_to_url = {executor.submit(load_url, url): url for url in urls}
+        for future in concurrent.futures.as_completed(future_to_url):
+            future_to_url[future]
+            try:
+                results.append(future.result())
+            except Exception:
+                pass
+    return results
 
 
 def get_url_headers(url, configfile, dbfile, headers):
