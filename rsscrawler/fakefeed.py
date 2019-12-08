@@ -9,6 +9,7 @@ import feedparser
 from bs4 import BeautifulSoup
 
 from rsscrawler.url import get_url
+from rsscrawler.url import get_urls_asynch
 
 
 class FakeFeedParserDict(dict):
@@ -134,33 +135,39 @@ def ha_search_results(url, configfile, dbfile):
     return content
 
 
-def hs_feed_enricher(feed, configfile, dbfile):
+def hs_feed_enricher(feed, configfile):
     feed = feedparser.parse(feed)
 
-    entries = []
-
-    i = 0
+    asynch_results = []
     for post in feed.entries:
         try:
-            title = post.title
-            content = []
-            content_url = post.links[0].href
-            details = get_url(content_url, configfile, dbfile)
-            published = BeautifulSoup(details, 'lxml').find("p", {"class": "blog-post-meta"}).contents[0]
-            data = BeautifulSoup(details, 'lxml').find("div", {"class": "entry-content"}).contents[2]
-            content.append(str(data).replace("\n", ""))
-            content = "".join(content)
-
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "published": published,
-                "content": [FakeFeedParserDict({
-                    "value": content})]
-            }))
+            asynch_results.append(post.links[0].href)
         except:
             pass
+    asynch_results = get_urls_asynch(asynch_results, configfile)
 
-        i += 1
+    entries = []
+    if asynch_results:
+        i = 0
+        for post in feed.entries:
+            try:
+                title = post.title
+                content = []
+                details = asynch_results[i]
+                published = BeautifulSoup(details, 'lxml').find("p", {"class": "blog-post-meta"}).contents[0]
+                data = BeautifulSoup(details, 'lxml').find("div", {"class": "entry-content"}).contents[2]
+                content.append(str(data).replace("\n", ""))
+                content = "".join(content)
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content})]
+                }))
+            except:
+                pass
+            i += 1
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)

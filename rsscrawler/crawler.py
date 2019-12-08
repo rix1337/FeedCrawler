@@ -95,7 +95,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         logger.addHandler(logfile_debug)
 
     logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    logging.getLogger("urllib3").setLevel(logging.ERROR)
     warnings.simplefilter("ignore", UnicodeWarning)
 
     log_debug = logging.debug
