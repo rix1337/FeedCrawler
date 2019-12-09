@@ -39,109 +39,138 @@
         </div>
         <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
             <div class="card-body">
-                <p class="myjd-downloads" ng-show="myjd_downloads">
-                <div class="card bg-success" title="In der Downloadliste" ng-repeat="x in myjd_downloads">
-                    <div class="card-header">
-                        <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item"><span ng-bind="x.done"></span> / <span ng-bind="x.size"></span></li>
-                        <li class="list-group-item">
-                            <div class="progress">
-                                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
-                                     aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
-                                     ng-style="{ 'width': x.percentage + '%' }">
-                                    <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
-                                </div>
+                <div ng-repeat="x in myjd_packages | startFrom:currentPageMyJD*pageSizeMyJD | limitTo:pageSizeMyJD">
+                    <div class="myjd-downloads">
+                        <div class="card bg-success" title="In der Downloadliste" ng-if="x.type=='online'">
+                            <div class="card-header">
+                                <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
                             </div>
-                        </li>
-                        <li class="list-group-item"><span ng-bind="x.speed"></span> - <span ng-bind="x.eta"></span></li>
-                    </ul>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
-                               ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
-                        </li>
-                    </ul>
-                </div>
-                </p>
-
-                <p class="myjd-decrypted" ng-show="myjd_decrypted">
-                <div class="card bg-warning" title="Im Linksammler" ng-repeat="y in myjd_decrypted">
-                    <div class="card-header">
-                        <strong ng-bind="y.name"></strong> (<span ng-bind="y.links"></span>)
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><span ng-bind="x.done"></span> / <span
+                                        ng-bind="x.size"></span>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="progress">
+                                        <div class="progress-bar progress-bar-striped progress-bar-animated"
+                                             role="progressbar"
+                                             aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
+                                             ng-style="{ 'width': x.percentage + '%' }">
+                                            <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
+                                        </div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item"><span ng-bind="x.speed"></span> - <span
+                                        ng-bind="x.eta"></span>
+                                </li>
+                            </ul>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                                       ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <span class="cnl-spinner" ng-show="cnl_active" title="Warte auf hinzugefügte Links!"
+
+                    <div class="myjd-decrypted">
+                        <div class="card bg-warning" title="Im Linksammler" ng-if="x.type=='decrypted'">
+                            <div class="card-header">
+                                <strong ng-bind="x.name"></strong> (<span ng-bind="x.links"></span>)
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" ng-show="cnl_active">
+                            <span class="cnl-spinner" title="Warte auf hinzugefügte Links!"
                                   data-toggle="tooltip">
                                 <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
-                        </li>
-                        <li class="list-group-item"><span ng-bind="y.size"></span></li>
-                        <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
-                            <a href="" class="btn btn-outline-success" title="Download starten" data-toggle="tooltip"
-                               ng-click="myJDmove(y.linkids, y.uuid)"><i class="fas fa-play"></i> Download starten</a>
-                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
-                               ng-click="myJDremove(y.linkids, y.uuid)"><i class="fas fa-trash"></i> Löschen</a>
-                        </li>
-                    </ul>
-                </div>
-                </p>
-
-                <p class="myjd-failed" ng-show="myjd_failed">
-                <div class="card bg-danger" title="Fehler im Linksammler" ng-repeat="z in myjd_failed">
-                    <div class="card-header">
-                        <strong ng-bind="z.name"></strong>
+                                </li>
+                                <li class="list-group-item" ng-show="x.size"><span ng-bind="x.size"></span></li>
+                                <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
+                                    <a href="" class="btn btn-outline-success" title="Download starten"
+                                       data-toggle="tooltip"
+                                       ng-click="myJDmove(x.linkids, x.uuid)"><i class="fas fa-play"></i> Download
+                                        starten</a>
+                                    <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                                       ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item" ng-if="z.url">
-                            <a ng-href="{{z.url}}" ng-click="myJDcnl(z.uuid)"
-                               class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
-                               target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
-                               data-toggle="tooltip">Click'n'Load-Automatik</a>
-                            <span class="cnl-spinner" ng-show="cnl_active" title="Warte auf hinzugefügte Links!"
-                                  data-toggle="tooltip">
+
+                    <div class="myjd-failed">
+                        <div class="card bg-danger" title="Fehler im Linksammler" ng-if="x.type=='failed'">
+                            <div class="card-header">
+                                <strong ng-bind="x.name"></strong>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" ng-if="x.url">
+                                    <a ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
+                                       class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
+                                       target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
+                                       data-toggle="tooltip">Click'n'Load-Automatik</a>
+                                    <span class="cnl-spinner" ng-show="cnl_active" title="Warte auf hinzugefügte Links!"
+                                          data-toggle="tooltip">
                                 <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
-                        </li>
-                        <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="z.urls">
-                            <textarea ng-model="z.urls" class="urls drop form-control" data-toggle="tooltip"
+                                </li>
+                                <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="x.urls">
+                            <textarea ng-model="x.urls" class="urls drop form-control" data-toggle="tooltip"
                                       title="Automatische Entschlüsselung fehlgeschlagen. Bitte die Click'n'Load-Automatik nutzen. Alternativ hier entschlüsselte Links eintragen und 'Erneut hinzufügen' drücken!"></textarea>
-                            <a href="" class="btn btn-outline-info" ng-show="!cnl_active" title="Erneut hinzufügen"
-                               data-toggle="tooltip"
-                               ng-click="myJDretry(z.linkids, z.uuid, z.urls)"><i class="fas fa-undo"></i> Erneut
-                                hinzufügen</a>
-                            <a href="" class="btn btn-outline-danger" ng-show="!cnl_active" title="Löschen"
-                               data-toggle="tooltip"
-                               ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
-                        </li>
-                    </ul>
-                </div>
-                </p>
-
-                <p class="myjd-offline" ng-show="myjd_offline">
-                <div class="card bg-danger" title="Links offline" ng-repeat="z in myjd_offline">
-                    <div class="card-header">
-                        <strong ng-bind="z.name"></strong>
+                                    <a href="" class="btn btn-outline-info" ng-show="!cnl_active"
+                                       title="Erneut hinzufügen"
+                                       data-toggle="tooltip"
+                                       ng-click="myJDretry(x.linkids, x.uuid, x.urls)"><i class="fas fa-undo"></i>
+                                        Erneut
+                                        hinzufügen</a>
+                                    <a href="" class="btn btn-outline-danger" ng-show="!cnl_active" title="Löschen"
+                                       data-toggle="tooltip"
+                                       ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <ul class="list-group list-group-flush">
-                        <li class="list-group-item">
-                            <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
-                               ng-click="myJDremove(z.linkids, z.uuid)"><i class="fas fa-trash"></i> Löschen</a>
-                        </li>
-                    </ul>
+
+                    <div class="myjd-offline">
+                        <div class="card bg-danger" title="Links offline" ng-if="x.type=='offline'">
+                            <div class="card-header">
+                                <strong ng-bind="x.name"></strong>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
+                                       ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
-                </p>
+
+                <div class="btn-group" ng-show="resLengthMyJD>3">
+                    <button class="btn btn-outline-info" ng-disabled="currentPageMyJD == 0"
+                            ng-click="currentPageMyJD=currentPageMyJD-1">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-outline-info" ng-disabled="true">
+                        {{currentPageMyJD+1}} / {{numberOfPagesMyJD()}}
+                    </button>
+                    <button class="btn btn-outline-info" ng-disabled="currentPageMyJD >= resLengthMyJD/pageSizeMyJD - 1"
+                            ng-click="currentPageMyJD=currentPageMyJD+1">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+
                 <div ng-if="!myjd_state">
                     <p id="initial-loading">Verbinde mit My JDownloader...</p>
                     <i id="spinner-myjd" class="fas fa-sync fa-spin"></i>
                 </div>
-                <p id="myjd_no_login" ng-if="myjd_connection_error">Fehler bei Verbindung mit My
-                    JDownloader!</p>
-                <p id="myjd_no_packages"
-                   ng-show="myjd_state && (!myjd_downloads && !myjd_decrypted && !myjd_offline && !myjd_failed)">
+                <div id="myjd_no_login" ng-if="myjd_connection_error">Fehler bei Verbindung mit My
+                    JDownloader!
+                </div>
+                <div id="myjd_no_packages"
+                     ng-show="myjd_state && (!myjd_packages)">
                     Downloadliste und Linksammler sind
-                    leer.</p>
-                <p id="myjd_state" ng-show="myjd_downloads">
+                    leer.
+                </div>
+
+                <div id="myjd_state" ng-show="myjd_downloads">
                     <a href="" id="myjd_start"
                        ng-show="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'"
                        ng-click="myJDstart()"><i class="fas fa-play" data-toggle="tooltip"
@@ -158,7 +187,8 @@
                        ng-click="myJDstop()"><i
                             class="fas fa-stop" data-toggle="tooltip"
                             title="Downloads anhalten"></i></a>
-                </p>
+                </div>
+
                 <i id="myjd_grabbing" ng-if="myjd_grabbing" class="fas fa-search blinking"
                    title="Linkgrabber ist derzeit aktiv"
                    data-toggle="tooltip"></i>
@@ -219,25 +249,23 @@
             <thead>
             <tr>
                 <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
-                <th scope="col" class="text-left placeholder"></th>
-                <th scope="col" class="text-left d-none d-md-block">Kategorie</th>
                 <th scope="col" class="text-left">Release</th>
-                <th scope="col" class="text-left placeholder"></th>
+                <th scope="col" class="text-left">Kategorie</th>
             </tr>
             </thead>
             <tbody id="logbody">
             <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
                 <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
-                <td id="placeholder"></td>
-                <td scope="row" class="text-left d-none d-md-block">{{ x[2] }}</td>
                 <td scope="row" class="text-left">{{ x[3] }}</td>
-                <td scope="row" class="text-right"><a href="" ng-click="deleteLogRow(x[0])"><i
+                <td scope="row" class="text-left">{{ x[2] }}</td>
+                <td scope="row" class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
+                                                      ng-click="deleteLogRow(x[0])"><i
                         class="fas fa-trash remove"></i></a></td>
             </tr>
             </tbody>
         </table>
     </div>
-    <div class="btn-group-log" ng-show="resLengthLog>5">
+    <div class="btn-group" ng-show="resLengthLog>5">
         <button class="btn btn-outline-info" ng-disabled="currentPageLog == 0"
                 ng-click="currentPageLog=currentPageLog-1">
             <i class="fas fa-chevron-left"></i>
@@ -250,8 +278,9 @@
             <i class="fas fa-chevron-right"></i>
         </button>
     </div>
-    <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
-                                                              class="fas fa-sync fa-spin"></i> Leeren</a>
+    <div>
+        <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
+                                                                  class="fas fa-sync fa-spin"></i> Leeren</a></div>
 </div>
 
 
