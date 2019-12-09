@@ -59,10 +59,6 @@ thead {
     max-width: 60em;
 }
 
-.btn {
-    margin-top: 0.5em;
-}
-
 #settings {
     margin-bottom: 1em;
 }
@@ -95,18 +91,23 @@ thead {
     color: #d53343;
 }
 
+.btn {
+    margin-top: 0.5em;
+    white-space: inherit;
+    word-break: break-all;
+}
+
 .btn-secondary {
     width: 100%;
+}
+
+.btn-group > .btn-outline-info:focus {
+    box-shadow: none;
 }
 
 h3 {
     white-space: inherit;
     word-break: normal;
-}
-
-.btn {
-    white-space: inherit;
-    word-break: break-all;
 }
 
 select {
