@@ -39,10 +39,24 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         if (typeof $scope.log !== 'undefined') {
             $scope.resLengthLog = $scope.log.length;
             let numPagesLog = Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
-            if (($scope.currentPageLog + 1) > numPagesLog) {
+            if (($scope.currentPageLog > 0) && (($scope.currentPageLog + 1) > numPagesLog)) {
                 $scope.currentPageLog = numPagesLog - 1;
             }
             return numPagesLog;
+        }
+    };
+
+    $scope.currentPageMyJD = 0;
+    $scope.pageSizeMyJD = 3;
+    $scope.resLengthMyJD = 0;
+    $scope.numberOfPagesMyJD = function () {
+        if (typeof $scope.myjd_packages !== 'undefined') {
+            $scope.resLengthMyJD = $scope.myjd_packages.length;
+            let numPagesMyJD = Math.ceil($scope.resLengthMyJD / $scope.pageSizeMyJD);
+            if (($scope.currentPageMyJD > 0) && (($scope.currentPageMyJD + 1) > numPagesMyJD)) {
+                $scope.currentPageMyJD = numPagesMyJD - 1;
+            }
+            return numPagesMyJD;
         }
     };
 
@@ -98,6 +112,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_collapse_manual = false;
     $scope.searching = false;
     $scope.myjd_state = false;
+    $scope.myjd_packages = [];
 
 
     $scope.init = getAll();
@@ -457,7 +472,42 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         }
                     }
                 }
-                if (!$scope.myjd_downloads && !$scope.myjd_decrypted && !$scope.myjd_failed && !$scope.myjd_offline || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
+                $scope.myjd_grabbing = res.data.grabber_collecting;
+                if ($scope.myjd_grabbing) {
+                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
+                        $("#collapseOne").addClass('show');
+                        $("#myjd_collapse").removeClass('collapsed');
+                    }
+                }
+                $scope.update_ready = res.data.update_ready;
+
+                $scope.myjd_packages = [];
+                if ($scope.myjd_downloads) {
+                    for (let package of $scope.myjd_downloads) {
+                        package.type = "online";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_decrypted) {
+                    for (let package of $scope.myjd_decrypted) {
+                        package.type = "decrypted";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_failed) {
+                    for (let package of $scope.myjd_failed) {
+                        package.type = "failed";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_offline) {
+                    for (let package of $scope.myjd_offline) {
+                        package.type = "offline";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+
+                if (!$scope.myjd_packages || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
@@ -467,16 +517,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         $("#collapseOne").addClass('show');
                         $("#myjd_collapse").removeClass('collapsed');
                     }
+                }
 
-                }
-                $scope.myjd_grabbing = res.data.grabber_collecting;
-                if ($scope.myjd_grabbing) {
-                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
-                        $("#collapseOne").addClass('show');
-                        $("#myjd_collapse").removeClass('collapsed');
-                    }
-                }
-                $scope.update_ready = res.data.update_ready;
                 console.log('JDownloader abgerufen!');
             }, function (res) {
                 $scope.myjd_grabbing = null;
@@ -597,8 +639,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.checkMyJD = function () {
         $timeout(function () {
-            if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                getMyJD();
+            if (typeof $scope.settings !== 'undefined') {
+                if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                    getMyJD();
+                }
             }
             $scope.checkMyJD();
         }, 5000)

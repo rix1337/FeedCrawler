@@ -77,11 +77,6 @@ thead {
     height: 2em;
 }
 
-.placeholder {
-    padding: 0;
-    width: 0;
-}
-
 #percentage {
     display: inline-block;
     white-space: nowrap;
