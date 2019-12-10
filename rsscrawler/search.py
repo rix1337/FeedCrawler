@@ -661,9 +661,10 @@ def download_sj(sj_id, special, device, configfile, dbfile):
                                    text=re.compile(r'.*' + sxx_retry + r'.*E\d{1,3}.*?'))
         lq_folgen = rated_titles(results, configfile)
 
+        use_pakete_for_episode = False
         if special and "e" in special.lower():
-            pakete = []
-            lq_pakete = []
+            if not folgen and not lq_folgen:
+                use_pakete_for_episode = True
 
         if pakete:
             add = best_links(pakete)
@@ -685,6 +686,12 @@ def download_sj(sj_id, special, device, configfile, dbfile):
         notify_array = []
         for best_link in best_matching_links:
             dl_title = best_link[0]
+            if use_pakete_for_episode:
+                season = special.split("E")[0]
+                if season in dl_title:
+                    dl_title = dl_title.replace(season, special)
+                else:
+                    continue
             dl_link = best_link[1]
             db = RssDb(dbfile, 'rsscrawler')
             if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
