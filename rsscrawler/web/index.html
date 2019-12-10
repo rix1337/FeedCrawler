@@ -165,9 +165,8 @@
                     JDownloader!
                 </div>
                 <div id="myjd_no_packages"
-                     ng-show="myjd_state && (!myjd_packages)">
-                    Downloadliste und Linksammler sind
-                    leer.
+                     ng-show="myjd_state && (myjd_packages.length == 0)">
+                    Downloadliste und Linksammler sind leer.
                 </div>
 
                 <div id="myjd_state" ng-show="myjd_downloads">

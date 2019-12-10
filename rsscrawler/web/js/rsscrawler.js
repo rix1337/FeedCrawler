@@ -507,7 +507,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
 
-                if (!$scope.myjd_packages || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
+                if ($scope.myjd_packages.length == 0 || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
