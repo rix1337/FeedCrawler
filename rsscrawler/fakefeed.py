@@ -120,9 +120,9 @@ def ha_search_to_soup(url, configfile, dbfile):
     return ha_search_to_feedparser_dict(content)
 
 
-def ha_search_results(url, configfile, dbfile):
+def ha_search_results(url):
     content = []
-    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    search = BeautifulSoup(url, 'lxml')
     if search:
         results = search.find("div", {"id": "content"})
         if results:
@@ -223,9 +223,9 @@ def hs_search_to_feedparser_dict(beautifulsoup_object_list):
     return feed
 
 
-def hs_search_results(url, configfile, dbfile):
+def hs_search_results(url):
     content = []
-    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    search = BeautifulSoup(url, 'lxml')
     if search:
         results = search.find_all("item")
         if results:

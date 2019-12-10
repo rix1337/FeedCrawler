@@ -301,26 +301,32 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function downloadMB(link) {
+        showInfoLong("Starte Download...");
         $http.post('api/download_bl/' + link)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
                 getLists();
+                $(".alert-info").slideUp(500);
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
+                $(".alert-info").slideUp(500);
             });
     }
 
     function downloadSJ(id, special) {
+        showInfoLong("Starte Download...");
         $http.post('api/download_sj/' + id + ";" + special)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
                 getLists();
+                $(".alert-info").slideUp(500);
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
+                $(".alert-info").slideUp(500);
             });
     }
 
@@ -507,7 +513,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
 
-                if (!$scope.myjd_packages || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
+                if ($scope.myjd_packages.length == 0 || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
@@ -608,6 +614,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $(".alert-info").html(message).fadeTo(10000, 500).slideUp(500, function () {
             $(".alert-info").slideUp(500);
         });
+    }
+
+    function showInfoLong(message) {
+        $(".alert-info").html(message).show();
     }
 
     function showDanger(message) {

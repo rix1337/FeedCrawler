@@ -165,9 +165,8 @@
                     JDownloader!
                 </div>
                 <div id="myjd_no_packages"
-                     ng-show="myjd_state && (!myjd_packages)">
-                    Downloadliste und Linksammler sind
-                    leer.
+                     ng-show="myjd_state && (myjd_packages.length == 0)">
+                    Downloadliste und Linksammler sind leer.
                 </div>
 
                 <div id="myjd_state" ng-show="myjd_downloads">
@@ -189,13 +188,15 @@
                             title="Downloads anhalten"></i></a>
                 </div>
 
-                <i id="myjd_grabbing" ng-if="myjd_grabbing" class="fas fa-search blinking"
-                   title="Linkgrabber ist derzeit aktiv"
-                   data-toggle="tooltip"></i>
-                <a href="" id="myjd_update" ng-if="update_ready" ng-click="myJDupdate()"><i
-                        class="fas fa-wrench"
-                        title="JDownloader updaten"
-                        data-toggle="tooltip"></i></a>
+                <p>
+                    <i id="myjd_grabbing" ng-if="myjd_grabbing" class="fas fa-search blinking"
+                       title="Linkgrabber ist derzeit aktiv"
+                       data-toggle="tooltip"></i>
+                    <a href="" id="myjd_update" ng-if="update_ready" ng-click="myJDupdate()"><i
+                            class="fas fa-wrench"
+                            title="JDownloader updaten"
+                            data-toggle="tooltip"></i></a>
+                </p>
             </div>
         </div>
     </div>
