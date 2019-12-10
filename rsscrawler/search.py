@@ -388,9 +388,12 @@ def download_bl(payload, device, configfile, dbfile):
                 if text:
                     url_hosters.append([str(link["href"]), str(text)])
     else:
-        download = soup.find("div", {"class": "entry-content"})
-        key = soup.find("h2", {"class": "entry-title"}).text
-        url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+        try:
+            download = soup.find("div", {"class": "entry-content"})
+            key = soup.find("h2", {"class": "entry-title"}).text
+            url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+        except:
+            return False
 
     links = {}
     for url_hoster in reversed(url_hosters):
