@@ -155,9 +155,17 @@ def get(title, configfile, dbfile):
 
     results = {}
     i = 0
+
     for result in rated:
         res = {"link": result[1], "title": result[2]}
-        results["result" + str(i)] = res
+        if (len(rated) > 9 and i <= 9):
+            results["result0" + str(i)] = res
+        elif len(rated) > 99 and i <= 9:
+            results["result00" + str(i)] = res
+        elif len(rated) > 99 and i <= 99:
+            results["result0" + str(i)] = res
+        else:
+            results["result" + str(i)] = res
         i += 1
     mb_final = results
 
@@ -181,7 +189,14 @@ def get(title, configfile, dbfile):
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 60:
             res = {"id": result[0], "title": r_title + append, "special": special}
-            results["result" + str(i)] = res
+            if len(sj_results) > 9 and i <= 9:
+                results["result0" + str(i)] = res
+            elif len(sj_results) > 99 and i <= 9:
+                results["result00" + str(i)] = res
+            elif len(sj_results) > 99 and i <= 99:
+                results["result0" + str(i)] = res
+            else:
+                results["result" + str(i)] = res
             i += 1
     sj_final = results
     return mb_final, sj_final
