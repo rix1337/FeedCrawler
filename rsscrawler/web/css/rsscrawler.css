@@ -52,6 +52,8 @@ thead {
 .app {
     background-color: white;
     color: black;
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
 }
 
 .tooltip-inner {
@@ -67,6 +69,10 @@ thead {
     width: 20em;
     min-width: 20em;
     max-width: 20em;
+}
+
+#head, #myjd, #search, #log, #lists, #help {
+    margin-bottom: 2em;
 }
 
 .progress {

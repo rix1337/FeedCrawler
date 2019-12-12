@@ -538,62 +538,79 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     function myJDmove(linkids, uuid) {
+        showInfoLong("Starte Download...");
         $http.post('api/myjd_move/' + linkids + "&" + uuid)
             .then(function (res) {
                 getMyJD();
+                $(".alert-info").slideUp(1500);
             }, function (res) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
+                $(".alert-info").slideUp(1500);
             });
     }
 
     function myJDremove(linkids, uuid) {
+        showInfoLong("Lösche Download...");
         $http.post('api/myjd_remove/' + linkids + "&" + uuid)
             .then(function (res) {
-                for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid'];
-                    if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package);
-                        $scope.myjd_failed.splice(index, 1)
+                if ($scope.myjd_failed) {
+                    for (let failed_package of $scope.myjd_failed) {
+                        let existing_uuid = failed_package['uuid'];
+                        if (uuid == existing_uuid) {
+                            let index = $scope.myjd_failed.indexOf(failed_package);
+                            $scope.myjd_failed.splice(index, 1)
+                        }
                     }
                 }
                 getMyJD();
+                $(".alert-info").slideUp(1500);
             }, function (res) {
-                console.log('Konnte Download nicht entfernen!');
-                showDanger('Konnte Download nicht entfernen!');
+                console.log('Konnte Download nicht löschen!');
+                showDanger('Konnte Download nicht löschen!');
+                $(".alert-info").slideUp(1500);
             });
     }
 
     function myJDretry(linkids, uuid, links) {
+        showInfoLong("Füge Download erneut hinzu...");
         links = btoa(links);
         $http.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
             .then(function (res) {
-                getMyJD();
-                for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid'];
-                    if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package);
-                        $scope.myjd_failed.splice(index, 1)
+                if ($scope.myjd_failed) {
+                    for (let failed_package of $scope.myjd_failed) {
+                        let existing_uuid = failed_package['uuid'];
+                        if (uuid == existing_uuid) {
+                            let index = $scope.myjd_failed.indexOf(failed_package);
+                            $scope.myjd_failed.splice(index, 1)
+                        }
                     }
                 }
+                getMyJD();
+                $(".alert-info").slideUp(1500);
             }, function (res) {
                 console.log('Konnte Download nicht erneut hinzufügen!');
                 showDanger('Konnte Download nicht erneut hinzufügen!');
+                $(".alert-info").slideUp(1500);
             });
     }
 
     function myJDcnl(uuid) {
+        showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;
-                for (let failed_package of $scope.myjd_failed) {
-                    let existing_uuid = failed_package['uuid'];
-                    if (uuid == existing_uuid) {
-                        let index = $scope.myjd_failed.indexOf(failed_package);
-                        $scope.myjd_failed.splice(index, 1)
+                if ($scope.myjd_failed) {
+                    for (let failed_package of $scope.myjd_failed) {
+                        let existing_uuid = failed_package['uuid'];
+                        if (uuid == existing_uuid) {
+                            let index = $scope.myjd_failed.indexOf(failed_package);
+                            $scope.myjd_failed.splice(index, 1)
+                        }
                     }
                 }
+                $(".alert-info").slideUp(500);
             });
     }
 
