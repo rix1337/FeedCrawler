@@ -755,6 +755,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     known_packages.append(dp['uuid'])
 
             cnl_package = False
+            grabber_was_collecting = False
             i = 12
             subdir = RssConfig('Crawljobs', configfile).get('subdir')
             while i > 0:
@@ -764,34 +765,38 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 if failed:
                     device = failed[0]
                     grabber_collecting = failed[2]
-                    if not grabber_collecting:
-                        decrypted_packages = failed[4][1]
-                        offline_packages = failed[4][2]
-                        another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                       known_packages)[0]
-                        if another_device:
-                            device = another_device
-                            info = get_info(configfile, device)
-                            if info:
-                                device = info[0]
-                                grabber_collecting = info[2]
-                                decrypted_packages = info[4][1]
-                                offline_packages = info[4][2]
+                    if grabber_was_collecting or grabber_collecting:
+                        grabber_was_collecting = grabber_collecting
+                        time.sleep(5)
+                    else:
+                        if not grabber_collecting:
+                            decrypted_packages = failed[4][1]
+                            offline_packages = failed[4][2]
+                            another_device = package_merge(configfile, device, decrypted_packages, title,
+                                                           known_packages)[0]
+                            if another_device:
+                                device = another_device
+                                info = get_info(configfile, device)
+                                if info:
+                                    device = info[0]
+                                    grabber_collecting = info[2]
+                                    decrypted_packages = info[4][1]
+                                    offline_packages = info[4][2]
 
-                        if not grabber_collecting and decrypted_packages:
-                            for dp in decrypted_packages:
-                                if subdir and 'RSScrawler' in dp['path']:
-                                    known_packages.append(dp['uuid'])
-                                if dp['uuid'] not in known_packages:
-                                    cnl_package = dp
-                                    i = 0
-                        if not grabber_collecting and offline_packages:
-                            for op in offline_packages:
-                                if subdir and 'RSScrawler' in op['path']:
-                                    known_packages.append(op['uuid'])
-                                if op['uuid'] not in known_packages:
-                                    cnl_package = op
-                                    i = 0
+                            if not grabber_collecting and decrypted_packages:
+                                for dp in decrypted_packages:
+                                    if subdir and 'RSScrawler' in dp['path']:
+                                        known_packages.append(dp['uuid'])
+                                    if dp['uuid'] not in known_packages:
+                                        cnl_package = dp
+                                        i = 0
+                            if not grabber_collecting and offline_packages:
+                                for op in offline_packages:
+                                    if subdir and 'RSScrawler' in op['path']:
+                                        known_packages.append(op['uuid'])
+                                    if op['uuid'] not in known_packages:
+                                        cnl_package = op
+                                        i = 0
 
             if not cnl_package:
                 return "No Package added through Click'n'Load in time!", 504

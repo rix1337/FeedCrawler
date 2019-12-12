@@ -277,10 +277,13 @@ def best_result_bl(title, configfile, dbfile):
     i = len(mb_results)
     j = 0
     while i > 0:
-        q = 'result' + str(j)
-        results.append(mb_results.get(q).get('title'))
-        i -= 1
-        j += 1
+        try:
+            q = 'result' + str(j)
+            results.append(mb_results.get(q).get('title'))
+            i -= 1
+            j += 1
+        except:
+            pass
     best_score = 0
     best_match = 0
     for r in results:
