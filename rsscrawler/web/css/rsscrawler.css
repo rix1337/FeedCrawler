@@ -56,6 +56,15 @@ thead {
     border-radius: .25rem;
 }
 
+.alert {
+    border: 1px solid #ced4da;
+    border-radius: .25rem;
+}
+
+#myjd .card-body {
+    padding-bottom: 1.25em;
+}
+
 .tooltip-inner {
     border-radius: 0;
     max-width: 60em;

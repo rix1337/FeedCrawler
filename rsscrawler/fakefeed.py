@@ -148,12 +148,11 @@ def hs_feed_enricher(feed, configfile):
 
     entries = []
     if asynch_results:
-        i = 0
-        for post in feed.entries:
+        for result in asynch_results:
             try:
-                title = post.title
                 content = []
-                details = asynch_results[i]
+                details = result
+                title = BeautifulSoup(details, 'lxml').find("h2", {"class": "entry-title"}).text
                 published = BeautifulSoup(details, 'lxml').find("p", {"class": "blog-post-meta"}).contents[0]
                 data = BeautifulSoup(details, 'lxml').find("div", {"class": "entry-content"}).contents[2]
                 content.append(str(data).replace("\n", ""))
@@ -167,7 +166,6 @@ def hs_feed_enricher(feed, configfile):
                 }))
             except:
                 pass
-            i += 1
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
