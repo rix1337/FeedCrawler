@@ -26,13 +26,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import base64
 import hashlib
 import hmac
 import json
 import time
-
 from urllib.parse import quote
-import base64
+
 import requests
 from Cryptodome.Cipher import AES
 
@@ -47,18 +47,12 @@ class TokenExpiredException(BaseException):
     pass
 
 
-def PAD(s):
-    try:
-        return s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()
-    except:  # For python 2
-        return s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
+def pad(s):
+    return s + ((BS - len(s) % BS) * chr(BS - len(s) % BS)).encode()
 
 
-def UNPAD(s):
-    try:
-        return s[0:-s[-1]]
-    except:  # For python 2
-        return s[0:-ord(s[-1])]
+def unpad(s):
+    return s[0:-s[-1]]
 
 
 class System:
@@ -887,7 +881,7 @@ class Myjdapi:
         init_vector = secret_token[:len(secret_token) // 2]
         key = secret_token[len(secret_token) // 2:]
         decryptor = AES.new(key, AES.MODE_CBC, init_vector)
-        decrypted_data = UNPAD(decryptor.decrypt(base64.b64decode(data)))
+        decrypted_data = unpad(decryptor.decrypt(base64.b64decode(data)))
         return decrypted_data
 
     def __encrypt(self, secret_token, data):
@@ -897,7 +891,7 @@ class Myjdapi:
         :param secret_token:
         :param data:
         """
-        data = PAD(data.encode('utf-8'))
+        data = pad(data.encode('utf-8'))
         init_vector = secret_token[:len(secret_token) // 2]
         key = secret_token[len(secret_token) // 2:]
         encryptor = AES.new(key, AES.MODE_CBC, init_vector)

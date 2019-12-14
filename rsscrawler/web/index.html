@@ -157,14 +157,15 @@
                     </button>
                 </div>
 
-                <div ng-if="!myjd_state">
+                <div class="myjd_connection_state" ng-if="!myjd_state">
                     <p id="initial-loading">Verbinde mit My JDownloader...</p>
                     <i id="spinner-myjd" class="fas fa-sync fa-spin"></i>
                 </div>
-                <div id="myjd_no_login" ng-if="myjd_connection_error">Fehler bei Verbindung mit My
+                <div class="myjd_connection_state" id="myjd_no_login" ng-if="myjd_connection_error">Fehler bei
+                    Verbindung mit My
                     JDownloader!
                 </div>
-                <div id="myjd_no_packages"
+                <div class="myjd_connection_state" id="myjd_no_packages"
                      ng-show="myjd_state && (myjd_packages.length == 0)">
                     Downloadliste und Linksammler sind leer.
                 </div>
@@ -188,7 +189,7 @@
                             title="Downloads anhalten"></i></a>
                 </div>
 
-                <p>
+                <p ng-if="myjd_grabbing || update_ready">
                     <i id="myjd_grabbing" ng-if="myjd_grabbing" class="fas fa-search blinking"
                        title="Linkgrabber ist derzeit aktiv"
                        data-toggle="tooltip"></i>
