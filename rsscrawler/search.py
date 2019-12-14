@@ -67,7 +67,21 @@ def get(title, configfile, dbfile):
 
     async_results = get_urls_asynch([mb_search, hw_search, ha_search, hs_search], configfile)
 
-    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', async_results[0])
+    mb_results = []
+    hw_results = []
+    ha_results = []
+    hs_results = []
+
+    for res in async_results:
+        if decode_base64('bW92aWUtYmxvZy50bw==') in res:
+            mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+        elif decode_base64('aGQtd29ybGQub3Jn') in res:
+            hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+        elif decode_base64('aGQtYXJlYS5vcmc=') in res:
+            ha_results = ha_search_results(res)
+        elif decode_base64('aGQtc291cmNlLnRv') in res:
+            hs_results = hs_search_results(res)
+
     password = decode_base64("bW92aWUtYmxvZy5vcmc=")
     for result in mb_results:
         if "480p" in quality:
@@ -79,7 +93,6 @@ def get(title, configfile, dbfile):
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (MB)"])
 
-    hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', async_results[1])
     password = decode_base64("aGQtd29ybGQub3Jn")
     for result in hw_results:
         if "480p" in quality:
@@ -90,7 +103,6 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
 
-    ha_results = ha_search_results(async_results[2])
     password = decode_base64("aGQtYXJlYS5vcmc=")
     for result in ha_results:
         if "480p" in quality:
@@ -101,7 +113,6 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HA)"])
 
-    hs_results = hs_search_results(async_results[3])
     password = decode_base64("aGQtc291cmNlLnRv")
     for result in hs_results:
         if "480p" in quality:
@@ -120,26 +131,37 @@ def get(title, configfile, dbfile):
 
         async_results = get_urls_asynch([mb_search, hw_search, ha_search, hs_search], configfile)
 
-        mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', async_results[0])
+        mb_results = []
+        hw_results = []
+        ha_results = []
+        hs_results = []
+
+        for res in async_results:
+            if decode_base64('bW92aWUtYmxvZy50bw==') in res:
+                mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+            elif decode_base64('aGQtd29ybGQub3Jn') in res:
+                hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+            elif decode_base64('aGQtYXJlYS5vcmc=') in res:
+                ha_results = ha_search_results(res)
+            elif decode_base64('aGQtc291cmNlLnRv') in res:
+                hs_results = hs_search_results(res)
+
         for result in mb_results:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                 unrated.append(
                     [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-MB)"])
 
-        hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', async_results[1])
         password = decode_base64("aGQtd29ybGQub3Jn")
         for result in hw_results:
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HW)"])
 
-        ha_results = ha_search_results(async_results[2])
         password = decode_base64("aGQtYXJlYS5vcmc=")
         for result in ha_results:
             if "3d" in result[0].lower():
                 unrated.append(
                     [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HA)"])
 
-        hs_results = hs_search_results(async_results[3])
         password = decode_base64("aGQtc291cmNlLnRv")
         for result in hs_results:
             if "480p" in quality:
