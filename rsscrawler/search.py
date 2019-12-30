@@ -297,15 +297,24 @@ def best_result_bl(title, configfile, dbfile):
         'ignore') else r"^unmatchable$"
     results = []
     i = len(mb_results)
+    i_len = i
+
     j = 0
     while i > 0:
         try:
-            q = 'result' + str(j)
+            if (i_len > 9 and j <= 9):
+                q = "result0" + str(j)
+            elif i_len > 99 and j <= 9:
+                q = "result00" + str(j)
+            elif i_len > 99 and j <= 99:
+                q = "result0" + str(j)
+            else:
+                q = "result" + str(j)
             results.append(mb_results.get(q).get('title'))
-            i -= 1
-            j += 1
         except:
             pass
+        i -= 1
+        j += 1
     best_score = 0
     best_match = 0
     for r in results:
