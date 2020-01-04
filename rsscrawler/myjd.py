@@ -304,12 +304,7 @@ def get_state(configfile, device):
 def cryptor_url_first(failed_package):
     resorted_failed_package = []
     for p in failed_package:
-        pk = {}
-        pk['name'] = p['name']
-        pk['path'] = p['path']
-        pk['urls'] = p['urls']
-        pk['linkids'] = p['linkids']
-        pk['uuid'] = p['uuid']
+        pk = {'name': p['name'], 'path': p['path'], 'urls': p['urls'], 'linkids': p['linkids'], 'uuid': p['uuid']}
 
         cryptor_found = False
         links = split_urls(pk['urls'])
@@ -772,6 +767,7 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
 def remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids, delete_linkids,
                        delete_uuids, delete_packages, title):
     title = title.replace(" ", ".")
+    path = ''
     for package in decrypted_packages:
         path = package['path']
 
@@ -930,7 +926,6 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                links = split_urls(dp['urls'])
                 for l in linkids:
                     delete_linkids.append(l)
                 uuid = dp['uuid']
@@ -965,7 +960,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                 if uuid not in known_packages:
                     delete = True
                     links = split_urls(dp['urls'])
-                    for link in links:
+                    for _ in links:
                         try:
                             keep_linkids.append(linkids[i])
                             valid_links = True

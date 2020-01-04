@@ -392,7 +392,7 @@ def main():
 
         print(u'Drücke [Strg] + [C] zum Beenden')
 
-        def signal_handler(signal, frame):
+        def signal_handler():
             print(u'Beende RSScrawler...')
             p.terminate()
             c.terminate()

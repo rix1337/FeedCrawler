@@ -155,11 +155,11 @@ def get(title, configfile, dbfile):
 
     for result in rated:
         res = {"link": result[1], "title": result[2]}
-        if (len(rated) > 9 and i <= 9):
+        if len(rated) > 9 >= i:
             results["result0" + str(i)] = res
         elif len(rated) > 99 and i <= 9:
             results["result00" + str(i)] = res
-        elif len(rated) > 99 and i <= 99:
+        elif len(rated) > 99 >= i:
             results["result0" + str(i)] = res
         else:
             results["result" + str(i)] = res
@@ -186,11 +186,11 @@ def get(title, configfile, dbfile):
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 60:
             res = {"id": result[0], "title": r_title + append, "special": special}
-            if len(sj_results) > 9 and i <= 9:
+            if len(sj_results) > 9 >= i:
                 results["result0" + str(i)] = res
             elif len(sj_results) > 99 and i <= 9:
                 results["result00" + str(i)] = res
-            elif len(sj_results) > 99 and i <= 99:
+            elif len(sj_results) > 99 >= i:
                 results["result0" + str(i)] = res
             else:
                 results["result" + str(i)] = res
@@ -277,11 +277,11 @@ def best_result_bl(title, configfile, dbfile):
     j = 0
     while i > 0:
         try:
-            if (i_len > 9 and j <= 9):
+            if i_len > 9 >= j:
                 q = "result0" + str(j)
             elif i_len > 99 and j <= 9:
                 q = "result00" + str(j)
-            elif i_len > 99 and j <= 99:
+            elif i_len > 99 >= j:
                 q = "result0" + str(j)
             else:
                 q = "result" + str(j)
@@ -354,10 +354,22 @@ def best_result_sj(title, configfile, dbfile):
         return False
     results = []
     i = len(sj_results)
+    i_len = i
+
     j = 0
     while i > 0:
-        q = 'result' + str(j)
-        results.append(sj_results.get(q).get('title'))
+        try:
+            if i_len > 9 >= j:
+                q = "result0" + str(j)
+            elif i_len > 99 and j <= 9:
+                q = "result00" + str(j)
+            elif i_len > 99 >= j:
+                q = "result0" + str(j)
+            else:
+                q = "result" + str(j)
+            results.append(sj_results.get(q).get('title'))
+        except:
+            pass
         i -= 1
         j += 1
     best_score = 0
