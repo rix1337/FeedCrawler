@@ -19,7 +19,6 @@ from passlib.hash import pbkdf2_sha256
 
 from rsscrawler import search
 from rsscrawler import version
-from rsscrawler.common import decode_base64
 from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import get_if_one_device
@@ -33,7 +32,8 @@ from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
-from rsscrawler.output import Unbuffered
+from rsscrawler.rsscommon import Unbuffered
+from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 

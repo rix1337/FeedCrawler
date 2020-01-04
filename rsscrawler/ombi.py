@@ -7,7 +7,7 @@ import json
 import requests
 
 from rsscrawler import search
-from rsscrawler.common import sanitize
+from rsscrawler.rsscommon import sanitize
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url_headers

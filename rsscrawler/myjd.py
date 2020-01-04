@@ -8,11 +8,11 @@ import time
 from fuzzywuzzy import fuzz
 
 import rsscrawler.myjdapi
-from rsscrawler.common import check_hoster
-from rsscrawler.common import is_device
-from rsscrawler.common import longest_substr
-from rsscrawler.common import readable_size
-from rsscrawler.common import readable_time
+from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import is_device
+from rsscrawler.rsscommon import longest_substr
+from rsscrawler.rsscommon import readable_size
+from rsscrawler.rsscommon import readable_time
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 

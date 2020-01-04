@@ -42,11 +42,9 @@ from logging import handlers
 
 from docopt import docopt
 
-from rsscrawler import common
 from rsscrawler import files
+from rsscrawler import rsscommon
 from rsscrawler import version
-from rsscrawler.common import is_device
-from rsscrawler.common import readable_time
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
@@ -56,7 +54,9 @@ from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
-from rsscrawler.output import Unbuffered
+from rsscrawler.rsscommon import Unbuffered
+from rsscrawler.rsscommon import is_device
+from rsscrawler.rsscommon import readable_time
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
@@ -371,7 +371,7 @@ def main():
         prefix = ''
     if not arguments['--docker']:
         print(u'Der Webserver ist erreichbar unter http://' +
-              common.check_ip() + ':' + str(port) + prefix)
+              rsscommon.check_ip() + ':' + str(port) + prefix)
 
     if arguments['--keep-cdc']:
         print(u"CDC-Tabelle nicht geleert!")
