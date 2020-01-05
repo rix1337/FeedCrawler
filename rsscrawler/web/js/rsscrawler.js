@@ -113,6 +113,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.searching = false;
     $scope.myjd_state = false;
     $scope.myjd_packages = [];
+    $scope.time = 0;
 
 
     $scope.init = getAll();
@@ -204,6 +205,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getMyJD();
     }
 
+    function countDown(seconds) {
+        if (seconds === 0) {
+            return;
+        } else {
+            seconds--;
+        }
+        $scope.time = seconds;
+        $timeout(function () {
+            countDown(seconds)
+        }, 1000);
+    }
+
     function manualCollapse() {
         $scope.myjd_collapse_manual = true;
     }
@@ -231,6 +244,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $scope.myjd_connection_error = true;
                 }
+                $scope.pageSizeMyJD = $scope.settings.general.packages_per_myjd_page;
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
@@ -488,18 +502,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.update_ready = res.data.update_ready;
 
                 $scope.myjd_packages = [];
-                if ($scope.myjd_downloads) {
-                    for (let package of $scope.myjd_downloads) {
-                        package.type = "online";
-                        $scope.myjd_packages.push(package);
-                    }
-                }
-                if ($scope.myjd_decrypted) {
-                    for (let package of $scope.myjd_decrypted) {
-                        package.type = "decrypted";
-                        $scope.myjd_packages.push(package);
-                    }
-                }
                 if ($scope.myjd_failed) {
                     for (let package of $scope.myjd_failed) {
                         package.type = "failed";
@@ -509,6 +511,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_offline) {
                     for (let package of $scope.myjd_offline) {
                         package.type = "offline";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_decrypted) {
+                    for (let package of $scope.myjd_decrypted) {
+                        package.type = "decrypted";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_downloads) {
+                    for (let package of $scope.myjd_downloads) {
+                        package.type = "online";
                         $scope.myjd_packages.push(package);
                     }
                 }
@@ -598,6 +612,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDcnl(uuid) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
+        if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.shorter_cnl_timeout) {
+            countDown(60);
+        } else {
+            countDown(30);
+        }
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;
@@ -611,7 +630,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
                 $(".alert-info").slideUp(500);
-            });
+            }).catch(function () {
+            showDanger("Click'n'Load nicht durchgeführt!");
+            $scope.cnl_active = false;
+            $(".alert-info").slideUp(500);
+        });
     }
 
     function scrollingTitle(titleText) {
@@ -657,7 +680,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateLog = function () {
         $timeout(function () {
-            getLog();
+            if (!$scope.cnl_active) {
+                getLog();
+            }
             $scope.updateLog();
         }, 5000)
     };
@@ -666,9 +691,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.checkMyJD = function () {
         $timeout(function () {
-            if (typeof $scope.settings !== 'undefined') {
-                if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                    getMyJD();
+            if (!$scope.cnl_active) {
+                if (typeof $scope.settings !== 'undefined') {
+                    if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                        getMyJD();
+                    }
                 }
             }
             $scope.checkMyJD();
@@ -679,10 +706,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateChecker = function () {
         $timeout(function () {
-            getVersion();
+            if (!$scope.cnl_active) {
+                getVersion();
+            }
             $scope.updateChecker();
         }, 300000)
     };
 
     $scope.updateChecker();
-});
+})
+;

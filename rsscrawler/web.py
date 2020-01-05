@@ -19,7 +19,6 @@ from passlib.hash import pbkdf2_sha256
 
 from rsscrawler import search
 from rsscrawler import version
-from rsscrawler.common import decode_base64
 from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import get_if_one_device
@@ -33,7 +32,8 @@ from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
-from rsscrawler.output import Unbuffered
+from rsscrawler.rsscommon import Unbuffered
+from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 
@@ -212,6 +212,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "fallback": general_conf.get("fallback"),
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                             "one_mirror_policy": general_conf.get("one_mirror_policy"),
+                            "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
+                            "shorter_cnl_timeout": general_conf.get("shorter_cnl_timeout"),
                         },
                         "hosters": {
                             "rapidgator": hosters.get("rapidgator"),
@@ -338,6 +340,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("fallback", to_str(data['general']['fallback']))
             section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
+            section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
+            section.save("shorter_cnl_timeout", to_str(data['general']['shorter_cnl_timeout']))
 
             section = RssConfig("Crawljobs", configfile)
 
@@ -756,8 +760,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             cnl_package = False
             grabber_was_collecting = False
-            i = 12
             subdir = RssConfig('Crawljobs', configfile).get('subdir')
+            if RssConfig('RSScrawler', configfile).get('shorter_cnl_timeout'):
+                i = 6
+            else:
+                i = 12
             while i > 0:
                 i -= 1
                 time.sleep(5)
@@ -767,6 +774,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     grabber_collecting = failed[2]
                     if grabber_was_collecting or grabber_collecting:
                         grabber_was_collecting = grabber_collecting
+                        i -= 1
                         time.sleep(5)
                     else:
                         if not grabber_collecting:

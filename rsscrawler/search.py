@@ -10,15 +10,14 @@ import re
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
-from rsscrawler.common import check_hoster
-from rsscrawler.common import cutoff
-from rsscrawler.common import decode_base64
-from rsscrawler.common import encode_base64
-from rsscrawler.common import sanitize
-from rsscrawler.fakefeed import ha_search_results
 from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
+from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import cutoff
+from rsscrawler.rsscommon import decode_base64
+from rsscrawler.rsscommon import encode_base64
+from rsscrawler.rsscommon import sanitize
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -62,14 +61,12 @@ def get(title, configfile, dbfile):
     mb_search = decode_base64(
         'aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/'
     hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
-    ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=" + quality
     hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
 
-    async_results = get_urls_asynch([mb_search, hw_search, ha_search, hs_search], configfile)
+    async_results = get_urls_asynch([mb_search, hw_search, hs_search], configfile)
 
     mb_results = []
     hw_results = []
-    ha_results = []
     hs_results = []
 
     for res in async_results:
@@ -77,8 +74,6 @@ def get(title, configfile, dbfile):
             mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
         elif decode_base64('aGQtd29ybGQub3Jn') in res:
             hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-        elif decode_base64('aGQtYXJlYS5vcmc=') in res:
-            ha_results = ha_search_results(res)
         elif decode_base64('aGQtc291cmNlLnRv') in res:
             hs_results = hs_search_results(res)
 
@@ -103,16 +98,6 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
 
-    password = decode_base64("aGQtYXJlYS5vcmc=")
-    for result in ha_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HA)"])
-
     password = decode_base64("aGQtc291cmNlLnRv")
     for result in hs_results:
         if "480p" in quality:
@@ -126,14 +111,12 @@ def get(title, configfile, dbfile):
     if config.get("crawl3d"):
         mb_search = decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
-        ha_search = decode_base64('aHR0cDovL3d3dy5oZC1hcmVhLm9yZy8/cz1zZWFyY2gmcT0=') + bl_query + "&c=1080p"
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
 
-        async_results = get_urls_asynch([mb_search, hw_search, ha_search, hs_search], configfile)
+        async_results = get_urls_asynch([mb_search, hw_search, hs_search], configfile)
 
         mb_results = []
         hw_results = []
-        ha_results = []
         hs_results = []
 
         for res in async_results:
@@ -141,8 +124,6 @@ def get(title, configfile, dbfile):
                 mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
             elif decode_base64('aGQtd29ybGQub3Jn') in res:
                 hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif decode_base64('aGQtYXJlYS5vcmc=') in res:
-                ha_results = ha_search_results(res)
             elif decode_base64('aGQtc291cmNlLnRv') in res:
                 hs_results = hs_search_results(res)
 
@@ -155,12 +136,6 @@ def get(title, configfile, dbfile):
         for result in hw_results:
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HW)"])
-
-        password = decode_base64("aGQtYXJlYS5vcmc=")
-        for result in ha_results:
-            if "3d" in result[0].lower():
-                unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HA)"])
 
         password = decode_base64("aGQtc291cmNlLnRv")
         for result in hs_results:
@@ -180,11 +155,11 @@ def get(title, configfile, dbfile):
 
     for result in rated:
         res = {"link": result[1], "title": result[2]}
-        if (len(rated) > 9 and i <= 9):
+        if len(rated) > 9 >= i:
             results["result0" + str(i)] = res
         elif len(rated) > 99 and i <= 9:
             results["result00" + str(i)] = res
-        elif len(rated) > 99 and i <= 99:
+        elif len(rated) > 99 >= i:
             results["result0" + str(i)] = res
         else:
             results["result" + str(i)] = res
@@ -211,11 +186,11 @@ def get(title, configfile, dbfile):
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 60:
             res = {"id": result[0], "title": r_title + append, "special": special}
-            if len(sj_results) > 9 and i <= 9:
+            if len(sj_results) > 9 >= i:
                 results["result0" + str(i)] = res
             elif len(sj_results) > 99 and i <= 9:
                 results["result00" + str(i)] = res
-            elif len(sj_results) > 99 and i <= 99:
+            elif len(sj_results) > 99 >= i:
                 results["result0" + str(i)] = res
             else:
                 results["result" + str(i)] = res
@@ -302,11 +277,11 @@ def best_result_bl(title, configfile, dbfile):
     j = 0
     while i > 0:
         try:
-            if (i_len > 9 and j <= 9):
+            if i_len > 9 >= j:
                 q = "result0" + str(j)
             elif i_len > 99 and j <= 9:
                 q = "result00" + str(j)
-            elif i_len > 99 and j <= 99:
+            elif i_len > 99 >= j:
                 q = "result0" + str(j)
             else:
                 q = "result" + str(j)
@@ -379,10 +354,22 @@ def best_result_sj(title, configfile, dbfile):
         return False
     results = []
     i = len(sj_results)
+    i_len = i
+
     j = 0
     while i > 0:
-        q = 'result' + str(j)
-        results.append(sj_results.get(q).get('title'))
+        try:
+            if i_len > 9 >= j:
+                q = "result0" + str(j)
+            elif i_len > 99 and j <= 9:
+                q = "result00" + str(j)
+            elif i_len > 99 >= j:
+                q = "result0" + str(j)
+            else:
+                q = "result" + str(j)
+            results.append(sj_results.get(q).get('title'))
+        except:
+            pass
         i -= 1
         j += 1
     best_score = 0

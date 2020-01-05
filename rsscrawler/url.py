@@ -6,7 +6,7 @@ import concurrent.futures
 
 import cfscrape
 
-from rsscrawler.common import decode_base64
+from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 

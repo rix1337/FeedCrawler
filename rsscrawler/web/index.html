@@ -7,7 +7,7 @@
 
     <link href="img/favicon.ico" rel="icon" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/rsscrawler.css?update">
+    <link rel="stylesheet" href="css/rsscrawler.css">
 
     <title>RSScrawler</title>
 </head>
@@ -103,13 +103,16 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item" ng-if="x.url">
-                                    <a ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
+                                    <a ng-if="!myjd_grabbing" ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
                                        class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
-                                       target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
+                                       target="_blank"
+                                       title="Click'n'Load innerhalb {{settings.general.shorter_cnl_timeout ?'von 30 Sekunden':'einer Minute'}} auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                    <span class="cnl-spinner" ng-show="cnl_active" title="Warte auf hinzugefügte Links!"
+                                    <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
+                                    <span class="cnl-spinner" ng-show="cnl_active"
+                                          title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
                                           data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
+                                <i class="fas fa-sync fa-spin"></i> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
                                 </li>
                                 <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="x.urls">
                             <textarea ng-model="x.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -605,12 +608,6 @@
                             </li>
                             <li class="list-group-item">
                                 <script>
-                                    document.write(unescape('%48%44%2D%41%72%65%61%2E%6F%72%67'));
-                                </script>
-                                (HA)
-                            </li>
-                            <li class="list-group-item">
-                                <script>
                                     document.write(unescape('%48%44%2D%53%6F%75%72%63%65%2E%74%6F'));
                                 </script>
                                 (HS)
@@ -694,6 +691,18 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des RSScrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht."></span>
                 </label>
+                <h4>Click'n'Load-Automatik verkürzen</h4>
+                <label class="switch">
+                    <input type="checkbox"
+                           ng-model="settings.general.shorter_cnl_timeout">
+                    <span class="slider round"
+                          data-toggle="tooltip"
+                          title="Wenn aktiviert, läuft die Click'n'Load-Automatik nur 30 Sekunden statt einer Minute lang. Das senkt die Wartezeit bis zum Abbruch, falls ein Link sich nicht entschlüssel lässt; erhöht gleichzeitig aber die Fehlerquote, wenn Links zu langsam hinzugefügt werden."></span>
+                </label>
+                <h4>Pakete pro Seite</h4>
+                <input required type="number" min="3" max="30" ng-model="settings.general.packages_per_myjd_page"
+                       class="number form-control" data-toggle="tooltip"
+                       title="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."/>
             </div>
         </div>
     </div>
@@ -913,22 +922,22 @@
             <div class="card-body">
                 <h4>Ombi URL</h4>
                 <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
-                       title="Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
+                       title="Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
                 <h4>Ombi API-Key</h4>
                 <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
-                       title="Hier den API-Key von Ombi angeben."/>
+                       title="Pflichtangabe: Hier den API-Key von Ombi angeben."/>
                 <h4>The Movie Database API-Key</h4>
                 <input ng-model="settings.ombi.mdb_api" class="form-control" data-toggle="tooltip"
-                       title="Unter https://www.themoviedb.org/settings/api registrieren und einen API-Key anfordern."/>
-                <h4>TheTVDB API-Key</h4>
-                <input ng-model="settings.ombi.tvd_api" class="form-control" data-toggle="tooltip"
-                       title="Unter https://www.thetvdb.com/member/api registrieren und einen API-Key generieren."/>
+                       title="Pflichtangabe (für den Abruf der Filmen): Unter https://www.themoviedb.org/settings/api registrieren und einen API-Key anfordern; diesen hier angeben."/>
                 <h4>TheTVDB Username</h4>
                 <input ng-model="settings.ombi.tvd_user" class="form-control" data-toggle="tooltip"
-                       title="Unter https://www.thetvdb.com/member/api registrieren und den Username angeben."/>
+                       title="Pflichtangabe (für den Abruf von Serien): Unter https://www.thetvdb.com/auth/register registrieren und den Username angeben."/>
+                <h4>TheTVDB API-Key</h4>
+                <input ng-model="settings.ombi.tvd_api" class="form-control" data-toggle="tooltip"
+                       title="Pflichtangabe (für den Abruf von Serien): Unter https://www.thetvdb.com/dashboard/account/apikey einen API-Key generieren; diesen hier angeben."/>
                 <h4>TheTVDB Unique ID</h4>
                 <input ng-model="settings.ombi.tvd_userkey" class="form-control" data-toggle="tooltip"
-                       title="Unter https://www.thetvdb.com/member/api registrieren und die Unique ID angeben."/>
+                       title="Pflichtangabe (für den Abruf von Serien): Die Unique ID von https://www.thetvdb.com/dashboard/account/editinfo angeben."/>
             </div>
         </div>
     </div>
@@ -1227,7 +1236,7 @@
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?update"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>{% endraw %}
