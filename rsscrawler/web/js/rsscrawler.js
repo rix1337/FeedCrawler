@@ -611,7 +611,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
                 $(".alert-info").slideUp(500);
-            });
+            }).catch(function () {
+            showDanger("Click'n'Load nicht durchgeführt!");
+            $scope.cnl_active = false;
+            $(".alert-info").slideUp(500);
+        });
     }
 
     function scrollingTitle(titleText) {
@@ -657,7 +661,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateLog = function () {
         $timeout(function () {
-            getLog();
+            if (!$scope.cnl_active) {
+                getLog();
+            }
             $scope.updateLog();
         }, 5000)
     };
@@ -666,9 +672,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.checkMyJD = function () {
         $timeout(function () {
-            if (typeof $scope.settings !== 'undefined') {
-                if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                    getMyJD();
+            if (!$scope.cnl_active) {
+                if (typeof $scope.settings !== 'undefined') {
+                    if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
+                        getMyJD();
+                    }
                 }
             }
             $scope.checkMyJD();
@@ -679,10 +687,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.updateChecker = function () {
         $timeout(function () {
-            getVersion();
+            if (!$scope.cnl_active) {
+                getVersion();
+            }
             $scope.updateChecker();
         }, 300000)
     };
 
     $scope.updateChecker();
-});
+})
+;
