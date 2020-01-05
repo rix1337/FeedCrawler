@@ -275,7 +275,7 @@ def crawldog(configfile, dbfile):
                 time.sleep(5)
         except Exception:
             traceback.print_exc()
-            time.sleep(15)
+            time.sleep(30)
 
 
 def search_pool(configfile, dbfile, device, logging):

@@ -1144,33 +1144,33 @@ class BL:
 
         if not self.historical:
             if self.filename != 'IMDB':
-                if not mb_304:
+                if not mb_304 and first_page_mb:
                     for i in first_page_mb.entries:
                         concat_mb = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
-                if not hw_304:
+                if not hw_304 and first_page_hw:
                     for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
-                if not hs_304:
+                if not hs_304 and first_page_hs:
                     for i in first_page_hs.entries:
                         concat_hs = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
                         break
             else:
-                if not mb_304:
+                if not mb_304 and first_page_mb:
                     for i in first_page_mb.entries:
                         concat_mb = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
                         break
-                if not hw_304:
+                if not hw_304 and first_page_hw:
                     for i in first_page_hw.entries:
                         concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
                         break
-                if not hs_304:
+                if not hs_304 and first_page_hs:
                     for i in first_page_hs.entries:
                         concat_hs = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
