@@ -611,7 +611,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDcnl(uuid) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
-        countDown(60);
+        if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.shorter_cnl_timeout) {
+            countDown(60);
+        } else {
+            countDown(30);
+        }
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;
