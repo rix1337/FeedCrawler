@@ -113,6 +113,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.searching = false;
     $scope.myjd_state = false;
     $scope.myjd_packages = [];
+    $scope.time = 0;
 
 
     $scope.init = getAll();
@@ -202,6 +203,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getLists();
         getSettings();
         getMyJD();
+    }
+
+    function countDown(seconds) {
+        if (seconds === 0) {
+            return;
+        } else {
+            seconds--;
+        }
+        $scope.time = seconds;
+        $timeout(function () {
+            countDown(seconds)
+        }, 1000);
     }
 
     function manualCollapse() {
@@ -488,18 +501,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.update_ready = res.data.update_ready;
 
                 $scope.myjd_packages = [];
-                if ($scope.myjd_downloads) {
-                    for (let package of $scope.myjd_downloads) {
-                        package.type = "online";
-                        $scope.myjd_packages.push(package);
-                    }
-                }
-                if ($scope.myjd_decrypted) {
-                    for (let package of $scope.myjd_decrypted) {
-                        package.type = "decrypted";
-                        $scope.myjd_packages.push(package);
-                    }
-                }
                 if ($scope.myjd_failed) {
                     for (let package of $scope.myjd_failed) {
                         package.type = "failed";
@@ -509,6 +510,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_offline) {
                     for (let package of $scope.myjd_offline) {
                         package.type = "offline";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_decrypted) {
+                    for (let package of $scope.myjd_decrypted) {
+                        package.type = "decrypted";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.myjd_downloads) {
+                    for (let package of $scope.myjd_downloads) {
+                        package.type = "online";
                         $scope.myjd_packages.push(package);
                     }
                 }
@@ -598,6 +611,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDcnl(uuid) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
+        countDown(60);
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;

@@ -767,6 +767,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     grabber_collecting = failed[2]
                     if grabber_was_collecting or grabber_collecting:
                         grabber_was_collecting = grabber_collecting
+                        i -= 1
                         time.sleep(5)
                     else:
                         if not grabber_collecting:

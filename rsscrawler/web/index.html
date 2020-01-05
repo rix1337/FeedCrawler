@@ -103,13 +103,15 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item" ng-if="x.url">
-                                    <a ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
+                                    <a ng-if="!myjd_grabbing" ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
                                        class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
                                        target="_blank" title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                    <span class="cnl-spinner" ng-show="cnl_active" title="Warte auf hinzugefügte Links!"
+                                    <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
+                                    <span class="cnl-spinner" ng-show="cnl_active"
+                                          title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
                                           data-toggle="tooltip">
-                                <i class="fas fa-sync fa-spin"></i> Warte auf hinzugefügte Links!</span>
+                                <i class="fas fa-sync fa-spin"></i> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
                                 </li>
                                 <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="x.urls">
                             <textarea ng-model="x.urls" class="urls drop form-control" data-toggle="tooltip"
