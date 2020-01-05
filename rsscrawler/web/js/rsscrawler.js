@@ -244,6 +244,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 } else {
                     $scope.myjd_connection_error = true;
                 }
+                $scope.pageSizeMyJD = $scope.settings.general.packages_per_myjd_page;
             }, function (res) {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
