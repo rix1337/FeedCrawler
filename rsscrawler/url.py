@@ -24,7 +24,7 @@ def check_url(configfile, dbfile, scraper=False):
         proxies = {'http': proxy, 'https': proxy}
         try:
             if "block." in str(
-                    scraper.get(sj_url, proxies=proxies, timeout=30,
+                    scraper.get(sj_url, proxies=proxies, timeout=10,
                                 allow_redirects=False).headers.get("location")):
                 sj_blocked_proxy = True
             else:
@@ -40,7 +40,7 @@ def check_url(configfile, dbfile, scraper=False):
 
         try:
             if "<Response [403]>" in str(
-                    scraper.get(mb_url, proxies=proxies, timeout=30,
+                    scraper.get(mb_url, proxies=proxies, timeout=10,
                                 allow_redirects=False)):
                 mb_blocked_proxy = True
             else:
@@ -55,11 +55,11 @@ def check_url(configfile, dbfile, scraper=False):
 
     if not proxy or sj_blocked_proxy or mb_blocked_proxy:
         if "block." in str(
-                scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
+                scraper.get(sj_url, timeout=10, allow_redirects=False).headers.get(
                     "location")):
             print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
         if "<Response [403]>" in str(
-                scraper.get(mb_url, timeout=30, allow_redirects=False)):
+                scraper.get(mb_url, timeout=10, allow_redirects=False)):
             print(u"Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
     return
 
@@ -75,20 +75,20 @@ def get_url(url, configfile, dbfile, scraper=False):
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
-                return scraper.get(url, timeout=30).text
+                return scraper.get(url, timeout=10).text
         elif mb in url:
             if db.retrieve("MB") and config.get("fallback"):
-                return scraper.get(url, timeout=30).text
+                return scraper.get(url, timeout=10).text
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.get(url, proxies=proxies, timeout=30).text
+            response = scraper.get(url, proxies=proxies, timeout=10).text
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
-            response = scraper.get(url, timeout=30).text
+            response = scraper.get(url, timeout=10).text
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -106,9 +106,9 @@ def get_urls_asynch(urls, configfile, scraper=False):
         try:
             if proxy:
                 proxies = {'http': proxy, 'https': proxy}
-                return scraper.get(url, proxies=proxies, timeout=30).text
+                return scraper.get(url, proxies=proxies, timeout=10).text
             else:
-                return scraper.get(url, timeout=30).text
+                return scraper.get(url, timeout=10).text
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -135,20 +135,20 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
-                return [scraper.get(url, headers=headers, timeout=30), scraper]
+                return [scraper.get(url, headers=headers, timeout=10), scraper]
         elif mb in url:
             if db.retrieve("MB") and config.get("fallback"):
-                return [scraper.get(url, headers=headers, timeout=30), scraper]
+                return [scraper.get(url, headers=headers, timeout=10), scraper]
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
+            response = scraper.get(url, headers=headers, proxies=proxies, timeout=10)
             return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ["", scraper]
     else:
         try:
-            response = scraper.get(url, headers=headers, timeout=30)
+            response = scraper.get(url, headers=headers, timeout=10)
             return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -166,20 +166,20 @@ def post_url(url, configfile, dbfile, data, scraper=False):
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
-                return scraper.post(url, data, timeout=30).content
+                return scraper.post(url, data, timeout=10).content
         elif mb in url:
             if db.retrieve("MB") and config.get("fallback"):
-                return scraper.post(url, data, timeout=30).content
+                return scraper.post(url, data, timeout=10).content
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.post(url, data, proxies=proxies, timeout=30).content
+            response = scraper.post(url, data, proxies=proxies, timeout=10).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
-            response = scraper.post(url, data, timeout=30).content
+            response = scraper.post(url, data, timeout=10).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -197,20 +197,20 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
         db = RssDb(dbfile, 'proxystatus')
         if sj in url:
             if db.retrieve("SJ") and config.get("fallback"):
-                return scraper.post(url, json=json, timeout=30).content
+                return scraper.post(url, json=json, timeout=10).content
         elif mb in url:
             if db.retrieve("MB") and config.get("fallback"):
-                return scraper.post(url, json=json, timeout=30).content
+                return scraper.post(url, json=json, timeout=10).content
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.post(url, json=json, proxies=proxies, timeout=30).content
+            response = scraper.post(url, json=json, proxies=proxies, timeout=10).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
     else:
         try:
-            response = scraper.post(url, json=json, timeout=30).content
+            response = scraper.post(url, json=json, timeout=10).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
