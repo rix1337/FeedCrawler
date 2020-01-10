@@ -7,6 +7,7 @@
 import hashlib
 import re
 
+import cloudscraper
 import feedparser
 
 from rsscrawler.fakefeed import hs_feed_enricher
@@ -1085,10 +1086,13 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
 
+        scraper = cloudscraper.create_scraper(browser='chrome')
         mb_304 = False
         if not self.historical:
             try:
-                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb)
+                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb, scraper)
+                scraper = first_mb[1]
+                first_mb = first_mb[0]
                 first_page_mb = feedparser.parse(first_mb.content)
                 if first_mb.status_code == 304:
                     mb_304 = True
@@ -1100,7 +1104,9 @@ class BL:
         hw_304 = False
         if not self.historical:
             try:
-                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw)
+                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, scraper)
+                scraper = first_hw[1]
+                first_hw = first_hw[0]
                 first_page_hw = feedparser.parse(first_hw.content)
                 if first_hw.status_code == 304:
                     hw_304 = True
@@ -1112,8 +1118,10 @@ class BL:
         hs_304 = False
         if not self.historical:
             try:
-                first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs)
-                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile)
+                first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, scraper)
+                scraper = first_hs[1]
+                first_hs = first_hs[0]
+                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, scraper)
                 if first_hs.status_code == 304:
                     hs_304 = True
             except:
@@ -1186,7 +1194,7 @@ class BL:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile))
+                                get_url(url, self.configfile, self.dbfile, scraper))
                         found = self.imdb_search(imdb, mb_parsed_url, "MB")
                         if found:
                             for f in found:
@@ -1199,7 +1207,7 @@ class BL:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile))
+                                get_url(url, self.configfile, self.dbfile, scraper))
                         found = self.imdb_search(imdb, hw_parsed_url, "HW")
                         if found:
                             for f in found:
@@ -1212,7 +1220,7 @@ class BL:
                             hs_parsed_url = first_page_hs
                         else:
                             hs_parsed_url = hs_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile), self.configfile)
+                                get_url(url, self.configfile, self.dbfile, scraper), self.configfile, scraper)
                         found = self.imdb_search(imdb, hs_parsed_url, "HS")
                         if found:
                             for f in found:
@@ -1226,7 +1234,7 @@ class BL:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile))
+                            get_url(url, self.configfile, self.dbfile, scraper))
                     found = self.feed_search(mb_parsed_url, "MB")
                     if found:
                         for f in found:
@@ -1239,7 +1247,7 @@ class BL:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile))
+                            get_url(url, self.configfile, self.dbfile, scraper))
                     found = self.feed_search(hw_parsed_url, "HW")
                     if found:
                         for f in found:
@@ -1252,7 +1260,7 @@ class BL:
                         hs_parsed_url = first_page_hs
                     else:
                         hs_parsed_url = hs_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile), self.configfile)
+                            get_url(url, self.configfile, self.dbfile, scraper), self.configfile, scraper)
                     found = self.feed_search(hs_parsed_url, "HS")
                     if found:
                         for f in found:

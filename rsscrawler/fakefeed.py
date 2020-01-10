@@ -20,7 +20,7 @@ class FakeFeedParserDict(dict):
             raise AttributeError("No such attribute: " + name)
 
 
-def hs_feed_enricher(feed, configfile):
+def hs_feed_enricher(feed, configfile, scraper):
     feed = feedparser.parse(feed)
 
     asynch_results = []
@@ -29,7 +29,7 @@ def hs_feed_enricher(feed, configfile):
             asynch_results.append(post.links[0].href)
         except:
             pass
-    asynch_results = get_urls_asynch(asynch_results, configfile)
+    asynch_results = get_urls_asynch(asynch_results, configfile, scraper)[0]
 
     entries = []
     if asynch_results:
