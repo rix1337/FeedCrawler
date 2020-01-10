@@ -235,7 +235,7 @@ class DJ:
                     decode_base64('aHR0cDovL2Rva3VqdW5raWVzLm9yZy8='),
                     self.configfile,
                     self.dbfile,
-                    self.headers)
+                    self.headers)[0]
                 feed = dj_content_to_soup(response.content)
             except:
                 response = False

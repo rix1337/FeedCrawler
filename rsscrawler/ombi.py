@@ -17,12 +17,12 @@ from rsscrawler.url import post_url_json
 def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
     get_title = get_url_headers(
         'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=de-DE', configfile,
-        dbfile, headers={'Content-Type': 'application/json'})
+        dbfile, headers={'Content-Type': 'application/json'})[0]
     raw_title = json.loads(get_title.text).get("title")
     if not raw_title:
         get_title = get_url_headers(
             'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=en-US', configfile,
-            dbfile, headers={'Content-Type': 'application/json'})
+            dbfile, headers={'Content-Type': 'application/json'})[0]
         raw_title = json.loads(get_title.text).get("title")
     if raw_title:
         title = sanitize(raw_title)
@@ -61,7 +61,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
     if token:
         get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
                                    headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                            'Accept': 'application/json', 'Accept-Language': 'de'})
+                                            'Accept': 'application/json', 'Accept-Language': 'de'})[0]
 
         if get_info.status_code == 401:
             token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
@@ -69,7 +69,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
                 get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
                                            headers={'Authorization': 'Bearer ' + token,
                                                     'Content-Type': 'application/json',
-                                                    'Accept': 'application/json', 'Accept-Language': 'de'})
+                                                    'Accept': 'application/json', 'Accept-Language': 'de'})[0]
             else:
                 return False
 
@@ -79,7 +79,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
         if not raw_title:
             get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
                                        headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'en'})
+                                                'Accept': 'application/json', 'Accept-Language': 'en'})[0]
             raw_data = json.loads(get_info.text)
             raw_info = raw_data.get('data')
             raw_title = raw_info.get('seriesName')
@@ -87,7 +87,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
         get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile,
                                        dbfile,
                                        headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'de'})
+                                                'Accept': 'application/json', 'Accept-Language': 'de'})[0]
         raw_episode_data = json.loads(get_episodes.text)
         episodes = raw_episode_data.get('data')
         total_pages = raw_episode_data.get('links')
@@ -101,7 +101,7 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
                         dbfile,
                         headers={'Authorization': 'Bearer ' + token,
                                  'Content-Type': 'application/json',
-                                 'Accept': 'application/json', 'Accept-Language': 'de'})
+                                 'Accept': 'application/json', 'Accept-Language': 'de'})[0]
                     raw_episode_data = json.loads(get_episodes.text)
                     more_episodes = raw_episode_data.get('data')
                     episodes = episodes + more_episodes

@@ -294,7 +294,7 @@ class SJ:
                         decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='),
                         self.configfile,
                         self.dbfile,
-                        self.headers)
+                        self.headers)[0]
                     feed = feedparser.parse(response.content)
                 except:
                     response = False
@@ -304,7 +304,7 @@ class SJ:
                         decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
                         self.configfile,
                         self.dbfile,
-                        self.headers)
+                        self.headers)[0]
                     feed = feedparser.parse(response.content)
                 except:
                     response = False
