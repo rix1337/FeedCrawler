@@ -36,6 +36,7 @@ from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
+from rsscrawler.rssdb import RssDb
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -461,6 +462,25 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "ver": ver,
                         "update_ready": updateready,
                         "docker": docker,
+                    }
+                }
+            )
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/crawltimes/", methods=['GET'])
+    @requires_auth
+    def get_crawltimes():
+        if request.method == 'GET':
+            crawltimes = RssDb(dbfile, "crawltimes")
+            return jsonify(
+                {
+                    "crawltimes": {
+                        "active": bool(crawltimes.retrieve("active")),
+                        "start_time": to_float(crawltimes.retrieve("start_time")),
+                        "end_time": to_float(crawltimes.retrieve("end_time")),
+                        "total_time": to_float(crawltimes.retrieve("total_time")),
+                        "next_start": to_float(crawltimes.retrieve("next_start")),
                     }
                 }
             )

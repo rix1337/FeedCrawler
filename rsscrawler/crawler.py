@@ -100,6 +100,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     log_debug = logging.debug
 
+    crawltimes = RssDb(dbfile, "crawltimes")
+
     arguments = docopt(__doc__, version='RSScrawler')
     if not arguments['--testlauf']:
         while True:
@@ -108,6 +110,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     device = get_device(configfile)
                 check_url(configfile, dbfile)
                 start_time = time.time()
+                crawltimes.update_store("active", "True")
+                crawltimes.update_store("start_time", start_time * 1000)
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 if device:
                     device = ombi(configfile, dbfile, device, log_debug)
@@ -125,12 +129,17 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 interval = int(rsscrawler.get('interval')) * 60
                 random_range = random.randrange(0, interval // 4)
                 wait = interval + random_range
+                next_start = end_time + wait
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
                         total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
                       u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
                     total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
+                crawltimes.update_store("end_time", end_time * 1000)
+                crawltimes.update_store("total_time", total_time * 1000)
+                crawltimes.update_store("next_start", next_start * 1000)
+                crawltimes.update_store("active", "False")
                 time.sleep(wait)
                 log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
