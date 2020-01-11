@@ -17,9 +17,20 @@
     <h1>
         <i class="fas fa-rss"></i> RSScrawler</h1>
     <p id="headtitle">Projekt von
-        <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">RiX</a>
-        <span id="updateready" ng-show="update"> - Update verfügbar!</span>
+        <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">RiX</a> {{ version }}
+        <span ng-if="update"> (Update verfügbar!)</span>
     </p>
+    <div ng-if="crawltimes">
+        <div class="border-top"></div>
+        <div ng-if="crawltimes.active">
+            Suchlauf gestartet: {{ crawltimes.start_time | date:'mediumTime' }} (Dauer: {{
+            (now-crawltimes.start_time)/1000 | number:0 | secondsToHHmmss }})
+        </div>
+        <div ng-if="!crawltimes.active">
+            Start des nächsten Suchlaufs: {{ crawltimes.next_start | date:'HH:mm:ss' }}
+        </div>
+        Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
+    </div>
     <a href="https://github.com/users/rix1337/sponsorship" target="_blank" title="Einfach über Github Sponsorship..."
        class="btn btn-dark" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Bedanken</a>
 </div>
@@ -286,15 +297,6 @@
     <div>
         <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
                                                                   class="fas fa-sync fa-spin"></i> Leeren</a></div>
-
-    <div>
-        {{ crawltimes.active }}
-        {{ crawltimes.start_time }}
-        {{ crawltimes.end_time }}
-        {{ crawltimes.total_time }}
-        {{ crawltimes.next_start }}
-    </div>
-
 </div>
 
 
@@ -1244,6 +1246,7 @@
 <script src="js/jquery.slim.min.js"></script>
 <script src="js/bootstrap.bundle.min.js"></script>
 <script src="js/angular.min.js"></script>
+<script src="js/angular-locale_de-de.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
 <script src="js/rsscrawler.js"></script>
 </body>

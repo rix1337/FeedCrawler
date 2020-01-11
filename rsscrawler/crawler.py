@@ -137,7 +137,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                       u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
                     total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
                 crawltimes.update_store("end_time", end_time * 1000)
-                crawltimes.update_store("total_time", total_time * 1000)
+                crawltimes.update_store("total_time", readable_time(total_time))
                 crawltimes.update_store("next_start", next_start * 1000)
                 crawltimes.update_store("active", "False")
                 time.sleep(wait)

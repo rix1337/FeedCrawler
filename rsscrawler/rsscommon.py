@@ -6,6 +6,7 @@
 
 
 import base64
+import datetime
 import logging
 import re
 import socket
@@ -117,17 +118,14 @@ def readable_size(size):
 
 
 def readable_time(time):
-    if time < 0:
-        return ""
-    else:
-        days = time // 86400
-        hours = (time - days * 86400) // 3600
-        minutes = (time - days * 86400 - hours * 3600) // 60
-        seconds = round((time - days * 86400 - hours * 3600 - minutes * 60), 2)
-        time = ("{}d:".format(days) if days else "") + \
-               ("{}h:".format(hours) if hours else "") + \
-               ("{}m:".format(minutes) if minutes else "") + \
-               ("{}s".format(seconds) if seconds else "")
+    try:
+        if not time:
+            time = 0
+    except:
+        time = 0
+    time = str(datetime.timedelta(seconds=int(time)))
+    if len(time) == 7:
+        time = "0" + time
     return time
 
 

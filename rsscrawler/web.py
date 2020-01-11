@@ -91,15 +91,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def to_int(i):
         if isinstance(i, bytes):
             i = i.decode()
-        i = i.strip().replace("None", "")
+        i = str(i).strip().replace("None", "")
         return int(i) if i else ""
 
     def to_float(i):
-        i = i.strip().replace("None", "")
+        i = str(i).strip().replace("None", "")
         return float(i) if i else ""
 
     def to_str(i):
         return '' if i is None else str(i)
+
+    def to_bool(i):
+        return True if i == "True" else False
 
     if prefix:
         @app.route('/')
@@ -476,10 +479,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return jsonify(
                 {
                     "crawltimes": {
-                        "active": bool(crawltimes.retrieve("active")),
+                        "active": to_bool(crawltimes.retrieve("active")),
                         "start_time": to_float(crawltimes.retrieve("start_time")),
                         "end_time": to_float(crawltimes.retrieve("end_time")),
-                        "total_time": to_float(crawltimes.retrieve("total_time")),
+                        "total_time": crawltimes.retrieve("total_time"),
                         "next_start": to_float(crawltimes.retrieve("next_start")),
                     }
                 }
