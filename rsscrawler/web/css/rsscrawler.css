@@ -24,7 +24,7 @@ thead {
 }
 
 .liste {
-    height: 10em;
+    height: 10em !important;
     resize: none;
     margin-bottom: 0.5em;
     background-color: #f7f7f7;
@@ -75,9 +75,11 @@ thead {
 }
 
 #head {
-    width: 20em;
-    min-width: 20em;
-    max-width: 20em;
+    width: 24em;
+}
+
+.border-top {
+    margin: 1em;
 }
 
 #head, #myjd, #search, #log, #lists, #help {

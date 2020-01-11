@@ -15,6 +15,12 @@ app.filter('startFrom', function () {
     }
 });
 
+app.filter('secondsToHHmmss', function ($filter) {
+    return function (seconds) {
+        return $filter('date')(new Date(0, 0, 0).setSeconds(seconds), 'HH:mm:ss');
+    };
+})
+
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -107,6 +113,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: 'hou', label: 'H-OU'}
     ];
 
+    $scope.crawltimes = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
@@ -199,10 +206,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function getAll() {
         getVersion();
+        getMyJD();
         getLog();
+        getCrawlTimes();
         getLists();
         getSettings();
-        getMyJD();
     }
 
     function countDown(seconds) {
@@ -262,11 +270,21 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
+    function getCrawlTimes() {
+        $http.get('api/crawltimes/')
+            .then(function (res) {
+                $scope.crawltimes = res.data.crawltimes;
+                console.log('Laufzeiten abgerufen!');
+            }, function (res) {
+                console.log('Konnte Laufzeiten nicht abrufen!');
+                showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
     function getVersion() {
         $http.get('api/version/')
             .then(function (res) {
                 $scope.version = res.data.version.ver;
-                $("#headtitle").html('Projekt von <a href="https://github.com/rix1337/RSScrawler/releases/latest" target="_blank">RiX</a> ' + $scope.version + '<span id="updateready" style="display: none;"> - Update verfügbar!</span>');
                 console.log('Dies ist der RSScrawler ' + $scope.version + ' von https://github.com/rix1337');
                 $scope.update = res.data.version.update_ready;
                 $scope.docker = res.data.version.docker;
@@ -678,16 +696,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $("#spinner-settings").fadeIn().delay(1000).fadeOut();
     }
 
-    $scope.updateLog = function () {
+    $scope.updateTime = function () {
         $timeout(function () {
-            if (!$scope.cnl_active) {
-                getLog();
-            }
-            $scope.updateLog();
-        }, 5000)
+            $scope.now = Date.now();
+            $scope.updateTime();
+        }, 1000)
     };
 
-    $scope.updateLog();
+    $scope.updateTime();
 
     $scope.checkMyJD = function () {
         $timeout(function () {
@@ -703,6 +719,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.checkMyJD();
+
+    $scope.updateLog = function () {
+        $timeout(function () {
+            if (!$scope.cnl_active) {
+                getLog();
+            }
+            $scope.updateLog();
+        }, 5000)
+    };
+
+    $scope.updateLog();
+
+    $scope.updateCrawlTimes = function () {
+        $timeout(function () {
+            if (!$scope.cnl_active) {
+                getCrawlTimes();
+            }
+            $scope.updateCrawlTimes();
+        }, 5000)
+    };
+
+    $scope.updateCrawlTimes();
 
     $scope.updateChecker = function () {
         $timeout(function () {
