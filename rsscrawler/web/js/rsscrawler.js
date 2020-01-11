@@ -262,6 +262,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
+    function getCrawlTimes() {
+        $http.get('api/crawltimes/')
+            .then(function (res) {
+                $scope.crawltimes = res.data.crawltimes;
+                console.log('Laufzeiten abgerufen!');
+            }, function (res) {
+                console.log('Konnte Laufzeiten nicht abrufen!');
+                showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
     function getVersion() {
         $http.get('api/version/')
             .then(function (res) {
@@ -678,17 +689,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $("#spinner-settings").fadeIn().delay(1000).fadeOut();
     }
 
-    $scope.updateLog = function () {
-        $timeout(function () {
-            if (!$scope.cnl_active) {
-                getLog();
-            }
-            $scope.updateLog();
-        }, 5000)
-    };
-
-    $scope.updateLog();
-
     $scope.checkMyJD = function () {
         $timeout(function () {
             if (!$scope.cnl_active) {
@@ -703,6 +703,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.checkMyJD();
+
+    $scope.updateLog = function () {
+        $timeout(function () {
+            if (!$scope.cnl_active) {
+                getLog();
+            }
+            $scope.updateLog();
+        }, 5000)
+    };
+
+    $scope.updateLog();
+
+    $scope.updateCrawlTimes = function () {
+        $timeout(function () {
+            if (!$scope.cnl_active) {
+                getCrawlTimes();
+            }
+            $scope.updateCrawlTimes();
+        }, 5000)
+    };
+
+    $scope.updateCrawlTimes();
 
     $scope.updateChecker = function () {
         $timeout(function () {
