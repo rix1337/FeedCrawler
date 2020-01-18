@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import concurrent.futures
+import time
 
 import cloudscraper
 
@@ -16,7 +17,7 @@ def check_url(configfile, dbfile, scraper=False):
     mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8v")
     proxy = RssConfig('RSScrawler', configfile).get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     sj_blocked_proxy = False
     mb_blocked_proxy = False
     if proxy:
@@ -68,7 +69,7 @@ def get_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy50bw==")
@@ -99,7 +100,7 @@ def get_urls_asynch(urls, configfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     results = []
 
     def load_url(url):
@@ -110,7 +111,16 @@ def get_urls_asynch(urls, configfile, scraper=False):
             else:
                 return scraper.get(url, timeout=30).text
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            try:
+                if proxy:
+                    time.sleep(5)
+                    proxies = {'http': proxy, 'https': proxy}
+                    return scraper.get(url, proxies=proxies, timeout=30).text
+                else:
+                    time.sleep(5)
+                    return scraper.get(url, timeout=30).text
+            except:
+                print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
@@ -128,7 +138,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy50bw==")
@@ -159,7 +169,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy50bw==")
@@ -190,7 +200,7 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
     if proxy:
         sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
         mb = decode_base64("bW92aWUtYmxvZy50bw==")

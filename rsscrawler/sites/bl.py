@@ -1086,7 +1086,7 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
 
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
         mb_304 = False
         if not self.historical:
             try:

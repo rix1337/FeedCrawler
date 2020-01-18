@@ -64,7 +64,7 @@ def get(title, configfile, dbfile):
     hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
     hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
 
-    scraper = cloudscraper.create_scraper(browser='chrome')
+    scraper = cloudscraper.create_scraper()
     async_results = get_urls_asynch([mb_search, hw_search, hs_search], configfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
