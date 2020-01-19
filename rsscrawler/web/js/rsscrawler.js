@@ -648,10 +648,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
                 $(".alert-info").slideUp(500);
+                $scope.time = 0;
             }).catch(function () {
             showDanger("Click'n'Load nicht durchgeführt!");
             $scope.cnl_active = false;
             $(".alert-info").slideUp(500);
+            $scope.time = 0;
         });
     }
 
