@@ -115,7 +115,7 @@ def hs_search_results(url):
             for r in results:
                 try:
                     title = r.title.next
-                    link = r.contents[2]
+                    link = r.find("comments").text
                     content.append((title, link))
                 except:
                     break
@@ -159,3 +159,40 @@ def dj_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     content = dj_to_feedparser_dict(content)
     return content
+
+
+def fx_content_to_soup(content):
+    content = BeautifulSoup(content, 'lxml')
+    return content
+
+
+def fx_search_results(content):
+    content = content.find_all("item")
+    items = []
+    for item in content:
+        try:
+            title = item.find("mark").text.encode("ascii", errors="ignore").decode()
+        except:
+            title = item.find("title").text
+        link = item.find("comments").text
+        items.append([title, link])
+    return items
+
+
+def fx_post_title(content):
+    # TODO: this only gets the first release if there are multiple options
+    content = BeautifulSoup(content, 'lxml')
+    try:
+        title = content.find("mark").text.encode("ascii", errors="ignore").decode()
+    except:
+        title = content.find("title").text
+    return title
+
+
+def fx_download_links(content, title):
+    content = BeautifulSoup(content, 'lxml')
+    try:
+        download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
+    except:
+        download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
+    return download_links

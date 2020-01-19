@@ -10,6 +10,8 @@ import re
 import cloudscraper
 import feedparser
 
+from rsscrawler.fakefeed import fx_download_links
+from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import hs_feed_enricher
 from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.myjd import myjd_download
@@ -196,6 +198,16 @@ class BL:
         settings = str(self.settings)
         score = str(self.imdb)
         for post in feed.entries:
+            try:
+                content = post.content[0].value
+            except:
+                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                content = False
+            if not "FX" in site:
+                post.title = post.title.strip(u'\u200b')
+            else:
+                post.title = fx_post_title(content)
+
             if site == "MB":
                 if self.i_mb_done:
                     self.log_debug(
@@ -231,18 +243,8 @@ class BL:
                 else:
                     self.i_fx_done = True
 
-            try:
-                content = post.content[0].value
-            except:
-                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                content = False
-
             if content:
                 if "mkv" in content.lower():
-                    if not "FX" in site:
-                        post.title = post.title.strip(u'\u200b')
-                    else:
-                        post.title = re.findall(r"»(.*)«", content)[0]
                     post_imdb = re.findall(
                         r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
                         content)
@@ -435,7 +437,7 @@ class BL:
                             if not "FX" in site:
                                 download_pages = self.get_download_links(content)
                             else:
-                                download_pages = [re.findall(r'"(https://.+?filecrypt.+?)"', content)[0]]
+                                download_pages = fx_download_links(content, post.title)
 
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
@@ -473,6 +475,16 @@ class BL:
         settings = str(self.settings)
         liste = str(self.pattern)
         for post in feed.entries:
+            try:
+                content = post.content[0].value
+            except:
+                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                content = False
+            if not "FX" in site:
+                post.title = post.title.strip(u'\u200b')
+            else:
+                post.title = fx_post_title(content)
+
             if site == "MB":
                 if self.mb_done:
                     self.log_debug(
@@ -512,17 +524,8 @@ class BL:
             found = re.search(s, post.title.lower())
 
             if found:
-                try:
-                    content = post.content[0].value
-                except:
-                    self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                    content = False
                 if content:
-                    if re.search(r'.*([mM][kK][vV]).*', content):
-                        if not "FX" in site:
-                            post.title = post.title.strip(u'\u200b')
-                        else:
-                            post.title = re.findall(r"»(.*)«", content)[0]
+                    if "mkv" in content.lower():
                         found = re.search(ignore, post.title.lower())
                         if found:
                             self.log_debug(
@@ -877,7 +880,7 @@ class BL:
         if not "FX" in site:
             download_links = self.get_download_links(content)
         else:
-            download_links = [re.findall(r'"(https://.+?filecrypt.+?)"', content)[0]]
+            download_links = fx_download_links(content, key)
         if download_links:
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
@@ -1241,7 +1244,7 @@ class BL:
                 if not fx_304 and first_page_fx:
                     for i in first_page_fx.entries:
                         concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_hs = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
                         break
             else:
                 if not mb_304 and first_page_mb:
@@ -1262,7 +1265,7 @@ class BL:
                 if not fx_304 and first_page_fx:
                     for i in first_page_fx.entries:
                         concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_hs = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
                         break
 
         added_items = []
@@ -1403,6 +1406,13 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HS-CDC!")
+        if sha_fx:
+            if not self.dl_unsatisfied and not settings_changed:
+                self.cdc.delete("FX-" + self.filename)
+                self.cdc.store("FX-" + self.filename, sha_fx)
+            else:
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues FX-CDC!")
         if not mb_304 and not self.historical:
             try:
                 header = first_mb.headers['Last-Modified']
@@ -1427,5 +1437,13 @@ class BL:
             if header:
                 self.cdc.delete("HSHeaders-" + self.filename)
                 self.cdc.store("HSHeaders-" + self.filename, header)
+        if not fx_304 and not self.historical:
+            try:
+                header = first_fx.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("FXHeaders-" + self.filename)
+                self.cdc.store("FXHeaders-" + self.filename, header)
 
         return self.device

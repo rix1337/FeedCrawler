@@ -11,6 +11,8 @@ import cloudscraper
 from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
+from rsscrawler.fakefeed import fx_content_to_soup
+from rsscrawler.fakefeed import fx_search_results
 from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
@@ -63,15 +65,17 @@ def get(title, configfile, dbfile):
         'aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/'
     hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
     hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
+    fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
     scraper = cloudscraper.create_scraper()
-    async_results = get_urls_asynch([mb_search, hw_search, hs_search], configfile, scraper)
+    async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
 
     mb_results = []
     hw_results = []
     hs_results = []
+    fx_results = []
 
     for res in async_results:
         if decode_base64('bW92aWUtYmxvZy50bw==') in res:
@@ -80,6 +84,8 @@ def get(title, configfile, dbfile):
             hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
         elif decode_base64('aGQtc291cmNlLnRv') in res:
             hs_results = hs_search_results(res)
+        elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
+            fx_results = fx_search_results(fx_content_to_soup(res))
 
     password = decode_base64("bW92aWUtYmxvZy5vcmc=")
     for result in mb_results:
@@ -112,17 +118,29 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HS)"])
 
+    password = decode_base64("ZnVueGQ=")
+    for result in fx_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        unrated.append(
+            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (FX)"])
+
     if config.get("crawl3d"):
         mb_search = decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
+        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D+1080p/feed/"
 
-        async_results = get_urls_asynch([mb_search, hw_search, hs_search], configfile, scraper)
+        async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
         async_results = async_results[0]
 
         mb_results = []
         hw_results = []
         hs_results = []
+        fx_results = []
 
         for res in async_results:
             if decode_base64('bW92aWUtYmxvZy50bw==') in res:
@@ -131,7 +149,10 @@ def get(title, configfile, dbfile):
                 hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
             elif decode_base64('aGQtc291cmNlLnRv') in res:
                 hs_results = hs_search_results(res)
+            elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
+                fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
 
+        password = decode_base64("bW92aWUtYmxvZy5vcmc=")
         for result in mb_results:
             if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                 unrated.append(
@@ -152,6 +173,11 @@ def get(title, configfile, dbfile):
                     continue
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HS)"])
+
+        password = decode_base64("ZnVueGQ=")
+        for result in fx_results:
+            unrated.append(
+                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-FX)"])
 
     rated = sorted(unrated, reverse=True)
 
@@ -404,6 +430,7 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def download_bl(payload, device, configfile, dbfile):
+    # TODO: this does not work for fx
     payload = decode_base64(payload).split(";")
     link = payload[0]
     password = payload[1]
