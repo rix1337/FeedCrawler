@@ -10,6 +10,8 @@ import re
 import cloudscraper
 import feedparser
 
+from rsscrawler.fakefeed import fx_download_links
+from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import hs_feed_enricher
 from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.myjd import myjd_download
@@ -34,6 +36,8 @@ class BL:
     HW_FEED_URLS = [HW_URL]
     HS_URL = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vZmVlZA==')
     HS_FEED_URLS = [HS_URL]
+    FX_URL = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRlL2ZlZWQ=')
+    FX_FEED_URLS = [FX_URL]
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, filename):
@@ -78,16 +82,25 @@ class BL:
                 self.HS_FEED_URLS.append(page_url)
             i += 1
 
+        i = 2
+        while i <= search:
+            page_url = self.FX_URL + "?paged=" + str(i)
+            if page_url not in self.FX_FEED_URLS:
+                self.FX_FEED_URLS.append(page_url)
+            i += 1
+
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhwhs = self.cdc.retrieve("MBHWHSSet-" + self.filename)
+        self.last_set_mbhwhs = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
         self.headers_hs = {'If-Modified-Since': str(self.cdc.retrieve("HSHeaders-" + self.filename))}
+        self.headers_fx = {'If-Modified-Since': str(self.cdc.retrieve("FXHeaders-" + self.filename))}
 
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
         self.last_sha_hs = self.cdc.retrieve("HS-" + self.filename)
+        self.last_sha_fx = self.cdc.retrieve("FX-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
                     "hoster_fallback"]
@@ -100,9 +113,11 @@ class BL:
         self.i_mb_done = False
         self.i_hw_done = False
         self.i_hs_done = False
+        self.i_fx_done = False
         self.mb_done = False
         self.hw_done = False
         self.hs_done = False
+        self.fx_done = False
         self.dl_unsatisfied = False
 
         try:
@@ -183,6 +198,16 @@ class BL:
         settings = str(self.settings)
         score = str(self.imdb)
         for post in feed.entries:
+            try:
+                content = post.content[0].value
+            except:
+                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                content = False
+            if not "FX" in site:
+                post.title = post.title.strip(u'\u200b')
+            else:
+                post.title = fx_post_title(content)
+
             if site == "MB":
                 if self.i_mb_done:
                     self.log_debug(
@@ -193,29 +218,30 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche HW-Suche ab!")
                     return added_items
-            else:
+            elif site == "HS":
                 if self.i_hs_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
+                    return added_items
+            else:
+                if self.i_fx_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs):
+                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx):
                 if "MB" in site:
                     self.i_mb_done = True
                 elif "HW" in site:
                     self.i_hw_done = True
-                else:
+                elif "HS" in site:
                     self.i_hs_done = True
-
-            try:
-                content = post.content[0].value
-            except:
-                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                content = False
+                else:
+                    self.i_fx_done = True
 
             if content:
                 if "mkv" in content.lower():
@@ -280,7 +306,6 @@ class BL:
                     ignore = "|".join(
                         [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
                         "ignore") else r"^unmatchable$"
-                    post.title = post.title.strip(u'\u200b')
                     found = re.search(ignore, post.title.lower())
                     if found:
                         self.log_debug(
@@ -404,10 +429,16 @@ class BL:
                                 password = decode_base64("bW92aWUtYmxvZy5vcmc=")
                             elif "HW" in site:
                                 password = decode_base64("aGQtd29ybGQub3Jn")
-                            else:
+                            elif "HS" in site:
                                 password = decode_base64("aGQtc291cmNlLnRv")
+                            else:
+                                password = decode_base64("ZnVueGQ=")
 
-                            download_pages = self.get_download_links(content)
+                            if not "FX" in site:
+                                download_pages = self.get_download_links(content)
+                            else:
+                                download_pages = fx_download_links(content, post.title)
+
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
                                     post.title, download_pages, str(download_score), download_imdb, details,
@@ -429,8 +460,10 @@ class BL:
             password = decode_base64("bW92aWUtYmxvZy5vcmc=")
         elif "HW" in site:
             password = decode_base64("aGQtd29ybGQub3Jn")
-        else:
+        elif "HS" in site:
             password = decode_base64("aGQtc291cmNlLnRv")
+        else:
+            password = decode_base64("ZnVueGQ=")
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -442,6 +475,16 @@ class BL:
         settings = str(self.settings)
         liste = str(self.pattern)
         for post in feed.entries:
+            try:
+                content = post.content[0].value
+            except:
+                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
+                content = False
+            if not "FX" in site:
+                post.title = post.title.strip(u'\u200b')
+            else:
+                post.title = fx_post_title(content)
+
             if site == "MB":
                 if self.mb_done:
                     self.log_debug(
@@ -452,36 +495,37 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HW-Suche ab!")
                     return added_items
-            else:
+            elif site == "HS":
                 if self.hs_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
+                    return added_items
+            else:
+                if self.fx_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs):
+                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx):
                 if not self.historical:
                     if "MB" in site:
                         self.mb_done = True
                     elif "HW" in site:
                         self.hw_done = True
-                    else:
+                    elif "HS" in site:
                         self.hs_done = True
+                    else:
+                        self.fx_done = True
 
             found = re.search(s, post.title.lower())
 
             if found:
-                try:
-                    content = post.content[0].value
-                except:
-                    self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                    content = False
                 if content:
-                    if re.search(r'.*([mM][kK][vV]).*', content):
-                        post.title = post.title.strip(u'\u200b')
+                    if "mkv" in content.lower():
                         found = re.search(ignore, post.title.lower())
                         if found:
                             self.log_debug(
@@ -618,10 +662,13 @@ class BL:
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)),
             hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
-                              self.configfile, self.dbfile)]
+                              self.configfile, self.dbfile), feedparser.parse(
+                get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile))]
 
         for content in search_results:
             for (key, value) in self.dual_search(content, feedsearch_title):
+                # TODO: Fix this for FX (currently always False because hoster is not included in content)
                 download_links = self.get_download_links(value)
                 if download_links:
                     for download_link in download_links:
@@ -830,7 +877,10 @@ class BL:
 
     def feed_download(self, key, content, password, site):
         added_items = []
-        download_links = self.get_download_links(content)
+        if not "FX" in site:
+            download_links = self.get_download_links(content)
+        else:
+            download_links = fx_download_links(content, key)
         if download_links:
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
@@ -1025,6 +1075,7 @@ class BL:
         mb_urls = []
         hw_urls = []
         hs_urls = []
+        fx_urls = []
 
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
@@ -1061,6 +1112,7 @@ class BL:
                             decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/%s/feed/rss2/' % xn)
                         hw_urls.append(decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
                         hs_urls.append(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8=') + '/search/%s/feed/' % xn)
+                        fx_urls.append(decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/%s/feed/' % xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
@@ -1068,6 +1120,8 @@ class BL:
                     hw_urls.append(URL)
                 for URL in self.HS_FEED_URLS:
                     hs_urls.append(URL)
+                for URL in self.FX_FEED_URLS:
+                    fx_urls.append(URL)
         else:
             for URL in self.MB_FEED_URLS:
                 mb_urls.append(URL)
@@ -1075,6 +1129,8 @@ class BL:
                 hw_urls.append(URL)
             for URL in self.HS_FEED_URLS:
                 hs_urls.append(URL)
+            for URL in self.FX_FEED_URLS:
+                fx_urls.append(URL)
 
         if not self.pattern:
             self.log_debug(
@@ -1086,7 +1142,7 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
 
-        scraper = cloudscraper.create_scraper(browser='chrome')
+        scraper = cloudscraper.create_scraper()
         mb_304 = False
         if not self.historical:
             try:
@@ -1129,11 +1185,25 @@ class BL:
                 first_page_hs = False
                 self.log_debug("Fehler beim Abruf von HS - breche HS-Suche ab!")
 
-        set_mbhwhs = self.settings_hash(False)
+        fx_304 = False
+        if not self.historical:
+            try:
+                first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, scraper)
+                scraper = first_fx[1]
+                first_fx = first_fx[0]
+                first_page_fx = feedparser.parse(first_fx.content)
+                if first_fx.status_code == 304:
+                    fx_304 = True
+            except:
+                fx_304 = True
+                first_page_fx = False
+                self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
 
-        if self.last_set_mbhwhs == set_mbhwhs:
+        set_all = self.settings_hash(False)
+
+        if self.last_set_mbhwhs == set_all:
             if not self.historical:
-                if mb_304 and hw_304 and hs_304:
+                if mb_304 and hw_304 and hs_304 and fx_304:
                     self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
                     return self.device
                 if mb_304:
@@ -1145,10 +1215,14 @@ class BL:
                 if hs_304:
                     hs_urls = []
                     self.log_debug("HS-Feed seit letztem Aufruf nicht aktualisiert - breche HS-Suche ab!")
+                if fx_304:
+                    fx_urls = []
+                    self.log_debug("FX-Feed seit letztem Aufruf nicht aktualisiert - breche FX-Suche ab!")
 
         sha_mb = None
         sha_hw = None
         sha_hs = None
+        sha_fx = None
 
         if not self.historical:
             if self.filename != 'IMDB':
@@ -1167,6 +1241,11 @@ class BL:
                         concat_hs = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
                         break
+                if not fx_304 and first_page_fx:
+                    for i in first_page_fx.entries:
+                        concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                        break
             else:
                 if not mb_304 and first_page_mb:
                     for i in first_page_mb.entries:
@@ -1182,6 +1261,11 @@ class BL:
                     for i in first_page_hs.entries:
                         concat_hs = i.title + i.published + str(self.settings) + str(self.imdb)
                         sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
+                        break
+                if not fx_304 and first_page_fx:
+                    for i in first_page_fx.entries:
+                        concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
                         break
 
         added_items = []
@@ -1226,6 +1310,19 @@ class BL:
                             for f in found:
                                 added_items.append(f)
                         i += 1
+                i = 0
+                for url in fx_urls:
+                    if not self.i_fx_done:
+                        if not self.historical and i == 0 and first_page_fx:
+                            fx_parsed_url = first_page_fx
+                        else:
+                            fx_parsed_url = feedparser.parse(
+                                get_url(url, self.configfile, self.dbfile, scraper))
+                        found = self.imdb_search(imdb, fx_parsed_url, "FX")
+                        if found:
+                            for f in found:
+                                added_items.append(f)
+                        i += 1
         else:
             i = 0
             for url in mb_urls:
@@ -1266,13 +1363,26 @@ class BL:
                         for f in found:
                             added_items.append(f)
                     i += 1
+            i = 0
+            for url in fx_urls:
+                if not self.fx_done:
+                    if not self.historical and i == 0 and first_page_fx:
+                        fx_parsed_url = first_page_fx
+                    else:
+                        fx_parsed_url = feedparser.parse(
+                            get_url(url, self.configfile, self.dbfile, scraper))
+                    found = self.feed_search(fx_parsed_url, "FX")
+                    if found:
+                        for f in found:
+                            added_items.append(f)
+                    i += 1
 
         settings_changed = False
-        if set_mbhwhs:
-            new_set_mbhwhs = self.settings_hash(True)
-            if set_mbhwhs == new_set_mbhwhs:
-                self.cdc.delete("MBHWHSSet-" + self.filename)
-                self.cdc.store("MBHWHSSet-" + self.filename, new_set_mbhwhs)
+        if set_all:
+            new_set_all = self.settings_hash(True)
+            if set_all == new_set_all:
+                self.cdc.delete("ALLSet-" + self.filename)
+                self.cdc.store("ALLSet-" + self.filename, new_set_all)
             else:
                 settings_changed = True
         if sha_mb:
@@ -1296,6 +1406,13 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HS-CDC!")
+        if sha_fx:
+            if not self.dl_unsatisfied and not settings_changed:
+                self.cdc.delete("FX-" + self.filename)
+                self.cdc.store("FX-" + self.filename, sha_fx)
+            else:
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues FX-CDC!")
         if not mb_304 and not self.historical:
             try:
                 header = first_mb.headers['Last-Modified']
@@ -1320,5 +1437,13 @@ class BL:
             if header:
                 self.cdc.delete("HSHeaders-" + self.filename)
                 self.cdc.store("HSHeaders-" + self.filename, header)
+        if not fx_304 and not self.historical:
+            try:
+                header = first_fx.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("FXHeaders-" + self.filename)
+                self.cdc.store("FXHeaders-" + self.filename, header)
 
         return self.device
