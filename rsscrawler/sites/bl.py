@@ -91,7 +91,7 @@ class BL:
 
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhwhs = self.cdc.retrieve("MBHWHSSet-" + self.filename)
+        self.last_set_mbhwhs = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
         self.headers_hs = {'If-Modified-Since': str(self.cdc.retrieve("HSHeaders-" + self.filename))}
@@ -1199,9 +1199,9 @@ class BL:
                 first_page_fx = False
                 self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
 
-        set_mbhwhsfx = self.settings_hash(False)
+        set_all = self.settings_hash(False)
 
-        if self.last_set_mbhwhs == set_mbhwhsfx:
+        if self.last_set_mbhwhs == set_all:
             if not self.historical:
                 if mb_304 and hw_304 and hs_304 and fx_304:
                     self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
@@ -1378,11 +1378,11 @@ class BL:
                     i += 1
 
         settings_changed = False
-        if set_mbhwhsfx:
-            new_set_mbhwhsfx = self.settings_hash(True)
-            if set_mbhwhsfx == new_set_mbhwhsfx:
-                self.cdc.delete("MBHWHSFXSet-" + self.filename)
-                self.cdc.store("MBHWHSFXSet-" + self.filename, new_set_mbhwhsfx)
+        if set_all:
+            new_set_all = self.settings_hash(True)
+            if set_all == new_set_all:
+                self.cdc.delete("ALLSet-" + self.filename)
+                self.cdc.store("ALLSet-" + self.filename, new_set_all)
             else:
                 settings_changed = True
         if sha_mb:
