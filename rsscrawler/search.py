@@ -12,6 +12,8 @@ from bs4 import BeautifulSoup
 from fuzzywuzzy import fuzz
 
 from rsscrawler.fakefeed import fx_content_to_soup
+from rsscrawler.fakefeed import fx_download_links
+from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import fx_search_results
 from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
@@ -430,7 +432,6 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def download_bl(payload, device, configfile, dbfile):
-    # TODO: this does not work for fx
     payload = decode_base64(payload).split(";")
     link = payload[0]
     password = payload[1]
@@ -438,23 +439,33 @@ def download_bl(payload, device, configfile, dbfile):
     config = RssConfig('MB', configfile)
     db = RssDb(dbfile, 'rsscrawler')
 
+    download_links = False
+
     soup = BeautifulSoup(url, 'lxml')
     download = soup.find("div", {"id": "content"})
+    # TODO: refactor
     if download:
         try:
+            # HS
             key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
         except:
-            items_head = soup.find("div", {"class": "topbox"})
-            key = items_head.contents[1].a["title"]
-            items_download = soup.find("div", {"class": "download"})
-            url_hosters = []
-            download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
-            for link in download:
-                link = link.a
-                text = link.text.strip()
-                if text:
-                    url_hosters.append([str(link["href"]), str(text)])
+            try:
+                # FX
+                key = fx_post_title(url)
+                download_links = fx_download_links(url, key)
+            except:
+                # MB/HW
+                items_head = soup.find("div", {"class": "topbox"})
+                key = items_head.contents[1].a["title"]
+                items_download = soup.find("div", {"class": "download"})
+                url_hosters = []
+                download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
+                for link in download:
+                    link = link.a
+                    text = link.text.strip()
+                    if text:
+                        url_hosters.append([str(link["href"]), str(text)])
     else:
         try:
             download = soup.find("div", {"class": "entry-content"})
@@ -463,18 +474,23 @@ def download_bl(payload, device, configfile, dbfile):
         except:
             return False
 
-    links = {}
-    for url_hoster in reversed(url_hosters):
-        if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-            link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-            if check_hoster(link_hoster, configfile):
-                links[link_hoster] = url_hoster[0]
-    if config.get("hoster_fallback") and not links:
+    # MB/HW/HS (FX already set the link above)
+    if not download_links:
+        links = {}
         for url_hoster in reversed(url_hosters):
-            if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                links[link_hoster] = url_hoster[0]
-    download_links = list(links.values())
+            try:
+                if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    if check_hoster(link_hoster, configfile):
+                        links[link_hoster] = url_hoster[0]
+            except:
+                pass
+        if config.get("hoster_fallback") and not links:
+            for url_hoster in reversed(url_hosters):
+                if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    links[link_hoster] = url_hoster[0]
+        download_links = list(links.values())
 
     englisch = False
     if "*englisch*" in key.lower():
