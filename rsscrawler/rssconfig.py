@@ -74,7 +74,8 @@ class RssConfig(object):
              "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
             ("imdb", "str", "0.0"),
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
+            ("hevc_retail", "bool", "False")
         ],
         'SJ': [
             ("quality", "str", "720p"),

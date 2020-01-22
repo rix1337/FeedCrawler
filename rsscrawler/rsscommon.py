@@ -67,12 +67,20 @@ def retail_sub(title):
     return retail, retailyear
 
 
-def cutoff(key, identifier, dbfile):
+def is_retail(key, identifier, dbfile):
     retailfinder = re.search(
         r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
         key)
     if retailfinder:
         entfernen(key, identifier, dbfile)
+        return True
+    else:
+        return False
+
+
+def is_hevc(key):
+    key = key.lower()
+    if "h265" in key or "x265" in key or "hevc" in key:
         return True
     else:
         return False

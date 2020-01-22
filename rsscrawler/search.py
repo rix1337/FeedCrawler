@@ -19,7 +19,7 @@ from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import cutoff
+from rsscrawler.rsscommon import is_retail
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import encode_base64
 from rsscrawler.rsscommon import sanitize
@@ -366,7 +366,7 @@ def best_result_bl(title, configfile, dbfile):
         if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
-    if not cutoff(best_title, 1, dbfile):
+    if not is_retail(best_title, 1, dbfile):
         logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -591,7 +591,7 @@ def download_bl(payload, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if cutoff(key, '2', dbfile):
+                    if is_retail(key, '2', dbfile):
                         retail = True
             if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
                 db.store(
@@ -608,10 +608,10 @@ def download_bl(payload, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if cutoff(key, '1', dbfile):
+                    if is_retail(key, '1', dbfile):
                         retail = True
                 else:
-                    if cutoff(key, '0', dbfile):
+                    if is_retail(key, '0', dbfile):
                         retail = True
             if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                 db.store(
