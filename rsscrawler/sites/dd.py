@@ -20,7 +20,7 @@ from rsscrawler.url import get_url
 class DD:
     _INTERNAL_NAME = 'DD'
 
-    def __init__(self, configfile, dbfile, device, logging):
+    def __init__(self, configfile, dbfile, device, logging, scraper):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -28,6 +28,7 @@ class DD:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        self.scraper = scraper
         self.db = RssDb(self.dbfile, 'rsscrawler')
 
     def periodical_task(self):
@@ -36,7 +37,7 @@ class DD:
             added_items = []
             feeds = feeds.replace(" ", "").split(',')
             for feed in feeds:
-                feed = feedparser.parse(get_url(feed, self.configfile, self.dbfile))
+                feed = feedparser.parse(get_url(feed, self.configfile, self.dbfile, self.scraper))
                 for post in feed.entries:
                     key = post.title.replace(" ", ".")
 

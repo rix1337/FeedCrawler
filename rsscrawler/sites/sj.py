@@ -22,7 +22,7 @@ from rsscrawler.url import get_url_headers
 
 
 class SJ:
-    def __init__(self, configfile, dbfile, device, logging, filename, internal_name):
+    def __init__(self, configfile, dbfile, device, logging, scraper, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.configfile = configfile
         self.dbfile = dbfile
@@ -34,6 +34,7 @@ class SJ:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        self.scraper = scraper
         self.filename = filename
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
@@ -144,7 +145,7 @@ class SJ:
         return self.parse_download(link, title, englisch)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
-        req_page = get_url(series_url, self.configfile, self.dbfile)
+        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
         soup = BeautifulSoup(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
@@ -161,7 +162,7 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        req_page = get_url(series_url, self.configfile, self.dbfile)
+        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
         soup = BeautifulSoup(req_page, 'lxml')
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
@@ -294,7 +295,8 @@ class SJ:
                         decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='),
                         self.configfile,
                         self.dbfile,
-                        self.headers)[0]
+                        self.headers,
+                        self.scraper)[0]
                     feed = feedparser.parse(response.content)
                 except:
                     response = False
@@ -304,7 +306,8 @@ class SJ:
                         decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
                         self.configfile,
                         self.dbfile,
-                        self.headers)[0]
+                        self.headers,
+                        self.scraper)[0]
                     feed = feedparser.parse(response.content)
                 except:
                     response = False
@@ -318,11 +321,11 @@ class SJ:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 feed = feedparser.parse(get_url(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), self.configfile,
-                    self.dbfile))
+                    self.dbfile, self.scraper))
             else:
                 feed = feedparser.parse(get_url(
                     decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), self.configfile,
-                    self.dbfile))
+                    self.dbfile, self.scraper))
             response = False
 
         if feed.entries:

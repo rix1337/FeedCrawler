@@ -19,16 +19,16 @@ from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import cutoff
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import encode_base64
+from rsscrawler.rsscommon import is_retail
 from rsscrawler.rsscommon import sanitize
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.url import get_url
-from rsscrawler.url import get_urls_asynch
+from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
 
 
@@ -70,7 +70,7 @@ def get(title, configfile, dbfile):
     fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
     scraper = cloudscraper.create_scraper()
-    async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+    async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
 
@@ -136,7 +136,7 @@ def get(title, configfile, dbfile):
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
         fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D+1080p/feed/"
 
-        async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+        async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         async_results = async_results[0]
 
         mb_results = []
@@ -366,7 +366,7 @@ def best_result_bl(title, configfile, dbfile):
         if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
-    if not cutoff(best_title, 1, dbfile):
+    if not is_retail(best_title, 1, dbfile):
         logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -550,7 +550,8 @@ def download_bl(payload, device, configfile, dbfile):
         else:
             filename = 'MB_Filme'
 
-        bl = BL(configfile, dbfile, device, logging, filename=filename)
+        scraper = cloudscraper.create_scraper()
+        bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
 
         if not imdb_id:
             if not bl.dual_download(key, password):
@@ -591,7 +592,7 @@ def download_bl(payload, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if cutoff(key, '2', dbfile):
+                    if is_retail(key, '2', dbfile):
                         retail = True
             if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
                 db.store(
@@ -608,10 +609,10 @@ def download_bl(payload, device, configfile, dbfile):
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if config.get('enforcedl'):
-                    if cutoff(key, '1', dbfile):
+                    if is_retail(key, '1', dbfile):
                         retail = True
                 else:
-                    if cutoff(key, '0', dbfile):
+                    if is_retail(key, '0', dbfile):
                         retail = True
             if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                 db.store(
