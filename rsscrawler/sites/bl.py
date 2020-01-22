@@ -17,9 +17,10 @@ from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import cutoff
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import fullhd_title
+from rsscrawler.rsscommon import is_hevc
+from rsscrawler.rsscommon import is_retail
 from rsscrawler.rsscommon import retail_sub
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -120,6 +121,8 @@ class BL:
         self.fx_done = False
         self.dl_unsatisfied = False
 
+        self.scraper = cloudscraper.create_scraper()
+
         try:
             self.imdb = float(self.config.get('imdb'))
         except:
@@ -171,7 +174,7 @@ class BL:
                     links[hoster] = url_hoster[0]
         return list(links.values())
 
-    def dual_search(self, feed, title):
+    def adhoc_search(self, feed, title):
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -188,8 +191,15 @@ class BL:
                 if content:
                     found = re.search(ignore, post.title.lower())
                     if found:
+                        if self.config.get("hevc_retail"):
+                            if is_hevc(post.title) and "1080p" in post.title:
+                                if is_retail(post.title, False, False):
+                                    self.log_debug(
+                                        "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                    found = False
+                    if found:
                         self.log_debug(
-                            "%s - zweisprachiges Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                            "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                         continue
                     yield (post.title, content)
 
@@ -307,6 +317,13 @@ class BL:
                         [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
                         "ignore") else r"^unmatchable$"
                     found = re.search(ignore, post.title.lower())
+                    if found:
+                        if self.config.get("hevc_retail"):
+                            if is_hevc(post.title) and "1080p" in post.title:
+                                if is_retail(post.title, False, False):
+                                    self.log_debug(
+                                        "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                    found = False
                     if found:
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
@@ -528,6 +545,13 @@ class BL:
                     if "mkv" in content.lower():
                         found = re.search(ignore, post.title.lower())
                         if found:
+                            if self.config.get("hevc_retail"):
+                                if is_hevc(post.title) and "1080p" in post.title:
+                                    if is_retail(post.title, False, False):
+                                        self.log_debug(
+                                            "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                        found = False
+                        if found:
                             self.log_debug(
                                 "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                             continue
@@ -652,24 +676,153 @@ class BL:
                                     added_items.append(i)
         return added_items
 
-    def dual_download(self, title, password):
-        search_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].replace(".", " ").replace(" ",
-                                                                                                                 "+")
-        feedsearch_title = fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0]
+    def hevc_download(self, title, password):
+        search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
+        feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = [feedparser.parse(
             get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile)),
             hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
-                              self.configfile, self.dbfile), feedparser.parse(
+                              self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile))]
 
+        i = 0
         for content in search_results:
-            for (key, value) in self.dual_search(content, feedsearch_title):
-                # TODO: Fix this for FX (currently always False because hoster is not included in content)
-                download_links = self.get_download_links(value)
+            i += 1
+            for (key, value) in self.adhoc_search(content, feedsearch_title):
+                if is_hevc(key) and "1080p" in key:
+                    if i < 3:
+                        download_links = self.get_download_links(value)
+                    else:
+                        # FX
+                        download_links = fx_download_links(content, key)
+                    if download_links:
+                        for download_link in download_links:
+                            if decode_base64("bW92aWUtYmxvZy4=") in download_link:
+                                self.log_debug("Fake-Link erkannt!")
+                                break
+                        storage = self.db.retrieve_all(key)
+                        storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
+                        if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
+                            self.log_debug(
+                                "%s - HEVC Release ignoriert (bereits gefunden)" % key)
+                            return True
+                        elif self.filename == 'MB_Filme' or 'IMDB':
+                            retail = False
+                            if self.config.get('cutoff'):
+                                if self.config.get('enforcedl'):
+                                    if is_retail(key, '1', self.dbfile):
+                                        retail = True
+                                else:
+                                    if is_retail(key, '0', self.dbfile):
+                                        retail = True
+                            if retail:
+                                self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                            "RSScrawler/Remux",
+                                                            download_links,
+                                                            password)
+                                if self.device:
+                                    self.db.store(
+                                        key,
+                                        'dl' if self.config.get(
+                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    )
+                                    log_entry = '[Film' + (
+                                        '/Retail' if retail else "") + '/HEVC] - ' + key
+                                    self.log_info(log_entry)
+                                    notify([log_entry], self.configfile)
+                                    return log_entry
+                        elif self.filename == 'MB_3D':
+                            retail = False
+                            if self.config.get('cutoff'):
+                                if is_retail(key, '2', self.dbfile):
+                                    retail = True
+                            if retail:
+                                self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                            "RSScrawler/3Dcrawler/Remux",
+                                                            download_links,
+                                                            password)
+                                if self.device:
+                                    self.db.store(
+                                        key,
+                                        'dl' if self.config.get(
+                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    )
+                                    log_entry = '[Film' + (
+                                        '/Retail' if retail else "") + '/3D/HEVC] - ' + key
+                                    self.log_info(log_entry)
+                                    notify([log_entry], self.configfile)
+                                    return log_entry
+                        elif self.filename == 'MB_Regex':
+                            self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                        "RSScrawler/Remux",
+                                                        download_links,
+                                                        password)
+                            if self.device:
+                                self.db.store(
+                                    key,
+                                    'dl' if self.config.get(
+                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                )
+                                log_entry = '[Film/Serie/RegEx/HEVC] - ' + key
+                                self.log_info(log_entry)
+                                notify([log_entry], self.configfile)
+                                return log_entry
+                        else:
+                            self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                        "RSScrawler/Remux",
+                                                        download_links,
+                                                        password)
+                            if self.device:
+                                self.db.store(
+                                    key,
+                                    'dl' if self.config.get(
+                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                )
+                                log_entry = '[Staffel/HEVC] - ' + key
+                                self.log_info(log_entry)
+                                notify([log_entry], self.configfile)
+                                return log_entry
+                    else:
+                        storage = self.db.retrieve_all(key)
+                        if 'added' not in storage and 'notdl' not in storage:
+                            wrong_hoster = '[HEVC-Suche/Hoster fehlt] - ' + key
+                            if 'wrong_hoster' not in storage:
+                                self.log_info(wrong_hoster)
+                                self.db.store(key, 'wrong_hoster')
+                                notify([wrong_hoster], self.configfile)
+                            else:
+                                self.log_debug(wrong_hoster)
+
+    def dual_download(self, title, password):
+        search_title = \
+            fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
+                0].split('.HEVC-', 1)[0].replace(".", " ").replace(" ", "+")
+        feedsearch_title = \
+            fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
+                0].split('.HEVC-', 1)[0]
+        search_results = [feedparser.parse(
+            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
+                    self.configfile, self.dbfile)), feedparser.parse(
+            get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
+                    self.configfile, self.dbfile)),
+            hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
+                              self.configfile, self.dbfile, self.scraper), feedparser.parse(
+                get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile))]
+
+        i = 0
+        for content in search_results:
+            i += 1
+            for (key, value) in self.adhoc_search(content, feedsearch_title):
+                if i < 3:
+                    download_links = self.get_download_links(value)
+                else:
+                    # FX
+                    download_links = fx_download_links(content, key)
                 if download_links:
                     for download_link in download_links:
                         if decode_base64("bW92aWUtYmxvZy4=") in download_link:
@@ -685,10 +838,10 @@ class BL:
                         retail = False
                         if self.config.get('cutoff'):
                             if self.config.get('enforcedl'):
-                                if cutoff(key, '1', self.dbfile):
+                                if is_retail(key, '1', self.dbfile):
                                     retail = True
                             else:
-                                if cutoff(key, '0', self.dbfile):
+                                if is_retail(key, '0', self.dbfile):
                                     retail = True
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
                                                     download_links,
@@ -707,7 +860,7 @@ class BL:
                     elif self.filename == 'MB_3D':
                         retail = False
                         if self.config.get('cutoff'):
-                            if cutoff(key, '2', self.dbfile):
+                            if is_retail(key, '2', self.dbfile):
                                 retail = True
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                     "RSScrawler/3Dcrawler/Remux",
@@ -765,6 +918,12 @@ class BL:
 
     def imdb_download(self, key, download_links, score, download_imdb, details, password, site):
         added_items = []
+        if self.config.get("hevc_retail"):
+            if not is_hevc(key) and is_retail(key, False, False):
+                if self.hevc_download(key, password):
+                    self.log_debug(
+                        "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                    return
         if download_links:
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
@@ -821,10 +980,10 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if cutoff(key, '1', self.dbfile):
+                            if is_retail(key, '1', self.dbfile):
                                 retail = True
                         else:
-                            if cutoff(key, '0', self.dbfile):
+                            if is_retail(key, '0', self.dbfile):
                                 retail = True
                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
                                             download_links, password)
@@ -847,7 +1006,7 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if cutoff(key, '2', self.dbfile):
+                            if is_retail(key, '2', self.dbfile):
                                 retail = True
                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
                                             download_links,
@@ -877,6 +1036,12 @@ class BL:
 
     def feed_download(self, key, content, password, site):
         added_items = []
+        if self.config.get("hevc_retail"):
+            if not is_hevc(key) and is_retail(key, False, False):
+                if self.hevc_download(key, password):
+                    self.log_debug(
+                        "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                    return
         if not "FX" in site:
             download_links = self.get_download_links(content)
         else:
@@ -982,14 +1147,14 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if cutoff(key, '1', self.dbfile):
+                            if is_retail(key, '1', self.dbfile):
                                 retail = True
                         else:
-                            if cutoff(key, '0', self.dbfile):
+                            if is_retail(key, '0', self.dbfile):
                                 retail = True
                 else:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                        if cutoff(key, '0', self.dbfile):
+                        if is_retail(key, '0', self.dbfile):
                             retail = True
                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
                                             download_links, password)
@@ -1011,11 +1176,11 @@ class BL:
                         'enforcedl'):
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if self.config.get('enforcedl'):
-                            if cutoff(key, '2', self.dbfile):
+                            if is_retail(key, '2', self.dbfile):
                                 retail = True
                 else:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                        if cutoff(key, '2', self.dbfile):
+                        if is_retail(key, '2', self.dbfile):
                             retail = True
                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
                                             download_links,
@@ -1142,12 +1307,11 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
 
-        scraper = cloudscraper.create_scraper()
         mb_304 = False
         if not self.historical:
             try:
-                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb, scraper)
-                scraper = first_mb[1]
+                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb, self.scraper)
+                self.scraper = first_mb[1]
                 first_mb = first_mb[0]
                 first_page_mb = feedparser.parse(first_mb.content)
                 if first_mb.status_code == 304:
@@ -1160,8 +1324,8 @@ class BL:
         hw_304 = False
         if not self.historical:
             try:
-                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, scraper)
-                scraper = first_hw[1]
+                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, self.scraper)
+                self.scraper = first_hw[1]
                 first_hw = first_hw[0]
                 first_page_hw = feedparser.parse(first_hw.content)
                 if first_hw.status_code == 304:
@@ -1174,10 +1338,10 @@ class BL:
         hs_304 = False
         if not self.historical:
             try:
-                first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, scraper)
-                scraper = first_hs[1]
+                first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, self.scraper)
+                self.scraper = first_hs[1]
                 first_hs = first_hs[0]
-                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, scraper)
+                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.scraper)
                 if first_hs.status_code == 304:
                     hs_304 = True
             except:
@@ -1188,8 +1352,8 @@ class BL:
         fx_304 = False
         if not self.historical:
             try:
-                first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, scraper)
-                scraper = first_fx[1]
+                first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
+                self.scraper = first_fx[1]
                 first_fx = first_fx[0]
                 first_page_fx = feedparser.parse(first_fx.content)
                 if first_fx.status_code == 304:
@@ -1278,7 +1442,7 @@ class BL:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile, scraper))
+                                get_url(url, self.configfile, self.dbfile, self.scraper))
                         found = self.imdb_search(imdb, mb_parsed_url, "MB")
                         if found:
                             for f in found:
@@ -1291,7 +1455,7 @@ class BL:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile, scraper))
+                                get_url(url, self.configfile, self.dbfile, self.scraper))
                         found = self.imdb_search(imdb, hw_parsed_url, "HW")
                         if found:
                             for f in found:
@@ -1304,7 +1468,7 @@ class BL:
                             hs_parsed_url = first_page_hs
                         else:
                             hs_parsed_url = hs_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, scraper), self.configfile, scraper)
+                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.scraper)
                         found = self.imdb_search(imdb, hs_parsed_url, "HS")
                         if found:
                             for f in found:
@@ -1317,7 +1481,7 @@ class BL:
                             fx_parsed_url = first_page_fx
                         else:
                             fx_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile, scraper))
+                                get_url(url, self.configfile, self.dbfile, self.scraper))
                         found = self.imdb_search(imdb, fx_parsed_url, "FX")
                         if found:
                             for f in found:
@@ -1331,7 +1495,7 @@ class BL:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile, scraper))
+                            get_url(url, self.configfile, self.dbfile, self.scraper))
                     found = self.feed_search(mb_parsed_url, "MB")
                     if found:
                         for f in found:
@@ -1344,7 +1508,7 @@ class BL:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile, scraper))
+                            get_url(url, self.configfile, self.dbfile, self.scraper))
                     found = self.feed_search(hw_parsed_url, "HW")
                     if found:
                         for f in found:
@@ -1357,7 +1521,7 @@ class BL:
                         hs_parsed_url = first_page_hs
                     else:
                         hs_parsed_url = hs_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, scraper), self.configfile, scraper)
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.scraper)
                     found = self.feed_search(hs_parsed_url, "HS")
                     if found:
                         for f in found:
@@ -1370,7 +1534,7 @@ class BL:
                         fx_parsed_url = first_page_fx
                     else:
                         fx_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile, scraper))
+                            get_url(url, self.configfile, self.dbfile, self.scraper))
                     found = self.feed_search(fx_parsed_url, "FX")
                     if found:
                         for f in found:

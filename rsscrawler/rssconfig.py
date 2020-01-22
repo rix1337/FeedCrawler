@@ -63,7 +63,7 @@ class RssConfig(object):
             ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
             ("regex", "bool", "False"),
-            ("cutoff", "bool", "False"),
+            ("cutoff", "bool", "True"),
             ("crawl3d", "bool", "False"),
             ("crawl3dtype", "str", "hsbs"),
             ("enforcedl", "bool", "False"),

@@ -28,7 +28,7 @@ from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.url import get_url
-from rsscrawler.url import get_urls_asynch
+from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
 
 
@@ -70,7 +70,7 @@ def get(title, configfile, dbfile):
     fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
     scraper = cloudscraper.create_scraper()
-    async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+    async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
 
@@ -136,7 +136,7 @@ def get(title, configfile, dbfile):
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
         fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D+1080p/feed/"
 
-        async_results = get_urls_asynch([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+        async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
         async_results = async_results[0]
 
         mb_results = []
