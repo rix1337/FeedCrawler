@@ -19,9 +19,9 @@ from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import is_retail
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import encode_base64
+from rsscrawler.rsscommon import is_retail
 from rsscrawler.rsscommon import sanitize
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -70,7 +70,7 @@ def get(title, configfile, dbfile):
     fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
     scraper = cloudscraper.create_scraper()
-    async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+    async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
 
@@ -136,7 +136,7 @@ def get(title, configfile, dbfile):
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
         fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D+1080p/feed/"
 
-        async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, scraper)
+        async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         async_results = async_results[0]
 
         mb_results = []
@@ -550,7 +550,8 @@ def download_bl(payload, device, configfile, dbfile):
         else:
             filename = 'MB_Filme'
 
-        bl = BL(configfile, dbfile, device, logging, filename=filename)
+        scraper = cloudscraper.create_scraper()
+        bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
 
         if not imdb_id:
             if not bl.dual_download(key, password):

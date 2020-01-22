@@ -108,14 +108,14 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             try:
                 if not device or not is_device(device):
                     device = get_device(configfile)
-                check_url(configfile, dbfile)
+                scraper = check_url(configfile, dbfile)
                 start_time = time.time()
                 crawltimes.update_store("active", "True")
                 crawltimes.update_store("start_time", start_time * 1000)
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 if device:
                     device = ombi(configfile, dbfile, device, log_debug)
-                for task in search_pool(configfile, dbfile, device, logging):
+                for task in search_pool(configfile, dbfile, device, logging, scraper):
                     name = task._INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
@@ -149,12 +149,12 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
-            check_url(configfile, dbfile)
+            scraper = check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
             if device:
                 device = ombi(configfile, dbfile, device, log_debug)
-            for task in search_pool(configfile, dbfile, device, logging):
+            for task in search_pool(configfile, dbfile, device, logging, scraper):
                 name = task._INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
@@ -287,21 +287,21 @@ def crawldog(configfile, dbfile):
             time.sleep(30)
 
 
-def search_pool(configfile, dbfile, device, logging):
+def search_pool(configfile, dbfile, device, logging, scraper):
     return [
-        YT(configfile, dbfile, device, logging),
-        DD(configfile, dbfile, device, logging),
-        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus', internal_name='DJ'),
-        DJ(configfile, dbfile, device, logging, filename='DJ_Dokus_Regex', internal_name='DJ'),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Serien', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='SJ_Staffeln_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, filename='MB_Staffeln', internal_name='MB'),
-        BL(configfile, dbfile, device, logging, filename='MB_Regex'),
-        BL(configfile, dbfile, device, logging, filename='IMDB'),
-        BL(configfile, dbfile, device, logging, filename='MB_Filme'),
-        BL(configfile, dbfile, device, logging, filename='MB_Staffeln'),
-        BL(configfile, dbfile, device, logging, filename='MB_3D')
+        YT(configfile, dbfile, device, logging, scraper),
+        DD(configfile, dbfile, device, logging, scraper),
+        DJ(configfile, dbfile, device, logging, scraper, filename='DJ_Dokus', internal_name='DJ'),
+        DJ(configfile, dbfile, device, logging, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
+        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Serien', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logging, scraper, filename='MB_Staffeln', internal_name='MB'),
+        BL(configfile, dbfile, device, logging, scraper, filename='MB_Regex'),
+        BL(configfile, dbfile, device, logging, scraper, filename='IMDB'),
+        BL(configfile, dbfile, device, logging, scraper, filename='MB_Filme'),
+        BL(configfile, dbfile, device, logging, scraper, filename='MB_Staffeln'),
+        BL(configfile, dbfile, device, logging, scraper, filename='MB_3D')
     ]
 
 

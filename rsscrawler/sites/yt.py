@@ -17,7 +17,7 @@ from rsscrawler.url import get_url
 class YT:
     _INTERNAL_NAME = 'YT'
 
-    def __init__(self, configfile, dbfile, device, logging):
+    def __init__(self, configfile, dbfile, device, logging, scraper):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -25,6 +25,7 @@ class YT:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        self.scraper = scraper
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.youtube = 'YT_Channels'
         self.dictWithNamesAndLinks = {}
@@ -60,16 +61,16 @@ class YT:
                 id_cutter = channel.rfind('list=') + 5
                 channel = channel[id_cutter:]
                 url = 'https://www.youtube.com/playlist?list=' + channel
-                response = get_url(url, self.configfile, self.dbfile)
+                response = get_url(url, self.configfile, self.dbfile, self.scraper)
             else:
                 url = 'https://www.youtube.com/user/' + channel + '/videos'
                 urlc = 'https://www.youtube.com/channel/' + channel + '/videos'
                 cnotfound = False
                 try:
-                    response = get_url(url, self.configfile, self.dbfile)
+                    response = get_url(url, self.configfile, self.dbfile, self.scraper)
                 except HTTPError:
                     try:
-                        response = get_url(urlc, self.configfile, self.dbfile)
+                        response = get_url(urlc, self.configfile, self.dbfile, self.scraper)
                     except HTTPError:
                         cnotfound = True
                     if cnotfound:

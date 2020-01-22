@@ -7,7 +7,6 @@
 import hashlib
 import re
 
-import cloudscraper
 import feedparser
 
 from rsscrawler.fakefeed import fx_download_links
@@ -41,7 +40,7 @@ class BL:
     FX_FEED_URLS = [FX_URL]
     SUBSTITUTE = r"[&#\s/]"
 
-    def __init__(self, configfile, dbfile, device, logging, filename):
+    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -50,6 +49,7 @@ class BL:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        self.scraper = scraper
         self.filename = filename
         self.pattern = False
         self.db = RssDb(self.dbfile, 'rsscrawler')
@@ -120,8 +120,6 @@ class BL:
         self.hs_done = False
         self.fx_done = False
         self.dl_unsatisfied = False
-
-        self.scraper = cloudscraper.create_scraper()
 
         try:
             self.imdb = float(self.config.get('imdb'))
@@ -363,7 +361,7 @@ class BL:
                         except:
                             break
                         search_url = "http://www.imdb.com/find?q=" + search_title
-                        search_page = get_url(search_url, self.configfile, self.dbfile)
+                        search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
                         search_results = re.findall(
                             r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                             search_page)
@@ -399,7 +397,7 @@ class BL:
                                     "%s - Release ignoriert (Film zu alt)" % post.title)
                                 continue
                         elif len(download_imdb) > 0:
-                            details = get_url(download_imdb, self.configfile, self.dbfile)
+                            details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
                             if not details:
                                 self.log_debug(
                                     "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
@@ -418,7 +416,7 @@ class BL:
                                 continue
                     if len(download_imdb) > 0:
                         if len(details) == 0:
-                            details = get_url(download_imdb, self.configfile, self.dbfile)
+                            details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
                         if not details:
                             self.log_debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
@@ -681,13 +679,13 @@ class BL:
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = [feedparser.parse(
             get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)), feedparser.parse(
+                    self.configfile, self.dbfile, self.scraper)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)),
+                    self.configfile, self.dbfile, self.scraper)),
             hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile))]
+                        self.configfile, self.dbfile, self.scraper))]
 
         i = 0
         for content in search_results:
@@ -806,13 +804,13 @@ class BL:
                 0].split('.HEVC-', 1)[0]
         search_results = [feedparser.parse(
             get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)), feedparser.parse(
+                    self.configfile, self.dbfile, self.scraper)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile)),
+                    self.configfile, self.dbfile, self.scraper)),
             hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile))]
+                        self.configfile, self.dbfile, self.scraper))]
 
         i = 0
         for content in search_results:
@@ -950,7 +948,7 @@ class BL:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
                 elif len(download_imdb) > 0:
-                    details = get_url(download_imdb, self.configfile, self.dbfile)
+                    details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1085,7 +1083,7 @@ class BL:
                     search_title = re.findall(
                         r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
                     search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = get_url(search_url, self.configfile, self.dbfile)
+                    search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
                     search_results = re.findall(
                         r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                         search_page)
@@ -1121,7 +1119,7 @@ class BL:
                     if isinstance(imdb_id, list):
                         imdb_id = imdb_id.pop()
                     imdb_url = "http://www.imdb.com/title/" + imdb_id
-                    details = get_url(imdb_url, self.configfile, self.dbfile)
+                    details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
                     if not details:
                         self.log_debug(
                             "%s - Originalsprache nicht ermittelbar" % key)
@@ -1341,7 +1339,7 @@ class BL:
                 first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, self.scraper)
                 self.scraper = first_hs[1]
                 first_hs = first_hs[0]
-                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.scraper)
+                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile, self.scraper)
                 if first_hs.status_code == 304:
                     hs_304 = True
             except:
@@ -1468,7 +1466,8 @@ class BL:
                             hs_parsed_url = first_page_hs
                         else:
                             hs_parsed_url = hs_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.scraper)
+                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                                self.scraper)
                         found = self.imdb_search(imdb, hs_parsed_url, "HS")
                         if found:
                             for f in found:
@@ -1521,7 +1520,8 @@ class BL:
                         hs_parsed_url = first_page_hs
                     else:
                         hs_parsed_url = hs_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.scraper)
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                            self.scraper)
                     found = self.feed_search(hs_parsed_url, "HS")
                     if found:
                         for f in found:

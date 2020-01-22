@@ -9,7 +9,7 @@ import feedparser
 from bs4 import BeautifulSoup
 
 from rsscrawler.url import get_url
-from rsscrawler.url import get_urls_asynch
+from rsscrawler.url import get_urls_async
 
 
 class FakeFeedParserDict(dict):
@@ -20,20 +20,20 @@ class FakeFeedParserDict(dict):
             raise AttributeError("No such attribute: " + name)
 
 
-def hs_feed_enricher(feed, configfile, scraper):
+def hs_feed_enricher(feed, configfile, dbfile, scraper):
     feed = feedparser.parse(feed)
 
-    asynch_results = []
+    async_results = []
     for post in feed.entries:
         try:
-            asynch_results.append(post.links[0].href)
+            async_results.append(post.links[0].href)
         except:
             pass
-    asynch_results = get_urls_asynch(asynch_results, configfile, scraper)[0]
+    async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
 
     entries = []
-    if asynch_results:
-        for result in asynch_results:
+    if async_results:
+        for result in async_results:
             try:
                 content = []
                 details = result
@@ -57,22 +57,32 @@ def hs_feed_enricher(feed, configfile, scraper):
     return feed
 
 
-def hs_search_to_soup(url, configfile, dbfile):
+def hs_search_to_soup(url, configfile, dbfile, scraper):
     content = []
-    search = BeautifulSoup(get_url(url, configfile, dbfile), 'lxml')
+    search = BeautifulSoup(get_url(url, configfile, dbfile, scraper), 'lxml')
     if search:
         results = search.find_all("item")
         if results:
+            async_results = []
+            for r in results:
+                try:
+                    async_results.append(r.link.next)
+                except:
+                    pass
+            async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
+            # TODO: This is a bug, if async results is ordered differently than results
+            i = 0
             for r in results:
                 try:
                     title = r.title.next
-                    details = BeautifulSoup(get_url(r.link.next, configfile, dbfile), 'lxml')
+                    details = BeautifulSoup(async_results[i], 'lxml')
                     content.append({
                         "key": title,
                         "value": details
                     })
                 except:
                     pass
+                i += 1
     return hs_search_to_feedparser_dict(content)
 
 
@@ -80,6 +90,7 @@ def hs_search_to_feedparser_dict(beautifulsoup_object_list):
     entries = []
     for beautifulsoup_object in beautifulsoup_object_list:
         title = beautifulsoup_object["key"]
+        # TODO: this is entirely broken
         item_head = beautifulsoup_object["value"].find_all("p", {"class": "blog-post-meta"})
         item_download = beautifulsoup_object["value"].find_all("div", {"class": "entry-content"})
 

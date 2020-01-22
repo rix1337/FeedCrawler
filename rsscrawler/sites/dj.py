@@ -22,7 +22,7 @@ from rsscrawler.url import get_url_headers
 
 
 class DJ:
-    def __init__(self, configfile, dbfile, device, logging, filename, internal_name):
+    def __init__(self, configfile, dbfile, device, logging, scraper, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.configfile = configfile
         self.dbfile = dbfile
@@ -34,6 +34,7 @@ class DJ:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
+        self.scraper = scraper
         self.filename = filename
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
@@ -127,7 +128,7 @@ class DJ:
         return self.parse_download(link, title, englisch, genre)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title, genre):
-        req_page = get_url(series_url, self.configfile, self.dbfile)
+        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
         soup = BeautifulSoup(req_page, 'lxml')
         try:
             titles = soup.findAll(text=re.compile(search_title))
@@ -144,7 +145,7 @@ class DJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch, genre):
-        req_page = get_url(series_url, self.configfile, self.dbfile)
+        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
 
         soup = BeautifulSoup(req_page, 'lxml')
         escape_brackets = search_title.replace(
@@ -235,7 +236,8 @@ class DJ:
                     decode_base64('aHR0cDovL2Rva3VqdW5raWVzLm9yZy8='),
                     self.configfile,
                     self.dbfile,
-                    self.headers)[0]
+                    self.headers,
+                    self.scraper)[0]
                 feed = dj_content_to_soup(response.content)
             except:
                 response = False
@@ -248,7 +250,7 @@ class DJ:
                 header = True
         else:
             feed = dj_content_to_soup(
-                get_url(decode_base64('aHR0cDovL2Rva3VqdW5raWVzLm9yZy8='), self.configfile, self.dbfile))
+                get_url(decode_base64('aHR0cDovL2Rva3VqdW5raWVzLm9yZy8='), self.configfile, self.dbfile, self.scraper))
             response = False
 
         if feed and feed.entries:
