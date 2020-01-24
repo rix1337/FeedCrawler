@@ -211,10 +211,11 @@ class BL:
             except:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
-            if not "FX" in site:
-                post.title = post.title.strip(u'\u200b')
-            else:
-                post.title = fx_post_title(content)
+            if content:
+                if not "FX" in site:
+                    post.title = post.title.strip(u'\u200b')
+                else:
+                    post.title = fx_post_title(content)
 
             if site == "MB":
                 if self.i_mb_done:
@@ -289,7 +290,7 @@ class BL:
                                 if is_hevc(post.title) and "1080p" in post.title:
                                     if is_retail(post.title, False, False):
                                         self.log_debug(
-                                            "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                            "%s - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                         hevc_retail = True
                                         quality_match = True
                         if not quality_match:
@@ -329,7 +330,7 @@ class BL:
                             if is_hevc(post.title) and "1080p" in post.title:
                                 if is_retail(post.title, False, False):
                                     self.log_debug(
-                                        "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                        "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                     hevc_retail = True
                                     found = False
                     if found:
@@ -505,10 +506,11 @@ class BL:
             except:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
-            if not "FX" in site:
-                post.title = post.title.strip(u'\u200b')
-            else:
-                post.title = fx_post_title(content)
+            if content:
+                if not "FX" in site:
+                    post.title = post.title.strip(u'\u200b')
+                else:
+                    post.title = fx_post_title(content)
 
             if site == "MB":
                 if self.mb_done:
@@ -558,7 +560,7 @@ class BL:
                                 if is_hevc(post.title) and "1080p" in post.title:
                                     if is_retail(post.title, False, False):
                                         self.log_debug(
-                                            "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                            "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                         hevc_retail = True
                                         found = False
                         if found:
@@ -588,7 +590,7 @@ class BL:
                                     if is_hevc(post.title) and "1080p" in post.title:
                                         if is_retail(post.title, False, False):
                                             self.log_debug(
-                                                "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                                "%s  - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                             hevc_retail = True
                                             found = True
                             if found:

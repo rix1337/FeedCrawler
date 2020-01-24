@@ -181,10 +181,7 @@ def fx_search_results(content):
     content = content.find_all("item")
     items = []
     for item in content:
-        try:
-            title = item.find("mark").text.encode("ascii", errors="ignore").decode()
-        except:
-            title = item.find("title").text
+        title = fx_post_title(content)
         link = item.find("comments").text
         items.append([title, link])
     return items
@@ -192,11 +189,16 @@ def fx_search_results(content):
 
 def fx_post_title(content):
     # TODO: this only gets the first release if there are multiple options
+    if not content:
+        return ""
     content = BeautifulSoup(content, 'lxml')
     try:
         title = content.find("mark").text.encode("ascii", errors="ignore").decode()
     except:
-        title = content.find("title").text
+        try:
+            title = content.find("title").text
+        except:
+            title = ""
     return title
 
 
