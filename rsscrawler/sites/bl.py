@@ -257,6 +257,7 @@ class BL:
                         r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
                         content)
 
+                    hevc_retail = False
                     if post_imdb:
                         post_imdb = post_imdb.pop()
                     replaced = retail_sub(post.title)
@@ -283,6 +284,14 @@ class BL:
                         else:
                             quality_match = re.search(
                                 quality_set, post.title.lower())
+                        if not quality_match:
+                            if self.config.get("hevc_retail"):
+                                if is_hevc(post.title) and "1080p" in post.title:
+                                    if is_retail(post.title, False, False):
+                                        self.log_debug(
+                                            "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                        hevc_retail = True
+                                        quality_match = True
                         if not quality_match:
                             self.log_debug(
                                 "%s - Release ignoriert (falsche Aufloesung)" % post.title)
@@ -321,6 +330,7 @@ class BL:
                                 if is_retail(post.title, False, False):
                                     self.log_debug(
                                         "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                    hevc_retail = True
                                     found = False
                     if found:
                         self.log_debug(
@@ -457,11 +467,11 @@ class BL:
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
                                     post.title, download_pages, str(download_score), download_imdb, details,
-                                    password, site)
+                                    password, site, hevc_retail)
                             else:
                                 found = self.imdb_download(
                                     post.title, download_pages, str(download_score), download_imdb, details,
-                                    password, site)
+                                    password, site, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -541,6 +551,7 @@ class BL:
             if found:
                 if content:
                     if "mkv" in content.lower():
+                        hevc_retail = False
                         found = re.search(ignore, post.title.lower())
                         if found:
                             if self.config.get("hevc_retail"):
@@ -548,6 +559,7 @@ class BL:
                                     if is_retail(post.title, False, False):
                                         self.log_debug(
                                             "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                        hevc_retail = True
                                         found = False
                         if found:
                             self.log_debug(
@@ -571,6 +583,14 @@ class BL:
                                 found = True
                             else:
                                 found = re.search(ss, post.title.lower())
+                            if not found:
+                                if self.config.get("hevc_retail"):
+                                    if is_hevc(post.title) and "1080p" in post.title:
+                                        if is_retail(post.title, False, False):
+                                            self.log_debug(
+                                                "%s - Release ist 1080p-HEVC-Retail" % post.title)
+                                            hevc_retail = True
+                                            found = True
                             if found:
                                 if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
                                     continue
@@ -580,7 +600,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password, site)
+                                found = self.feed_download(post.title, content, password, site, hevc_retail)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -614,7 +634,7 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password, site)
+                                found = self.feed_download(post.title, content, password, site, hevc_retail)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
@@ -663,12 +683,12 @@ class BL:
                                     self.log_debug(
                                         "%s - Release ignoriert (Serienepisode)" % post.title)
                                     continue
-                                found = self.feed_download(post.title, content, password, site)
+                                found = self.feed_download(post.title, content, password, site, hevc_retail)
                                 if found:
                                     for i in found:
                                         added_items.append(i)
                         else:
-                            found = self.feed_download(post.title, content, password, site)
+                            found = self.feed_download(post.title, content, password, site, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -914,14 +934,15 @@ class BL:
                         else:
                             self.log_debug(wrong_hoster)
 
-    def imdb_download(self, key, download_links, score, download_imdb, details, password, site):
+    def imdb_download(self, key, download_links, score, download_imdb, details, password, site, hevc_retail):
         added_items = []
-        if self.config.get("hevc_retail"):
-            if not is_hevc(key) and is_retail(key, False, False):
-                if self.hevc_download(key, password):
-                    self.log_debug(
-                        "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
-                    return
+        if not hevc_retail:
+            if self.config.get("hevc_retail"):
+                if not is_hevc(key) and is_retail(key, False, False):
+                    if self.hevc_download(key, password):
+                        self.log_debug(
+                            "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                        return
         if download_links:
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
@@ -994,7 +1015,8 @@ class BL:
                     log_entry = '[IMDB ' + score + '/Film' + (
                         '/Englisch - ' if englisch and not retail else "") + (
                                     '/Englisch/Retail' if englisch and retail else "") + (
-                                    '/Retail' if not englisch and retail else "") + '] - ' + key
+                                    '/Retail' if not englisch and retail else "") + (
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1016,7 +1038,8 @@ class BL:
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[IMDB ' + score + '/Film' + (
-                        '/Retail' if retail else "") + '/3D] - ' + key
+                        '/Retail' if retail else "") + '/3D' + (
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1032,14 +1055,15 @@ class BL:
                     self.log_debug(wrong_hoster)
         return added_items
 
-    def feed_download(self, key, content, password, site):
+    def feed_download(self, key, content, password, site, hevc_retail):
         added_items = []
-        if self.config.get("hevc_retail"):
-            if not is_hevc(key) and is_retail(key, False, False):
-                if self.hevc_download(key, password):
-                    self.log_debug(
-                        "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
-                    return
+        if not hevc_retail:
+            if self.config.get("hevc_retail"):
+                if not is_hevc(key) and is_retail(key, False, False):
+                    if self.hevc_download(key, password):
+                        self.log_debug(
+                            "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                        return
         if not "FX" in site:
             download_links = self.get_download_links(content)
         else:
@@ -1164,7 +1188,8 @@ class BL:
                     )
                     log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
-                                    '/Retail' if not englisch and retail else '') + '] - ' + key
+                                    '/Retail' if not englisch and retail else '') + (
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1189,8 +1214,9 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Film] - ' + (
-                        'Retail/' if retail else "") + '3D - ' + key
+                    log_entry = '[Film - ' + (
+                        '/Retail' if retail else "") + '/3D - ' + (
+                                    '/HEVC' if hevc_retail else '') + ']' + key
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
