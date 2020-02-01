@@ -477,7 +477,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def get_crawltimes():
         if request.method == 'GET':
-            crawltimes = RssDb(dbfile, "crawltimes")
+            try:
+                crawltimes = RssDb(dbfile, "crawltimes")
+            except:
+                time.sleep(3)
+                return "Failed", 400
             return jsonify(
                 {
                     "crawltimes": {
