@@ -741,7 +741,7 @@ class BL:
                                         retail = True
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                            "RSScrawler/Remux",
+                                                            "RSScrawler",
                                                             download_links,
                                                             password)
                                 if self.device:
