@@ -730,15 +730,20 @@ class BL:
                             if decode_base64("bW92aWUtYmxvZy4=") in download_link:
                                 self.log_debug("Fake-Link erkannt!")
                                 break
+                        storage_string = 'added'
+                        if self.config.get('enforcedl') and '.dl.' in key.lower():
+                            storage_string = 'dl'
+
                         storage = self.db.retrieve_all(key)
                         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                         if self.config.get("hevc_retail"):
                             if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                                storage_string = 'hevc_retail'
                                 if 'hevc_retail' in storage or 'hevc_retail' in storage_replaced:
                                     self.log_debug(
                                         "%s - HEVC Release ignoriert (bereits gefunden)" % key)
-                                    continue
-                        elif 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
+                                    return True
+                        if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                             self.log_debug(
                                 "%s - HEVC Release ignoriert (bereits gefunden)" % key)
                             return True
@@ -759,8 +764,7 @@ class BL:
                                 if self.device:
                                     self.db.store(
                                         key,
-                                        'dl' if self.config.get(
-                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                        storage_string
                                     )
                                     log_entry = '[Film' + (
                                         '/Retail' if retail else "") + '/HEVC] - ' + key
@@ -780,8 +784,7 @@ class BL:
                                 if self.device:
                                     self.db.store(
                                         key,
-                                        'dl' if self.config.get(
-                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                        storage_string
                                     )
                                     log_entry = '[Film' + (
                                         '/Retail' if retail else "") + '/3D/HEVC] - ' + key
@@ -796,8 +799,7 @@ class BL:
                             if self.device:
                                 self.db.store(
                                     key,
-                                    'dl' if self.config.get(
-                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    storage_string
                                 )
                                 log_entry = '[Film/Serie/RegEx/HEVC] - ' + key
                                 self.log_info(log_entry)
@@ -811,8 +813,7 @@ class BL:
                             if self.device:
                                 self.db.store(
                                     key,
-                                    'dl' if self.config.get(
-                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    storage_string
                                 )
                                 log_entry = '[Staffel/HEVC] - ' + key
                                 self.log_info(log_entry)
@@ -860,6 +861,13 @@ class BL:
                         if decode_base64("bW92aWUtYmxvZy4=") in download_link:
                             self.log_debug("Fake-Link erkannt!")
                             break
+                    storage_string = 'added'
+                    if self.config.get('enforcedl') and '.dl.' in key.lower():
+                        storage_string = 'dl'
+                    if self.config.get("hevc_retail"):
+                        if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                            storage_string = 'hevc_retail'
+
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                     if 'added' in storage or 'notdl' in storage or 'hevc_retail' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced or 'hevc_retail' in storage_replaced:
@@ -881,8 +889,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                storage_string
                             )
                             log_entry = '[Film' + (
                                 '/Retail' if retail else "") + '/Zweisprachig] - ' + key
@@ -901,8 +908,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                storage_string
                             )
                             log_entry = '[Film' + (
                                 '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key
@@ -916,8 +922,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                storage_string
                             )
                             log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key
                             self.log_info(log_entry)
@@ -930,8 +935,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                storage_string
                             )
                             log_entry = '[Staffel/Zweisprachig] - ' + key
                             self.log_info(log_entry)
@@ -958,6 +962,13 @@ class BL:
                             "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                         return
         if download_links:
+            storage_string = 'added'
+            if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                storage_string = 'notdl'
+            if self.config.get("hevc_retail"):
+                if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                    storage_string = 'hevc_retail'
+
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
                 if url in download_link:
@@ -1023,8 +1034,7 @@ class BL:
                 if self.device:
                     self.db.store(
                         key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[IMDB ' + score + '/Film' + (
                         '/Englisch - ' if englisch and not retail else "") + (
@@ -1048,8 +1058,7 @@ class BL:
                 if self.device:
                     self.db.store(
                         key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[IMDB ' + score + '/Film' + (
                         '/Retail' if retail else "") + '/3D' + (
@@ -1083,6 +1092,13 @@ class BL:
         else:
             download_links = fx_download_links(content, key)
         if download_links:
+            storage_string = 'added'
+            if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                storage_string = 'notdl'
+            if self.config.get("hevc_retail"):
+                if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                    storage_string = 'hevc_retail'
+
             for download_link in download_links:
                 url = decode_base64("bW92aWUtYmxvZy4=")
                 if url in download_link:
@@ -1203,8 +1219,7 @@ class BL:
                 if self.device:
                     self.db.store(
                         key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
@@ -1231,8 +1246,7 @@ class BL:
                 if self.device:
                     self.db.store(
                         key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[Film - ' + (
                         '/Retail' if retail else "") + '/3D - ' + (
@@ -1247,8 +1261,7 @@ class BL:
                     self.db.store(
                         key.replace(".COMPLETE", "").replace(
                             ".Complete", ""),
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
                     self.log_info(log_entry)
@@ -1260,8 +1273,7 @@ class BL:
                 if self.device:
                     self.db.store(
                         key,
-                        'notdl' if self.config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                        storage_string
                     )
                     log_entry = '[Film/Serie/RegEx] - ' + key
                     self.log_info(log_entry)
