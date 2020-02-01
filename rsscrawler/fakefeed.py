@@ -203,15 +203,9 @@ def fx_post_title(content):
 
 
 def fx_download_links(content, title):
+    content = BeautifulSoup(content, 'lxml')
     try:
-        try:
-            content = BeautifulSoup(content, 'lxml')
-        except:
-            content = BeautifulSoup(str(content), 'lxml')
-        try:
-            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
-        except:
-            download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
+        download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
     except:
-        return False
+        download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
     return download_links
