@@ -34,6 +34,9 @@ def check_ip():
 
 
 def entfernen(retailtitel, identifier, dbfile):
+    db_tag = "retail"
+    if is_hevc(retailtitel):
+        db_tag = "hevc_retail"
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
@@ -51,8 +54,8 @@ def entfernen(retailtitel, identifier, dbfile):
             if line:
                 new_cont.append(line)
     ListDb(dbfile, liste).store_list(new_cont)
-    RssDb(dbfile, "retail").store(retail, "retail")
-    RssDb(dbfile, "retail").store(retailyear, "retail")
+    RssDb(dbfile, "retail").store(retail, db_tag)
+    RssDb(dbfile, "retail").store(retailyear, db_tag)
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
@@ -72,6 +75,7 @@ def is_retail(key, identifier, dbfile):
         r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
         key)
     if retailfinder:
+        # If these are False, just a retail check is desired
         if identifier and dbfile:
             entfernen(key, identifier, dbfile)
         return True
