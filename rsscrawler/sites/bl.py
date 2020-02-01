@@ -276,7 +276,7 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % post.title)
                         return
-                    elif retailtitle == 'retail' or retailyear == 'retail':
+                    elif retailtitle == 'retail' or retailyear == 'retail' or retailtitle == 'hevc_retail' or retailyear == 'hevc_retail':
                         self.log_debug(
                             "%s - Release ignoriert (Retail-Release bereits gefunden)" % post.title)
                         continue
@@ -1094,7 +1094,7 @@ class BL:
                 self.log_debug(
                     "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % key)
                 return
-            elif retailtitle == 'retail' or retailyear == 'retail':
+            elif retailtitle == 'retail' or retailyear == 'retail' or retailtitle == 'hevc_retail' or retailyear == 'hevc_retail':
                 self.log_debug(
                     "%s - Release ignoriert (Retail-Release bereits gefunden)" % key)
                 return
