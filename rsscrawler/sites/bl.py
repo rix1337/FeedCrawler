@@ -56,6 +56,7 @@ class BL:
         self.db_retail = RssDb(self.dbfile, 'retail')
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
+        self.hevc_retail = self.config.get("hevc_retail")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         self.historical = False
@@ -189,7 +190,7 @@ class BL:
                 if content:
                     found = re.search(ignore, post.title.lower())
                     if found:
-                        if self.config.get("hevc_retail"):
+                        if self.hevc_retail:
                             if is_hevc(post.title) and "1080p" in post.title:
                                 if is_retail(post.title, False, False):
                                     self.log_debug(
@@ -271,6 +272,10 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
                         continue
+                    elif self.hevc_retail and (retailtitle == 'hevc_retail' or retailyear == 'hevc_retail'):
+                        self.log_debug(
+                            "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % post.title)
+                        return
                     elif retailtitle == 'retail' or retailyear == 'retail':
                         self.log_debug(
                             "%s - Release ignoriert (Retail-Release bereits gefunden)" % post.title)
@@ -286,7 +291,7 @@ class BL:
                             quality_match = re.search(
                                 quality_set, post.title.lower())
                         if not quality_match:
-                            if self.config.get("hevc_retail"):
+                            if self.hevc_retail:
                                 if is_hevc(post.title) and "1080p" in post.title:
                                     if is_retail(post.title, False, False):
                                         self.log_debug(
@@ -326,7 +331,7 @@ class BL:
                         "ignore") else r"^unmatchable$"
                     found = re.search(ignore, post.title.lower())
                     if found:
-                        if self.config.get("hevc_retail"):
+                        if self.hevc_retail:
                             if is_hevc(post.title) and "1080p" in post.title:
                                 if is_retail(post.title, False, False):
                                     self.log_debug(
@@ -556,7 +561,7 @@ class BL:
                         hevc_retail = False
                         found = re.search(ignore, post.title.lower())
                         if found:
-                            if self.config.get("hevc_retail"):
+                            if self.hevc_retail:
                                 if is_hevc(post.title) and "1080p" in post.title:
                                     if is_retail(post.title, False, False):
                                         self.log_debug(
@@ -586,7 +591,7 @@ class BL:
                             else:
                                 found = re.search(ss, post.title.lower())
                             if not found:
-                                if self.config.get("hevc_retail"):
+                                if self.hevc_retail:
                                     if is_hevc(post.title) and "1080p" in post.title:
                                         if is_retail(post.title, False, False):
                                             self.log_debug(
@@ -939,7 +944,7 @@ class BL:
     def imdb_download(self, key, download_links, score, download_imdb, details, password, site, hevc_retail):
         added_items = []
         if not hevc_retail:
-            if self.config.get("hevc_retail"):
+            if self.hevc_retail:
                 if not is_hevc(key) and is_retail(key, False, False):
                     if self.hevc_download(key, password):
                         self.log_debug(
@@ -1060,7 +1065,7 @@ class BL:
     def feed_download(self, key, content, password, site, hevc_retail):
         added_items = []
         if not hevc_retail:
-            if self.config.get("hevc_retail"):
+            if self.hevc_retail:
                 if not is_hevc(key) and is_retail(key, False, False):
                     if self.hevc_download(key, password):
                         self.log_debug(
@@ -1084,6 +1089,10 @@ class BL:
             if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
+                return
+            elif self.hevc_retail and (retailtitle == 'hevc_retail' or retailyear == 'hevc_retail'):
+                self.log_debug(
+                    "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % key)
                 return
             elif retailtitle == 'retail' or retailyear == 'retail':
                 self.log_debug(
