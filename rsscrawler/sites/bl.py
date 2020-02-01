@@ -267,6 +267,12 @@ class BL:
                     storage = self.db.retrieve_all(post.title)
                     storage_replaced = self.db.retrieve_all(
                         post.title.replace(".COMPLETE", "").replace(".Complete", ""))
+                    if self.config.get("hevc_retail"):
+                        if is_hevc(post.title) and "1080p" in post.title and is_retail(post.title, False, False):
+                            if 'hevc_retail' in storage or 'hevc_retail' in storage_replaced:
+                                self.log_debug(
+                                    "%s - HEVC Release ignoriert (bereits gefunden)" % post.title)
+                                continue
                     if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
@@ -726,7 +732,13 @@ class BL:
                                 break
                         storage = self.db.retrieve_all(key)
                         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
-                        if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
+                        if self.config.get("hevc_retail"):
+                            if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                                if 'hevc_retail' in storage or 'hevc_retail' in storage_replaced:
+                                    self.log_debug(
+                                        "%s - HEVC Release ignoriert (bereits gefunden)" % key)
+                                    continue
+                        elif 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                             self.log_debug(
                                 "%s - HEVC Release ignoriert (bereits gefunden)" % key)
                             return True
@@ -741,7 +753,7 @@ class BL:
                                         retail = True
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                            "RSScrawler/Remux",
+                                                            "RSScrawler",
                                                             download_links,
                                                             password)
                                 if self.device:
@@ -762,7 +774,7 @@ class BL:
                                     retail = True
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                            "RSScrawler/3Dcrawler/Remux",
+                                                            "RSScrawler/3Dcrawler",
                                                             download_links,
                                                             password)
                                 if self.device:
@@ -778,7 +790,7 @@ class BL:
                                     return log_entry
                         elif self.filename == 'MB_Regex':
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler/Remux",
+                                                        "RSScrawler",
                                                         download_links,
                                                         password)
                             if self.device:
@@ -793,7 +805,7 @@ class BL:
                                 return log_entry
                         else:
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler/Remux",
+                                                        "RSScrawler",
                                                         download_links,
                                                         password)
                             if self.device:
@@ -808,7 +820,7 @@ class BL:
                                 return log_entry
                     else:
                         storage = self.db.retrieve_all(key)
-                        if 'added' not in storage and 'notdl' not in storage:
+                        if 'added' not in storage and 'notdl' not in storage and 'hevc_retail' not in storage:
                             wrong_hoster = '[HEVC-Suche/Hoster fehlt] - ' + key
                             if 'wrong_hoster' not in storage:
                                 self.log_info(wrong_hoster)
@@ -850,7 +862,7 @@ class BL:
                             break
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
-                    if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
+                    if 'added' in storage or 'notdl' in storage or 'hevc_retail' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced or 'hevc_retail' in storage_replaced:
                         self.log_debug(
                             "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                         return True
@@ -927,7 +939,7 @@ class BL:
                             return log_entry
                 else:
                     storage = self.db.retrieve_all(key)
-                    if 'added' not in storage and 'notdl' not in storage:
+                    if 'added' not in storage and 'notdl' not in storage and 'hevc_retail' not in storage:
                         wrong_hoster = '[DL-Suche/Hoster fehlt] - ' + key
                         if 'wrong_hoster' not in storage:
                             self.log_info(wrong_hoster)
@@ -1047,7 +1059,7 @@ class BL:
                     added_items.append(log_entry)
         else:
             storage = self.db.retrieve_all(key)
-            if 'added' not in storage and 'notdl' not in storage:
+            if 'added' not in storage and 'notdl' not in storage and 'hevc_retail' not in storage:
                 wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
                     self.log_info(wrong_hoster)
@@ -1081,6 +1093,12 @@ class BL:
             retailyear = self.db_retail.retrieve(replaced[1])
             storage = self.db.retrieve_all(key)
             storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
+            if self.config.get("hevc_retail"):
+                if is_hevc(key) and "1080p" in key and is_retail(key, False, False):
+                    if 'hevc_retail' in storage or 'hevc_retail' in storage_replaced:
+                        self.log_debug(
+                            "%s - HEVC Release ignoriert (bereits gefunden)" % key)
+                        return
             if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
@@ -1251,7 +1269,7 @@ class BL:
                     added_items.append(log_entry)
         else:
             storage = self.db.retrieve_all(key)
-            if 'added' not in storage and 'notdl' not in storage:
+            if 'added' not in storage and 'notdl' not in storage and 'hevc_retail' not in storage:
                 wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
                     self.log_info(wrong_hoster)
