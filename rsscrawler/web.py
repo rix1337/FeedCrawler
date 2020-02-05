@@ -763,6 +763,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if failed:
                 device = failed[0]
                 decrypted_packages = failed[4][1]
+                offline_packages = failed[4][2]
                 failed_packages = failed[4][3]
             else:
                 failed_packages = False
@@ -786,10 +787,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if decrypted_packages:
                 for dp in decrypted_packages:
                     known_packages.append(dp['uuid'])
+            if offline_packages:
+                for op in offline_packages:
+                    known_packages.append(op['uuid'])
 
             cnl_package = False
             grabber_was_collecting = False
-            subdir = RssConfig('Crawljobs', configfile).get('subdir')
             if RssConfig('RSScrawler', configfile).get('shorter_cnl_timeout'):
                 i = 6
             else:
@@ -822,15 +825,11 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
                             if not grabber_collecting and decrypted_packages:
                                 for dp in decrypted_packages:
-                                    if subdir and 'RSScrawler' in dp['path']:
-                                        known_packages.append(dp['uuid'])
                                     if dp['uuid'] not in known_packages:
                                         cnl_package = dp
                                         i = 0
                             if not grabber_collecting and offline_packages:
                                 for op in offline_packages:
-                                    if subdir and 'RSScrawler' in op['path']:
-                                        known_packages.append(op['uuid'])
                                     if op['uuid'] not in known_packages:
                                         cnl_package = op
                                         i = 0
