@@ -1058,7 +1058,11 @@ class Myjdapi:
                                                   query[0] + "&".join(query[1:])))
                 ]
             query = query[0] + "&".join(query[1:])
-            encrypted_response = requests.get(api + query, timeout=3)
+            try:
+                encrypted_response = requests.get(api + query, timeout=3)
+            except:
+                encrypted_response = requests.get(api + query, timeout=3, verify=False)
+                print("Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
             if params is not None:
@@ -1092,8 +1096,19 @@ class Myjdapi:
                     },
                     data=encrypted_data,
                     timeout=3)
-            except requests.exceptions.RequestException as e:
-                return None
+            except:
+                try:
+                    encrypted_response = requests.post(
+                        request_url,
+                        headers={
+                            "Content-Type": "application/aesjson-jd; charset=utf-8"
+                        },
+                        data=encrypted_data,
+                        timeout=3,
+                        verify=False)
+                    print("Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
+                except requests.exceptions.RequestException as e:
+                    return None
         if encrypted_response.status_code == 403:
             raise TokenExpiredException
         if encrypted_response.status_code != 200:
