@@ -9,7 +9,7 @@ import re
 
 import cloudscraper
 from bs4 import BeautifulSoup
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 from rsscrawler.fakefeed import fx_content_to_soup
 from rsscrawler.fakefeed import fx_download_links
