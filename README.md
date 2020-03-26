@@ -60,7 +60,6 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern nur auf Systemseite:
 
-* Python _Levenshtein_ wird ausschließlich in der Suche per Webinterface/API von der _fuzzywuzzy_ Bibliothek verwendet, die notfalls auf eine langsamere Alternative ausweicht. Die Warnung beim Start, dass das Modul fehlt, lässt sich optional per `pip install python-Levenshtein` vermeiden.
 * Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 #### Update
