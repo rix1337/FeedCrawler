@@ -7,7 +7,7 @@ cloudscraper
 docopt
 feedparser
 flask
-fuzzywuzzy
+rapidfuzz
 gevent
 lxml
 passlib

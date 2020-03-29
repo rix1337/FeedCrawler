@@ -5,7 +5,7 @@
 import re
 import time
 
-from fuzzywuzzy import fuzz
+from rapidfuzz import fuzz
 
 import rsscrawler.myjdapi
 from rsscrawler.rsscommon import check_hoster
