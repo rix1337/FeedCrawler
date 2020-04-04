@@ -1010,6 +1010,14 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."></span>
                 </label>
+                <h4>Nur Retail hinzufügen</h4>
+                <label class="switch">
+                    <input type="checkbox"
+                           ng-model="settings.mb.retail_only">
+                    <span class="slider round"
+                          data-toggle="tooltip"
+                          title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."></span>
+                </label>
                 <h4>Listeneintrag bei Retail streichen</h4>
                 <label class="switch">
                     <input type="checkbox"
@@ -1018,13 +1026,13 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."></span>
                 </label>
-                <h4>1080p-HEVC-Retail</h4>
+                <h4>1080p-HEVC Bevorzugen</h4>
                 <label class="switch">
                     <input type="checkbox"
                            ng-model="settings.mb.hevc_retail">
                     <span class="slider round"
                           data-toggle="tooltip"
-                          title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt. Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste."></span>
+                          title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste."></span>
                 </label>
                 <h4>3D-Releases suchen</h4>
                 <label class="switch">

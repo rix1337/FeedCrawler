@@ -33,10 +33,117 @@ def check_ip():
     return ip
 
 
+def check_valid_release(title, retail_only, hevc_retail, dbfile):
+    if retail_only:
+        if not is_retail(title, False, False):
+            return False
+
+    if ".German" in title:
+        search_title = title.split(".German")[0]
+    elif ".GERMAN" in title:
+        search_title = title.split(".German")[0]
+    else:
+        try:
+            quality = re.findall(r"\d{3,4}p", title)[0]
+            search_title = title.split(quality)[0]
+        except:
+            return True
+
+    db = RssDb(dbfile, 'rsscrawler')
+    results = db.retrieve_all_beginning_with(search_title)
+
+    if not results:
+        return True
+
+    bluray_tags = [".bd-rip.", ".br-rip.", ".bluray-rip.", ".bluray.", ".bd-disk.", ".bd.", ".bd5.", ".bd9.", ".bd25.",
+                   ".bd50."]
+    web_tags = [".web-rip.", ".webrip.", ".vod-rip.", ".webdl.", ".web-dl.", ".ddc."]
+    trash_tags = [".cam.", ".cam-rip.", ".ts.", ".telesync.", ".wp.", ".workprint.", ".tc.", ".telecine.", ".vhs-rip.",
+                  ".tv-rip.", ".hdtv-rip.", ".sat-rip.", ".dvb-rip.", ".ds-rip.", ".scr.", ".screener.", ".dvdscr.",
+                  ".dvdscreener.", ".bdscr.", ".r5.", ".dvdrip.", ".dvd."]
+
+    unknown = []
+    trash = []
+    web = []
+    bluray = []
+    retail = []
+
+    # Get all previously found Releases and categorize them by their tags
+    for r in results:
+        if any(s in r.lower() for s in bluray_tags):
+            if is_retail(r, False, False):
+                retail.append(r)
+            else:
+                bluray.append(r)
+        elif any(s in r.lower() for s in web_tags):
+            web.append(r)
+        elif any(s in r.lower() for s in trash_tags):
+            trash.append(r)
+        else:
+            unknown.append(r)
+
+    # Categorize the current Release by its tag to check if a release of the same or better category was already found
+    # If no release is in the higher category, propers are allowed anytime
+    # If no HEVC is available in the current category or higher and the current release is HEVC, it will be allowed
+    if any(s in title.lower() for s in bluray_tags):
+        if is_retail(r, False, False):
+            if len(retail) > 0:
+                if hevc_retail:
+                    if is_hevc(title):
+                        no_hevc = True
+                        for r in retail:
+                            if is_hevc(r):
+                                no_hevc = False
+                        if no_hevc:
+                            return True
+                if ".proper" in title.lower():
+                    return True
+                return False
+        else:
+            if len(retail) == 0 and len(bluray) > 0:
+                if ".proper" in title.lower():
+                    return True
+            if len(retail) > 0 or len(bluray) > 0:
+                if hevc_retail:
+                    if is_hevc(title):
+                        no_hevc = True
+                        for r in retail + bluray:
+                            if is_hevc(r):
+                                no_hevc = False
+                        if no_hevc:
+                            return True
+                return False
+    elif any(s in title.lower() for s in web_tags):
+        if len(retail) == 0 and len(bluray) == 0 and len(web) > 0:
+            if ".proper" in title.lower():
+                return True
+        if len(retail) > 0 or len(bluray) > 0 or len(web) > 0:
+            if hevc_retail:
+                if is_hevc(title):
+                    no_hevc = True
+                    for r in retail + bluray + web:
+                        if is_hevc(r):
+                            no_hevc = False
+                    if no_hevc:
+                        return True
+            return False
+    elif any(s in title.lower() for s in trash_tags):
+        if len(retail) == 0 and len(bluray) == 0 and len(web) == 0 and len(trash) > 0:
+            if ".proper" in title.lower():
+                return True
+        if len(retail) > 0 or len(bluray) > 0 or len(web) > 0 or len(trash) > 0:
+            return False
+    else:
+        if len(retail) == 0 and len(bluray) == 0 and len(web) == 0 and len(trash) == 0 and len(unknown) > 0:
+            if ".proper" in title.lower():
+                return True
+        if len(retail) > 0 or len(bluray) > 0 or len(web) > 0 or len(trash) > 0 or len(unknown) > 0:
+            return False
+
+    return True
+
+
 def entfernen(retailtitel, identifier, dbfile):
-    db_tag = "retail"
-    if is_hevc(retailtitel):
-        db_tag = "hevc_retail"
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
@@ -54,8 +161,6 @@ def entfernen(retailtitel, identifier, dbfile):
             if line:
                 new_cont.append(line)
     ListDb(dbfile, liste).store_list(new_cont)
-    RssDb(dbfile, "retail").store(retail, db_tag)
-    RssDb(dbfile, "retail").store(retailyear, db_tag)
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
