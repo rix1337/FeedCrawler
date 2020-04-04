@@ -301,7 +301,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
 
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.get(url, headers=headers, proxies=proxies, timeout=30).text
+            response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
             return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -345,31 +345,31 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             if sj in url:
                 if db.retrieve("SJ"):
                     if config.get("fallback") and not db_normal.retrieve("SJ"):
-                        return scraper.post(url, data, timeout=30).text
+                        return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
             elif mb in url:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
-                        return scraper.post(url, data, timeout=30).text
+                        return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
             elif hw in url:
                 if db.retrieve("HW"):
                     if config.get("fallback") and not db_normal.retrieve("HW"):
-                        return scraper.post(url, data, timeout=30).text
+                        return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
             elif fx in url:
                 if db.retrieve("FX"):
                     if config.get("fallback") and not db_normal.retrieve("FX"):
-                        return scraper.post(url, data, timeout=30).text
+                        return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
             elif hs in url:
                 if db.retrieve("HS"):
                     if config.get("fallback") and not db_normal.retrieve("HS"):
-                        return scraper.post(url, data, timeout=30).text
+                        return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
         except Exception as e:
@@ -378,7 +378,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
 
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.post(url, data, proxies=proxies, timeout=30).text
+            response = scraper.post(url, data, proxies=proxies, timeout=30).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -396,7 +396,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             elif hs in url and db_normal.retrieve("HS"):
                 return ""
             else:
-                response = scraper.post(url, data, timeout=30).text
+                response = scraper.post(url, data, timeout=30).content
                 return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -422,31 +422,31 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
             if sj in url:
                 if db.retrieve("SJ"):
                     if config.get("fallback") and not db_normal.retrieve("SJ"):
-                        return scraper.post(url, json=json, timeout=30).text
+                        return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
             elif mb in url:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
-                        return scraper.post(url, json=json, timeout=30).text
+                        return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
             elif hw in url:
                 if db.retrieve("HW"):
                     if config.get("fallback") and not db_normal.retrieve("HW"):
-                        return scraper.post(url, json=json, timeout=30).text
+                        return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
             elif fx in url:
                 if db.retrieve("FX"):
                     if config.get("fallback") and not db_normal.retrieve("FX"):
-                        return scraper.post(url, json=json, timeout=30).text
+                        return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
             elif hs in url:
                 if db.retrieve("HS"):
                     if config.get("fallback") and not db_normal.retrieve("HS"):
-                        return scraper.post(url, json=json, timeout=30).text
+                        return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
         except Exception as e:
@@ -455,7 +455,7 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
 
         proxies = {'http': proxy, 'https': proxy}
         try:
-            response = scraper.post(url, json=json, proxies=proxies, timeout=30).text
+            response = scraper.post(url, json=json, proxies=proxies, timeout=30).content
             return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -473,7 +473,7 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
             elif hs in url and db_normal.retrieve("HS"):
                 return ""
             else:
-                response = scraper.post(url, json=json, timeout=30).text
+                response = scraper.post(url, json=json, timeout=30).content
                 return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
