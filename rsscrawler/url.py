@@ -37,6 +37,12 @@ def check_url(configfile, dbfile, scraper=False):
     db.delete("HW")
     db.delete("FX")
     db.delete("HS")
+    db_normal = RssDb(dbfile, 'normalstatus')
+    db_normal.delete("SJ")
+    db_normal.delete("MB")
+    db_normal.delete("HW")
+    db_normal.delete("FX")
+    db_normal.delete("HS")
 
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
@@ -119,26 +125,31 @@ def check_url(configfile, dbfile, scraper=False):
         if "block." in str(
                 scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
                     "location")):
+            db_normal.store("SJ", "Blocked")
             print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and mb_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(mb_url, timeout=30, allow_redirects=False)):
+            db_normal.store("MB", "Blocked")
             print(u"Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and hw_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(hw_url, timeout=30, allow_redirects=False)):
+            db_normal.store("HW", "Blocked")
             print(u"Der Zugriff auf HW ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and fx_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(fx_url, timeout=30, allow_redirects=False)):
+            db_normal.store("FX", "Blocked")
             print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and hs_blocked_proxy and fallback):
         if "200" not in str(
                 scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+            db_normal.store("HS", "Blocked")
             print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
     return scraper
 
@@ -148,29 +159,47 @@ def get_url(url, configfile, dbfile, scraper=False):
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()
+
+    db = RssDb(dbfile, 'proxystatus')
+    db_normal = RssDb(dbfile, 'normalstatus')
+    sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
+    mb = decode_base64("bW92aWUtYmxvZy50bw==")
+    hw = decode_base64("aGQtd29ybGQub3Jn")
+    fx = decode_base64("ZnVueGQK")
+    hs = decode_base64("aGQtc291cmNlLnRv")
+
     if proxy:
-        sj = decode_base64("c2VyaWVuanVua2llcy5vcmc=")
-        mb = decode_base64("bW92aWUtYmxvZy50bw==")
-        hw = decode_base64("aGQtd29ybGQub3Jn")
-        fx = decode_base64("ZnVueGQK")
-        hs = decode_base64("aGQtc291cmNlLnRv")
-        db = RssDb(dbfile, 'proxystatus')
         try:
             if sj in url:
-                if db.retrieve("SJ") and config.get("fallback"):
-                    return scraper.get(url, timeout=30).text
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
             elif mb in url:
-                if db.retrieve("MB") and config.get("fallback"):
-                    return scraper.get(url, timeout=30).text
+                if db.retrieve("MB"):
+                    if config.get("fallback") and not db_normal.retrieve("MB"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
             elif hw in url:
-                if db.retrieve("HW") and config.get("fallback"):
-                    return scraper.get(url, timeout=30).text
+                if db.retrieve("HW"):
+                    if config.get("fallback") and not db_normal.retrieve("HW"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
             elif fx in url:
-                if db.retrieve("FX") and config.get("fallback"):
-                    return scraper.get(url, timeout=30).text
+                if db.retrieve("FX"):
+                    if config.get("fallback") and not db_normal.retrieve("FX"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
             elif hs in url:
-                if db.retrieve("HS") and config.get("fallback"):
-                    return scraper.get(url, timeout=30).text
+                if db.retrieve("HS"):
+                    if config.get("fallback") and not db_normal.retrieve("HS"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -184,8 +213,19 @@ def get_url(url, configfile, dbfile, scraper=False):
             return ""
     else:
         try:
-            response = scraper.get(url, timeout=30).text
-            return response
+            if sj in url and db_normal.retrieve("SJ"):
+                return ""
+            elif mb in url and db_normal.retrieve("MB"):
+                return ""
+            elif hw in url and db_normal.retrieve("HW"):
+                return ""
+            elif fx in url and db_normal.retrieve("FX"):
+                return ""
+            elif hs in url and db_normal.retrieve("HS"):
+                return ""
+            else:
+                response = scraper.get(url, timeout=30).text
+                return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
