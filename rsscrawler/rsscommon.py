@@ -144,9 +144,6 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
 
 
 def entfernen(retailtitel, identifier, dbfile):
-    db_tag = "retail"
-    if is_hevc(retailtitel):
-        db_tag = "hevc_retail"
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
@@ -164,8 +161,6 @@ def entfernen(retailtitel, identifier, dbfile):
             if line:
                 new_cont.append(line)
     ListDb(dbfile, liste).store_list(new_cont)
-    RssDb(dbfile, "retail").store(retail, db_tag)
-    RssDb(dbfile, "retail").store(retailyear, db_tag)
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
