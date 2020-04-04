@@ -146,8 +146,12 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and hs_blocked_proxy and fallback):
-        if "200" not in str(
-                scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+        try:
+            if "200" not in str(
+                    scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+                db_normal.store("HS", "Blocked")
+                print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
+        except:
             db_normal.store("HS", "Blocked")
             print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
     return scraper
