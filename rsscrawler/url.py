@@ -319,7 +319,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
             elif hs in url and db_normal.retrieve("HS"):
                 return ["", scraper]
             else:
-                response = scraper.get(url, headers=headers, timeout=30).text
+                response = scraper.get(url, headers=headers, timeout=30)
                 return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
