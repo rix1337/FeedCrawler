@@ -14,6 +14,8 @@ from rsscrawler.rssdb import RssDb
 
 def check_url(configfile, dbfile, scraper=False):
     proxy = RssConfig('RSScrawler', configfile).get('proxy')
+    fallback = RssConfig('RSScrawler', configfile).get('fallback')
+
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
@@ -29,8 +31,14 @@ def check_url(configfile, dbfile, scraper=False):
     fx_blocked_proxy = False
     hs_blocked_proxy = False
 
+    db = RssDb(dbfile, 'proxystatus')
+    db.delete("SJ")
+    db.delete("MB")
+    db.delete("HW")
+    db.delete("FX")
+    db.delete("HS")
+
     if proxy:
-        db = RssDb(dbfile, 'proxystatus')
         proxies = {'http': proxy, 'https': proxy}
 
         try:
@@ -46,7 +54,6 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("SJ", "Blocked")
-            sj_blocked_proxy = True
             scraper = cloudscraper.create_scraper()
 
         try:
@@ -95,8 +102,11 @@ def check_url(configfile, dbfile, scraper=False):
             scraper = cloudscraper.create_scraper()
 
         try:
-            scraper.get(hs_url, proxies=proxies, timeout=30, allow_redirects=False)
-            db.delete("HS")
+            if "200" not in str(
+                    scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+                hs_blocked_proxy = True
+            else:
+                db.delete("HS")
         except:
             hs_blocked_proxy = True
         if hs_blocked_proxy:
@@ -105,30 +115,30 @@ def check_url(configfile, dbfile, scraper=False):
                 db.store("HS", "Blocked")
             scraper = cloudscraper.create_scraper()
 
-    if sj_blocked_proxy:
+    if not proxy or (proxy and sj_blocked_proxy and fallback):
         if "block." in str(
                 scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
                     "location")):
             print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
 
-    if mb_blocked_proxy:
+    if not proxy or (proxy and mb_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(mb_url, timeout=30, allow_redirects=False)):
             print(u"Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
 
-    if hw_blocked_proxy:
+    if not proxy or (proxy and hw_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(hw_url, timeout=30, allow_redirects=False)):
             print(u"Der Zugriff auf HW ist mit der aktuellen IP nicht möglich!")
 
-    if fx_blocked_proxy:
+    if not proxy or (proxy and fx_blocked_proxy and fallback):
         if "<Response [403]>" in str(
                 scraper.get(fx_url, timeout=30, allow_redirects=False)):
             print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
 
-    if hs_blocked_proxy:
-        if "<Response [403]>" in str(
-                scraper.get(hs_url, timeout=30, allow_redirects=False)):
+    if not proxy or (proxy and hs_blocked_proxy and fallback):
+        if "200" not in str(
+                scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
             print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
     return scraper
 
