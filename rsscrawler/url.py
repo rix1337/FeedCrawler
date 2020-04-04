@@ -3,7 +3,6 @@
 # Projekt von https://github.com/rix1337
 
 import concurrent.futures
-import time
 
 import cloudscraper
 

@@ -957,9 +957,9 @@ class BL:
                     self.log_debug("Fake-Link erkannt!")
                     break
             englisch = False
-            if "*englisch*" in key.lower():
+            if "*englisch*" in key.lower() or "*english*" in key.lower():
                 key = key.replace(
-                    '*ENGLISCH*', '').replace("*Englisch*", "")
+                    '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace("*English*", "")
                 englisch = True
                 if not self.rsscrawler.get('english'):
                     self.log_debug(
@@ -1099,9 +1099,9 @@ class BL:
                     "%s - Release ignoriert (Retail-Release bereits gefunden)" % key)
                 return
             englisch = False
-            if "*englisch*" in key.lower():
+            if "*englisch*" in key.lower() or "*english*" in key.lower():
                 key = key.replace(
-                    '*ENGLISCH*', '').replace("*Englisch*", "")
+                    '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace("*English*", "")
                 englisch = True
                 if not self.rsscrawler.get('english'):
                     self.log_debug(
