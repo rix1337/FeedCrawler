@@ -1010,6 +1010,14 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."></span>
                 </label>
+                <h4>Nur Retail hinzufügen</h4>
+                <label class="switch">
+                    <input type="checkbox"
+                           ng-model="settings.mb.retail_only">
+                    <span class="slider round"
+                          data-toggle="tooltip"
+                          title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."></span>
+                </label>
                 <h4>Listeneintrag bei Retail streichen</h4>
                 <label class="switch">
                     <input type="checkbox"

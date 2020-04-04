@@ -265,6 +265,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "crawl_3d_type": crawl_3d_type,
                             "hoster_fallback": mb.get("hoster_fallback"),
                             "hevc_retail": mb.get("hevc_retail"),
+                            "retail_only": mb.get("retail_only"),
                         },
                         "sj": {
                             "quality": sj.get("quality"),
@@ -411,6 +412,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("imdb", to_str(imdb))
             section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
             section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
+            section.save("retail_only", to_str(data['mb']['retail_only']))
 
             section = RssConfig("SJ", configfile)
 

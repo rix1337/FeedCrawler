@@ -75,7 +75,8 @@ class RssConfig(object):
             ("imdbyear", "str", "2010"),
             ("imdb", "str", "0.0"),
             ("hoster_fallback", "bool", "False"),
-            ("hevc_retail", "bool", "False")
+            ("hevc_retail", "bool", "False"),
+            ("retail_only", "bool", "False")
         ],
         'SJ': [
             ("quality", "str", "720p"),

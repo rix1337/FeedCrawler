@@ -21,7 +21,6 @@ from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import fullhd_title
 from rsscrawler.rsscommon import is_hevc
 from rsscrawler.rsscommon import is_retail
-from rsscrawler.rsscommon import retail_sub
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -58,6 +57,7 @@ class BL:
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.hevc_retail = self.config.get("hevc_retail")
+        self.retail_only = self.config.get("retail_only")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         self.historical = False
@@ -201,7 +201,7 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                         continue
-                    yield (post.title, content)
+                    yield post.title, content
 
     def imdb_search(self, imdb, feed, site):
         added_items = []
@@ -263,9 +263,6 @@ class BL:
                     hevc_retail = False
                     if post_imdb:
                         post_imdb = post_imdb.pop()
-                    replaced = retail_sub(post.title)
-                    retailtitle = self.db_retail.retrieve(replaced[0])
-                    retailyear = self.db_retail.retrieve(replaced[1])
                     storage = self.db.retrieve_all(post.title)
                     storage_replaced = self.db.retrieve_all(
                         post.title.replace(".COMPLETE", "").replace(".Complete", ""))
@@ -273,7 +270,7 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
                         continue
-                    elif check_valid_release(post.title, False, self.hevc_retail, self.dbfile):
+                    elif check_valid_release(post.title, self.retail_only, self.hevc_retail, self.dbfile):
                         self.log_debug(
                             "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % post.title)
                         continue
@@ -1078,16 +1075,13 @@ class BL:
                 if url in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
-            replaced = retail_sub(key)
-            retailtitle = self.db_retail.retrieve(replaced[0])
-            retailyear = self.db_retail.retrieve(replaced[1])
             storage = self.db.retrieve_all(key)
             storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
             if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
                 return
-            elif check_valid_release(key, False, self.hevc_retail, self.dbfile):
+            elif check_valid_release(key, self.retail_only, self.hevc_retail, self.dbfile):
                 self.log_debug(
                     "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % key)
                 return
