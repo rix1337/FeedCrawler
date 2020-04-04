@@ -16,6 +16,7 @@ from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import check_valid_release
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import fullhd_title
 from rsscrawler.rsscommon import is_hevc
@@ -272,13 +273,9 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
                         continue
-                    elif self.hevc_retail and (retailtitle == 'hevc_retail' or retailyear == 'hevc_retail'):
+                    elif check_valid_release(post.title, False, self.hevc_retail, self.dbfile):
                         self.log_debug(
-                            "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % post.title)
-                        return
-                    elif retailtitle == 'retail' or retailyear == 'retail' or retailtitle == 'hevc_retail' or retailyear == 'hevc_retail':
-                        self.log_debug(
-                            "%s - Release ignoriert (Retail-Release bereits gefunden)" % post.title)
+                            "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % post.title)
                         continue
                     quality_set = self.config.get('quality')
                     if '.3d.' not in post.title.lower():
@@ -1090,13 +1087,9 @@ class BL:
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
                 return
-            elif self.hevc_retail and (retailtitle == 'hevc_retail' or retailyear == 'hevc_retail'):
+            elif check_valid_release(key, False, self.hevc_retail, self.dbfile):
                 self.log_debug(
-                    "%s - Release ignoriert (HEVC Retail-Release bereits gefunden)" % key)
-                return
-            elif retailtitle == 'retail' or retailyear == 'retail' or retailtitle == 'hevc_retail' or retailyear == 'hevc_retail':
-                self.log_debug(
-                    "%s - Release ignoriert (Retail-Release bereits gefunden)" % key)
+                    "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % key)
                 return
             englisch = False
             if "*englisch*" in key.lower() or "*english*" in key.lower():
