@@ -493,8 +493,11 @@ def download_bl(payload, device, configfile, dbfile):
         download_links = list(links.values())
 
     englisch = False
-    if "*englisch*" in key.lower():
-        key = key.replace('*ENGLISCH*', '').replace("*Englisch*", "")
+    if "*englisch" in key.lower() or "*english" in key.lower():
+        key = key.replace(
+            '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
+                                                                                      "").replace(
+            "*", "")
         englisch = True
 
     staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
