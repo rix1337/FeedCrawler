@@ -39,7 +39,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
     if ".German" in title:
         search_title = title.split(".German")[0]
     elif ".GERMAN" in title:
-        search_title = title.split(".German")[0]
+        search_title = title.split(".GERMAN")[0]
     else:
         try:
             quality = re.findall(r"\d{3,4}p", title)[0]
