@@ -733,11 +733,11 @@ class BL:
                             return True
 
                         englisch = False
-                        if "*englisch*" in key.lower() or "*english*" in key.lower():
+                        if "*englisch" in key.lower() or "*english" in key.lower():
                             key = key.replace(
-                                '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace(
-                                "*English*",
-                                "")
+                                '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
+                                                                                                          "").replace(
+                                "*", "")
                             englisch = True
                             if not self.rsscrawler.get('english'):
                                 self.log_debug(
@@ -1003,9 +1003,11 @@ class BL:
                     self.log_debug("Fake-Link erkannt!")
                     break
             englisch = False
-            if "*englisch*" in key.lower() or "*english*" in key.lower():
+            if "*englisch" in key.lower() or "*english" in key.lower():
                 key = key.replace(
-                    '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace("*English*", "")
+                    '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
+                                                                                              "").replace(
+                    "*", "")
                 englisch = True
                 if not self.rsscrawler.get('english'):
                     self.log_debug(
