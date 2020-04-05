@@ -574,7 +574,7 @@ def download_bl(payload, device, configfile, dbfile):
             else:
                 if not bl.dual_download(key, password) and not englisch:
                     logging.debug(
-                        "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
+                        "%s - Kein zweisprachiges Release gefunden!" % key)
 
     if download_links:
         if staffel:

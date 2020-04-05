@@ -750,7 +750,9 @@ class BL:
                                                   self.log_debug)
                             if not imdb_id:
                                 dual_found = self.dual_download(key, password, True)
-                                if not dual_found and not englisch:
+                                if dual_found and ".1080p." in key:
+                                    return
+                                elif not dual_found and not englisch:
                                     self.log_debug(
                                         "%s - Kein zweisprachiges HEVC-Release gefunden." % key)
                                     self.dl_unsatisfied = True
@@ -763,7 +765,9 @@ class BL:
                                                          self.scraper,
                                                          self.log_debug):
                                     dual_found = self.dual_download(key, password, True)
-                                    if not dual_found and not englisch:
+                                    if dual_found and ".1080p." in key:
+                                        return
+                                    elif not dual_found and not englisch:
                                         self.log_debug(
                                             "%s - Kein zweisprachiges HEVC-Release gefunden! Breche ab." % key)
                                         self.dl_unsatisfied = True
@@ -1013,6 +1017,8 @@ class BL:
                     dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
+                        if ".1080p." in key:
+                            return added_items
                     elif not dual_found and not englisch:
                         self.log_debug(
                             "%s - Kein zweisprachiges Release gefunden!" % key)
@@ -1125,6 +1131,8 @@ class BL:
                     dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
+                        if ".1080p." in key:
+                            return added_items
                     else:
                         self.log_debug(
                             "%s - Kein zweisprachiges Release gefunden." % key)
@@ -1139,6 +1147,8 @@ class BL:
                         dual_found = self.dual_download(key, password)
                         if dual_found:
                             added_items.append(dual_found)
+                            if ".1080p." in key:
+                                return added_items
                         elif not dual_found and not englisch:
                             self.log_debug(
                                 "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
