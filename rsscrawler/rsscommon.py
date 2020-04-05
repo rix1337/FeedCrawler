@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 
 import base64
@@ -57,7 +55,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
 
     bluray_tags = [".bd-rip.", ".br-rip.", ".bluray-rip.", ".bluray.", ".bd-disk.", ".bd.", ".bd5.", ".bd9.", ".bd25.",
                    ".bd50."]
-    web_tags = [".web-rip.", ".webrip.", ".vod-rip.", ".webdl.", ".web-dl.", ".ddc."]
+    web_tags = [".web.", ".web-rip.", ".webrip.", ".vod-rip.", ".webdl.", ".web-dl.", ".ddc."]
     trash_tags = [".cam.", ".cam-rip.", ".ts.", ".telesync.", ".wp.", ".workprint.", ".tc.", ".telecine.", ".vhs-rip.",
                   ".tv-rip.", ".hdtv-rip.", ".sat-rip.", ".dvb-rip.", ".ds-rip.", ".scr.", ".screener.", ".dvdscr.",
                   ".dvdscreener.", ".bdscr.", ".r5.", ".dvdrip.", ".dvd."]

@@ -3,7 +3,7 @@
 RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 [![PyPI version](https://badge.fury.io/py/rsscrawler.svg)](https://badge.fury.io/py/rsscrawler)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/rsscrawler)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/rsscrawler)](https://github.com/rix1337/RSScrawler/releases)
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
 [![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.com/rix1337/RSScrawler.svg?branch=master)](https://travis-ci.com/rix1337/RSScrawler)
@@ -17,9 +17,9 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ####  Einfache Einrichtung
 
 ##### Docker
-* Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des Containers wird automatisch die neueste Version heruntergeladen.
-* Für UNRAID-Server kann der Container direkt über die Community Applications bezogen und eingerichtet werden.
 * Offizielles Repo im Docker Hub: [docker-rsscrawler](https://hub.docker.com/r/rix1337/docker-rsscrawler/)
+* Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des Containers wird automatisch die neueste Version heruntergeladen. Wird ein neues Image im Docker Hub bereitgestellt, sollte dennoch auf dieses aktualisiert werden!
+* Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet werden.
 
 ##### Windows
 * Jedem [Release](https://github.com/rix1337/RSScrawler/releases) wird eine selbstständig unter Windows lauffähige Version des RSScrawlers beigefügt.
@@ -33,13 +33,6 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername und Passwort festlegen.
 
 Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
-
-## Credits
-
-* [mmarquezs](https://github.com/mmarquezs/)
-* [Gutz-Pilz](https://github.com/Gutz-Pilz/)
-* [zapp-brannigan](https://github.com/zapp-brannigan/)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=RSScrawler)
 
 ***
 
@@ -58,9 +51,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 #### Bekannte Fehler
 
-Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern nur auf Systemseite:
-
-* Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
+Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 #### Update
 
@@ -81,3 +72,12 @@ Die folgenden Fehler lassen sich nicht im Code von RSScrawler beheben, sondern n
 | ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ``` --keep-cdc``` | Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf |
+
+***
+
+## Credits
+
+* [mmarquezs](https://github.com/mmarquezs/)
+* [Gutz-Pilz](https://github.com/Gutz-Pilz/)
+* [zapp-brannigan](https://github.com/zapp-brannigan/)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=RSScrawler)
