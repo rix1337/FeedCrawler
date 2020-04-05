@@ -270,7 +270,7 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (bereits gefunden)" % post.title)
                         continue
-                    elif check_valid_release(post.title, self.retail_only, self.hevc_retail, self.dbfile):
+                    elif not check_valid_release(post.title, self.retail_only, self.hevc_retail, self.dbfile):
                         self.log_debug(
                             "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % post.title)
                         continue
@@ -730,14 +730,13 @@ class BL:
                                 "%s - HEVC Release ignoriert (bereits gefunden)" % key)
                             return True
                         elif self.filename == 'MB_Filme' or 'IMDB':
-                            retail = False
-                            if self.config.get('cutoff'):
-                                if self.config.get('enforcedl'):
-                                    if is_retail(key, '1', self.dbfile):
-                                        retail = True
-                                else:
-                                    if is_retail(key, '0', self.dbfile):
-                                        retail = True
+                            if self.config.get('cutoff') and is_retail(key, '1', self.dbfile):
+                                retail = True
+                            elif is_retail(key, False, False):
+                                retail = True
+                            else:
+                                retail = False
+                            # TODO: Check if this should be DL
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                             "RSScrawler",
@@ -755,10 +754,13 @@ class BL:
                                     notify([log_entry], self.configfile)
                                     return log_entry
                         elif self.filename == 'MB_3D':
-                            retail = False
-                            if self.config.get('cutoff'):
-                                if is_retail(key, '2', self.dbfile):
-                                    retail = True
+                            if self.config.get('cutoff') and is_retail(key, '2', self.dbfile):
+                                retail = True
+                            elif is_retail(key, False, False):
+                                retail = True
+                            else:
+                                retail = False
+                            # TODO: Check if this should be DL
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                             "RSScrawler/3Dcrawler",
@@ -1081,7 +1083,7 @@ class BL:
                 self.log_debug(
                     "%s - Release ignoriert (bereits gefunden)" % key)
                 return
-            elif check_valid_release(key, self.retail_only, self.hevc_retail, self.dbfile):
+            elif not check_valid_release(key, self.retail_only, self.hevc_retail, self.dbfile):
                 self.log_debug(
                     "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % key)
                 return
