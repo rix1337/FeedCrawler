@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/bharnett/Infringer/blob/master/LinkRetrieve.py
 
 
 import base64

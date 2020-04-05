@@ -13,6 +13,8 @@ from rsscrawler.fakefeed import fx_download_links
 from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import hs_feed_enricher
 from rsscrawler.fakefeed import hs_search_to_soup
+from rsscrawler.imdb import get_imdb_id
+from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
@@ -356,9 +358,9 @@ class BL:
                         title_year = ""
 
                     if post_imdb:
-                        download_imdb = "http://www.imdb.com/title/" + post_imdb[0]
+                        imdb_url = "http://www.imdb.com/title/" + post_imdb[0]
                     else:
-                        download_imdb = ""
+                        imdb_url = ""
                         try:
                             search_title = \
                                 re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
@@ -378,7 +380,7 @@ class BL:
                         no_series = False
                         total_results = len(search_results)
                         if total_results == 0:
-                            download_imdb = ""
+                            imdb_url = ""
                         else:
                             while total_results > 0:
                                 attempt = 0
@@ -389,8 +391,8 @@ class BL:
                                         attempt += 1
                                     else:
                                         no_series = True
-                                        download_imdb = "http://www.imdb.com/title/" + \
-                                                        search_results[attempt][0]
+                                        imdb_url = "http://www.imdb.com/title/" + \
+                                                   search_results[attempt][0]
                                         title_year = search_results[attempt][2]
                                         total_results = 0
                                         break
@@ -398,7 +400,7 @@ class BL:
                                 self.log_debug(
                                     "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
 
-                    details = ""
+                    imdb_details = ""
                     min_year = self.config.get("imdbyear")
                     if min_year:
                         if len(title_year) > 0:
@@ -406,14 +408,14 @@ class BL:
                                 self.log_debug(
                                     "%s - Release ignoriert (Film zu alt)" % post.title)
                                 continue
-                        elif len(download_imdb) > 0:
-                            details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
-                            if not details:
+                        elif len(imdb_url) > 0:
+                            imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                            if not imdb_details:
                                 self.log_debug(
                                     "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
                                 continue
                             title_year = re.findall(
-                                r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", details)
+                                r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", imdb_details)
                             if not title_year:
                                 self.log_debug(
                                     "%s - Erscheinungsjahr nicht ermittelbar" % post.title)
@@ -424,15 +426,15 @@ class BL:
                                 self.log_debug(
                                     "%s - Release ignoriert (Film zu alt)" % post.title)
                                 continue
-                    if len(download_imdb) > 0:
-                        if len(details) == 0:
-                            details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
-                        if not details:
+                    if len(imdb_url) > 0:
+                        if len(imdb_details) == 0:
+                            imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                        if not imdb_details:
                             self.log_debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                         vote_count = re.findall(
-                            r'ratingCount">(.*?)<\/span>', details)
+                            r'ratingCount">(.*?)<\/span>', imdb_details)
                         if not vote_count:
                             self.log_debug(
                                 "%s - Wertungsanzahl nicht ermittelbar" % post.title)
@@ -446,7 +448,7 @@ class BL:
                                     vote_count) + ")")
                             continue
                         download_score = re.findall(
-                            r'ratingValue">(.*?)<\/span>', details)
+                            r'ratingValue">(.*?)<\/span>', imdb_details)
                         download_score = float(download_score[0].replace(
                             ",", "."))
                         if download_score > imdb:
@@ -466,11 +468,11 @@ class BL:
 
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
-                                    post.title, download_pages, str(download_score), download_imdb, details,
+                                    post.title, download_pages, str(download_score), imdb_url, imdb_details,
                                     password, site, hevc_retail)
                             else:
                                 found = self.imdb_download(
-                                    post.title, download_pages, str(download_score), download_imdb, details,
+                                    post.title, download_pages, str(download_score), imdb_url, imdb_details,
                                     password, site, hevc_retail)
                             if found:
                                 for i in found:
@@ -729,14 +731,51 @@ class BL:
                             self.log_debug(
                                 "%s - HEVC Release ignoriert (bereits gefunden)" % key)
                             return True
-                        elif self.filename == 'MB_Filme' or 'IMDB':
+
+                        englisch = False
+                        if "*englisch*" in key.lower() or "*english*" in key.lower():
+                            key = key.replace(
+                                '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace(
+                                "*English*",
+                                "")
+                            englisch = True
+                            if not self.rsscrawler.get('english'):
+                                self.log_debug(
+                                    "%s - Englische Releases deaktiviert" % key)
+                                return
+
+                        if self.config.get('enforcedl') and '.dl.' not in key.lower():
+                            imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile,
+                                                  self.scraper,
+                                                  self.log_debug)
+                            if not imdb_id:
+                                dual_found = self.dual_download(key, password, True)
+                                if not dual_found and not englisch:
+                                    self.log_debug(
+                                        "%s - Kein zweisprachiges HEVC-Release gefunden." % key)
+                                    self.dl_unsatisfied = True
+                            else:
+                                if isinstance(imdb_id, list):
+                                    imdb_id = imdb_id.pop()
+                                imdb_url = "http://www.imdb.com/title/" + imdb_id
+                                imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                                if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile,
+                                                         self.scraper,
+                                                         self.log_debug):
+                                    dual_found = self.dual_download(key, password, True)
+                                    if not dual_found and not englisch:
+                                        self.log_debug(
+                                            "%s - Kein zweisprachiges HEVC-Release gefunden! Breche ab." % key)
+                                        self.dl_unsatisfied = True
+                                        return
+
+                        if self.filename == 'MB_Filme' or 'IMDB':
                             if self.config.get('cutoff') and is_retail(key, '1', self.dbfile):
                                 retail = True
                             elif is_retail(key, False, False):
                                 retail = True
                             else:
                                 retail = False
-                            # TODO: Check if this should be DL
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                             "RSScrawler",
@@ -760,7 +799,6 @@ class BL:
                                 retail = True
                             else:
                                 retail = False
-                            # TODO: Check if this should be DL
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                             "RSScrawler/3Dcrawler",
@@ -818,7 +856,7 @@ class BL:
                             else:
                                 self.log_debug(wrong_hoster)
 
-    def dual_download(self, title, password):
+    def dual_download(self, title, password, hevc=False):
         search_title = \
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0].replace(".", " ").replace(" ", "+")
@@ -839,6 +877,19 @@ class BL:
         for content in search_results:
             i += 1
             for (key, value) in self.adhoc_search(content, feedsearch_title):
+                if ".dl." not in key.lower():
+                    self.log_debug(
+                        "%s - Release ignoriert (nicht zweisprachig)" % key)
+                    continue
+                if hevc and not is_hevc(key):
+                    self.log_debug(
+                        "%s - zweisprachiges Release ignoriert (nicht HEVC)" % key)
+                    continue
+                # this enables automatic remuxing of 720p files with a 1080p dual language version
+                if ".720p." in key.lower():
+                    path_suffix = "/Remux"
+                else:
+                    path_suffix = ""
                 if i < 3:
                     download_links = self.get_download_links(value)
                 else:
@@ -864,9 +915,8 @@ class BL:
                             else:
                                 if is_retail(key, '0', self.dbfile):
                                     retail = True
-                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
-                                                    download_links,
-                                                    password)
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                    "RSScrawler" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -884,9 +934,7 @@ class BL:
                             if is_retail(key, '2', self.dbfile):
                                 retail = True
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler/3Dcrawler/Remux",
-                                                    download_links,
-                                                    password)
+                                                    "RSScrawler/3Dcrawler" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -899,9 +947,8 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                     elif self.filename == 'MB_Regex':
-                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
-                                                    download_links,
-                                                    password)
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                    "RSScrawler" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -913,9 +960,8 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                     else:
-                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Remux",
-                                                    download_links,
-                                                    password)
+                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
+                                                    "RSScrawler" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -937,7 +983,7 @@ class BL:
                         else:
                             self.log_debug(wrong_hoster)
 
-    def imdb_download(self, key, download_links, score, download_imdb, details, password, site, hevc_retail):
+    def imdb_download(self, key, download_links, score, imdb_url, imdb_details, password, site, hevc_retail):
         added_items = []
         if not hevc_retail:
             if self.hevc_retail:
@@ -962,32 +1008,8 @@ class BL:
                         "%s - Englische Releases deaktiviert" % key)
                     return
             if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                original_language = ""
-                if len(details) > 0:
-                    original_language = re.findall(
-                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                    if original_language:
-                        original_language = original_language[0]
-                    else:
-                        self.log_debug(
-                            "%s - Originalsprache nicht ermittelbar" % key)
-                elif len(download_imdb) > 0:
-                    details = get_url(download_imdb, self.configfile, self.dbfile, self.scraper)
-                    if not details:
-                        self.log_debug(
-                            "%s - Originalsprache nicht ermittelbar" % key)
-                    original_language = re.findall(
-                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                    if original_language:
-                        original_language = original_language[0]
-                    else:
-                        self.log_debug(
-                            "%s - Originalsprache nicht ermittelbar" % key)
-
-                if original_language == "German":
-                    self.log_debug(
-                        "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
-                else:
+                if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
+                                         self.log_debug):
                     dual_found = self.dual_download(key, password)
                     if dual_found:
                         added_items.append(dual_found)
@@ -1097,40 +1119,8 @@ class BL:
                         "%s - Englische Releases deaktiviert" % key)
                     return
             if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                imdb_id = re.findall(
-                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
-                    content)
-
-                if imdb_id:
-                    imdb_id = imdb_id[0][0]
-                else:
-                    search_title = re.findall(
-                        r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                    search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
-                    search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                        search_page)
-                    total_results = len(search_results)
-                    if self.filename == 'MB_Staffeln':
-                        imdb_id = search_results[0][0]
-                    else:
-                        no_series = False
-                        while total_results > 0:
-                            attempt = 0
-                            for result in search_results:
-                                if result[3] == "TV Series":
-                                    no_series = False
-                                    total_results -= 1
-                                    attempt += 1
-                                else:
-                                    no_series = True
-                                    imdb_id = search_results[attempt][0]
-                                    total_results = 0
-                                    break
-                        if no_series is False:
-                            self.log_debug(
-                                "%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile, self.scraper,
+                                      self.log_debug)
                 if not imdb_id:
                     dual_found = self.dual_download(key, password)
                     if dual_found:
@@ -1143,18 +1133,9 @@ class BL:
                     if isinstance(imdb_id, list):
                         imdb_id = imdb_id.pop()
                     imdb_url = "http://www.imdb.com/title/" + imdb_id
-                    details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
-                    if not details:
-                        self.log_debug(
-                            "%s - Originalsprache nicht ermittelbar" % key)
-                    original_language = re.findall(
-                        r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                    if original_language:
-                        original_language = original_language[0]
-                    if original_language == "German":
-                        self.log_debug(
-                            "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
-                    else:
+                    imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                    if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
+                                             self.log_debug):
                         dual_found = self.dual_download(key, password)
                         if dual_found:
                             added_items.append(dual_found)
