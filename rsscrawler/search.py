@@ -16,6 +16,7 @@ from rsscrawler.fakefeed import fx_download_links
 from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import fx_search_results
 from rsscrawler.fakefeed import hs_search_results
+from rsscrawler.fakefeed import nk_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
@@ -89,6 +90,11 @@ def get(title, configfile, dbfile):
         elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
             fx_results = fx_search_results(fx_content_to_soup(res))
 
+    nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
+    nk_search = post_url(nk_base_url + "search", configfile, dbfile,
+                         data={'search': bl_query})
+    nk_results = nk_search_results(nk_search, nk_base_url)
+
     password = decode_base64("bW92aWUtYmxvZy5vcmc=")
     for result in mb_results:
         if "480p" in quality:
@@ -130,6 +136,16 @@ def get(title, configfile, dbfile):
         unrated.append(
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (FX)"])
 
+    password = decode_base64("TklNQTRL")
+    for result in nk_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        unrated.append(
+            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (NK)"])
+
     if config.get("crawl3d"):
         mb_search = decode_base64('aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
@@ -167,12 +183,6 @@ def get(title, configfile, dbfile):
 
         password = decode_base64("aGQtc291cmNlLnRv")
         for result in hs_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HS)"])
 
@@ -180,6 +190,11 @@ def get(title, configfile, dbfile):
         for result in fx_results:
             unrated.append(
                 [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-FX)"])
+
+        password = decode_base64("TklNQTRL")
+        for result in nk_results:
+            unrated.append(
+                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-NK)"])
 
     rated = sorted(unrated, reverse=True)
 

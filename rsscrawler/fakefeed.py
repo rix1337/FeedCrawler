@@ -262,3 +262,17 @@ def nk_feed_enricher(content, base_url, configfile, dbfile, scraper):
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def nk_search_results(content, base_url):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
+    results = []
+    for post in posts:
+        try:
+            title = post.parent.parent.parent.find("span", {"class": "subtitle"}).text
+            link = base_url + post['href']
+            results.append([title, link])
+        except:
+            pass
+    return results
