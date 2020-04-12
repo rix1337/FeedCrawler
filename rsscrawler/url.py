@@ -30,6 +30,7 @@ def check_url(configfile, dbfile, scraper=False):
     hw_blocked_proxy = False
     fx_blocked_proxy = False
     hs_blocked_proxy = False
+    nk_blocked_proxy = False
 
     db = RssDb(dbfile, 'proxystatus')
     db.delete("SJ")
