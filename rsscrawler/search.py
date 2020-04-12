@@ -64,7 +64,7 @@ def get(title, configfile, dbfile):
         search_quality = ""
 
     mb_search = decode_base64(
-        'aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/'
+        'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + "+" + search_quality + '/feed/rss2/'
     hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
     hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
     fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
@@ -80,7 +80,7 @@ def get(title, configfile, dbfile):
     fx_results = []
 
     for res in async_results:
-        if decode_base64('bW92aWUtYmxvZy50bw==') in res:
+        if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
             mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
         elif decode_base64('aGQtd29ybGQub3Jn') in res:
             hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
@@ -131,7 +131,7 @@ def get(title, configfile, dbfile):
             [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (FX)"])
 
     if config.get("crawl3d"):
-        mb_search = decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
+        mb_search = decode_base64('aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + "+3D+1080p/feed/rss2/"
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + '+3D+1080p/feed'
         fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D+1080p/feed/"
@@ -145,7 +145,7 @@ def get(title, configfile, dbfile):
         fx_results = []
 
         for res in async_results:
-            if decode_base64('bW92aWUtYmxvZy50bw==') in res:
+            if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
                 mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
             elif decode_base64('aGQtd29ybGQub3Jn') in res:
                 hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)

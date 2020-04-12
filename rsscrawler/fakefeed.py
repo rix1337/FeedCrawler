@@ -218,3 +218,47 @@ def fx_download_links(content, title):
     except:
         return False
     return download_links
+
+
+def nk_feed_enricher(content, base_url, configfile, dbfile, scraper):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
+    async_results = []
+    for post in posts:
+        try:
+            async_results.append(base_url + post['href'])
+        except:
+            pass
+    async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
+
+    entries = []
+    if async_results:
+        for result in async_results:
+            try:
+                content = []
+                details = BeautifulSoup(result, 'lxml').find("div", {"class": "article"})
+                title = details.find("span", {"class": "subtitle"}).text
+                published = details.find("p", {"class": "meta"}).text
+                content.append("mkv ")
+                try:
+                    imdb = details.find("a", href=re.compile("imdb.com"))["href"]
+                    content.append('<a href="' + imdb + '" 9,9</a>')
+                except:
+                    pass
+                links = details.find_all("a", href=re.compile("/go/"))
+                for link in links:
+                    content.append('href="' + base_url + link["href"] + '"' + link.text + '<')
+                content = "".join(content)
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content})]
+                }))
+            except:
+                pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed

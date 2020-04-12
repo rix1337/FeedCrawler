@@ -13,6 +13,7 @@ from rsscrawler.fakefeed import fx_download_links
 from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import hs_feed_enricher
 from rsscrawler.fakefeed import hs_search_to_soup
+from rsscrawler.fakefeed import nk_feed_enricher
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
@@ -32,7 +33,7 @@ from rsscrawler.url import get_url_headers
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    MB_URL = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vZmVlZC8=")
+    MB_URL = decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvZmVlZC8=")
     MB_FEED_URLS = [MB_URL]
     HW_URL = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==")
     HW_FEED_URLS = [HW_URL]
@@ -40,6 +41,8 @@ class BL:
     HS_FEED_URLS = [HS_URL]
     FX_URL = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRlL2ZlZWQ=')
     FX_FEED_URLS = [FX_URL]
+    NK_URL = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
+    NK_FEED_URLS = [NK_URL]
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
@@ -94,18 +97,27 @@ class BL:
                 self.FX_FEED_URLS.append(page_url)
             i += 1
 
+        i = 2
+        while i <= search:
+            page_url = self.NK_URL + "page-" + str(i)
+            if page_url not in self.FX_FEED_URLS:
+                self.NK_FEED_URLS.append(page_url)
+            i += 1
+
         self.cdc = RssDb(self.dbfile, 'cdc')
 
-        self.last_set_mbhwhs = self.cdc.retrieve("ALLSet-" + self.filename)
+        self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers_mb = {'If-Modified-Since': str(self.cdc.retrieve("MBHeaders-" + self.filename))}
         self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
         self.headers_hs = {'If-Modified-Since': str(self.cdc.retrieve("HSHeaders-" + self.filename))}
         self.headers_fx = {'If-Modified-Since': str(self.cdc.retrieve("FXHeaders-" + self.filename))}
+        self.headers_nk = {'If-Modified-Since': str(self.cdc.retrieve("NKHeaders-" + self.filename))}
 
         self.last_sha_mb = self.cdc.retrieve("MB-" + self.filename)
         self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
         self.last_sha_hs = self.cdc.retrieve("HS-" + self.filename)
         self.last_sha_fx = self.cdc.retrieve("FX-" + self.filename)
+        self.last_sha_nk = self.cdc.retrieve("NK-" + self.filename)
         settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
                     "hoster_fallback"]
@@ -119,10 +131,12 @@ class BL:
         self.i_hw_done = False
         self.i_hs_done = False
         self.i_fx_done = False
+        self.i_nk_done = False
         self.mb_done = False
         self.hw_done = False
         self.hs_done = False
         self.fx_done = False
+        self.nk_done = False
         self.dl_unsatisfied = False
 
         try:
@@ -458,8 +472,10 @@ class BL:
                                 password = decode_base64("aGQtd29ybGQub3Jn")
                             elif "HS" in site:
                                 password = decode_base64("aGQtc291cmNlLnRv")
-                            else:
+                            elif "FX" in site:
                                 password = decode_base64("ZnVueGQ=")
+                            else:
+                                password = decode_base64("TklNQTRL")
 
                             if not "FX" in site:
                                 download_pages = self.get_download_links(content)
@@ -489,8 +505,10 @@ class BL:
             password = decode_base64("aGQtd29ybGQub3Jn")
         elif "HS" in site:
             password = decode_base64("aGQtc291cmNlLnRv")
-        else:
+        elif "FX" in site:
             password = decode_base64("ZnVueGQ=")
+        else:
+            password = decode_base64("TklNQTRL")
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -701,7 +719,7 @@ class BL:
         search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = [feedparser.parse(
-            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
+            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvc2VhcmNoLw==") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
@@ -868,7 +886,7 @@ class BL:
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0]
         search_results = [feedparser.parse(
-            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cudG8vc2VhcmNoLw==") + search_title + "/feed/rss2/",
+            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvc2VhcmNoLw==") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
             get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
@@ -1258,6 +1276,7 @@ class BL:
         hw_urls = []
         hs_urls = []
         fx_urls = []
+        nk_urls = []
 
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
@@ -1291,10 +1310,11 @@ class BL:
                         xn = xline.split(",")[0].replace(
                             ".", " ").replace(" ", "+")
                         mb_urls.append(
-                            decode_base64('aHR0cDovL21vdmllLWJsb2cudG8=') + '/search/%s/feed/rss2/' % xn)
+                            decode_base64('aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/%s/feed/rss2/' % xn)
                         hw_urls.append(decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
                         hs_urls.append(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8=') + '/search/%s/feed/' % xn)
                         fx_urls.append(decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/%s/feed/' % xn)
+                        nk_urls.append(xn)
             else:
                 for URL in self.MB_FEED_URLS:
                     mb_urls.append(URL)
@@ -1304,6 +1324,8 @@ class BL:
                     hs_urls.append(URL)
                 for URL in self.FX_FEED_URLS:
                     fx_urls.append(URL)
+                for URL in self.NK_FEED_URLS:
+                    nk_urls.append(URL)
         else:
             for URL in self.MB_FEED_URLS:
                 mb_urls.append(URL)
@@ -1313,6 +1335,8 @@ class BL:
                 hs_urls.append(URL)
             for URL in self.FX_FEED_URLS:
                 fx_urls.append(URL)
+            for URL in self.NK_FEED_URLS:
+                nk_urls.append(URL)
 
         if not self.pattern:
             self.log_debug(
@@ -1380,9 +1404,24 @@ class BL:
                 first_page_fx = False
                 self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
 
+        nk_304 = False
+        if not self.historical:
+            try:
+                first_nk = get_url_headers(nk_urls[0], self.configfile, self.dbfile, self.headers_nk, self.scraper)
+                self.scraper = first_nk[1]
+                first_nk = first_nk[0]
+                first_page_nk = nk_feed_enricher(first_nk.content, self.NK_URL, self.configfile, self.dbfile,
+                                                 self.scraper)
+                if first_nk.status_code == 304:
+                    nk_304 = True
+            except:
+                nk_304 = True
+                first_page_nk = False
+                self.log_debug("Fehler beim Abruf von NK - breche NK-Suche ab!")
+
         set_all = self.settings_hash(False)
 
-        if self.last_set_mbhwhs == set_all:
+        if self.last_set_all == set_all:
             if not self.historical:
                 if mb_304 and hw_304 and hs_304 and fx_304:
                     self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
@@ -1404,6 +1443,7 @@ class BL:
         sha_hw = None
         sha_hs = None
         sha_fx = None
+        sha_nk = None
 
         if not self.historical:
             if self.filename != 'IMDB':
@@ -1427,6 +1467,11 @@ class BL:
                         concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
                         break
+                if not nk_304 and first_page_nk:
+                    for i in first_page_nk.entries:
+                        concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
+                        break
             else:
                 if not mb_304 and first_page_mb:
                     for i in first_page_mb.entries:
@@ -1447,6 +1492,11 @@ class BL:
                     for i in first_page_fx.entries:
                         concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
                         sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                        break
+                if not nk_304 and first_page_nk:
+                    for i in first_page_nk.entries:
+                        concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
+                        sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
                         break
 
         added_items = []
@@ -1505,6 +1555,20 @@ class BL:
                             for f in found:
                                 added_items.append(f)
                         i += 1
+                for url in nk_urls:
+                    if not self.i_nk_done:
+                        if not self.historical and i == 0 and first_page_nk:
+                            nk_parsed_url = first_page_nk
+                        else:
+                            nk_parsed_url = nk_feed_enricher(
+                                get_url(url, self.configfile, self.dbfile, self.scraper), self.NK_URL, self.configfile,
+                                self.dbfile,
+                                self.scraper)
+                        found = self.imdb_search(imdb, nk_parsed_url, "NK")
+                        if found:
+                            for f in found:
+                                added_items.append(f)
+                        i += 1
         else:
             i = 0
             for url in mb_urls:
@@ -1559,6 +1623,20 @@ class BL:
                         for f in found:
                             added_items.append(f)
                     i += 1
+            for url in nk_urls:
+                if not self.nk_done:
+                    if not self.historical and i == 0 and first_page_nk:
+                        nk_parsed_url = first_page_nk
+                    else:
+                        nk_parsed_url = nk_feed_enricher(
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.NK_URL, self.configfile,
+                            self.dbfile,
+                            self.scraper)
+                    found = self.feed_search(nk_parsed_url, "NK")
+                    if found:
+                        for f in found:
+                            added_items.append(f)
+                    i += 1
 
         settings_changed = False
         if set_all:
@@ -1596,6 +1674,13 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues FX-CDC!")
+        if sha_nk:
+            if not self.dl_unsatisfied and not settings_changed:
+                self.cdc.delete("NK-" + self.filename)
+                self.cdc.store("NK-" + self.filename, sha_nk)
+            else:
+                self.log_debug(
+                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues NK-CDC!")
         if not mb_304 and not self.historical:
             try:
                 header = first_mb.headers['Last-Modified']
@@ -1628,5 +1713,13 @@ class BL:
             if header:
                 self.cdc.delete("FXHeaders-" + self.filename)
                 self.cdc.store("FXHeaders-" + self.filename, header)
+        if not nk_304 and not self.historical:
+            try:
+                header = first_nk.headers['Last-Modified']
+            except KeyError:
+                header = False
+            if header:
+                self.cdc.delete("NKHeaders-" + self.filename)
+                self.cdc.store("NKHeaders-" + self.filename, header)
 
         return self.device
