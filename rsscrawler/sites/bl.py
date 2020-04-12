@@ -100,7 +100,7 @@ class BL:
         i = 2
         while i <= search:
             page_url = self.NK_URL + "page-" + str(i)
-            if page_url not in self.FX_FEED_URLS:
+            if page_url not in self.NK_FEED_URLS:
                 self.NK_FEED_URLS.append(page_url)
             i += 1
 
@@ -250,25 +250,33 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
                     return added_items
-            else:
+            elif site == "FX":
                 if self.i_fx_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
+                    return added_items
+            else:
+                if self.i_nk_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche NK-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx):
+                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx) or (
+                    "NK" in site and sha == self.last_sha_nk):
                 if "MB" in site:
                     self.i_mb_done = True
                 elif "HW" in site:
                     self.i_hw_done = True
                 elif "HS" in site:
                     self.i_hs_done = True
-                else:
+                elif "FX" in site:
                     self.i_fx_done = True
+                else:
+                    self.i_nk_done = True
 
             if content:
                 if "mkv" in content.lower():
@@ -547,17 +555,23 @@ class BL:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
                     return added_items
-            else:
+            elif site == "FX":
                 if self.fx_done:
                     self.log_debug(
                         site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
+                    return added_items
+            else:
+                if self.nk_done:
+                    self.log_debug(
+                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche NK-Suche ab!")
                     return added_items
 
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx):
+                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx) or (
+                    "NK" in site and sha == self.last_sha_nk):
                 if not self.historical:
                     if "MB" in site:
                         self.mb_done = True
@@ -565,8 +579,10 @@ class BL:
                         self.hw_done = True
                     elif "HS" in site:
                         self.hs_done = True
-                    else:
+                    elif "FX" in site:
                         self.fx_done = True
+                    else:
+                        self.nk_done = True
 
             found = re.search(s, post.title.lower())
 
@@ -1425,7 +1441,7 @@ class BL:
 
         if self.last_set_all == set_all:
             if not self.historical:
-                if mb_304 and hw_304 and hs_304 and fx_304:
+                if mb_304 and hw_304 and hs_304 and fx_304 and nk_304:
                     self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
                     return self.device
                 if mb_304:
@@ -1440,6 +1456,9 @@ class BL:
                 if fx_304:
                     fx_urls = []
                     self.log_debug("FX-Feed seit letztem Aufruf nicht aktualisiert - breche FX-Suche ab!")
+                if nk_304:
+                    nk_urls = []
+                    self.log_debug("NK-Feed seit letztem Aufruf nicht aktualisiert - breche NK-Suche ab!")
 
         sha_mb = None
         sha_hw = None
