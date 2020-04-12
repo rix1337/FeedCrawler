@@ -317,8 +317,9 @@ class BL:
                             self.log_debug(
                                 "%s - Release ignoriert (3D-Suche deaktiviert)" % post.title)
                             return
-                        if self.config.get('crawl3d') and (
-                                "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                        if self.config.get('crawl3d'):
+                            if not re.search(quality_set, post.title.lower()):
+                                continue
                             if not self.config.get("crawl3dtype"):
                                 c3d_type = "hsbs"
                             else:
@@ -627,8 +628,9 @@ class BL:
                                         added_items.append(i)
                         elif self.filename == 'MB_3D':
                             if '.3d.' in post.title.lower():
-                                if self.config.get('crawl3d') and (
-                                        "1080p" in post.title.lower() or "1080i" in post.title.lower()):
+                                if self.config.get('crawl3d'):
+                                    if not re.search(ss, post.title.lower()):
+                                        continue
                                     if not self.config.get("crawl3dtype"):
                                         c3d_type = "hsbs"
                                     else:
