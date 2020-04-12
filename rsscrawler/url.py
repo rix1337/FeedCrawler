@@ -16,13 +16,13 @@ def check_url(configfile, dbfile, scraper=False):
     fallback = RssConfig('RSScrawler', configfile).get('fallback')
 
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
     mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8v")
     hw_url = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy8=")
     fx_url = decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlLw==")
-    hs_url = decode_base64("aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==")
+    hs_url = decode_base64("aHR0cHM6Ly9oZC1zb3VyY2UudG8vY29sbGVjdGlvbi9uZXVlcnNjaGVpbnVuZ2VuLw==")
     nk_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
 
     sj_blocked_proxy = False
@@ -62,7 +62,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("SJ", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "<Response [403]>" in str(
@@ -77,7 +77,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("MB", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "<Response [403]>" in str(
@@ -92,7 +92,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf HW ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("HW", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "<Response [403]>" in str(
@@ -107,7 +107,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("FX", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "200" not in str(
@@ -121,7 +121,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf HS ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("HS", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "200" not in str(
@@ -135,7 +135,7 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
             if RssConfig('RSScrawler', configfile).get("fallback"):
                 db.store("NK", "Blocked")
-            scraper = cloudscraper.create_scraper()
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     if not proxy or (proxy and sj_blocked_proxy and fallback):
         if "block." in str(
@@ -188,11 +188,11 @@ def check_url(configfile, dbfile, scraper=False):
 def check_is_site(url):
     if decode_base64("c2VyaWVuanVua2llcy5vcmc=") in url:
         return "SJ"
-    elif decode_base64("bW92aWUtYmxvZy50bw==") in url:
+    elif decode_base64("bW92aWUtYmxvZy4=") in url:
         return "MB"
     elif decode_base64("aGQtd29ybGQub3Jn") in url:
         return "HW"
-    elif decode_base64("ZnVueGQK") in url:
+    elif decode_base64("ZnVueGQ=") in url:
         return "FX"
     elif decode_base64("aGQtc291cmNlLnRv") in url:
         return "HS"
@@ -206,7 +206,7 @@ def get_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
@@ -289,7 +289,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
@@ -365,7 +365,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
@@ -441,7 +441,7 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
@@ -515,13 +515,13 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
 
 def get_urls_async(urls, configfile, dbfile, scraper=False):
     if not scraper:
-        scraper = cloudscraper.create_scraper()
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
     results = []
 
     def load_url(url):
         return get_url(url, configfile, dbfile, scraper)
 
-    with concurrent.futures.ThreadPoolExecutor(max_workers=40) as executor:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(load_url, url): url for url in urls}
         for future in concurrent.futures.as_completed(future_to_url):
             future_to_url[future]

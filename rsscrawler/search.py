@@ -28,6 +28,7 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
+from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
@@ -70,7 +71,7 @@ def get(title, configfile, dbfile):
     hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
     fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
-    scraper = cloudscraper.create_scraper()
+    scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
     async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
     scraper = async_results[1]
     async_results = async_results[0]
@@ -453,199 +454,195 @@ def download_bl(payload, device, configfile, dbfile):
     url = get_url(link, configfile, dbfile)
     config = RssConfig('MB', configfile)
     db = RssDb(dbfile, 'rsscrawler')
-
-    download_links = False
-
     soup = BeautifulSoup(url, 'lxml')
-    download = soup.find("div", {"id": "content"})
-    # TODO: refactor
-    if download:
-        try:
-            # HS
-            key = re.findall(r'Permanent Link: (.*?)"', str(download)).pop()
-            url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        except:
-            try:
-                # FX
-                key = fx_post_title(url)
-                download_links = fx_download_links(url, key)
-            except:
-                # MB/HW
-                items_head = soup.find("div", {"class": "topbox"})
-                key = items_head.contents[1].a["title"]
-                items_download = soup.find("div", {"class": "download"})
-                url_hosters = []
-                download = items_download.find_all("span", {"style": "display:inline;"}, text=True)
-                for link in download:
-                    link = link.a
-                    text = link.text.strip()
-                    if text:
-                        url_hosters.append([str(link["href"]), str(text)])
+
+    site = check_is_site(link)
+    if not site:
+        return False
     else:
-        try:
+        if "MB" in site:
+            key = soup.find("span", {"class": "fn"}).text
+            hosters = soup.find_all("a", href=re.compile("filecrypt"))
+            url_hosters = []
+            for hoster in hosters:
+                dl = hoster["href"]
+                hoster = hoster.text
+                url_hosters.append([dl, hoster])
+        elif "HW" in site:
+            key = re.findall(r'Permanent Link: (.*?)"', str(soup)).pop()
+            hosters = soup.find_all("a", href=re.compile("filecrypt"))
+            url_hosters = []
+            for hoster in hosters:
+                dl = hoster["href"]
+                hoster = hoster.text
+                url_hosters.append([dl, hoster])
+        elif "HS" in site:
             download = soup.find("div", {"class": "entry-content"})
             key = soup.find("h2", {"class": "entry-title"}).text
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        except:
-            return False
+        elif "FX" in site:
+            key = fx_post_title(url)
 
-    # MB/HW/HS (FX already set the link above)
-    if not download_links:
         links = {}
-        for url_hoster in reversed(url_hosters):
-            try:
-                if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                    if check_hoster(link_hoster, configfile):
-                        links[link_hoster] = url_hoster[0]
-            except:
-                pass
-        if config.get("hoster_fallback") and not links:
+        if "MB" in site or "HW" in site or "HS" in site:
             for url_hoster in reversed(url_hosters):
-                if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                    links[link_hoster] = url_hoster[0]
-        download_links = list(links.values())
-
-    englisch = False
-    if "*englisch" in key.lower() or "*english" in key.lower():
-        key = key.replace(
-            '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
-                                                                                      "").replace(
-            "*", "")
-        englisch = True
-
-    staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
-
-    if config.get('enforcedl') and '.dl.' not in key.lower():
-        fail = False
-        get_imdb_url = url
-        key_regex = r'<title>' + \
-                    re.escape(
-                        key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
-        imdb_id = re.findall(key_regex, get_imdb_url)
-        if len(imdb_id) > 0:
-            if not imdb_id[0]:
-                fail = True
-            else:
-                imdb_id = imdb_id[0]
-        else:
-            fail = True
-        if fail:
-            search_title = re.findall(
-                r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-            search_url = "http://www.imdb.com/find?q=" + search_title
-            search_page = get_url(search_url, configfile, dbfile)
-            search_results = re.findall(
-                r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                search_page)
-            total_results = len(search_results)
-            if staffel:
                 try:
-                    imdb_id = search_results[0][0]
+                    if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[
+                        0]:
+                        link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                        if check_hoster(link_hoster, configfile):
+                            links[link_hoster] = url_hoster[0]
                 except:
-                    imdb_id = False
-            else:
-                no_series = False
-                while total_results > 0:
-                    attempt = 0
-                    for result in search_results:
-                        if result[3] == "TV Series":
-                            no_series = False
-                            total_results -= 1
-                            attempt += 1
-                        else:
-                            no_series = True
-                            imdb_id = search_results[attempt][0]
-                            total_results = 0
-                            break
-                if no_series is False:
-                    logging.debug(
-                        "%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                    pass
+            if config.get("hoster_fallback") and not links:
+                for url_hoster in reversed(url_hosters):
+                    if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[
+                        0]:
+                        link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                        links[link_hoster] = url_hoster[0]
+            download_links = list(links.values())
+        elif "FX" in site:
+            download_links = fx_download_links(url, key)
 
-        if staffel:
-            filename = 'MB_Staffeln'
-        else:
-            filename = 'MB_Filme'
+        englisch = False
+        if "*englisch" in key.lower() or "*english" in key.lower():
+            key = key.replace(
+                '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
+                                                                                          "").replace(
+                "*", "")
+            englisch = True
 
-        scraper = cloudscraper.create_scraper()
-        bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
+        staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
 
-        if not imdb_id:
-            if not bl.dual_download(key, password):
-                logging.debug(
-                    "%s - Kein zweisprachiges Release gefunden." % key)
-        else:
-            if isinstance(imdb_id, list):
-                imdb_id = imdb_id.pop()
-            imdb_url = "http://www.imdb.com/title/" + imdb_id
-            details = get_url(imdb_url, configfile, dbfile)
-            if not details:
-                logging.debug("%s - Originalsprache nicht ermittelbar" % key)
-            original_language = re.findall(
-                r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-            if original_language:
-                original_language = original_language[0]
-            if original_language == "German":
-                logging.debug(
-                    "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
-            else:
-                if not bl.dual_download(key, password) and not englisch:
-                    logging.debug(
-                        "%s - Kein zweisprachiges Release gefunden!" % key)
-
-    if download_links:
-        if staffel:
-            if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
-                db.store(
-                    key.replace(".COMPLETE", "").replace(".Complete", ""),
-                    'notdl' if config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
-                logging.info(log_entry)
-                notify([log_entry], configfile)
-                return True
-        elif '.3d.' in key.lower():
-            retail = False
-            if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                if config.get('enforcedl'):
-                    if is_retail(key, '2', dbfile):
-                        retail = True
-            if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
-                db.store(
-                    key,
-                    'notdl' if config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Film' + (
-                    '/Retail' if retail else "") + '/3D] - ' + key
-                logging.info(log_entry)
-                notify([log_entry], configfile)
-                return True
-        else:
-            retail = False
-            if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                if config.get('enforcedl'):
-                    if is_retail(key, '1', dbfile):
-                        retail = True
+        if config.get('enforcedl') and '.dl.' not in key.lower():
+            fail = False
+            get_imdb_url = url
+            key_regex = r'<title>' + \
+                        re.escape(
+                            key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
+            imdb_id = re.findall(key_regex, get_imdb_url)
+            if len(imdb_id) > 0:
+                if not imdb_id[0]:
+                    fail = True
                 else:
-                    if is_retail(key, '0', dbfile):
-                        retail = True
-            if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
-                db.store(
-                    key,
-                    'notdl' if config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
-                    '/Englisch/Retail' if englisch and retail else '') + (
-                                '/Retail' if not englisch and retail else '') + '] - ' + key
-                logging.info(log_entry)
-                notify([log_entry], configfile)
-                return True
-    else:
-        return False
+                    imdb_id = imdb_id[0]
+            else:
+                fail = True
+            if fail:
+                search_title = re.findall(
+                    r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+                search_url = "http://www.imdb.com/find?q=" + search_title
+                search_page = get_url(search_url, configfile, dbfile)
+                search_results = re.findall(
+                    r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                    search_page)
+                total_results = len(search_results)
+                if staffel:
+                    try:
+                        imdb_id = search_results[0][0]
+                    except:
+                        imdb_id = False
+                else:
+                    no_series = False
+                    while total_results > 0:
+                        attempt = 0
+                        for result in search_results:
+                            if result[3] == "TV Series":
+                                no_series = False
+                                total_results -= 1
+                                attempt += 1
+                            else:
+                                no_series = True
+                                imdb_id = search_results[attempt][0]
+                                total_results = 0
+                                break
+                    if no_series is False:
+                        logging.debug(
+                            "%s - Keine passende Film-IMDB-Seite gefunden" % key)
+
+            if staffel:
+                filename = 'MB_Staffeln'
+            else:
+                filename = 'MB_Filme'
+
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
+            bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
+
+            if not imdb_id:
+                if not bl.dual_download(key, password):
+                    logging.debug(
+                        "%s - Kein zweisprachiges Release gefunden." % key)
+            else:
+                if isinstance(imdb_id, list):
+                    imdb_id = imdb_id.pop()
+                imdb_url = "http://www.imdb.com/title/" + imdb_id
+                details = get_url(imdb_url, configfile, dbfile)
+                if not details:
+                    logging.debug("%s - Originalsprache nicht ermittelbar" % key)
+                original_language = re.findall(
+                    r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
+                if original_language:
+                    original_language = original_language[0]
+                if original_language == "German":
+                    logging.debug(
+                        "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
+                else:
+                    if not bl.dual_download(key, password) and not englisch:
+                        logging.debug(
+                            "%s - Kein zweisprachiges Release gefunden!" % key)
+
+        if download_links:
+            if staffel:
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                    db.store(
+                        key.replace(".COMPLETE", "").replace(".Complete", ""),
+                        'notdl' if config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                    logging.info(log_entry)
+                    notify([log_entry], configfile)
+                    return True
+            elif '.3d.' in key.lower():
+                retail = False
+                if config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                    if config.get('enforcedl'):
+                        if is_retail(key, '2', dbfile):
+                            retail = True
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
+                    db.store(
+                        key,
+                        'notdl' if config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Suche/Film' + (
+                        '/Retail' if retail else "") + '/3D] - ' + key
+                    logging.info(log_entry)
+                    notify([log_entry], configfile)
+                    return True
+            else:
+                retail = False
+                if config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                    if config.get('enforcedl'):
+                        if is_retail(key, '1', dbfile):
+                            retail = True
+                    else:
+                        if is_retail(key, '0', dbfile):
+                            retail = True
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                    db.store(
+                        key,
+                        'notdl' if config.get(
+                            'enforcedl') and '.dl.' not in key.lower() else 'added'
+                    )
+                    log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
+                        '/Englisch/Retail' if englisch and retail else '') + (
+                                    '/Retail' if not englisch and retail else '') + '] - ' + key
+                    logging.info(log_entry)
+                    notify([log_entry], configfile)
+                    return True
+        else:
+            return False
 
 
 def download_sj(sj_id, special, device, configfile, dbfile):
