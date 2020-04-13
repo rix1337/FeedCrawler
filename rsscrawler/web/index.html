@@ -273,7 +273,8 @@
             <tbody id="logbody">
             <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
                 <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
-                <td scope="row" class="text-left" title="{{ x[3] }}">{{ x[3] | limitTo: 86 }}{{ x[3].length > 86 ? '...'
+                <td scope="row" class="text-left" title="{{ x[3] }}">{{ x[3] | limitTo: 70 }}{{ x[3].length > 70 ? '
+                    ...'
                     : '' }}
                 </td>
                 <td scope="row" class="text-left">{{ x[2] }}</td>

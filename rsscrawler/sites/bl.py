@@ -746,12 +746,13 @@ class BL:
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
+        # TODO: Add NK
 
         i = 0
         for content in search_results:
             i += 1
 
-            site = check_is_site(content)
+            site = check_is_site(str(content))
             if not site:
                 site = ""
 
@@ -918,12 +919,13 @@ class BL:
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
+        # TODO: Add NK
 
         i = 0
         for content in search_results:
             i += 1
 
-            site = check_is_site(content)
+            site = check_is_site(str(content))
             if not site:
                 site = ""
 

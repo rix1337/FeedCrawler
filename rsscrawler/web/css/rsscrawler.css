@@ -3,6 +3,10 @@ body {
     color: black;
 }
 
+#log {
+    max-width: 80em;
+}
+
 .log {
     height: 20em;
     overflow: auto;
@@ -37,7 +41,7 @@ thead {
     margin: 1em auto;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
-    max-width: 70em;
+    max-width: 50em;
 }
 
 .myjdheader {
@@ -47,6 +51,10 @@ thead {
 .alert {
     margin-bottom: 1em;
     max-width: 20em;
+}
+
+td {
+    font-family: monospace;
 }
 
 .app {
