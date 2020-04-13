@@ -131,15 +131,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 for line in reversed(logfile.readlines()):
                     if line and line is not "\n":
                         payload = [i]
-                        line = line.replace("] - Gewünschter Hoster fehlt - ", "/Hoster fehlt] - ")
-                        line = line.replace("] - Englisch - ", "/Englisch] - ")
-                        line = line.replace("] - Englisch/Retail - ", "/Englisch/Retail] - ")
-                        line = line.replace("] - Retail/Zweisprachig - ", "/Retail/Zweisprachig] - ")
-                        line = line.replace("] - Retail/3D/Zweisprachig - ", "/Retail/3D/Zweisprachig] - ")
-                        line = line.replace("] - Retail - ", "/Retail] - ")
-                        line = line.replace("] - Zweisprachig - ", "/Zweisprachig] - ")
-                        line = line.replace("] - Retail/3D - ", "/Retail/3D] - ")
-                        line = line.replace("] - Retail - ", "/Retail] - ")
                         line = line.replace("]", "")
                         line = line.replace("[", "")
                         line = re.sub(r",\d{3}", "", line)

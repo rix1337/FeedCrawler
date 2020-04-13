@@ -207,7 +207,7 @@ class DJ:
                                         decode_base64("ZG9rdWp1bmtpZXMub3Jn"))
             if self.device:
                 self.db.store(title, 'added')
-                log_entry = link_placeholder + title
+                log_entry = link_placeholder + title + ' - [DJ]'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 return log_entry

@@ -256,10 +256,9 @@ def get_url(url, configfile, dbfile, scraper=False):
                         return scraper.get(url, timeout=30).text
                     else:
                         return ""
-            else:
-                proxies = {'http': proxy, 'https': proxy}
-                response = scraper.get(url, proxies=proxies, timeout=30).text
-                return response
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.get(url, proxies=proxies, timeout=30).text
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -278,9 +277,8 @@ def get_url(url, configfile, dbfile, scraper=False):
                 return ""
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ""
-            else:
-                response = scraper.get(url, timeout=30).text
-                return response
+            response = scraper.get(url, timeout=30).text
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -333,10 +331,9 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
                         return [scraper.get(url, headers=headers, timeout=30), scraper]
                     else:
                         return ["", scraper]
-            else:
-                proxies = {'http': proxy, 'https': proxy}
-                response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
-                return [response, scraper]
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
+            return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ["", scraper]
@@ -354,9 +351,8 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
                 return ["", scraper]
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ["", scraper]
-            else:
-                response = scraper.get(url, headers=headers, timeout=30)
-                return [response, scraper]
+            response = scraper.get(url, headers=headers, timeout=30)
+            return [response, scraper]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ["", scraper]
@@ -409,10 +405,9 @@ def post_url(url, configfile, dbfile, data, scraper=False):
                         return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
-            else:
-                proxies = {'http': proxy, 'https': proxy}
-                response = scraper.post(url, data, proxies=proxies, timeout=30).content
-                return response
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.post(url, data, proxies=proxies, timeout=30).content
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -430,9 +425,8 @@ def post_url(url, configfile, dbfile, data, scraper=False):
                 return ""
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ""
-            else:
-                response = scraper.post(url, data, timeout=30).content
-                return response
+            response = scraper.post(url, data, timeout=30).content
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -485,10 +479,9 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
                         return scraper.post(url, json=json, timeout=30).content
                     else:
                         return ""
-            else:
-                proxies = {'http': proxy, 'https': proxy}
-                response = scraper.post(url, json=json, proxies=proxies, timeout=30).content
-                return response
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.post(url, json=json, proxies=proxies, timeout=30).content
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
@@ -506,9 +499,8 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
                 return ""
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ""
-            else:
-                response = scraper.post(url, json=json, timeout=30).content
-                return response
+            response = scraper.post(url, json=json, timeout=30).content
+            return response
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
