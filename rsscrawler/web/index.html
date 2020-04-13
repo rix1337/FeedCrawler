@@ -267,13 +267,17 @@
                 <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
                 <th scope="col" class="text-left">Release</th>
                 <th scope="col" class="text-left">Kategorie</th>
+                <th scope="col" class="text-left">Seite</th>
             </tr>
             </thead>
             <tbody id="logbody">
             <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
                 <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
-                <td scope="row" class="text-left">{{ x[3] }}</td>
+                <td scope="row" class="text-left" title="{{ x[3] }}">{{ x[3] | limitTo: 86 }}{{ x[3].length > 86 ? '...'
+                    : '' }}
+                </td>
                 <td scope="row" class="text-left">{{ x[2] }}</td>
+                <td scope="row" class="text-left">{{ x[4] }}</td>
                 <td scope="row" class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
                                                       ng-click="deleteLogRow(x[0])"><i
                         class="fas fa-trash remove"></i></a></td>
