@@ -615,7 +615,8 @@ def download_bl(payload, device, configfile, dbfile):
                         'notdl' if config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                    log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
+                                                                                            "") + ' - [' + site + ']'
                     logging.info(log_entry)
                     notify([log_entry], configfile)
                     return True
@@ -632,7 +633,7 @@ def download_bl(payload, device, configfile, dbfile):
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
                     log_entry = '[Suche/Film' + (
-                        '/Retail' if retail else "") + '/3D] - ' + key
+                        '/Retail' if retail else "") + '/3D] - ' + key + ' - [' + site + ']'
                     logging.info(log_entry)
                     notify([log_entry], configfile)
                     return True
@@ -653,7 +654,7 @@ def download_bl(payload, device, configfile, dbfile):
                     )
                     log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
-                                    '/Retail' if not englisch and retail else '') + '] - ' + key
+                                    '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
                     logging.info(log_entry)
                     notify([log_entry], configfile)
                     return True
@@ -799,7 +800,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
                              decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
                 something_found = True
                 db.store(dl_title, 'added')
-                log_entry = '[Suche/Serie] - ' + dl_title
+                log_entry = '[Suche/Serie] - ' + dl_title + ' - [SJ]'
                 logging.info(log_entry)
                 notify_array.append(log_entry)
 

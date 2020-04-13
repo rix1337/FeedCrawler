@@ -127,7 +127,7 @@ class YT:
                             video,
                             'added'
                         )
-                        log_entry = '[YouTube] - ' + video_title + ' (' + channel + ')'
+                        log_entry = '[Video] - ' + video_title + ' (' + channel + ')' + ' - [YT]'
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         added_items.append(log_entry)

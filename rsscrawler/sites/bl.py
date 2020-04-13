@@ -29,6 +29,7 @@ from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
+from rsscrawler.url import check_is_site
 
 
 class BL:
@@ -749,6 +750,11 @@ class BL:
         i = 0
         for content in search_results:
             i += 1
+
+            site = check_is_site(content)
+            if not site:
+                site = ""
+
             for (key, value) in self.adhoc_search(content, feedsearch_title):
                 if is_hevc(key) and "1080p" in key:
                     if i < 3:
@@ -828,7 +834,7 @@ class BL:
                                             'enforcedl') and '.dl.' in key.lower() else 'added'
                                     )
                                     log_entry = '[Film' + (
-                                        '/Retail' if retail else "") + '/HEVC] - ' + key
+                                        '/Retail' if retail else "") + '/HEVC] - ' + key + ' - [' + site + ']'
                                     self.log_info(log_entry)
                                     notify([log_entry], self.configfile)
                                     return log_entry
@@ -851,7 +857,7 @@ class BL:
                                             'enforcedl') and '.dl.' in key.lower() else 'added'
                                     )
                                     log_entry = '[Film' + (
-                                        '/Retail' if retail else "") + '/3D/HEVC] - ' + key
+                                        '/Retail' if retail else "") + '/3D/HEVC] - ' + key + ' - [' + site + ']'
                                     self.log_info(log_entry)
                                     notify([log_entry], self.configfile)
                                     return log_entry
@@ -866,7 +872,7 @@ class BL:
                                     'dl' if self.config.get(
                                         'enforcedl') and '.dl.' in key.lower() else 'added'
                                 )
-                                log_entry = '[Film/Serie/RegEx/HEVC] - ' + key
+                                log_entry = '[Film/Serie/RegEx/HEVC] - ' + key + ' - [' + site + ']'
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 return log_entry
@@ -881,7 +887,7 @@ class BL:
                                     'dl' if self.config.get(
                                         'enforcedl') and '.dl.' in key.lower() else 'added'
                                 )
-                                log_entry = '[Staffel/HEVC] - ' + key
+                                log_entry = '[Staffel/HEVC] - ' + key + ' - [' + site + ']'
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 return log_entry
@@ -916,6 +922,11 @@ class BL:
         i = 0
         for content in search_results:
             i += 1
+
+            site = check_is_site(content)
+            if not site:
+                site = ""
+
             for (key, value) in self.adhoc_search(content, feedsearch_title):
                 if ".dl." not in key.lower():
                     self.log_debug(
@@ -964,7 +975,7 @@ class BL:
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
                             log_entry = '[Film' + (
-                                '/Retail' if retail else "") + '/Zweisprachig] - ' + key
+                                '/Retail' if retail else "") + '/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -982,7 +993,7 @@ class BL:
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
                             log_entry = '[Film' + (
-                                '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key
+                                '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -995,7 +1006,7 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key
+                            log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -1008,7 +1019,7 @@ class BL:
                                 'dl' if self.config.get(
                                     'enforcedl') and '.dl.' in key.lower() else 'added'
                             )
-                            log_entry = '[Staffel/Zweisprachig] - ' + key
+                            log_entry = '[Staffel/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
                             notify([log_entry], self.configfile)
                             return log_entry
@@ -1085,7 +1096,7 @@ class BL:
                         '/Englisch - ' if englisch and not retail else "") + (
                                     '/Englisch/Retail' if englisch and retail else "") + (
                                     '/Retail' if not englisch and retail else "") + (
-                                    '/HEVC' if hevc_retail else '') + '] - ' + key
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1108,7 +1119,7 @@ class BL:
                     )
                     log_entry = '[IMDB ' + score + '/Film' + (
                         '/Retail' if retail else "") + '/3D' + (
-                                    '/HEVC' if hevc_retail else '') + '] - ' + key
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1218,7 +1229,7 @@ class BL:
                     log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
                                     '/Retail' if not englisch and retail else '') + (
-                                    '/HEVC' if hevc_retail else '') + '] - ' + key
+                                    '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1245,7 +1256,7 @@ class BL:
                     )
                     log_entry = '[Film - ' + (
                         '/Retail' if retail else "") + '/3D - ' + (
-                                    '/HEVC' if hevc_retail else '') + ']' + key
+                                    '/HEVC' if hevc_retail else '') + ']' + key + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1259,7 +1270,8 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete", "")
+                    log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
+                                                                                      "") + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
@@ -1272,7 +1284,7 @@ class BL:
                         'notdl' if self.config.get(
                             'enforcedl') and '.dl.' not in key.lower() else 'added'
                     )
-                    log_entry = '[Film/Serie/RegEx] - ' + key
+                    log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + site + ']'
                     self.log_info(log_entry)
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
