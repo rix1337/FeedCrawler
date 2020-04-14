@@ -36,6 +36,56 @@
 </div>
 
 
+<div id="log" class="container app col">
+    <h3><i class="fas fa-history"></i> Log</h3>
+    <div class="card log">
+        <table class="table text-truncate" ng-show="log.length > 0">
+            <thead>
+            <tr>
+                <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
+                <th scope="col" class="text-left">Release</th>
+                <th scope="col" class="text-left">Kategorie</th>
+                <th scope="col" class="text-left d-none d-lg-block">Seite</th>
+            </tr>
+            </thead>
+            <tbody id="logbody">
+            <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
+                <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
+                <td scope="row" class="text-left" title="{{ x[3] }}">
+                    {{ x[3] | limitTo: loglength }}
+                    <a href='' ng-if="!longlog && x[3].length > 65" ng-click="longerLog()"
+                       title="Titel vollständig anzeigen">...</a>
+                    <a href='' ng-if="longlog && x[3].length > 65" ng-click="shorterLog()" title="Titel kürzen"><i
+                            class="fas fa-times"></i></a>
+                </td>
+                <td scope="row" class="text-left">{{ x[2] }}</td>
+                <td scope="row" class="text-left d-none d-lg-block">{{ x[4] }}</td>
+                <td scope="row" class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
+                                                      ng-click="deleteLogRow(x[0])"><i
+                        class="fas fa-trash remove"></i></a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="btn-group" ng-show="resLengthLog>5">
+        <button class="btn btn-outline-info" ng-disabled="currentPageLog == 0"
+                ng-click="currentPageLog=currentPageLog-1">
+            <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="btn btn-outline-info" ng-disabled="true">
+            {{currentPageLog+1}} / {{numberOfPagesLog()}}
+        </button>
+        <button class="btn btn-outline-info" ng-disabled="currentPageLog >= resLengthLog/pageSizeLog - 1"
+                ng-click="currentPageLog=currentPageLog+1">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+    </div>
+    <div>
+        <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
+                                                                  class="fas fa-sync fa-spin"></i> Leeren</a></div>
+</div>
+
+
 <div id="myjd" class="container app col">
     <div class="card">
         <div class="card-header myjdheader" id="headingOne">
@@ -255,54 +305,6 @@
             </button>
         </div>
     </div>
-</div>
-
-
-<div id="log" class="container app col">
-    <h3><i class="fas fa-history"></i> Log</h3>
-    <div class="card log">
-        <table class="table text-truncate" ng-show="log.length > 0">
-            <thead>
-            <tr>
-                <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
-                <th scope="col" class="text-left">Release</th>
-                <th scope="col" class="text-left">Kategorie</th>
-                <th scope="col" class="text-left d-none d-lg-block">Seite</th>
-            </tr>
-            </thead>
-            <tbody id="logbody">
-            <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
-                <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
-                <td scope="row" class="text-left" title="{{ x[3] }}">
-                    {{ x[3] | limitTo: loglength }}
-                    <a href='' ng-if="!longlog && x[3].length > 65" ng-click="longerLog()">...</a>
-                    <a href='' ng-if="longlog && x[3].length > 65" ng-click="shorterLog()"><i class="fas fa-times"></i></a>
-                </td>
-                <td scope="row" class="text-left">{{ x[2] }}</td>
-                <td scope="row" class="text-left d-none d-lg-block">{{ x[4] }}</td>
-                <td scope="row" class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
-                                                      ng-click="deleteLogRow(x[0])"><i
-                        class="fas fa-trash remove"></i></a></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="btn-group" ng-show="resLengthLog>5">
-        <button class="btn btn-outline-info" ng-disabled="currentPageLog == 0"
-                ng-click="currentPageLog=currentPageLog-1">
-            <i class="fas fa-chevron-left"></i>
-        </button>
-        <button class="btn btn-outline-info" ng-disabled="true">
-            {{currentPageLog+1}} / {{numberOfPagesLog()}}
-        </button>
-        <button class="btn btn-outline-info" ng-disabled="currentPageLog >= resLengthLog/pageSizeLog - 1"
-                ng-click="currentPageLog=currentPageLog+1">
-            <i class="fas fa-chevron-right"></i>
-        </button>
-    </div>
-    <div>
-        <a href="" ng-click="deleteLog()" class="btn btn-dark"><i id="spinner-log" style="display: none;"
-                                                                  class="fas fa-sync fa-spin"></i> Leeren</a></div>
 </div>
 
 
@@ -1038,7 +1040,7 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."></span>
                 </label>
-                <h4>1080p-HEVC Bevorzugen</h4>
+                <h4>1080p-HEVC bevorzugen</h4>
                 <label class="switch">
                     <input type="checkbox"
                            ng-model="settings.mb.hevc_retail">
