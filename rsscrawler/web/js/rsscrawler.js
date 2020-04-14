@@ -114,6 +114,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.crawltimes = false;
+    $scope.blocked_sites = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
@@ -290,6 +291,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function (res) {
                 console.log('Konnte Laufzeiten nicht abrufen!');
                 showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
+    function getBlockedSites() {
+        $http.get('api/blocked_sites/')
+            .then(function (res) {
+                $scope.blocked_sites = res.data.crawltimes;
+                console.log('Blockierte Seiten abgerufen!');
+            }, function (res) {
+                console.log('Konnte blockierte Seiten nicht abrufen!');
+                showDanger('Konnte blockierte Seiten nicht abrufen!');
             });
     }
 
@@ -749,6 +761,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             if (!$scope.cnl_active) {
                 getCrawlTimes();
+                getBlockedSites();
             }
             $scope.updateCrawlTimes();
         }, 5000)

@@ -489,6 +489,42 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/api/blocked_sites/", methods=['GET'])
+    @requires_auth
+    def get_blocked_sites():
+        def check(site, db):
+            return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
+
+        if request.method == 'GET':
+            try:
+                db_proxy = RssDb(dbfile, 'proxystatus')
+                db_normal = RssDb(dbfile, 'normalstatus')
+            except:
+                time.sleep(3)
+                return "Failed", 400
+            return jsonify(
+                {
+                    "proxy": {
+                        "SJ": check("SJ", db_proxy),
+                        "MB": check("MB", db_proxy),
+                        "HW": check("HW", db_proxy),
+                        "FX": check("FX", db_proxy),
+                        "HS": check("HS", db_proxy),
+                        "NK": check("NK", db_proxy),
+                    },
+                    "normal": {
+                        "SJ": check("SJ", db_normal),
+                        "MB": check("MB", db_normal),
+                        "HW": check("HW", db_normal),
+                        "FX": check("FX", db_normal),
+                        "HS": check("HS", db_normal),
+                        "NK": check("NK", db_normal),
+                    }
+                }
+            )
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/search/<title>", methods=['GET'])
     @requires_auth
     def search_title(title):
