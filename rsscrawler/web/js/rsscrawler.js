@@ -122,6 +122,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_packages = [];
     $scope.time = 0;
 
+    $scope.loglength = 65;
+    $scope.longlog = false;
+
+    $scope.longerLog = function () {
+        $scope.loglength = 999;
+        $scope.longlog = true;
+    };
+
+    $scope.shorterLog = function () {
+        $scope.loglength = 65;
+        $scope.longlog = false;
+    };
 
     $scope.init = getAll();
 
