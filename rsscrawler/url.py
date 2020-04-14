@@ -61,8 +61,7 @@ def check_url(configfile, dbfile, scraper=False):
             sj_blocked_proxy = True
         if sj_blocked_proxy:
             print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("SJ", "Blocked")
+            db.store("SJ", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
@@ -76,8 +75,7 @@ def check_url(configfile, dbfile, scraper=False):
             mb_blocked_proxy = True
         if mb_blocked_proxy:
             print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("MB", "Blocked")
+            db.store("MB", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
@@ -91,8 +89,7 @@ def check_url(configfile, dbfile, scraper=False):
             hw_blocked_proxy = True
         if hw_blocked_proxy:
             print(u"Der Zugriff auf HW ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("HW", "Blocked")
+            db.store("HW", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
@@ -106,8 +103,7 @@ def check_url(configfile, dbfile, scraper=False):
             fx_blocked_proxy = True
         if fx_blocked_proxy:
             print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("FX", "Blocked")
+            db.store("FX", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
@@ -120,8 +116,7 @@ def check_url(configfile, dbfile, scraper=False):
             hs_blocked_proxy = True
         if hs_blocked_proxy:
             print(u"Der Zugriff auf HS ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("HS", "Blocked")
+            db.store("HS", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
@@ -134,8 +129,7 @@ def check_url(configfile, dbfile, scraper=False):
             nk_blocked_proxy = True
         if nk_blocked_proxy:
             print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
-            if RssConfig('RSScrawler', configfile).get("fallback"):
-                db.store("NK", "Blocked")
+            db.store("NK", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     if not proxy or (proxy and sj_blocked_proxy and fallback):
@@ -235,12 +229,6 @@ def get_url(url, configfile, dbfile, scraper=False):
             elif site and "FX" in site:
                 if db.retrieve("FX"):
                     if config.get("fallback") and not db_normal.retrieve("FX"):
-                        return scraper.get(url, timeout=30).text
-                    else:
-                        return ""
-            elif site and "HS" in site:
-                if db.retrieve("HS"):
-                    if config.get("fallback") and not db_normal.retrieve("HS"):
                         return scraper.get(url, timeout=30).text
                     else:
                         return ""

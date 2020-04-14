@@ -500,7 +500,7 @@ def download_bl(payload, device, configfile, dbfile):
             return False
 
         links = {}
-        if "MB" in site or "HW" in site or "HS" or "NK" in site:
+        if "MB" in site or "HW" in site or "HS" in site or "NK" in site:
             for url_hoster in reversed(url_hosters):
                 try:
                     if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[

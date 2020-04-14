@@ -114,6 +114,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.crawltimes = false;
+    $scope.blocked_proxy = false;
+    $scope.blocked_normal = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
@@ -122,6 +124,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_packages = [];
     $scope.time = 0;
 
+    $scope.loglength = 65;
+    $scope.longlog = false;
+
+    $scope.longerLog = function () {
+        $scope.loglength = 999;
+        $scope.longlog = true;
+    };
+
+    $scope.shorterLog = function () {
+        $scope.loglength = 65;
+        $scope.longlog = false;
+    };
 
     $scope.init = getAll();
 
@@ -278,6 +292,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function (res) {
                 console.log('Konnte Laufzeiten nicht abrufen!');
                 showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
+    function getBlockedSites() {
+        $http.get('api/blocked_sites/')
+            .then(function (res) {
+                $scope.blocked_proxy = res.data.proxy;
+                $scope.blocked_normal = res.data.normal;
+                console.log('Blockierte Seiten abgerufen!');
+            }, function (res) {
+                console.log('Konnte blockierte Seiten nicht abrufen!');
+                showDanger('Konnte blockierte Seiten nicht abrufen!');
             });
     }
 
@@ -737,6 +763,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             if (!$scope.cnl_active) {
                 getCrawlTimes();
+                getBlockedSites();
             }
             $scope.updateCrawlTimes();
         }, 5000)
