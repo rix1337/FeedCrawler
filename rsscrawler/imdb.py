@@ -4,6 +4,8 @@
 
 import re
 
+from bs4 import BeautifulSoup
+
 from rsscrawler.url import get_url
 
 
@@ -55,31 +57,22 @@ def get_imdb_id(key, content, filename, configfile, dbfile, scraper, log_debug):
 
 
 def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, scraper, log_debug):
-    original_language = ""
+    original_language = False
     if imdb_details and len(imdb_details) > 0:
-        original_language = re.findall(
-            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", imdb_details)
-        if original_language:
-            original_language = original_language[0]
-        else:
-            log_debug(
-                "%s - Originalsprache nicht ermittelbar" % key)
+        soup = BeautifulSoup(imdb_details, 'lxml')
+        original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
     elif imdb_url and len(imdb_url) > 0:
-        details = get_url(imdb_url, configfile, dbfile, scraper)
-        if not details:
-            log_debug(
-                "%s - Originalsprache nicht ermittelbar" % key)
-        original_language = re.findall(
-            r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-        if original_language:
-            original_language = original_language[0]
-            return original_language
-        else:
-            log_debug(
-                "%s - Originalsprache nicht ermittelbar" % key)
-            return False
+        imdb_details = get_url(imdb_url, configfile, dbfile, scraper)
+        if imdb_details:
+            soup = BeautifulSoup(imdb_details, 'lxml')
+            original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
 
-    if original_language == "German":
+    if not original_language:
+        log_debug("%s - Originalsprache nicht ermittelbar" % key)
+
+    if original_language and original_language == "German":
         log_debug(
             "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
         return False
+    else:
+        return original_language
