@@ -945,7 +945,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
     sys.stdout = Unbuffered(sys.stdout)
 
-    logger = logging.getLogger('')
+    logger = logging.getLogger('rsscrawler')
     logger.setLevel(log_level)
 
     console = logging.StreamHandler(stream=sys.stdout)
@@ -966,8 +966,6 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)
 
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.ERROR)
     disable_request_warnings(InsecureRequestWarning)
 
     no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
