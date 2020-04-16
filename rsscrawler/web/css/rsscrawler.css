@@ -54,7 +54,8 @@ thead {
 }
 
 td {
-    font-family: monospace;
+    font-family: Courier New, Courier, Lucida Sans Typewriter, Lucida Typewriter, monospace;
+    white-space: nowrap;
 }
 
 .app {
@@ -67,6 +68,7 @@ td {
 .alert {
     border: 1px solid #ced4da;
     border-radius: .25rem;
+    box-shadow: 0 0 5px 5px #606060;
 }
 
 #myjd .card-body {

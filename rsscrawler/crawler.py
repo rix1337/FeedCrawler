@@ -37,10 +37,11 @@ import signal
 import sys
 import time
 import traceback
-import warnings
 from logging import handlers
 
 from docopt import docopt
+from requests.packages.urllib3 import disable_warnings as disable_request_warnings
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from rsscrawler import files
 from rsscrawler import rsscommon
@@ -73,7 +74,7 @@ version = "v." + version.get_version()
 def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format):
     sys.stdout = Unbuffered(sys.stdout)
 
-    logger = logging.getLogger('')
+    logger = logging.getLogger('rsscrawler')
     logger.setLevel(log_level)
 
     console = logging.StreamHandler(stream=sys.stdout)
@@ -94,9 +95,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)
 
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.ERROR)
-    warnings.simplefilter("ignore", UnicodeWarning)
+    disable_request_warnings(InsecureRequestWarning)
 
     log_debug = logging.debug
 
@@ -179,6 +178,7 @@ def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format
 
 
 def crawldog(configfile, dbfile):
+    disable_request_warnings(InsecureRequestWarning)
     crawljobs = RssConfig('Crawljobs', configfile)
     autostart = crawljobs.get("autostart")
     db = RssDb(dbfile, 'crawldog')
@@ -326,6 +326,8 @@ def main():
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
+
+    disable_request_warnings(InsecureRequestWarning)
 
     if arguments['--testlauf']:
         device = False

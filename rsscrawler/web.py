@@ -37,6 +37,8 @@ from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
+from requests.packages.urllib3 import disable_warnings as disable_request_warnings
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -943,7 +945,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
     sys.stdout = Unbuffered(sys.stdout)
 
-    logger = logging.getLogger('')
+    logger = logging.getLogger('rsscrawler')
     logger.setLevel(log_level)
 
     console = logging.StreamHandler(stream=sys.stdout)
@@ -964,8 +966,7 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)
 
-    logging.getLogger("requests").setLevel(logging.WARNING)
-    logging.getLogger("urllib3").setLevel(logging.WARNING)
+    disable_request_warnings(InsecureRequestWarning)
 
     no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
     gevent.hub.Hub.NOT_ERROR = (Exception,)
