@@ -33,6 +33,8 @@ from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
 
+logger = logging.getLogger('rsscrawler')
+
 
 def get(title, configfile, dbfile):
     specific_season = re.match(r'^(.*);(s\d{1,3})$', title.lower())
@@ -381,7 +383,7 @@ def best_result_bl(title, configfile, dbfile):
     else:
         best_title = None
     if not best_title:
-        logging.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
@@ -390,7 +392,7 @@ def best_result_bl(title, configfile, dbfile):
             ListDb(dbfile, liste).store(title)
         return False
     if not is_retail(best_title, 1, dbfile):
-        logging.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
@@ -399,7 +401,7 @@ def best_result_bl(title, configfile, dbfile):
             ListDb(dbfile, liste).store(title)
         return best_link
     else:
-        logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
         return best_link
 
 
@@ -441,7 +443,7 @@ def best_result_sj(title, configfile, dbfile):
         best_title = sj_results.get(best_match).get('title')
         best_id = sj_results.get(best_match).get('id')
     except:
-        logging.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["SJ_Serien", "MB_Staffeln"]
         for liste in listen:
             cont = ListDb(dbfile, liste).retrieve()
@@ -450,7 +452,7 @@ def best_result_sj(title, configfile, dbfile):
             if title not in cont:
                 ListDb(dbfile, liste).store(title)
             return
-    logging.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_id
 
 
@@ -459,6 +461,9 @@ def download_bl(payload, device, configfile, dbfile):
     link = payload[0]
     password = payload[1]
     url = get_url(link, configfile, dbfile)
+    if not url or "NinjaFirewall 429" in url:
+        return False
+
     config = RssConfig('MB', configfile)
     db = RssDb(dbfile, 'rsscrawler')
     soup = BeautifulSoup(url, 'lxml')
@@ -573,7 +578,7 @@ def download_bl(payload, device, configfile, dbfile):
                                 total_results = 0
                                 break
                     if no_series is False:
-                        logging.debug(
+                        logger.debug(
                             "%s - Keine passende Film-IMDB-Seite gefunden" % key)
 
             if staffel:
@@ -586,7 +591,7 @@ def download_bl(payload, device, configfile, dbfile):
 
             if not imdb_id:
                 if not bl.dual_download(key, password):
-                    logging.debug(
+                    logger.debug(
                         "%s - Kein zweisprachiges Release gefunden." % key)
             else:
                 if isinstance(imdb_id, list):
@@ -594,17 +599,17 @@ def download_bl(payload, device, configfile, dbfile):
                 imdb_url = "http://www.imdb.com/title/" + imdb_id
                 details = get_url(imdb_url, configfile, dbfile)
                 if not details:
-                    logging.debug("%s - Originalsprache nicht ermittelbar" % key)
+                    logger.debug("%s - Originalsprache nicht ermittelbar" % key)
                 original_language = re.findall(
                     r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
                 if original_language:
                     original_language = original_language[0]
                 if original_language == "German":
-                    logging.debug(
+                    logger.debug(
                         "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
                     if not bl.dual_download(key, password) and not englisch:
-                        logging.debug(
+                        logger.debug(
                             "%s - Kein zweisprachiges Release gefunden!" % key)
 
         if download_links:
@@ -617,7 +622,7 @@ def download_bl(payload, device, configfile, dbfile):
                     )
                     log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                             "") + ' - [' + site + ']'
-                    logging.info(log_entry)
+                    logger.info(log_entry)
                     notify([log_entry], configfile)
                     return True
             elif '.3d.' in key.lower():
@@ -634,7 +639,7 @@ def download_bl(payload, device, configfile, dbfile):
                     )
                     log_entry = '[Suche/Film' + (
                         '/Retail' if retail else "") + '/3D] - ' + key + ' - [' + site + ']'
-                    logging.info(log_entry)
+                    logger.info(log_entry)
                     notify([log_entry], configfile)
                     return True
             else:
@@ -655,7 +660,7 @@ def download_bl(payload, device, configfile, dbfile):
                     log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
                         '/Englisch/Retail' if englisch and retail else '') + (
                                     '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
-                    logging.info(log_entry)
+                    logger.info(log_entry)
                     notify([log_entry], configfile)
                     return True
         else:
@@ -667,14 +672,14 @@ def download_sj(sj_id, special, device, configfile, dbfile):
     try:
         season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     except:
-        logging.debug(u'Keine Staffeln gefunden.')
+        logger.debug(u'Keine Staffeln gefunden.')
         return False
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     try:
         title = html_to_str(re.findall(r'<title>(.*?) » ', url).pop())
     except:
-        logging.debug(u'Kein Serientitel gefunden.')
+        logger.debug(u'Kein Serientitel gefunden.')
         return False
 
     rsscrawler = RssConfig('RSScrawler', configfile)
@@ -801,7 +806,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
                 something_found = True
                 db.store(dl_title, 'added')
                 log_entry = '[Suche/Serie] - ' + dl_title + ' - [SJ]'
-                logging.info(log_entry)
+                logger.info(log_entry)
                 notify_array.append(log_entry)
 
         notify(notify_array, configfile)

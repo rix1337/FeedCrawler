@@ -97,7 +97,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     disable_request_warnings(InsecureRequestWarning)
 
-    log_debug = logging.debug
+    log_debug = logger.debug
 
     crawltimes = RssDb(dbfile, "crawltimes")
 
@@ -114,7 +114,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug("--------Alle Suchfunktion gestartet.--------")
                 if device:
                     device = ombi(configfile, dbfile, device, log_debug)
-                for task in search_pool(configfile, dbfile, device, logging, scraper):
+                for task in search_pool(configfile, dbfile, device, logger, scraper):
                     name = task._INTERNAL_NAME
                     try:
                         file = " - Liste: " + task.filename
@@ -153,7 +153,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             log_debug("--------Testlauf gestartet.--------")
             if device:
                 device = ombi(configfile, dbfile, device, log_debug)
-            for task in search_pool(configfile, dbfile, device, logging, scraper):
+            for task in search_pool(configfile, dbfile, device, logger, scraper):
                 name = task._INTERNAL_NAME
                 try:
                     file = " - Liste: " + task.filename
@@ -287,21 +287,21 @@ def crawldog(configfile, dbfile):
             time.sleep(30)
 
 
-def search_pool(configfile, dbfile, device, logging, scraper):
+def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        YT(configfile, dbfile, device, logging, scraper),
-        DD(configfile, dbfile, device, logging, scraper),
-        DJ(configfile, dbfile, device, logging, scraper, filename='DJ_Dokus', internal_name='DJ'),
-        DJ(configfile, dbfile, device, logging, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
-        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Serien', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logging, scraper, filename='MB_Staffeln', internal_name='MB'),
-        BL(configfile, dbfile, device, logging, scraper, filename='MB_Regex'),
-        BL(configfile, dbfile, device, logging, scraper, filename='IMDB'),
-        BL(configfile, dbfile, device, logging, scraper, filename='MB_Filme'),
-        BL(configfile, dbfile, device, logging, scraper, filename='MB_Staffeln'),
-        BL(configfile, dbfile, device, logging, scraper, filename='MB_3D')
+        YT(configfile, dbfile, device, logger, scraper),
+        DD(configfile, dbfile, device, logger, scraper),
+        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
+        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
+        BL(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        BL(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        BL(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        BL(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        BL(configfile, dbfile, device, logger, scraper, filename='MB_3D')
     ]
 
 
