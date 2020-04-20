@@ -169,7 +169,10 @@ class SJ:
         title = soup.find(text=re.compile(escape_brackets))
         if not title:
             try:
-                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
+                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE)
+                if not episode and self.rsscrawler.get('english'):
+                    episode = re.findall(r'\.S\d{1,3}(E\d{1,3})\.', escape_brackets, re.IGNORECASE)
+                episode = episode.pop()
                 escape_brackets_pack = escape_brackets.replace(episode, "")
                 title = soup.find(text=re.compile(escape_brackets_pack))
             except:
