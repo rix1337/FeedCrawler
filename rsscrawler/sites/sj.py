@@ -8,6 +8,7 @@ import hashlib
 import re
 
 from bs4 import BeautifulSoup
+from requests_html import HTMLSession
 
 from rsscrawler.fakefeed import sj_content_to_soup
 from rsscrawler.myjd import myjd_download
@@ -61,7 +62,7 @@ class SJ:
         else:
             self.level = 0
 
-        self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+        self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         self.listtype = ""
 
     def settings_hash(self, refresh):
@@ -73,7 +74,7 @@ class SJ:
             self.settings.append(self.hosters)
             for s in settings:
                 self.settings.append(self.config.get(s))
-            self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+            self.pattern = r'(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         set_sj = str(self.settings) + str(self.pattern)
         return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
 
@@ -162,8 +163,12 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
-        soup = BeautifulSoup(req_page, 'lxml')
+        # Run actual JavaScript to render the page content
+        session = HTMLSession()
+        resp = session.get(series_url)
+        resp.html.render()
+
+        soup = BeautifulSoup(resp.html.html, 'lxml')
         escape_brackets = search_title.replace(
             "(", ".*").replace(")", ".*").replace("+", ".*")
         title = soup.find(text=re.compile(escape_brackets))
@@ -184,40 +189,17 @@ class SJ:
             else:
                 valid = True
             if valid:
-                url_hosters = re.findall(
-                    r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
+                # Run custom JavaScript to open the Download Popup
+                script = """$( "tr:contains('""" + title + """')" )[0].lastChild.firstChild.click();"""
+                resp.html.render(script=script)
+                soup = BeautifulSoup(resp.html.html, 'lxml')
+                url_hosters = soup.find("p", text=title).next_sibling.findAll("button")
                 links = []
                 for url_hoster in url_hosters:
-                    if check_hoster(url_hoster[1], self.configfile):
-                        links.append(url_hoster[0])
+                    if check_hoster(url_hoster.text, self.configfile):
+                        links.append(series_url)
                 if not links:
-                    try:
-                        episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
-                        escape_brackets_pack = escape_brackets.replace(episode, "")
-                        title = soup.find(text=re.compile(escape_brackets_pack))
-                        if not title:
-                            if '-' in escape_brackets_pack:
-                                escape_brackets_pack = escape_brackets_pack.rsplit('-', 1)[0].replace(".AC3D",
-                                                                                                      "").replace(
-                                    ".AC3", "")
-                                title = soup.find(text=re.compile(escape_brackets_pack))
-                        if title:
-                            if self.filename == 'MB_Staffeln':
-                                valid = re.search(self.seasonssource, search_title.lower())
-                            else:
-                                valid = True
-                            if valid:
-                                url_hosters = re.findall(
-                                    r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
-                                links = []
-                                for url_hoster in url_hosters:
-                                    if check_hoster(url_hoster[1], self.configfile):
-                                        links.append(url_hoster[0])
-                                if self.hoster_fallback and not links:
-                                    for url_hoster in url_hosters:
-                                        links.append(url_hoster[0])
-                    except:
-                        self.log_debug(search_title + " - Kein Link gefunden")
+                    self.log_debug(search_title + " - Kein Link gefunden")
                     if not links:
                         storage = self.db.retrieve_all(search_title)
                         if 'added' not in storage and 'notdl' not in storage:
@@ -435,7 +417,6 @@ class SJ:
                                         self.log_debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
-                                title = re.sub(r'\[.*\] ', '', post.title)
                                 try:
                                     storage = self.db.retrieve_all(title)
                                 except Exception as e:

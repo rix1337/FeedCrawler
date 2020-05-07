@@ -289,19 +289,19 @@ def crawldog(configfile, dbfile):
 
 def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        YT(configfile, dbfile, device, logger, scraper),
-        DD(configfile, dbfile, device, logger, scraper),
-        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
-        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
+        # YT(configfile, dbfile, device, logger, scraper),
+        # DD(configfile, dbfile, device, logger, scraper),
+        # DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
+        # DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
-        BL(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        BL(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        BL(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        BL(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        BL(configfile, dbfile, device, logger, scraper, filename='MB_3D')
+        # SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
+        # SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
+        # SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
+        # BL(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        # BL(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        # BL(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        # BL(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        # BL(configfile, dbfile, device, logger, scraper, filename='MB_3D')
     ]
 
 
