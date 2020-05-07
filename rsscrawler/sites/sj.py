@@ -294,8 +294,9 @@ class SJ:
         if self.last_set_sj == set_sj:
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 try:
+                    # TODO: Change upgrading to new SJ
                     response = get_url_headers(
-                        decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='),
+                        decode_base64('aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy94bWwvZmVlZHMvc3RhZmZlbG4ueG1s'),
                         self.configfile,
                         self.dbfile,
                         self.headers,
@@ -305,8 +306,9 @@ class SJ:
                     response = False
             else:
                 try:
+                    # TODO: Change upgrading to new SJ
                     response = get_url_headers(
-                        decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
+                        decode_base64('aHR0cHM6Ly9vbGQuc2VyaWVuanVua2llcy5vcmcveG1sL2ZlZWRzL2VwaXNvZGVuLnhtbA=='),
                         self.configfile,
                         self.dbfile,
                         self.headers,
@@ -321,13 +323,17 @@ class SJ:
                     return self.device
                 header = True
         else:
+            # TODO: Change upgrading to new SJ
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                 feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), self.configfile,
+                    decode_base64('aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy94bWwvZmVlZHMvc3RhZmZlbG4ueG1s'),
+                    self.configfile,
                     self.dbfile, self.scraper))
             else:
+                # TODO: Change upgrading to new SJ
                 feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), self.configfile,
+                    decode_base64('aHR0cHM6Ly9vbGQuc2VyaWVuanVua2llcy5vcmcveG1sL2ZlZWRzL2VwaXNvZGVuLnhtbA=='),
+                    self.configfile,
                     self.dbfile, self.scraper))
             response = False
 
@@ -354,7 +360,9 @@ class SJ:
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
-            link = post.link
+            # TODO: Remove replace when upgrading to new SJ
+            link = post.link.replace(decode_base64("Oi8vc2VyaWVuanVua2llcy5vcmcv"),
+                                     decode_base64("Oi8vb2xkLnNlcmllbmp1bmtpZXMub3JnLw=="))
             title = post.title
 
             if self.filename == 'SJ_Serien_Regex':
