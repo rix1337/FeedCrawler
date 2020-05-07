@@ -325,7 +325,9 @@ class SJ:
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
-            link = post.link
+            # TODO: Remove replace when upgrading to new SJ
+            link = post.link.replace(decode_base64("Oi8vc2VyaWVuanVua2llcy5vcmcv"),
+                                     decode_base64("Oi8vb2xkLnNlcmllbmp1bmtpZXMub3JnLw=="))
             title = post.title
 
             if self.filename == 'SJ_Serien_Regex':

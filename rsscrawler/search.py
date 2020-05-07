@@ -669,7 +669,8 @@ def download_bl(payload, device, configfile, dbfile):
 
 
 def download_sj(sj_id, special, device, configfile, dbfile):
-    url = get_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnLz9jYXQ9") + str(sj_id), configfile, dbfile)
+    # TODO: Change upgrading to new SJ
+    url = get_url(decode_base64("aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy8/Y2F0PQ==") + str(sj_id), configfile, dbfile)
     try:
         season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
     except:
