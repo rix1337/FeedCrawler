@@ -348,7 +348,7 @@ class SJ:
 
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
-                    if '[DEUTSCH]' in title or '[TV-FILM]' in title:
+                    if '.german.' in title.lower():
                         language_ok = 1
                     elif self.rsscrawler.get('english'):
                         language_ok = 2
@@ -381,7 +381,7 @@ class SJ:
                     continue
             elif self.filename == 'SJ_Staffeln_Regex':
                 if self.config.get("regex"):
-                    if '[DEUTSCH]' in title:
+                    if '.german.' in title.lower():
                         language_ok = 1
                     elif self.rsscrawler.get('english'):
                         language_ok = 2
@@ -416,7 +416,7 @@ class SJ:
                 if self.config.get("quality") != '480p':
                     m = re.search(self.pattern, title.lower())
                     if m:
-                        if '[DEUTSCH]' in title:
+                        if '.german.' in title.lower():
                             language_ok = 1
                         elif self.rsscrawler.get('english'):
                             language_ok = 2
@@ -454,7 +454,7 @@ class SJ:
                     else:
                         m = re.search(self.pattern, title.lower())
                         if m:
-                            if '[DEUTSCH]' in title:
+                            if '.german.' in title.lower():
                                 language_ok = 1
                             elif self.rsscrawler.get('english'):
                                 language_ok = 2
