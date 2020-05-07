@@ -8,6 +8,7 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
+from rsscrawler.rsscommon import decode_base64
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -130,6 +131,40 @@ def hs_search_results(url):
                     content.append((title, link))
                 except:
                     break
+    return content
+
+
+def sj_episodes_to_feedparser_dict(beautifulsoup_object, type):
+    content_areas = beautifulsoup_object.findAll("h3", text=type)
+    entries = []
+
+    for area in content_areas:
+        lists = area.previous.findAll("div")
+        for list in lists:
+            try:
+                published = str(list.previous)
+            except:
+                published = "ERROR"
+
+            items = list.findAll("a")
+            for item in items:
+                title = item.text
+                link = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + item.attrs["href"]
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "link": link,
+                    "published": published
+                }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def sj_content_to_soup(content, type):
+    content = BeautifulSoup(content, 'lxml')
+    content = sj_episodes_to_feedparser_dict(content, type)
     return content
 
 

@@ -7,9 +7,9 @@
 import hashlib
 import re
 
-import feedparser
 from bs4 import BeautifulSoup
 
+from rsscrawler.fakefeed import sj_content_to_soup
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
@@ -292,28 +292,19 @@ class SJ:
 
         header = False
         if self.last_set_sj == set_sj:
-            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                try:
-                    response = get_url_headers(
-                        decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='),
-                        self.configfile,
-                        self.dbfile,
-                        self.headers,
-                        self.scraper)[0]
-                    feed = feedparser.parse(response.content)
-                except:
-                    response = False
-            else:
-                try:
-                    response = get_url_headers(
-                        decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='),
-                        self.configfile,
-                        self.dbfile,
-                        self.headers,
-                        self.scraper)[0]
-                    feed = feedparser.parse(response.content)
-                except:
-                    response = False
+            try:
+                response = get_url_headers(
+                    decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
+                    self.configfile,
+                    self.dbfile,
+                    self.headers,
+                    self.scraper)[0]
+                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    feed = sj_content_to_soup(response, "Staffelliste")
+                else:
+                    feed = sj_content_to_soup(response, "Episodenliste")
+            except:
+                response = False
             if response:
                 if response.status_code == 304:
                     self.log_debug(
@@ -321,14 +312,12 @@ class SJ:
                     return self.device
                 header = True
         else:
+            response = get_url(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
+                               self.configfile, self.dbfile, self.scraper)
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9zdGFmZmVsbi54bWw='), self.configfile,
-                    self.dbfile, self.scraper))
+                feed = sj_content_to_soup(response, "Staffelliste")
             else:
-                feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL3htbC9mZWVkcy9lcGlzb2Rlbi54bWw='), self.configfile,
-                    self.dbfile, self.scraper))
+                feed = sj_content_to_soup(response, "Episodenliste")
             response = False
 
         if feed.entries:

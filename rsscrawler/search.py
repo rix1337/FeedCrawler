@@ -224,6 +224,7 @@ def get(title, configfile, dbfile):
         i += 1
     mb_final = results
 
+    # ToDo - Fix for new SJ
     sj_search = post_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="),
                          configfile,
                          dbfile,
