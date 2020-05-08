@@ -142,7 +142,7 @@ def get_packages_in_linkgrabber(configfile, device):
         {
             "bytesLoaded": True,
             "bytesTotal": True,
-            "comment": False,
+            "comment": True,
             "enabled": True,
             "eta": True,
             "priority": False,
@@ -207,7 +207,9 @@ def check_packages_types(links, packages, configfile, device):
                 if uuid == link.get('packageUUID'):
                     linkid = link.get('uuid')
                     linkids.append(linkid)
-                    if link.get('availability') == 'OFFLINE' or link.get(
+                    if "http" in link.get('comment'):
+                        package_failed = True
+                    elif link.get('availability') == 'OFFLINE' or link.get(
                             'status') == 'Datei nicht gefunden' or link.get('status') == 'File not found':
                         delete_linkids.append(linkid)
                         package_offline = True
@@ -457,7 +459,8 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False):
+def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False,
+             comment=False):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
@@ -485,6 +488,9 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
         if "Remux" in path:
             priority = "LOWER"
 
+        if not comment:
+            comment = "Added by RSScrawler"
+
         try:
             device.linkgrabber.add_links(params=[
                 {
@@ -495,6 +501,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
+                    "comment": comment,
                     "overwritePackagizerRules": False
                 }])
         except rsscrawler.myjdapi.TokenExpiredException:
@@ -510,6 +517,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
+                    "comment": comment,
                     "overwritePackagizerRules": False
                 }])
         db = RssDb(dbfile, 'crawldog')
@@ -725,7 +733,7 @@ def check_failed_link_exists(links, configfile, device):
     return False
 
 
-def myjd_download(configfile, dbfile, device, title, subdir, links, password):
+def myjd_download(configfile, dbfile, device, title, subdir, links, password, comment=False):
     if device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
@@ -758,7 +766,7 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
                     RssDb(dbfile, 'crawldog').delete(old_title)
                     return device
 
-        device = download(configfile, dbfile, device, title, subdir, links, password)
+        device = download(configfile, dbfile, device, title, subdir, links, password, comment=comment)
         if device:
             return device
     return False
@@ -888,7 +896,10 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                         except:
                             fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
-                        fname_episodes.append(str(int(fname_episode)))
+                        try:
+                            fname_episodes.append(str(int(fname_episode)))
+                        except:
+                            return [device, False]
             replacer = longest_substr(fname_episodes)
 
             new_fname_episodes = []

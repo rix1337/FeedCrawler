@@ -163,15 +163,18 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        # Run actual JavaScript to render the page content
-        session = HTMLSession()
-        resp = session.get(series_url)
-        resp.html.render()
-
-        soup = BeautifulSoup(resp.html.html, 'lxml')
-        escape_brackets = search_title.replace(
-            "(", ".*").replace(")", ".*").replace("+", ".*")
-        title = soup.find(text=re.compile(escape_brackets))
+        try:
+            # Run actual JavaScript to render the page content
+            session = HTMLSession()
+            resp = session.get(series_url)
+            resp.html.render()
+            soup = BeautifulSoup(resp.html.html, 'lxml')
+            escape_brackets = search_title.replace(
+                "(", ".*").replace(")", ".*").replace("+", ".*")
+            title = soup.find(text=re.compile(escape_brackets))
+        except:
+            self.log_debug(search_title + " - Konnte JavaScript der Serienseite nicht parsen")
+            title = False
         if not title:
             try:
                 episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE)
@@ -189,11 +192,15 @@ class SJ:
             else:
                 valid = True
             if valid:
-                # Run custom JavaScript to open the Download Popup
-                script = """$( "tr:contains('""" + title + """')" )[0].lastChild.firstChild.click();"""
-                resp.html.render(script=script)
-                soup = BeautifulSoup(resp.html.html, 'lxml')
-                url_hosters = soup.find("p", text=title).next_sibling.findAll("button")
+                try:
+                    # Run custom JavaScript to open the Download Popup
+                    script = """$( "tr:contains('""" + title + """')" )[0].lastChild.firstChild.click();"""
+                    resp.html.render(script=script)
+                    soup = BeautifulSoup(resp.html.html, 'lxml')
+                    url_hosters = soup.find("p", text=title).next_sibling.findAll("button")
+                except:
+                    self.log_debug(search_title + " - Konnte Download-Button/Hoster nicht per JavaScript finden")
+                    url_hosters = []
                 links = []
                 for url_hoster in url_hosters:
                     if check_hoster(url_hoster.text, self.configfile):
@@ -235,11 +242,17 @@ class SJ:
             self.log_debug(
                 "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
             return
+        try:
+            # This will be used for Click'n'Load later
+            comment = links[0]
+        except:
+            self.log_debug(title + " - Link für Click'n'Load-Automatik nicht identifizierbar!")
+            comment = False
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
             self.device = myjd_download(self.configfile, self.dbfile, self.device, title, "RSScrawler", links,
-                                        decode_base64("c2VyaWVuanVua2llcy5vcmc="))
+                                        decode_base64("c2VyaWVuanVua2llcy5vcmc="), comment)
             if self.device:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SJ]'
@@ -325,9 +338,7 @@ class SJ:
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
-            # TODO: Remove replace when upgrading to new SJ
-            link = post.link.replace(decode_base64("Oi8vc2VyaWVuanVua2llcy5vcmcv"),
-                                     decode_base64("Oi8vb2xkLnNlcmllbmp1bmtpZXMub3JnLw=="))
+            link = post.link
             title = post.title
 
             if self.filename == 'SJ_Serien_Regex':
