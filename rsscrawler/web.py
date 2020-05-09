@@ -807,7 +807,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     <body class='text-center'>
                     
                         <div id='log' class='container app col'>
-                            <h3 style='word-break: break-all;'
+                            <h3 id='title' style='word-break: break-all;'
                                 title='Anklicken um den Titel in die Zwischenablage zu kopieren (erleichtert die Suche)'
                                 onclick="toClipboard()">
                             
@@ -815,14 +815,14 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                                 <i id='after' class="fas fa-clipboard-check" style='display: none;'>
                                 </i> """ + title + """
                             </h3>
-                            <iframe src='""" + link + """' frameborder='0' scrolling='yes'
-                                style='display:block; width:100%; height:86vh;'>
+                            <iframe id='frame' src='""" + link + """' frameborder='0' scrolling='yes'
+                                referrerpolicy="no-referrer" style='display:block; width:100%; height:86vh;'>
                             </iframe>
                             
-                            <a href="" class="btn btn-dark">
+                            <div id='countdown'>
                                 <i id="spinner-log" class="fas fa-sync fa-spin">
-                                </i> Noch <span id="counter">60</span> Sekunden zum Hinzufügen!
-                            </a>
+                                </i> Noch <span id="counter">60</span> <span id="sec">Sekunden</span> zum Hinzufügen!
+                            </div>
                         </div>
                     
                     <script src='../js/jquery.slim.min.js'></script>
@@ -846,8 +846,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     }
                     
                     var count = 59, timer = setInterval(function() {
-                        $("#counter").html(count--);
-                        if(count == 1) clearInterval(timer);
+                        $('#counter').html(count--);
+                        if(count == 0) $('#sec').text('Sekunde');
+                        if(count == -1) {
+                            $("#frame").hide();
+                            $("#countdown").hide();
+                            $('#title').text('60 Sekunden sind verstrichen - bitte dieses Fenster schließen!');
+                            $('#title').removeAttr('title');
+                            clearInterval(timer);
+                        }
                     }, 1000);
                     </script>
 
