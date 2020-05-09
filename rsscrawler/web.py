@@ -210,7 +210,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                             "one_mirror_policy": general_conf.get("one_mirror_policy"),
                             "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
-                            "shorter_cnl_timeout": general_conf.get("shorter_cnl_timeout"),
                         },
                         "hosters": {
                             "rapidgator": hosters.get("rapidgator"),
@@ -340,7 +339,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
             section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
-            section.save("shorter_cnl_timeout", to_str(data['general']['shorter_cnl_timeout']))
 
             section = RssConfig("Crawljobs", configfile)
 
@@ -785,6 +783,80 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/decrypt/<title>", methods=['GET'])
+    @requires_auth
+    def decrypt(title):
+        if request.method == 'GET':
+            try:
+                payload = RssDb(dbfile, 'to_decrypt').retrieve(title).split('|')
+                link = payload[0]
+            except:
+                payload = False
+            if payload:
+                return """<!DOCTYPE html>
+                    <html lang='de'>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+                        <link href='../img/favicon.ico' rel='icon' type='image/x-icon'>
+                        <link rel='stylesheet' href='../css/bootstrap.min.css'>
+                        <link rel='stylesheet' href='../css/rsscrawler.css?updated'>
+                        <title>Click'n'Load-Automatik für """ + title + """</title>
+                    </head>
+                    
+                    <body class='text-center'>
+                    
+                        <div id='log' class='container app col'>
+                            <h3 style='word-break: break-all;'
+                                title='Anklicken um den Titel in die Zwischenablage zu kopieren (erleichtert die Suche)'
+                                onclick="toClipboard()">
+                            
+                                <i id='before' class="fas fa-clipboard"></i>
+                                <i id='after' class="fas fa-clipboard-check" style='display: none;'>
+                                </i> """ + title + """
+                            </h3>
+                            <iframe src='""" + link + """' frameborder='0' scrolling='yes'
+                                style='display:block; width:100%; height:86vh;'>
+                            </iframe>
+                            
+                            <a href="" class="btn btn-dark">
+                                <i id="spinner-log" class="fas fa-sync fa-spin">
+                                </i> Noch <span id="counter">60</span> Sekunden zum Hinzufügen!
+                            </a>
+                        </div>
+                    
+                    <script src='../js/jquery.slim.min.js'></script>
+                    <script src='../js/bootstrap.bundle.min.js'></script>
+                    <script src="../js/fontawesome-all.min.js"></script>
+
+                    </body>
+
+                    <script>
+                    function toClipboard() {
+                        var textArea = document.createElement('textarea');
+                        var textContent = document.createTextNode('""" + title + """');
+                        textArea.appendChild(textContent);
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        textArea.setSelectionRange(0, 99999);
+                        document.execCommand("copy");
+                        textArea.remove();
+                        $("#before").hide();
+                        $("#after").show();
+                    }
+                    
+                    var count = 59, timer = setInterval(function() {
+                        $("#counter").html(count--);
+                        if(count == 1) clearInterval(timer);
+                    }, 1000);
+                    </script>
+
+                    </html>""", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
@@ -824,10 +896,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             cnl_package = False
             grabber_was_collecting = False
-            if RssConfig('RSScrawler', configfile).get('shorter_cnl_timeout'):
-                i = 6
-            else:
-                i = 12
+            i = 12
             while i > 0:
                 i -= 1
                 time.sleep(5)

@@ -143,10 +143,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         manualCollapse();
     };
 
-    $scope.showSearch = function () {
-        showSearch();
-    };
-
     $scope.deleteLog = function () {
         deleteLog();
     };
@@ -656,11 +652,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDcnl(uuid) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
-        if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.shorter_cnl_timeout) {
-            countDown(60);
-        } else {
-            countDown(30);
-        }
+        countDown(60);
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;
