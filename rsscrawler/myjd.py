@@ -207,9 +207,7 @@ def check_packages_types(links, packages, configfile, device):
                 if uuid == link.get('packageUUID'):
                     linkid = link.get('uuid')
                     linkids.append(linkid)
-                    if "http" in link.get('comment'):
-                        package_failed = True
-                    elif link.get('availability') == 'OFFLINE' or link.get(
+                    if link.get('availability') == 'OFFLINE' or link.get(
                             'status') == 'Datei nicht gefunden' or link.get('status') == 'File not found':
                         delete_linkids.append(linkid)
                         package_offline = True
@@ -459,8 +457,7 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False,
-             comment=False):
+def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False):
     try:
         if not device or not is_device(device):
             device = get_device(configfile)
@@ -488,9 +485,6 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
         if "Remux" in path:
             priority = "LOWER"
 
-        if not comment:
-            comment = "Added by RSScrawler"
-
         try:
             device.linkgrabber.add_links(params=[
                 {
@@ -501,7 +495,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
-                    "comment": comment,
+                    "comment": "RSScrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
         except rsscrawler.myjdapi.TokenExpiredException:
@@ -517,7 +511,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
-                    "comment": comment,
+                    "comment": "RSScrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
         db = RssDb(dbfile, 'crawldog')
@@ -733,7 +727,7 @@ def check_failed_link_exists(links, configfile, device):
     return False
 
 
-def myjd_download(configfile, dbfile, device, title, subdir, links, password, comment=False):
+def myjd_download(configfile, dbfile, device, title, subdir, links, password):
     if device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
@@ -766,7 +760,7 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password, co
                     RssDb(dbfile, 'crawldog').delete(old_title)
                     return device
 
-        device = download(configfile, dbfile, device, title, subdir, links, password, comment=comment)
+        device = download(configfile, dbfile, device, title, subdir, links, password)
         if device:
             return device
     return False

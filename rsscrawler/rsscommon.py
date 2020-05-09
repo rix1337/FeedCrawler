@@ -268,6 +268,14 @@ def check_hoster(to_check, configfile):
     return False
 
 
+def add_decrypt(title, link, password, dbfile):
+    try:
+        RssDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
+        return True
+    except:
+        return False
+
+
 class Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream

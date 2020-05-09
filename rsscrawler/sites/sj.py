@@ -11,9 +11,9 @@ from bs4 import BeautifulSoup
 from requests_html import HTMLSession
 
 from rsscrawler.fakefeed import sj_content_to_soup
-from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -205,7 +205,7 @@ class SJ:
                 for url_hoster in url_hosters:
                     if check_hoster(url_hoster.text, self.configfile):
                         links.append(series_url)
-                if not links:
+                if not links and not self.hoster_fallback:
                     self.log_debug(search_title + " - Kein Link gefunden")
                     if not links:
                         storage = self.db.retrieve_all(search_title)
@@ -244,20 +244,19 @@ class SJ:
             return
         try:
             # This will be used for Click'n'Load later
-            comment = links[0]
+            decrypt_link = links[0]
         except:
             self.log_debug(title + " - Link für Click'n'Load-Automatik nicht identifizierbar!")
-            comment = False
+            decrypt_link = False
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, title, "RSScrawler", links,
-                                        decode_base64("c2VyaWVuanVua2llcy5vcmc="), comment)
-            if self.device:
+            download = add_decrypt(title, decrypt_link, decode_base64("c2VyaWVuanVua2llcy5vcmc="), self.dbfile)
+            if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SJ]'
                 self.log_info(log_entry)
-                notify([log_entry], self.configfile)
+                notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
                 return log_entry
 
     def periodical_task(self):

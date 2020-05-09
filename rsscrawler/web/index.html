@@ -167,7 +167,7 @@
                                     <a ng-if="!myjd_grabbing" ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
                                        class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
                                        target="_blank"
-                                       title="Click'n'Load innerhalb {{settings.general.shorter_cnl_timeout ?'von 30 Sekunden':'einer Minute'}} auslösen!"
+                                       title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
                                     <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
                                     <span class="cnl-spinner" ng-show="cnl_active"
@@ -799,14 +799,6 @@
                     <span class="slider round"
                           data-toggle="tooltip"
                           title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des RSScrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht."></span>
-                </label>
-                <h4>Click'n'Load-Automatik verkürzen</h4>
-                <label class="switch">
-                    <input type="checkbox"
-                           ng-model="settings.general.shorter_cnl_timeout">
-                    <span class="slider round"
-                          data-toggle="tooltip"
-                          title="Wenn aktiviert, läuft die Click'n'Load-Automatik nur 30 Sekunden statt einer Minute lang. Das senkt die Wartezeit bis zum Abbruch, falls ein Link sich nicht entschlüssel lässt; erhöht gleichzeitig aber die Fehlerquote, wenn Links zu langsam hinzugefügt werden."></span>
                 </label>
                 <h4>Pakete pro Seite</h4>
                 <input required type="number" min="3" max="30" ng-model="settings.general.packages_per_myjd_page"
