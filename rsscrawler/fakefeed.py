@@ -134,7 +134,7 @@ def hs_search_results(url):
     return content
 
 
-def sj_episodes_to_feedparser_dict(beautifulsoup_object, type):
+def sj_to_feedparser_dict(beautifulsoup_object, type):
     content_areas = beautifulsoup_object.findAll("h3", text=type)
     entries = []
 
@@ -164,7 +164,7 @@ def sj_episodes_to_feedparser_dict(beautifulsoup_object, type):
 
 def sj_content_to_soup(content, type):
     content = BeautifulSoup(content, 'lxml')
-    content = sj_episodes_to_feedparser_dict(content, type)
+    content = sj_to_feedparser_dict(content, type)
     return content
 
 
