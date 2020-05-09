@@ -1077,3 +1077,17 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]
     return False
+
+
+def do_add_decrypted(configfile, dbfile, device, title, password, cnl_package):
+    links = (ensure_string(cnl_package['urls'])).replace("\n\n", "\n")
+    linkids = cnl_package['linkids']
+    uuid = [cnl_package['uuid']]
+    device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+    if device:
+        if device:
+            device = download(configfile, dbfile, device, title, "RSScrawler", links, password)
+            if device:
+                print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
+                return [device, title]
+    return False

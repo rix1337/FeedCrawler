@@ -22,6 +22,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.myjd import check_device
+from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
@@ -838,7 +839,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             
                             <div id='countdown'>
                                 <i id="spinner-log" class="fas fa-sync fa-spin">
-                                </i> Noch <span id="counter">60</span> <span id="sec">Sekunden</span> zum Hinzufügen!
+                                </i> Noch <span id="counter">59</span> <span id="sec">Sekunden</span> zum Hinzufügen!
                             </div>
                         </div>
                     
@@ -964,7 +965,69 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/internal_cnl/<name>&<password>", methods=['POST'])
+    @requires_auth
+    def internal_cnl(name, password):
+        global device
+        if request.method == 'POST':
+            failed = get_info(configfile, device)
+            if failed:
+                device = failed[0]
+                decrypted_packages = failed[4][1]
+                offline_packages = failed[4][2]
+            else:
+                decrypted_packages = False
+
+            known_packages = []
+            if decrypted_packages:
+                for dp in decrypted_packages:
+                    known_packages.append(dp['uuid'])
+            if offline_packages:
+                for op in offline_packages:
+                    known_packages.append(op['uuid'])
+
+            cnl_package = False
+            grabber_was_collecting = False
+            i = 12
+            while i > 0:
+                i -= 1
                 time.sleep(5)
+                failed = get_info(configfile, device)
+                if failed:
+                    device = failed[0]
+                    grabber_collecting = failed[2]
+                    if grabber_was_collecting or grabber_collecting:
+                        grabber_was_collecting = grabber_collecting
+                        i -= 1
+                        time.sleep(5)
+                    else:
+                        if not grabber_collecting:
+                            decrypted_packages = failed[4][1]
+                            offline_packages = failed[4][2]
+                            if not grabber_collecting and decrypted_packages:
+                                for dp in decrypted_packages:
+                                    if dp['uuid'] not in known_packages:
+                                        cnl_package = dp
+                                        i = 0
+                            if not grabber_collecting and offline_packages:
+                                for op in offline_packages:
+                                    if op['uuid'] not in known_packages:
+                                        cnl_package = op
+                                        i = 0
+
+            if not cnl_package:
+                return "No Package added through Click'n'Load in time!", 504
+
+            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_package)
+            device = replaced[0]
+            if device:
+                remove_decrypt(name, dbfile)
                 return "Success", 200
             else:
                 return "Failed", 400

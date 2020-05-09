@@ -218,6 +218,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDcnl(uuid)
     };
 
+    $scope.internalCnl = function (name, password) {
+        internalCnl(name, password)
+    };
+
     function getAll() {
         getVersion();
         getMyJD();
@@ -722,14 +726,19 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         });
     }
 
-    function internalCnl(name, password) {
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function internalCnl(name, password) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
         countDown(60);
+        await sleep(1000);
         $http.post('api/internal_cnl/' + name + "&" + password)
             .then(function (res) {
                 $scope.cnl_active = false;
-                if ($scope.myjd_failed) {
+                if ($scope.to_decrypt) {
                     for (let failed_package of $scope.to_decrypt) {
                         let existing_name = failed_package['name'];
                         if (name == existing_name) {
