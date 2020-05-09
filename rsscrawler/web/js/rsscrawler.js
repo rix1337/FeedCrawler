@@ -206,8 +206,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDremove(linkids, uuid);
     };
 
-    $scope.myJDretry = function (linkids, uuid, links) {
-        myJDretry(linkids, uuid, links);
+    $scope.myJDremove = function (linkids, uuid) {
+        myJDremove(linkids, uuid);
+    };
+
+    $scope.internalRemove = function (name) {
+        internalRemove(name);
     };
 
     $scope.myJDcnl = function (uuid) {
@@ -635,6 +639,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         if (uuid == existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
+                        }
+                    }
+                }
+                getMyJD();
+                $(".alert-info").slideUp(1500);
+            }, function (res) {
+                console.log('Konnte Download nicht löschen!');
+                showDanger('Konnte Download nicht löschen!');
+                $(".alert-info").slideUp(1500);
+            });
+    }
+
+    function internalRemove(name) {
+        showInfoLong("Lösche Download...");
+        $http.post('api/internal_remove/' + name)
+            .then(function (res) {
+                if ($scope.to_decrypt) {
+                    for (let failed_package of $scope.to_decrypt) {
+                        let existing_name = failed_package['name'];
+                        if (name == existing_name) {
+                            let index = $scope.to_decrypt.indexOf(failed_package);
+                            $scope.to_decrypt.splice(index, 1)
                         }
                     }
                 }

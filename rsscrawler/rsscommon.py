@@ -276,6 +276,14 @@ def add_decrypt(title, link, password, dbfile):
         return False
 
 
+def remove_decrypt(title, dbfile):
+    try:
+        RssDb(dbfile, 'to_decrypt').delete(title)
+        return True
+    except:
+        return False
+
+
 def get_to_decrypt(dbfile):
     try:
         to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()

@@ -37,6 +37,7 @@ from rsscrawler.myjd import update_jdownloader
 from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import get_to_decrypt
+from rsscrawler.rsscommon import remove_decrypt
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -698,6 +699,19 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             device = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if device:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/internal_remove/<name>", methods=['POST'])
+    @requires_auth
+    def internal_remove(name):
+        global device
+        if request.method == 'POST':
+            delete = remove_decrypt(name, dbfile)
+            if delete:
                 return "Success", 200
             else:
                 return "Failed", 400
