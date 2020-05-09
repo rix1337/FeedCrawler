@@ -517,6 +517,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
                 $scope.myjd_offline = res.data.packages.linkgrabber_offline;
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+                $scope.to_decrypt = res.data.packages.to_decrypt;
 
                 let uuids = [];
                 if ($scope.myjd_failed) {
@@ -529,6 +530,20 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         let uuid = failed_package[1]['uuid'];
                         if (!uuids.includes(uuid)) {
                             $scope.myjd_failed.push(failed_package[1])
+                        }
+                    }
+                }
+                let names = [];
+                if ($scope.to_decrypt) {
+                    for (let existing_package of $scope.to_decrypt) {
+                        let name = existing_package['name'];
+                        names.push(name)
+                    }
+                    const to_decrypt = Object.entries(res.data.packages.to_decrypt);
+                    for (let failed_package of to_decrypt) {
+                        let name = failed_package[1]['name'];
+                        if (!names.includes(name)) {
+                            $scope.to_decrypt.push(failed_package[1])
                         }
                     }
                 }
@@ -545,6 +560,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_failed) {
                     for (let package of $scope.myjd_failed) {
                         package.type = "failed";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.to_decrypt) {
+                    for (let package of $scope.to_decrypt) {
+                        package.type = "to_decrypt";
                         $scope.myjd_packages.push(package);
                     }
                 }
@@ -662,6 +683,32 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         if (uuid == existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
+                        }
+                    }
+                }
+                $(".alert-info").slideUp(500);
+                $scope.time = 0;
+            }).catch(function () {
+            showDanger("Click'n'Load nicht durchgeführt!");
+            $scope.cnl_active = false;
+            $(".alert-info").slideUp(500);
+            $scope.time = 0;
+        });
+    }
+
+    function internalCnl(name, password) {
+        showInfoLong("Warte auf Click'n'Load...");
+        $scope.cnl_active = true;
+        countDown(60);
+        $http.post('api/internal_cnl/' + name + "&" + password)
+            .then(function (res) {
+                $scope.cnl_active = false;
+                if ($scope.myjd_failed) {
+                    for (let failed_package of $scope.to_decrypt) {
+                        let existing_name = failed_package['name'];
+                        if (name == existing_name) {
+                            let index = $scope.to_decrypt.indexOf(failed_package);
+                            $scope.to_decrypt.splice(index, 1)
                         }
                     }
                 }

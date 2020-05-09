@@ -192,6 +192,34 @@
                         </div>
                     </div>
 
+                    <div class="myjd-to-decrypt">
+                        <div class="card bg-danger" title="Fehler im Linksammler" ng-if="x.type=='to_decrypt'">
+                            <div class="card-header">
+                                <strong ng-bind="x.name"></strong>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item" ng-if="x.url">
+                                    <a ng-if="!myjd_grabbing" ng-href="./decrypt/{{x.name}}"
+                                       ng-click="internalCnl(x.name, x.password)"
+                                       class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
+                                       target="_blank"
+                                       title="Click'n'Load innerhalb einer Minute auslösen!"
+                                       data-toggle="tooltip">Click'n'Load-Automatik</a>
+                                    <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
+                                    <span class="cnl-spinner" ng-show="cnl_active"
+                                          title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
+                                          data-toggle="tooltip">
+                                <i class="fas fa-sync fa-spin"></i> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
+                                </li>
+                                <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
+                                    <a href="" class="btn btn-outline-danger" ng-show="!cnl_active" title="Löschen"
+                                       data-toggle="tooltip"
+                                       ng-click="internalRemove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
                     <div class="myjd-offline">
                         <div class="card bg-danger" title="Links offline" ng-if="x.type=='offline'">
                             <div class="card-header">

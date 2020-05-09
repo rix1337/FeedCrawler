@@ -276,6 +276,28 @@ def add_decrypt(title, link, password, dbfile):
         return False
 
 
+def get_to_decrypt(dbfile):
+    try:
+        to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        if to_decrypt:
+            packages = []
+            for package in to_decrypt:
+                title = package[0]
+                details = package[1].split('|')
+                url = details[0]
+                password = details[1]
+                packages.append({
+                    'name': title,
+                    'url': url,
+                    'password': password
+                })
+            return packages
+        else:
+            return False
+    except:
+        return False
+
+
 class Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream

@@ -16,6 +16,8 @@ import gevent
 from flask import Flask, request, send_from_directory, render_template, jsonify, Response, redirect
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
+from requests.packages.urllib3 import disable_warnings as disable_request_warnings
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from rsscrawler import search
 from rsscrawler import version
@@ -34,11 +36,10 @@ from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
+from rsscrawler.rsscommon import get_to_decrypt
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
-from requests.packages.urllib3 import disable_warnings as disable_request_warnings
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -608,6 +609,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'GET':
             myjd = get_info(configfile, device)
+            to_decrypt = get_to_decrypt(dbfile)
             if myjd:
                 device = myjd[0]
                 return jsonify(
@@ -619,7 +621,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "downloader": myjd[4][0],
                             "linkgrabber_decrypted": myjd[4][1],
                             "linkgrabber_offline": myjd[4][2],
-                            "linkgrabber_failed": myjd[4][3]
+                            "linkgrabber_failed": myjd[4][3],
+                            "to_decrypt": to_decrypt
                         }
                     }
                 ), 200
