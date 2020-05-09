@@ -59,7 +59,6 @@ class BL:
         self.filename = filename
         self.pattern = False
         self.db = RssDb(self.dbfile, 'rsscrawler')
-        self.db_retail = RssDb(self.dbfile, 'retail')
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.hevc_retail = self.config.get("hevc_retail")
