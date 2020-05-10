@@ -32,7 +32,6 @@ import logging
 import multiprocessing
 import os
 import random
-import re
 import signal
 import sys
 import time
@@ -51,7 +50,6 @@ from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import hoster_check
 from rsscrawler.myjd import move_to_downloads
-from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
@@ -214,41 +212,25 @@ def crawldog(configfile, dbfile):
 
                     if watched_titles:
                         for title in watched_titles:
-                            is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title[0])
-
                             if packages_in_downloader_decrypted:
                                 for package in packages_in_downloader_decrypted:
                                     if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
-                                        removed_links = False
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
-                                        if not removed_links:
-                                            removed_links = check[1]
                                         if autostart:
                                             device = move_to_downloads(configfile, device, package['linkids'],
                                                                        [package['uuid']])
-                                        if not removed_links:
+                                        if device:
                                             db.delete(title[0])
                             if packages_in_linkgrabber_decrypted:
                                 for package in packages_in_linkgrabber_decrypted:
                                     if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
-                                        removed_links = False
-                                        if is_episode:
-                                            check = package_merge(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            removed_links = check[1]
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
-                                        if not removed_links:
-                                            removed_links = check[1]
                                         if autostart:
                                             device = move_to_downloads(configfile, device, package['linkids'],
                                                                        [package['uuid']])
-                                        if not removed_links:
+                                        if device:
                                             db.delete(title[0])
 
                             if offline_packages:

@@ -143,10 +143,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         manualCollapse();
     };
 
-    $scope.showSearch = function () {
-        showSearch();
-    };
-
     $scope.deleteLog = function () {
         deleteLog();
     };
@@ -210,12 +206,20 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         myJDremove(linkids, uuid);
     };
 
-    $scope.myJDretry = function (linkids, uuid, links) {
-        myJDretry(linkids, uuid, links);
+    $scope.myJDremove = function (linkids, uuid) {
+        myJDremove(linkids, uuid);
+    };
+
+    $scope.internalRemove = function (name) {
+        internalRemove(name);
     };
 
     $scope.myJDcnl = function (uuid) {
         myJDcnl(uuid)
+    };
+
+    $scope.internalCnl = function (name, password) {
+        internalCnl(name, password)
     };
 
     function getAll() {
@@ -521,6 +525,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
                 $scope.myjd_offline = res.data.packages.linkgrabber_offline;
                 $scope.myjd_failed = res.data.packages.linkgrabber_failed;
+                $scope.to_decrypt = res.data.packages.to_decrypt;
 
                 let uuids = [];
                 if ($scope.myjd_failed) {
@@ -533,6 +538,20 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         let uuid = failed_package[1]['uuid'];
                         if (!uuids.includes(uuid)) {
                             $scope.myjd_failed.push(failed_package[1])
+                        }
+                    }
+                }
+                let names = [];
+                if ($scope.to_decrypt) {
+                    for (let existing_package of $scope.to_decrypt) {
+                        let name = existing_package['name'];
+                        names.push(name)
+                    }
+                    const to_decrypt = Object.entries(res.data.packages.to_decrypt);
+                    for (let failed_package of to_decrypt) {
+                        let name = failed_package[1]['name'];
+                        if (!names.includes(name)) {
+                            $scope.to_decrypt.push(failed_package[1])
                         }
                     }
                 }
@@ -549,6 +568,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 if ($scope.myjd_failed) {
                     for (let package of $scope.myjd_failed) {
                         package.type = "failed";
+                        $scope.myjd_packages.push(package);
+                    }
+                }
+                if ($scope.to_decrypt) {
+                    for (let package of $scope.to_decrypt) {
+                        package.type = "to_decrypt";
                         $scope.myjd_packages.push(package);
                     }
                 }
@@ -630,6 +655,28 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
+    function internalRemove(name) {
+        showInfoLong("Lösche Download...");
+        $http.post('api/internal_remove/' + name)
+            .then(function (res) {
+                if ($scope.to_decrypt) {
+                    for (let failed_package of $scope.to_decrypt) {
+                        let existing_name = failed_package['name'];
+                        if (name == existing_name) {
+                            let index = $scope.to_decrypt.indexOf(failed_package);
+                            $scope.to_decrypt.splice(index, 1)
+                        }
+                    }
+                }
+                getMyJD();
+                $(".alert-info").slideUp(1500);
+            }, function (res) {
+                console.log('Konnte Download nicht löschen!');
+                showDanger('Konnte Download nicht löschen!');
+                $(".alert-info").slideUp(1500);
+            });
+    }
+
     function myJDretry(linkids, uuid, links) {
         showInfoLong("Füge Download erneut hinzu...");
         links = btoa(links);
@@ -656,11 +703,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDcnl(uuid) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
-        if (typeof $scope.settings !== 'undefined' && !$scope.settings.general.shorter_cnl_timeout) {
-            countDown(60);
-        } else {
-            countDown(30);
-        }
+        countDown(60);
         $http.post('api/myjd_cnl/' + uuid)
             .then(function (res) {
                 $scope.cnl_active = false;
@@ -670,6 +713,37 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                         if (uuid == existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
+                        }
+                    }
+                }
+                $(".alert-info").slideUp(500);
+                $scope.time = 0;
+            }).catch(function () {
+            showDanger("Click'n'Load nicht durchgeführt!");
+            $scope.cnl_active = false;
+            $(".alert-info").slideUp(500);
+            $scope.time = 0;
+        });
+    }
+
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function internalCnl(name, password) {
+        showInfoLong("Warte auf Click'n'Load...");
+        $scope.cnl_active = true;
+        countDown(60);
+        await sleep(1000);
+        $http.post('api/internal_cnl/' + name + "&" + password)
+            .then(function (res) {
+                $scope.cnl_active = false;
+                if ($scope.to_decrypt) {
+                    for (let failed_package of $scope.to_decrypt) {
+                        let existing_name = failed_package['name'];
+                        if (name == existing_name) {
+                            let index = $scope.to_decrypt.indexOf(failed_package);
+                            $scope.to_decrypt.splice(index, 1)
                         }
                     }
                 }

@@ -7,12 +7,11 @@
 import hashlib
 import re
 
-import feedparser
 from bs4 import BeautifulSoup
 
-from rsscrawler.myjd import myjd_download
+from rsscrawler.fakefeed import sj_content_to_soup
 from rsscrawler.notifiers import notify
-from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -61,7 +60,7 @@ class SJ:
         else:
             self.level = 0
 
-        self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+        self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         self.listtype = ""
 
     def settings_hash(self, refresh):
@@ -73,7 +72,7 @@ class SJ:
             self.settings.append(self.hosters)
             for s in settings:
                 self.settings.append(self.config.get(s))
-            self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+            self.pattern = r'(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         set_sj = str(self.settings) + str(self.pattern)
         return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
 
@@ -162,80 +161,9 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
-        soup = BeautifulSoup(req_page, 'lxml')
-        escape_brackets = search_title.replace(
-            "(", ".*").replace(")", ".*").replace("+", ".*")
-        title = soup.find(text=re.compile(escape_brackets))
-        if not title:
-            try:
-                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE)
-                if not episode and self.rsscrawler.get('english'):
-                    episode = re.findall(r'\.S\d{1,3}(E\d{1,3})\.', escape_brackets, re.IGNORECASE)
-                episode = episode.pop()
-                escape_brackets_pack = escape_brackets.replace(episode, "")
-                title = soup.find(text=re.compile(escape_brackets_pack))
-            except:
-                title = False
-                self.log_debug(search_title + " - Kein Link gefunden")
-        if title:
-            if self.filename == 'MB_Staffeln':
-                valid = re.search(self.seasonssource, search_title.lower())
-            else:
-                valid = True
-            if valid:
-                url_hosters = re.findall(
-                    r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
-                links = []
-                for url_hoster in url_hosters:
-                    if check_hoster(url_hoster[1], self.configfile):
-                        links.append(url_hoster[0])
-                if not links:
-                    try:
-                        episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE).pop()
-                        escape_brackets_pack = escape_brackets.replace(episode, "")
-                        title = soup.find(text=re.compile(escape_brackets_pack))
-                        if not title:
-                            if '-' in escape_brackets_pack:
-                                escape_brackets_pack = escape_brackets_pack.rsplit('-', 1)[0].replace(".AC3D",
-                                                                                                      "").replace(
-                                    ".AC3", "")
-                                title = soup.find(text=re.compile(escape_brackets_pack))
-                        if title:
-                            if self.filename == 'MB_Staffeln':
-                                valid = re.search(self.seasonssource, search_title.lower())
-                            else:
-                                valid = True
-                            if valid:
-                                url_hosters = re.findall(
-                                    r'<a href="([^"\'>]*)".+?\| (.+?)<', str(title.parent.parent))
-                                links = []
-                                for url_hoster in url_hosters:
-                                    if check_hoster(url_hoster[1], self.configfile):
-                                        links.append(url_hoster[0])
-                                if self.hoster_fallback and not links:
-                                    for url_hoster in url_hosters:
-                                        links.append(url_hoster[0])
-                    except:
-                        self.log_debug(search_title + " - Kein Link gefunden")
-                    if not links:
-                        storage = self.db.retrieve_all(search_title)
-                        if 'added' not in storage and 'notdl' not in storage:
-                            wrong_hoster = '[SJ/Hoster fehlt] - ' + search_title
-                            if 'wrong_hoster' not in storage:
-                                self.log_info(wrong_hoster)
-                                self.db.store(search_title, 'wrong_hoster')
-                                notify([wrong_hoster], self.configfile)
-                            else:
-                                self.log_debug(wrong_hoster)
-                    else:
-                        return self.send_package(search_title, links, englisch)
-                else:
-                    return self.send_package(search_title, links, englisch)
-            else:
-                self.log_debug(search_title + " - Release hat falsche Quelle")
+        return self.send_package(search_title, series_url, englisch)
 
-    def send_package(self, title, links, englisch_info):
+    def send_package(self, title, decrypt_link, englisch_info):
         englisch = ""
         if englisch_info:
             englisch = "/Englisch"
@@ -253,16 +181,18 @@ class SJ:
             self.log_debug(
                 "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
             return
+        except:
+            self.log_debug(title + " - Link für Click'n'Load-Automatik nicht identifizierbar!")
+            decrypt_link = False
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, title, "RSScrawler", links,
-                                        decode_base64("c2VyaWVuanVua2llcy5vcmc="))
-            if self.device:
+            download = add_decrypt(title, decrypt_link, decode_base64("c2VyaWVuanVua2llcy5vcmc="), self.dbfile)
+            if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SJ]'
                 self.log_info(log_entry)
-                notify([log_entry], self.configfile)
+                notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
                 return log_entry
 
     def periodical_task(self):
@@ -292,30 +222,19 @@ class SJ:
 
         header = False
         if self.last_set_sj == set_sj:
-            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                try:
-                    # TODO: Change upgrading to new SJ
-                    response = get_url_headers(
-                        decode_base64('aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy94bWwvZmVlZHMvc3RhZmZlbG4ueG1s'),
-                        self.configfile,
-                        self.dbfile,
-                        self.headers,
-                        self.scraper)[0]
-                    feed = feedparser.parse(response.content)
-                except:
-                    response = False
-            else:
-                try:
-                    # TODO: Change upgrading to new SJ
-                    response = get_url_headers(
-                        decode_base64('aHR0cHM6Ly9vbGQuc2VyaWVuanVua2llcy5vcmcveG1sL2ZlZWRzL2VwaXNvZGVuLnhtbA=='),
-                        self.configfile,
-                        self.dbfile,
-                        self.headers,
-                        self.scraper)[0]
-                    feed = feedparser.parse(response.content)
-                except:
-                    response = False
+            try:
+                response = get_url_headers(
+                    decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
+                    self.configfile,
+                    self.dbfile,
+                    self.headers,
+                    self.scraper)[0]
+                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    feed = sj_content_to_soup(response, "Staffelliste")
+                else:
+                    feed = sj_content_to_soup(response, "Episodenliste")
+            except:
+                response = False
             if response:
                 if response.status_code == 304:
                     self.log_debug(
@@ -323,18 +242,12 @@ class SJ:
                     return self.device
                 header = True
         else:
-            # TODO: Change upgrading to new SJ
+            response = get_url(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
+                               self.configfile, self.dbfile, self.scraper)
             if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy94bWwvZmVlZHMvc3RhZmZlbG4ueG1s'),
-                    self.configfile,
-                    self.dbfile, self.scraper))
+                feed = sj_content_to_soup(response, "Staffelliste")
             else:
-                # TODO: Change upgrading to new SJ
-                feed = feedparser.parse(get_url(
-                    decode_base64('aHR0cHM6Ly9vbGQuc2VyaWVuanVua2llcy5vcmcveG1sL2ZlZWRzL2VwaXNvZGVuLnhtbA=='),
-                    self.configfile,
-                    self.dbfile, self.scraper))
+                feed = sj_content_to_soup(response, "Episodenliste")
             response = False
 
         if feed.entries:
@@ -360,14 +273,12 @@ class SJ:
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
-            # TODO: Remove replace when upgrading to new SJ
-            link = post.link.replace(decode_base64("Oi8vc2VyaWVuanVua2llcy5vcmcv"),
-                                     decode_base64("Oi8vb2xkLnNlcmllbmp1bmtpZXMub3JnLw=="))
+            link = post.link
             title = post.title
 
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
-                    if '[DEUTSCH]' in title or '[TV-FILM]' in title:
+                    if '.german.' in title.lower():
                         language_ok = 1
                     elif self.rsscrawler.get('english'):
                         language_ok = 2
@@ -400,7 +311,7 @@ class SJ:
                     continue
             elif self.filename == 'SJ_Staffeln_Regex':
                 if self.config.get("regex"):
-                    if '[DEUTSCH]' in title:
+                    if '.german.' in title.lower():
                         language_ok = 1
                     elif self.rsscrawler.get('english'):
                         language_ok = 2
@@ -435,7 +346,7 @@ class SJ:
                 if self.config.get("quality") != '480p':
                     m = re.search(self.pattern, title.lower())
                     if m:
-                        if '[DEUTSCH]' in title:
+                        if '.german.' in title.lower():
                             language_ok = 1
                         elif self.rsscrawler.get('english'):
                             language_ok = 2
@@ -454,7 +365,6 @@ class SJ:
                                         self.log_debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
-                                title = re.sub(r'\[.*\] ', '', post.title)
                                 try:
                                     storage = self.db.retrieve_all(title)
                                 except Exception as e:
@@ -473,7 +383,7 @@ class SJ:
                     else:
                         m = re.search(self.pattern, title.lower())
                         if m:
-                            if '[DEUTSCH]' in title:
+                            if '.german.' in title.lower():
                                 language_ok = 1
                             elif self.rsscrawler.get('english'):
                                 language_ok = 2

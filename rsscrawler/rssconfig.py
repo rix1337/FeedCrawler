@@ -22,8 +22,7 @@ class RssConfig(object):
             ("fallback", "bool", "False"),
             ("closed_myjd_tab", "bool", "False"),
             ("one_mirror_policy", "bool", "False"),
-            ("packages_per_myjd_page", "int", "3"),
-            ("shorter_cnl_timeout", "bool", "False")
+            ("packages_per_myjd_page", "int", "3")
         ],
         'Crawljobs': [
             ("autostart", "bool", "True"),

@@ -32,3 +32,5 @@ venv
 
 # PyCharm
 .idea
+.eggs
+

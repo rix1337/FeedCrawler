@@ -268,6 +268,44 @@ def check_hoster(to_check, configfile):
     return False
 
 
+def add_decrypt(title, link, password, dbfile):
+    try:
+        RssDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
+        return True
+    except:
+        return False
+
+
+def remove_decrypt(title, dbfile):
+    try:
+        RssDb(dbfile, 'to_decrypt').delete(title)
+        return True
+    except:
+        return False
+
+
+def get_to_decrypt(dbfile):
+    try:
+        to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        if to_decrypt:
+            packages = []
+            for package in to_decrypt:
+                title = package[0]
+                details = package[1].split('|')
+                url = details[0]
+                password = details[1]
+                packages.append({
+                    'name': title,
+                    'url': url,
+                    'password': password
+                })
+            return packages
+        else:
+            return False
+    except:
+        return False
+
+
 class Unbuffered(object):
     def __init__(self, stream):
         self.stream = stream

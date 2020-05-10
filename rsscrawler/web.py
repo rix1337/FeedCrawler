@@ -16,10 +16,13 @@ import gevent
 from flask import Flask, request, send_from_directory, render_template, jsonify, Response, redirect
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
+from requests.packages.urllib3 import disable_warnings as disable_request_warnings
+from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.myjd import check_device
+from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
@@ -34,11 +37,11 @@ from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
+from rsscrawler.rsscommon import get_to_decrypt
+from rsscrawler.rsscommon import remove_decrypt
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
-from requests.packages.urllib3 import disable_warnings as disable_request_warnings
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -210,7 +213,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                             "one_mirror_policy": general_conf.get("one_mirror_policy"),
                             "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
-                            "shorter_cnl_timeout": general_conf.get("shorter_cnl_timeout"),
                         },
                         "hosters": {
                             "rapidgator": hosters.get("rapidgator"),
@@ -340,7 +342,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
             section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
-            section.save("shorter_cnl_timeout", to_str(data['general']['shorter_cnl_timeout']))
 
             section = RssConfig("Crawljobs", configfile)
 
@@ -610,6 +611,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'GET':
             myjd = get_info(configfile, device)
+            to_decrypt = get_to_decrypt(dbfile)
             if myjd:
                 device = myjd[0]
                 return jsonify(
@@ -621,7 +623,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "downloader": myjd[4][0],
                             "linkgrabber_decrypted": myjd[4][1],
                             "linkgrabber_offline": myjd[4][2],
-                            "linkgrabber_failed": myjd[4][3]
+                            "linkgrabber_failed": myjd[4][3],
+                            "to_decrypt": to_decrypt
                         }
                     }
                 ), 200
@@ -697,6 +700,19 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 uuids.append(uuids_raw)
             device = remove_from_linkgrabber(configfile, device, linkids, uuids)
             if device:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/internal_remove/<name>", methods=['POST'])
+    @requires_auth
+    def internal_remove(name):
+        global device
+        if request.method == 'POST':
+            delete = remove_decrypt(name, dbfile)
+            if delete:
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -785,6 +801,87 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/decrypt/<title>", methods=['GET'])
+    @requires_auth
+    def decrypt(title):
+        if request.method == 'GET':
+            try:
+                payload = RssDb(dbfile, 'to_decrypt').retrieve(title).split('|')
+                link = payload[0]
+            except:
+                payload = False
+            if payload:
+                return """<!DOCTYPE html>
+                    <html lang='de'>
+                    <head>
+                        <meta charset='UTF-8'>
+                        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
+                        <link href='../img/favicon.ico' rel='icon' type='image/x-icon'>
+                        <link rel='stylesheet' href='../css/bootstrap.min.css'>
+                        <link rel='stylesheet' href='../css/rsscrawler.css?updated'>
+                        <title>Click'n'Load-Automatik für """ + title + """</title>
+                    </head>
+                    
+                    <body class='text-center'>
+                    
+                        <div id='log' class='container app col'>
+                            <h3 id='title' style='word-break: break-all;'
+                                title='Anklicken um den Titel in die Zwischenablage zu kopieren (erleichtert die Suche)'
+                                onclick="toClipboard()">
+                            
+                                <i id='before' class="fas fa-clipboard"></i>
+                                <i id='after' class="fas fa-clipboard-check" style='display: none;'>
+                                </i> """ + title + """
+                            </h3>
+                            <iframe id='frame' src='""" + link + """' frameborder='0' scrolling='yes'
+                                referrerpolicy="no-referrer" style='display:block; width:100%; height:86vh;'>
+                            </iframe>
+                            
+                            <div id='countdown'>
+                                <i id="spinner-log" class="fas fa-sync fa-spin">
+                                </i> Noch <span id="counter">59</span> <span id="sec">Sekunden</span> zum Hinzufügen!
+                            </div>
+                        </div>
+                    
+                    <script src='../js/jquery.slim.min.js'></script>
+                    <script src='../js/bootstrap.bundle.min.js'></script>
+                    <script src="../js/fontawesome-all.min.js"></script>
+
+                    </body>
+
+                    <script>
+                    function toClipboard() {
+                        var textArea = document.createElement('textarea');
+                        var textContent = document.createTextNode('""" + title + """');
+                        textArea.appendChild(textContent);
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        textArea.setSelectionRange(0, 99999);
+                        document.execCommand("copy");
+                        textArea.remove();
+                        $("#before").hide();
+                        $("#after").show();
+                    }
+                    
+                    var count = 59, timer = setInterval(function() {
+                        $('#counter').html(count--);
+                        if(count == 0) $('#sec').text('Sekunde');
+                        if(count == -1) {
+                            $("#frame").hide();
+                            $("#countdown").hide();
+                            $('#title').text('60 Sekunden sind verstrichen - bitte dieses Fenster schließen!');
+                            $('#title').removeAttr('title');
+                            clearInterval(timer);
+                        }
+                    }, 1000);
+                    </script>
+
+                    </html>""", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
@@ -824,10 +921,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             cnl_package = False
             grabber_was_collecting = False
-            if RssConfig('RSScrawler', configfile).get('shorter_cnl_timeout'):
-                i = 6
-            else:
-                i = 12
+            i = 12
             while i > 0:
                 i -= 1
                 time.sleep(5)
@@ -871,7 +965,69 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
             device = replaced[0]
             if device:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/internal_cnl/<name>&<password>", methods=['POST'])
+    @requires_auth
+    def internal_cnl(name, password):
+        global device
+        if request.method == 'POST':
+            failed = get_info(configfile, device)
+            if failed:
+                device = failed[0]
+                decrypted_packages = failed[4][1]
+                offline_packages = failed[4][2]
+            else:
+                decrypted_packages = False
+
+            known_packages = []
+            if decrypted_packages:
+                for dp in decrypted_packages:
+                    known_packages.append(dp['uuid'])
+            if offline_packages:
+                for op in offline_packages:
+                    known_packages.append(op['uuid'])
+
+            cnl_package = False
+            grabber_was_collecting = False
+            i = 12
+            while i > 0:
+                i -= 1
                 time.sleep(5)
+                failed = get_info(configfile, device)
+                if failed:
+                    device = failed[0]
+                    grabber_collecting = failed[2]
+                    if grabber_was_collecting or grabber_collecting:
+                        grabber_was_collecting = grabber_collecting
+                        i -= 1
+                        time.sleep(5)
+                    else:
+                        if not grabber_collecting:
+                            decrypted_packages = failed[4][1]
+                            offline_packages = failed[4][2]
+                            if not grabber_collecting and decrypted_packages:
+                                for dp in decrypted_packages:
+                                    if dp['uuid'] not in known_packages:
+                                        cnl_package = dp
+                                        i = 0
+                            if not grabber_collecting and offline_packages:
+                                for op in offline_packages:
+                                    if op['uuid'] not in known_packages:
+                                        cnl_package = op
+                                        i = 0
+
+            if not cnl_package:
+                return "No Package added through Click'n'Load in time!", 504
+
+            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_package)
+            device = replaced[0]
+            if device:
+                remove_decrypt(name, dbfile)
                 return "Success", 200
             else:
                 return "Failed", 400

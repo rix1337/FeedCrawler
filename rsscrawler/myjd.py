@@ -142,7 +142,7 @@ def get_packages_in_linkgrabber(configfile, device):
         {
             "bytesLoaded": True,
             "bytesTotal": True,
-            "comment": False,
+            "comment": True,
             "enabled": True,
             "eta": True,
             "priority": False,
@@ -495,6 +495,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
+                    "comment": "RSScrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
         except rsscrawler.myjdapi.TokenExpiredException:
@@ -510,6 +511,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "priority": priority,
                     "downloadPassword": password,
                     "destinationFolder": path,
+                    "comment": "RSScrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
         db = RssDb(dbfile, 'crawldog')
@@ -888,7 +890,10 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                         except:
                             fname = fname.replace("hddl8", "").replace("dd51", "").replace("264", "").replace("265", "")
                         fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
-                        fname_episodes.append(str(int(fname_episode)))
+                        try:
+                            fname_episodes.append(str(int(fname_episode)))
+                        except:
+                            return [device, False]
             replacer = longest_substr(fname_episodes)
 
             new_fname_episodes = []
@@ -1068,6 +1073,20 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
         device = remove_from_linkgrabber(configfile, device, linkids, uuid)
         if device:
             device = download(configfile, dbfile, device, title, "", links, "", path, False)
+            if device:
+                print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
+                return [device, title]
+    return False
+
+
+def do_add_decrypted(configfile, dbfile, device, title, password, cnl_package):
+    links = (ensure_string(cnl_package['urls'])).replace("\n\n", "\n")
+    linkids = cnl_package['linkids']
+    uuid = [cnl_package['uuid']]
+    device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+    if device:
+        if device:
+            device = download(configfile, dbfile, device, title, "RSScrawler", links, password)
             if device:
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
                 return [device, title]
