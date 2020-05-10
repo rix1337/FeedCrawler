@@ -172,8 +172,8 @@ class SJ:
             escape_brackets = search_title.replace(
                 "(", ".*").replace(")", ".*").replace("+", ".*")
             title = soup.find(text=re.compile(escape_brackets))
-        except:
-            self.log_debug(search_title + " - Konnte JavaScript der Serienseite nicht parsen")
+        except Exception as e:
+            print(search_title + " - Konnte JavaScript der Serienseite nicht parsen: " + str(e))
             title = False
         if not title:
             try:
