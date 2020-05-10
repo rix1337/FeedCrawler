@@ -8,10 +8,12 @@ import hashlib
 import re
 
 from bs4 import BeautifulSoup
+from requests_html import HTMLSession
 
 from rsscrawler.fakefeed import sj_content_to_soup
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
+from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -161,9 +163,68 @@ class SJ:
             self.log_error('Konstantenfehler: %s' % e)
 
     def parse_download(self, series_url, search_title, englisch):
-        return self.send_package(search_title, series_url, englisch)
+        try:
+            # Run actual JavaScript to render the page content
+            session = HTMLSession()
+            resp = session.get(series_url)
+            resp.html.render()
+            soup = BeautifulSoup(resp.html.html, 'lxml')
+            escape_brackets = search_title.replace(
+                "(", ".*").replace(")", ".*").replace("+", ".*")
+            title = soup.find(text=re.compile(escape_brackets))
+        except Exception as e:
+            print(search_title + " - Konnte JavaScript der Serienseite nicht parsen: " + str(e))
+            title = False
+        if not title:
+            try:
+                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE)
+                if not episode and self.rsscrawler.get('english'):
+                    episode = re.findall(r'\.S\d{1,3}(E\d{1,3})\.', escape_brackets, re.IGNORECASE)
+                episode = episode.pop()
+                escape_brackets_pack = escape_brackets.replace(episode, "")
+                title = soup.find(text=re.compile(escape_brackets_pack))
+            except:
+                title = False
+                self.log_debug(search_title + " - Kein Link gefunden")
+        if title:
+            if self.filename == 'MB_Staffeln':
+                valid = re.search(self.seasonssource, search_title.lower())
+            else:
+                valid = True
+            if valid:
+                try:
+                    # Run custom JavaScript to open the Download Popup
+                    script = """$( "tr:contains('""" + title + """')" )[0].lastChild.firstChild.click();"""
+                    resp.html.render(script=script)
+                    soup = BeautifulSoup(resp.html.html, 'lxml')
+                    url_hosters = soup.find("p", text=title).next_sibling.findAll("button")
+                except:
+                    self.log_debug(search_title + " - Konnte Download-Button/Hoster nicht per JavaScript finden")
+                    url_hosters = []
+                links = []
+                for url_hoster in url_hosters:
+                    if check_hoster(url_hoster.text, self.configfile):
+                        links.append(series_url)
+                if not links and not self.hoster_fallback:
+                    self.log_debug(search_title + " - Kein Link gefunden")
+                    if not links:
+                        storage = self.db.retrieve_all(search_title)
+                        if 'added' not in storage and 'notdl' not in storage:
+                            wrong_hoster = '[SJ/Hoster fehlt] - ' + search_title
+                            if 'wrong_hoster' not in storage:
+                                self.log_info(wrong_hoster)
+                                self.db.store(search_title, 'wrong_hoster')
+                                notify([wrong_hoster], self.configfile)
+                            else:
+                                self.log_debug(wrong_hoster)
+                    else:
+                        return self.send_package(search_title, links, englisch)
+                else:
+                    return self.send_package(search_title, links, englisch)
+            else:
+                self.log_debug(search_title + " - Release hat falsche Quelle")
 
-    def send_package(self, title, decrypt_link, englisch_info):
+    def send_package(self, title, links, englisch_info):
         englisch = ""
         if englisch_info:
             englisch = "/Englisch"
@@ -181,6 +242,9 @@ class SJ:
             self.log_debug(
                 "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
             return
+        try:
+            # This will be used for Click'n'Load later
+            decrypt_link = links[0]
         except:
             self.log_debug(title + " - Link für Click'n'Load-Automatik nicht identifizierbar!")
             decrypt_link = False
