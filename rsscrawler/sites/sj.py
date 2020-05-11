@@ -165,23 +165,22 @@ class SJ:
     def parse_download(self, series_url, search_title, englisch):
         try:
             # Run actual JavaScript to render the page content
-            session = HTMLSession()
-            resp = session.get(series_url)
-            resp.html.render()
+            resp = HTMLSession().get(series_url)
+            script = """$( "tr:contains('""" + search_title + """')" )[0].lastChild.firstChild.click();"""
+            resp.html.render(script=script)
             soup = BeautifulSoup(resp.html.html, 'lxml')
-            escape_brackets = search_title.replace(
-                "(", ".*").replace(")", ".*").replace("+", ".*")
-            title = soup.find(text=re.compile(escape_brackets))
+            escaped_title = re.escape(search_title)
+            title = soup.find(text=search_title)
         except Exception as e:
             print(search_title + " - Konnte JavaScript der Serienseite nicht parsen: " + str(e))
             title = False
         if not title:
             try:
-                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escape_brackets, re.IGNORECASE)
+                episode = re.findall(r'\.S\d{1,3}(E\d{1,3}.*)\.German', escaped_title, re.IGNORECASE)
                 if not episode and self.rsscrawler.get('english'):
-                    episode = re.findall(r'\.S\d{1,3}(E\d{1,3})\.', escape_brackets, re.IGNORECASE)
+                    episode = re.findall(r'\.S\d{1,3}(E\d{1,3})\.', escaped_title, re.IGNORECASE)
                 episode = episode.pop()
-                escape_brackets_pack = escape_brackets.replace(episode, "")
+                escape_brackets_pack = escaped_title.replace(episode, "")
                 title = soup.find(text=re.compile(escape_brackets_pack))
             except:
                 title = False
@@ -193,13 +192,9 @@ class SJ:
                 valid = True
             if valid:
                 try:
-                    # Run custom JavaScript to open the Download Popup
-                    script = """$( "tr:contains('""" + title + """')" )[0].lastChild.firstChild.click();"""
-                    resp.html.render(script=script)
-                    soup = BeautifulSoup(resp.html.html, 'lxml')
                     url_hosters = soup.find("p", text=title).next_sibling.findAll("button")
                 except:
-                    self.log_debug(search_title + " - Konnte Download-Button/Hoster nicht per JavaScript finden")
+                    self.log_debug(search_title + " - Konnte Download-Button/Hoster nicht finden")
                     url_hosters = []
                 links = []
                 for url_hoster in url_hosters:
@@ -285,34 +280,16 @@ class SJ:
         set_sj = self.settings_hash(False)
 
         header = False
-        if self.last_set_sj == set_sj:
-            try:
-                response = get_url_headers(
-                    decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
-                    self.configfile,
-                    self.dbfile,
-                    self.headers,
-                    self.scraper)[0]
-                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                    feed = sj_content_to_soup(response, "Staffelliste")
-                else:
-                    feed = sj_content_to_soup(response, "Episodenliste")
-            except:
-                response = False
-            if response:
-                if response.status_code == 304:
-                    self.log_debug(
-                        "SJ-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
-                    return self.device
-                header = True
+
+        resp = HTMLSession().get(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='))
+        resp.html.render()
+        response = resp.html.html
+
+        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+            feed = sj_content_to_soup(response, "Staffelliste")
         else:
-            response = get_url(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='),
-                               self.configfile, self.dbfile, self.scraper)
-            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                feed = sj_content_to_soup(response, "Staffelliste")
-            else:
-                feed = sj_content_to_soup(response, "Episodenliste")
-            response = False
+            feed = sj_content_to_soup(response, "Episodenliste")
+        response = False
 
         if feed.entries:
             first_post_sj = feed.entries[0]

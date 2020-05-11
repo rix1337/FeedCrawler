@@ -142,7 +142,7 @@ def sj_to_feedparser_dict(beautifulsoup_object, type):
         lists = area.previous.findAll("div")
         for list in lists:
             try:
-                published = str(list.previous)
+                published = str(list.find("th").text)
             except:
                 published = "ERROR"
 
