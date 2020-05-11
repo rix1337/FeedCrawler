@@ -6,6 +6,7 @@
 
 import hashlib
 import re
+import traceback
 
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
@@ -18,8 +19,6 @@ from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
-from rsscrawler.url import get_url
-from rsscrawler.url import get_url_headers
 
 
 class SJ:
@@ -42,7 +41,6 @@ class SJ:
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
         settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
@@ -146,8 +144,13 @@ class SJ:
         return self.parse_download(link, title, englisch)
 
     def range_parse(self, series_url, search_title, englisch, fallback_title):
-        req_page = get_url(series_url, self.configfile, self.dbfile, self.scraper)
-        soup = BeautifulSoup(req_page, 'lxml')
+        try:
+            resp = HTMLSession().get(series_url)
+            resp.html.render()
+            soup = BeautifulSoup(resp.html.html, 'lxml')
+        except Exception as e:
+            print(
+                search_title + " - Konnte JavaScript der SJ-Hauptseite nicht parsen: " + str(e) + traceback.format_exc)
         try:
             titles = soup.findAll(text=re.compile(search_title))
             added_items = []
@@ -172,7 +175,8 @@ class SJ:
             escaped_title = re.escape(search_title)
             title = soup.find(text=search_title)
         except Exception as e:
-            print(search_title + " - Konnte JavaScript der Serienseite nicht parsen: " + str(e))
+            print(
+                search_title + " - Konnte JavaScript der SJ-Hauptseite nicht parsen: " + str(e) + traceback.format_exc)
             title = False
         if not title:
             try:
@@ -279,17 +283,17 @@ class SJ:
 
         set_sj = self.settings_hash(False)
 
-        header = False
-
-        resp = HTMLSession().get(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='))
-        resp.html.render()
-        response = resp.html.html
-
-        if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-            feed = sj_content_to_soup(response, "Staffelliste")
-        else:
-            feed = sj_content_to_soup(response, "Episodenliste")
-        response = False
+        try:
+            resp = HTMLSession().get(decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy8='))
+            resp.html.render()
+            response = resp.html.html
+            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                feed = sj_content_to_soup(response, "Staffelliste")
+            else:
+                feed = sj_content_to_soup(response, "Episodenliste")
+        except Exception as e:
+            print(
+                search_title + " - Konnte JavaScript der SJ-Hauptseite nicht parsen: " + str(e) + traceback.format_exc)
 
         if feed.entries:
             first_post_sj = feed.entries[0]
@@ -466,8 +470,5 @@ class SJ:
                 self.cdc.store("SJSet-" + self.filename, set_sj)
                 self.cdc.delete("SJ-" + self.filename)
                 self.cdc.store("SJ-" + self.filename, sha_sj)
-        if header and response:
-            self.cdc.delete("SJHeaders-" + self.filename)
-            self.cdc.store("SJHeaders-" + self.filename, response.headers['Last-Modified'])
 
         return self.device
