@@ -263,7 +263,7 @@ def check_hoster(to_check, configfile):
     hosters = RssConfig("Hosters", configfile).get_section()
     for hoster in hosters:
         if hosters[hoster] == "True":
-            if hoster in to_check.lower():
+            if hoster in to_check.lower() or to_check.lower() in hoster:
                 return True
     return False
 
