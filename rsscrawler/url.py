@@ -18,12 +18,14 @@ def check_url(configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
+    sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
     mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8v")
     hw_url = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy8=")
     fx_url = decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlLw==")
     hs_url = decode_base64("aHR0cHM6Ly9oZC1zb3VyY2UudG8vY29sbGVjdGlvbi9uZXVlcnNjaGVpbnVuZ2VuLw==")
     nk_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
 
+    sj_blocked_proxy = False
     mb_blocked_proxy = False
     hw_blocked_proxy = False
     fx_blocked_proxy = False
@@ -31,12 +33,14 @@ def check_url(configfile, dbfile, scraper=False):
     nk_blocked_proxy = False
 
     db = RssDb(dbfile, 'proxystatus')
+    db.delete("SJ")
     db.delete("MB")
     db.delete("HW")
     db.delete("FX")
     db.delete("HS")
     db.delete("NK")
     db_normal = RssDb(dbfile, 'normalstatus')
+    db_normal.delete("SJ")
     db_normal.delete("MB")
     db_normal.delete("HW")
     db_normal.delete("FX")
@@ -45,6 +49,20 @@ def check_url(configfile, dbfile, scraper=False):
 
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
+
+        try:
+            if "block." in str(
+                    scraper.get(sj_url, proxies=proxies, timeout=30,
+                                allow_redirects=False).headers.get("location")):
+                sj_blocked_proxy = True
+            else:
+                db.delete("SJ")
+        except:
+            sj_blocked_proxy = True
+        if sj_blocked_proxy:
+            print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
+            db.store("SJ", "Blocked")
+            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
         try:
             if "<Response [403]>" in str(
@@ -113,6 +131,13 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
             db.store("NK", "Blocked")
             scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
+
+    if not proxy or (proxy and sj_blocked_proxy and fallback):
+        if "block." in str(
+                scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
+                    "location")):
+            db_normal.store("SJ", "Blocked")
+            print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and mb_blocked_proxy and fallback):
         if "<Response [403]>" in str(
@@ -183,7 +208,13 @@ def get_url(url, configfile, dbfile, scraper=False):
     site = check_is_site(url)
     if proxy:
         try:
-            if site and "MB" in site:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.get(url, timeout=30).text
+                    else:
+                        return ""
+            elif site and "MB" in site:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
                         return scraper.get(url, timeout=30).text
@@ -222,7 +253,9 @@ def get_url(url, configfile, dbfile, scraper=False):
 
     else:
         try:
-            if site and "MB" in site and db_normal.retrieve("MB"):
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return ""
+            elif site and "MB" in site and db_normal.retrieve("MB"):
                 return ""
             elif site and "HW" in site and db_normal.retrieve("HW"):
                 return ""
@@ -250,7 +283,13 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     site = check_is_site(url)
     if proxy:
         try:
-            if site and "MB" in site:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "MB" in site:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
                         return [scraper.get(url, headers=headers, timeout=30), scraper]
@@ -288,7 +327,9 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
             return ["", scraper]
     else:
         try:
-            if site and "MB" in site and db_normal.retrieve("MB"):
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return ["", scraper]
+            elif site and "MB" in site and db_normal.retrieve("MB"):
                 return ["", scraper]
             elif site and "HW" in site and db_normal.retrieve("HW"):
                 return ["", scraper]
@@ -316,7 +357,13 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     site = check_is_site(url)
     if proxy:
         try:
-            if site and "MB" in site:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.post(url, data, timeout=30).content
+                    else:
+                        return ""
+            elif site and "MB" in site:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
                         return scraper.post(url, data, timeout=30).content
@@ -354,7 +401,9 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             return ""
     else:
         try:
-            if site and "MB" in site and db_normal.retrieve("MB"):
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return ""
+            elif site and "MB" in site and db_normal.retrieve("MB"):
                 return ""
             elif site and "HW" in site and db_normal.retrieve("HW"):
                 return ""
@@ -382,7 +431,13 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
     site = check_is_site(url)
     if proxy:
         try:
-            if site and "MB" in site:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.post(url, json=json, timeout=30).content
+                    else:
+                        return ""
+            elif site and "MB" in site:
                 if db.retrieve("MB"):
                     if config.get("fallback") and not db_normal.retrieve("MB"):
                         return scraper.post(url, json=json, timeout=30).content
@@ -420,7 +475,9 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
             return ""
     else:
         try:
-            if site and "MB" in site and db_normal.retrieve("MB"):
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return ""
+            elif site and "MB" in site and db_normal.retrieve("MB"):
                 return ""
             elif site and "HW" in site and db_normal.retrieve("HW"):
                 return ""
