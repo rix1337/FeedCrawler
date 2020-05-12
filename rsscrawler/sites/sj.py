@@ -3,8 +3,8 @@
 # Projekt von https://github.com/rix1337
 
 import hashlib
-import re
 import json
+import re
 
 from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
@@ -15,6 +15,7 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
+from rsscrawler.url import get_url_headers
 
 
 class SJ:
@@ -37,6 +38,7 @@ class SJ:
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
         settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
@@ -61,14 +63,14 @@ class SJ:
 
     def settings_hash(self, refresh):
         if refresh:
-            settings = ["quality", "rejectlist", "regex"]
+            settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
             self.settings.append(self.hosters)
             for s in settings:
                 self.settings.append(self.config.get(s))
-            self.pattern = r'(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
+            self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
         set_sj = str(self.settings) + str(self.pattern)
         return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
 
@@ -191,15 +193,41 @@ class SJ:
 
         set_sj = self.settings_hash(False)
 
-        try:
-            response = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0"),
-                               self.configfile, self.dbfile, self.scraper)
-            if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                feed = sj_releases_to_feedparser_dict(response, "seasons")
-            else:
-                feed = sj_releases_to_feedparser_dict(response, "episodes")
-        except:
-            feed = False
+        header = False
+        response = False
+
+        if self.last_set_sj == set_sj:
+            try:
+                response = get_url_headers(
+                    decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0"), self.configfile,
+                    self.dbfile, self.headers, self.scraper)
+                self.scraper = response[1]
+                response = response[0]
+                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    feed = sj_releases_to_feedparser_dict(response.text, "seasons")
+                else:
+                    feed = sj_releases_to_feedparser_dict(response.text, "episodes")
+            except:
+                print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
+                feed = False
+
+            if response:
+                if response.status_code == 304:
+                    self.log_debug(
+                        "SJ-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                    return self.device
+                header = True
+        else:
+            try:
+                response = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0"),
+                                   self.configfile, self.dbfile, self.scraper)
+                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    feed = sj_releases_to_feedparser_dict(response, "seasons")
+                else:
+                    feed = sj_releases_to_feedparser_dict(response, "episodes")
+            except:
+                print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
+                feed = False
 
         if feed and feed.entries:
             first_post_sj = feed.entries[0]
@@ -374,5 +402,9 @@ class SJ:
                 self.cdc.store("SJSet-" + self.filename, set_sj)
                 self.cdc.delete("SJ-" + self.filename)
                 self.cdc.store("SJ-" + self.filename, sha_sj)
+
+        if header and response:
+            self.cdc.delete("SJHeaders-" + self.filename)
+            self.cdc.store("SJHeaders-" + self.filename, response.headers['date'])
 
         return self.device
