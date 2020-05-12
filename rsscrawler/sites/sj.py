@@ -90,7 +90,7 @@ class SJ:
             self.empty_list = True
         return titles
 
-    def parse_download(self, series_url, api_url, title, englisch):
+    def parse_download(self, series_url, api_url, title, language_id):
         if self.filename == 'MB_Staffeln':
             season = re.search(r"\.s\d", title.lower())
             if not season:
@@ -132,13 +132,13 @@ class SJ:
                                     else:
                                         self.log_debug(wrong_hoster)
                             else:
-                                return self.send_package(title, series_url, englisch)
+                                return self.send_package(title, series_url, language_id)
         except:
             print(u"SJ hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 
-    def send_package(self, title, series_url, englisch_info):
+    def send_package(self, title, series_url, language_id):
         englisch = ""
-        if englisch_info:
+        if language_id == 2:
             englisch = "/Englisch"
         if self.filename == 'SJ_Serien_Regex':
             link_placeholder = '[Episode/RegEx' + englisch + '] - '
@@ -228,12 +228,12 @@ class SJ:
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
-                        language_ok = 1
+                        language_id = 1
                     elif self.rsscrawler.get('english'):
-                        language_ok = 2
+                        language_id = 2
                     else:
-                        language_ok = 0
-                    if language_ok:
+                        language_id = 0
+                    if language_id:
                         m = re.search(self.pattern, title.lower())
                         if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
                             m = re.search(self.pattern.replace(
@@ -251,7 +251,7 @@ class SJ:
                                 self.log_debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
-                            self.parse_download(series_url, api_url, title, language_ok)
+                            self.parse_download(series_url, api_url, title, language_id)
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -261,12 +261,12 @@ class SJ:
             elif self.filename == 'SJ_Staffeln_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
-                        language_ok = 1
+                        language_id = 1
                     elif self.rsscrawler.get('english'):
-                        language_ok = 2
+                        language_id = 2
                     else:
-                        language_ok = 0
-                    if language_ok:
+                        language_id = 0
+                    if language_id:
                         m = re.search(self.pattern, title.lower())
                         if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
                             m = re.search(self.pattern.replace(
@@ -284,7 +284,7 @@ class SJ:
                                 self.log_debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
-                            self.parse_download(series_url, api_url, title, language_ok)
+                            self.parse_download(series_url, api_url, title, language_id)
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -296,12 +296,12 @@ class SJ:
                     m = re.search(self.pattern, title.lower())
                     if m:
                         if '.german.' in title.lower():
-                            language_ok = 1
+                            language_id = 1
                         elif self.rsscrawler.get('english'):
-                            language_ok = 2
+                            language_id = 2
                         else:
-                            language_ok = 0
-                        if language_ok:
+                            language_id = 0
+                        if language_id:
                             mm = re.search(self.quality, title.lower())
                             if mm:
                                 mmm = re.search(reject, title.lower())
@@ -324,7 +324,7 @@ class SJ:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                self.parse_download(series_url, api_url, title, language_ok)
+                                self.parse_download(series_url, api_url, title, language_id)
                         else:
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -333,12 +333,12 @@ class SJ:
                         m = re.search(self.pattern, title.lower())
                         if m:
                             if '.german.' in title.lower():
-                                language_ok = 1
+                                language_id = 1
                             elif self.rsscrawler.get('english'):
-                                language_ok = 2
+                                language_id = 2
                             else:
-                                language_ok = 0
-                            if language_ok:
+                                language_id = 0
+                            if language_id:
                                 if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
                                     continue
                                 mm = re.search(reject, title.lower())
@@ -362,7 +362,7 @@ class SJ:
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                self.parse_download(series_url, api_url, title, language_ok)
+                                self.parse_download(series_url, api_url, title, language_id)
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
