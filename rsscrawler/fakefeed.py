@@ -7,6 +7,7 @@ import re
 
 import feedparser
 from bs4 import BeautifulSoup
+import json
 
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.url import get_url
@@ -134,38 +135,33 @@ def hs_search_results(url):
     return content
 
 
-def sj_to_feedparser_dict(beautifulsoup_object, type):
-    content_areas = beautifulsoup_object.findAll("h3", text=type)
+def sj_releases_to_feedparser_dict(releases, type):
+    upload_dates = json.loads(releases)
     entries = []
 
-    for area in content_areas:
-        lists = area.previous.findAll("div")
-        for list in lists:
-            try:
-                published = str(list.previous)
-            except:
-                published = "ERROR"
+    for date in upload_dates:
+        releases = upload_dates[date]
+        for release in releases:
+            if type == 'seasons' and release['episode']:
+                continue
+            elif type == 'episodes' and not release['episode']:
+                continue
+            title = release['name']
+            series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
+            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + release["_media"][
+                "id"] + '/releases'
+            published = date
 
-            items = list.findAll("a")
-            for item in items:
-                title = item.text
-                link = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + item.attrs["href"]
-
-                entries.append(FakeFeedParserDict({
-                    "title": title,
-                    "link": link,
-                    "published": published
-                }))
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "series_url": series_url,
+                "api_url": api_url,
+                "published": published
+            }))
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
-
-
-def sj_content_to_soup(content, type):
-    content = BeautifulSoup(content, 'lxml')
-    content = sj_to_feedparser_dict(content, type)
-    return content
 
 
 def dj_to_feedparser_dict(beautifulsoup_object):
