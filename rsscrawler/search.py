@@ -728,14 +728,51 @@ def download_sj(payload, device, configfile, dbfile):
                 # ToDo check if season already exists and replace if its rated worse
                 result_seasons.update({season: [name, hosters]})
 
-        # For every resulting season, check if episodes exist and remove them
         try:
             if result_seasons[season] and result_episodes[season]:
                 del result_episodes[season]
         except:
             pass
 
-        # ToDo check again, without looking at the quality settings if neither episodes nor seasons found / season is missing
+        try:
+            if result_seasons[season] or result_episodes[season]:
+                logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
+        except:
+            for release in releases['items']:
+                name = release['name']
+                hosters = release['hoster']
+                valid = True
+                if valid and special:
+                    valid = bool("." + special + "." in name)
+                if valid and not english_ok:
+                    valid = bool(".german." in name.lower())
+                if valid:
+                    valid = False
+                    for hoster in hosters:
+                        if check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                            valid = True
+                if valid:
+                    try:
+                        ep = release['episode']
+                        if ep:
+                            existing = result_episodes.get(season)
+                            if existing:
+                                # ToDo check if episode already exists and replace if its rated worse
+                                existing.update({ep: [name, hosters]})
+                            else:
+                                existing = {ep: [name, hosters]}
+                            result_episodes.update({season: existing})
+                            continue
+                    except:
+                        pass
+                    # ToDo check if season already exists and replace if its rated worse
+                    result_seasons.update({season: [name, hosters]})
+
+            try:
+                if result_seasons[season] and result_episodes[season]:
+                    del result_episodes[season]
+            except:
+                pass
 
     # ToDo append every remaining release to the matches
     matches = []
@@ -747,7 +784,6 @@ def download_sj(payload, device, configfile, dbfile):
         db = RssDb(dbfile, 'rsscrawler')
         if myjd_download(configfile, dbfile, device, title, "RSScrawler", link,
                          decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
-            something_found = True
             db.store(title, 'added')
             log_entry = '[Suche/Serie] - ' + title + ' - [SJ]'
             logger.info(log_entry)
