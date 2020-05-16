@@ -18,6 +18,7 @@ from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.fakefeed import nk_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
+from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import encode_base64
@@ -669,8 +670,9 @@ def download_sj(payload, device, configfile, dbfile):
     title = payload[1]
     special = payload[2].strip().replace("None", "")
 
-    series_url = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
-    series_id = BeautifulSoup(series_url, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+    series_url = decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href
+    series_info = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
+    series_id = BeautifulSoup(series_info, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
 
     api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
     releases = get_url(api_url, configfile, dbfile)
@@ -723,9 +725,9 @@ def download_sj(payload, device, configfile, dbfile):
                                     if rate(name, configfile) < rate(existing[e][0], configfile):
                                         dont = True
                             if not dont:
-                                existing.update({ep: [name, hosters]})
+                                existing.update({ep: name})
                         else:
-                            existing = {ep: [name, hosters]}
+                            existing = {ep: name}
                         result_episodes.update({season: existing})
                         continue
                 except:
@@ -737,7 +739,7 @@ def download_sj(payload, device, configfile, dbfile):
                     if rate(name, configfile) < rate(existing[season][0], configfile):
                         dont = True
                 if not dont:
-                    result_seasons.update({season: [name, hosters]})
+                    result_seasons.update({season: name})
 
         try:
             if result_seasons[season] and result_episodes[season]:
@@ -774,9 +776,9 @@ def download_sj(payload, device, configfile, dbfile):
                                         if rate(name, configfile) < rate(existing[e][0], configfile):
                                             dont = True
                                 if not dont:
-                                    existing.update({ep: [name, hosters]})
+                                    existing.update({ep: name})
                             else:
-                                existing = {ep: [name, hosters]}
+                                existing = {ep: name}
                             result_episodes.update({season: existing})
                             continue
                     except:
@@ -788,7 +790,7 @@ def download_sj(payload, device, configfile, dbfile):
                         if rate(name, configfile) < rate(existing[season][0], configfile):
                             dont = True
                     if not dont:
-                        result_seasons.update({season: [name, hosters]})
+                        result_seasons.update({season: name})
 
             try:
                 if result_seasons[season] and result_episodes[season]:
@@ -797,16 +799,18 @@ def download_sj(payload, device, configfile, dbfile):
                 pass
             logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
 
-    # ToDo append every remaining release to the matches
     matches = []
 
+    for season in result_seasons:
+        matches.append(result_seasons[season])
+    for season in result_episodes:
+        for episode in result_episodes[season]:
+            matches.append(result_episodes[season][episode])
+
     notify_array = []
-    for match in matches:
-        title = match[0]
-        link = match[1]
+    for title in matches:
         db = RssDb(dbfile, 'rsscrawler')
-        if myjd_download(configfile, dbfile, device, title, "RSScrawler", link,
-                         decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
+        if add_decrypt(title, series_url, decode_base64("c2VyaWVuanVua2llcy5vcmc="), dbfile):
             db.store(title, 'added')
             log_entry = '[Suche/Serie] - ' + title + ' - [SJ]'
             logger.info(log_entry)
