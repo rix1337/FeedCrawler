@@ -830,8 +830,7 @@ class BL:
                                 if self.device:
                                     self.db.store(
                                         key,
-                                        'dl' if self.config.get(
-                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                        'added'
                                     )
                                     log_entry = '[Film' + (
                                         '/Retail' if retail else "") + '/HEVC] - ' + key + ' - [' + site + ']'
@@ -853,8 +852,7 @@ class BL:
                                 if self.device:
                                     self.db.store(
                                         key,
-                                        'dl' if self.config.get(
-                                            'enforcedl') and '.dl.' in key.lower() else 'added'
+                                        'added'
                                     )
                                     log_entry = '[Film' + (
                                         '/Retail' if retail else "") + '/3D/HEVC] - ' + key + ' - [' + site + ']'
@@ -869,8 +867,7 @@ class BL:
                             if self.device:
                                 self.db.store(
                                     key,
-                                    'dl' if self.config.get(
-                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    'added'
                                 )
                                 log_entry = '[Film/Serie/RegEx/HEVC] - ' + key + ' - [' + site + ']'
                                 self.log_info(log_entry)
@@ -884,8 +881,7 @@ class BL:
                             if self.device:
                                 self.db.store(
                                     key,
-                                    'dl' if self.config.get(
-                                        'enforcedl') and '.dl.' in key.lower() else 'added'
+                                    'added'
                                 )
                                 log_entry = '[Staffel/HEVC] - ' + key + ' - [' + site + ']'
                                 self.log_info(log_entry)
@@ -972,8 +968,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                'added'
                             )
                             log_entry = '[Film' + (
                                 '/Retail' if retail else "") + '/Zweisprachig] - ' + key + ' - [' + site + ']'
@@ -990,8 +985,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                'added'
                             )
                             log_entry = '[Film' + (
                                 '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key + ' - [' + site + ']'
@@ -1004,8 +998,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                'added'
                             )
                             log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
@@ -1017,8 +1010,7 @@ class BL:
                         if self.device:
                             self.db.store(
                                 key,
-                                'dl' if self.config.get(
-                                    'enforcedl') and '.dl.' in key.lower() else 'added'
+                                'added'
                             )
                             log_entry = '[Staffel/Zweisprachig] - ' + key + ' - [' + site + ']'
                             self.log_info(log_entry)
