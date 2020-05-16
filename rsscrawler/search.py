@@ -670,9 +670,9 @@ def download_sj(payload, device, configfile, dbfile):
     special = payload[2].strip().replace("None", "")
 
     series_url = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
-    id = BeautifulSoup(series_url, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+    series_id = BeautifulSoup(series_url, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
 
-    api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + id + '/releases'
+    api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
     releases = get_url(api_url, configfile, dbfile)
 
     seasons = json.loads(releases)
@@ -706,7 +706,11 @@ def download_sj(payload, device, configfile, dbfile):
                 valid = bool("." + special + "." in name)
             if valid and not english_ok:
                 valid = bool(".german." in name.lower())
-            # ToDo check hoster
+            if valid:
+                valid = False
+                for hoster in hosters:
+                    if check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                        valid = True
             if valid:
                 try:
                     ep = release['episode']
@@ -751,7 +755,7 @@ def download_sj(payload, device, configfile, dbfile):
 
     notify(notify_array, configfile)
 
-    if not something_found:
+    if not matches:
         return False
     return True
 
