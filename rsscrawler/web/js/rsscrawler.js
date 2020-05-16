@@ -156,12 +156,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         searchNow();
     };
 
-    $scope.downloadMB = function (link) {
-        downloadMB(link);
+    $scope.downloadBL = function (payload) {
+        downloadBL(payload);
     };
 
-    $scope.downloadSJ = function (id, special) {
-        downloadSJ(id, special);
+    $scope.downloadSJ = function (payload) {
+        downloadSJ(payload);
     };
 
     $scope.saveLists = function () {
@@ -362,9 +362,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function downloadMB(link) {
+    function downloadBL(payload) {
         showInfoLong("Starte Download...");
-        $http.post('api/download_bl/' + link)
+        $http.post('api/download_bl/' + payload)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
@@ -377,9 +377,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function downloadSJ(id, special) {
+    function downloadSJ(payload) {
         showInfoLong("Starte Download...");
-        $http.post('api/download_sj/' + id + ";" + special)
+        $http.post('api/download_sj/' + payload)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');

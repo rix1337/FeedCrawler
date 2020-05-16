@@ -312,11 +312,11 @@
     </a>
     <div class="results" ng-show="results">
         <p data-ng-repeat="x in results.sj" ng-hide="currentPage > 0">
-            <a href="" ng-click="downloadSJ(x.id, x.special)" class="btn btn-outline-info" type="submit"><i
+            <a href="" ng-click="downloadSJ(x.payload)" class="btn btn-outline-info" type="submit"><i
                     class="fas fa-download"></i> Serie: <span ng-bind="x.title"></span></a>
         </p>
-        <p data-ng-repeat="y in results.mb | startFrom:currentPage*pageSize | limitTo:pageSize">
-            <a href="" ng-click="downloadMB(y.link)" class="btn btn-outline-dark" type="submit"><i
+        <p data-ng-repeat="y in results.bl | startFrom:currentPage*pageSize | limitTo:pageSize">
+            <a href="" ng-click="downloadBL(y.payload)" class="btn btn-outline-dark" type="submit"><i
                     class="fas fa-download"></i> <span ng-bind="y.title"></span></a>
         </p>
         <div class="btn-group" ng-show="resLength>10">

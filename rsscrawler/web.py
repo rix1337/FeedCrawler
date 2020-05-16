@@ -536,7 +536,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return jsonify(
                 {
                     "results": {
-                        "mb": results[0],
+                        "bl": results[0],
                         "sj": results[1]
                     }
                 }
@@ -576,29 +576,24 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/download_bl/<permalink>", methods=['POST'])
+    @app.route(prefix + "/api/download_bl/<payload>", methods=['POST'])
     @requires_auth
-    def download_bl(permalink):
+    def download_bl(payload):
         global device
         if request.method == 'POST':
-            if search.download_bl(permalink, device, configfile, dbfile):
+            if search.download_bl(payload, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
+    @app.route(prefix + "/api/download_sj/<payload>", methods=['POST'])
     @requires_auth
-    def download_sj(info):
+    def download_sj(payload):
         global device
-        split = info.split(";")
-        sj_id = split[0]
-        special = split[1]
-        if special == "null":
-            special = None
         if request.method == 'POST':
-            if search.download_sj(sj_id, special, device, configfile, dbfile):
+            if search.download_sj(payload, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400

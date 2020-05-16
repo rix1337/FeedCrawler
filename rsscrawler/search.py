@@ -2,8 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import html
-import json
 import logging
 import re
 
@@ -212,7 +210,7 @@ def get(title, configfile, dbfile):
     i = 0
 
     for result in rated:
-        res = {"link": result[1], "title": result[2]}
+        res = {"payload": result[1], "title": result[2]}
         if len(rated) > 9 >= i:
             results["result0" + str(i)] = res
         elif len(rated) > 99 and i <= 9:
@@ -224,13 +222,10 @@ def get(title, configfile, dbfile):
         i += 1
     mb_final = results
 
-    # ToDo - Fix for new SJ
-    sj_search = post_url(decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3JnL21lZGlhL2FqYXgvc2VhcmNoL3NlYXJjaC5waHA="),
-                         configfile,
-                         dbfile,
-                         data={'string': "'" + query + "'"})
+    sj_search = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9zZXJpZS9zZWFyY2g/cT0=") + query, configfile,
+                        dbfile, scraper)
     try:
-        sj_results = json.loads(sj_search)
+        sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
     except:
         sj_results = []
 
@@ -241,10 +236,10 @@ def get(title, configfile, dbfile):
     i = 0
     results = {}
     for result in sj_results:
-        r_title = html_to_str(result[1])
+        r_title = result.text
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 60:
-            res = {"id": result[0], "title": r_title + append, "special": special}
+            res = {"payload": encode_base64(result['href'] + ";" + r_title + ";" + str(special)), "title": r_title}
             if len(sj_results) > 9 >= i:
                 results["result0" + str(i)] = res
             elif len(sj_results) > 99 and i <= 9:
@@ -316,13 +311,10 @@ def rate(title, configfile):
     return score
 
 
-def html_to_str(unescape):
-    return html.unescape(unescape)
-
-
 def best_result_bl(title, configfile, dbfile):
     title = sanitize(title)
     try:
+        # ToDo: Only query blogs with this
         mb_results = get(title, configfile, dbfile)[0]
     except:
         return False
@@ -408,6 +400,7 @@ def best_result_bl(title, configfile, dbfile):
 
 def best_result_sj(title, configfile, dbfile):
     try:
+        # ToDo: only query SJ here
         sj_results = get(title, configfile, dbfile)[1]
     except:
         return False
@@ -668,7 +661,8 @@ def download_bl(payload, device, configfile, dbfile):
             return False
 
 
-def download_sj(sj_id, special, device, configfile, dbfile):
+def download_sj(payload, device, configfile, dbfile):
+    payload = decode_base64(payload).split(";")
     # TODO: Change upgrading to new SJ
     url = get_url(decode_base64("aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy8/Y2F0PQ==") + str(sj_id), configfile, dbfile)
     try:
@@ -679,7 +673,7 @@ def download_sj(sj_id, special, device, configfile, dbfile):
     season_links = re.findall(
         r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
     try:
-        title = html_to_str(re.findall(r'<title>(.*?) » ', url).pop())
+        title = re.findall(r'<title>(.*?) » ', url).pop()
     except:
         logger.debug(u'Kein Serientitel gefunden.')
         return False
