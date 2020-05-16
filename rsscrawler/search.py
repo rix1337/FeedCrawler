@@ -2,6 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import json
 import logging
 import re
 
@@ -239,7 +240,8 @@ def get(title, configfile, dbfile):
         r_title = result.text
         r_rating = fuzz.ratio(title.lower(), r_title)
         if r_rating > 60:
-            res = {"payload": encode_base64(result['href'] + ";" + r_title + ";" + str(special)), "title": r_title}
+            res = {"payload": encode_base64(result['href'] + ";" + r_title + ";" + str(special)),
+                   "title": r_title + append}
             if len(sj_results) > 9 >= i:
                 results["result0" + str(i)] = res
             elif len(sj_results) > 99 and i <= 9:
@@ -663,22 +665,17 @@ def download_bl(payload, device, configfile, dbfile):
 
 def download_sj(payload, device, configfile, dbfile):
     payload = decode_base64(payload).split(";")
-    # TODO: Change upgrading to new SJ
-    url = get_url(decode_base64("aHR0cDovL29sZC5zZXJpZW5qdW5raWVzLm9yZy8/Y2F0PQ==") + str(sj_id), configfile, dbfile)
-    try:
-        season_pool = re.findall(r'<h2>Staffeln:(.*?)<h2>Feeds', url).pop()
-    except:
-        logger.debug(u'Keine Staffeln gefunden.')
-        return False
-    season_links = re.findall(
-        r'href="(.{1,125})">.{1,90}(Staffel|Season).*?(\d{1,2}-?\d{1,2}|\d{1,2})', season_pool)
-    try:
-        title = re.findall(r'<title>(.*?) » ', url).pop()
-    except:
-        logger.debug(u'Kein Serientitel gefunden.')
-        return False
+    href = payload[0]
+    title = payload[1]
+    special = payload[2].strip().replace("None", "")
 
-    rsscrawler = RssConfig('RSScrawler', configfile)
+    series_url = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
+    id = BeautifulSoup(series_url, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+
+    api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + id + '/releases'
+    releases = get_url(api_url, configfile, dbfile)
+
+    seasons = json.loads(releases)
 
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
@@ -689,153 +686,74 @@ def download_sj(payload, device, configfile, dbfile):
         if not list_title in cont:
             ListDb(dbfile, liste).store(list_title)
 
-    staffeln = []
-    staffel_nr = []
-    seasons = []
+    config = RssConfig('SJ', configfile)
+    english_ok = RssConfig('RSScrawler', configfile).get("english")
+    quality = config.get('quality')
 
-    for s in season_links:
-        if "staffel" in s[1].lower():
-            staffeln.append([s[2], s[0]])
-            if "-" in s[2]:
-                split = s[2].split("-")
-                split = range(int(split[0]), int(split[1]) + 1)
-                for nr in split:
-                    staffel_nr.append(str(nr))
-            else:
-                staffel_nr.append(s[2])
-        else:
-            seasons.append([s[2], s[0]])
+    result_seasons = {}
+    result_episodes = {}
 
-    if rsscrawler.get("english"):
-        for se in seasons:
-            if not se[0] in staffel_nr:
-                staffeln.append(se)
+    for season in seasons:
+        releases = seasons[season]
+        for release in releases['items']:
+            name = release['name']
+            hosters = release['hoster']
+            try:
+                valid = bool(release['resolution'] == quality)
+            except:
+                valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
+            if valid and special:
+                valid = bool("." + special + "." in name)
+            if valid and not english_ok:
+                valid = bool(".german." in name.lower())
+            # ToDo check hoster
+            if valid:
+                try:
+                    ep = release['episode']
+                    if ep:
+                        existing = result_episodes.get(season)
+                        if existing:
+                            # ToDo check if episode already exists and replace if its rated worse
+                            existing.update({ep: [name, hosters]})
+                        else:
+                            existing = {ep: [name, hosters]}
+                        result_episodes.update({season: existing})
+                        continue
+                except:
+                    pass
+                # ToDo check if season already exists and replace if its rated worse
+                result_seasons.update({season: [name, hosters]})
 
-    to_dl = []
-    for s in staffeln:
-        if "-" in s[0]:
-            split = s[0].split("-")
-            split = range(int(split[0]), int(split[1]) + 1)
-            for i in split:
-                to_dl.append([str(i), s[1]])
-        else:
-            to_dl.append([s[0], s[1]])
+        # For every resulting season, check if episodes exist and remove them
+        try:
+            if result_seasons[season] and result_episodes[season]:
+                del result_episodes[season]
+        except:
+            pass
 
-    found_seasons = {}
-    for dl in to_dl:
-        if len(dl[0]) == 1:
-            sxx = "S0" + str(dl[0])
-        else:
-            sxx = "S" + str(dl[0])
-        link = dl[1]
-        if sxx not in found_seasons:
-            found_seasons[sxx] = link
+        # ToDo check again, without looking at the quality settings if neither episodes nor seasons found / season is missing
 
-    something_found = False
-    best_matching_links = []
+    # ToDo append every remaining release to the matches
+    matches = []
 
-    for sxx, link in found_seasons.items():
-        config = RssConfig('SJ', configfile)
-        quality = config.get('quality')
-        url = get_url(link, configfile, dbfile)
-        sxx_retry = sxx.replace("S0", "S")
+    notify_array = []
+    for match in matches:
+        title = match[0]
+        link = match[1]
+        db = RssDb(dbfile, 'rsscrawler')
+        if myjd_download(configfile, dbfile, device, title, "RSScrawler", link,
+                         decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
+            something_found = True
+            db.store(title, 'added')
+            log_entry = '[Suche/Serie] - ' + title + ' - [SJ]'
+            logger.info(log_entry)
+            notify_array.append(log_entry)
 
-        soup = BeautifulSoup(url, 'lxml')
-
-        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*' + quality + r'.*'))
-        if not results:
-            results = soup.findAll('strong', text=re.compile(r'.*' + sxx_retry + r'.*' + quality + r'.*'))
-        pakete = rated_titles(results, configfile)
-
-        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*E\d{1,3}.*?' + quality + r'.*'))
-        if not results:
-            results = soup.findAll('strong',
-                                   text=re.compile(r'.*' + sxx_retry + r'E\d{1,3}.*?' + quality + r'.*'))
-        folgen = rated_titles(results, configfile)
-
-        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*'))
-        if not results:
-            results = soup.findAll('strong', text=re.compile(r'.*' + sxx_retry + r'.*'))
-        lq_pakete = rated_titles(results, configfile)
-
-        results = soup.findAll('strong', text=re.compile(r'.*' + sxx + r'.*E\d{1,3}.*?'))
-        if not results:
-            results = soup.findAll('strong',
-                                   text=re.compile(r'.*' + sxx_retry + r'.*E\d{1,3}.*?'))
-        lq_folgen = rated_titles(results, configfile)
-
-        use_pakete_for_episode = False
-        if special and "e" in special.lower():
-            if not folgen and not lq_folgen:
-                use_pakete_for_episode = True
-
-        if pakete:
-            add = best_links(pakete)
-            for a in add:
-                best_matching_links.append(a)
-        elif folgen:
-            add = best_links(folgen)
-            for a in add:
-                best_matching_links.append(a)
-        elif lq_pakete:
-            add = best_links(lq_pakete)
-            for a in add:
-                best_matching_links.append(a)
-        elif lq_folgen:
-            add = best_links(lq_folgen)
-            for a in add:
-                best_matching_links.append(a)
-
-        notify_array = []
-        for best_link in best_matching_links:
-            dl_title = best_link[0]
-            if use_pakete_for_episode:
-                season = special.split("E")[0]
-                if season in dl_title:
-                    dl_title = dl_title.replace(season, special)
-                else:
-                    continue
-            dl_link = best_link[1]
-            db = RssDb(dbfile, 'rsscrawler')
-            if myjd_download(configfile, dbfile, device, dl_title, "RSScrawler", dl_link,
-                             decode_base64("c2VyaWVuanVua2llcy5vcmc=")):
-                something_found = True
-                db.store(dl_title, 'added')
-                log_entry = '[Suche/Serie] - ' + dl_title + ' - [SJ]'
-                logger.info(log_entry)
-                notify_array.append(log_entry)
-
-        notify(notify_array, configfile)
-        best_matching_links = []
+    notify(notify_array, configfile)
 
     if not something_found:
         return False
     return True
-
-
-def rated_titles(results, configfile):
-    to_return = []
-    last_link = ""
-    if results:
-        for r in results:
-            to_append = []
-            title = r.text.replace("Staffelpack ", "").replace("Staffelpack.", "")
-            hosters = re.findall(r'<a href="([^"\'>]*)".+?\| (.+?)<', str(r.parent))
-            for hoster in hosters:
-                if check_hoster(hoster[1], configfile):
-                    if hoster[0] not in last_link:
-                        last_link = hoster[0]
-                        score = rate(title, configfile)
-                        to_append.append([score, title, hoster[0]])
-            if RssConfig("SJ", configfile).get("hoster_fallback") and not to_append:
-                for hoster in hosters:
-                    if hoster[0] not in last_link:
-                        last_link = hoster[0]
-                        score = rate(title, configfile)
-                        to_append.append([score, title, hoster[0]])
-            for found in to_append:
-                to_return.append(found)
-    return to_return
 
 
 def best_links(pakete):
