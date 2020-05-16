@@ -730,8 +730,14 @@ def download_sj(payload, device, configfile, dbfile):
                         continue
                 except:
                     pass
-                # ToDo check if season already exists and replace if its rated worse
-                result_seasons.update({season: [name, hosters]})
+
+                existing = result_seasons.get(season)
+                dont = False
+                if existing:
+                    if rate(name, configfile) < rate(existing[season][0], configfile):
+                        dont = True
+                if not dont:
+                    result_seasons.update({season: [name, hosters]})
 
         try:
             if result_seasons[season] and result_episodes[season]:
@@ -775,14 +781,21 @@ def download_sj(payload, device, configfile, dbfile):
                             continue
                     except:
                         pass
-                    # ToDo check if season already exists and replace if its rated worse
-                    result_seasons.update({season: [name, hosters]})
+
+                    existing = result_seasons.get(season)
+                    dont = False
+                    if existing:
+                        if rate(name, configfile) < rate(existing[season][0], configfile):
+                            dont = True
+                    if not dont:
+                        result_seasons.update({season: [name, hosters]})
 
             try:
                 if result_seasons[season] and result_episodes[season]:
                     del result_episodes[season]
             except:
                 pass
+            logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
 
     # ToDo append every remaining release to the matches
     matches = []
