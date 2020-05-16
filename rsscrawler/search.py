@@ -703,7 +703,7 @@ def download_sj(payload, device, configfile, dbfile):
             except:
                 valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
             if valid and special:
-                valid = bool("." + special + "." in name)
+                valid = bool("." + special.lower() + "." in name.lower())
             if valid and not english_ok:
                 valid = bool(".german." in name.lower())
             if valid:
@@ -717,8 +717,13 @@ def download_sj(payload, device, configfile, dbfile):
                     if ep:
                         existing = result_episodes.get(season)
                         if existing:
-                            # ToDo check if episode already exists and replace if its rated worse
-                            existing.update({ep: [name, hosters]})
+                            for e in existing:
+                                dont = False
+                                if e == ep:
+                                    if rate(name, configfile) < rate(existing[e][0], configfile):
+                                        dont = True
+                            if not dont:
+                                existing.update({ep: [name, hosters]})
                         else:
                             existing = {ep: [name, hosters]}
                         result_episodes.update({season: existing})
@@ -743,7 +748,7 @@ def download_sj(payload, device, configfile, dbfile):
                 hosters = release['hoster']
                 valid = True
                 if valid and special:
-                    valid = bool("." + special + "." in name)
+                    valid = bool("." + special.lower() + "." in name.lower())
                 if valid and not english_ok:
                     valid = bool(".german." in name.lower())
                 if valid:
@@ -757,8 +762,13 @@ def download_sj(payload, device, configfile, dbfile):
                         if ep:
                             existing = result_episodes.get(season)
                             if existing:
-                                # ToDo check if episode already exists and replace if its rated worse
-                                existing.update({ep: [name, hosters]})
+                                for e in existing:
+                                    dont = False
+                                    if e == ep:
+                                        if rate(name, configfile) < rate(existing[e][0], configfile):
+                                            dont = True
+                                if not dont:
+                                    existing.update({ep: [name, hosters]})
                             else:
                                 existing = {ep: [name, hosters]}
                             result_episodes.update({season: existing})
