@@ -135,16 +135,19 @@ def hs_search_results(url):
     return content
 
 
-def sj_releases_to_feedparser_dict(releases, type):
+def sj_releases_to_feedparser_dict(releases, list_type):
     upload_dates = json.loads(releases)
     entries = []
 
     for date in upload_dates:
         releases = upload_dates[date]
         for release in releases:
-            if type == 'seasons' and release['episode']:
-                continue
-            elif type == 'episodes' and not release['episode']:
+            try:
+                if list_type == 'seasons' and release['episode']:
+                    continue
+                elif list_type == 'episodes' and not release['episode']:
+                    continue
+            except:
                 continue
             title = release['name']
             series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
