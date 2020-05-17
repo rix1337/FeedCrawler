@@ -1079,11 +1079,18 @@ def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
     return False
 
 
-def do_add_decrypted(configfile, dbfile, device, title, password, cnl_package):
-    links = (ensure_string(cnl_package['urls'])).replace("\n\n", "\n")
-    linkids = cnl_package['linkids']
-    uuid = [cnl_package['uuid']]
-    device = remove_from_linkgrabber(configfile, device, linkids, uuid)
+def do_add_decrypted(configfile, dbfile, device, title, password, cnl_packages):
+    linkids = []
+    uuids = []
+    urls = ""
+    for cnl_package in cnl_packages:
+        for linkid in cnl_package['linkids']:
+            linkids.append(linkid)
+        uuids.append(cnl_package['uuid'])
+        urls = urls + ensure_string(cnl_package['urls']).replace("\n\n", "\n")
+
+    links = ensure_string(urls).replace("\n\n", "\n")
+    device = remove_from_linkgrabber(configfile, device, linkids, uuids)
     if device:
         if device:
             device = download(configfile, dbfile, device, title, "RSScrawler", links, password)

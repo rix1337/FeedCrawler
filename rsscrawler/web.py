@@ -800,6 +800,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 payload = RssDb(dbfile, 'to_decrypt').retrieve(title).split('|')
                 link = payload[0]
             except:
+                link = False
                 payload = False
             if payload:
                 return """<!DOCTYPE html>
@@ -811,6 +812,9 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         <link rel='stylesheet' href='../css/bootstrap.min.css'>
                         <link rel='stylesheet' href='../css/rsscrawler.css?updated'>
                         <title>Click'n'Load-Automatik für """ + title + """</title>
+                        <script type="text/javascript">
+                            screen.width<=800&&(window.location='""" + link + """');
+                        </script>
                     </head>
                     
                     <body class='text-center'>
@@ -823,6 +827,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                                 <i id='before' class="fas fa-clipboard"></i>
                                 <i id='after' class="fas fa-clipboard-check" style='display: none;'>
                                 </i> """ + title + """
+                                <a href='""" + link + """'> <i class="fas fa-external-link-alt"></i></a>
                             </h3>
                             <iframe id='frame' src='""" + link + """' frameborder='0' scrolling='yes'
                                 referrerpolicy="no-referrer" style='display:block; width:100%; height:86vh;'>
@@ -983,8 +988,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 for op in offline_packages:
                     known_packages.append(op['uuid'])
 
-            # ToDo merge if name is season not episode
-            cnl_package = False
+            cnl_packages = []
             grabber_was_collecting = False
             i = 12
             while i > 0:
@@ -1005,18 +1009,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             if not grabber_collecting and decrypted_packages:
                                 for dp in decrypted_packages:
                                     if dp['uuid'] not in known_packages:
-                                        cnl_package = dp
+                                        cnl_packages.append(dp)
                                         i = 0
                             if not grabber_collecting and offline_packages:
                                 for op in offline_packages:
                                     if op['uuid'] not in known_packages:
-                                        cnl_package = op
+                                        cnl_packages.append(op)
                                         i = 0
 
-            if not cnl_package:
+            if not cnl_packages:
                 return "No Package added through Click'n'Load in time!", 504
 
-            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_package)
+            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_packages)
             device = replaced[0]
             if device:
                 remove_decrypt(name, dbfile)
