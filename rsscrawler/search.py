@@ -52,6 +52,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
     bl_final = {}
     sj_final = {}
+    scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
 
     if not sj_only:
         mb_query = sanitize(title).replace(" ", "+")
@@ -63,8 +64,9 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         unrated = []
 
         config = RssConfig('MB', configfile)
-
         quality = config.get('quality')
+        ignore = config.get('ignore')
+
         if "480p" not in quality:
             search_quality = "+" + quality
         else:
@@ -77,7 +79,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
         fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
-        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
         async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         scraper = async_results[1]
         async_results = async_results[0]
@@ -112,7 +113,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     continue
             if not result[0].endswith("-MB") and not result[0].endswith(".MB"):
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (MB)"])
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (MB)"])
 
         password = decode_base64("aGQtd29ybGQub3Jn")
         for result in hw_results:
@@ -123,7 +124,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = decode_base64("aGQtc291cmNlLnRv")
         for result in hs_results:
@@ -134,7 +135,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (HS)"])
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HS)"])
 
         password = decode_base64("ZnVueGQ=")
         for result in fx_results:
@@ -145,7 +146,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
         password = decode_base64("TklNQTRL")
         for result in nk_results:
@@ -156,7 +157,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         if config.get("crawl3d"):
             mb_search = decode_base64(
@@ -194,28 +195,28 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             for result in mb_results:
                 if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                     unrated.append(
-                        [rate(result[0], configfile), encode_base64(result[1] + "|" + password),
+                        [rate(result[0], ignore), encode_base64(result[1] + "|" + password),
                          result[0] + " (3D-MB)"])
 
             password = decode_base64("aGQtd29ybGQub3Jn")
             for result in hw_results:
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-HW)"])
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-HW)"])
 
             password = decode_base64("aGQtc291cmNlLnRv")
             for result in hs_results:
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-HS)"])
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-HS)"])
 
             password = decode_base64("ZnVueGQ=")
             for result in fx_results:
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-FX)"])
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-FX)"])
 
             password = decode_base64("TklNQTRL")
             for result in nk_results:
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-NK)"])
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-NK)"])
 
         rated = sorted(unrated, reverse=True)
 
@@ -224,14 +225,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
         for result in rated:
             res = {"payload": result[1], "title": result[2]}
-            if len(rated) > 9 >= i:
-                results["result0" + str(i)] = res
-            elif len(rated) > 99 and i <= 9:
-                results["result00" + str(i)] = res
-            elif len(rated) > 99 >= i:
-                results["result0" + str(i)] = res
-            else:
-                results["result" + str(i)] = res
+            results["result" + str(i + 1000)] = res
             i += 1
         bl_final = results
 
@@ -256,21 +250,14 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             if r_rating > 40:
                 res = {"payload": encode_base64(result['href'] + "|" + r_title + "|" + str(special)),
                        "title": r_title + append}
-                if len(sj_results) > 9 >= i:
-                    results["result0" + str(i)] = res
-                elif len(sj_results) > 99 and i <= 9:
-                    results["result00" + str(i)] = res
-                elif len(sj_results) > 99 >= i:
-                    results["result0" + str(i)] = res
-                else:
-                    results["result" + str(i)] = res
+                results["result" + str(i + 1000)] = res
                 i += 1
         sj_final = results
 
     return bl_final, sj_final
 
 
-def rate(title, configfile):
+def rate(title, ignore=False):
     score = 0
     if ".bluray." in title.lower():
         score += 7
@@ -314,15 +301,14 @@ def rate(title, configfile):
         score -= 10
     if "dvd9" in title.lower():
         score -= 10
-    try:
-        config = RssConfig('SJ', configfile)
-        reject = config.get("rejectlist").replace(",", "|").lower() if len(
-            config.get("rejectlist")) > 0 else r"^unmatchable$"
-    except TypeError:
-        reject = r"^unmatchable$"
-    r = re.search(reject, title.lower())
-    if r:
-        score -= 5
+    if ignore:
+        try:
+            ignore = ignore.replace(",", "|").lower() if len(ignore) > 0 else r"^unmatchable$"
+        except TypeError:
+            ignore = r"^unmatchable$"
+        r = re.search(ignore, title.lower())
+        if r:
+            score -= 5
     if ".subpack." in title.lower():
         score -= 10
     return score
@@ -331,28 +317,17 @@ def rate(title, configfile):
 def best_result_bl(title, configfile, dbfile):
     title = sanitize(title)
     try:
-        mb_results = get(title, configfile, dbfile, bl_only=True)[0]
+        bl_results = get(title, configfile, dbfile, bl_only=True)[0]
     except:
         return False
-    conf = RssConfig('MB', configfile)
-    ignore = "|".join([r"\.%s(\.|-)" % p for p in conf.get('ignore').lower().split(',')]) if conf.get(
-        'ignore') else r"^unmatchable$"
     results = []
-    i = len(mb_results)
-    i_len = i
+    i = len(bl_results)
 
     j = 0
     while i > 0:
         try:
-            if i_len > 9 >= j:
-                q = "result0" + str(j)
-            elif i_len > 99 and j <= 9:
-                q = "result00" + str(j)
-            elif i_len > 99 >= j:
-                q = "result0" + str(j)
-            else:
-                q = "result" + str(j)
-            results.append(mb_results.get(q).get('title'))
+            q = "result" + str(j + 1000)
+            results.append(bl_results.get(q).get('title'))
         except:
             pass
         i -= 1
@@ -371,26 +346,16 @@ def best_result_bl(title, configfile, dbfile):
         score = fuzz.ratio(title, without_year) + fuzz.ratio(title, with_year)
         if score > best_score:
             best_score = score
-            best_match = i
+            best_match = i + 1000
         i += 1
     best_match = 'result' + str(best_match)
-    best_result = mb_results.get(best_match)
+    best_result = bl_results.get(best_match)
     if best_result:
         best_title = best_result.get('title')
-        best_link = best_result.get('link')
-        if re.search(ignore, best_title.lower()):
-            best_title = None
-        quality = conf.get('quality')
-        if "480p" not in quality and best_title and not re.search(
-                r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
-                best_title):
-            best_title = None
-        elif "480p" in quality and best_title and re.search(
-                r'^' + title.replace(" ", ".") + r'.(\d{4}|German|\d{3,4}p).*',
-                best_title):
-            best_title = None
+        best_payload = best_result.get('payload')
     else:
         best_title = None
+        best_payload = None
     if not best_title:
         logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "MB_Filme"
@@ -408,10 +373,10 @@ def best_result_bl(title, configfile, dbfile):
             cont = ""
         if title not in cont:
             ListDb(dbfile, liste).store(title)
-        return best_link
+        return best_payload
     else:
         logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
-        return best_link
+        return best_payload
 
 
 def best_result_sj(title, configfile, dbfile):
@@ -421,19 +386,11 @@ def best_result_sj(title, configfile, dbfile):
         return False
     results = []
     i = len(sj_results)
-    i_len = i
 
     j = 0
     while i > 0:
         try:
-            if i_len > 9 >= j:
-                q = "result0" + str(j)
-            elif i_len > 99 and j <= 9:
-                q = "result00" + str(j)
-            elif i_len > 99 >= j:
-                q = "result0" + str(j)
-            else:
-                q = "result" + str(j)
+            q = "result" + str(j + 1000)
             results.append(sj_results.get(q).get('title'))
         except:
             pass
@@ -446,7 +403,7 @@ def best_result_sj(title, configfile, dbfile):
         if score > best_score:
             best_score = score
             best_match = i
-        i += 1
+        i += 1 + 1000
     best_match = 'result' + str(best_match)
     try:
         best_title = sj_results.get(best_match).get('title')
@@ -671,7 +628,7 @@ def download_bl(payload, device, configfile, dbfile):
                                     '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
                     logger.info(log_entry)
                     notify([log_entry], configfile)
-                    return True
+                    return [key]
         else:
             return False
 
@@ -703,6 +660,7 @@ def download_sj(payload, configfile, dbfile):
     config = RssConfig('SJ', configfile)
     english_ok = RssConfig('RSScrawler', configfile).get("english")
     quality = config.get('quality')
+    ignore = config.get('rejectlist')
 
     result_seasons = {}
     result_episodes = {}
@@ -734,7 +692,7 @@ def download_sj(payload, configfile, dbfile):
                             for e in existing:
                                 dont = False
                                 if e == ep:
-                                    if rate(name, configfile) < rate(existing[e][0], configfile):
+                                    if rate(name, ignore) < rate(existing[e][0], ignore):
                                         dont = True
                             if not dont:
                                 existing.update({ep: name})
@@ -748,7 +706,7 @@ def download_sj(payload, configfile, dbfile):
                 existing = result_seasons.get(season)
                 dont = False
                 if existing:
-                    if rate(name, configfile) < rate(existing, configfile):
+                    if rate(name, ignore) < rate(existing, ignore):
                         dont = True
                 if not dont:
                     result_seasons.update({season: name})
@@ -785,7 +743,7 @@ def download_sj(payload, configfile, dbfile):
                                 for e in existing:
                                     dont = False
                                     if e == ep:
-                                        if rate(name, configfile) < rate(existing[e][0], configfile):
+                                        if rate(name, ignore) < rate(existing[e][0], ignore):
                                             dont = True
                                 if not dont:
                                     existing.update({ep: name})
@@ -799,7 +757,7 @@ def download_sj(payload, configfile, dbfile):
                     existing = result_seasons.get(season)
                     dont = False
                     if existing:
-                        if rate(name, configfile) < rate(existing, configfile):
+                        if rate(name, ignore) < rate(existing, ignore):
                             dont = True
                     if not dont:
                         result_seasons.update({season: name})

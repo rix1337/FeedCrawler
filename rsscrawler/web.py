@@ -549,9 +549,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def download_movie(title):
         global device
         if request.method == 'POST':
-            best_result = search.best_result_bl(title, configfile, dbfile)
-            if best_result and search.download_bl(best_result, device, configfile, dbfile):
-                return "Success", 200
+            payload = search.best_result_bl(title, configfile, dbfile)
+            if payload:
+                matches = search.download_bl(payload, device, configfile, dbfile)
+                return "Success: " + str(matches), 200
             else:
                 return "Failed", 400
         else:
