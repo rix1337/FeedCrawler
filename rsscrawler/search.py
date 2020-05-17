@@ -5,6 +5,7 @@
 import json
 import logging
 import re
+import sys
 
 import cloudscraper
 from bs4 import BeautifulSoup
@@ -438,7 +439,7 @@ def best_result_sj(title, configfile, dbfile):
     best_match = 'result' + str(best_match)
     try:
         best_title = sj_results.get(best_match).get('title')
-        best_id = sj_results.get(best_match).get('id')
+        best_payload = sj_results.get(best_match).get('payload')
     except:
         logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["SJ_Serien", "MB_Staffeln"]
@@ -450,7 +451,7 @@ def best_result_sj(title, configfile, dbfile):
                 ListDb(dbfile, liste).store(title)
             return
     logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
-    return best_id
+    return best_payload
 
 
 def download_bl(payload, device, configfile, dbfile):
@@ -664,7 +665,7 @@ def download_bl(payload, device, configfile, dbfile):
             return False
 
 
-def download_sj(payload, device, configfile, dbfile):
+def download_sj(payload, configfile, dbfile):
     payload = decode_base64(payload).split(";")
     href = payload[0]
     title = payload[1]
@@ -698,7 +699,7 @@ def download_sj(payload, device, configfile, dbfile):
     for season in seasons:
         releases = seasons[season]
         for release in releases['items']:
-            name = release['name']
+            name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
             hosters = release['hoster']
             try:
                 valid = bool(release['resolution'] == quality)
@@ -711,7 +712,7 @@ def download_sj(payload, device, configfile, dbfile):
             if valid:
                 valid = False
                 for hoster in hosters:
-                    if check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                    if hoster and check_hoster(hoster, configfile) or config.get("hoster_fallback"):
                         valid = True
             if valid:
                 try:
@@ -736,7 +737,7 @@ def download_sj(payload, device, configfile, dbfile):
                 existing = result_seasons.get(season)
                 dont = False
                 if existing:
-                    if rate(name, configfile) < rate(existing[season][0], configfile):
+                    if rate(name, configfile) < rate(existing, configfile):
                         dont = True
                 if not dont:
                     result_seasons.update({season: name})
@@ -752,7 +753,7 @@ def download_sj(payload, device, configfile, dbfile):
                 logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
         except:
             for release in releases['items']:
-                name = release['name']
+                name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
                 hosters = release['hoster']
                 valid = True
                 if valid and special:
@@ -762,7 +763,7 @@ def download_sj(payload, device, configfile, dbfile):
                 if valid:
                     valid = False
                     for hoster in hosters:
-                        if check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                        if hoster and check_hoster(hoster, configfile) or config.get("hoster_fallback"):
                             valid = True
                 if valid:
                     try:
@@ -787,7 +788,7 @@ def download_sj(payload, device, configfile, dbfile):
                     existing = result_seasons.get(season)
                     dont = False
                     if existing:
-                        if rate(name, configfile) < rate(existing[season][0], configfile):
+                        if rate(name, configfile) < rate(existing, configfile):
                             dont = True
                     if not dont:
                         result_seasons.update({season: name})
@@ -812,7 +813,7 @@ def download_sj(payload, device, configfile, dbfile):
         db = RssDb(dbfile, 'rsscrawler')
         if add_decrypt(title, series_url, decode_base64("c2VyaWVuanVua2llcy5vcmc="), dbfile):
             db.store(title, 'added')
-            log_entry = '[Suche/Serie] - ' + title + ' - [SJ]'
+            log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'
             logger.info(log_entry)
             notify_array.append(log_entry)
 
@@ -820,13 +821,4 @@ def download_sj(payload, device, configfile, dbfile):
 
     if not matches:
         return False
-    return True
-
-
-def best_links(pakete):
-    to_return = []
-    highest_score = sorted(pakete, reverse=True)[0][0]
-    for p in pakete:
-        if p[0] == highest_score:
-            to_return.append([p[1], p[2]])
-    return to_return
+    return matches

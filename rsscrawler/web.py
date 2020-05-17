@@ -561,18 +561,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def download_show(title):
         global device
-        if ";" in title:
-            split = title.split(";")
-            title = split[0]
-            special = split[1]
-        else:
-            special = None
         if request.method == 'POST':
-            best_result = search.best_result_sj(title, configfile, dbfile)
-            if best_result and search.download_sj(best_result, special, device, configfile, dbfile):
-                return "Success", 200
-            else:
-                return "Failed", 400
+            payload = search.best_result_sj(title, configfile, dbfile)
+            if payload:
+                matches = search.download_sj(payload, configfile, dbfile)
+                if matches:
+                    return "Success: " + str(matches), 200
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -593,7 +588,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def download_sj(payload):
         global device
         if request.method == 'POST':
-            if search.download_sj(payload, device, configfile, dbfile):
+            if search.download_sj(payload, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -987,6 +982,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 for op in offline_packages:
                     known_packages.append(op['uuid'])
 
+            # ToDo merge if name is season not episode
             cnl_package = False
             grabber_was_collecting = False
             i = 12
