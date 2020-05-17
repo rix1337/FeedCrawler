@@ -399,10 +399,11 @@ def best_result_sj(title, configfile, dbfile):
     best_score = 0
     best_match = 0
     for r in results:
+        r = re.sub(r"\s\(.*\)", "", r)
         score = fuzz.ratio(title, r)
         if score > best_score:
             best_score = score
-            best_match = i
+            best_match = i + 1000
         i += 1 + 1000
     best_match = 'result' + str(best_match)
     try:
