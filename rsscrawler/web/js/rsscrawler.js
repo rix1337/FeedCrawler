@@ -32,8 +32,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.pageSize = 10;
     $scope.resLength = 0;
     $scope.numberOfPages = function () {
-        if (typeof $scope.results.mb !== 'undefined') {
-            $scope.resLength = Object.values($scope.results.mb).length;
+        if (typeof $scope.results.bl !== 'undefined') {
+            $scope.resLength = Object.values($scope.results.bl).length;
             return Math.ceil($scope.resLength / $scope.pageSize);
         }
     };
@@ -430,7 +430,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             $http.get('api/search/' + title)
                 .then(function (res) {
                     $scope.results = res.data.results;
-                    $scope.resLength = Object.values($scope.results.mb).length;
+                    $scope.resLength = Object.values($scope.results.bl).length;
                     $scope.search = "";
                     console.log('Nach ' + title + ' gesucht!');
                     getLog();

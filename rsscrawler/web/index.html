@@ -7,7 +7,7 @@
 
     <link href="img/favicon.ico" rel="icon" type="image/x-icon">
     <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/rsscrawler.css?updated">
+    <link rel="stylesheet" href="css/rsscrawler.css">
 
     <title>RSScrawler</title>
 </head>
@@ -303,12 +303,14 @@
            aria-label="Search"
            data-toggle="tooltip"
            ng-keypress="($event.charCode==13)? searchNow() : return"
-           title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Semikolon am Titel ergänzt werden: 'Serien Titel;S01' oder 'Serien Titel;S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
-    <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"><i id="spinner-search"
-                                                                            ng-if="searching"
-                                                                            class="fas fa-sync fa-spin"></i>
-        <span ng-show="search || (!results.sj && !results.mb)">Suchen</span>
-        <span ng-show="!search && (results.sj || results.mb)"> Leeren</span>
+           title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
+    <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"
+       ng-show="search || (!results.sj && !results.bl)"><i id="spinner-search"
+                                                           ng-if="searching"
+                                                           class="fas fa-sync fa-spin"></i> Suchen
+    </a>
+    <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"
+       ng-show="!search && (results.sj || results.bl)">Leeren
     </a>
     <div class="results" ng-show="results">
         <p data-ng-repeat="x in results.sj" ng-hide="currentPage > 0">
@@ -1382,7 +1384,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-locale_de-de.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?updated"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>{% endraw %}

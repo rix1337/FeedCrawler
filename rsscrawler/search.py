@@ -5,7 +5,6 @@
 import json
 import logging
 import re
-import sys
 
 import cloudscraper
 from bs4 import BeautifulSoup
@@ -37,128 +36,50 @@ from rsscrawler.url import post_url
 logger = logging.getLogger('rsscrawler')
 
 
-def get(title, configfile, dbfile):
-    specific_season = re.match(r'^(.*);(s\d{1,3})$', title.lower())
-    specific_episode = re.match(r'^(.*);(s\d{1,3}e\d{1,3})$', title.lower())
+def get(title, configfile, dbfile, bl_only=False, sj_only=False):
+    specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
+    specific_episode = re.match(r'^(.*),(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
-        split = title.split(";")
+        split = title.split(",")
         title = split[0]
         special = split[1].upper()
     elif specific_episode:
-        split = title.split(";")
+        split = title.split(",")
         title = split[0]
         special = split[1].upper()
     else:
         special = None
 
-    query = title.replace(" ", "+")
-    mb_query = sanitize(title).replace(" ", "+")
-    if special:
-        bl_query = mb_query + "+" + special
-    else:
-        bl_query = mb_query
+    bl_final = {}
+    sj_final = {}
 
-    unrated = []
+    if not sj_only:
+        mb_query = sanitize(title).replace(" ", "+")
+        if special:
+            bl_query = mb_query + "+" + special
+        else:
+            bl_query = mb_query
 
-    config = RssConfig('MB', configfile)
+        unrated = []
 
-    quality = config.get('quality')
-    if "480p" not in quality:
-        search_quality = "+" + quality
-    else:
-        search_quality = ""
+        config = RssConfig('MB', configfile)
 
-    mb_search = decode_base64(
-        'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + '/feed/rss2/'
-    hw_search = decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
-    hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
-    fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
+        quality = config.get('quality')
+        if "480p" not in quality:
+            search_quality = "+" + quality
+        else:
+            search_quality = ""
 
-    scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
-    async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
-    scraper = async_results[1]
-    async_results = async_results[0]
-
-    mb_results = []
-    hw_results = []
-    hs_results = []
-    fx_results = []
-
-    for res in async_results:
-        if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
-            mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-        elif decode_base64('aGQtd29ybGQub3Jn') in res:
-            hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-        elif decode_base64('aGQtc291cmNlLnRv') in res:
-            hs_results = hs_search_results(res)
-        elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
-            fx_results = fx_search_results(fx_content_to_soup(res))
-
-    nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
-    nk_search = post_url(nk_base_url + "search", configfile, dbfile,
-                         data={'search': bl_query.replace("+", " ") + " " + quality})
-    nk_results = nk_search_results(nk_search, nk_base_url)
-
-    password = decode_base64("bW92aWUtYmxvZy5vcmc=")
-    for result in mb_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        if not result[0].endswith("-MB") and not result[0].endswith(".MB"):
-            unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (MB)"])
-
-    password = decode_base64("aGQtd29ybGQub3Jn")
-    for result in hw_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HW)"])
-
-    password = decode_base64("aGQtc291cmNlLnRv")
-    for result in hs_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (HS)"])
-
-    password = decode_base64("ZnVueGQ=")
-    for result in fx_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (FX)"])
-
-    password = decode_base64("TklNQTRL")
-    for result in nk_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        unrated.append(
-            [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (NK)"])
-
-    if config.get("crawl3d"):
         mb_search = decode_base64(
-            'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + '/feed/rss2/'
         hw_search = decode_base64(
-            'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-        hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '+3D/feed'
-        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + "+3D/feed/"
+            'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
+        hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
+        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
 
+        scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
         async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
+        scraper = async_results[1]
         async_results = async_results[0]
 
         mb_results = []
@@ -174,87 +95,179 @@ def get(title, configfile, dbfile):
             elif decode_base64('aGQtc291cmNlLnRv') in res:
                 hs_results = hs_search_results(res)
             elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
-                fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+                fx_results = fx_search_results(fx_content_to_soup(res))
 
         nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
         nk_search = post_url(nk_base_url + "search", configfile, dbfile,
-                             data={'search': bl_query.replace("+", " ") + " " + quality + "3D"})
+                             data={'search': bl_query.replace("+", " ") + " " + quality})
         nk_results = nk_search_results(nk_search, nk_base_url)
 
         password = decode_base64("bW92aWUtYmxvZy5vcmc=")
         for result in mb_results:
-            if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
+            if not result[0].endswith("-MB") and not result[0].endswith(".MB"):
                 unrated.append(
-                    [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-MB)"])
+                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (MB)"])
 
         password = decode_base64("aGQtd29ybGQub3Jn")
         for result in hw_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HW)"])
+                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = decode_base64("aGQtc291cmNlLnRv")
         for result in hs_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-HS)"])
+                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (HS)"])
 
         password = decode_base64("ZnVueGQ=")
         for result in fx_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-FX)"])
+                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
         password = decode_base64("TklNQTRL")
         for result in nk_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
             unrated.append(
-                [rate(result[0], configfile), encode_base64(result[1] + ";" + password), result[0] + " (3D-NK)"])
+                [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
-    rated = sorted(unrated, reverse=True)
+        if config.get("crawl3d"):
+            mb_search = decode_base64(
+                'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            hw_search = decode_base64(
+                'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            hs_search = decode_base64(
+                'aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '+3D/feed'
+            fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + "+3D/feed/"
 
-    results = {}
-    i = 0
+            async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
+            async_results = async_results[0]
 
-    for result in rated:
-        res = {"payload": result[1], "title": result[2]}
-        if len(rated) > 9 >= i:
-            results["result0" + str(i)] = res
-        elif len(rated) > 99 and i <= 9:
-            results["result00" + str(i)] = res
-        elif len(rated) > 99 >= i:
-            results["result0" + str(i)] = res
-        else:
-            results["result" + str(i)] = res
-        i += 1
-    mb_final = results
+            mb_results = []
+            hw_results = []
+            hs_results = []
+            fx_results = []
 
-    sj_search = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9zZXJpZS9zZWFyY2g/cT0=") + query, configfile,
-                        dbfile, scraper)
-    try:
-        sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
-    except:
-        sj_results = []
+            for res in async_results:
+                if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
+                    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+                elif decode_base64('aGQtd29ybGQub3Jn') in res:
+                    hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
+                elif decode_base64('aGQtc291cmNlLnRv') in res:
+                    hs_results = hs_search_results(res)
+                elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
+                    fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
 
-    if special:
-        append = " (" + special + ")"
-    else:
-        append = ""
-    i = 0
-    results = {}
-    for result in sj_results:
-        r_title = result.text
-        r_rating = fuzz.ratio(title.lower(), r_title)
-        if r_rating > 60:
-            res = {"payload": encode_base64(result['href'] + ";" + r_title + ";" + str(special)),
-                   "title": r_title + append}
-            if len(sj_results) > 9 >= i:
+            nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
+            nk_search = post_url(nk_base_url + "search", configfile, dbfile,
+                                 data={'search': bl_query.replace("+", " ") + " " + quality + "3D"})
+            nk_results = nk_search_results(nk_search, nk_base_url)
+
+            password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+            for result in mb_results:
+                if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
+                    unrated.append(
+                        [rate(result[0], configfile), encode_base64(result[1] + "|" + password),
+                         result[0] + " (3D-MB)"])
+
+            password = decode_base64("aGQtd29ybGQub3Jn")
+            for result in hw_results:
+                unrated.append(
+                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-HW)"])
+
+            password = decode_base64("aGQtc291cmNlLnRv")
+            for result in hs_results:
+                unrated.append(
+                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-HS)"])
+
+            password = decode_base64("ZnVueGQ=")
+            for result in fx_results:
+                unrated.append(
+                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-FX)"])
+
+            password = decode_base64("TklNQTRL")
+            for result in nk_results:
+                unrated.append(
+                    [rate(result[0], configfile), encode_base64(result[1] + "|" + password), result[0] + " (3D-NK)"])
+
+        rated = sorted(unrated, reverse=True)
+
+        results = {}
+        i = 0
+
+        for result in rated:
+            res = {"payload": result[1], "title": result[2]}
+            if len(rated) > 9 >= i:
                 results["result0" + str(i)] = res
-            elif len(sj_results) > 99 and i <= 9:
+            elif len(rated) > 99 and i <= 9:
                 results["result00" + str(i)] = res
-            elif len(sj_results) > 99 >= i:
+            elif len(rated) > 99 >= i:
                 results["result0" + str(i)] = res
             else:
                 results["result" + str(i)] = res
             i += 1
-    sj_final = results
-    return mb_final, sj_final
+        bl_final = results
+
+    if not bl_only:
+        sj_query = sanitize(title).replace(" ", "+")
+        sj_search = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9zZXJpZS9zZWFyY2g/cT0=") + sj_query,
+                            configfile, dbfile, scraper)
+        try:
+            sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
+        except:
+            sj_results = []
+
+        if special:
+            append = " (" + special + ")"
+        else:
+            append = ""
+        i = 0
+        results = {}
+        for result in sj_results:
+            r_title = result.text
+            r_rating = fuzz.ratio(title.lower(), r_title)
+            if r_rating > 40:
+                res = {"payload": encode_base64(result['href'] + "|" + r_title + "|" + str(special)),
+                       "title": r_title + append}
+                if len(sj_results) > 9 >= i:
+                    results["result0" + str(i)] = res
+                elif len(sj_results) > 99 and i <= 9:
+                    results["result00" + str(i)] = res
+                elif len(sj_results) > 99 >= i:
+                    results["result0" + str(i)] = res
+                else:
+                    results["result" + str(i)] = res
+                i += 1
+        sj_final = results
+
+    return bl_final, sj_final
 
 
 def rate(title, configfile):
@@ -318,8 +331,7 @@ def rate(title, configfile):
 def best_result_bl(title, configfile, dbfile):
     title = sanitize(title)
     try:
-        # ToDo: Only query blogs with this
-        mb_results = get(title, configfile, dbfile)[0]
+        mb_results = get(title, configfile, dbfile, bl_only=True)[0]
     except:
         return False
     conf = RssConfig('MB', configfile)
@@ -404,8 +416,7 @@ def best_result_bl(title, configfile, dbfile):
 
 def best_result_sj(title, configfile, dbfile):
     try:
-        # ToDo: only query SJ here
-        sj_results = get(title, configfile, dbfile)[1]
+        sj_results = get(title, configfile, dbfile, sj_only=True)[1]
     except:
         return False
     results = []
@@ -455,7 +466,7 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def download_bl(payload, device, configfile, dbfile):
-    payload = decode_base64(payload).split(";")
+    payload = decode_base64(payload).split("|")
     link = payload[0]
     password = payload[1]
     url = get_url(link, configfile, dbfile)
@@ -666,7 +677,7 @@ def download_bl(payload, device, configfile, dbfile):
 
 
 def download_sj(payload, configfile, dbfile):
-    payload = decode_base64(payload).split(";")
+    payload = decode_base64(payload).split("|")
     href = payload[0]
     title = payload[1]
     special = payload[2].strip().replace("None", "")
