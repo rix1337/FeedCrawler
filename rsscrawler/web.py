@@ -536,7 +536,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             return jsonify(
                 {
                     "results": {
-                        "mb": results[0],
+                        "bl": results[0],
                         "sj": results[1]
                     }
                 }
@@ -549,9 +549,10 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     def download_movie(title):
         global device
         if request.method == 'POST':
-            best_result = search.best_result_bl(title, configfile, dbfile)
-            if best_result and search.download_bl(best_result, device, configfile, dbfile):
-                return "Success", 200
+            payload = search.best_result_bl(title, configfile, dbfile)
+            if payload:
+                matches = search.download_bl(payload, device, configfile, dbfile)
+                return "Success: " + str(matches), 200
             else:
                 return "Failed", 400
         else:
@@ -561,44 +562,34 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @requires_auth
     def download_show(title):
         global device
-        if ";" in title:
-            split = title.split(";")
-            title = split[0]
-            special = split[1]
-        else:
-            special = None
         if request.method == 'POST':
-            best_result = search.best_result_sj(title, configfile, dbfile)
-            if best_result and search.download_sj(best_result, special, device, configfile, dbfile):
+            payload = search.best_result_sj(title, configfile, dbfile)
+            if payload:
+                matches = search.download_sj(payload, configfile, dbfile)
+                if matches:
+                    return "Success: " + str(matches), 200
+            return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/download_bl/<payload>", methods=['POST'])
+    @requires_auth
+    def download_bl(payload):
+        global device
+        if request.method == 'POST':
+            if search.download_bl(payload, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/download_bl/<permalink>", methods=['POST'])
+    @app.route(prefix + "/api/download_sj/<payload>", methods=['POST'])
     @requires_auth
-    def download_bl(permalink):
+    def download_sj(payload):
         global device
         if request.method == 'POST':
-            if search.download_bl(permalink, device, configfile, dbfile):
-                return "Success", 200
-            else:
-                return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/api/download_sj/<info>", methods=['POST'])
-    @requires_auth
-    def download_sj(info):
-        global device
-        split = info.split(";")
-        sj_id = split[0]
-        special = split[1]
-        if special == "null":
-            special = None
-        if request.method == 'POST':
-            if search.download_sj(sj_id, special, device, configfile, dbfile):
+            if search.download_sj(payload, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -809,6 +800,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 payload = RssDb(dbfile, 'to_decrypt').retrieve(title).split('|')
                 link = payload[0]
             except:
+                link = False
                 payload = False
             if payload:
                 return """<!DOCTYPE html>
@@ -820,6 +812,9 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         <link rel='stylesheet' href='../css/bootstrap.min.css'>
                         <link rel='stylesheet' href='../css/rsscrawler.css?updated'>
                         <title>Click'n'Load-Automatik für """ + title + """</title>
+                        <script type="text/javascript">
+                            screen.width<=800&&(window.location='""" + link + """');
+                        </script>
                     </head>
                     
                     <body class='text-center'>
@@ -832,6 +827,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                                 <i id='before' class="fas fa-clipboard"></i>
                                 <i id='after' class="fas fa-clipboard-check" style='display: none;'>
                                 </i> """ + title + """
+                                <a href='""" + link + """'> <i class="fas fa-external-link-alt"></i></a>
                             </h3>
                             <iframe id='frame' src='""" + link + """' frameborder='0' scrolling='yes'
                                 referrerpolicy="no-referrer" style='display:block; width:100%; height:86vh;'>
@@ -992,7 +988,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 for op in offline_packages:
                     known_packages.append(op['uuid'])
 
-            cnl_package = False
+            cnl_packages = []
             grabber_was_collecting = False
             i = 12
             while i > 0:
@@ -1013,18 +1009,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             if not grabber_collecting and decrypted_packages:
                                 for dp in decrypted_packages:
                                     if dp['uuid'] not in known_packages:
-                                        cnl_package = dp
+                                        cnl_packages.append(dp)
                                         i = 0
                             if not grabber_collecting and offline_packages:
                                 for op in offline_packages:
                                     if op['uuid'] not in known_packages:
-                                        cnl_package = op
+                                        cnl_packages.append(op)
                                         i = 0
 
-            if not cnl_package:
+            if not cnl_packages:
                 return "No Package added through Click'n'Load in time!", 504
 
-            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_package)
+            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_packages)
             device = replaced[0]
             if device:
                 remove_decrypt(name, dbfile)

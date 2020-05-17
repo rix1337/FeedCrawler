@@ -32,8 +32,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.pageSize = 10;
     $scope.resLength = 0;
     $scope.numberOfPages = function () {
-        if (typeof $scope.results.mb !== 'undefined') {
-            $scope.resLength = Object.values($scope.results.mb).length;
+        if (typeof $scope.results.bl !== 'undefined') {
+            $scope.resLength = Object.values($scope.results.bl).length;
             return Math.ceil($scope.resLength / $scope.pageSize);
         }
     };
@@ -156,12 +156,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         searchNow();
     };
 
-    $scope.downloadMB = function (link) {
-        downloadMB(link);
+    $scope.downloadBL = function (payload) {
+        downloadBL(payload);
     };
 
-    $scope.downloadSJ = function (id, special) {
-        downloadSJ(id, special);
+    $scope.downloadSJ = function (payload) {
+        downloadSJ(payload);
     };
 
     $scope.saveLists = function () {
@@ -362,9 +362,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function downloadMB(link) {
+    function downloadBL(payload) {
         showInfoLong("Starte Download...");
-        $http.post('api/download_bl/' + link)
+        $http.post('api/download_bl/' + payload)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
@@ -377,9 +377,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function downloadSJ(id, special) {
+    function downloadSJ(payload) {
         showInfoLong("Starte Download...");
-        $http.post('api/download_sj/' + id + ";" + special)
+        $http.post('api/download_sj/' + payload)
             .then(function (res) {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
@@ -430,7 +430,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             $http.get('api/search/' + title)
                 .then(function (res) {
                     $scope.results = res.data.results;
-                    $scope.resLength = Object.values($scope.results.mb).length;
+                    $scope.resLength = Object.values($scope.results.bl).length;
                     $scope.search = "";
                     console.log('Nach ' + title + ' gesucht!');
                     getLog();
