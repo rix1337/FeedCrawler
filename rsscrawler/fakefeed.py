@@ -91,6 +91,11 @@ def fx_feed_enricher(feed):
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
                 if title:
+                    if "download" in title.lower():
+                        try:
+                            title = str(soup.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                        except:
+                            continue
                     entries.append(FakeFeedParserDict({
                         "title": title,
                         "published": post.published,
