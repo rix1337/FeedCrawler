@@ -12,7 +12,6 @@ from rapidfuzz import fuzz
 
 from rsscrawler.fakefeed import fx_content_to_soup
 from rsscrawler.fakefeed import fx_download_links
-from rsscrawler.fakefeed import fx_post_title
 from rsscrawler.fakefeed import fx_search_results
 from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.fakefeed import nk_search_results
@@ -459,8 +458,6 @@ def download_bl(payload, device, configfile, dbfile):
             download = soup.find("div", {"class": "entry-content"})
             key = soup.find("h2", {"class": "entry-title"}).text
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
-        elif "FX" in site:
-            key = fx_post_title(url)
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
             url_hosters = []
@@ -468,6 +465,9 @@ def download_bl(payload, device, configfile, dbfile):
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
                 url_hosters.append([base_url + hoster["href"], hoster.text])
+        elif "FX" in site:
+            key = payload[1]
+            password = payload[2]
         else:
             return False
 

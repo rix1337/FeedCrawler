@@ -3,11 +3,11 @@
 # Projekt von https://github.com/rix1337
 
 
+import json
 import re
 
 import feedparser
 from bs4 import BeautifulSoup
-import json
 
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.url import get_url
@@ -212,31 +212,41 @@ def fx_content_to_soup(content):
 
 
 def fx_search_results(content):
-    content = content.find_all("item")
+    contents = content.find_all("item")
     items = []
-    for item in content:
-        title = fx_post_title(item)
-        link = item.find("comments").text
-        items.append([title, link])
+    for content in contents:
+        titles = content.find_all("a", href=re.compile(r"filecrypt\.cc"))
+        for title in titles:
+            title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+            link = content.find("comments").text
+            if title:
+                items.append([title, link + "|" + title])
     return items
 
 
-def fx_post_title(content):
-    # TODO: this only gets the first release if there are multiple options
-    if not content:
-        return ""
-    try:
-        content = BeautifulSoup(content, 'lxml')
-    except:
-        content = BeautifulSoup(str(content), 'lxml')
-    try:
-        title = content.find("mark").text.encode("ascii", errors="ignore").decode()
-    except:
+def fx_feed_enricher(feed):
+    feed = feedparser.parse(feed)
+    entries = []
+
+    for post in feed.entries:
         try:
-            title = content.find("title").text
+            soup = BeautifulSoup(str(post), 'lxml')
+            titles = soup.findAll("a", href=re.compile(r"filecrypt\.cc"))
+            for title in titles:
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+                if title:
+                    entries.append(FakeFeedParserDict({
+                        "title": title,
+                        "published": post.published,
+                        "content": post.content
+                    }))
         except:
-            title = ""
-    return title
+            print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def fx_download_links(content, title):
