@@ -114,6 +114,11 @@ def fx_search_results(content):
             title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
             link = content.find("comments").text
             if title:
+                if "download" in title.lower():
+                    try:
+                        title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                    except:
+                        continue
                 items.append([title, link + "|" + title])
     return items
 
