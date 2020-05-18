@@ -10,7 +10,7 @@ import re
 import feedparser
 
 from rsscrawler.fakefeed import fx_download_links
-from rsscrawler.fakefeed import fx_post_title
+from rsscrawler.fakefeed import fx_feed_enricher
 from rsscrawler.fakefeed import hs_feed_enricher
 from rsscrawler.fakefeed import hs_search_to_soup
 from rsscrawler.fakefeed import nk_feed_enricher
@@ -27,9 +27,9 @@ from rsscrawler.rsscommon import is_retail
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
+from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
-from rsscrawler.url import check_is_site
 
 
 class BL:
@@ -230,10 +230,7 @@ class BL:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
             if content:
-                if not "FX" in site:
-                    post.title = post.title.strip(u'\u200b')
-                else:
-                    post.title = fx_post_title(content)
+                post.title = post.title.strip(u'\u200b')
 
             if site == "MB":
                 if self.i_mb_done:
@@ -535,10 +532,7 @@ class BL:
                 self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
                 content = False
             if content:
-                if not "FX" in site:
-                    post.title = post.title.strip(u'\u200b')
-                else:
-                    post.title = fx_post_title(content)
+                post.title = post.title.strip(u'\u200b')
 
             if site == "MB":
                 if self.mb_done:
@@ -686,9 +680,10 @@ class BL:
                                     post.title + " - Release hat falsche Quelle")
                                 continue
                             if ".complete." not in post.title.lower():
-                                self.log_debug(
-                                    post.title + " - Staffel noch nicht komplett")
-                                continue
+                                if not "FX" in site:
+                                    self.log_debug(
+                                        post.title + " - Staffel noch nicht komplett")
+                                    continue
                             season = re.search(r"\.s\d", post.title.lower())
                             if not season:
                                 self.log_debug(
@@ -714,8 +709,6 @@ class BL:
                             else:
                                 found = re.search(ss, post.title.lower())
                             if found:
-                                if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
-                                    continue
                                 episode = re.search(
                                     r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
                                 if episode:
@@ -1419,7 +1412,7 @@ class BL:
                 first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
                 self.scraper = first_fx[1]
                 first_fx = first_fx[0]
-                first_page_fx = feedparser.parse(first_fx.content)
+                first_page_fx = fx_feed_enricher(first_fx.content)
                 if first_fx.status_code == 304:
                     fx_304 = True
             except:
@@ -1574,7 +1567,7 @@ class BL:
                         if not self.historical and i == 0 and first_page_fx:
                             fx_parsed_url = first_page_fx
                         else:
-                            fx_parsed_url = feedparser.parse(
+                            fx_parsed_url = fx_feed_enricher(
                                 get_url(url, self.configfile, self.dbfile, self.scraper))
                         found = self.imdb_search(imdb, fx_parsed_url, "FX")
                         if found:
@@ -1642,7 +1635,7 @@ class BL:
                     if not self.historical and i == 0 and first_page_fx:
                         fx_parsed_url = first_page_fx
                     else:
-                        fx_parsed_url = feedparser.parse(
+                        fx_parsed_url = fx_feed_enricher(
                             get_url(url, self.configfile, self.dbfile, self.scraper))
                     found = self.feed_search(fx_parsed_url, "FX")
                     if found:

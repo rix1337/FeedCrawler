@@ -8,6 +8,8 @@ import requests
 
 from rsscrawler import search
 from rsscrawler.rsscommon import sanitize
+from rsscrawler.rsscommon import decode_base64
+from rsscrawler.rsscommon import encode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url_headers
@@ -217,13 +219,15 @@ def ombi(configfile, dbfile, device, log_debug):
                                             if len(e) == 1:
                                                 e = "0" + e
                                             se = s + "E" + e
-                                            best_result = search.best_result_sj(title, configfile, dbfile)
-                                            if best_result:
-                                                add_episode = search.download_sj(best_result, se, device, configfile,
-                                                                                 dbfile)
-                                                if not add_episode:
-                                                    add_season = search.download_sj(best_result, s, device, configfile,
-                                                                                    dbfile)
+                                            payload = search.best_result_sj(title, configfile, dbfile)
+                                            if payload:
+                                                payload = decode_base64(payload).split("|")
+                                                payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
+                                                added_episode = search.download_sj(payload, configfile, dbfile)
+                                                if not added_episode:
+                                                    payload = decode_base64(payload).split("|")
+                                                    payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
+                                                    add_season = search.download_sj(payload, configfile, dbfile)
                                                     for e in eps:
                                                         e = str(e)
                                                         if len(e) == 1:
@@ -236,9 +240,11 @@ def ombi(configfile, dbfile, device, log_debug):
                                                     break
                                             db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
                                     else:
-                                        best_result = search.best_result_sj(title, configfile, dbfile)
-                                        if best_result:
-                                            search.download_sj(best_result, s, device, configfile, dbfile)
+                                        payload = search.best_result_sj(title, configfile, dbfile)
+                                        if payload:
+                                            payload = decode_base64(payload).split("|")
+                                            payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
+                                            search.download_sj(payload, configfile, dbfile)
                                         for ep in eps:
                                             e = str(ep)
                                             if len(e) == 1:
