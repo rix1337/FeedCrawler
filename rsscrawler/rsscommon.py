@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-
 import base64
 import datetime
 import logging
@@ -17,6 +16,39 @@ from rsscrawler.rssdb import RssDb
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
+
+
+class Unbuffered(object):
+    def __init__(self, stream):
+        self.stream = stream
+
+    def write(self, data):
+        self.stream.write(data)
+        self.stream.flush()
+
+    def writelines(self, datas):
+        self.stream.writelines(datas)
+        self.stream.flush()
+
+    def __getattr__(self, attr):
+        return getattr(self.stream, attr)
+
+
+def add_decrypt(title, link, password, dbfile):
+    try:
+        RssDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
+        return True
+    except:
+        return False
+
+
+def check_hoster(to_check, configfile):
+    hosters = RssConfig("Hosters", configfile).get_section()
+    for hoster in hosters:
+        if hosters[hoster] == "True":
+            if hoster in to_check.lower() or to_check.lower() in hoster:
+                return True
+    return False
 
 
 def check_ip():
@@ -141,6 +173,15 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
     return True
 
 
+def decode_base64(value):
+    value = value.replace("-", "/")
+    return base64.b64decode(value).decode()
+
+
+def encode_base64(value):
+    return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
+
+
 def entfernen(retailtitel, identifier, dbfile):
     titles = retail_sub(retailtitel)
     retail = titles[0]
@@ -162,15 +203,42 @@ def entfernen(retailtitel, identifier, dbfile):
     log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
-def retail_sub(title):
-    simplified = title.replace(".", " ")
-    retail = re.sub(
-        r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*)(|.)\d{4}(|.)(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
-        "", simplified)
-    retailyear = re.sub(
-        r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
-        "", simplified)
-    return retail, retailyear
+def fullhd_title(key):
+    return key.replace("720p", "DL.1080p")
+
+
+def get_to_decrypt(dbfile):
+    try:
+        to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        if to_decrypt:
+            packages = []
+            for package in to_decrypt:
+                title = package[0]
+                details = package[1].split('|')
+                url = details[0]
+                password = details[1]
+                packages.append({
+                    'name': title,
+                    'url': url,
+                    'password': password
+                })
+            return packages
+        else:
+            return False
+    except:
+        return False
+
+
+def is_device(device):
+    return isinstance(device, (type, myjdapi.Jddevice))
+
+
+def is_hevc(key):
+    key = key.lower()
+    if "h265" in key or "x265" in key or "hevc" in key:
+        return True
+    else:
+        return False
 
 
 def is_retail(key, identifier, dbfile):
@@ -186,36 +254,14 @@ def is_retail(key, identifier, dbfile):
         return False
 
 
-def is_hevc(key):
-    key = key.lower()
-    if "h265" in key or "x265" in key or "hevc" in key:
-        return True
-    else:
-        return False
-
-
-def sanitize(key):
-    key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace('ä',
-                                                                                                                  'ae').replace(
-        u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß', 'ss').replace('(',
-                                                                                                            '').replace(
-        ')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!',
-                                                                                                               '').replace(
-        ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
-    return key
-
-
-def fullhd_title(key):
-    return key.replace("720p", "DL.1080p")
-
-
-def decode_base64(value):
-    value = value.replace("-", "/")
-    return base64.b64decode(value).decode()
-
-
-def encode_base64(value):
-    return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
+def longest_substr(data):
+    substr = ''
+    if len(data) > 1 and len(data[0]) > 0:
+        for i in range(len(data[0])):
+            for j in range(len(data[0]) - i + 1):
+                if j > len(substr) and all(data[0][i:i + j] in x for x in data):
+                    substr = data[0][i:i + j]
+    return substr
 
 
 def readable_size(size):
@@ -245,37 +291,6 @@ def readable_time(time):
     return time
 
 
-def is_device(device):
-    return isinstance(device, (type, myjdapi.Jddevice))
-
-
-def longest_substr(data):
-    substr = ''
-    if len(data) > 1 and len(data[0]) > 0:
-        for i in range(len(data[0])):
-            for j in range(len(data[0]) - i + 1):
-                if j > len(substr) and all(data[0][i:i + j] in x for x in data):
-                    substr = data[0][i:i + j]
-    return substr
-
-
-def check_hoster(to_check, configfile):
-    hosters = RssConfig("Hosters", configfile).get_section()
-    for hoster in hosters:
-        if hosters[hoster] == "True":
-            if hoster in to_check.lower() or to_check.lower() in hoster:
-                return True
-    return False
-
-
-def add_decrypt(title, link, password, dbfile):
-    try:
-        RssDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
-        return True
-    except:
-        return False
-
-
 def remove_decrypt(title, dbfile):
     try:
         RssDb(dbfile, 'to_decrypt').delete(title)
@@ -284,39 +299,23 @@ def remove_decrypt(title, dbfile):
         return False
 
 
-def get_to_decrypt(dbfile):
-    try:
-        to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
-        if to_decrypt:
-            packages = []
-            for package in to_decrypt:
-                title = package[0]
-                details = package[1].split('|')
-                url = details[0]
-                password = details[1]
-                packages.append({
-                    'name': title,
-                    'url': url,
-                    'password': password
-                })
-            return packages
-        else:
-            return False
-    except:
-        return False
+def retail_sub(title):
+    simplified = title.replace(".", " ")
+    retail = re.sub(
+        r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*)(|.)\d{4}(|.)(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
+        "", simplified)
+    retailyear = re.sub(
+        r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
+        "", simplified)
+    return retail, retailyear
 
 
-class Unbuffered(object):
-    def __init__(self, stream):
-        self.stream = stream
-
-    def write(self, data):
-        self.stream.write(data)
-        self.stream.flush()
-
-    def writelines(self, datas):
-        self.stream.writelines(datas)
-        self.stream.flush()
-
-    def __getattr__(self, attr):
-        return getattr(self.stream, attr)
+def sanitize(key):
+    key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace('ä',
+                                                                                                                  'ae').replace(
+        u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß', 'ss').replace('(',
+                                                                                                            '').replace(
+        ')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!',
+                                                                                                               '').replace(
+        ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
+    return key

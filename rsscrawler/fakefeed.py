@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-
 import json
 import re
 
@@ -20,6 +19,103 @@ class FakeFeedParserDict(dict):
             return self[name]
         else:
             raise AttributeError("No such attribute: " + name)
+
+
+def dj_content_to_soup(content):
+    content = BeautifulSoup(content, 'lxml')
+    content = dj_to_feedparser_dict(content)
+    return content
+
+
+def dj_to_feedparser_dict(beautifulsoup_object):
+    content_areas = beautifulsoup_object.findAll("fieldset")
+    entries = []
+
+    for area in content_areas:
+        try:
+            published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
+        except:
+            published = "ERROR"
+
+        genres = area.find_all("div", {"class": "grey-box"})
+
+        for genre in genres:
+            items = genre.select("a")
+            dj_type = str(genre.previous.previous)
+
+            for item in items:
+                titles = item.text.split('\n')
+                link = item.attrs["href"]
+
+                for title in titles:
+                    entries.append(FakeFeedParserDict({
+                        "title": title,
+                        "published": published,
+                        "genre": dj_type,
+                        "link": link
+                    }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def fx_content_to_soup(content):
+    content = BeautifulSoup(content, 'lxml')
+    return content
+
+
+def fx_download_links(content, title):
+    try:
+        try:
+            content = BeautifulSoup(content, 'lxml')
+        except:
+            content = BeautifulSoup(str(content), 'lxml')
+        try:
+            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
+        except:
+            download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
+    except:
+        return False
+    return download_links
+
+
+def fx_feed_enricher(feed):
+    feed = feedparser.parse(feed)
+    entries = []
+
+    for post in feed.entries:
+        try:
+            soup = BeautifulSoup(str(post), 'lxml')
+            titles = soup.findAll("a", href=re.compile(r"filecrypt\.cc"))
+            for title in titles:
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+                if title:
+                    entries.append(FakeFeedParserDict({
+                        "title": title,
+                        "published": post.published,
+                        "content": post.content
+                    }))
+        except:
+            print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def fx_search_results(content):
+    contents = content.find_all("item")
+    items = []
+    for content in contents:
+        titles = content.find_all("a", href=re.compile(r"filecrypt\.cc"))
+        for title in titles:
+            title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+            link = content.find("comments").text
+            if title:
+                items.append([title, link + "|" + title])
+    return items
 
 
 def hs_feed_enricher(feed, configfile, dbfile, scraper):
@@ -59,33 +155,20 @@ def hs_feed_enricher(feed, configfile, dbfile, scraper):
     return feed
 
 
-def hs_search_to_soup(url, configfile, dbfile, scraper):
+def hs_search_results(url):
     content = []
-    search = BeautifulSoup(get_url(url, configfile, dbfile, scraper), 'lxml')
+    search = BeautifulSoup(url, 'lxml')
     if search:
         results = search.find_all("item")
         if results:
-            async_results = []
-            for r in results:
-                try:
-                    async_results.append(r.link.next)
-                except:
-                    pass
-            async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
-            # TODO: This is a bug, if async results is ordered differently than results
-            i = 0
             for r in results:
                 try:
                     title = r.title.next
-                    details = BeautifulSoup(async_results[i], 'lxml')
-                    content.append({
-                        "key": title,
-                        "value": details
-                    })
+                    link = r.find("comments").text
+                    content.append((title, link))
                 except:
-                    pass
-                i += 1
-    return hs_search_to_feedparser_dict(content)
+                    break
+    return content
 
 
 def hs_search_to_feedparser_dict(beautifulsoup_object_list):
@@ -119,149 +202,33 @@ def hs_search_to_feedparser_dict(beautifulsoup_object_list):
     return feed
 
 
-def hs_search_results(url):
+def hs_search_to_soup(url, configfile, dbfile, scraper):
     content = []
-    search = BeautifulSoup(url, 'lxml')
+    search = BeautifulSoup(get_url(url, configfile, dbfile, scraper), 'lxml')
     if search:
         results = search.find_all("item")
         if results:
+            async_results = []
+            for r in results:
+                try:
+                    async_results.append(r.link.next)
+                except:
+                    pass
+            async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
+            # TODO: This is a bug, if async results is ordered differently than results
+            i = 0
             for r in results:
                 try:
                     title = r.title.next
-                    link = r.find("comments").text
-                    content.append((title, link))
+                    details = BeautifulSoup(async_results[i], 'lxml')
+                    content.append({
+                        "key": title,
+                        "value": details
+                    })
                 except:
-                    break
-    return content
-
-
-def sj_releases_to_feedparser_dict(releases, list_type):
-    upload_dates = json.loads(releases)
-    entries = []
-
-    for date in upload_dates:
-        releases = upload_dates[date]
-        for release in releases:
-            try:
-                if list_type == 'seasons' and release['episode']:
-                    continue
-                elif list_type == 'episodes' and not release['episode']:
-                    continue
-            except:
-                continue
-            title = release['name']
-            series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
-            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + release["_media"][
-                "id"] + '/releases'
-            published = date
-
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "series_url": series_url,
-                "api_url": api_url,
-                "published": published
-            }))
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def dj_to_feedparser_dict(beautifulsoup_object):
-    content_areas = beautifulsoup_object.findAll("fieldset")
-    entries = []
-
-    for area in content_areas:
-        try:
-            published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
-        except:
-            published = "ERROR"
-
-        genres = area.find_all("div", {"class": "grey-box"})
-
-        for genre in genres:
-            items = genre.select("a")
-            dj_type = str(genre.previous.previous)
-
-            for item in items:
-                titles = item.text.split('\n')
-                link = item.attrs["href"]
-
-                for title in titles:
-                    entries.append(FakeFeedParserDict({
-                        "title": title,
-                        "published": published,
-                        "genre": dj_type,
-                        "link": link
-                    }))
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def dj_content_to_soup(content):
-    content = BeautifulSoup(content, 'lxml')
-    content = dj_to_feedparser_dict(content)
-    return content
-
-
-def fx_content_to_soup(content):
-    content = BeautifulSoup(content, 'lxml')
-    return content
-
-
-def fx_search_results(content):
-    contents = content.find_all("item")
-    items = []
-    for content in contents:
-        titles = content.find_all("a", href=re.compile(r"filecrypt\.cc"))
-        for title in titles:
-            title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
-            link = content.find("comments").text
-            if title:
-                items.append([title, link + "|" + title])
-    return items
-
-
-def fx_feed_enricher(feed):
-    feed = feedparser.parse(feed)
-    entries = []
-
-    for post in feed.entries:
-        try:
-            soup = BeautifulSoup(str(post), 'lxml')
-            titles = soup.findAll("a", href=re.compile(r"filecrypt\.cc"))
-            for title in titles:
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
-                if title:
-                    entries.append(FakeFeedParserDict({
-                        "title": title,
-                        "published": post.published,
-                        "content": post.content
-                    }))
-        except:
-            print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
-            continue
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def fx_download_links(content, title):
-    try:
-        try:
-            content = BeautifulSoup(content, 'lxml')
-        except:
-            content = BeautifulSoup(str(content), 'lxml')
-        try:
-            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
-        except:
-            download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
-    except:
-        return False
-    return download_links
+                    pass
+                i += 1
+    return hs_search_to_feedparser_dict(content)
 
 
 def nk_feed_enricher(content, base_url, configfile, dbfile, scraper):
@@ -320,3 +287,35 @@ def nk_search_results(content, base_url):
         except:
             pass
     return results
+
+
+def sj_releases_to_feedparser_dict(releases, list_type):
+    upload_dates = json.loads(releases)
+    entries = []
+
+    for date in upload_dates:
+        releases = upload_dates[date]
+        for release in releases:
+            try:
+                if list_type == 'seasons' and release['episode']:
+                    continue
+                elif list_type == 'episodes' and not release['episode']:
+                    continue
+            except:
+                continue
+            title = release['name']
+            series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
+            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + release["_media"][
+                "id"] + '/releases'
+            published = date
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "series_url": series_url,
+                "api_url": api_url,
+                "published": published
+            }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
