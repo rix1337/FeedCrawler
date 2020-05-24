@@ -199,12 +199,16 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item" ng-if="x.url">
-                                    <a ng-if="!myjd_grabbing" ng-href="./decrypt/{{x.name}}"
+                                    <a ng-if="!myjd_grabbing" ng-href="{{x.url}}#{{x.name}}"
                                        ng-click="internalCnl(x.name, x.password)"
                                        class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
                                        target="_blank"
                                        title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
+                                    <span>Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a href="./rsscrawler_helper.user.js">RSScrawler Helper</a> installieren!
+                                    </span>
                                     <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
                                     <span class="cnl-spinner" ng-show="cnl_active"
                                           title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"

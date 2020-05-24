@@ -691,12 +691,9 @@ def download_sj(payload, configfile, dbfile):
                         existing = result_episodes.get(season)
                         if existing:
                             for e in existing:
-                                dont = False
                                 if e == ep:
-                                    if rate(name, ignore) < rate(existing[e][0], ignore):
-                                        dont = True
-                            if not dont:
-                                existing.update({ep: name})
+                                    if rate(name, ignore) > rate(existing[e], ignore):
+                                        existing.update({ep: name})
                         else:
                             existing = {ep: name}
                         result_episodes.update({season: existing})
@@ -718,10 +715,20 @@ def download_sj(payload, configfile, dbfile):
         except:
             pass
 
+        success = False
         try:
-            if result_seasons[season] or result_episodes[season]:
-                logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
+            if result_seasons[season]:
+                success = True
         except:
+            try:
+                if result_episodes[season]:
+                    success = True
+            except:
+                pass
+
+        if success:
+            logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
+        else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
                 hosters = release['hoster']
@@ -742,12 +749,9 @@ def download_sj(payload, configfile, dbfile):
                             existing = result_episodes.get(season)
                             if existing:
                                 for e in existing:
-                                    dont = False
                                     if e == ep:
-                                        if rate(name, ignore) < rate(existing[e][0], ignore):
-                                            dont = True
-                                if not dont:
-                                    existing.update({ep: name})
+                                        if rate(name, ignore) > rate(existing[e], ignore):
+                                            existing.update({ep: name})
                             else:
                                 existing = {ep: name}
                             result_episodes.update({season: existing})

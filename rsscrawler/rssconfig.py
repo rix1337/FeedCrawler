@@ -70,7 +70,7 @@ class RssConfig(object):
             ("seasonsquality", "str", "720p"),
             ("seasonpacks", "bool", "False"),
             ("seasonssource", "str",
-             "web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip"),
+             "web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
             ("imdb", "str", "0.0"),
             ("hoster_fallback", "bool", "False"),
