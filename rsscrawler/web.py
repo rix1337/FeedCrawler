@@ -800,10 +800,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 // @name            RSScrawler Helper
                 // @author          rix1337
                 // @description     Clicks the correct download button on SJ
-                // @version         0.0.1
+                // @version         0.0.2
                 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js 
-                // @include         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/*
+                // @include         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
                 // ==/UserScript==
+                document.body.addEventListener('mousedown', function(e) {
+                    if (e.target.tagName != "A") return;
+                    var anchor = e.target;
+                    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
+                        anchor.href = anchor.href + '#' + anchor.text;
+                    }
+                });
+                
                 var title = window.location.hash.replace("#", "");
                 if (title) {
                     $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
