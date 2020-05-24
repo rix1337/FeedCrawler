@@ -792,89 +792,32 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/decrypt/<title>", methods=['GET'])
+    @app.route(prefix + "/rsscrawler_helper.user.js", methods=['GET'])
     @requires_auth
-    def decrypt(title):
+    def rsscrawler_helper():
         if request.method == 'GET':
-            try:
-                payload = RssDb(dbfile, 'to_decrypt').retrieve(title).split('|')
-                link = payload[0]
-            except:
-                link = False
-                payload = False
-            if payload:
-                return """<!DOCTYPE html>
-                    <html lang='de'>
-                    <head>
-                        <meta charset='UTF-8'>
-                        <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-                        <link href='../img/favicon.ico' rel='icon' type='image/x-icon'>
-                        <link rel='stylesheet' href='../css/bootstrap.min.css'>
-                        <link rel='stylesheet' href='../css/rsscrawler.css?updated'>
-                        <title>Click'n'Load-Automatik für """ + title + """</title>
-                        <script type="text/javascript">
-                            screen.width<=800&&(window.location='""" + link + """');
-                        </script>
-                    </head>
-                    
-                    <body class='text-center'>
-                    
-                        <div id='log' class='container app col'>
-                            <h3 id='title' style='word-break: break-all;'
-                                title='Anklicken um den Titel in die Zwischenablage zu kopieren (erleichtert die Suche)'
-                                onclick="toClipboard()">
-                            
-                                <i id='before' class="fas fa-clipboard"></i>
-                                <i id='after' class="fas fa-clipboard-check" style='display: none;'>
-                                </i> """ + title + """
-                                <a href='""" + link + """'> <i class="fas fa-external-link-alt"></i></a>
-                            </h3>
-                            <iframe id='frame' src='""" + link + """' frameborder='0' scrolling='yes'
-                                referrerpolicy="no-referrer" style='display:block; width:100%; height:86vh;'>
-                            </iframe>
-                            
-                            <div id='countdown'>
-                                <i id="spinner-log" class="fas fa-sync fa-spin">
-                                </i> Noch <span id="counter">59</span> <span id="sec">Sekunden</span> zum Hinzufügen!
-                            </div>
-                        </div>
-                    
-                    <script src='../js/jquery.slim.min.js'></script>
-                    <script src='../js/bootstrap.bundle.min.js'></script>
-                    <script src="../js/fontawesome-all.min.js"></script>
-
-                    </body>
-
-                    <script>
-                    function toClipboard() {
-                        var textArea = document.createElement('textarea');
-                        var textContent = document.createTextNode('""" + title + """');
-                        textArea.appendChild(textContent);
-                        document.body.appendChild(textArea);
-                        textArea.select();
-                        textArea.setSelectionRange(0, 99999);
-                        document.execCommand("copy");
-                        textArea.remove();
-                        $("#before").hide();
-                        $("#after").show();
-                    }
-                    
-                    var count = 59, timer = setInterval(function() {
-                        $('#counter').html(count--);
-                        if(count == 0) $('#sec').text('Sekunde');
-                        if(count == -1) {
-                            $("#frame").hide();
-                            $("#countdown").hide();
-                            $('#title').text('60 Sekunden sind verstrichen - bitte dieses Fenster schließen!');
-                            $('#title').removeAttr('title');
-                            clearInterval(timer);
-                        }
-                    }, 1000);
-                    </script>
-
-                    </html>""", 200
-            else:
-                return "Failed", 400
+            return """// ==UserScript==
+                // @name            RSScrawler Helper
+                // @author          rix1337
+                // @description     Clicks the correct download button on SJ
+                // @version         0.0.1
+                // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js 
+                // @include         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/*
+                // ==/UserScript==
+                var title = window.location.hash.replace("#", "");
+                if (title) {
+                    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
+                    $(".container").hide();
+                    var checkExist = setInterval(function() {
+                       if ($("tr:contains('" + title + "')").length) {
+                            $(".container").show();
+                            $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
+                            console.log("[RSScrawler Helper] Clicked Download button of " + title);
+                            clearInterval(checkExist);
+                       }
+                    }, 100);
+                };
+                """, 200
         else:
             return "Failed", 405
 

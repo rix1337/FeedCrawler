@@ -726,15 +726,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         });
     }
 
-    function sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    async function internalCnl(name, password) {
+    function internalCnl(name, password) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
         countDown(60);
-        await sleep(1000);
         $http.post('api/internal_cnl/' + name + "&" + password)
             .then(function (res) {
                 $scope.cnl_active = false;

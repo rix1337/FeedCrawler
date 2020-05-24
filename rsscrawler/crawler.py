@@ -259,7 +259,7 @@ def crawldog(configfile, dbfile):
                 if notify_list:
                     notify(notify_list, configfile)
 
-                time.sleep(5)
+                time.sleep(30)
         except Exception:
             traceback.print_exc()
             time.sleep(30)
