@@ -103,8 +103,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             label: 'HDTV/WEB/BluRay'
         },
         {
-            value: 'web-dl.*-(tvs|4sj)|webrip.*-(tvs|4sj)|webhd.*-(tvs|4sj)|netflix.*-(tvs|4sj)|amazon.*-(tvs|4sj)|itunes.*-(tvs|4sj)|bluray|bd|bdrip',
-            label: 'BluRay/WebRetail (TVS/4SJ)'
+            value: 'web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip',
+            label: 'BluRay/WebRetail (TVS/4SJ/TvR)'
         }
     ];
 
