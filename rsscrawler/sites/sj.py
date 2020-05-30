@@ -94,10 +94,6 @@ class SJ:
 
     def parse_download(self, series_url, api_url, title, language_id):
         if self.filename == 'MB_Staffeln':
-            season = re.search(r"\.s\d", title.lower())
-            if not season:
-                self.log_debug(title + " - Release ist keine Staffel")
-                return
             if not self.config.get("seasonpacks"):
                 staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
                 if staffelpack:

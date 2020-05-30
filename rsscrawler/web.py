@@ -13,7 +13,7 @@ from functools import wraps
 from logging import handlers
 
 import gevent
-from flask import Flask, request, send_from_directory, render_template, jsonify, Response, redirect
+from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
@@ -1038,6 +1038,19 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             ListDb(dbfile, "YT_Channels").store_list(
                 data['yt']['kanaele_playlisten'].split('\n'))
             return "Success", 201
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/redirect_user/<target>", methods=['GET'])
+    @requires_auth
+    def redirect_user(target):
+        if request.method == 'GET':
+            if target == "captcha":
+                return redirect("http://getcaptchasolution.com/zuoo67f5cq", code=302)
+            elif target == "multihoster":
+                return redirect("http://linksnappy.com/?ref=397097", code=302)
+            else:
+                return "Failed", 405
         else:
             return "Failed", 405
 
