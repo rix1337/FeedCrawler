@@ -247,7 +247,7 @@ class SJ:
 
             series_url = post.series_url
             api_url = post.api_url
-            title = post.title
+            title = post.title.replace("-", "-")
 
             if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):

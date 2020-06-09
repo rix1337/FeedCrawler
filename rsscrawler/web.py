@@ -24,6 +24,7 @@ from rsscrawler import version
 from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
+from rsscrawler.myjd import download
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_state
@@ -35,6 +36,7 @@ from rsscrawler.myjd import package_merge
 from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
+from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import get_to_decrypt
@@ -44,7 +46,7 @@ from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 
 
-def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address):
     global device
     device = _device
 
@@ -792,43 +794,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/rsscrawler_helper.user.js", methods=['GET'])
-    @requires_auth
-    def rsscrawler_helper():
-        if request.method == 'GET':
-            return """// ==UserScript==
-                // @name            RSScrawler Helper
-                // @author          rix1337
-                // @description     Clicks the correct download button on SJ
-                // @version         0.0.2
-                // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js 
-                // @include         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
-                // ==/UserScript==
-                document.body.addEventListener('mousedown', function(e) {
-                    if (e.target.tagName != "A") return;
-                    var anchor = e.target;
-                    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
-                        anchor.href = anchor.href + '#' + anchor.text;
-                    }
-                });
-                
-                var title = window.location.hash.replace("#", "");
-                if (title) {
-                    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
-                    $(".container").hide();
-                    var checkExist = setInterval(function() {
-                       if ($("tr:contains('" + title + "')").length) {
-                            $(".container").show();
-                            $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-                            console.log("[RSScrawler Helper] Clicked Download button of " + title);
-                            clearInterval(checkExist);
-                       }
-                    }, 100);
-                };
-                """, 200
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
@@ -1054,11 +1019,135 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/helper/rsscrawler_helper.user.js", methods=['GET'])
+    @requires_auth
+    def rsscrawler_helper():
+        if request.method == 'GET':
+            return """// ==UserScript==
+// @name            RSScrawler Helper
+// @author          rix1337
+// @description     Clicks the correct download button on SJ and forwards decrypted links to RSScrawler
+// @version         0.1.0
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+// @match           https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
+// @exclude         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/search?q=*
+// ==/UserScript==
+document.body.addEventListener('mousedown', function(e) {
+    if (e.target.tagName != "A") return;
+    var anchor = e.target;
+    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    }
+});
+
+function Sleep(milliseconds) {
+   return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0]
+var password = tag[1]
+if (title) {
+    // ToDo: Check if we need to log in
+    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
+    $(".container").hide();
+    var checkExist = setInterval(async function() {
+        if ($("tr:contains('" + title + "')").length) {
+            $(".container").show();
+            $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
+            console.log("[RSScrawler Helper] Clicked Download button of " + title);
+            // This will prioritize turbobit over filer (change hoster names as desired)
+            await Sleep(500);
+            $("button:contains('filer')").click();
+            $("button:contains('turbo')").click();
+            console.log("[RSScrawler Helper] Clicked Download button to trigger reCAPTCHA");
+            clearInterval(checkExist);
+        }
+    }, 100);
+
+    var dlExists = setInterval(function() {
+        if ($("tr:contains('Download Part')").length) {
+            var items = $("tr:contains('Download Part')").find("a");
+            var links = [];
+            items.each(function(index){
+                links.push(items[index].href);
+            })
+            console.log("[RSScrawler Helper] found download links: " + links);
+            clearInterval(dlExists);
+            // Your RSScrawler needs to be reachable through this URL
+            window.open('""" + local_address + """/helper/to_download/' + btoa(links + '|' + title + '|' + password));
+            window.close();
+        }
+    }, 100);
+};""", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/to_solve/", methods=['GET'])
+    @requires_auth
+    def to_solve():
+        if request.method == 'GET':
+            return render_template('helper.html')
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/api/to_solve/", methods=['GET'])
+    @requires_auth
+    def to_solve_api():
+        if request.method == 'GET':
+            to_decrypt = get_to_decrypt(dbfile)
+            if to_decrypt:
+                to_decrypt = to_decrypt[0]
+                name = to_decrypt["name"]
+                url = to_decrypt["url"] + "#" + name + "|" + to_decrypt["password"]
+                return jsonify(
+                    {
+                        "name": name,
+                        "url": url,
+                    }
+                )
+            else:
+                return jsonify(
+                    {
+                        "name": False,
+                        "url": False,
+                    }
+                )
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/helper/to_download/<payload>", methods=['GET'])
+    @requires_auth
+    def to_download(payload):
+        global device
+        if request.method == 'GET':
+            try:
+                payload = decode_base64(payload).split("|")
+            except:
+                return "Failed", 400
+            if payload:
+                links = payload[0]
+                name = payload[1]
+                try:
+                    password = payload[2]
+                except:
+                    password = ""
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                if device:
+                    remove_decrypt(name, dbfile)
+                    notify(["[RSScrawler Helper erfolgreich] - " + name], configfile)
+                    return "<script type='text/javascript'>" \
+                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                           "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+            return "Failed", 400
+        else:
+            return "Failed", 405
+
     http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
     http_server.serve_forever()
 
 
-def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device, local_address):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('rsscrawler')
@@ -1092,4 +1181,4 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address)

@@ -1,0 +1,23 @@
+{% raw %}<!DOCTYPE html>
+<html ng-app="helperApp" ng-controller="helperCtrl" lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="../../img/favicon.ico" rel="icon" type="image/x-icon">
+
+    <title>RSScrawler Helper</title>
+</head>
+
+<body ng-cloak class="text-center">
+
+<a ng-if="to_solve.url && to_solve.name" href="to_solve.url">{{ to_solve.name }}</a>
+<span ng-if="!to_solve.url && !to_solve.name">Nothing to decrypt</span>
+
+<script src="../../js/jquery.slim.min.js"></script>
+<script src="../../js/angular.min.js"></script>
+<script src="../../js/helper.js"></script>
+</body>
+
+</html>{% endraw %}
