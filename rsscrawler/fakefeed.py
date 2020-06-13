@@ -300,31 +300,26 @@ def nk_search_results(content, base_url):
 
 
 def sj_releases_to_feedparser_dict(releases, list_type):
-    upload_dates = json.loads(releases)
+    releases = json.loads(releases)
     entries = []
 
-    for date in upload_dates:
-        releases = upload_dates[date]
-        for release in releases:
-            try:
-                if list_type == 'seasons' and release['episode']:
-                    continue
-                elif list_type == 'episodes' and not release['episode']:
-                    continue
-            except:
+    for release in releases:
+        try:
+            if list_type == 'seasons' and release['episode']:
                 continue
-            title = release['name']
-            series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
-            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + release["_media"][
-                "id"] + '/releases'
-            published = date
+            elif list_type == 'episodes' and not release['episode']:
+                continue
+        except:
+            continue
+        title = release['name']
+        series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
+        published = "date"
 
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "series_url": series_url,
-                "api_url": api_url,
-                "published": published
-            }))
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "series_url": series_url,
+            "published": published
+        }))
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
