@@ -1161,7 +1161,7 @@ if (sponsorsHelper) {
                 if failed_packages:
                     failed = failed_packages[0]
                     failed_name = failed["name"]
-                    failed_url = failed["url"] + "#" + failed_name + "|" + "|" + str(failed["linkids"]) + "," + str(
+                    failed_url = failed["url"] + "#" + failed_name + "|" + "|" + str(failed["linkids"]) + ";" + str(
                         failed["uuid"])
 
             return jsonify(
@@ -1208,7 +1208,7 @@ if (sponsorsHelper) {
                 device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
                     if ids:
-                        ids = ids.split(",")
+                        ids = ids.replace("%20", "").split(";")
                         linkids = ids[0]
                         uuids = ids[1]
 
