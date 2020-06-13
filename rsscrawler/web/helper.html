@@ -1,0 +1,33 @@
+{% raw %}<!DOCTYPE html>
+<html ng-app="helperApp" ng-controller="helperCtrl" lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link href="../img/favicon.ico" rel="icon" type="image/x-icon">
+
+    <title>RSScrawler Sponsors Helper</title>
+</head>
+
+<body ng-cloak class="text-center">
+
+<p>
+    <a ng-if="to_decrypt.url && to_decrypt.name" href="to_decrypt.url">{{ to_decrypt.name }}</a>
+    <span ng-if="!to_decrypt.url && !to_decrypt.name">Nothing to decrypt</span>
+</p>
+
+<p>
+    <a ng-if="failed.url && failed.name" href="failed.url">{{ failed.name }}</a>
+    <span ng-if="!failed.url && !failed.name">Nothing failed to decrypt</span>
+</p>
+
+<li><a href="./rsscrawler_sponsors_helper_sj.user.js"> RSScrawler Helper (SJ)</a></li>
+<li><a href="./rsscrawler_sponsors_helper_fc.user.js">RSScrawler Helper (FC)</a></li>
+
+<script src="../js/jquery.slim.min.js"></script>
+<script src="../js/angular.min.js"></script>
+<script src="../js/helper.js"></script>
+</body>
+
+</html>{% endraw %}

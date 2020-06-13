@@ -171,8 +171,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             time.sleep(10)
 
 
-def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
-    start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
+def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device, local_address):
+    start(port, docker, configfile, dbfile, log_level, log_file, log_format, device, local_address)
 
 
 def crawldog(configfile, dbfile):
@@ -214,7 +214,7 @@ def crawldog(configfile, dbfile):
                         for title in watched_titles:
                             if packages_in_downloader_decrypted:
                                 for package in packages_in_downloader_decrypted:
-                                    if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
                                         if autostart:
@@ -224,7 +224,7 @@ def crawldog(configfile, dbfile):
                                             db.delete(title[0])
                             if packages_in_linkgrabber_decrypted:
                                 for package in packages_in_linkgrabber_decrypted:
-                                    if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
                                         if autostart:
@@ -235,13 +235,13 @@ def crawldog(configfile, dbfile):
 
                             if offline_packages:
                                 for package in offline_packages:
-                                    if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         notify_list.append("[Offline] - " + title[0])
                                         print((u"[Offline] - " + title[0]))
                                         db.delete(title[0])
                             if encrypted_packages:
                                 for package in encrypted_packages:
-                                    if title[0] == package['name'] or title[0].replace(".", " ") == package['name']:
+                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         if title[1] == 'added':
                                             if retry_decrypt(configfile, dbfile, device, package['linkids'],
                                                              [package['uuid']],
@@ -358,9 +358,9 @@ def main():
         prefix = '/' + rsscrawler.get("prefix")
     else:
         prefix = ''
+    local_address = 'http://' + rsscommon.check_ip() + ':' + str(port) + prefix
     if not arguments['--docker']:
-        print(u'Der Webserver ist erreichbar unter http://' +
-              rsscommon.check_ip() + ':' + str(port) + prefix)
+        print(u'Der Webserver ist erreichbar unter ' + local_address)
 
     if arguments['--keep-cdc']:
         print(u"CDC-Tabelle nicht geleert!")
@@ -368,7 +368,8 @@ def main():
         RssDb(dbfile, 'cdc').reset()
 
     p = multiprocessing.Process(target=web_server,
-                                args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
+                                args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device,
+                                      local_address))
     p.start()
 
     if not arguments['--testlauf']:
