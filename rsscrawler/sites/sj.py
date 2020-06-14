@@ -6,6 +6,8 @@ import hashlib
 import json
 import re
 
+from bs4 import BeautifulSoup
+
 from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
@@ -15,6 +17,7 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
+from rsscrawler.url import get_url_headers
 
 
 class SJ:
@@ -101,15 +104,43 @@ class SJ:
                     self.log_debug(
                         "%s - Release ignoriert (Staffelpaket)" % title)
                     return
-            if self.filename == 'MB_Staffeln':
-                valid = re.search(self.seasonssource, title.lower())
-            else:
-                valid = True
+        try:
+            series_info = get_url(series_url, self.configfile, self.dbfile)
+            series_id = BeautifulSoup(series_info, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
 
-            if not valid:
-                self.log_debug(title + " - Release hat falsche Quelle")
-            else:
-                return self.send_package(title, series_url, language_id)
+            response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+            seasons = json.loads(response)
+            for season in seasons:
+                season = seasons[season]
+                for item in season['items']:
+                    if item['name'] == title:
+                        if self.filename == 'MB_Staffeln':
+                            valid = re.search(self.seasonssource, title.lower())
+                        else:
+                            valid = True
+
+                        if not valid:
+                            self.log_debug(title + " - Release hat falsche Quelle")
+                        else:
+                            valid = False
+                            for hoster in item['hoster']:
+                                if check_hoster(hoster, self.configfile):
+                                    valid = True
+                            if not valid and not self.hoster_fallback:
+                                storage = self.db.retrieve_all(title)
+                                if 'added' not in storage and 'notdl' not in storage:
+                                    wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                                    if 'wrong_hoster' not in storage:
+                                        self.log_info(wrong_hoster)
+                                        self.db.store(title, 'wrong_hoster')
+                                        notify([wrong_hoster], self.configfile)
+                                    else:
+                                        self.log_debug(wrong_hoster)
+                            else:
+                                return self.send_package(title, series_url, language_id)
+        except:
+            print(u"SJ hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 
     def send_package(self, title, series_url, language_id):
         englisch = ""
@@ -172,9 +203,10 @@ class SJ:
         while self.day < 8:
             if self.last_set_sj == set_sj:
                 try:
-                    response = get_url(
+                    response = get_url_headers(
                         decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0") + '/' + str(
-                            self.day), self.configfile, self.dbfile, self.scraper)
+                            self.day), self.configfile,
+                        self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
