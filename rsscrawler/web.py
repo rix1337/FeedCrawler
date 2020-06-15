@@ -1115,11 +1115,26 @@ var password = tag[1]
 var ids = tag[2]
 
 if (sponsorsHelper) {
+    var pwExists = setInterval(function() {
+        if (document.getElementById("p4assw0rt")) {
+            var pw = atob('ZnVueGQ=');
+            console.log("[RSScrawler Helper] entering Password: " + pw);
+            document.getElementById("p4assw0rt").value = pw;
+            document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+            clearInterval(pwExists);
+        }
+    }, 100);
+
     var dlcExists = setInterval(function() {
         if (document.getElementsByClassName("dlcdownload").length) {
             var link = document.getElementsByClassName("dlcdownload")[0].getAttribute('onclick');
             console.log("[RSScrawler Helper] found download links: " + link);
             clearInterval(dlcExists);
+            if (!title.length) {
+                title = document.getElementsByTagName('h2')[0].innerHTML;
+                password = "";
+                ids = "";
+            }
             window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(link + '|' + title + '|' + password + '|' + ids ));
             // window.close() requires dom.allow_scripts_to_close_windows in Firefox
             window.close();
@@ -1205,7 +1220,8 @@ if (sponsorsHelper) {
                         links = "https://" + decode_base64("d3d3LmZpbGVjcnlwdC5jYw==") + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                start = RssConfig('Crawljobs', configfile).get("autostart")
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=start)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")
