@@ -58,7 +58,7 @@ class RssConfig(object):
             ("tvd_userkey", "str", "")
         ],
         'MB': [
-            ("quality", "str", "720p"),
+            ("quality", "str", "1080p"),
             ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
             ("regex", "bool", "False"),
@@ -67,24 +67,26 @@ class RssConfig(object):
             ("crawl3dtype", "str", "hsbs"),
             ("enforcedl", "bool", "False"),
             ("crawlseasons", "bool", "True"),
-            ("seasonsquality", "str", "720p"),
+            ("seasonsquality", "str", "1080p"),
             ("seasonpacks", "bool", "False"),
             ("seasonssource", "str",
              "web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip"),
             ("imdbyear", "str", "2010"),
             ("imdb", "str", "0.0"),
-            ("hoster_fallback", "bool", "False"),
             ("hevc_retail", "bool", "False"),
-            ("retail_only", "bool", "False")
+            ("retail_only", "bool", "False"),
+            ("hoster_fallback", "bool", "False")
         ],
         'SJ': [
-            ("quality", "str", "720p"),
+            ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False"),
+            ("hevc_retail", "bool", "False"),
+            ("retail_only", "bool", "False"),
             ("hoster_fallback", "bool", "False")
         ],
         'DJ': [
-            ("quality", "str", "720p"),
+            ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
             ("genres", "str", ".*"),

@@ -59,10 +59,10 @@ class BL:
         self.filename = filename
         self.pattern = False
         self.db = RssDb(self.dbfile, 'rsscrawler')
-        self.hosters = RssConfig("Hosters", configfile).get_section()
-        self.hoster_fallback = self.config.get("hoster_fallback")
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
+        self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hoster_fallback = self.config.get("hoster_fallback")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         self.historical = False
@@ -118,9 +118,9 @@ class BL:
         self.last_sha_hs = self.cdc.retrieve("HS-" + self.filename)
         self.last_sha_fx = self.cdc.retrieve("FX-" + self.filename)
         self.last_sha_nk = self.cdc.retrieve("NK-" + self.filename)
-        settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
+        settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
-                    "hoster_fallback"]
+                    "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -146,9 +146,9 @@ class BL:
 
     def settings_hash(self, refresh):
         if refresh:
-            settings = ["quality", "ignore", "search", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
+            settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                         "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
-                        "hoster_fallback"]
+                        "hevc_retail", "retail_only", "hoster_fallback"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
