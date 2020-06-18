@@ -268,8 +268,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "quality": sj.get("quality"),
                             "ignore": sj.get("rejectlist"),
                             "regex": sj.get("regex"),
-                            "hevc_retail": mb.get("hevc_retail"),
-                            "retail_only": mb.get("retail_only"),
+                            "hevc_retail": sj.get("hevc_retail"),
+                            "retail_only": sj.get("retail_only"),
                             "hoster_fallback": sj.get("hoster_fallback"),
                         },
                         "mbsj": {
