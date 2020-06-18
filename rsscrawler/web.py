@@ -260,14 +260,16 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "cutoff": mb.get("cutoff"),
                             "crawl_3d": mb.get("crawl3d"),
                             "crawl_3d_type": crawl_3d_type,
-                            "hoster_fallback": mb.get("hoster_fallback"),
                             "hevc_retail": mb.get("hevc_retail"),
                             "retail_only": mb.get("retail_only"),
+                            "hoster_fallback": mb.get("hoster_fallback"),
                         },
                         "sj": {
                             "quality": sj.get("quality"),
                             "ignore": sj.get("rejectlist"),
                             "regex": sj.get("regex"),
+                            "hevc_retail": sj.get("hevc_retail"),
+                            "retail_only": sj.get("retail_only"),
                             "hoster_fallback": sj.get("hoster_fallback"),
                         },
                         "mbsj": {
@@ -406,15 +408,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             if imdb > 10:
                 imdb = 10.0
             section.save("imdb", to_str(imdb))
-            section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
             section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
             section.save("retail_only", to_str(data['mb']['retail_only']))
+            section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
             section = RssConfig("SJ", configfile)
 
             section.save("quality", to_str(data['sj']['quality']))
             section.save("rejectlist", to_str(data['sj']['ignore']).lower())
             section.save("regex", to_str(data['sj']['regex']))
+            section.save("hevc_retail", to_str(data['sj']['hevc_retail']))
+            section.save("retail_only", to_str(data['sj']['retail_only']))
             section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
             section = RssConfig("DJ", configfile)
@@ -1115,11 +1119,26 @@ var password = tag[1]
 var ids = tag[2]
 
 if (sponsorsHelper) {
+    var pwExists = setInterval(function() {
+        if (document.getElementById("p4assw0rt")) {
+            var pw = atob('ZnVueGQ=');
+            console.log("[RSScrawler Helper] entering Password: " + pw);
+            document.getElementById("p4assw0rt").value = pw;
+            document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+            clearInterval(pwExists);
+        }
+    }, 100);
+
     var dlcExists = setInterval(function() {
         if (document.getElementsByClassName("dlcdownload").length) {
             var link = document.getElementsByClassName("dlcdownload")[0].getAttribute('onclick');
             console.log("[RSScrawler Helper] found download links: " + link);
             clearInterval(dlcExists);
+            if (!title.length) {
+                title = document.getElementsByTagName('h2')[0].innerHTML;
+                password = "";
+                ids = "";
+            }
             window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(link + '|' + title + '|' + password + '|' + ids ));
             // window.close() requires dom.allow_scripts_to_close_windows in Firefox
             window.close();
@@ -1205,7 +1224,8 @@ if (sponsorsHelper) {
                         links = "https://" + decode_base64("d3d3LmZpbGVjcnlwdC5jYw==") + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                start = RssConfig('Crawljobs', configfile).get("autostart")
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=start)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")

@@ -12,6 +12,7 @@ from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import check_valid_release
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
@@ -28,6 +29,8 @@ class SJ:
         self.device = device
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
+        self.hevc_retail = self.config.get("hevc_retail")
+        self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = RssConfig("SJ", configfile).get("hoster_fallback")
         self.log_info = logging.info
@@ -41,7 +44,7 @@ class SJ:
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
+        settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -67,7 +70,7 @@ class SJ:
 
     def settings_hash(self, refresh):
         if refresh:
-            settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
+            settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
             self.settings = []
             self.settings.append(self.rsscrawler.get("english"))
             self.settings.append(self.rsscrawler.get("surround"))
@@ -97,6 +100,9 @@ class SJ:
         return titles
 
     def parse_download(self, series_url, title, language_id):
+        if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
+            self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+            return
         if self.filename == 'MB_Staffeln':
             if not self.config.get("seasonpacks"):
                 staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
@@ -104,6 +110,9 @@ class SJ:
                     self.log_debug(
                         "%s - Release ignoriert (Staffelpaket)" % title)
                     return
+            if not re.search(self.seasonssource, title.lower()):
+                self.log_debug(title + " - Release hat falsche Quelle")
+                return
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = BeautifulSoup(series_info, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
@@ -115,30 +124,22 @@ class SJ:
                 season = seasons[season]
                 for item in season['items']:
                     if item['name'] == title:
-                        if self.filename == 'MB_Staffeln':
-                            valid = re.search(self.seasonssource, title.lower())
+                        valid = False
+                        for hoster in item['hoster']:
+                            if check_hoster(hoster, self.configfile):
+                                valid = True
+                        if not valid and not self.hoster_fallback:
+                            storage = self.db.retrieve_all(title)
+                            if 'added' not in storage and 'notdl' not in storage:
+                                wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                                if 'wrong_hoster' not in storage:
+                                    self.log_info(wrong_hoster)
+                                    self.db.store(title, 'wrong_hoster')
+                                    notify([wrong_hoster], self.configfile)
+                                else:
+                                    self.log_debug(wrong_hoster)
                         else:
-                            valid = True
-
-                        if not valid:
-                            self.log_debug(title + " - Release hat falsche Quelle")
-                        else:
-                            valid = False
-                            for hoster in item['hoster']:
-                                if check_hoster(hoster, self.configfile):
-                                    valid = True
-                            if not valid and not self.hoster_fallback:
-                                storage = self.db.retrieve_all(title)
-                                if 'added' not in storage and 'notdl' not in storage:
-                                    wrong_hoster = '[SJ/Hoster fehlt] - ' + title
-                                    if 'wrong_hoster' not in storage:
-                                        self.log_info(wrong_hoster)
-                                        self.db.store(title, 'wrong_hoster')
-                                        notify([wrong_hoster], self.configfile)
-                                    else:
-                                        self.log_debug(wrong_hoster)
-                            else:
-                                return self.send_package(title, series_url, language_id)
+                            return self.send_package(title, series_url, language_id)
         except:
             print(u"SJ hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 

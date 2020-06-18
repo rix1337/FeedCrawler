@@ -89,8 +89,8 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
                    ".bd50."]
     web_tags = [".web.", ".web-rip.", ".webrip.", ".vod-rip.", ".webdl.", ".web-dl.", ".ddc."]
     trash_tags = [".cam.", ".cam-rip.", ".ts.", ".telesync.", ".wp.", ".workprint.", ".tc.", ".telecine.", ".vhs-rip.",
-                  ".tv-rip.", ".hdtv-rip.", ".sat-rip.", ".dvb-rip.", ".ds-rip.", ".scr.", ".screener.", ".dvdscr.",
-                  ".dvdscreener.", ".bdscr.", ".r5.", ".dvdrip.", ".dvd."]
+                  ".tv-rip.", ".hdtv-rip.", ".hdtv.", ".tvrip.", ".hdtvrip.", ".sat-rip.", ".dvb-rip.", ".ds-rip.",
+                  ".scr.", ".screener.", ".dvdscr.", ".dvdscreener.", ".bdscr.", ".r5.", ".dvdrip.", ".dvd."]
 
     unknown = []
     trash = []

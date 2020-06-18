@@ -1222,6 +1222,22 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."></span>
                 </label>
+                <h4>Nur Retail hinzufügen</h4>
+                <label class="switch">
+                    <input type="checkbox"
+                           ng-model="settings.sj.retail_only">
+                    <span class="slider round"
+                          data-toggle="tooltip"
+                          title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."></span>
+                </label>
+                <h4>1080p-HEVC bevorzugen</h4>
+                <label class="switch">
+                    <input type="checkbox"
+                           ng-model="settings.sj.hevc_retail">
+                    <span class="slider round"
+                          data-toggle="tooltip"
+                          title="Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen."></span>
+                </label>
                 <h4>Hoster-Fallback</h4>
                 <label class="switch">
                     <input type="checkbox"
