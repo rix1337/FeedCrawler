@@ -23,10 +23,9 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                 .then(function (res) {
                     $scope.to_decrypt = res.data.to_decrypt;
                     $scope.failed = res.data.failed;
-                    console.log('[RSScrawler Helper] Pakete zum Entschlüsseln abgerufen!');
                     startToDecrypt()
                 }, function (res) {
-                    console.log('[RSScrawler Helper] Konnte Pakete zum Entschlüsseln nicht abgerufen!');
+                    console.log('[RSScrawler Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!');
                 });
         }
 

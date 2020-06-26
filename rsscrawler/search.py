@@ -642,7 +642,7 @@ def download_sj(payload, configfile, dbfile):
 
     series_url = decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href
     series_info = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
-    series_id = BeautifulSoup(series_info, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+    series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
 
     api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
     releases = get_url(api_url, configfile, dbfile)
