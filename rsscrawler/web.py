@@ -1023,23 +1023,19 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_sj.user.js", methods=['GET'])
+    @app.route(prefix + "/sponsors_helper/rsscrawler_helper_sj.user.js", methods=['GET'])
     @requires_auth
-    def rsscrawler_sponsors_helper_sj():
+    def rsscrawler_helper_sj():
         if request.method == 'GET':
             return """// ==UserScript==
-// @name            RSScrawler Sponsors Helper (SJ)
+// @name            RSScrawler Helper (SJ)
 // @author          rix1337
-// @description     Clicks the correct download button on SJ and forwards decrypted links to RSScrawler
-// @version         0.1.1
+// @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
+// @version         0.2.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
 // @exclude         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/search?q=*
 // ==/UserScript==
-var sponsorsHelper = false;
-var sponsorsURL = '""" + local_address + """';
-var sponsorsHoster = '';
-
 document.body.addEventListener('mousedown', function(e) {
     if (e.target.tagName != "A") return;
     var anchor = e.target;
@@ -1056,95 +1052,16 @@ var tag = window.location.hash.replace("#", "").split('|');
 var title = tag[0]
 var password = tag[1]
 if (title) {
-    // ToDo: Check if we need to log in
-    $('.wrapper').prepend('<h3>[RSScrawler Sponsors Helper] ' + title + '</h3>');
+    $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
     $(".container").hide();
     var checkExist = setInterval(async function() {
         if ($("tr:contains('" + title + "')").length) {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-            if (sponsorsHelper) {
-                console.log("[RSScrawler Sponsors Helper] Clicked Download button of " + title);
-                await Sleep(500);
-                $("button:contains('filer')").click();
-                $("button:contains('turbo')").click();
-                if (sponsorsHoster) {
-                    $("button:contains('" + sponsorsHoster + "')").click();
-                }
-                console.log("[RSScrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
-            }
             clearInterval(checkExist);
         }
     }, 100);
-
-    if (sponsorsHelper) {
-        var dlExists = setInterval(function() {
-            if ($("tr:contains('Download Part')").length) {
-                var items = $("tr:contains('Download Part')").find("a");
-                var links = [];
-                items.each(function(index){
-                    links.push(items[index].href);
-                })
-                console.log("[RSScrawler Sponsors Helper] found download links: " + links);
-                clearInterval(dlExists);
-                window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-                // window.close() requires dom.allow_scripts_to_close_windows in Firefox
-                window.close();
-            }
-        }, 100);
-    }
 };
-""", 200
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_fc.user.js", methods=['GET'])
-    @requires_auth
-    def rsscrawler_sponsors_helper_fc():
-        if request.method == 'GET':
-            return """// ==UserScript==
-// @name            RSScrawler Sponsors Helper (FC)
-// @author          rix1337
-// @description     Forwards DLC link to RSScrawler
-// @version         0.0.1
-// @match           https://*.""" + decode_base64("ZmlsZWNyeXB0LmNj") + """/*
-// ==/UserScript==
-
-var sponsorsHelper = false;
-var sponsorsURL = '""" + local_address + """';
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0]
-var password = tag[1]
-var ids = tag[2]
-
-if (sponsorsHelper) {
-    var pwExists = setInterval(function() {
-        if (document.getElementById("p4assw0rt")) {
-            var pw = atob('ZnVueGQ=');
-            console.log("[RSScrawler Helper] entering Password: " + pw);
-            document.getElementById("p4assw0rt").value = pw;
-            document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
-            clearInterval(pwExists);
-        }
-    }, 100);
-
-    var dlcExists = setInterval(function() {
-        if (document.getElementsByClassName("dlcdownload").length) {
-            var link = document.getElementsByClassName("dlcdownload")[0].getAttribute('onclick');
-            console.log("[RSScrawler Helper] found download links: " + link);
-            clearInterval(dlcExists);
-            if (!title.length) {
-                title = document.getElementsByTagName('h2')[0].innerHTML;
-                password = "";
-                ids = "";
-            }
-            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(link + '|' + title + '|' + password + '|' + ids ));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
-            window.close();
-        }
-    }, 100);
-}
 """, 200
         else:
             return "Failed", 405
