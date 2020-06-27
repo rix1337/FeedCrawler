@@ -6,8 +6,6 @@ import hashlib
 import json
 import re
 
-from bs4 import BeautifulSoup
-
 from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
@@ -115,7 +113,7 @@ class SJ:
                 return
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
-            series_id = BeautifulSoup(series_info, 'lxml').find("div", {"data-mediaid": True})['data-mediaid']
+            series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
             api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
