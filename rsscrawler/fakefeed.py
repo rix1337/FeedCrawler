@@ -81,25 +81,34 @@ def fx_download_links(content, title):
 
 
 def fx_feed_enricher(feed):
-    feed = feedparser.parse(feed)
+    feed = BeautifulSoup(feed, 'lxml')
+    articles = feed.findAll("article")
     entries = []
 
-    for post in feed.entries:
+    for article in articles:
         try:
-            soup = BeautifulSoup(str(post), 'lxml')
-            titles = soup.findAll("a", href=re.compile(r"filecrypt\.cc"))
+            article = BeautifulSoup(str(article), 'lxml')
+            titles = article.findAll("a", href=re.compile(r"filecrypt\.cc"))
             for title in titles:
+                link = title["href"]
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
                 if title:
                     if "download" in title.lower():
                         try:
-                            title = str(soup.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                            title = str(article.find("strong", text=re.compile(r".*Release.*")).nextSibling)
                         except:
                             continue
+                    published = ""
+                    dates = article.findAll("time")
+                    for date in dates:
+                        published = date["datetime"]
                     entries.append(FakeFeedParserDict({
                         "title": title,
-                        "published": post.published,
-                        "content": post.content
+                        "published": published,
+                        "content": [
+                            FakeFeedParserDict({
+                                "value": str(article)
+                            })]
                     }))
         except:
             print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")

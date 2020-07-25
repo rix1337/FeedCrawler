@@ -65,10 +65,6 @@ class BL:
         self.hoster_fallback = self.config.get("hoster_fallback")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
-        self.historical = False
-        if search == 99:
-            self.historical = True
-            search = 3
         i = 2
         while i <= search:
             page_url = self.MB_URL + "?paged=" + str(i)
@@ -92,7 +88,7 @@ class BL:
 
         i = 2
         while i <= search:
-            page_url = self.FX_URL + "?paged=" + str(i)
+            page_url = self.FX_URL + "/page/" + str(i)
             if page_url not in self.FX_FEED_URLS:
                 self.FX_FEED_URLS.append(page_url)
             i += 1
@@ -566,17 +562,16 @@ class BL:
             if ("MB" in site and sha == self.last_sha_mb) or ("HW" in site and sha == self.last_sha_hw) or (
                     "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx) or (
                     "NK" in site and sha == self.last_sha_nk):
-                if not self.historical:
-                    if "MB" in site:
-                        self.mb_done = True
-                    elif "HW" in site:
-                        self.hw_done = True
-                    elif "HS" in site:
-                        self.hs_done = True
-                    elif "FX" in site:
-                        self.fx_done = True
-                    else:
-                        self.nk_done = True
+                if "MB" in site:
+                    self.mb_done = True
+                elif "HW" in site:
+                    self.hw_done = True
+                elif "HS" in site:
+                    self.hs_done = True
+                elif "FX" in site:
+                    self.fx_done = True
+                else:
+                    self.nk_done = True
 
             found = re.search(s, post.title.lower())
 
@@ -1319,40 +1314,17 @@ class BL:
             liste = self.get_movies_list(self.filename)
             if liste:
                 self.pattern = r'(' + "|".join(liste).lower() + ').*'
-        if self.filename != 'MB_Regex' and self.filename != 'IMDB':
-            if self.historical:
-                for xline in self.get_movies_list(self.filename):
-                    if len(xline) > 0 and not xline.startswith("#"):
-                        xn = xline.split(",")[0].replace(
-                            ".", " ").replace(" ", "+")
-                        mb_urls.append(
-                            decode_base64('aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/%s/feed/rss2/' % xn)
-                        hw_urls.append(decode_base64('aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/%s/feed/rss2/' % xn)
-                        hs_urls.append(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8=') + '/search/%s/feed/' % xn)
-                        fx_urls.append(decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/%s/feed/' % xn)
-                        nk_urls.append(xn)
-            else:
-                for URL in self.MB_FEED_URLS:
-                    mb_urls.append(URL)
-                for URL in self.HW_FEED_URLS:
-                    hw_urls.append(URL)
-                for URL in self.HS_FEED_URLS:
-                    hs_urls.append(URL)
-                for URL in self.FX_FEED_URLS:
-                    fx_urls.append(URL)
-                for URL in self.NK_FEED_URLS:
-                    nk_urls.append(URL)
-        else:
-            for URL in self.MB_FEED_URLS:
-                mb_urls.append(URL)
-            for URL in self.HW_FEED_URLS:
-                hw_urls.append(URL)
-            for URL in self.HS_FEED_URLS:
-                hs_urls.append(URL)
-            for URL in self.FX_FEED_URLS:
-                fx_urls.append(URL)
-            for URL in self.NK_FEED_URLS:
-                nk_urls.append(URL)
+
+        for URL in self.MB_FEED_URLS:
+            mb_urls.append(URL)
+        for URL in self.HW_FEED_URLS:
+            hw_urls.append(URL)
+        for URL in self.HS_FEED_URLS:
+            hs_urls.append(URL)
+        for URL in self.FX_FEED_URLS:
+            fx_urls.append(URL)
+        for URL in self.NK_FEED_URLS:
+            nk_urls.append(URL)
 
         if not self.pattern:
             self.log_debug(
@@ -1365,98 +1337,92 @@ class BL:
             return self.device
 
         mb_304 = False
-        if not self.historical:
-            try:
-                first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb, self.scraper)
-                self.scraper = first_mb[1]
-                first_mb = first_mb[0]
-                first_page_mb = feedparser.parse(first_mb.content)
-                if first_mb.status_code == 304:
-                    mb_304 = True
-            except:
+        try:
+            first_mb = get_url_headers(mb_urls[0], self.configfile, self.dbfile, self.headers_mb, self.scraper)
+            self.scraper = first_mb[1]
+            first_mb = first_mb[0]
+            first_page_mb = feedparser.parse(first_mb.content)
+            if first_mb.status_code == 304:
                 mb_304 = True
-                first_page_mb = False
-                self.log_debug("Fehler beim Abruf von MB - breche MB-Suche ab!")
+        except:
+            mb_304 = True
+            first_page_mb = False
+            self.log_debug("Fehler beim Abruf von MB - breche MB-Suche ab!")
 
         hw_304 = False
-        if not self.historical:
-            try:
-                first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, self.scraper)
-                self.scraper = first_hw[1]
-                first_hw = first_hw[0]
-                first_page_hw = feedparser.parse(first_hw.content)
-                if first_hw.status_code == 304:
-                    hw_304 = True
-            except:
+        try:
+            first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, self.scraper)
+            self.scraper = first_hw[1]
+            first_hw = first_hw[0]
+            first_page_hw = feedparser.parse(first_hw.content)
+            if first_hw.status_code == 304:
                 hw_304 = True
-                first_page_hw = False
-                self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
+        except:
+            hw_304 = True
+            first_page_hw = False
+            self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
 
         hs_304 = False
-        if not self.historical:
-            try:
-                first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, self.scraper)
-                self.scraper = first_hs[1]
-                first_hs = first_hs[0]
-                first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile, self.scraper)
-                if first_hs.status_code == 304:
-                    hs_304 = True
-            except:
+        try:
+            first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, self.scraper)
+            self.scraper = first_hs[1]
+            first_hs = first_hs[0]
+            first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile, self.scraper)
+            if first_hs.status_code == 304:
                 hs_304 = True
-                first_page_hs = False
-                self.log_debug("Fehler beim Abruf von HS - breche HS-Suche ab!")
+        except:
+            hs_304 = True
+            first_page_hs = False
+            self.log_debug("Fehler beim Abruf von HS - breche HS-Suche ab!")
 
         fx_304 = False
-        if not self.historical:
-            try:
-                first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
-                self.scraper = first_fx[1]
-                first_fx = first_fx[0]
-                first_page_fx = fx_feed_enricher(first_fx.content)
-                if first_fx.status_code == 304:
-                    fx_304 = True
-            except:
+        try:
+            first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
+            self.scraper = first_fx[1]
+            first_fx = first_fx[0]
+            first_page_fx = fx_feed_enricher(first_fx.content)
+            if first_fx.status_code == 304:
                 fx_304 = True
-                first_page_fx = False
-                self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
+        except:
+            fx_304 = True
+            first_page_fx = False
+            self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
 
         nk_304 = False
-        if not self.historical:
-            try:
-                first_nk = get_url_headers(nk_urls[0], self.configfile, self.dbfile, self.headers_nk, self.scraper)
-                self.scraper = first_nk[1]
-                first_nk = first_nk[0]
-                first_page_nk = nk_feed_enricher(first_nk.content, self.NK_URL, self.configfile, self.dbfile,
-                                                 self.scraper)
-                if first_nk.status_code == 304:
-                    nk_304 = True
-            except:
+        try:
+            first_nk = get_url_headers(nk_urls[0], self.configfile, self.dbfile, self.headers_nk, self.scraper)
+            self.scraper = first_nk[1]
+            first_nk = first_nk[0]
+            first_page_nk = nk_feed_enricher(first_nk.content, self.NK_URL, self.configfile, self.dbfile,
+                                             self.scraper)
+            if first_nk.status_code == 304:
                 nk_304 = True
-                first_page_nk = False
-                self.log_debug("Fehler beim Abruf von NK - breche NK-Suche ab!")
+        except:
+            nk_304 = True
+            first_page_nk = False
+            self.log_debug("Fehler beim Abruf von NK - breche NK-Suche ab!")
 
         set_all = self.settings_hash(False)
 
         if self.last_set_all == set_all:
-            if not self.historical:
-                if mb_304 and hw_304 and hs_304 and fx_304 and nk_304:
-                    self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
-                    return self.device
-                if mb_304:
-                    mb_urls = []
-                    self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche MB-Suche ab!")
-                if hw_304:
-                    hw_urls = []
-                    self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
-                if hs_304:
-                    hs_urls = []
-                    self.log_debug("HS-Feed seit letztem Aufruf nicht aktualisiert - breche HS-Suche ab!")
-                if fx_304:
-                    fx_urls = []
-                    self.log_debug("FX-Feed seit letztem Aufruf nicht aktualisiert - breche FX-Suche ab!")
-                if nk_304:
-                    nk_urls = []
-                    self.log_debug("NK-Feed seit letztem Aufruf nicht aktualisiert - breche NK-Suche ab!")
+            if mb_304 and hw_304 and hs_304 and fx_304 and nk_304:
+                self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
+                return self.device
+            if mb_304:
+                mb_urls = []
+                self.log_debug("MB-Feed seit letztem Aufruf nicht aktualisiert - breche MB-Suche ab!")
+            if hw_304:
+                hw_urls = []
+                self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
+            if hs_304:
+                hs_urls = []
+                self.log_debug("HS-Feed seit letztem Aufruf nicht aktualisiert - breche HS-Suche ab!")
+            if fx_304:
+                fx_urls = []
+                self.log_debug("FX-Feed seit letztem Aufruf nicht aktualisiert - breche FX-Suche ab!")
+            if nk_304:
+                nk_urls = []
+                self.log_debug("NK-Feed seit letztem Aufruf nicht aktualisiert - breche NK-Suche ab!")
 
         sha_mb = None
         sha_hw = None
@@ -1464,59 +1430,58 @@ class BL:
         sha_fx = None
         sha_nk = None
 
-        if not self.historical:
-            if self.filename != 'IMDB':
-                if not mb_304 and first_page_mb:
-                    for i in first_page_mb.entries:
-                        concat_mb = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not hw_304 and first_page_hw:
-                    for i in first_page_hw.entries:
-                        concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not hs_304 and first_page_hs:
-                    for i in first_page_hs.entries:
-                        concat_hs = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not fx_304 and first_page_fx:
-                    for i in first_page_fx.entries:
-                        concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not nk_304 and first_page_nk:
-                    for i in first_page_nk.entries:
-                        concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
-                        break
-            else:
-                if not mb_304 and first_page_mb:
-                    for i in first_page_mb.entries:
-                        concat_mb = i.title + i.published + str(self.settings) + str(self.imdb)
-                        sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not hw_304 and first_page_hw:
-                    for i in first_page_hw.entries:
-                        concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
-                        sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not hs_304 and first_page_hs:
-                    for i in first_page_hs.entries:
-                        concat_hs = i.title + i.published + str(self.settings) + str(self.imdb)
-                        sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not fx_304 and first_page_fx:
-                    for i in first_page_fx.entries:
-                        concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
-                        break
-                if not nk_304 and first_page_nk:
-                    for i in first_page_nk.entries:
-                        concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
-                        sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
-                        break
+        if self.filename != 'IMDB':
+            if not mb_304 and first_page_mb:
+                for i in first_page_mb.entries:
+                    concat_mb = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not hw_304 and first_page_hw:
+                for i in first_page_hw.entries:
+                    concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not hs_304 and first_page_hs:
+                for i in first_page_hs.entries:
+                    concat_hs = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not fx_304 and first_page_fx:
+                for i in first_page_fx.entries:
+                    concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not nk_304 and first_page_nk:
+                for i in first_page_nk.entries:
+                    concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
+                    break
+        else:
+            if not mb_304 and first_page_mb:
+                for i in first_page_mb.entries:
+                    concat_mb = i.title + i.published + str(self.settings) + str(self.imdb)
+                    sha_mb = hashlib.sha256(concat_mb.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not hw_304 and first_page_hw:
+                for i in first_page_hw.entries:
+                    concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
+                    sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not hs_304 and first_page_hs:
+                for i in first_page_hs.entries:
+                    concat_hs = i.title + i.published + str(self.settings) + str(self.imdb)
+                    sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not fx_304 and first_page_fx:
+                for i in first_page_fx.entries:
+                    concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
+                    break
+            if not nk_304 and first_page_nk:
+                for i in first_page_nk.entries:
+                    concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
+                    sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
+                    break
 
         added_items = []
         if self.filename == "IMDB":
@@ -1524,7 +1489,7 @@ class BL:
                 i = 0
                 for url in mb_urls:
                     if not self.i_mb_done:
-                        if not self.historical and i == 0 and first_page_mb:
+                        if i == 0 and first_page_mb:
                             mb_parsed_url = first_page_mb
                         else:
                             mb_parsed_url = feedparser.parse(
@@ -1537,7 +1502,7 @@ class BL:
                 i = 0
                 for url in hw_urls:
                     if not self.i_hw_done:
-                        if not self.historical and i == 0 and first_page_hw:
+                        if i == 0 and first_page_hw:
                             hw_parsed_url = first_page_hw
                         else:
                             hw_parsed_url = feedparser.parse(
@@ -1550,7 +1515,7 @@ class BL:
                 i = 0
                 for url in hs_urls:
                     if not self.i_hs_done:
-                        if not self.historical and i == 0 and first_page_hs:
+                        if i == 0 and first_page_hs:
                             hs_parsed_url = first_page_hs
                         else:
                             hs_parsed_url = hs_feed_enricher(
@@ -1564,7 +1529,7 @@ class BL:
                 i = 0
                 for url in fx_urls:
                     if not self.i_fx_done:
-                        if not self.historical and i == 0 and first_page_fx:
+                        if i == 0 and first_page_fx:
                             fx_parsed_url = first_page_fx
                         else:
                             fx_parsed_url = fx_feed_enricher(
@@ -1576,7 +1541,7 @@ class BL:
                         i += 1
                 for url in nk_urls:
                     if not self.i_nk_done:
-                        if not self.historical and i == 0 and first_page_nk:
+                        if i == 0 and first_page_nk:
                             nk_parsed_url = first_page_nk
                         else:
                             nk_parsed_url = nk_feed_enricher(
@@ -1592,7 +1557,7 @@ class BL:
             i = 0
             for url in mb_urls:
                 if not self.mb_done:
-                    if not self.historical and i == 0 and first_page_mb:
+                    if i == 0 and first_page_mb:
                         mb_parsed_url = first_page_mb
                     else:
                         mb_parsed_url = feedparser.parse(
@@ -1605,7 +1570,7 @@ class BL:
             i = 0
             for url in hw_urls:
                 if not self.hw_done:
-                    if not self.historical and i == 0 and first_page_hw:
+                    if i == 0 and first_page_hw:
                         hw_parsed_url = first_page_hw
                     else:
                         hw_parsed_url = feedparser.parse(
@@ -1618,7 +1583,7 @@ class BL:
             i = 0
             for url in hs_urls:
                 if not self.hs_done:
-                    if not self.historical and i == 0 and first_page_hs:
+                    if i == 0 and first_page_hs:
                         hs_parsed_url = first_page_hs
                     else:
                         hs_parsed_url = hs_feed_enricher(
@@ -1632,7 +1597,7 @@ class BL:
             i = 0
             for url in fx_urls:
                 if not self.fx_done:
-                    if not self.historical and i == 0 and first_page_fx:
+                    if i == 0 and first_page_fx:
                         fx_parsed_url = first_page_fx
                     else:
                         fx_parsed_url = fx_feed_enricher(
@@ -1644,7 +1609,7 @@ class BL:
                     i += 1
             for url in nk_urls:
                 if not self.nk_done:
-                    if not self.historical and i == 0 and first_page_nk:
+                    if i == 0 and first_page_nk:
                         nk_parsed_url = first_page_nk
                     else:
                         nk_parsed_url = nk_feed_enricher(
@@ -1700,7 +1665,7 @@ class BL:
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues NK-CDC!")
-        if not mb_304 and not self.historical:
+        if not mb_304:
             try:
                 header = first_mb.headers['Last-Modified']
             except KeyError:
@@ -1708,7 +1673,7 @@ class BL:
             if header:
                 self.cdc.delete("MBHeaders-" + self.filename)
                 self.cdc.store("MBHeaders-" + self.filename, header)
-        if not hw_304 and not self.historical:
+        if not hw_304:
             try:
                 header = first_hw.headers['Last-Modified']
             except KeyError:
@@ -1716,7 +1681,7 @@ class BL:
             if header:
                 self.cdc.delete("HWHeaders-" + self.filename)
                 self.cdc.store("HWHeaders-" + self.filename, header)
-        if not hs_304 and not self.historical:
+        if not hs_304:
             try:
                 header = first_hs.headers['Last-Modified']
             except KeyError:
@@ -1724,7 +1689,7 @@ class BL:
             if header:
                 self.cdc.delete("HSHeaders-" + self.filename)
                 self.cdc.store("HSHeaders-" + self.filename, header)
-        if not fx_304 and not self.historical:
+        if not fx_304:
             try:
                 header = first_fx.headers['Last-Modified']
             except KeyError:
@@ -1732,7 +1697,7 @@ class BL:
             if header:
                 self.cdc.delete("FXHeaders-" + self.filename)
                 self.cdc.store("FXHeaders-" + self.filename, header)
-        if not nk_304 and not self.historical:
+        if not nk_304:
             try:
                 header = first_nk.headers['Last-Modified']
             except KeyError:
