@@ -72,8 +72,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '5', label: '150 Einträge'},
         {value: '10', label: '300 Einträge'},
         {value: '15', label: '450 Einträge'},
-        {value: '30', label: '900 Einträge'},
-        {value: '99', label: 'Alle verfügbaren Einträge (per Suchfunktion)'}
+        {value: '30', label: '900 Einträge'}
     ];
 
     $scope.dj_genres = [

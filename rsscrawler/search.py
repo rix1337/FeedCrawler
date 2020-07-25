@@ -76,7 +76,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         hw_search = decode_base64(
             'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
         hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
-        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + '/feed/'
+        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/?s=' + bl_query
 
         async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         scraper = async_results[1]
@@ -95,7 +95,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             elif decode_base64('aGQtc291cmNlLnRv') in res:
                 hs_results = hs_search_results(res)
             elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
-                fx_results = fx_search_results(fx_content_to_soup(res))
+                fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
 
         nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
         nk_search = post_url(nk_base_url + "search", configfile, dbfile,
@@ -165,7 +165,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
             hs_search = decode_base64(
                 'aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '+3D/feed'
-            fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + search_quality + "+3D/feed/"
+            fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D"
 
             async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
             async_results = async_results[0]
