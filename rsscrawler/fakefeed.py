@@ -90,7 +90,6 @@ def fx_feed_enricher(feed):
             article = BeautifulSoup(str(article), 'lxml')
             titles = article.findAll("a", href=re.compile(r"filecrypt\.cc"))
             for title in titles:
-                link = title["href"]
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
                 if title:
                     if "download" in title.lower():
@@ -119,21 +118,37 @@ def fx_feed_enricher(feed):
     return feed
 
 
-def fx_search_results(content):
-    contents = content.find_all("item")
+def fx_search_results(content, configfile, dbfile, scraper):
+    articles = content.find("main").find_all("article")
+    async_urls = []
+    for article in articles:
+        url = article.find("a")["href"]
+        if url:
+            async_urls.append(url)
+
     items = []
-    for content in contents:
-        titles = content.find_all("a", href=re.compile(r"filecrypt\.cc"))
-        for title in titles:
-            title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
-            link = content.find("comments").text
-            if title:
-                if "download" in title.lower():
-                    try:
-                        title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
-                    except:
-                        continue
-                items.append([title, link + "|" + title])
+
+    if async_urls:
+        # ToDo: This fails for some reason so the non-async get is always used.
+        async_results = get_urls_async([async_urls], configfile, dbfile, scraper)
+        if not async_results[0]:
+            async_results = []
+            for async_url in async_urls:
+                async_results.append(get_url(async_url, configfile, dbfile, scraper))
+
+        for result in async_results:
+            article = BeautifulSoup(str(result), 'lxml')
+            titles = article.find_all("a", href=re.compile(r"filecrypt\.cc"))
+            for title in titles:
+                link = article.find("link", rel="canonical")["href"]
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+                if title:
+                    if "download" in title.lower():
+                        try:
+                            title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                        except:
+                            continue
+                    items.append([title, link + "|" + title])
     return items
 
 
