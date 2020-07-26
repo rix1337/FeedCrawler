@@ -120,23 +120,20 @@ def fx_feed_enricher(feed):
 
 def fx_search_results(content, configfile, dbfile, scraper):
     articles = content.find("main").find_all("article")
-    async_urls = []
+    result_urls = []
     for article in articles:
         url = article.find("a")["href"]
         if url:
-            async_urls.append(url)
+            result_urls.append(url)
 
     items = []
 
-    if async_urls:
-        # ToDo: This fails for some reason so the non-async get is always used.
-        async_results = get_urls_async([async_urls], configfile, dbfile, scraper)
-        if not async_results[0]:
-            async_results = []
-            for async_url in async_urls:
-                async_results.append(get_url(async_url, configfile, dbfile, scraper))
+    if result_urls:
+        results = []
+        for url in result_urls:
+            results.append(get_url(url, configfile, dbfile, scraper))
 
-        for result in async_results:
+        for result in results:
             article = BeautifulSoup(str(result), 'lxml')
             titles = article.find_all("a", href=re.compile(r"filecrypt\.cc"))
             for title in titles:
