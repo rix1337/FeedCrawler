@@ -51,7 +51,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
     bl_final = {}
     sj_final = {}
-    scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
+    scraper = cloudscraper.create_scraper()
 
     if not sj_only:
         mb_query = sanitize(title).replace(" ", "+")
@@ -553,7 +553,7 @@ def download_bl(payload, device, configfile, dbfile):
             else:
                 filename = 'MB_Filme'
 
-            scraper = cloudscraper.create_scraper(browser={'browser': 'chrome', 'mobile': False})
+            scraper = cloudscraper.create_scraper()
             bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
 
             if not imdb_id:
