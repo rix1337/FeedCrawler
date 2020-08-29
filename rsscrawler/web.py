@@ -136,7 +136,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 logfile = open(log_file)
                 i = 0
                 for line in reversed(logfile.readlines()):
-                    if line and line is not "\n":
+                    if line and line != "\n":
                         payload = [i]
                         line = line.replace("]", "")
                         line = line.replace("[", "")
@@ -167,7 +167,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 logfile = open(log_file)
                 i = 0
                 for line in reversed(logfile.readlines()):
-                    if line and line is not "\n":
+                    if line and line != "\n":
                         if i != row:
                             log.append(line)
                     i += 1
@@ -282,7 +282,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "quality": dj.get("quality"),
                             "ignore": dj.get("rejectlist"),
                             "regex": dj.get("regex"),
-                            "genres": dj.get("genres"),
                             "hoster_fallback": dj.get("hoster_fallback"),
                         },
                         "dd": {
@@ -426,7 +425,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("quality", to_str(data['dj']['quality']))
             section.save("rejectlist", to_str(data['dj']['ignore']).lower())
             section.save("regex", to_str(data['dj']['regex']))
-            section.save("genres", to_str(data['dj']['genres']))
             section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
             section = RssConfig("DD", configfile)

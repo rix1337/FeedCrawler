@@ -89,7 +89,6 @@ class RssConfig(object):
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
-            ("genres", "str", ".*"),
             ("hoster_fallback", "bool", "False")
         ],
         'DD': [

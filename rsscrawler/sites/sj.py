@@ -6,7 +6,7 @@ import hashlib
 import json
 import re
 
-from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
+from rsscrawler.fakefeed import j_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
@@ -209,9 +209,11 @@ class SJ:
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sj_releases_to_feedparser_dict(response.text, "seasons")
+                        feed = j_releases_to_feedparser_dict(response.text, "seasons",
+                                                             decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw=='))
                     else:
-                        feed = sj_releases_to_feedparser_dict(response.text, "episodes")
+                        feed = j_releases_to_feedparser_dict(response.text, "episodes",
+                                                             decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw=='))
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -228,9 +230,13 @@ class SJ:
                         decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0") + '/' + str(
                             self.day), self.configfile, self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sj_releases_to_feedparser_dict(response, "seasons")
+                        feed = j_releases_to_feedparser_dict(response, "seasons",
+                                                             decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw=='),
+                                                             True)
                     else:
-                        feed = sj_releases_to_feedparser_dict(response, "episodes")
+                        feed = j_releases_to_feedparser_dict(response, "episodes",
+                                                             decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw=='),
+                                                             True)
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False

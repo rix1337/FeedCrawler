@@ -75,15 +75,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '30', label: '900 Einträge'}
     ];
 
-    $scope.dj_genres = [
-        {value: 'doku', label: 'Doku'},
-        {value: 'lernen', label: 'Lernen'},
-        {value: 'reality\\/entertainment', label: 'Reality\/Entertainment'},
-        {value: 'sport', label: 'Sport'},
-        {value: '(doku|lernen|reality\\/entertainment|sport)', label: 'ALLE (außer ReUps)'},
-        {value: '.*', label: 'ALLE (inkl. ReUps)'}
-    ];
-
     $scope.resolutions = [
         {value: '480p', label: '480p (SD)'},
         {value: '720p', label: '720p (HD)'},
