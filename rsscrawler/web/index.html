@@ -451,26 +451,6 @@
             </div>
         </div>
     </div>
-    <div class="card" ng-show="settings.yt.enabled">
-        <div class="card-header" id="headingZeroFive">
-            <h5 class="mb-0">
-                <button class="btn btn-link collapsed" data-toggle="collapse"
-                        data-target="#collapseZeroFive"
-                        aria-expanded="false" aria-controls="collapseZeroFive">
-                    <h3>YouTube.com</h3>
-                </button>
-            </h5>
-        </div>
-        <div id="collapseZeroFive" class="collapse" aria-labelledby="headingZeroFive"
-             data-parent="#lists">
-            <div class="card-body">
-                <h4>Kanäle/Playlisten</h4>
-                <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"
-                          data-toggle="tooltip"
-                          title="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals - Playlisten-IDs immer inklusive list= angeben."></textarea>
-            </div>
-        </div>
-    </div>
     <div>
         <a href="" ng-click="saveLists()" class="btn btn-dark" type="submit"><i id="spinner-lists"
                                                                                 style="display: none;"
@@ -672,9 +652,6 @@
                                 <i class="far fa-lightbulb text-warning"
                                    title="Kein Verfügbarkeitstest"></i>
                             </li>
-                            <li class="list-group-item">YouTube.com (YT)
-                                <i class="far fa-lightbulb text-warning"
-                                   title="Kein Verfügbarkeitstest"></i></li>
                         </ul>
                     </div>
                     <div class="col">
@@ -1360,38 +1337,6 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
                 </label>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingTwoTen">
-            <h5 class="mb-0">
-                <button class="btn btn-link collapsed" data-toggle="collapse"
-                        data-target="#collapseTwoTen"
-                        aria-expanded="false" aria-controls="collapseTwoTen">
-                    <h3>YouTube.com</h3>
-                </button>
-            </h5>
-        </div>
-        <div id="collapseTwoTen" class="collapse" aria-labelledby="headingTwoTen"
-             data-parent="#settings">
-            <div class="card-body">
-                <h4>Suche aktivieren</h4>
-                <label class="switch">
-                    <input type="checkbox"
-                           ng-model="settings.yt.enabled">
-                    <span class="slider round"
-                          data-toggle="tooltip"
-                          title="Wenn aktiviert, werden YouTube-Videos gesucht."></span>
-                </label>
-                <h4>Maximale Videoanzahl</h4>
-                <input required type="number" min="1" max="50" ng-model="settings.yt.max"
-                       class="number form-control"
-                       data-toggle="tooltip"
-                       title="Die Maximale Anzahl hinzuzufügender Videos (1-50)."/>
-                <h4>Filterliste</h4>
-                <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip"
-                       title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)."/>
             </div>
         </div>
     </div>

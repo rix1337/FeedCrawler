@@ -62,7 +62,6 @@ from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
 from rsscrawler.sites.sj import SJ
-from rsscrawler.sites.yt import YT
 from rsscrawler.url import check_url
 from rsscrawler.web import start
 
@@ -267,7 +266,6 @@ def crawldog(configfile, dbfile):
 
 def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        YT(configfile, dbfile, device, logger, scraper),
         DD(configfile, dbfile, device, logger, scraper),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),

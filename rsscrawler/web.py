@@ -191,7 +191,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             sj = RssConfig('SJ', configfile)
             dj = RssConfig('DJ', configfile)
             dd = RssConfig('DD', configfile)
-            yt = RssConfig('YT', configfile)
             if not mb.get("crawl3dtype"):
                 crawl_3d_type = "hsbs"
             else:
@@ -287,11 +286,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "dd": {
                             "feeds": dd.get("feeds"),
                             "hoster_fallback": dd.get("hoster_fallback"),
-                        },
-                        "yt": {
-                            "enabled": yt.get("youtube"),
-                            "max": to_int(yt.get("maxvideos")),
-                            "ignore": yt.get("ignore"),
                         }
                     }
                 }
@@ -431,20 +425,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             section.save("feeds", to_str(data['dd']['feeds']))
             section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
-
-            section = RssConfig("YT", configfile)
-
-            section.save("youtube", to_str(data['yt']['enabled']))
-            maxvideos = to_str(data['yt']['max'])
-            if maxvideos == "":
-                maxvideos = "10"
-            if to_int(maxvideos) < 1:
-                section.save("maxvideos", "1")
-            elif to_int(maxvideos) > 50:
-                section.save("maxvideos", "50")
-            else:
-                section.save("maxvideos", to_str(maxvideos))
-            section.save("ignore", to_str(data['yt']['ignore']))
             return "Success", 201
         else:
             return "Failed", 405
@@ -975,10 +955,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         },
                         "mbsj": {
                             "staffeln": get_list('MB_Staffeln'),
-                        },
-                        "yt": {
-                            "kanaele_playlisten": get_list('YT_Channels'),
-                        },
+                        }
                     },
                 }
             )
@@ -1002,8 +979,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 data['dj']['dokus'].split('\n'))
             ListDb(dbfile, "DJ_Dokus_Regex").store_list(
                 data['dj']['regex'].split('\n'))
-            ListDb(dbfile, "YT_Channels").store_list(
-                data['yt']['kanaele_playlisten'].split('\n'))
             return "Success", 201
         else:
             return "Failed", 405

@@ -94,11 +94,6 @@ class RssConfig(object):
         'DD': [
             ("feeds", "str", ""),
             ("hoster_fallback", "bool", "False")
-        ],
-        'YT': [
-            ("youtube", "bool", "False"),
-            ("maxvideos", "int", "10"),
-            ("ignore", "str", "")
         ]
     }
     __config__ = []
