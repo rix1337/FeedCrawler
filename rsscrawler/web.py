@@ -586,6 +586,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 {
                     "proxy": {
                         "SJ": check("SJ", db_proxy),
+                        "DJ": check("DJ", db_proxy),
                         "MB": check("MB", db_proxy),
                         "HW": check("HW", db_proxy),
                         "FX": check("FX", db_proxy),
@@ -594,6 +595,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     },
                     "normal": {
                         "SJ": check("SJ", db_normal),
+                        "DJ": check("DJ", db_normal),
                         "MB": check("MB", db_normal),
                         "HW": check("HW", db_normal),
                         "FX": check("FX", db_normal),

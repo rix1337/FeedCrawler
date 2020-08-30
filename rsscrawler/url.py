@@ -19,11 +19,13 @@ def check_url(configfile, dbfile, scraper=False):
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     sj = hostnames.get('sj')
+    dj = hostnames.get('dj')
 
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
     sj_url = 'https://' + sj
+    dj_url = 'https://' + sj
     mb_url = 'https://' + mb
     hw_url = 'https://' + hw
     fx_url = 'https://' + fx
@@ -31,12 +33,14 @@ def check_url(configfile, dbfile, scraper=False):
     nk_url = 'https://' + nk
 
     sj_blocked_proxy = False
+    dj_blocked_proxy = False
     mb_blocked_proxy = False
     hw_blocked_proxy = False
     fx_blocked_proxy = False
     hs_blocked_proxy = False
     nk_blocked_proxy = False
     sj_blocked = False
+    dj_blocked = False
     mb_blocked = False
     hw_blocked = False
     fx_blocked = False
@@ -79,6 +83,23 @@ def check_url(configfile, dbfile, scraper=False):
             if sj_blocked_proxy:
                 print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("SJ", "Blocked")
+                scraper = cloudscraper.create_scraper()
+
+        if not dj:
+            db.store("DJ", "Blocked")
+        else:
+            try:
+                if "block." in str(
+                        scraper.get(dj_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False).headers.get("location")):
+                    dj_blocked_proxy = True
+                else:
+                    db.delete("DJ")
+            except:
+                dj_blocked_proxy = True
+            if dj_blocked_proxy:
+                print(u"Der Zugriff auf DJ ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("DJ", "Blocked")
                 scraper = cloudscraper.create_scraper()
 
         if not mb:
@@ -178,6 +199,21 @@ def check_url(configfile, dbfile, scraper=False):
             if sj_blocked:
                 db_normal.store("SJ", "Blocked")
                 print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
+
+    if not proxy or (proxy and dj_blocked_proxy and fallback):
+        if not dj:
+            db.store("DJ", "Blocked")
+        else:
+            try:
+                if "block." in str(
+                        scraper.get(dj_url, timeout=30, allow_redirects=False).headers.get(
+                            "location")):
+                    dj_blocked = True
+            except:
+                dj_blocked = True
+            if dj_blocked:
+                db_normal.store("DJ", "Blocked")
+                print(u"Der Zugriff auf DJ ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and mb_blocked_proxy and fallback):
         if not mb:
