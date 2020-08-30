@@ -26,7 +26,7 @@ class SF:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.sj = self.hostnames.get('sj')
+        self.sf = self.hostnames.get('sf')
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
@@ -42,8 +42,8 @@ class SF:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.cdc = RssDb(self.dbfile, 'cdc')
-        self.last_set_sj = self.cdc.retrieve("SFSet-" + self.filename)
-        self.last_sha_sj = self.cdc.retrieve("SF-" + self.filename)
+        self.last_set_sf = self.cdc.retrieve("SFSet-" + self.filename)
+        self.last_sha_sf = self.cdc.retrieve("SF-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SFHeaders-" + self.filename))}
         settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
@@ -79,8 +79,8 @@ class SF:
             for s in settings:
                 self.settings.append(self.config.get(s))
             self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
-        set_sj = str(self.settings) + str(self.pattern)
-        return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
+        set_sf = str(self.settings) + str(self.pattern)
+        return hashlib.sha256(set_sf.encode('ascii', 'ignore')).hexdigest()
 
     def get_series_list(self, liste, series_type):
         if series_type == 1:
@@ -117,7 +117,7 @@ class SF:
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
+            api_url = 'https://' + self.sf + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             seasons = json.loads(response)
@@ -166,7 +166,7 @@ class SF:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, self.sj, self.dbfile)
+            download = add_decrypt(title, series_url, self.sf, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SF]'
@@ -197,23 +197,23 @@ class SF:
         except TypeError:
             reject = r"^unmatchable$"
 
-        set_sj = self.settings_hash(False)
+        set_sf = self.settings_hash(False)
 
         header = False
         response = False
 
         while self.day < 8:
-            if self.last_set_sj == set_sj:
+            if self.last_set_sf == set_sf:
                 try:
-                    response = get_url_headers('https://' + self.sj + '/api/releases/latest/' + str(self.day),
+                    response = get_url_headers('https://' + self.sf + '/api/releases/latest/' + str(self.day),
                                                self.configfile,
                                                self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sj, True)
+                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sf, True)
                     else:
-                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sj, True)
+                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sf, True)
                 except:
                     print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -226,15 +226,15 @@ class SF:
                     header = True
             else:
                 try:
-                    response = get_url('https://' + self.sj + '/api/releases/latest/' + str(self.day), self.configfile,
+                    response = get_url('https://' + self.sf + '/api/releases/latest/' + str(self.day), self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                         feed = j_releases_to_feedparser_dict(response, "seasons",
-                                                             'https://' + self.sj,
+                                                             'https://' + self.sf,
                                                              True)
                     else:
                         feed = j_releases_to_feedparser_dict(response, "episodes",
-                                                             'https://' + self.sj,
+                                                             'https://' + self.sf,
                                                              True)
                 except:
                     print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
@@ -243,9 +243,9 @@ class SF:
             self.day += 1
 
             if feed and feed.entries:
-                first_post_sj = feed.entries[0]
-                concat_sj = first_post_sj.title + first_post_sj.published + str(self.settings) + str(self.pattern)
-                sha_sj = hashlib.sha256(concat_sj.encode(
+                first_post_sf = feed.entries[0]
+                concat_sf = first_post_sf.title + first_post_sf.published + str(self.settings) + str(self.pattern)
+                sha_sf = hashlib.sha256(concat_sf.encode(
                     'ascii', 'ignore')).hexdigest()
             else:
                 self.log_debug(
@@ -257,7 +257,7 @@ class SF:
                          str(self.settings) + str(self.pattern)
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
-                if sha == self.last_sha_sj:
+                if sha == self.last_sha_sf:
                     self.log_debug(
                         "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                     break
@@ -407,13 +407,13 @@ class SF:
                                     self.log_debug(
                                         "%s - Englische Releases deaktiviert" % title)
 
-        if set_sj:
-            new_set_sj = self.settings_hash(True)
-            if set_sj == new_set_sj:
+        if set_sf:
+            new_set_sf = self.settings_hash(True)
+            if set_sf == new_set_sf:
                 self.cdc.delete("SFSet-" + self.filename)
-                self.cdc.store("SFSet-" + self.filename, set_sj)
+                self.cdc.store("SFSet-" + self.filename, set_sf)
                 self.cdc.delete("SF-" + self.filename)
-                self.cdc.store("SF-" + self.filename, sha_sj)
+                self.cdc.store("SF-" + self.filename, sha_sf)
 
         if header and response:
             self.cdc.delete("SFHeaders-" + self.filename)
