@@ -25,13 +25,13 @@ class RssConfig(object):
             ("packages_per_myjd_page", "int", "3")
         ],
         'Hostnames': [
+            ("sj", "str", ""),
+            ("dj", "str", ""),
             ("mb", "str", ""),
             ("hw", "str", ""),
             ("hs", "str", ""),
             ("fx", "str", ""),
             ("nk", "str", ""),
-            ("sj", "str", ""),
-            ("dj", "str", ""),
             ("dd", "str", ""),
             ("fc", "str", "")
         ],

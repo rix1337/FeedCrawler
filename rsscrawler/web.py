@@ -61,14 +61,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     global dd
     global fc
     hostnames = RssConfig('Hostnames', configfile)
-
+    sj = hostnames.get('sj')
+    dj = hostnames.get('dj')
     mb = hostnames.get('mb')
     hw = hostnames.get('hw')
     hs = hostnames.get('hs')
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
-    sj = hostnames.get('sj')
-    dj = hostnames.get('dj')
     dd = hostnames.get('dd')
     fc = hostnames.get('fc')
 
@@ -501,30 +500,34 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @app.route(prefix + "/api/hostnames/", methods=['GET'])
     @requires_auth
     def get_hostnames():
+        global sj
+        global dj
         global mb
         global hw
         global hw
         global hs
         global fx
         global nk
-        global sj
-        global dj
         global dd
         global fc
         if request.method == 'GET':
             try:
+                sj = sj.replace("s", "S", 1).replace("j", "J", 1)
+                dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 mb = mb.replace("m", "M", 1).replace("b", "B", 1)
                 hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
                 hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
-                sj = sj.replace("s", "S", 1).replace("j", "J", 1)
-                dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
                 bl = ' / '.join(list(filter(None, [mb, hw, hs, fx, nk])))
                 sjbl = ' / '.join(list(filter(None, [sj, bl])))
 
+                if not sj:
+                    sj = "Nicht gesetzt!"
+                if not dj:
+                    dj = "Nicht gesetzt!"
                 if not mb:
                     mb = "Nicht gesetzt!"
                 if not hw:
@@ -535,10 +538,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     fx = "Nicht gesetzt!"
                 if not nk:
                     nk = "Nicht gesetzt!"
-                if not sj:
-                    sj = "Nicht gesetzt!"
-                if not dj:
-                    dj = "Nicht gesetzt!"
                 if not dd:
                     dd = "Nicht gesetzt!"
                 if not fc:
@@ -550,13 +549,13 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 return jsonify(
                     {
                         "hostnames": {
+                            "sj": sj,
+                            "dj": dj,
                             "mb": mb,
                             "hw": hw,
                             "hs": hs,
                             "fx": fx,
                             "nk": nk,
-                            "sj": sj,
-                            "dj": dj,
                             "dd": dd,
                             "fc": fc,
                             "bl": bl,
@@ -592,6 +591,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "FX": check("FX", db_proxy),
                         "HS": check("HS", db_proxy),
                         "NK": check("NK", db_proxy),
+                        "DD": check("DD", db_proxy),
+                        "FC": check("FC", db_proxy)
                     },
                     "normal": {
                         "SJ": check("SJ", db_normal),
@@ -601,6 +602,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "FX": check("FX", db_normal),
                         "HS": check("HS", db_normal),
                         "NK": check("NK", db_normal),
+                        "DD": check("DD", db_normal),
+                        "FC": check("FC", db_normal)
                     }
                 }
             )
