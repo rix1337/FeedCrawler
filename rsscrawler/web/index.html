@@ -454,6 +454,32 @@
 <div id="help" class="col card app container">
     <h3><i class="fas fa-question"></i> Hilfe</h3>
     <div class="card">
+        <div class="card-header" id="headingZeroZero">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroZero"
+                        aria-expanded="true"
+                        aria-controls="collapseZeroZero">
+                    <h3>RSScrawler Sponsors Helper</h3>
+                </button>
+            </h5>
+        </div>
+        <div id="collapseZeroZero" class="collapse" aria-labelledby="headingZeroZero" data-parent="#help">
+            <div class="card-body">
+                <br>Der RSScrawler Sponsors Helper ist ein Docker-Image das {{ !!hostnames.sj ? hostnames.sj : 'SJ'
+                }}-Captchas vollständig selbst löst und dem
+                RSScrawler entschlüsselt übergibt.</br>
+                Perspektivisch wird der Helper auch die Captchas auf {{ !!hostnames.fc ? hostnames.fc : 'FC' }}
+                lösen.</p>
+                <p>Aufgrund des Pflegeaufwandes erhalten nur <a href="https://github.com/users/rix1337/sponsorship"
+                                                                target="_blank">Sponsoren</a> Zugriff darauf.</br>
+                    Freischaltung unter Angabe der eigenen Docker-ID per PN auf <a
+                            href="https://gitter.im/RSScrawler/Lobby" target="_blank">Gitter</a>.</p>
+                <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account beim
+                    unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <div class="card-header" id="headingOneZero">
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneZero"
@@ -466,7 +492,7 @@
         <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
             <div class="card-body">
                 <a href="./redirect_user/captcha" target="_blank">
-                    Anti-Captcha.com (Schnelles Lösen von ReCaptcha - auch im Browser)
+                    Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
                 </a>
             </div>
         </div>
@@ -1335,7 +1361,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-locale_de-de.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?major_update"></script>
 </body>
 
 </html>{% endraw %}
