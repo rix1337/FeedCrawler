@@ -32,6 +32,7 @@ import logging
 import multiprocessing
 import os
 import random
+import re
 import signal
 import sys
 import time
@@ -302,6 +303,27 @@ def main():
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
+
+    hostnames = RssConfig('Hostnames', configfile)
+
+    def clean_up_hostname(host, string):
+        if '/' in string:
+            string = string.replace('https://', '').replace('http://', '')
+            string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
+            hostnames.save(host, string)
+        return string
+
+    set_hostnames = {}
+    list_names = ['mb', 'hw', 'hs', 'fx', 'nk', 'dj', 'sj', 'fc']
+    for name in list_names:
+        hostname = clean_up_hostname(name, hostnames.get(name))
+        if hostname:
+            set_hostnames[name] = hostname
+
+    if not set_hostnames:
+        print(u'Keine Hostnamen in der RSScrawler.ini gefunden! Beende RSScrawler!')
+        time.sleep(10)
+        sys.exit(1)
 
     disable_request_warnings(InsecureRequestWarning)
 
