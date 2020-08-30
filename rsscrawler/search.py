@@ -36,6 +36,14 @@ logger = logging.getLogger('rsscrawler')
 
 
 def get(title, configfile, dbfile, bl_only=False, sj_only=False):
+    hostnames = RssConfig('Hostnames', configfile)
+    mb = hostnames.get('mb')
+    hw = hostnames.get('hw')
+    hs = hostnames.get('hs')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+    sj = hostnames.get('sj')
+
     specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*),(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
@@ -86,13 +94,13 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         fx_results = []
 
         for res in async_results:
-            if check_is_site(res) == 'MB':
+            if check_is_site(res, configfile) == 'MB':
                 mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif check_is_site(res) == 'HW':
+            elif check_is_site(res, configfile) == 'HW':
                 hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif check_is_site(res) == 'HS':
+            elif check_is_site(res, configfile) == 'HS':
                 hs_results = hs_search_results(res)
-            elif check_is_site(res) == 'FX':
+            elif check_is_site(res, configfile) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
 
         nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
@@ -170,13 +178,13 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             fx_results = []
 
             for res in async_results:
-                if check_is_site(res) == 'MB':
+                if check_is_site(res, configfile) == 'MB':
                     mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif check_is_site(res) == 'HW':
+                elif check_is_site(res, configfile) == 'HW':
                     hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif check_is_site(res) == 'HS':
+                elif check_is_site(res, configfile) == 'HS':
                     hs_results = hs_search_results(res)
-                elif check_is_site(res) == 'FX':
+                elif check_is_site(res, configfile) == 'FX':
                     fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
 
             nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
@@ -415,6 +423,10 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def download_bl(payload, device, configfile, dbfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    mb = hostnames.get('mb')
+    nk = hostnames.get('nk')
+
     payload = decode_base64(payload).split("|")
     link = payload[0]
     password = payload[1]
@@ -426,7 +438,7 @@ def download_bl(payload, device, configfile, dbfile):
     db = RssDb(dbfile, 'rsscrawler')
     soup = BeautifulSoup(url, 'lxml')
 
-    site = check_is_site(link)
+    site = check_is_site(link, configfile)
     if not site:
         return False
     else:
@@ -624,6 +636,9 @@ def download_bl(payload, device, configfile, dbfile):
 
 
 def download_sj(payload, configfile, dbfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    sj = hostnames.get('sj')
+
     payload = decode_base64(payload).split("|")
     href = payload[0]
     title = payload[1]

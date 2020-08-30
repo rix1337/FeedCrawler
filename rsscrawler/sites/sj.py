@@ -24,6 +24,10 @@ class SJ:
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
+
+        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.sj = self.hostnames.get('sj')
+
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
@@ -113,7 +117,7 @@ class SJ:
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = 'https://' + sj + '/api/media/' + series_id + '/releases'
+            api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             seasons = json.loads(response)
@@ -162,7 +166,7 @@ class SJ:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, sj, self.dbfile)
+            download = add_decrypt(title, series_url, self.sj, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SJ]'
@@ -201,15 +205,15 @@ class SJ:
         while self.day < 8:
             if self.last_set_sj == set_sj:
                 try:
-                    response = get_url_headers('https://' + sj + '/api/releases/latest/' + str(self.day),
+                    response = get_url_headers('https://' + self.sj + '/api/releases/latest/' + str(self.day),
                                                self.configfile,
                                                self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + sj)
+                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sj, True)
                     else:
-                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + sj)
+                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sj, True)
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -222,15 +226,15 @@ class SJ:
                     header = True
             else:
                 try:
-                    response = get_url('https://' + sj + '/api/releases/latest/' + str(self.day), self.configfile,
+                    response = get_url('https://' + self.sj + '/api/releases/latest/' + str(self.day), self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                         feed = j_releases_to_feedparser_dict(response, "seasons",
-                                                             'https://' + sj,
+                                                             'https://' + self.sj,
                                                              True)
                     else:
                         feed = j_releases_to_feedparser_dict(response, "episodes",
-                                                             'https://' + sj,
+                                                             'https://' + self.sj,
                                                              True)
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")

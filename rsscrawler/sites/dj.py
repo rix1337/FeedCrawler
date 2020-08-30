@@ -24,6 +24,10 @@ class DJ:
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
+
+        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.dj = self.hostnames.get('dj')
+
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hosters = RssConfig("Hosters", configfile).get_section()
@@ -92,7 +96,7 @@ class DJ:
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = 'https://' + dj + '/api/media/' + series_id + '/releases'
+            api_url = 'https://' + self.dj + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             seasons = json.loads(response)
@@ -137,7 +141,7 @@ class DJ:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, dj, self.dbfile)
+            download = add_decrypt(title, series_url, self.dj, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [DJ]'
@@ -168,11 +172,11 @@ class DJ:
         while self.day < 8:
             if self.last_set_dj == set_dj:
                 try:
-                    response = get_url_headers('https://' + dj + '/api/releases/latest/' + str(self.day),
+                    response = get_url_headers('https://' + self.dj + '/api/releases/latest/' + str(self.day),
                                                self.configfile, self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
-                    feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + dj, False)
+                    feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.dj, False)
                 except:
                     print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -185,9 +189,9 @@ class DJ:
                     header = True
             else:
                 try:
-                    response = get_url('https://' + dj + '/api/releases/latest/' + str(self.day),
+                    response = get_url('https://' + self.dj + '/api/releases/latest/' + str(self.day),
                                        self.configfile, self.dbfile, self.scraper)
-                    feed = j_releases_to_feedparser_dict(response, "episodes", 'https://' + dj, False)
+                    feed = j_releases_to_feedparser_dict(response, "episodes", 'https://' + self.dj, False)
                 except:
                     print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -243,7 +247,7 @@ class DJ:
                                     self.log_debug(
                                         title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
-                                self.parse_download(series_url, title, language_id, genre)
+                                self.parse_download(series_url, title, language_id)
                         else:
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % title)

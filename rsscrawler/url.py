@@ -12,12 +12,18 @@ from rsscrawler.rssdb import RssDb
 
 
 def check_url(configfile, dbfile, scraper=False):
-    proxy = RssConfig('RSScrawler', configfile).get('proxy')
-    fallback = RssConfig('RSScrawler', configfile).get('fallback')
+    hostnames = RssConfig('Hostnames', configfile)
+    mb = hostnames.get('mb')
+    hw = hostnames.get('hw')
+    hs = hostnames.get('hs')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+    sj = hostnames.get('sj')
 
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
+    # ToDo: Check if hostname is set, else fail the site
     sj_url = 'https://' + sj
     mb_url = 'https://' + mb
     hw_url = 'https://' + hw
@@ -52,6 +58,9 @@ def check_url(configfile, dbfile, scraper=False):
     db_normal.delete("FX")
     db_normal.delete("HS")
     db_normal.delete("NK")
+
+    proxy = RssConfig('RSScrawler', configfile).get('proxy')
+    fallback = RssConfig('RSScrawler', configfile).get('fallback')
 
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
@@ -216,7 +225,7 @@ def get_url(url, configfile, dbfile, scraper=False):
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
-    site = check_is_site(url)
+    site = check_is_site(url, configfile)
     if proxy:
         try:
             if site and "SJ" in site:
@@ -291,7 +300,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
-    site = check_is_site(url)
+    site = check_is_site(url, configfile)
     if proxy:
         try:
             if site and "SJ" in site:
@@ -365,7 +374,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
-    site = check_is_site(url)
+    site = check_is_site(url, configfile)
     if proxy:
         try:
             if site and "SJ" in site:
@@ -439,7 +448,7 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
 
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
-    site = check_is_site(url)
+    site = check_is_site(url, configfile)
     if proxy:
         try:
             if site and "SJ" in site:

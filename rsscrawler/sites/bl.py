@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # RSScrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/zapp-brannigan/
 
 import hashlib
 import re
@@ -33,22 +31,31 @@ from rsscrawler.url import get_url_headers
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    MB_URL = 'https://' + mb + '/feed/'
-    MB_FEED_URLS = [MB_URL]
-    HW_URL = 'https://' + hw + '/feed/'
-    HW_FEED_URLS = [HW_URL]
-    HS_URL = 'https://' + hs + '/feed'
-    HS_FEED_URLS = [HS_URL]
-    FX_URL = 'https://' + fx + '/feed'
-    FX_FEED_URLS = [FX_URL]
-    NK_URL = 'https://' + nk + '/'
-    NK_FEED_URLS = [NK_URL]
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
+
+        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.mb = self.hostnames.get('mb')
+        self.hw = self.hostnames.get('hw')
+        self.hs = self.hostnames.get('hs')
+        self.fx = self.hostnames.get('fx')
+        self.nk = self.hostnames.get('nk')
+
+        self.MB_URL = 'https://' + self.mb + '/feed/'
+        self.MB_FEED_URLS = [self.MB_URL]
+        self.HW_URL = 'https://' + self.hw + '/feed/'
+        self.HW_FEED_URLS = [self.HW_URL]
+        self.HS_URL = 'https://' + self.hs + '/feed'
+        self.HS_FEED_URLS = [self.HS_URL]
+        self.FX_URL = 'https://' + self.fx + '/feed'
+        self.FX_FEED_URLS = [self.FX_URL]
+        self.NK_URL = 'https://' + self.nk + '/'
+        self.NK_FEED_URLS = [self.NK_URL]
+
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.log_info = logging.info
@@ -172,13 +179,13 @@ class BL:
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
-            if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+            if self.mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                 if check_hoster(hoster, self.configfile):
                     links[hoster] = url_hoster[0]
         if self.hoster_fallback and not links:
             for url_hoster in reversed(url_hosters):
-                if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                if self.mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                     hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                     links[hoster] = url_hoster[0]
         return list(links.values())
@@ -466,15 +473,15 @@ class BL:
                             ",", "."))
                         if download_score > imdb:
                             if "MB" in site:
-                                password = mb
+                                password = self.mb
                             elif "HW" in site:
-                                password = hw
+                                password = self.hw
                             elif "HS" in site:
-                                password = hs
+                                password = self.hs
                             elif "FX" in site:
-                                password = fx.split('.')[0]
+                                password = self.fx.split('.')[0]
                             else:
-                                password = nk.split('.')[0].capitalize()
+                                password = self.nk.split('.')[0].capitalize()
 
                             if not "FX" in site:
                                 download_pages = self.get_download_links(content)
@@ -499,15 +506,15 @@ class BL:
             return
         added_items = []
         if "MB" in site:
-            password = mb
+            password = self.mb
         elif "HW" in site:
-            password = hw
+            password = self.hw
         elif "HS" in site:
-            password = hs
+            password = self.hs
         elif "FX" in site:
-            password = fx.split('.')[0]
+            password = self.fx.split('.')[0]
         else:
-            password = nk.split('.')[0].capitalize()
+            password = self.nk.split('.')[0].capitalize()
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -722,13 +729,13 @@ class BL:
         search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = [feedparser.parse(
-            get_url('https://' + mb + '/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + hs + 'hd-source.to''/search/' + search_title + '/feed/',
+            hs_search_to_soup('https://' + self.hs + 'hd-source.to''/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
-                get_url('https://' + fx + '/search/' + search_title + "/feed/rss2/",
+                get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
         # TODO: Add NK
 
@@ -736,7 +743,7 @@ class BL:
         for content in search_results:
             i += 1
 
-            site = check_is_site(str(content))
+            site = check_is_site(str(content), self.configfile)
             if not site:
                 site = ""
 
@@ -749,7 +756,7 @@ class BL:
                         download_links = fx_download_links(content, key)
                     if download_links:
                         for download_link in download_links:
-                            if mb.split('.')[0] in download_link:
+                            if self.mb.split('.')[0] in download_link:
                                 self.log_debug("Fake-Link erkannt!")
                                 break
                         storage = self.db.retrieve_all(key)
@@ -891,13 +898,13 @@ class BL:
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0]
         search_results = [feedparser.parse(
-            get_url('https://' + mb + '/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + hs + 'hd-source.to''/search/' + search_title + '/feed/',
+            hs_search_to_soup('https://' + self.hs + 'hd-source.to''/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
-                get_url('https://' + fx + '/search/' + search_title + "/feed/rss2/",
+                get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
         # TODO: Add NK
 
@@ -905,7 +912,7 @@ class BL:
         for content in search_results:
             i += 1
 
-            site = check_is_site(str(content))
+            site = check_is_site(str(content), self.configfile)
             if not site:
                 site = ""
 
@@ -930,7 +937,7 @@ class BL:
                     download_links = fx_download_links(content, key)
                 if download_links:
                     for download_link in download_links:
-                        if mb.split('.')[0] in download_link:
+                        if self.mb.split('.')[0] in download_link:
                             self.log_debug("Fake-Link erkannt!")
                             break
                     storage = self.db.retrieve_all(key)
@@ -1023,7 +1030,7 @@ class BL:
                         return
         if download_links:
             for download_link in download_links:
-                if mb.split('.')[0] in download_link:
+                if self.mb.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             englisch = False
@@ -1127,7 +1134,7 @@ class BL:
             download_links = fx_download_links(content, key)
         if download_links:
             for download_link in download_links:
-                if mb.split('.')[0] in download_link:
+                if self.mb.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             storage = self.db.retrieve_all(key)
