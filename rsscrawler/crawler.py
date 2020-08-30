@@ -311,6 +311,10 @@ def main():
             string = string.replace('https://', '').replace('http://', '')
             string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
             hostnames.save(host, string)
+        if re.match(r'.*[A-Z].*', string):
+            hostnames.save(host, string.lower())
+        if not string:
+            print(u'Kein Hostname gesetzt: ' + host.upper() + ' (Seite wird ignoriert!)')
         return string
 
     set_hostnames = {}

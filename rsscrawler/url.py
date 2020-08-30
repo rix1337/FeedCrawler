@@ -23,7 +23,6 @@ def check_url(configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    # ToDo: Check if hostname is set, else fail the site
     sj_url = 'https://' + sj
     mb_url = 'https://' + mb
     hw_url = 'https://' + hw
@@ -65,154 +64,190 @@ def check_url(configfile, dbfile, scraper=False):
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
 
-        try:
-            if "block." in str(
-                    scraper.get(sj_url, proxies=proxies, timeout=30,
-                                allow_redirects=False).headers.get("location")):
-                sj_blocked_proxy = True
-            else:
-                db.delete("SJ")
-        except:
-            sj_blocked_proxy = True
-        if sj_blocked_proxy:
-            print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not sj:
             db.store("SJ", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "block." in str(
+                        scraper.get(sj_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False).headers.get("location")):
+                    sj_blocked_proxy = True
+                else:
+                    db.delete("SJ")
+            except:
+                sj_blocked_proxy = True
+            if sj_blocked_proxy:
+                print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("SJ", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(mb_url, proxies=proxies, timeout=30,
-                                allow_redirects=False)):
-                mb_blocked_proxy = True
-            else:
-                db.delete("MB")
-        except:
-            mb_blocked_proxy = True
-        if mb_blocked_proxy:
-            print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not mb:
             db.store("MB", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(mb_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False)):
+                    mb_blocked_proxy = True
+                else:
+                    db.delete("MB")
+            except:
+                mb_blocked_proxy = True
+            if mb_blocked_proxy:
+                print(u"Der Zugriff auf MB ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("MB", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(hw_url, proxies=proxies, timeout=30,
-                                allow_redirects=False)):
-                hw_blocked_proxy = True
-            else:
-                db.delete("HW")
-        except:
-            hw_blocked_proxy = True
-        if hw_blocked_proxy:
-            print(u"Der Zugriff auf HW ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not hw:
             db.store("HW", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(hw_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False)):
+                    hw_blocked_proxy = True
+                else:
+                    db.delete("HW")
+            except:
+                hw_blocked_proxy = True
+            if hw_blocked_proxy:
+                print(u"Der Zugriff auf HW ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("HW", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(fx_url, proxies=proxies, timeout=30,
-                                allow_redirects=False)):
-                fx_blocked_proxy = True
-            else:
-                db.delete("FX")
-        except:
-            fx_blocked_proxy = True
-        if fx_blocked_proxy:
-            print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not fx:
             db.store("FX", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(fx_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False)):
+                    fx_blocked_proxy = True
+                else:
+                    db.delete("FX")
+            except:
+                fx_blocked_proxy = True
+            if fx_blocked_proxy:
+                print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("FX", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
-        try:
-            if "200" not in str(
-                    scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
-                hs_blocked_proxy = True
-            else:
-                db.delete("HS")
-        except:
-            hs_blocked_proxy = True
-        if hs_blocked_proxy:
-            print(u"Der Zugriff auf HS ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not hs:
             db.store("HS", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "200" not in str(
+                        scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+                    hs_blocked_proxy = True
+                else:
+                    db.delete("HS")
+            except:
+                hs_blocked_proxy = True
+            if hs_blocked_proxy:
+                print(u"Der Zugriff auf HS ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("HS", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
-        try:
-            if "200" not in str(
-                    scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
-                nk_blocked_proxy = True
-            else:
-                db.delete("NK")
-        except:
-            nk_blocked_proxy = True
-        if nk_blocked_proxy:
-            print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
+        if not nk:
             db.store("NK", "Blocked")
-            scraper = cloudscraper.create_scraper()
+        else:
+            try:
+                if "200" not in str(
+                        scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
+                    nk_blocked_proxy = True
+                else:
+                    db.delete("NK")
+            except:
+                nk_blocked_proxy = True
+            if nk_blocked_proxy:
+                print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
+                db.store("NK", "Blocked")
+                scraper = cloudscraper.create_scraper()
 
     if not proxy or (proxy and sj_blocked_proxy and fallback):
-        try:
-            if "block." in str(
-                    scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
-                        "location")):
+        if not sj:
+            db.store("SJ", "Blocked")
+        else:
+            try:
+                if "block." in str(
+                        scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
+                            "location")):
+                    sj_blocked = True
+            except:
                 sj_blocked = True
-        except:
-            sj_blocked = True
-        if sj_blocked:
-            db_normal.store("SJ", "Blocked")
-            print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
+            if sj_blocked:
+                db_normal.store("SJ", "Blocked")
+                print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and mb_blocked_proxy and fallback):
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(mb_url, timeout=30, allow_redirects=False)):
+        if not mb:
+            db.store("MB", "Blocked")
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(mb_url, timeout=30, allow_redirects=False)):
+                    mb_blocked = True
+            except:
                 mb_blocked = True
-        except:
-            mb_blocked = True
-        if mb_blocked:
-            db_normal.store("MB", "Blocked")
-            print(u"Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
+            if mb_blocked:
+                db_normal.store("MB", "Blocked")
+                print(u"Der Zugriff auf MB ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and hw_blocked_proxy and fallback):
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(hw_url, timeout=30, allow_redirects=False)):
+        if not hw:
+            db.store("HW", "Blocked")
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(hw_url, timeout=30, allow_redirects=False)):
+                    hw_blocked = True
+            except:
                 hw_blocked = True
-        except:
-            hw_blocked = True
-        if hw_blocked:
-            db_normal.store("HW", "Blocked")
-            print(u"Der Zugriff auf HW ist mit der aktuellen IP nicht möglich!")
+            if hw_blocked:
+                db_normal.store("HW", "Blocked")
+                print(u"Der Zugriff auf HW ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and fx_blocked_proxy and fallback):
-        try:
-            if "<Response [403]>" in str(
-                    scraper.get(fx_url, timeout=30, allow_redirects=False)):
+        if not fx:
+            db.store("FX", "Blocked")
+        else:
+            try:
+                if "<Response [403]>" in str(
+                        scraper.get(fx_url, timeout=30, allow_redirects=False)):
+                    fx_blocked = True
+            except:
                 fx_blocked = True
-        except:
-            fx_blocked = True
-        if fx_blocked:
-            db_normal.store("FX", "Blocked")
-            print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
+            if fx_blocked:
+                db_normal.store("FX", "Blocked")
+                print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and hs_blocked_proxy and fallback):
-        try:
-            if "200" not in str(
-                    scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+        if not hs:
+            db.store("HS", "Blocked")
+        else:
+            try:
+                if "200" not in str(
+                        scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
+                    hs_blocked = True
+            except:
                 hs_blocked = True
-        except:
-            hs_blocked = True
-        if hs_blocked:
-            db_normal.store("HS", "Blocked")
-            print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
+            if hs_blocked:
+                db_normal.store("HS", "Blocked")
+                print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
 
     if not proxy or (proxy and nk_blocked_proxy and fallback):
-        try:
-            if "200" not in str(
-                    scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
+        if not nk:
+            db.store("NK", "Blocked")
+        else:
+            try:
+                if "200" not in str(
+                        scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
+                    nk_blocked = True
+            except:
                 nk_blocked = True
-        except:
-            nk_blocked = True
-        if nk_blocked:
-            db_normal.store("NK", "Blocked")
-            print(u"Der Zugriff auf NK ist mit der aktuellen IP nicht möglich!")
+            if nk_blocked:
+                db_normal.store("NK", "Blocked")
+                print(u"Der Zugriff auf NK ist mit der aktuellen IP nicht möglich!")
 
     return scraper
 
