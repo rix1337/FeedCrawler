@@ -324,7 +324,7 @@ def main():
         if hostname:
             set_hostnames[name] = hostname
 
-    if not set_hostnames:
+    if not arguments['--testlauf'] and not set_hostnames:
         print(u'Keine Hostnamen in der RSScrawler.ini gefunden! Beende RSScrawler!')
         time.sleep(10)
         sys.exit(1)
