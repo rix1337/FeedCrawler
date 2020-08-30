@@ -40,10 +40,6 @@ def config(configpath):
     return configpath
 
 
-def hostnames():
-    return
-
-
 def myjd_input(configfile, port, user, password, device):
     if user and password and device:
         print(u"Zugangsdaten aus den Parametern übernommen.")

@@ -24,6 +24,16 @@ class RssConfig(object):
             ("one_mirror_policy", "bool", "False"),
             ("packages_per_myjd_page", "int", "3")
         ],
+        'Hostnames': [
+            ("mb", "str", ""),
+            ("hw", "str", ""),
+            ("hs", "str", ""),
+            ("fx", "str", ""),
+            ("nk", "str", ""),
+            ("sj", "str", ""),
+            ("dj", "str", ""),
+            ("fc", "str", "")
+        ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
             ("subdir", "bool", "True")

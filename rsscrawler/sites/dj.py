@@ -11,7 +11,6 @@ from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import check_valid_release
-from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -93,7 +92,7 @@ class DJ:
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = decode_base64('aHR0cHM6Ly9kb2t1anVua2llcy5vcmc=') + '/api/media/' + series_id + '/releases'
+            api_url = 'https://' + dj + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             seasons = json.loads(response)
@@ -138,7 +137,7 @@ class DJ:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, decode_base64("c2VyaWVuanVua2llcy5vcmc="), self.dbfile)
+            download = add_decrypt(title, series_url, dj, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [DJ]'
@@ -169,13 +168,11 @@ class DJ:
         while self.day < 8:
             if self.last_set_dj == set_dj:
                 try:
-                    response = get_url_headers(
-                        decode_base64('aHR0cHM6Ly9kb2t1anVua2llcy5vcmc=') + '/api/releases/latest/' + str(self.day),
-                        self.configfile, self.dbfile, self.headers, self.scraper)
+                    response = get_url_headers('https://' + dj + '/api/releases/latest/' + str(self.day),
+                                               self.configfile, self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
-                    feed = j_releases_to_feedparser_dict(response.text, "episodes",
-                                                         decode_base64('aHR0cHM6Ly9kb2t1anVua2llcy5vcmc='), False)
+                    feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + dj, False)
                 except:
                     print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -188,11 +185,9 @@ class DJ:
                     header = True
             else:
                 try:
-                    response = get_url(
-                        decode_base64('aHR0cHM6Ly9kb2t1anVua2llcy5vcmc=') + '/api/releases/latest/' + str(self.day),
-                        self.configfile, self.dbfile, self.scraper)
-                    feed = j_releases_to_feedparser_dict(response, "episodes",
-                                                         decode_base64('aHR0cHM6Ly9kb2t1anVua2llcy5vcmc='), False)
+                    response = get_url('https://' + dj + '/api/releases/latest/' + str(self.day),
+                                       self.configfile, self.dbfile, self.scraper)
+                    feed = j_releases_to_feedparser_dict(response, "episodes", 'https://' + dj, False)
                 except:
                     print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False

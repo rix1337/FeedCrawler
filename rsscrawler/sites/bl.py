@@ -20,7 +20,6 @@ from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import check_valid_release
-from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import fullhd_title
 from rsscrawler.rsscommon import is_hevc
 from rsscrawler.rsscommon import is_retail
@@ -34,15 +33,15 @@ from rsscrawler.url import get_url_headers
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    MB_URL = decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvZmVlZC8=")
+    MB_URL = 'https://' + mb + '/feed/'
     MB_FEED_URLS = [MB_URL]
-    HW_URL = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9mZWVkLw==")
+    HW_URL = 'https://' + hw + '/feed/'
     HW_FEED_URLS = [HW_URL]
-    HS_URL = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vZmVlZA==')
+    HS_URL = 'https://' + hs + '/feed'
     HS_FEED_URLS = [HS_URL]
-    FX_URL = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRlL2ZlZWQ=')
+    FX_URL = 'https://' + fx + '/feed'
     FX_FEED_URLS = [FX_URL]
-    NK_URL = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
+    NK_URL = 'https://' + nk + '/'
     NK_FEED_URLS = [NK_URL]
     SUBSTITUTE = r"[&#\s/]"
 
@@ -173,15 +172,13 @@ class BL:
         url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
         links = {}
         for url_hoster in reversed(url_hosters):
-            url = decode_base64("bW92aWUtYmxvZy4=")
-            if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+            if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                 hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                 if check_hoster(hoster, self.configfile):
                     links[hoster] = url_hoster[0]
         if self.hoster_fallback and not links:
             for url_hoster in reversed(url_hosters):
-                url = decode_base64("bW92aWUtYmxvZy4=")
-                if url not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
+                if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                     hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                     links[hoster] = url_hoster[0]
         return list(links.values())
@@ -469,15 +466,15 @@ class BL:
                             ",", "."))
                         if download_score > imdb:
                             if "MB" in site:
-                                password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+                                password = mb
                             elif "HW" in site:
-                                password = decode_base64("aGQtd29ybGQub3Jn")
+                                password = hw
                             elif "HS" in site:
-                                password = decode_base64("aGQtc291cmNlLnRv")
+                                password = hs
                             elif "FX" in site:
-                                password = decode_base64("ZnVueGQ=")
+                                password = fx.split('.')[0]
                             else:
-                                password = decode_base64("TklNQTRL")
+                                password = nk.split('.')[0].capitalize()
 
                             if not "FX" in site:
                                 download_pages = self.get_download_links(content)
@@ -502,15 +499,15 @@ class BL:
             return
         added_items = []
         if "MB" in site:
-            password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+            password = mb
         elif "HW" in site:
-            password = decode_base64("aGQtd29ybGQub3Jn")
+            password = hw
         elif "HS" in site:
-            password = decode_base64("aGQtc291cmNlLnRv")
+            password = hs
         elif "FX" in site:
-            password = decode_base64("ZnVueGQ=")
+            password = fx.split('.')[0]
         else:
-            password = decode_base64("TklNQTRL")
+            password = nk.split('.')[0].capitalize()
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -725,13 +722,13 @@ class BL:
         search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = [feedparser.parse(
-            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvc2VhcmNoLw==") + search_title + "/feed/rss2/",
+            get_url('https://' + mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
+            get_url('https://' + hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
+            hs_search_to_soup('https://' + hs + 'hd-source.to''/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
-                get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
+                get_url('https://' + fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
         # TODO: Add NK
 
@@ -752,7 +749,7 @@ class BL:
                         download_links = fx_download_links(content, key)
                     if download_links:
                         for download_link in download_links:
-                            if decode_base64("bW92aWUtYmxvZy4=") in download_link:
+                            if mb.split('.')[0] in download_link:
                                 self.log_debug("Fake-Link erkannt!")
                                 break
                         storage = self.db.retrieve_all(key)
@@ -894,13 +891,13 @@ class BL:
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0]
         search_results = [feedparser.parse(
-            get_url(decode_base64("aHR0cDovL21vdmllLWJsb2cuc3gvc2VhcmNoLw==") + search_title + "/feed/rss2/",
+            get_url('https://' + mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url(decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy9zZWFyY2gv") + search_title + "/feed/rss2/",
+            get_url('https://' + hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup(decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + search_title + '/feed/',
+            hs_search_to_soup('https://' + hs + 'hd-source.to''/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
-                get_url(decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlL3NlYXJjaC8=") + search_title + "/feed/rss2/",
+                get_url('https://' + fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
         # TODO: Add NK
 
@@ -933,7 +930,7 @@ class BL:
                     download_links = fx_download_links(content, key)
                 if download_links:
                     for download_link in download_links:
-                        if decode_base64("bW92aWUtYmxvZy4=") in download_link:
+                        if mb.split('.')[0] in download_link:
                             self.log_debug("Fake-Link erkannt!")
                             break
                     storage = self.db.retrieve_all(key)
@@ -1026,8 +1023,7 @@ class BL:
                         return
         if download_links:
             for download_link in download_links:
-                url = decode_base64("bW92aWUtYmxvZy4=")
-                if url in download_link:
+                if mb.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             englisch = False
@@ -1131,8 +1127,7 @@ class BL:
             download_links = fx_download_links(content, key)
         if download_links:
             for download_link in download_links:
-                url = decode_base64("bW92aWUtYmxvZy4=")
-                if url in download_link:
+                if mb.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             storage = self.db.retrieve_all(key)

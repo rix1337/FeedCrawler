@@ -6,7 +6,7 @@ import concurrent.futures
 
 import cloudscraper
 
-from rsscrawler.rsscommon import decode_base64
+from rsscrawler.rsscommon import check_is_site
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
 
@@ -18,12 +18,12 @@ def check_url(configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    sj_url = decode_base64("aHR0cDovL3Nlcmllbmp1bmtpZXMub3Jn")
-    mb_url = decode_base64("aHR0cDovL21vdmllLWJsb2cudG8v")
-    hw_url = decode_base64("aHR0cDovL2hkLXdvcmxkLm9yZy8=")
-    fx_url = decode_base64("aHR0cHM6Ly9mdW54ZC5zaXRlLw==")
-    hs_url = decode_base64("aHR0cHM6Ly9oZC1zb3VyY2UudG8vY29sbGVjdGlvbi9uZXVlcnNjaGVpbnVuZ2VuLw==")
-    nk_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
+    sj_url = 'https://' + sj
+    mb_url = 'https://' + mb
+    hw_url = 'https://' + hw
+    fx_url = 'https://' + fx
+    hs_url = 'https://' + hs + '/collection/neuerscheinungen/'
+    nk_url = 'https://' + nk
 
     sj_blocked_proxy = False
     mb_blocked_proxy = False
@@ -206,23 +206,6 @@ def check_url(configfile, dbfile, scraper=False):
             print(u"Der Zugriff auf NK ist mit der aktuellen IP nicht möglich!")
 
     return scraper
-
-
-def check_is_site(url):
-    if decode_base64("c2VyaWVuanVua2llcy5vcmc=") in url:
-        return "SJ"
-    elif decode_base64("bW92aWUtYmxvZy4=") in url:
-        return "MB"
-    elif decode_base64("aGQtd29ybGQub3Jn") in url:
-        return "HW"
-    elif decode_base64("ZnVueGQ=") in url:
-        return "FX"
-    elif decode_base64("aGQtc291cmNlLnRv") in url:
-        return "HS"
-    elif decode_base64('bmltYTRr') in url:
-        return "NK"
-    else:
-        return False
 
 
 def get_url(url, configfile, dbfile, scraper=False):

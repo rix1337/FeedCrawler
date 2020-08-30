@@ -63,6 +63,23 @@ def check_ip():
     return ip
 
 
+def check_is_site(string):
+    if sj.split('.')[0] in string:
+        return "SJ"
+    elif mb.split('.')[0] in string:
+        return "MB"
+    elif hw.split('.')[0] in string:
+        return "HW"
+    elif fx.split('.')[0] in string:
+        return "FX"
+    elif hs.split('.')[0] in string:
+        return "HS"
+    elif nk.split('.')[0] in string:
+        return "NK"
+    else:
+        return False
+
+
 def check_valid_release(title, retail_only, hevc_retail, dbfile):
     if retail_only:
         if not is_retail(title, False, False):

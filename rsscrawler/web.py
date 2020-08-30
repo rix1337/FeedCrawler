@@ -1006,13 +1006,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 // @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
 // @version         0.2.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
-// @exclude         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/search?q=*
+// @match           https://""" + sj + """/*
+// @match           https://""" + dj + """/*
+// @exclude         https://""" + sj + """/serie/search?q=*
+// @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
 document.body.addEventListener('mousedown', function(e) {
     if (e.target.tagName != "A") return;
     var anchor = e.target;
-    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
+    if (anchor.href.search(/""" + sj + """\/serie\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    } else if (anchor.href.search(/""" + dj + """\/serie\//i) != -1) {
         anchor.href = anchor.href + '#' + anchor.text;
     }
 });
@@ -1111,7 +1115,7 @@ if (title) {
                 try:
                     dlc = re.findall(r"DownloadDLC\(\'(.*)\'\)", links)
                     if dlc:
-                        links = "https://" + decode_base64("d3d3LmZpbGVjcnlwdC5jYw==") + "/DLC/" + dlc[0] + ".dlc"
+                        links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
                 start = RssConfig('Crawljobs', configfile).get("autostart")
