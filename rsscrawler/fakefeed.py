@@ -309,21 +309,29 @@ def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_o
 
 
 def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
-    releases = json.loads(releases)
+    content = BeautifulSoup(releases, 'lxml')
+    releases = content.findAll("div", {"class": "row"}, style=re.compile("order"))
     entries = []
 
     for release in releases:
+        a = release.find("a", href=re.compile("/"))
+        title = a.text
+        is_episode = re.match(r'.*(S\d{1,3}E\d{1,3}).*', title)
         if check_seasons_or_episodes:
             try:
-                if list_type == 'seasons' and release['episode']:
+                if list_type == 'seasons' and is_episode:
                     continue
-                elif list_type == 'episodes' and not release['episode']:
+                elif list_type == 'episodes' and not is_episode:
                     continue
             except:
                 continue
-        title = release['name']
-        series_url = base_url + '/serie/' + release["_media"]['slug']
-        published = release['createdAt']
+
+        def rreplace(s, old, new, occurrence):
+            li = s.rsplit(old, occurrence)
+            return new.join(li)
+
+        series_url = rreplace(base_url + '/api/v1' + a['href'], '/', '/season/', 1)
+        published = release.find("div", {"class": "datime"}).text
 
         entries.append(FakeFeedParserDict({
             "title": title,

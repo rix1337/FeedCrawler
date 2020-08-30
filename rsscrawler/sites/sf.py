@@ -2,9 +2,12 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import datetime
 import hashlib
 import json
 import re
+
+from bs4 import BeautifulSoup
 
 from rsscrawler.fakefeed import sf_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
@@ -115,44 +118,61 @@ class SF:
                 self.log_debug(title + " - Release hat falsche Quelle")
                 return
         try:
-            series_info = get_url(series_url, self.configfile, self.dbfile)
-            series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = 'https://' + self.sf + '/api/media/' + series_id + '/releases'
-
+            if language_id == 2:
+                lang = 'EN'
+            else:
+                lang = 'DE'
+            epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
+            api_url = series_url + '?lang=' + lang + '&_=' + epoch
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
-            seasons = json.loads(response)
-            for season in seasons:
-                season = seasons[season]
-                for item in season['items']:
-                    if item['name'] == title:
-                        valid = False
-                        for hoster in item['hoster']:
-                            if check_hoster(hoster, self.configfile):
-                                valid = True
-                        if not valid and not self.hoster_fallback:
-                            storage = self.db.retrieve_all(title)
-                            if 'added' not in storage and 'notdl' not in storage:
-                                wrong_hoster = '[SF/Hoster fehlt] - ' + title
-                                if 'wrong_hoster' not in storage:
-                                    self.log_info(wrong_hoster)
-                                    self.db.store(title, 'wrong_hoster')
-                                    notify([wrong_hoster], self.configfile)
-                                else:
-                                    self.log_debug(wrong_hoster)
-                        else:
-                            return self.send_package(title, series_url, language_id)
+            info = json.loads(response)
+
+            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', title)
+            if is_episode:
+                episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0]
+                season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0]
+                season_title = title.replace(episode_string, '')
+                episode = str(int(episode_string.replace("E", "")))
+                season = str(int(season_string.replace("S", "")))
+            else:
+                season = False
+                episode = False
+                season_title = title
+
+            content = BeautifulSoup(info['html'], 'lxml')
+            releases = content.find("small", text=re.compile(season_title)).parent.parent.parent
+            release = releases.find("div", {'class': 'row'})
+            links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
+            valid = False
+            for link in links:
+                download_link = link['href']
+                if check_hoster(link.text.replace('\n', ''), self.configfile):
+                    valid = True
+                    break
+            if not valid and not self.hoster_fallback:
+                storage = self.db.retrieve_all(title)
+                if 'added' not in storage and 'notdl' not in storage:
+                    wrong_hoster = '[SF/Hoster fehlt] - ' + title
+                    if 'wrong_hoster' not in storage:
+                        self.log_info(wrong_hoster)
+                        self.db.store(title, 'wrong_hoster')
+                        notify([wrong_hoster], self.configfile)
+                    else:
+                        self.log_debug(wrong_hoster)
+            else:
+                return self.send_package(title, download_link, language_id, season, episode)
         except:
             print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 
-    def send_package(self, title, series_url, language_id):
+    def send_package(self, title, download_link, language_id, season, episode):
         englisch = ""
         if language_id == 2:
             englisch = "/Englisch"
-        if self.filename == 'SF_Serien_Regex':
+        if self.filename == 'SJ_Serien_Regex':
             link_placeholder = '[Episode/RegEx' + englisch + '] - '
-        elif self.filename == 'SF_Serien':
+        elif self.filename == 'SJ_Serien':
             link_placeholder = '[Episode' + englisch + '] - '
-        elif self.filename == 'SF_Staffeln_Regex]':
+        elif self.filename == 'SJ_Staffeln_Regex]':
             link_placeholder = '[Staffel/RegEx' + englisch + '] - '
         else:
             link_placeholder = '[Staffel' + englisch + '] - '
@@ -166,7 +186,12 @@ class SF:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, self.sf, self.dbfile)
+            download_link = 'https://' + self.sf + download_link
+            if season and episode:
+                download_link = download_link.replace('&_=',
+                                                      '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
+
+            download = add_decrypt(title, download_link, self.sf, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SF]'
@@ -226,7 +251,7 @@ class SF:
                     header = True
             else:
                 try:
-                    response = get_url('https://' + self.sf + '/api/releases/latest/' + str(self.day), self.configfile,
+                    response = get_url('https://' + self.sf + '/updates/2020-08-30', self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                         feed = sf_releases_to_feedparser_dict(response, "seasons",

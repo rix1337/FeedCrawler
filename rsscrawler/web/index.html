@@ -205,7 +205,7 @@
                                        target="_blank"
                                        title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                    <span>Bitte zuerst
+                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase())">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_helper_sj.user.js"
                                            target="_blank">RSScrawler Helper (SJ)</a> installieren!
