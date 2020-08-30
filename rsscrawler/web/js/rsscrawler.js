@@ -66,6 +66,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
+    $scope.hostnames = {
+        mb: 'Nicht gesetzt!',
+        hw: 'Nicht gesetzt!',
+        hs: 'Nicht gesetzt!',
+        fx: 'Nicht gesetzt!',
+        nk: 'Nicht gesetzt!',
+        sj: 'Nicht gesetzt!',
+        dj: 'Nicht gesetzt!',
+        dd: 'Nicht gesetzt!',
+        fc: 'Nicht gesetzt!'
+    };
+
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
         {value: '3', label: '90 Einträge'},
@@ -213,6 +225,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     function getAll() {
+        getHostNames();
         getVersion();
         getMyJD();
         getLog();
@@ -286,6 +299,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function (res) {
                 console.log('Konnte Laufzeiten nicht abrufen!');
                 showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
+    function getHostNames() {
+        $http.get('api/hostnames/')
+            .then(function (res) {
+                $scope.hostnames = res.data.hostnames;
+                console.log('Hostnamen abgerufen!');
+            }, function (res) {
+                console.log('Konnte Hostnamen nicht abrufen!');
+                showDanger('Konnte Hostnamen nicht abrufen!');
             });
     }
 

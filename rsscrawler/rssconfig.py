@@ -32,6 +32,7 @@ class RssConfig(object):
             ("nk", "str", ""),
             ("sj", "str", ""),
             ("dj", "str", ""),
+            ("dd", "str", ""),
             ("fc", "str", "")
         ],
         'Crawljobs': [

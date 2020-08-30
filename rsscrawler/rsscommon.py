@@ -63,7 +63,15 @@ def check_ip():
     return ip
 
 
-def check_is_site(string):
+def check_is_site(string, configfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    sj = hostnames.get('sj')
+    mb = hostnames.get('mb')
+    hw = hostnames.get('hw')
+    hs = hostnames.get('hs')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+
     if sj.split('.')[0] in string:
         return "SJ"
     elif mb.split('.')[0] in string:

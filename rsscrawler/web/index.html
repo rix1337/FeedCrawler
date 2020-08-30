@@ -350,9 +350,7 @@
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
                         aria-expanded="true" aria-controls="collapseZeroOne">
-                    <h3>
-                        <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.bl }}</h3>
                 </button>
             </h5>
         </div>
@@ -381,9 +379,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroTwo"
                         aria-expanded="false" aria-controls="collapseZeroTwo">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sj }}</h3>
                 </button>
             </h5>
         </div>
@@ -410,9 +406,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroThree"
                         aria-expanded="false" aria-controls="collapseZeroThree">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sjbl }}</h3>
                 </button>
             </h5>
         </div>
@@ -432,9 +426,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroFour"
                         aria-expanded="false" aria-controls="collapseZeroFour">
-                    <h3>
-                        <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dj }}</h3>
                 </button>
             </h5>
         </div>
@@ -509,9 +501,7 @@
         </div>
         <div id="collapseOneTwo" class="collapse" aria-labelledby="headingOneTwo" data-parent="#help">
             <div id="helpText" class="card-body">
-                <h3>Beispiele für
-                    <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                </h3>
+                <h3>Beispiele für {{ hostnames.bl }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Film.*.Titel.*</i>
@@ -545,9 +535,7 @@
                         der GROUP.
                     </div>
                 </div>
-                <h3>Beispiele für
-                    <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                </h3>
+                <h3>Beispiele für {{ hostnames.sj }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -617,12 +605,7 @@
                 <div class="row">
                     <div class="col">
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-dark">Allgemein</li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                                </script>
-                                (SJ)
+                            <li class="list-group-item">{{ hostnames.sj }} (SJ)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SJ)">
                                     <i ng-if="blocked_normal.SJ" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -636,19 +619,11 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                                </script>
-                                (DJ)
+                            <li class="list-group-item">{{ hostnames.dj }} (DJ)
                                 <i class="far fa-lightbulb text-warning"
                                    title="Kein Verfügbarkeitstest"></i>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));
-                                </script>
-                                (DD)
+                            <li class="list-group-item">{{ hostnames.dd }} (DD)
                                 <i class="far fa-lightbulb text-warning"
                                    title="Kein Verfügbarkeitstest"></i>
                             </li>
@@ -656,14 +631,7 @@
                     </div>
                     <div class="col">
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-dark">
-                                <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                            </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F'));
-                                </script>
-                                (MB)
+                            <li class="list-group-item">{{ hostnames.mb }} (MB)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.MB)">
                                     <i ng-if="blocked_normal.MB" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -677,11 +645,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%48%44%2D%57%6F%72%6C%64%2E%6F%72%67'));
-                                </script>
-                                (HW)
+                            <li class="list-group-item">{{ hostnames.hw }} (HW)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.HW)">
                                     <i ng-if="blocked_normal.HW" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -695,11 +659,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%48%44%2D%53%6F%75%72%63%65%2E%74%6F'));
-                                </script>
-                                (HS)
+                            <li class="list-group-item">{{ hostnames.hs }} (HS)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.HS)">
                                     <i ng-if="blocked_normal.HS" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -713,11 +673,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%46%75%6E%58%44%2E%73%69%74%65'));
-                                </script>
-                                (FX)
+                            <li class="list-group-item">{{ hostnames.fx }} (FX)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FX)">
                                     <i ng-if="blocked_normal.FX" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -731,11 +687,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%4E%49%4D%41%34%4B%2E%6F%72%67'));
-                                </script>
-                                (NK)
+                            <li class="list-group-item">{{ hostnames.nk }} (NK)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.NK)">
                                     <i ng-if="blocked_normal.NK" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -1073,9 +1025,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoFive"
                         aria-expanded="false" aria-controls="collapseTwoFive">
-                    <h3>
-                        <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.bl }}</h3>
                 </button>
             </h5>
         </div>
@@ -1174,9 +1124,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSix"
                         aria-expanded="false" aria-controls="collapseTwoSix">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sj }}</h3>
                 </button>
             </h5>
         </div>
@@ -1232,9 +1180,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSeven"
                         aria-expanded="false" aria-controls="collapseTwoSeven">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sjbl }}</h3>
                 </button>
             </h5>
         </div>
@@ -1275,9 +1221,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoEight"
                         aria-expanded="false" aria-controls="collapseTwoEight">
-                    <h3>
-                        <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dj }}</h3>
                 </button>
             </h5>
         </div>
@@ -1317,9 +1261,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoNine"
                         aria-expanded="false" aria-controls="collapseTwoNine">
-                    <h3>
-                        <script>document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dd }}</h3>
                 </button>
             </h5>
         </div>
