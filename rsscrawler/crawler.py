@@ -32,6 +32,7 @@ import logging
 import multiprocessing
 import os
 import random
+import re
 import signal
 import sys
 import time
@@ -62,7 +63,6 @@ from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
 from rsscrawler.sites.sj import SJ
-from rsscrawler.sites.yt import YT
 from rsscrawler.url import check_url
 from rsscrawler.web import start
 
@@ -267,7 +267,6 @@ def crawldog(configfile, dbfile):
 
 def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        YT(configfile, dbfile, device, logger, scraper),
         DD(configfile, dbfile, device, logger, scraper),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
@@ -304,6 +303,31 @@ def main():
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
     log_file = os.path.join(configpath, 'RSScrawler.log')
     log_format = '%(asctime)s - %(message)s'
+
+    hostnames = RssConfig('Hostnames', configfile)
+
+    def clean_up_hostname(host, string):
+        if '/' in string:
+            string = string.replace('https://', '').replace('http://', '')
+            string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
+            hostnames.save(host, string)
+        if re.match(r'.*[A-Z].*', string):
+            hostnames.save(host, string.lower())
+        if not string:
+            print(u'Kein Hostname gesetzt: ' + host.upper() + ' (Seite wird ignoriert!)')
+        return string
+
+    set_hostnames = {}
+    list_names = ['mb', 'hw', 'hs', 'fx', 'nk', 'dj', 'sj', 'fc']
+    for name in list_names:
+        hostname = clean_up_hostname(name, hostnames.get(name))
+        if hostname:
+            set_hostnames[name] = hostname
+
+    if not arguments['--testlauf'] and not set_hostnames:
+        print(u'Keine Hostnamen in der RSScrawler.ini gefunden! Beende RSScrawler!')
+        time.sleep(10)
+        sys.exit(1)
 
     disable_request_warnings(InsecureRequestWarning)
 

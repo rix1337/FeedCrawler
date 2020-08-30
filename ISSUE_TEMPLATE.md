@@ -5,9 +5,7 @@ Dieser Bereich dient der Fehlermeldung.
 Für Rückfragen und Chat gibt es:
 https://gitter.im/RSScrawler/Lobby
 
-# Zwingend erforderlich
-
-- **RSScrawler.ini** (Zugangsdaten entfernen) **und RSScrawler.db als Datei**
+## Zwingend erforderlich
 
 - **Fehlermeldung aus dem Log** (ggf. DEBUG aktivieren!)
 
@@ -15,10 +13,13 @@ https://gitter.im/RSScrawler/Lobby
 
 - **Wird Python 3.7 oder aktueller genutzt?**
 
-# Fehlerbeschreibung:
+## Fehlerbeschreibung
 
 Hier ausführlich das aufgetretene Problem beschreiben. Muss reproduzierbar sein ("Geht nicht" reicht nicht).
 
 Nur Fehler des aktuellen Releases werden berücksichtigt.
 
-**Hier keine Links posten. Die Seiten heißen MB, HW, DJ, DD bzw. SJ!**
+## Weder RSScrawler noch der Autor benennen oder befürworten spezifische Hostnamen.
+Fragen hierzu werden kommentarlos geschlossen!
+
+Spezifische, vom Anwender in der _RSScrawler.ini_ unter _[Hostnames]_ eingetragene Hostnamen, sind unkenntlich zu machen.

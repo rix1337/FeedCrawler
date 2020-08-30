@@ -19,6 +19,7 @@ from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
+from rsscrawler.rsscommon import check_is_site
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import encode_base64
 from rsscrawler.rsscommon import is_retail
@@ -27,7 +28,6 @@ from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
-from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
@@ -36,6 +36,14 @@ logger = logging.getLogger('rsscrawler')
 
 
 def get(title, configfile, dbfile, bl_only=False, sj_only=False):
+    hostnames = RssConfig('Hostnames', configfile)
+    mb = hostnames.get('mb')
+    hw = hostnames.get('hw')
+    hs = hostnames.get('hs')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+    sj = hostnames.get('sj')
+
     specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*),(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
@@ -71,12 +79,10 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         else:
             search_quality = ""
 
-        mb_search = decode_base64(
-            'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        hw_search = decode_base64(
-            'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        hs_search = decode_base64('aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '/feed'
-        fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/?s=' + bl_query
+        mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + '/feed/rss2/'
+        hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + '/feed/rss2/'
+        hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '/feed'
+        fx_search = 'https://' + fx + '/?s=' + bl_query
 
         async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         scraper = async_results[1]
@@ -88,21 +94,20 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         fx_results = []
 
         for res in async_results:
-            if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
+            if check_is_site(res, configfile) == 'MB':
                 mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif decode_base64('aGQtd29ybGQub3Jn') in res:
+            elif check_is_site(res, configfile) == 'HW':
                 hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif decode_base64('aGQtc291cmNlLnRv') in res:
+            elif check_is_site(res, configfile) == 'HS':
                 hs_results = hs_search_results(res)
-            elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
+            elif check_is_site(res, configfile) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
 
-        nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
-        nk_search = post_url(nk_base_url + "search", configfile, dbfile,
+        nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
                              data={'search': bl_query.replace("+", " ") + " " + quality})
-        nk_results = nk_search_results(nk_search, nk_base_url)
+        nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
 
-        password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+        password = mb
         for result in mb_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -114,7 +119,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (MB)"])
 
-        password = decode_base64("aGQtd29ybGQub3Jn")
+        password = hw
         for result in hw_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -125,7 +130,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
-        password = decode_base64("aGQtc291cmNlLnRv")
+        password = hs
         for result in hs_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -136,7 +141,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HS)"])
 
-        password = decode_base64("ZnVueGQ=")
+        password = fx.split('.')[0]
         for result in fx_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -147,7 +152,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
-        password = decode_base64("TklNQTRL")
+        password = nk.split('.')[0].capitalize()
         for result in nk_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -159,13 +164,10 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         if config.get("crawl3d"):
-            mb_search = decode_base64(
-                'aHR0cDovL21vdmllLWJsb2cuc3g=') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            hw_search = decode_base64(
-                'aHR0cDovL2hkLXdvcmxkLm9yZw==') + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            hs_search = decode_base64(
-                'aHR0cHM6Ly9oZC1zb3VyY2UudG8vc2VhcmNoLw==') + bl_query + search_quality + '+3D/feed'
-            fx_search = decode_base64('aHR0cHM6Ly9mdW54ZC5zaXRl') + '/search/' + bl_query + "+3D"
+            mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '+3D/feed'
+            fx_search = 'https://' + fx + '/?s=' + bl_query + "+3D"
 
             async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
             async_results = async_results[0]
@@ -176,43 +178,42 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             fx_results = []
 
             for res in async_results:
-                if decode_base64('bW92aWUtYmxvZy5zeA==') in res:
+                if check_is_site(res, configfile) == 'MB':
                     mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif decode_base64('aGQtd29ybGQub3Jn') in res:
+                elif check_is_site(res, configfile) == 'HW':
                     hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif decode_base64('aGQtc291cmNlLnRv') in res:
+                elif check_is_site(res, configfile) == 'HS':
                     hs_results = hs_search_results(res)
-                elif decode_base64('ZnVueGQuc2l0ZQ==') in res:
+                elif check_is_site(res, configfile) == 'FX':
                     fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
 
-            nk_base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
-            nk_search = post_url(nk_base_url + "search", configfile, dbfile,
+            nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
                                  data={'search': bl_query.replace("+", " ") + " " + quality + "3D"})
-            nk_results = nk_search_results(nk_search, nk_base_url)
+            nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
 
-            password = decode_base64("bW92aWUtYmxvZy5vcmc=")
+            password = mb
             for result in mb_results:
                 if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
                     unrated.append(
                         [rate(result[0], ignore), encode_base64(result[1] + "|" + password),
                          result[0] + " (3D-MB)"])
 
-            password = decode_base64("aGQtd29ybGQub3Jn")
+            password = hw
             for result in hw_results:
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-HW)"])
 
-            password = decode_base64("aGQtc291cmNlLnRv")
+            password = hs
             for result in hs_results:
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-HS)"])
 
-            password = decode_base64("ZnVueGQ=")
+            password = fx.split('.')[0]
             for result in fx_results:
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-FX)"])
 
-            password = decode_base64("TklNQTRL")
+            password = nk.split('.')[0].capitalize()
             for result in nk_results:
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-NK)"])
@@ -230,8 +231,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
     if not bl_only:
         sj_query = sanitize(title).replace(" ", "+")
-        sj_search = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9zZXJpZS9zZWFyY2g/cT0=") + sj_query,
-                            configfile, dbfile, scraper)
+        sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile, scraper)
         try:
             sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
         except:
@@ -423,6 +423,10 @@ def best_result_sj(title, configfile, dbfile):
 
 
 def download_bl(payload, device, configfile, dbfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    mb = hostnames.get('mb')
+    nk = hostnames.get('nk')
+
     payload = decode_base64(payload).split("|")
     link = payload[0]
     password = payload[1]
@@ -434,7 +438,7 @@ def download_bl(payload, device, configfile, dbfile):
     db = RssDb(dbfile, 'rsscrawler')
     soup = BeautifulSoup(url, 'lxml')
 
-    site = check_is_site(link)
+    site = check_is_site(link, configfile)
     if not site:
         return False
     else:
@@ -461,10 +465,9 @@ def download_bl(payload, device, configfile, dbfile):
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
             url_hosters = []
-            base_url = decode_base64('aHR0cHM6Ly9uaW1hNGsub3JnLw==')
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
-                url_hosters.append([base_url + hoster["href"], hoster.text])
+                url_hosters.append(['https://' + nk + '/' + hoster["href"], hoster.text])
         elif "FX" in site:
             key = payload[1]
             password = payload[2]
@@ -475,8 +478,7 @@ def download_bl(payload, device, configfile, dbfile):
         if "MB" in site or "HW" in site or "HS" in site or "NK" in site:
             for url_hoster in reversed(url_hosters):
                 try:
-                    if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[
-                        0]:
+                    if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                         link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                         if check_hoster(link_hoster, configfile):
                             links[link_hoster] = url_hoster[0]
@@ -484,8 +486,7 @@ def download_bl(payload, device, configfile, dbfile):
                     pass
             if config.get("hoster_fallback") and not links:
                 for url_hoster in reversed(url_hosters):
-                    if not decode_base64("bW92aWUtYmxvZy4=") in url_hoster[0] and "https://goo.gl/" not in url_hoster[
-                        0]:
+                    if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
                         link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
                         links[link_hoster] = url_hoster[0]
             download_links = list(links.values())
@@ -554,10 +555,10 @@ def download_bl(payload, device, configfile, dbfile):
                 filename = 'MB_Filme'
 
             scraper = cloudscraper.create_scraper()
-            bl = BL(configfile, dbfile, device, logging, scraper, filename=filename)
+            blog = BL(configfile, dbfile, device, logging, scraper, filename=filename)
 
             if not imdb_id:
-                if not bl.dual_download(key, password):
+                if not blog.dual_download(key, password):
                     logger.debug(
                         "%s - Kein zweisprachiges Release gefunden." % key)
             else:
@@ -575,7 +576,7 @@ def download_bl(payload, device, configfile, dbfile):
                     logger.debug(
                         "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
                 else:
-                    if not bl.dual_download(key, password) and not englisch:
+                    if not blog.dual_download(key, password) and not englisch:
                         logger.debug(
                             "%s - Kein zweisprachiges Release gefunden!" % key)
 
@@ -635,16 +636,19 @@ def download_bl(payload, device, configfile, dbfile):
 
 
 def download_sj(payload, configfile, dbfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    sj = hostnames.get('sj')
+
     payload = decode_base64(payload).split("|")
     href = payload[0]
     title = payload[1]
     special = payload[2].strip().replace("None", "")
 
-    series_url = decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href
-    series_info = get_url(decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==") + href, configfile, dbfile)
+    series_url = 'https://' + sj + href
+    series_info = get_url(series_url, configfile, dbfile)
     series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
 
-    api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
+    api_url = 'https://' + sj + '/api/media/' + series_id + '/releases'
     releases = get_url(api_url, configfile, dbfile)
 
     seasons = json.loads(releases)
@@ -785,7 +789,7 @@ def download_sj(payload, configfile, dbfile):
     notify_array = []
     for title in matches:
         db = RssDb(dbfile, 'rsscrawler')
-        if add_decrypt(title, series_url, decode_base64("c2VyaWVuanVua2llcy5vcmc="), dbfile):
+        if add_decrypt(title, series_url, sj, dbfile):
             db.store(title, 'added')
             log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'
             logger.info(log_entry)

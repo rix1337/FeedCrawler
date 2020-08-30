@@ -59,8 +59,7 @@ def myjd_input(configfile, port, user, password, device):
     if not port:
         port = '9090'
 
-    sections = ['RSScrawler', 'MB', 'SJ', 'DD',
-                'YT', 'Notifications', 'Crawljobs']
+    sections = ['RSScrawler', 'MB', 'SJ', 'DD', 'Notifications', 'Crawljobs']
     for section in sections:
         RssConfig(section, configfile)
     if port:

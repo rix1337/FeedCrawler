@@ -66,6 +66,18 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
+    $scope.hostnames = {
+        mb: 'Nicht gesetzt!',
+        hw: 'Nicht gesetzt!',
+        hs: 'Nicht gesetzt!',
+        fx: 'Nicht gesetzt!',
+        nk: 'Nicht gesetzt!',
+        sj: 'Nicht gesetzt!',
+        dj: 'Nicht gesetzt!',
+        dd: 'Nicht gesetzt!',
+        fc: 'Nicht gesetzt!'
+    };
+
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
         {value: '3', label: '90 Einträge'},
@@ -73,15 +85,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         {value: '10', label: '300 Einträge'},
         {value: '15', label: '450 Einträge'},
         {value: '30', label: '900 Einträge'}
-    ];
-
-    $scope.dj_genres = [
-        {value: 'doku', label: 'Doku'},
-        {value: 'lernen', label: 'Lernen'},
-        {value: 'reality\\/entertainment', label: 'Reality\/Entertainment'},
-        {value: 'sport', label: 'Sport'},
-        {value: '(doku|lernen|reality\\/entertainment|sport)', label: 'ALLE (außer ReUps)'},
-        {value: '.*', label: 'ALLE (inkl. ReUps)'}
     ];
 
     $scope.resolutions = [
@@ -222,6 +225,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     function getAll() {
+        getHostNames();
         getVersion();
         getMyJD();
         getLog();
@@ -295,6 +299,17 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function (res) {
                 console.log('Konnte Laufzeiten nicht abrufen!');
                 showDanger('Konnte Laufzeiten nicht abrufen!');
+            });
+    }
+
+    function getHostNames() {
+        $http.get('api/hostnames/')
+            .then(function (res) {
+                $scope.hostnames = res.data.hostnames;
+                console.log('Hostnamen abgerufen!');
+            }, function (res) {
+                console.log('Konnte Hostnamen nicht abrufen!');
+                showDanger('Konnte Hostnamen nicht abrufen!');
             });
     }
 

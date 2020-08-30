@@ -24,6 +24,17 @@ class RssConfig(object):
             ("one_mirror_policy", "bool", "False"),
             ("packages_per_myjd_page", "int", "3")
         ],
+        'Hostnames': [
+            ("sj", "str", ""),
+            ("dj", "str", ""),
+            ("mb", "str", ""),
+            ("hw", "str", ""),
+            ("hs", "str", ""),
+            ("fx", "str", ""),
+            ("nk", "str", ""),
+            ("dd", "str", ""),
+            ("fc", "str", "")
+        ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
             ("subdir", "bool", "True")
@@ -89,17 +100,11 @@ class RssConfig(object):
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
-            ("genres", "str", ".*"),
             ("hoster_fallback", "bool", "False")
         ],
         'DD': [
             ("feeds", "str", ""),
             ("hoster_fallback", "bool", "False")
-        ],
-        'YT': [
-            ("youtube", "bool", "False"),
-            ("maxvideos", "int", "10"),
-            ("ignore", "str", "")
         ]
     }
     __config__ = []

@@ -8,7 +8,6 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
-from rsscrawler.rsscommon import decode_base64
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -19,45 +18,6 @@ class FakeFeedParserDict(dict):
             return self[name]
         else:
             raise AttributeError("No such attribute: " + name)
-
-
-def dj_content_to_soup(content):
-    content = BeautifulSoup(content, 'lxml')
-    content = dj_to_feedparser_dict(content)
-    return content
-
-
-def dj_to_feedparser_dict(beautifulsoup_object):
-    content_areas = beautifulsoup_object.findAll("fieldset")
-    entries = []
-
-    for area in content_areas:
-        try:
-            published = re.findall(r"Updates.{3}(.*Uhr)", area.text)[0]
-        except:
-            published = "ERROR"
-
-        genres = area.find_all("div", {"class": "grey-box"})
-
-        for genre in genres:
-            items = genre.select("a")
-            dj_type = str(genre.previous.previous)
-
-            for item in items:
-                titles = item.text.split('\n')
-                link = item.attrs["href"]
-
-                for title in titles:
-                    entries.append(FakeFeedParserDict({
-                        "title": title,
-                        "published": published,
-                        "genre": dj_type,
-                        "link": link
-                    }))
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
 
 
 def fx_content_to_soup(content):
@@ -320,21 +280,22 @@ def nk_search_results(content, base_url):
     return results
 
 
-def sj_releases_to_feedparser_dict(releases, list_type):
+def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
     releases = json.loads(releases)
     entries = []
 
     for release in releases:
-        try:
-            if list_type == 'seasons' and release['episode']:
+        if check_seasons_or_episodes:
+            try:
+                if list_type == 'seasons' and release['episode']:
+                    continue
+                elif list_type == 'episodes' and not release['episode']:
+                    continue
+            except:
                 continue
-            elif list_type == 'episodes' and not release['episode']:
-                continue
-        except:
-            continue
         title = release['name']
-        series_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/serie/' + release["_media"]['slug']
-        published = "date"
+        series_url = base_url + '/serie/' + release["_media"]['slug']
+        published = release['createdAt']
 
         entries.append(FakeFeedParserDict({
             "title": title,

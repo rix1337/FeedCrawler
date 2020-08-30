@@ -350,9 +350,7 @@
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
                         aria-expanded="true" aria-controls="collapseZeroOne">
-                    <h3>
-                        <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.bl }}</h3>
                 </button>
             </h5>
         </div>
@@ -381,9 +379,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroTwo"
                         aria-expanded="false" aria-controls="collapseZeroTwo">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sj }}</h3>
                 </button>
             </h5>
         </div>
@@ -410,9 +406,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroThree"
                         aria-expanded="false" aria-controls="collapseZeroThree">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sjbl }}</h3>
                 </button>
             </h5>
         </div>
@@ -432,9 +426,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroFour"
                         aria-expanded="false" aria-controls="collapseZeroFour">
-                    <h3>
-                        <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dj }}</h3>
                 </button>
             </h5>
         </div>
@@ -448,26 +440,6 @@
                 <textarea ng-if="settings.dj.regex" ng-model="lists.dj.regex" class="liste form-control"
                           data-toggle="tooltip"
                           title="Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert."></textarea>
-            </div>
-        </div>
-    </div>
-    <div class="card" ng-show="settings.yt.enabled">
-        <div class="card-header" id="headingZeroFive">
-            <h5 class="mb-0">
-                <button class="btn btn-link collapsed" data-toggle="collapse"
-                        data-target="#collapseZeroFive"
-                        aria-expanded="false" aria-controls="collapseZeroFive">
-                    <h3>YouTube.com</h3>
-                </button>
-            </h5>
-        </div>
-        <div id="collapseZeroFive" class="collapse" aria-labelledby="headingZeroFive"
-             data-parent="#lists">
-            <div class="card-body">
-                <h4>Kanäle/Playlisten</h4>
-                <textarea ng-model="lists.yt.kanaele_playlisten" class="liste form-control"
-                          data-toggle="tooltip"
-                          title="Pro Zeile der exakte Name oder die exakte ID eines YouTube-Kanals - Playlisten-IDs immer inklusive list= angeben."></textarea>
             </div>
         </div>
     </div>
@@ -494,7 +466,7 @@
         <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
             <div class="card-body">
                 <a href="./redirect_user/captcha" target="_blank">
-                    Neuer Tipp: Anti-Captcha.com (Schnelles Lösen von ReCaptcha - auch im Browser)
+                    Anti-Captcha.com (Schnelles Lösen von ReCaptcha - auch im Browser)
                 </a>
             </div>
         </div>
@@ -512,7 +484,7 @@
         <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
             <div class="card-body">
                 <a href="./redirect_user/multihoster" target="_blank">
-                    Neuer Tipp: Linksnappy.com (50 GB kostenfreies Startguthaben für Rapidgator, Filer, Turbobit, etc.)
+                    Linksnappy.com (50 GB kostenfreies Startguthaben für Rapidgator, 1Fichier, Filer, Turbobit, etc.)
                 </a>
             </div>
         </div>
@@ -529,9 +501,7 @@
         </div>
         <div id="collapseOneTwo" class="collapse" aria-labelledby="headingOneTwo" data-parent="#help">
             <div id="helpText" class="card-body">
-                <h3>Beispiele für
-                    <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                </h3>
+                <h3>Beispiele für {{ hostnames.bl }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Film.*.Titel.*</i>
@@ -565,9 +535,7 @@
                         der GROUP.
                     </div>
                 </div>
-                <h3>Beispiele für
-                    <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                </h3>
+                <h3>Beispiele für {{ hostnames.sj }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -637,12 +605,7 @@
                 <div class="row">
                     <div class="col">
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-dark">Allgemein</li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                                </script>
-                                (SJ)
+                            <li class="list-group-item">{{ hostnames.sj }} (SJ)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SJ)">
                                     <i ng-if="blocked_normal.SJ" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -656,37 +619,53 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));
-                                </script>
-                                (DJ)
-                                <i class="far fa-lightbulb text-warning"
-                                   title="Kein Verfügbarkeitstest"></i>
+                            <li class="list-group-item">{{ hostnames.dj }} (DJ)
+                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DJ)">
+                                    <i ng-if="blocked_normal.DJ" class="fas fa-lightbulb text-danger"
+                                       title="Seite ohne Proxy gesperrt!"></i>
+                                    <i ng-if="!blocked_normal.DJ" class="far fa-lightbulb text-success"
+                                       title="Seite ohne Proxy verfügbar"></i>
+                                </span>
+                                <span ng-if="settings.general.proxy">
+                                    <i ng-if="blocked_proxy.DJ" class="fas fa-lightbulb text-danger"
+                                       title="Seite mit Proxy gesperrt"></i>
+                                    <i ng-if="!blocked_proxy.DJ" class="far fa-lightbulb text-success"
+                                       title="Seite mit Proxy verfügbar"></i>
+                                </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));
-                                </script>
-                                (DD)
-                                <i class="far fa-lightbulb text-warning"
-                                   title="Kein Verfügbarkeitstest"></i>
+                            <li class="list-group-item">{{ hostnames.dd }} (DD)
+                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DD)">
+                                    <i ng-if="blocked_normal.DD" class="fas fa-lightbulb text-danger"
+                                       title="Seite ohne Proxy gesperrt!"></i>
+                                    <i ng-if="!blocked_normal.DD" class="far fa-lightbulb text-success"
+                                       title="Seite ohne Proxy verfügbar"></i>
+                                </span>
+                                <span ng-if="settings.general.proxy">
+                                    <i ng-if="blocked_proxy.DD" class="fas fa-lightbulb text-danger"
+                                       title="Seite mit Proxy gesperrt"></i>
+                                    <i ng-if="!blocked_proxy.DD" class="far fa-lightbulb text-success"
+                                       title="Seite mit Proxy verfügbar"></i>
+                                </span>
                             </li>
-                            <li class="list-group-item">YouTube.com (YT)
-                                <i class="far fa-lightbulb text-warning"
-                                   title="Kein Verfügbarkeitstest"></i></li>
+                            <li class="list-group-item">{{ hostnames.fc }} (FC)
+                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FC)">
+                                    <i ng-if="blocked_normal.FC" class="fas fa-lightbulb text-danger"
+                                       title="Seite ohne Proxy gesperrt!"></i>
+                                    <i ng-if="!blocked_normal.FC" class="far fa-lightbulb text-success"
+                                       title="Seite ohne Proxy verfügbar"></i>
+                                </span>
+                                <span ng-if="settings.general.proxy">
+                                    <i ng-if="blocked_proxy.FC" class="fas fa-lightbulb text-danger"
+                                       title="Seite mit Proxy gesperrt"></i>
+                                    <i ng-if="!blocked_proxy.FC" class="far fa-lightbulb text-success"
+                                       title="Seite mit Proxy verfügbar"></i>
+                                </span>
+                            </li>
                         </ul>
                     </div>
                     <div class="col">
                         <ul class="list-group">
-                            <li class="list-group-item list-group-item-dark">
-                                <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                            </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%4D%6F%76%69%65%2D%42%6C%6F%67%2E%74%6F'));
-                                </script>
-                                (MB)
+                            <li class="list-group-item">{{ hostnames.mb }} (MB)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.MB)">
                                     <i ng-if="blocked_normal.MB" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -700,11 +679,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%48%44%2D%57%6F%72%6C%64%2E%6F%72%67'));
-                                </script>
-                                (HW)
+                            <li class="list-group-item">{{ hostnames.hw }} (HW)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.HW)">
                                     <i ng-if="blocked_normal.HW" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -718,11 +693,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%48%44%2D%53%6F%75%72%63%65%2E%74%6F'));
-                                </script>
-                                (HS)
+                            <li class="list-group-item">{{ hostnames.hs }} (HS)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.HS)">
                                     <i ng-if="blocked_normal.HS" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -736,11 +707,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%46%75%6E%58%44%2E%73%69%74%65'));
-                                </script>
-                                (FX)
+                            <li class="list-group-item">{{ hostnames.fx }} (FX)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FX)">
                                     <i ng-if="blocked_normal.FX" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -754,11 +721,7 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">
-                                <script>
-                                    document.write(unescape('%4E%49%4D%41%34%4B%2E%6F%72%67'));
-                                </script>
-                                (NK)
+                            <li class="list-group-item">{{ hostnames.nk }} (NK)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.NK)">
                                     <i ng-if="blocked_normal.NK" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -1096,9 +1059,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoFive"
                         aria-expanded="false" aria-controls="collapseTwoFive">
-                    <h3>
-                        <script>document.write(unescape('%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.bl }}</h3>
                 </button>
             </h5>
         </div>
@@ -1197,9 +1158,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSix"
                         aria-expanded="false" aria-controls="collapseTwoSix">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sj }}</h3>
                 </button>
             </h5>
         </div>
@@ -1255,9 +1214,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSeven"
                         aria-expanded="false" aria-controls="collapseTwoSeven">
-                    <h3>
-                        <script>document.write(unescape('%53%65%72%69%65%6E%4A%75%6E%6B%69%65%73%2E%6F%72%67%20%2F%20%57%61%72%65%7A%2D%42%6C%6F%67%73'));</script>
-                    </h3>
+                    <h3>{{ hostnames.sjbl }}</h3>
                 </button>
             </h5>
         </div>
@@ -1298,9 +1255,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoEight"
                         aria-expanded="false" aria-controls="collapseTwoEight">
-                    <h3>
-                        <script>document.write(unescape('%44%6F%6B%75%4A%75%6E%6B%69%65%73%2E%6F%72%67'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dj }}</h3>
                 </button>
             </h5>
         </div>
@@ -1312,10 +1267,6 @@
                         ng-options="r.value as r.label for r in resolutions"
                         class="form-control" data-toggle="tooltip"
                         title="Die Release-Auflösung, nach der gesucht wird."></select>
-                <h4>Genres</h4>
-                <select ng-model="settings.dj.genres" ng-options="g.value as g.label for g in dj_genres"
-                        class="form-control" data-toggle="tooltip"
-                        title="Hier die gewünschten Genres wählen (gilt auch für RegEx)."></select>
                 <h4>Filterliste</h4>
                 <input ng-model="settings.dj.ignore" class="form-control" data-toggle="tooltip"
                        title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
@@ -1344,9 +1295,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoNine"
                         aria-expanded="false" aria-controls="collapseTwoNine">
-                    <h3>
-                        <script>document.write(unescape('%44%69%72%65%63%74%44%6F%77%6E%6C%6F%61%64%2E%74%76'));</script>
-                    </h3>
+                    <h3>{{ hostnames.dd }}</h3>
                 </button>
             </h5>
         </div>
@@ -1364,38 +1313,6 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"></span>
                 </label>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingTwoTen">
-            <h5 class="mb-0">
-                <button class="btn btn-link collapsed" data-toggle="collapse"
-                        data-target="#collapseTwoTen"
-                        aria-expanded="false" aria-controls="collapseTwoTen">
-                    <h3>YouTube.com</h3>
-                </button>
-            </h5>
-        </div>
-        <div id="collapseTwoTen" class="collapse" aria-labelledby="headingTwoTen"
-             data-parent="#settings">
-            <div class="card-body">
-                <h4>Suche aktivieren</h4>
-                <label class="switch">
-                    <input type="checkbox"
-                           ng-model="settings.yt.enabled">
-                    <span class="slider round"
-                          data-toggle="tooltip"
-                          title="Wenn aktiviert, werden YouTube-Videos gesucht."></span>
-                </label>
-                <h4>Maximale Videoanzahl</h4>
-                <input required type="number" min="1" max="50" ng-model="settings.yt.max"
-                       class="number form-control"
-                       data-toggle="tooltip"
-                       title="Die Maximale Anzahl hinzuzufügender Videos (1-50)."/>
-                <h4>Filterliste</h4>
-                <input ng-model="settings.yt.ignore" class="form-control" data-toggle="tooltip"
-                       title="Videos mit diesen Begriffen im Titel werden nicht hinzugefügt (durch Kommata getrennt)."/>
             </div>
         </div>
     </div>

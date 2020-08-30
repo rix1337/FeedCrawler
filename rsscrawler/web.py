@@ -50,6 +50,27 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     global device
     device = _device
 
+    global mb
+    global hw
+    global hw
+    global hs
+    global fx
+    global nk
+    global sj
+    global dj
+    global dd
+    global fc
+    hostnames = RssConfig('Hostnames', configfile)
+    sj = hostnames.get('sj')
+    dj = hostnames.get('dj')
+    mb = hostnames.get('mb')
+    hw = hostnames.get('hw')
+    hs = hostnames.get('hs')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+    dd = hostnames.get('dd')
+    fc = hostnames.get('fc')
+
     base_dir = '.'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)
@@ -136,7 +157,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 logfile = open(log_file)
                 i = 0
                 for line in reversed(logfile.readlines()):
-                    if line and line is not "\n":
+                    if line and line != "\n":
                         payload = [i]
                         line = line.replace("]", "")
                         line = line.replace("[", "")
@@ -167,7 +188,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 logfile = open(log_file)
                 i = 0
                 for line in reversed(logfile.readlines()):
-                    if line and line is not "\n":
+                    if line and line != "\n":
                         if i != row:
                             log.append(line)
                     i += 1
@@ -187,15 +208,14 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             alerts = RssConfig('Notifications', configfile)
             ombi = RssConfig('Ombi', configfile)
             crawljobs = RssConfig('Crawljobs', configfile)
-            mb = RssConfig('MB', configfile)
-            sj = RssConfig('SJ', configfile)
-            dj = RssConfig('DJ', configfile)
-            dd = RssConfig('DD', configfile)
-            yt = RssConfig('YT', configfile)
-            if not mb.get("crawl3dtype"):
+            mb_conf = RssConfig('MB', configfile)
+            sj_conf = RssConfig('SJ', configfile)
+            dj_conf = RssConfig('DJ', configfile)
+            dd_conf = RssConfig('DD', configfile)
+            if not mb_conf.get("crawl3dtype"):
                 crawl_3d_type = "hsbs"
             else:
-                crawl_3d_type = mb.get("crawl3dtype")
+                crawl_3d_type = mb_conf.get("crawl3dtype")
             return jsonify(
                 {
                     "settings": {
@@ -250,49 +270,43 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "subdir": crawljobs.get("subdir"),
                         },
                         "mb": {
-                            "quality": mb.get("quality"),
-                            "search": mb.get("search"),
-                            "ignore": mb.get("ignore"),
-                            "regex": mb.get("regex"),
-                            "imdb_score": to_float(mb.get("imdb")),
-                            "imdb_year": to_int(mb.get("imdbyear")),
-                            "force_dl": mb.get("enforcedl"),
-                            "cutoff": mb.get("cutoff"),
-                            "crawl_3d": mb.get("crawl3d"),
+                            "quality": mb_conf.get("quality"),
+                            "search": mb_conf.get("search"),
+                            "ignore": mb_conf.get("ignore"),
+                            "regex": mb_conf.get("regex"),
+                            "imdb_score": to_float(mb_conf.get("imdb")),
+                            "imdb_year": to_int(mb_conf.get("imdbyear")),
+                            "force_dl": mb_conf.get("enforcedl"),
+                            "cutoff": mb_conf.get("cutoff"),
+                            "crawl_3d": mb_conf.get("crawl3d"),
                             "crawl_3d_type": crawl_3d_type,
-                            "hevc_retail": mb.get("hevc_retail"),
-                            "retail_only": mb.get("retail_only"),
-                            "hoster_fallback": mb.get("hoster_fallback"),
+                            "hevc_retail": mb_conf.get("hevc_retail"),
+                            "retail_only": mb_conf.get("retail_only"),
+                            "hoster_fallback": mb_conf.get("hoster_fallback"),
                         },
                         "sj": {
-                            "quality": sj.get("quality"),
-                            "ignore": sj.get("rejectlist"),
-                            "regex": sj.get("regex"),
-                            "hevc_retail": sj.get("hevc_retail"),
-                            "retail_only": sj.get("retail_only"),
-                            "hoster_fallback": sj.get("hoster_fallback"),
+                            "quality": sj_conf.get("quality"),
+                            "ignore": sj_conf.get("rejectlist"),
+                            "regex": sj_conf.get("regex"),
+                            "hevc_retail": sj_conf.get("hevc_retail"),
+                            "retail_only": sj_conf.get("retail_only"),
+                            "hoster_fallback": sj_conf.get("hoster_fallback"),
                         },
                         "mbsj": {
-                            "enabled": mb.get("crawlseasons"),
-                            "quality": mb.get("seasonsquality"),
-                            "packs": mb.get("seasonpacks"),
-                            "source": mb.get("seasonssource"),
+                            "enabled": mb_conf.get("crawlseasons"),
+                            "quality": mb_conf.get("seasonsquality"),
+                            "packs": mb_conf.get("seasonpacks"),
+                            "source": mb_conf.get("seasonssource"),
                         },
                         "dj": {
-                            "quality": dj.get("quality"),
-                            "ignore": dj.get("rejectlist"),
-                            "regex": dj.get("regex"),
-                            "genres": dj.get("genres"),
-                            "hoster_fallback": dj.get("hoster_fallback"),
+                            "quality": dj_conf.get("quality"),
+                            "ignore": dj_conf.get("rejectlist"),
+                            "regex": dj_conf.get("regex"),
+                            "hoster_fallback": dj_conf.get("hoster_fallback"),
                         },
                         "dd": {
-                            "feeds": dd.get("feeds"),
-                            "hoster_fallback": dd.get("hoster_fallback"),
-                        },
-                        "yt": {
-                            "enabled": yt.get("youtube"),
-                            "max": to_int(yt.get("maxvideos")),
-                            "ignore": yt.get("ignore"),
+                            "feeds": dd_conf.get("feeds"),
+                            "hoster_fallback": dd_conf.get("hoster_fallback"),
                         }
                     }
                 }
@@ -426,27 +440,12 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
             section.save("quality", to_str(data['dj']['quality']))
             section.save("rejectlist", to_str(data['dj']['ignore']).lower())
             section.save("regex", to_str(data['dj']['regex']))
-            section.save("genres", to_str(data['dj']['genres']))
             section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
             section = RssConfig("DD", configfile)
 
             section.save("feeds", to_str(data['dd']['feeds']))
             section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
-
-            section = RssConfig("YT", configfile)
-
-            section.save("youtube", to_str(data['yt']['enabled']))
-            maxvideos = to_str(data['yt']['max'])
-            if maxvideos == "":
-                maxvideos = "10"
-            if to_int(maxvideos) < 1:
-                section.save("maxvideos", "1")
-            elif to_int(maxvideos) > 50:
-                section.save("maxvideos", "50")
-            else:
-                section.save("maxvideos", to_str(maxvideos))
-            section.save("ignore", to_str(data['yt']['ignore']))
             return "Success", 201
         else:
             return "Failed", 405
@@ -498,6 +497,77 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/api/hostnames/", methods=['GET'])
+    @requires_auth
+    def get_hostnames():
+        global sj
+        global dj
+        global mb
+        global hw
+        global hw
+        global hs
+        global fx
+        global nk
+        global dd
+        global fc
+        if request.method == 'GET':
+            try:
+                sj = sj.replace("s", "S", 1).replace("j", "J", 1)
+                dj = dj.replace("d", "D", 1).replace("j", "J", 1)
+                mb = mb.replace("m", "M", 1).replace("b", "B", 1)
+                hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+                hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
+                fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+                nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+                dd = dd.replace("d", "D", 2)
+                fc = fc.replace("f", "F", 1).replace("c", "C", 1)
+                bl = ' / '.join(list(filter(None, [mb, hw, hs, fx, nk])))
+                sjbl = ' / '.join(list(filter(None, [sj, bl])))
+
+                if not sj:
+                    sj = "Nicht gesetzt!"
+                if not dj:
+                    dj = "Nicht gesetzt!"
+                if not mb:
+                    mb = "Nicht gesetzt!"
+                if not hw:
+                    hw = "Nicht gesetzt!"
+                if not hs:
+                    hs = "Nicht gesetzt!"
+                if not fx:
+                    fx = "Nicht gesetzt!"
+                if not nk:
+                    nk = "Nicht gesetzt!"
+                if not dd:
+                    dd = "Nicht gesetzt!"
+                if not fc:
+                    fc = "Nicht gesetzt!"
+                if not bl:
+                    bl = "Nicht gesetzt!"
+                if not sjbl:
+                    sjbl = "Nicht gesetzt!"
+                return jsonify(
+                    {
+                        "hostnames": {
+                            "sj": sj,
+                            "dj": dj,
+                            "mb": mb,
+                            "hw": hw,
+                            "hs": hs,
+                            "fx": fx,
+                            "nk": nk,
+                            "dd": dd,
+                            "fc": fc,
+                            "bl": bl,
+                            "sjbl": sjbl
+                        }
+                    }
+                )
+            except:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/blocked_sites/", methods=['GET'])
     @requires_auth
     def get_blocked_sites():
@@ -515,19 +585,25 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 {
                     "proxy": {
                         "SJ": check("SJ", db_proxy),
+                        "DJ": check("DJ", db_proxy),
                         "MB": check("MB", db_proxy),
                         "HW": check("HW", db_proxy),
                         "FX": check("FX", db_proxy),
                         "HS": check("HS", db_proxy),
                         "NK": check("NK", db_proxy),
+                        "DD": check("DD", db_proxy),
+                        "FC": check("FC", db_proxy)
                     },
                     "normal": {
                         "SJ": check("SJ", db_normal),
+                        "DJ": check("DJ", db_normal),
                         "MB": check("MB", db_normal),
                         "HW": check("HW", db_normal),
                         "FX": check("FX", db_normal),
                         "HS": check("HS", db_normal),
                         "NK": check("NK", db_normal),
+                        "DD": check("DD", db_normal),
+                        "FC": check("FC", db_normal)
                     }
                 }
             )
@@ -608,7 +684,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
         global device
         if request.method == 'GET':
             myjd = get_info(configfile, device)
-            to_decrypt = get_to_decrypt(dbfile)
+            packages_to_decrypt = get_to_decrypt(dbfile)
             if myjd:
                 device = myjd[0]
                 return jsonify(
@@ -621,7 +697,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "linkgrabber_decrypted": myjd[4][1],
                             "linkgrabber_offline": myjd[4][2],
                             "linkgrabber_failed": myjd[4][3],
-                            "to_decrypt": to_decrypt
+                            "to_decrypt": packages_to_decrypt
                         }
                     }
                 ), 200
@@ -977,10 +1053,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         },
                         "mbsj": {
                             "staffeln": get_list('MB_Staffeln'),
-                        },
-                        "yt": {
-                            "kanaele_playlisten": get_list('YT_Channels'),
-                        },
+                        }
                     },
                 }
             )
@@ -1004,8 +1077,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 data['dj']['dokus'].split('\n'))
             ListDb(dbfile, "DJ_Dokus_Regex").store_list(
                 data['dj']['regex'].split('\n'))
-            ListDb(dbfile, "YT_Channels").store_list(
-                data['yt']['kanaele_playlisten'].split('\n'))
             return "Success", 201
         else:
             return "Failed", 405
@@ -1033,13 +1104,17 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 // @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
 // @version         0.2.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/*
-// @exclude         https://""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """/serie/search?q=*
+// @match           https://""" + sj + """/*
+// @match           https://""" + dj + """/*
+// @exclude         https://""" + sj + """/serie/search?q=*
+// @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
 document.body.addEventListener('mousedown', function(e) {
     if (e.target.tagName != "A") return;
     var anchor = e.target;
-    if (anchor.href.search(/""" + decode_base64("c2VyaWVuanVua2llcy5vcmc=") + """\/serie\//i) != -1) {
+    if (anchor.href.search(/""" + sj + """\/serie\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    } else if (anchor.href.search(/""" + dj + """\/serie\//i) != -1) {
         anchor.href = anchor.href + '#' + anchor.text;
     }
 });
@@ -1138,11 +1213,11 @@ if (title) {
                 try:
                     dlc = re.findall(r"DownloadDLC\(\'(.*)\'\)", links)
                     if dlc:
-                        links = "https://" + decode_base64("d3d3LmZpbGVjcnlwdC5jYw==") + "/DLC/" + dlc[0] + ".dlc"
+                        links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                start = RssConfig('Crawljobs', configfile).get("autostart")
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=start)
+                to_start = RssConfig('Crawljobs', configfile).get("autostart")
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=to_start)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")

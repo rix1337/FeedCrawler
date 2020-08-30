@@ -39,7 +39,7 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 ### Im Folgenden wird die manuelle Installation beschrieben:
 
 ####  Voraussetzungen
-* [Python 3.7](https://www.python.org/downloads/) oder neuer
+* [Python 3.8](https://www.python.org/downloads/) oder neuer
 * [pip](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [MyJDownloader-Konto](https://my.jdownloader.org)
 
@@ -60,6 +60,20 @@ Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System 
 #### Starten
 
 ```rsscrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
+
+
+#### Hostnamen festlegen
+
+RSScrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche Seiten durchsucht werden sollen.
+Diese Entscheidung trifft der Anwender selbstständig, indem er die _RSScrawler.ini_ in der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_).
+Eingetragen werden dort reine Hostnamen (ohne _https://_).
+
+##### Dabei gilt
+* Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
+* Ist nicht mindestens ein Hostname gesetzt, wird der RSScrawler nicht starten.
+* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des RSScrawlers, kann es zu Fehlern kommen.
+* Weder RSScrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
+
 
 #### Startparameter
 

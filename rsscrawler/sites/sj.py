@@ -6,12 +6,11 @@ import hashlib
 import json
 import re
 
-from rsscrawler.fakefeed import sj_releases_to_feedparser_dict
+from rsscrawler.fakefeed import j_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import check_valid_release
-from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -25,6 +24,10 @@ class SJ:
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
+
+        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.sj = self.hostnames.get('sj')
+
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
@@ -114,7 +117,7 @@ class SJ:
         try:
             series_info = get_url(series_url, self.configfile, self.dbfile)
             series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = decode_base64('aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZw==') + '/api/media/' + series_id + '/releases'
+            api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
 
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             seasons = json.loads(response)
@@ -163,7 +166,7 @@ class SJ:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download = add_decrypt(title, series_url, decode_base64("c2VyaWVuanVua2llcy5vcmc="), self.dbfile)
+            download = add_decrypt(title, series_url, self.sj, self.dbfile)
             if download:
                 self.db.store(title, 'added')
                 log_entry = link_placeholder + title + ' - [SJ]'
@@ -202,16 +205,15 @@ class SJ:
         while self.day < 8:
             if self.last_set_sj == set_sj:
                 try:
-                    response = get_url_headers(
-                        decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0") + '/' + str(
-                            self.day), self.configfile,
-                        self.dbfile, self.headers, self.scraper)
+                    response = get_url_headers('https://' + self.sj + '/api/releases/latest/' + str(self.day),
+                                               self.configfile,
+                                               self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sj_releases_to_feedparser_dict(response.text, "seasons")
+                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sj, True)
                     else:
-                        feed = sj_releases_to_feedparser_dict(response.text, "episodes")
+                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sj, True)
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -224,13 +226,16 @@ class SJ:
                     header = True
             else:
                 try:
-                    response = get_url(
-                        decode_base64("aHR0cHM6Ly9zZXJpZW5qdW5raWVzLm9yZy9hcGkvcmVsZWFzZXMvbGF0ZXN0") + '/' + str(
-                            self.day), self.configfile, self.dbfile, self.scraper)
+                    response = get_url('https://' + self.sj + '/api/releases/latest/' + str(self.day), self.configfile,
+                                       self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sj_releases_to_feedparser_dict(response, "seasons")
+                        feed = j_releases_to_feedparser_dict(response, "seasons",
+                                                             'https://' + self.sj,
+                                                             True)
                     else:
-                        feed = sj_releases_to_feedparser_dict(response, "episodes")
+                        feed = j_releases_to_feedparser_dict(response, "episodes",
+                                                             'https://' + self.sj,
+                                                             True)
                 except:
                     print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
