@@ -18,7 +18,7 @@ from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
 
-class SJ:
+class SF:
     def __init__(self, configfile, dbfile, device, logging, scraper, filename, internal_name):
         self._INTERNAL_NAME = internal_name
         self.configfile = configfile
@@ -33,7 +33,7 @@ class SJ:
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
-        self.hoster_fallback = RssConfig("SJ", configfile).get("hoster_fallback")
+        self.hoster_fallback = RssConfig("SF", configfile).get("hoster_fallback")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -42,9 +42,9 @@ class SJ:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.cdc = RssDb(self.dbfile, 'cdc')
-        self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
-        self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
+        self.last_set_sj = self.cdc.retrieve("SFSet-" + self.filename)
+        self.last_sha_sj = self.cdc.retrieve("SF-" + self.filename)
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SFHeaders-" + self.filename))}
         settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
@@ -132,7 +132,7 @@ class SJ:
                         if not valid and not self.hoster_fallback:
                             storage = self.db.retrieve_all(title)
                             if 'added' not in storage and 'notdl' not in storage:
-                                wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                                wrong_hoster = '[SF/Hoster fehlt] - ' + title
                                 if 'wrong_hoster' not in storage:
                                     self.log_info(wrong_hoster)
                                     self.db.store(title, 'wrong_hoster')
@@ -142,17 +142,17 @@ class SJ:
                         else:
                             return self.send_package(title, series_url, language_id)
         except:
-            print(u"SJ hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+            print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 
     def send_package(self, title, series_url, language_id):
         englisch = ""
         if language_id == 2:
             englisch = "/Englisch"
-        if self.filename == 'SJ_Serien_Regex':
+        if self.filename == 'SF_Serien_Regex':
             link_placeholder = '[Episode/RegEx' + englisch + '] - '
-        elif self.filename == 'SJ_Serien':
+        elif self.filename == 'SF_Serien':
             link_placeholder = '[Episode' + englisch + '] - '
-        elif self.filename == 'SJ_Staffeln_Regex]':
+        elif self.filename == 'SF_Staffeln_Regex]':
             link_placeholder = '[Staffel/RegEx' + englisch + '] - '
         else:
             link_placeholder = '[Staffel' + englisch + '] - '
@@ -169,7 +169,7 @@ class SJ:
             download = add_decrypt(title, series_url, self.sj, self.dbfile)
             if download:
                 self.db.store(title, 'added')
-                log_entry = link_placeholder + title + ' - [SJ]'
+                log_entry = link_placeholder + title + ' - [SF]'
                 self.log_info(log_entry)
                 notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
                 return log_entry
@@ -177,15 +177,15 @@ class SJ:
     def periodical_task(self):
         if self.filename == 'SJ_Serien_Regex':
             if not self.config.get('regex'):
-                self.log_debug("Suche für SJ-Regex deaktiviert!")
+                self.log_debug("Suche für SF-Regex deaktiviert!")
                 return self.device
         elif self.filename == 'SJ_Staffeln_Regex':
             if not self.config.get('regex'):
-                self.log_debug("Suche für SJ-Regex deaktiviert!")
+                self.log_debug("Suche für SF-Regex deaktiviert!")
                 return self.device
         elif self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
-                self.log_debug("Suche für SJ-Staffeln deaktiviert!")
+                self.log_debug("Suche für SF-Staffeln deaktiviert!")
                 return self.device
         if self.empty_list:
             self.log_debug(
@@ -215,13 +215,13 @@ class SJ:
                     else:
                         feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sj, True)
                 except:
-                    print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
+                    print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
 
                 if response:
                     if response.status_code == 304:
                         self.log_debug(
-                            "SJ-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                            "SF-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                         return self.device
                     header = True
             else:
@@ -237,7 +237,7 @@ class SJ:
                                                              'https://' + self.sj,
                                                              True)
                 except:
-                    print(u"SJ hat die Feed-API angepasst. Breche Suche ab!")
+                    print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
 
             self.day += 1
@@ -410,13 +410,13 @@ class SJ:
         if set_sj:
             new_set_sj = self.settings_hash(True)
             if set_sj == new_set_sj:
-                self.cdc.delete("SJSet-" + self.filename)
-                self.cdc.store("SJSet-" + self.filename, set_sj)
-                self.cdc.delete("SJ-" + self.filename)
-                self.cdc.store("SJ-" + self.filename, sha_sj)
+                self.cdc.delete("SFSet-" + self.filename)
+                self.cdc.store("SFSet-" + self.filename, set_sj)
+                self.cdc.delete("SF-" + self.filename)
+                self.cdc.store("SF-" + self.filename, sha_sj)
 
         if header and response:
-            self.cdc.delete("SJHeaders-" + self.filename)
-            self.cdc.store("SJHeaders-" + self.filename, response.headers['date'])
+            self.cdc.delete("SFHeaders-" + self.filename)
+            self.cdc.store("SFHeaders-" + self.filename, response.headers['date'])
 
         return self.device
