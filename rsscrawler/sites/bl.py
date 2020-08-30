@@ -731,9 +731,9 @@ class BL:
         search_results = [feedparser.parse(
             get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + self.hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + self.hs + 'hd-source.to''/search/' + search_title + '/feed/',
+            hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
@@ -900,9 +900,9 @@ class BL:
         search_results = [feedparser.parse(
             get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + self.hw + 'hd-world.org''/search/' + search_title + "/feed/rss2/",
+            get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + self.hs + 'hd-source.to''/search/' + search_title + '/feed/',
+            hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
                               self.configfile, self.dbfile, self.scraper), feedparser.parse(
                 get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper))]
