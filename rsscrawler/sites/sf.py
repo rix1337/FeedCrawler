@@ -200,6 +200,9 @@ class SF:
                 return log_entry
 
     def periodical_task(self):
+        if not self.sf:
+            return self.device
+
         if self.filename == 'SJ_Serien_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für SF-Regex deaktiviert!")
@@ -230,6 +233,7 @@ class SF:
         while self.day < 8:
             if self.last_set_sf == set_sf:
                 try:
+                    # ToDo FiX
                     response = get_url_headers('https://' + self.sf + '/api/releases/latest/' + str(self.day),
                                                self.configfile,
                                                self.dbfile, self.headers, self.scraper)
@@ -251,6 +255,7 @@ class SF:
                     header = True
             else:
                 try:
+                    # ToDo: FiX
                     response = get_url('https://' + self.sf + '/updates/2020-08-30', self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":

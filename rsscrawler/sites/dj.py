@@ -150,6 +150,9 @@ class DJ:
                 return log_entry
 
     def periodical_task(self):
+        if not self.dj:
+            return self.device
+
         if self.filename == 'DJ_Dokus_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für DJ-Regex deaktiviert!")

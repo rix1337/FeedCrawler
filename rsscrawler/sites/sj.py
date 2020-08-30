@@ -175,6 +175,9 @@ class SJ:
                 return log_entry
 
     def periodical_task(self):
+        if not self.sj:
+            return self.device
+
         if self.filename == 'SJ_Serien_Regex':
             if not self.config.get('regex'):
                 self.log_debug("Suche für SJ-Regex deaktiviert!")
