@@ -233,9 +233,8 @@ class SF:
         while self.day < 8:
             if self.last_set_sf == set_sf:
                 try:
-                    # ToDo FiX
-                    response = get_url_headers('https://' + self.sf + '/api/releases/latest/' + str(self.day),
-                                               self.configfile,
+                    delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+                    response = get_url_headers('https://' + self.sf + '/updates/' + delta, self.configfile,
                                                self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
@@ -255,8 +254,8 @@ class SF:
                     header = True
             else:
                 try:
-                    # ToDo: FiX
-                    response = get_url('https://' + self.sf + '/updates/2020-08-30', self.configfile,
+                    delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+                    response = get_url('https://' + self.sf + '/updates/' + delta, self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                         feed = sf_releases_to_feedparser_dict(response, "seasons",
