@@ -67,6 +67,7 @@ def check_is_site(string, configfile):
     hostnames = RssConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
     dj = hostnames.get('mb')
+    sf = hostnames.get('sf')
     mb = hostnames.get('mb')
     hw = hostnames.get('hw')
     hs = hostnames.get('hs')
@@ -79,6 +80,8 @@ def check_is_site(string, configfile):
         return "SJ"
     elif dj.split('.')[0] in string:
         return "DJ"
+    elif sf.split('.')[0] in string:
+        return "SF"
     elif mb.split('.')[0] in string:
         return "MB"
     elif hw.split('.')[0] in string:

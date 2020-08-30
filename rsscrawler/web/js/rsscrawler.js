@@ -67,13 +67,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.hostnames = {
+        sj: 'Nicht gesetzt!',
+        dj: 'Nicht gesetzt!',
+        sf: 'Nicht gesetzt!',
         mb: 'Nicht gesetzt!',
         hw: 'Nicht gesetzt!',
         hs: 'Nicht gesetzt!',
         fx: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
-        sj: 'Nicht gesetzt!',
-        dj: 'Nicht gesetzt!',
         dd: 'Nicht gesetzt!',
         fc: 'Nicht gesetzt!'
     };

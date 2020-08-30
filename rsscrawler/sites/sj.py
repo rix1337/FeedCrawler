@@ -32,8 +32,8 @@ class SJ:
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
+        self.hoster_fallback = self.config.get("hoster_fallback")
         self.hosters = RssConfig("Hosters", configfile).get_section()
-        self.hoster_fallback = RssConfig("SJ", configfile).get("hoster_fallback")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug

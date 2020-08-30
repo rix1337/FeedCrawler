@@ -306,3 +306,31 @@ def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_o
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
+    releases = json.loads(releases)
+    entries = []
+
+    for release in releases:
+        if check_seasons_or_episodes:
+            try:
+                if list_type == 'seasons' and release['episode']:
+                    continue
+                elif list_type == 'episodes' and not release['episode']:
+                    continue
+            except:
+                continue
+        title = release['name']
+        series_url = base_url + '/serie/' + release["_media"]['slug']
+        published = release['createdAt']
+
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "series_url": series_url,
+            "published": published
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed

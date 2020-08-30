@@ -6,7 +6,7 @@ import hashlib
 import json
 import re
 
-from rsscrawler.fakefeed import j_releases_to_feedparser_dict
+from rsscrawler.fakefeed import sf_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
@@ -32,8 +32,8 @@ class SF:
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
+        self.hoster_fallback = self.config.get("hoster_fallback")
         self.hosters = RssConfig("Hosters", configfile).get_section()
-        self.hoster_fallback = RssConfig("SF", configfile).get("hoster_fallback")
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -211,9 +211,9 @@ class SF:
                     self.scraper = response[1]
                     response = response[0]
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = j_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sf, True)
+                        feed = sf_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sf, True)
                     else:
-                        feed = j_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sf, True)
+                        feed = sf_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sf, True)
                 except:
                     print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False
@@ -229,13 +229,13 @@ class SF:
                     response = get_url('https://' + self.sf + '/api/releases/latest/' + str(self.day), self.configfile,
                                        self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = j_releases_to_feedparser_dict(response, "seasons",
-                                                             'https://' + self.sf,
-                                                             True)
+                        feed = sf_releases_to_feedparser_dict(response, "seasons",
+                                                              'https://' + self.sf,
+                                                              True)
                     else:
-                        feed = j_releases_to_feedparser_dict(response, "episodes",
-                                                             'https://' + self.sf,
-                                                             True)
+                        feed = sf_releases_to_feedparser_dict(response, "episodes",
+                                                              'https://' + self.sf,
+                                                              True)
                 except:
                     print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
                     feed = False

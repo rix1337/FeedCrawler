@@ -27,6 +27,7 @@ class RssConfig(object):
         'Hostnames': [
             ("sj", "str", ""),
             ("dj", "str", ""),
+            ("sf", "str", ""),
             ("mb", "str", ""),
             ("hw", "str", ""),
             ("hs", "str", ""),

@@ -50,27 +50,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     global device
     device = _device
 
-    global mb
-    global hw
-    global hw
-    global hs
-    global fx
-    global nk
-    global sj
-    global dj
-    global dd
-    global fc
-    hostnames = RssConfig('Hostnames', configfile)
-    sj = hostnames.get('sj')
-    dj = hostnames.get('dj')
-    mb = hostnames.get('mb')
-    hw = hostnames.get('hw')
-    hs = hostnames.get('hs')
-    fx = hostnames.get('fx')
-    nk = hostnames.get('nk')
-    dd = hostnames.get('dd')
-    fc = hostnames.get('fc')
-
     base_dir = '.'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)
@@ -500,20 +479,23 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @app.route(prefix + "/api/hostnames/", methods=['GET'])
     @requires_auth
     def get_hostnames():
-        global sj
-        global dj
-        global mb
-        global hw
-        global hw
-        global hs
-        global fx
-        global nk
-        global dd
-        global fc
+        hostnames = RssConfig('Hostnames', configfile)
+        sj = hostnames.get('sj')
+        dj = hostnames.get('dj')
+        sf = hostnames.get('sf')
+        mb = hostnames.get('mb')
+        hw = hostnames.get('hw')
+        hs = hostnames.get('hs')
+        fx = hostnames.get('fx')
+        nk = hostnames.get('nk')
+        dd = hostnames.get('dd')
+        fc = hostnames.get('fc')
+
         if request.method == 'GET':
             try:
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
+                sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 mb = mb.replace("m", "M", 1).replace("b", "B", 1)
                 hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
                 hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
@@ -522,12 +504,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
                 bl = ' / '.join(list(filter(None, [mb, hw, hs, fx, nk])))
-                sjbl = ' / '.join(list(filter(None, [sj, bl])))
+                s = ' / '.join(list(filter(None, [sj, sf])))
+                sjbl = ' / '.join(list(filter(None, [s, bl])))
 
                 if not sj:
                     sj = "Nicht gesetzt!"
                 if not dj:
                     dj = "Nicht gesetzt!"
+                if not sf:
+                    sf = "Nicht gesetzt!"
                 if not mb:
                     mb = "Nicht gesetzt!"
                 if not hw:
@@ -544,6 +529,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     fc = "Nicht gesetzt!"
                 if not bl:
                     bl = "Nicht gesetzt!"
+                if not s:
+                    s = "Nicht gesetzt!"
                 if not sjbl:
                     sjbl = "Nicht gesetzt!"
                 return jsonify(
@@ -551,6 +538,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "hostnames": {
                             "sj": sj,
                             "dj": dj,
+                            "sf": sf,
                             "mb": mb,
                             "hw": hw,
                             "hs": hs,
@@ -559,6 +547,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                             "dd": dd,
                             "fc": fc,
                             "bl": bl,
+                            "s": s,
                             "sjbl": sjbl
                         }
                     }
@@ -586,6 +575,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     "proxy": {
                         "SJ": check("SJ", db_proxy),
                         "DJ": check("DJ", db_proxy),
+                        "SF": check("SF", db_proxy),
                         "MB": check("MB", db_proxy),
                         "HW": check("HW", db_proxy),
                         "FX": check("FX", db_proxy),
@@ -597,6 +587,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                     "normal": {
                         "SJ": check("SJ", db_normal),
                         "DJ": check("DJ", db_normal),
+                        "SF": check("SF", db_normal),
                         "MB": check("MB", db_normal),
                         "HW": check("HW", db_normal),
                         "FX": check("FX", db_normal),
@@ -1097,6 +1088,9 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @app.route(prefix + "/sponsors_helper/rsscrawler_helper_sj.user.js", methods=['GET'])
     @requires_auth
     def rsscrawler_helper_sj():
+        hostnames = RssConfig('Hostnames', configfile)
+        sj = hostnames.get('sj')
+        dj = hostnames.get('dj')
         if request.method == 'GET':
             return """// ==UserScript==
 // @name            RSScrawler Helper (SJ)
@@ -1194,6 +1188,8 @@ if (title) {
     @requires_auth
     def to_download(payload):
         global device
+        hostnames = RssConfig('Hostnames', configfile)
+        fc = hostnames.get('fc')
         if request.method == 'GET':
             try:
                 payload = decode_base64(payload).split("|")

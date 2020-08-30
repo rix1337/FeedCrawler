@@ -379,7 +379,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroTwo"
                         aria-expanded="false" aria-controls="collapseZeroTwo">
-                    <h3>{{ hostnames.sj }}</h3>
+                    <h3>{{ hostnames.s }}</h3>
                 </button>
             </h5>
         </div>
@@ -561,7 +561,7 @@
                         der GROUP.
                     </div>
                 </div>
-                <h3>Beispiele für {{ hostnames.sj }}</h3>
+                <h3>Beispiele für {{ hostnames.s }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -656,6 +656,20 @@
                                     <i ng-if="blocked_proxy.DJ" class="fas fa-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DJ" class="far fa-lightbulb text-success"
+                                       title="Seite mit Proxy verfügbar"></i>
+                                </span>
+                            </li>
+                            <li class="list-group-item">{{ hostnames.sf }} (SF)
+                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SF)">
+                                    <i ng-if="blocked_normal.SF" class="fas fa-lightbulb text-danger"
+                                       title="Seite ohne Proxy gesperrt!"></i>
+                                    <i ng-if="!blocked_normal.SF" class="far fa-lightbulb text-success"
+                                       title="Seite ohne Proxy verfügbar"></i>
+                                </span>
+                                <span ng-if="settings.general.proxy">
+                                    <i ng-if="blocked_proxy.SF" class="fas fa-lightbulb text-danger"
+                                       title="Seite mit Proxy gesperrt"></i>
+                                    <i ng-if="!blocked_proxy.SF" class="far fa-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
@@ -1184,7 +1198,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSix"
                         aria-expanded="false" aria-controls="collapseTwoSix">
-                    <h3>{{ hostnames.sj }}</h3>
+                    <h3>{{ hostnames.s }}</h3>
                 </button>
             </h5>
         </div>
