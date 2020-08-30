@@ -50,7 +50,18 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     global device
     device = _device
 
+    global mb
+    global hw
+    global hw
+    global hs
+    global fx
+    global nk
+    global sj
+    global dj
+    global dd
+    global fc
     hostnames = RssConfig('Hostnames', configfile)
+
     mb = hostnames.get('mb')
     hw = hostnames.get('hw')
     hs = hostnames.get('hs')
@@ -490,10 +501,52 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     @app.route(prefix + "/api/hostnames/", methods=['GET'])
     @requires_auth
     def get_hostnames():
+        global mb
+        global hw
+        global hw
+        global hs
+        global fx
+        global nk
+        global sj
+        global dj
+        global dd
+        global fc
         if request.method == 'GET':
             try:
+                mb = mb.replace("m", "M", 1).replace("b", "B", 1)
+                hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+                hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
+                fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+                nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+                sj = sj.replace("s", "S", 1).replace("j", "J", 1)
+                dj = dj.replace("d", "D", 1).replace("j", "J", 1)
+                dd = dd.replace("d", "D", 2)
+                fc = fc.replace("f", "F", 1).replace("c", "C", 1)
                 bl = ' / '.join(list(filter(None, [mb, hw, hs, fx, nk])))
                 sjbl = ' / '.join(list(filter(None, [sj, bl])))
+
+                if not mb:
+                    mb = "Nicht gesetzt!"
+                if not hw:
+                    hw = "Nicht gesetzt!"
+                if not hs:
+                    hs = "Nicht gesetzt!"
+                if not fx:
+                    fx = "Nicht gesetzt!"
+                if not nk:
+                    nk = "Nicht gesetzt!"
+                if not sj:
+                    sj = "Nicht gesetzt!"
+                if not dj:
+                    dj = "Nicht gesetzt!"
+                if not dd:
+                    dd = "Nicht gesetzt!"
+                if not fc:
+                    fc = "Nicht gesetzt!"
+                if not bl:
+                    bl = "Nicht gesetzt!"
+                if not sjbl:
+                    sjbl = "Nicht gesetzt!"
                 return jsonify(
                     {
                         "hostnames": {
