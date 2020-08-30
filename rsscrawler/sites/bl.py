@@ -1317,16 +1317,21 @@ class BL:
             if liste:
                 self.pattern = r'(' + "|".join(liste).lower() + ').*'
 
-        for URL in self.MB_FEED_URLS:
-            mb_urls.append(URL)
-        for URL in self.HW_FEED_URLS:
-            hw_urls.append(URL)
-        for URL in self.HS_FEED_URLS:
-            hs_urls.append(URL)
-        for URL in self.FX_FEED_URLS:
-            fx_urls.append(URL)
-        for URL in self.NK_FEED_URLS:
-            nk_urls.append(URL)
+        if self.mb:
+            for URL in self.MB_FEED_URLS:
+                mb_urls.append(URL)
+        if self.hw:
+            for URL in self.HW_FEED_URLS:
+                hw_urls.append(URL)
+        if self.hs:
+            for URL in self.HS_FEED_URLS:
+                hs_urls.append(URL)
+        if self.fx:
+            for URL in self.FX_FEED_URLS:
+                fx_urls.append(URL)
+        if self.nk:
+            for URL in self.NK_FEED_URLS:
+                nk_urls.append(URL)
 
         if not self.pattern:
             self.log_debug(

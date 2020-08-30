@@ -79,10 +79,22 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         else:
             search_quality = ""
 
-        mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '/feed'
-        fx_search = 'https://' + fx + '/?s=' + bl_query
+        if mb:
+            mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + '/feed/rss2/'
+        else:
+            mb_search = None
+        if hw:
+            hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + '/feed/rss2/'
+        else:
+            hw_search = None
+        if hs:
+            hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '/feed'
+        else:
+            hs_search = None
+        if fx:
+            fx_search = 'https://' + fx + '/?s=' + bl_query
+        else:
+            fx_search = None
 
         async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
         scraper = async_results[1]
@@ -103,9 +115,12 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             elif check_is_site(res, configfile) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
 
-        nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
-                             data={'search': bl_query.replace("+", " ") + " " + quality})
-        nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+        if nk:
+            nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
+                                 data={'search': bl_query.replace("+", " ") + " " + quality})
+            nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+        else:
+            nk_results = []
 
         password = mb
         for result in mb_results:
@@ -164,10 +179,22 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         if config.get("crawl3d"):
-            mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '+3D/feed'
-            fx_search = 'https://' + fx + '/?s=' + bl_query + "+3D"
+            if mb:
+                mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            else:
+                mb_search = None
+            if hw:
+                hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
+            else:
+                hw_search = None
+            if hs:
+                hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '+3D/feed'
+            else:
+                hs_search = None
+            if fx:
+                fx_search = 'https://' + fx + '/?s=' + bl_query + "+3D"
+            else:
+                fx_search = None
 
             async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
             async_results = async_results[0]
@@ -187,9 +214,12 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 elif check_is_site(res, configfile) == 'FX':
                     fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
 
-            nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
-                                 data={'search': bl_query.replace("+", " ") + " " + quality + "3D"})
-            nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+            if nk:
+                nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
+                                     data={'search': bl_query.replace("+", " ") + " " + quality + "3D"})
+                nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+            else:
+                nk_results = []
 
             password = mb
             for result in mb_results:
@@ -230,11 +260,14 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         bl_final = results
 
     if not bl_only:
-        sj_query = sanitize(title).replace(" ", "+")
-        sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile, scraper)
-        try:
-            sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
-        except:
+        if sj:
+            sj_query = sanitize(title).replace(" ", "+")
+            sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile, scraper)
+            try:
+                sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
+            except:
+                sj_results = []
+        else:
             sj_results = []
 
         if special:

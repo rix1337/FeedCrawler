@@ -205,7 +205,7 @@
                                        target="_blank"
                                        title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                    <span>Bitte zuerst
+                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase())">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_helper_sj.user.js"
                                            target="_blank">RSScrawler Helper (SJ)</a> installieren!
@@ -379,7 +379,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseZeroTwo"
                         aria-expanded="false" aria-controls="collapseZeroTwo">
-                    <h3>{{ hostnames.sj }}</h3>
+                    <h3>{{ hostnames.s }}</h3>
                 </button>
             </h5>
         </div>
@@ -454,6 +454,32 @@
 <div id="help" class="col card app container">
     <h3><i class="fas fa-question"></i> Hilfe</h3>
     <div class="card">
+        <div class="card-header" id="headingZeroZero">
+            <h5 class="mb-0">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroZero"
+                        aria-expanded="true"
+                        aria-controls="collapseZeroZero">
+                    <h3>RSScrawler Sponsors Helper</h3>
+                </button>
+            </h5>
+        </div>
+        <div id="collapseZeroZero" class="collapse" aria-labelledby="headingZeroZero" data-parent="#help">
+            <div class="card-body">
+                <br>Der RSScrawler Sponsors Helper ist ein Docker-Image das {{ !!hostnames.sj ? hostnames.sj : 'SJ'
+                }}-Captchas vollständig selbst löst und dem
+                RSScrawler entschlüsselt übergibt.</br>
+                Perspektivisch wird der Helper auch die Captchas auf {{ !!hostnames.fc ? hostnames.fc : 'FC' }}
+                lösen.</p>
+                <p>Aufgrund des Pflegeaufwandes erhalten nur <a href="https://github.com/users/rix1337/sponsorship"
+                                                                target="_blank">Sponsoren</a> Zugriff darauf.</br>
+                    Freischaltung unter Angabe der eigenen Docker-ID per PN auf <a
+                            href="https://gitter.im/RSScrawler/Lobby" target="_blank">Gitter</a>.</p>
+                <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account beim
+                    unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
+            </div>
+        </div>
+    </div>
+    <div class="card">
         <div class="card-header" id="headingOneZero">
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOneZero"
@@ -466,7 +492,7 @@
         <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
             <div class="card-body">
                 <a href="./redirect_user/captcha" target="_blank">
-                    Anti-Captcha.com (Schnelles Lösen von ReCaptcha - auch im Browser)
+                    Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
                 </a>
             </div>
         </div>
@@ -535,7 +561,7 @@
                         der GROUP.
                     </div>
                 </div>
-                <h3>Beispiele für {{ hostnames.sj }}</h3>
+                <h3>Beispiele für {{ hostnames.s }}</h3>
                 <div class="row">
                     <div class="col text-left card bg-light">
                         <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -630,6 +656,20 @@
                                     <i ng-if="blocked_proxy.DJ" class="fas fa-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DJ" class="far fa-lightbulb text-success"
+                                       title="Seite mit Proxy verfügbar"></i>
+                                </span>
+                            </li>
+                            <li class="list-group-item">{{ hostnames.sf }} (SF)
+                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SF)">
+                                    <i ng-if="blocked_normal.SF" class="fas fa-lightbulb text-danger"
+                                       title="Seite ohne Proxy gesperrt!"></i>
+                                    <i ng-if="!blocked_normal.SF" class="far fa-lightbulb text-success"
+                                       title="Seite ohne Proxy verfügbar"></i>
+                                </span>
+                                <span ng-if="settings.general.proxy">
+                                    <i ng-if="blocked_proxy.SF" class="fas fa-lightbulb text-danger"
+                                       title="Seite mit Proxy gesperrt"></i>
+                                    <i ng-if="!blocked_proxy.SF" class="far fa-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
@@ -754,8 +794,8 @@
         <div id="collapseOneFour" class="collapse" aria-labelledby="headingOneFour"
              data-parent="#help">
             <div class="card-body">
-                <a href="https://github.com/rix1337/RSScrawler/wiki" target="_blank">Detaillierte
-                    Weitere Hinweise gibt es im Wiki.</a>
+                <a href="https://github.com/rix1337/RSScrawler/wiki" target="_blank">Weitere Hinweise gibt es im
+                    Wiki.</a>
             </div>
         </div>
     </div>
@@ -1158,7 +1198,7 @@
                 <button class="btn btn-link collapsed" data-toggle="collapse"
                         data-target="#collapseTwoSix"
                         aria-expanded="false" aria-controls="collapseTwoSix">
-                    <h3>{{ hostnames.sj }}</h3>
+                    <h3>{{ hostnames.s }}</h3>
                 </button>
             </h5>
         </div>
@@ -1335,7 +1375,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-locale_de-de.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js"></script>
+<script src="js/rsscrawler.js?major_update"></script>
 </body>
 
 </html>{% endraw %}

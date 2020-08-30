@@ -62,6 +62,7 @@ from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
+from rsscrawler.sites.sf import SF
 from rsscrawler.sites.sj import SJ
 from rsscrawler.url import check_url
 from rsscrawler.web import start
@@ -267,18 +268,22 @@ def crawldog(configfile, dbfile):
 
 def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        DD(configfile, dbfile, device, logger, scraper),
-        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
-        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
+        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
+        DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
+        SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
+        SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
+        SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
+        SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
         BL(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         BL(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         BL(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         BL(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        BL(configfile, dbfile, device, logger, scraper, filename='MB_3D')
+        BL(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
+        DD(configfile, dbfile, device, logger, scraper)
     ]
 
 
@@ -318,7 +323,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['mb', 'hw', 'hs', 'fx', 'nk', 'dj', 'sj', 'fc']
+    list_names = ['sj', 'dj', 'sf', 'mb', 'hw', 'hs', 'fx', 'nk', 'fc']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:
