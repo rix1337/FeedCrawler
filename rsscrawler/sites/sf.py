@@ -134,6 +134,9 @@ class SF:
                 season_title = title.replace(episode_string, '')
                 episode = str(int(episode_string.replace("E", "")))
                 season = str(int(season_string.replace("S", "")))
+                episode_name = re.findall(r'.*\.S\d{1,3}(\..*).German', season_title)
+                if episode_name:
+                    season_title = season_title.replace(episode_name[0], '')
             else:
                 season = False
                 episode = False
@@ -141,7 +144,6 @@ class SF:
 
             content = BeautifulSoup(info['html'], 'lxml')
             releases = content.find("small", text=re.compile(season_title)).parent.parent.parent
-            release = releases.find("div", {'class': 'row'})
             links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
             valid = False
             for link in links:
