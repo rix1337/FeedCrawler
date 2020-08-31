@@ -4,6 +4,7 @@
 
 import concurrent.futures
 
+import requests
 import cloudscraper
 
 from rsscrawler.rsscommon import check_is_site
@@ -185,6 +186,14 @@ def check_url(configfile, dbfile, scraper=False):
                     db.delete("FX")
             except:
                 fx_blocked_proxy = True
+                session = requests.session()
+                session.headers = scraper.headers
+                session.cookies = scraper.cookies
+                session.verify = False
+                if "<Response [200]>" in str(
+                        session.get(fx_url, proxies=proxies, timeout=30,
+                                    allow_redirects=False)):
+                    fx_blocked_proxy = False
             if fx_blocked_proxy:
                 print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("FX", "Blocked")
@@ -336,6 +345,13 @@ def check_url(configfile, dbfile, scraper=False):
                     fx_blocked = True
             except:
                 fx_blocked = True
+                session = requests.session()
+                session.headers = scraper.headers
+                session.cookies = scraper.cookies
+                session.verify = False
+                if "<Response [200]>" in str(
+                        session.get(fx_url, timeout=30, allow_redirects=False)):
+                    fx_blocked = False
             if fx_blocked:
                 db_normal.store("FX", "Blocked")
                 print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
@@ -408,6 +424,14 @@ def get_url(url, configfile, dbfile, scraper=False):
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
+
+    # Temporary fix for FX
+    if site and "FX" in site:
+        scraper = requests.session()
+        scraper.headers = scraper.headers
+        scraper.cookies = scraper.cookies
+        scraper.verify = False
+
     if proxy:
         try:
             if site and "SJ" in site:
@@ -515,6 +539,14 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
+
+    # Temporary fix for FX
+    if site and "FX" in site:
+        scraper = requests.session()
+        scraper.headers = scraper.headers
+        scraper.cookies = scraper.cookies
+        scraper.verify = False
+
     if proxy:
         try:
             if site and "SJ" in site:
@@ -621,6 +653,14 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
+
+    # Temporary fix for FX
+    if site and "FX" in site:
+        scraper = requests.session()
+        scraper.headers = scraper.headers
+        scraper.cookies = scraper.cookies
+        scraper.verify = False
+
     if proxy:
         try:
             if site and "SJ" in site:
@@ -727,6 +767,14 @@ def post_url_json(url, configfile, dbfile, json, scraper=False):
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
+
+    # Temporary fix for FX
+    if site and "FX" in site:
+        scraper = requests.session()
+        scraper.headers = scraper.headers
+        scraper.cookies = scraper.cookies
+        scraper.verify = False
+
     if proxy:
         try:
             if site and "SJ" in site:
