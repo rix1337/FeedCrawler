@@ -459,6 +459,7 @@ def download_bl(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
     mb = hostnames.get('mb')
     nk = hostnames.get('nk')
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -476,16 +477,22 @@ def download_bl(payload, device, configfile, dbfile):
         return False
     else:
         if "MB" in site:
+            if not fc:
+                print(u"FC Hostname nicht gesetzt. MB kann keine Links finden!")
+                return False
             key = soup.find("span", {"class": "fn"}).text
-            hosters = soup.find_all("a", href=re.compile("filecrypt"))
+            hosters = soup.find_all("a", href=re.compile(fc))
             url_hosters = []
             for hoster in hosters:
                 dl = hoster["href"]
                 hoster = hoster.text
                 url_hosters.append([dl, hoster])
         elif "HW" in site:
+            if not fc:
+                print(u"FC Hostname nicht gesetzt. MB kann keine Links finden!")
+                return False
             key = re.findall(r'Permanent Link: (.*?)"', str(soup)).pop()
-            hosters = soup.find_all("a", href=re.compile("filecrypt"))
+            hosters = soup.find_all("a", href=re.compile(fc))
             url_hosters = []
             for hoster in hosters:
                 dl = hoster["href"]
@@ -524,7 +531,7 @@ def download_bl(payload, device, configfile, dbfile):
                         links[link_hoster] = url_hoster[0]
             download_links = list(links.values())
         elif "FX" in site:
-            download_links = fx_download_links(url, key)
+            download_links = fx_download_links(url, key, configfile)
 
         englisch = False
         if "*englisch" in key.lower() or "*english" in key.lower():
