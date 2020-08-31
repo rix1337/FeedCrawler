@@ -1238,7 +1238,10 @@ if (title) {
                         remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
                         remove_decrypt(name, dbfile)
-                    notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                    try:
+                        notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                    except:
+                        print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
