@@ -486,7 +486,7 @@ class BL:
                             if not "FX" in site:
                                 download_pages = self.get_download_links(content)
                             else:
-                                download_pages = fx_download_links(content, post.title)
+                                download_pages = fx_download_links(content, post.title, self.configfile)
 
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
@@ -753,7 +753,7 @@ class BL:
                         download_links = self.get_download_links(value)
                     else:
                         # FX
-                        download_links = fx_download_links(content, key)
+                        download_links = fx_download_links(content, key, self.configfile)
                     if download_links:
                         for download_link in download_links:
                             if self.mb.split('.')[0] in download_link:
@@ -934,7 +934,7 @@ class BL:
                     download_links = self.get_download_links(value)
                 else:
                     # FX
-                    download_links = fx_download_links(content, key)
+                    download_links = fx_download_links(content, key, self.configfile)
                 if download_links:
                     for download_link in download_links:
                         if self.mb.split('.')[0] in download_link:
@@ -1131,7 +1131,7 @@ class BL:
         if not "FX" in site:
             download_links = self.get_download_links(content)
         else:
-            download_links = fx_download_links(content, key)
+            download_links = fx_download_links(content, key, self.configfile)
         if download_links:
             for download_link in download_links:
                 if self.mb.split('.')[0] in download_link:
@@ -1387,7 +1387,7 @@ class BL:
             first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
             self.scraper = first_fx[1]
             first_fx = first_fx[0]
-            first_page_fx = fx_feed_enricher(first_fx.content)
+            first_page_fx = fx_feed_enricher(first_fx.content, self.configfile)
             if first_fx.status_code == 304:
                 fx_304 = True
         except:
@@ -1540,7 +1540,7 @@ class BL:
                             fx_parsed_url = first_page_fx
                         else:
                             fx_parsed_url = fx_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, self.scraper))
+                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
                         found = self.imdb_search(imdb, fx_parsed_url, "FX")
                         if found:
                             for f in found:
@@ -1608,7 +1608,7 @@ class BL:
                         fx_parsed_url = first_page_fx
                     else:
                         fx_parsed_url = fx_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, self.scraper))
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
                     found = self.feed_search(fx_parsed_url, "FX")
                     if found:
                         for f in found:

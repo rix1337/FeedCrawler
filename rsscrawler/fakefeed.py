@@ -8,6 +8,7 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
+from rsscrawler.rssconfig import RssConfig
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -25,7 +26,9 @@ def fx_content_to_soup(content):
     return content
 
 
-def fx_download_links(content, title):
+def fx_download_links(content, title, configfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     try:
         try:
             content = BeautifulSoup(content, 'lxml')
@@ -34,13 +37,22 @@ def fx_download_links(content, title):
         try:
             download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
         except:
-            download_links = re.findall(r'"(https://.+?filecrypt.+?)"', str(content))
+            if not fc:
+                fc = '^unmatchable$'
+                print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
+            download_links = re.findall(r'"(https://.+?' + fc + '.+?)"', str(content))
     except:
         return False
     return download_links
 
 
-def fx_feed_enricher(feed):
+def fx_feed_enricher(feed, configfile):
+    hostnames = RssConfig('Hostnames', configfile)
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+    if not fc:
+        fc = '^unmatchable$'
+        print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
+
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
     entries = []
@@ -48,7 +60,7 @@ def fx_feed_enricher(feed):
     for article in articles:
         try:
             article = BeautifulSoup(str(article), 'lxml')
-            titles = article.findAll("a", href=re.compile(r"filecrypt\.cc"))
+            titles = article.findAll("a", href=re.compile(fc))
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
                 if title:
@@ -79,6 +91,12 @@ def fx_feed_enricher(feed):
 
 
 def fx_search_results(content, configfile, dbfile, scraper):
+    hostnames = RssConfig('Hostnames', configfile)
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+    if not fc:
+        fc = '^unmatchable$'
+        print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
+
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
@@ -95,7 +113,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
 
         for result in results:
             article = BeautifulSoup(str(result), 'lxml')
-            titles = article.find_all("a", href=re.compile(r"filecrypt\.cc"))
+            titles = article.find_all("a", href=re.compile(fc))
             for title in titles:
                 link = article.find("link", rel="canonical")["href"]
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")

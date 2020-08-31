@@ -66,7 +66,7 @@ def check_ip():
 def check_is_site(string, configfile):
     hostnames = RssConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
-    dj = hostnames.get('mb')
+    dj = hostnames.get('dj')
     sf = hostnames.get('sf')
     mb = hostnames.get('mb')
     hw = hostnames.get('hw')
