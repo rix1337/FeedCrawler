@@ -8,6 +8,7 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
+from rsscrawler.rsscommon import rreplace
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
@@ -343,10 +344,6 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
                     continue
             except:
                 continue
-
-        def rreplace(s, old, new, occurrence):
-            li = s.rsplit(old, occurrence)
-            return new.join(li)
 
         series_url = rreplace(base_url + '/api/v1' + a['href'], '/', '/season/', 1)
         published = release.find("div", {"class": "datime"}).text
