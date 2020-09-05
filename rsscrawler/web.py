@@ -1189,7 +1189,24 @@ if (title) {
     def to_download(payload):
         global device
         hostnames = RssConfig('Hostnames', configfile)
+        sj = hostnames.get('sj')
+        dj = hostnames.get('dj')
+        sf = hostnames.get('sf')
+        mb = hostnames.get('mb')
+        hw = hostnames.get('hw')
+        hs = hostnames.get('hs')
+        fx = hostnames.get('fx')
+        nk = hostnames.get('nk')
         fc = hostnames.get('fc')
+
+        check_replace = [sj, dj, sf, mb, hw, hs, fx, nk, fc]
+        to_replace = []
+        for check_name in check_replace:
+            if check_name:
+                to_replace.append(" - " + check_name)
+                if " - " + check_name.replace("www.", "") not in to_replace:
+                    to_replace.append(" - " + check_name.replace("www.", ""))
+
         if request.method == 'GET':
             try:
                 payload = decode_base64(payload).split("|")
@@ -1198,6 +1215,11 @@ if (title) {
             if payload:
                 links = payload[0]
                 name = payload[1]
+                try:
+                    for r in to_replace:
+                        name = name.replace(r, "")
+                except:
+                    pass
                 try:
                     password = payload[2]
                 except:
