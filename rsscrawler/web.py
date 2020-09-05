@@ -27,6 +27,7 @@ from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import download
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import get_packages_in_linkgrabber
 from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
@@ -1189,7 +1190,24 @@ if (title) {
     def to_download(payload):
         global device
         hostnames = RssConfig('Hostnames', configfile)
+        sj = hostnames.get('sj')
+        dj = hostnames.get('dj')
+        sf = hostnames.get('sf')
+        mb = hostnames.get('mb')
+        hw = hostnames.get('hw')
+        hs = hostnames.get('hs')
+        fx = hostnames.get('fx')
+        nk = hostnames.get('nk')
         fc = hostnames.get('fc')
+
+        check_replace = [sj, dj, sf, mb, hw, hs, fx, nk, fc]
+        to_replace = []
+        for check_name in check_replace:
+            if check_name:
+                to_replace.append(" - " + check_name)
+                if " - " + check_name.replace("www.", "") not in to_replace:
+                    to_replace.append(" - " + check_name.replace("www.", ""))
+
         if request.method == 'GET':
             try:
                 payload = decode_base64(payload).split("|")
@@ -1198,6 +1216,11 @@ if (title) {
             if payload:
                 links = payload[0]
                 name = payload[1]
+                try:
+                    for r in to_replace:
+                        name = name.replace(r, "")
+                except:
+                    pass
                 try:
                     password = payload[2]
                 except:
@@ -1237,6 +1260,35 @@ if (title) {
 
                         remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
+                        packages = get_packages_in_linkgrabber(configfile, device)
+                        if packages:
+                            failed = packages[0]
+                            offline = packages[1]
+                            decrypted = packages[2]
+                            try:
+                                if failed:
+                                    for p in failed:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                                if offline:
+                                    for p in offline:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                                if decrypted:
+                                    for p in decrypted:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                            except:
+                                pass
                         remove_decrypt(name, dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)

@@ -14,6 +14,7 @@ from rsscrawler.notifiers import notify
 from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import check_hoster
 from rsscrawler.rsscommon import check_valid_release
+from rsscrawler.rsscommon import rreplace
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -129,21 +130,27 @@ class SF:
 
             is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', title)
             if is_episode:
-                episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0]
-                season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0]
-                season_title = title.replace(episode_string, '')
-                episode = str(int(episode_string.replace("E", "")))
-                season = str(int(season_string.replace("S", "")))
-                episode_name = re.findall(r'.*\.S\d{1,3}(\..*).German', season_title)
+                episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
+                season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
+                season_title = rreplace(title.lower().replace(episode_string, ''), "-", ".*", 1).lower()
+                episode = str(int(episode_string.replace("e", "")))
+                season = str(int(season_string.replace("s", "")))
+                episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title)
                 if episode_name:
                     season_title = season_title.replace(episode_name[0], '')
+                codec_tags = [".h264", ".x264"]
+                for tag in codec_tags:
+                    season_title = season_title.replace(tag, ".*264")
+                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                for tag in web_tags:
+                    season_title = season_title.replace(tag, ".web.*")
             else:
                 season = False
                 episode = False
                 season_title = title
 
             content = BeautifulSoup(info['html'], 'lxml')
-            releases = content.find("small", text=re.compile(season_title)).parent.parent.parent
+            releases = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
             links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
             valid = False
             for link in links:

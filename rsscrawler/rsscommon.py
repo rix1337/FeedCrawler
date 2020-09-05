@@ -347,6 +347,11 @@ def retail_sub(title):
     return retail, retailyear
 
 
+def rreplace(s, old, new, occurrence):
+    li = s.rsplit(old, occurrence)
+    return new.join(li)
+
+
 def sanitize(key):
     key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace('ä',
                                                                                                                   'ae').replace(
