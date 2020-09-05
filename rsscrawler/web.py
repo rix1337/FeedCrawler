@@ -27,6 +27,7 @@ from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import download
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
+from rsscrawler.myjd import get_packages_in_linkgrabber
 from rsscrawler.myjd import get_state
 from rsscrawler.myjd import jdownloader_pause
 from rsscrawler.myjd import jdownloader_start
@@ -1259,6 +1260,35 @@ if (title) {
 
                         remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
+                        packages = get_packages_in_linkgrabber(configfile, device)
+                        if packages:
+                            failed = packages[0]
+                            offline = packages[1]
+                            decrypted = packages[2]
+                            try:
+                                if failed:
+                                    for p in failed:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                                if offline:
+                                    for p in offline:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                                if decrypted:
+                                    for p in decrypted:
+                                        if name in p['name']:
+                                            linkids = p['linkids']
+                                            uuids = [p['uuid']]
+                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            break
+                            except:
+                                pass
                         remove_decrypt(name, dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
