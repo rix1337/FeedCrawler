@@ -51,11 +51,13 @@ from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import hoster_check
 from rsscrawler.myjd import move_to_downloads
+from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import is_device
+from rsscrawler.rsscommon import longest_substr
 from rsscrawler.rsscommon import readable_time
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import RssDb
@@ -218,16 +220,85 @@ def crawldog(configfile, dbfile):
                                     if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
-                                        if autostart:
-                                            device = move_to_downloads(configfile, device, package['linkids'],
-                                                                       [package['uuid']])
                                         if device:
                                             db.delete(title[0])
+
                             if packages_in_linkgrabber_decrypted:
                                 for package in packages_in_linkgrabber_decrypted:
                                     if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                         check = hoster_check(configfile, device, [package], title[0], [0])
                                         device = check[0]
+                                        episode = RssDb(dbfile, 'episode_remover').retrieve(title[0])
+                                        if episode:
+                                            filenames = package['filenames']
+                                            if len(filenames) > 1:
+                                                fname_episodes = []
+                                                for fname in filenames:
+                                                    try:
+                                                        if re.match(r'.*S\d{1,3}E\d{1,3}.*', fname,
+                                                                    flags=re.IGNORECASE):
+                                                            fname = re.findall(r'S\d{1,3}E(\d{1,3})', fname,
+                                                                               flags=re.IGNORECASE).pop()
+                                                        else:
+                                                            fname = fname.replace("hddl8", "").replace("dd51",
+                                                                                                       "").replace(
+                                                                "264", "").replace("265",
+                                                                                   "")
+                                                    except:
+                                                        fname = fname.replace("hddl8", "").replace("dd51", "").replace(
+                                                            "264", "").replace("265", "")
+                                                    fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
+                                                    try:
+                                                        fname_episodes.append(str(int(fname_episode)))
+                                                    except:
+                                                        pass
+                                                replacer = longest_substr(fname_episodes)
+
+                                                new_fname_episodes = []
+                                                for new_ep_fname in fname_episodes:
+                                                    try:
+                                                        new_fname_episodes.append(
+                                                            str(int(new_ep_fname.replace(replacer, ""))))
+                                                    except:
+                                                        pass
+                                                replacer = longest_substr(new_fname_episodes)
+
+                                                newer_fname_episodes = []
+                                                for new_ep_fname in new_fname_episodes:
+                                                    try:
+                                                        newer_fname_episodes.append(
+                                                            str(int(re.sub(replacer, "", new_ep_fname, 1))))
+                                                    except:
+                                                        pass
+
+                                                replacer = longest_substr(newer_fname_episodes)
+
+                                                even_newer_fname_episodes = []
+                                                for newer_ep_fname in newer_fname_episodes:
+                                                    try:
+                                                        even_newer_fname_episodes.append(
+                                                            str(int(re.sub(replacer, "", newer_ep_fname, 1))))
+                                                    except:
+                                                        pass
+
+                                                if even_newer_fname_episodes:
+                                                    fname_episodes = even_newer_fname_episodes
+                                                elif newer_fname_episodes:
+                                                    fname_episodes = newer_fname_episodes
+                                                elif new_fname_episodes:
+                                                    fname_episodes = new_fname_episodes
+
+                                                delete_linkids = []
+                                                pos = 0
+                                                for delete_id in package['linkids']:
+                                                    if str(episode) != str(fname_episodes[pos]):
+                                                        delete_linkids.append(delete_id)
+                                                    pos += 1
+                                                if delete_linkids:
+                                                    delete_uuids = [package['uuid']]
+                                                    RssDb(dbfile, 'episode_remover').delete(title[0])
+                                                    device = remove_from_linkgrabber(configfile, device, delete_linkids,
+                                                                                     delete_uuids)
                                         if autostart:
                                             device = move_to_downloads(configfile, device, package['linkids'],
                                                                        [package['uuid']])
@@ -240,6 +311,7 @@ def crawldog(configfile, dbfile):
                                         notify_list.append("[Offline] - " + title[0])
                                         print((u"[Offline] - " + title[0]))
                                         db.delete(title[0])
+
                             if encrypted_packages:
                                 for package in encrypted_packages:
                                     if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:

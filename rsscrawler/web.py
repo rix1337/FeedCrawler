@@ -42,6 +42,7 @@ from rsscrawler.rsscommon import Unbuffered
 from rsscrawler.rsscommon import decode_base64
 from rsscrawler.rsscommon import get_to_decrypt
 from rsscrawler.rsscommon import remove_decrypt
+from rsscrawler.rsscommon import rreplace
 from rsscrawler.rssconfig import RssConfig
 from rsscrawler.rssdb import ListDb
 from rsscrawler.rssdb import RssDb
@@ -1235,8 +1236,9 @@ if (title) {
                         links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                to_start = RssConfig('Crawljobs', configfile).get("autostart")
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=to_start)
+
+                RssDb(dbfile, 'crawldog').store(name, 'added')
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")
@@ -1260,36 +1262,60 @@ if (title) {
 
                         remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
+                        is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
+                        if not is_episode:
+                            re_name = rreplace(name.lower(), "-", ".*", 1)
+                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                            if season_string:
+                                re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                            codec_tags = [".h264", ".x264"]
+                            for tag in codec_tags:
+                                re_name = re_name.replace(tag, ".*264")
+                            web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                            for tag in web_tags:
+                                re_name = re_name.replace(tag, ".web.*")
+                            multigroup = re.findall(r'.*-((.*)\/(.*))', name.lower())
+                            if multigroup:
+                                re_name = re_name.replace(multigroup[0][0],
+                                                          '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+                        else:
+                            re_name = name
+
                         packages = get_packages_in_linkgrabber(configfile, device)
                         if packages:
                             failed = packages[0]
                             offline = packages[1]
-                            decrypted = packages[2]
                             try:
                                 if failed:
-                                    for p in failed:
-                                        if name in p['name']:
-                                            linkids = p['linkids']
-                                            uuids = [p['uuid']]
+                                    for package in failed:
+                                        if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            linkids = package['linkids']
+                                            uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
                                             break
                                 if offline:
-                                    for p in offline:
-                                        if name in p['name']:
-                                            linkids = p['linkids']
-                                            uuids = [p['uuid']]
-                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                            break
-                                if decrypted:
-                                    for p in decrypted:
-                                        if name in p['name']:
-                                            linkids = p['linkids']
-                                            uuids = [p['uuid']]
+                                    for package in offline:
+                                        if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            linkids = package['linkids']
+                                            uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
                                             break
                             except:
                                 pass
-                        remove_decrypt(name, dbfile)
+                        packages = get_to_decrypt(dbfile)
+                        if packages:
+                            for package in packages:
+                                if re.match(re.compile(re_name), package['name'].lower()):
+                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                    if episode:
+                                        RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                    remove_decrypt(package['name'], dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                     except:
