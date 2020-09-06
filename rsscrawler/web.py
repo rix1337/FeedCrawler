@@ -1236,8 +1236,9 @@ if (title) {
                         links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
                 except:
                     pass
-                to_start = RssConfig('Crawljobs', configfile).get("autostart")
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password, autostart=to_start)
+
+                RssDb(dbfile, 'crawldog').store(name, 'added')
+                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")
@@ -1288,6 +1289,9 @@ if (title) {
                                 if failed:
                                     for package in failed:
                                         if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                             linkids = package['linkids']
                                             uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
@@ -1295,6 +1299,9 @@ if (title) {
                                 if offline:
                                     for package in offline:
                                         if re.match(re.compile(re_name), package['name'].lower()):
+                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                            if episode:
+                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                             linkids = package['linkids']
                                             uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
@@ -1305,6 +1312,9 @@ if (title) {
                         if packages:
                             for package in packages:
                                 if re.match(re.compile(re_name), package['name'].lower()):
+                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                    if episode:
+                                        RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                     remove_decrypt(package['name'], dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)

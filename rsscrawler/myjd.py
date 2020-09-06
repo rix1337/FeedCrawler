@@ -924,11 +924,10 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
 
             if even_newer_fname_episodes:
                 fname_episodes = even_newer_fname_episodes
-            elif not newer_fname_episodes:
-                if new_fname_episodes:
-                    fname_episode = new_fname_episodes
-            else:
+            elif newer_fname_episodes:
                 fname_episodes = newer_fname_episodes
+            elif new_fname_episodes:
+                fname_episodes = new_fname_episodes
 
             i = 0
             for dp in decrypted_packages:
