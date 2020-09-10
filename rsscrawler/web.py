@@ -51,6 +51,8 @@ from rsscrawler.rssdb import RssDb
 def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address):
     global device
     device = _device
+    global helper_active
+    helper_active = False
 
     base_dir = '.'
     if getattr(sys, 'frozen', False):
@@ -449,6 +451,7 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "ver": ver,
                         "update_ready": updateready,
                         "docker": docker,
+                        "helper_active": helper_active
                     }
                 }
             )
@@ -1140,6 +1143,8 @@ if (title) {
     @app.route(prefix + "/sponsors_helper/", methods=['GET'])
     @requires_auth
     def to_decrypt():
+        global helper_active
+        helper_active = True
         if request.method == 'GET':
             return render_template('helper.html')
         else:
@@ -1316,6 +1321,7 @@ if (title) {
                                     if episode:
                                         RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                     remove_decrypt(package['name'], dbfile)
+                        remove_decrypt(name, dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                     except:

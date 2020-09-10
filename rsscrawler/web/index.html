@@ -476,6 +476,12 @@
                             href="https://gitter.im/RSScrawler/Lobby" target="_blank">Gitter</a>.</p>
                 <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account beim
                     unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
+                <span>
+                    <i ng-if="!helper_active" class="fas fa-lightbulb text-danger"
+                       title="Kein RSScrawler Sponsors Helper aktiv!"></i>
+                    <i ng-if="helper_active" class="far fa-lightbulb text-success"
+                       title="RSScrawler Sponsors Helper aktiv"></i>
+                </span>
             </div>
         </div>
     </div>
