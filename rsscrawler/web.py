@@ -1316,6 +1316,7 @@ if (title) {
                                     if episode:
                                         RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                     remove_decrypt(package['name'], dbfile)
+                        remove_decrypt(name, dbfile)
                     try:
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                     except:
