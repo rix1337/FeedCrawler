@@ -8,13 +8,13 @@ import time
 from rapidfuzz import fuzz
 
 import rsscrawler.myjdapi
-from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import is_device
-from rsscrawler.rsscommon import longest_substr
-from rsscrawler.rsscommon import readable_size
-from rsscrawler.rsscommon import readable_time
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import RssDb
+from rsscrawler.common import check_hoster
+from rsscrawler.common import is_device
+from rsscrawler.common import longest_substr
+from rsscrawler.common import readable_size
+from rsscrawler.common import readable_time
+from rsscrawler.config import RssConfig
+from rsscrawler.db import RssDb
 
 
 def split_urls(urls):
@@ -466,9 +466,9 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
 
         if isinstance(old_links, list):
             links = []
-            for l in old_links:
-                if l not in links:
-                    links.append(l)
+            for link in old_links:
+                if link not in links:
+                    links.append(link)
         else:
             links = [old_links]
 
@@ -816,8 +816,8 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
         i = 0
         for dp in decrypted_packages:
             linkids = dp['linkids']
-            for l in linkids:
-                delete_linkids.append(l)
+            for link in linkids:
+                delete_linkids.append(link)
             uuid = dp['uuid']
             delete_uuids.append(uuid)
             if uuid not in known_packages:
@@ -932,8 +932,8 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                for l in linkids:
-                    delete_linkids.append(l)
+                for link in linkids:
+                    delete_linkids.append(link)
                 uuid = dp['uuid']
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
@@ -959,8 +959,8 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
             i = 0
             for dp in decrypted_packages:
                 linkids = dp['linkids']
-                for l in linkids:
-                    delete_linkids.append(l)
+                for link in linkids:
+                    delete_linkids.append(link)
                 uuid = dp['uuid']
                 delete_uuids.append(uuid)
                 if uuid not in known_packages:
@@ -1027,13 +1027,13 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
             if ratio > 55:
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
-                for l in dp['linkids']:
-                    mergable_linkids.append(l)
+                for link in dp['linkids']:
+                    mergable_linkids.append(link)
             elif "Verschiedene Dateien" in dp['name'] or "Various files" in dp['name']:
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
-                for l in dp['linkids']:
-                    mergable_linkids.append(l)
+                for link in dp['linkids']:
+                    mergable_linkids.append(link)
 
     mergable.append([mergable_titles, mergable_uuids, mergable_linkids])
     mergable.sort()

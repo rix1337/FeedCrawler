@@ -8,8 +8,8 @@ import re
 import feedparser
 from bs4 import BeautifulSoup
 
-from rsscrawler.rsscommon import rreplace
-from rsscrawler.rssconfig import RssConfig
+from rsscrawler.common import rreplace
+from rsscrawler.config import RssConfig
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 

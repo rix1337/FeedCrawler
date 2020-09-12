@@ -11,16 +11,16 @@ from urllib.request import urlopen, Request
 
 import simplejson as json
 
-from rsscrawler.rssconfig import RssConfig
+from rsscrawler.config import RssConfig
 
 log_info = logging.info
 log_error = logging.error
 log_debug = logging.debug
 
 
-def api_request_cutter(l, n):
-    for i in range(0, len(l), n):
-        yield l[i:i + n]
+def api_request_cutter(message, n):
+    for i in range(0, len(message), n):
+        yield message[i:i + n]
 
 
 def notify(items, configfile):
@@ -42,8 +42,8 @@ def notify(items, configfile):
         if len(notifications.get("telegram")) > 0:
             for cut_item in cut_items:
                 telegram_token = telegram_settings[0]
-                telegram_chatId = telegram_settings[1]
-                telegram(cut_item, telegram_token, telegram_chatId)
+                telegram_chatid = telegram_settings[1]
+                telegram(cut_item, telegram_token, telegram_chatid)
         if len(notifications.get('pushover')) > 0:
             for cut_item in cut_items:
                 pushover_user = pushover_settings[0]

@@ -10,6 +10,16 @@ import cloudscraper
 from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
 
+from rsscrawler.common import add_decrypt
+from rsscrawler.common import check_hoster
+from rsscrawler.common import check_is_site
+from rsscrawler.common import decode_base64
+from rsscrawler.common import encode_base64
+from rsscrawler.common import is_retail
+from rsscrawler.common import sanitize
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 from rsscrawler.fakefeed import fx_content_to_soup
 from rsscrawler.fakefeed import fx_download_links
 from rsscrawler.fakefeed import fx_search_results
@@ -17,16 +27,6 @@ from rsscrawler.fakefeed import hs_search_results
 from rsscrawler.fakefeed import nk_search_results
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
-from rsscrawler.rsscommon import add_decrypt
-from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import check_is_site
-from rsscrawler.rsscommon import decode_base64
-from rsscrawler.rsscommon import encode_base64
-from rsscrawler.rsscommon import is_retail
-from rsscrawler.rsscommon import sanitize
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
@@ -699,7 +699,7 @@ def download_sj(payload, configfile, dbfile):
         list_title = sanitize(title)
         if not cont:
             cont = ""
-        if not list_title in cont:
+        if list_title not in cont:
             ListDb(dbfile, liste).store(list_title)
 
     config = RssConfig('SJ', configfile)

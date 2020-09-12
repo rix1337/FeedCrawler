@@ -9,9 +9,9 @@ import re
 import socket
 
 from rsscrawler import myjdapi
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 
 log_info = logging.info
 log_error = logging.error
@@ -219,27 +219,6 @@ def encode_base64(value):
     return base64.b64encode(value.encode("utf-8")).decode().replace("/", "-")
 
 
-def entfernen(retailtitel, identifier, dbfile):
-    titles = retail_sub(retailtitel)
-    retail = titles[0]
-    retailyear = titles[1]
-    if identifier == '2':
-        liste = "MB_3D"
-    else:
-        liste = "MB_Filme"
-    cont = ListDb(dbfile, liste).retrieve()
-    new_cont = []
-    if cont:
-        for line in cont:
-            if line.lower() == retailyear.lower() or line.lower() == retail.lower():
-                line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '',
-                              line.lower())
-            if line:
-                new_cont.append(line)
-    ListDb(dbfile, liste).store_list(new_cont)
-    log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
-
-
 def fullhd_title(key):
     return key.replace("720p", "DL.1080p")
 
@@ -285,7 +264,7 @@ def is_retail(key, identifier, dbfile):
     if retailfinder:
         # If these are False, just a retail check is desired
         if identifier and dbfile:
-            entfernen(key, identifier, dbfile)
+            remove(key, identifier, dbfile)
         return True
     else:
         return False
@@ -326,6 +305,27 @@ def readable_time(time):
     if len(time) == 7:
         time = "0" + time
     return time
+
+
+def remove(retailtitel, identifier, dbfile):
+    titles = retail_sub(retailtitel)
+    retail = titles[0]
+    retailyear = titles[1]
+    if identifier == '2':
+        liste = "MB_3D"
+    else:
+        liste = "MB_Filme"
+    cont = ListDb(dbfile, liste).retrieve()
+    new_cont = []
+    if cont:
+        for line in cont:
+            if line.lower() == retailyear.lower() or line.lower() == retail.lower():
+                line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '',
+                              line.lower())
+            if line:
+                new_cont.append(line)
+    ListDb(dbfile, liste).store_list(new_cont)
+    log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
 def remove_decrypt(title, dbfile):

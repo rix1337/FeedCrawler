@@ -31,8 +31,13 @@
         </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
-    <a href="https://github.com/users/rix1337/sponsorship" target="_blank" title="Einfach über Github Sponsorship..."
+    <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+       title="Einfach über Github Sponsorship..."
        class="btn btn-dark" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Bedanken</a>
+    <a ng-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+       title="Vielen Dank für die aktive Github Sponsorship!"
+       class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Aktiver Sponsor</a>
+
 </div>
 
 
@@ -465,18 +470,24 @@
         </div>
         <div id="collapseZeroZero" class="collapse" aria-labelledby="headingZeroZero" data-parent="#help">
             <div class="card-body">
-                <br>Der RSScrawler Sponsors Helper ist ein Docker-Image das {{ !!hostnames.sj ? hostnames.sj : 'SJ'
-                }}-Captchas vollständig selbst löst und dem
-                RSScrawler entschlüsselt übergibt.</br>
-                Perspektivisch wird der Helper auch die Captchas auf {{ !!hostnames.fc ? hostnames.fc : 'FC' }}
-                lösen.</p>
-                <p>Aufgrund des Pflegeaufwandes erhalten nur <a href="https://github.com/users/rix1337/sponsorship"
-                                                                target="_blank">Sponsoren</a> Zugriff darauf.</br>
-                    Freischaltung unter Angabe der eigenen Docker-ID per PN auf <a
+                <p>Der RSScrawler Sponsors Helper ist ein Docker-Image das {{ !!hostnames.sj ? hostnames.sj : 'SJ'
+                    }}-Captchas vollständig selbst löst und dem
+                    RSScrawler entschlüsselt übergibt.</br>
+                    Captchas von {{ !!hostnames.fc ? hostnames.fc : 'FC' }} lassen sich bequem per Webinterface/VNC
+                    lösen.
+                    Das Entschlüsseln und die Übergabe der Links übernimmt der RSScrawler Sponsors Helper ebenfalls
+                    vollautomatisch.</br>
+                    Perspektivisch soll der Helper auch die Captchas auf {{ !!hostnames.fc ? hostnames.fc : 'FC' }}
+                    lösen.</p>
+                <p>Aufgrund des Pflegeaufwandes erhalten nur aktive <a
+                        href="https://github.com/users/rix1337/sponsorship"
+                        target="_blank">Sponsoren</a> Zugriff darauf.</br>
+                    Die Freischaltung erfolgt unter Angabe der eigenen Docker-ID per PN auf <a
                             href="https://gitter.im/RSScrawler/Lobby" target="_blank">Gitter</a>.</p>
                 <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account beim
                     unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
                 <span>
+                    Status:
                     <i ng-if="!helper_active" class="fas fa-lightbulb text-danger"
                        title="Kein RSScrawler Sponsors Helper aktiv!"></i>
                     <i ng-if="helper_active" class="far fa-lightbulb text-success"
@@ -1381,7 +1392,7 @@
 <script src="js/angular.min.js"></script>
 <script src="js/angular-locale_de-de.js"></script>
 <script src="js/fontawesome-all.min.js"></script>
-<script src="js/rsscrawler.js?major_update"></script>
+<script src="js/rsscrawler.js"></script>
 </body>
 
 </html>{% endraw %}

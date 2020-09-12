@@ -9,15 +9,15 @@ import re
 
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import add_decrypt
+from rsscrawler.common import check_hoster
+from rsscrawler.common import check_valid_release
+from rsscrawler.common import rreplace
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 from rsscrawler.fakefeed import sf_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
-from rsscrawler.rsscommon import add_decrypt
-from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import check_valid_release
-from rsscrawler.rsscommon import rreplace
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -313,7 +313,7 @@ class SF:
                             language_id = 0
                         if language_id:
                             m = re.search(self.pattern, title.lower())
-                            if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
                                 m = re.search(self.pattern.replace(
                                     "480p", "."), title.lower())
                                 self.quality = "480p"
@@ -346,7 +346,7 @@ class SF:
                             language_id = 0
                         if language_id:
                             m = re.search(self.pattern, title.lower())
-                            if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
                                 m = re.search(self.pattern.replace(
                                     "480p", "."), title.lower())
                                 self.quality = "480p"

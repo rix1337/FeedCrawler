@@ -21,6 +21,14 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from rsscrawler import search
 from rsscrawler import version
+from rsscrawler.common import Unbuffered
+from rsscrawler.common import decode_base64
+from rsscrawler.common import get_to_decrypt
+from rsscrawler.common import remove_decrypt
+from rsscrawler.common import rreplace
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
@@ -38,17 +46,9 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.notifiers import notify
-from rsscrawler.rsscommon import Unbuffered
-from rsscrawler.rsscommon import decode_base64
-from rsscrawler.rsscommon import get_to_decrypt
-from rsscrawler.rsscommon import remove_decrypt
-from rsscrawler.rsscommon import rreplace
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 
 
-def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
     global device
     device = _device
     global helper_active
@@ -146,8 +146,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         line = line.replace("[", "")
                         line = re.sub(r",\d{3}", "", line)
                         line = line.split(" - ")
-                        for l in line:
-                            payload.append(l)
+                        for line_part in line:
+                            payload.append(line_part)
                         log.append(payload)
                     i += 1
             return jsonify(
@@ -1164,27 +1164,11 @@ if (title) {
                 decrypt_name = decrypt["name"]
                 decrypt_url = decrypt["url"] + "#" + decrypt_name + "|" + decrypt["password"]
 
-            failed_name = False
-            failed_url = False
-            failed = get_info(configfile, device)
-            if failed:
-                device = failed[0]
-                failed_packages = failed[4][3]
-                if failed_packages:
-                    failed = failed_packages[0]
-                    failed_name = failed["name"]
-                    failed_url = failed["url"] + "#" + failed_name + "|" + "|" + str(failed["linkids"]) + ";" + str(
-                        failed["uuid"])
-
             return jsonify(
                 {
                     "to_decrypt": {
                         "name": decrypt_name,
                         "url": decrypt_url,
-                    },
-                    "failed": {
-                        "name": failed_name,
-                        "url": failed_url,
                     }
                 }
             )
@@ -1338,7 +1322,7 @@ if (title) {
     http_server.serve_forever()
 
 
-def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device, local_address):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('rsscrawler')
@@ -1372,4 +1356,4 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device)

@@ -7,6 +7,14 @@ import re
 
 import feedparser
 
+from rsscrawler.common import check_hoster
+from rsscrawler.common import check_valid_release
+from rsscrawler.common import fullhd_title
+from rsscrawler.common import is_hevc
+from rsscrawler.common import is_retail
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 from rsscrawler.fakefeed import fx_download_links
 from rsscrawler.fakefeed import fx_feed_enricher
 from rsscrawler.fakefeed import hs_feed_enricher
@@ -16,14 +24,6 @@ from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
-from rsscrawler.rsscommon import check_hoster
-from rsscrawler.rsscommon import check_valid_release
-from rsscrawler.rsscommon import fullhd_title
-from rsscrawler.rsscommon import is_hevc
-from rsscrawler.rsscommon import is_retail
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
 from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
@@ -483,7 +483,7 @@ class BL:
                             else:
                                 password = self.nk.split('.')[0].capitalize()
 
-                            if not "FX" in site:
+                            if "FX" not in site:
                                 download_pages = self.get_download_links(content)
                             else:
                                 download_pages = fx_download_links(content, post.title, self.configfile)
@@ -679,7 +679,7 @@ class BL:
                                     post.title + " - Release hat falsche Quelle")
                                 continue
                             if ".complete." not in post.title.lower():
-                                if not "FX" in site:
+                                if "FX" not in site:
                                     self.log_debug(
                                         post.title + " - Staffel noch nicht komplett")
                                     continue
@@ -728,16 +728,22 @@ class BL:
     def hevc_download(self, title, password):
         search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
-        search_results = [feedparser.parse(
-            get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
-                              self.configfile, self.dbfile, self.scraper), feedparser.parse(
+        search_results = []
+        if self.mb:
+            search_results.append(feedparser.parse(
+                get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile, self.scraper)))
+        if self.hw:
+            search_results.append(feedparser.parse(
+                get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile, self.scraper)))
+        if self.hs:
+            search_results.append(hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
+                                                    self.configfile, self.dbfile, self.scraper))
+        if self.fx:
+            search_results.append(feedparser.parse(
                 get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper))]
-        # TODO: Add NK
+                        self.configfile, self.dbfile, self.scraper)))
 
         i = 0
         for content in search_results:
@@ -897,16 +903,22 @@ class BL:
         feedsearch_title = \
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0]
-        search_results = [feedparser.parse(
-            get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)), feedparser.parse(
-            get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)),
-            hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
-                              self.configfile, self.dbfile, self.scraper), feedparser.parse(
+        search_results = []
+        if self.mb:
+            search_results.append(feedparser.parse(
+                get_url('https://' + self.mb + '/search/' + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile, self.scraper)))
+        if self.hw:
+            search_results.append(feedparser.parse(
+                get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
+                        self.configfile, self.dbfile, self.scraper)))
+        if self.hs:
+            search_results.append(hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
+                                                    self.configfile, self.dbfile, self.scraper))
+        if self.fx:
+            search_results.append(feedparser.parse(
                 get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper))]
-        # TODO: Add NK
+                        self.configfile, self.dbfile, self.scraper)))
 
         i = 0
         for content in search_results:
@@ -1128,7 +1140,7 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                         return
-        if not "FX" in site:
+        if "FX" not in site:
             download_links = self.get_download_links(content)
         else:
             download_links = fx_download_links(content, key, self.configfile)

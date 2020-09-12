@@ -3,14 +3,14 @@
 # Projekt von https://github.com/rix1337
 
 import re
-from distutils.version import StrictVersion as version
+from distutils.version import StrictVersion
 from urllib.request import urlopen
 
 from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "8.1.2"
+    return "8.2.0"
 
 
 def create_version_file():
@@ -54,7 +54,7 @@ def update_check():
         latest = urlopen('https://github.com/rix1337/RSScrawler/releases/latest').read()
         latest_title = BeautifulSoup(latest, 'lxml').find("title").text
         onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title).group()
-        if version(localversion) < version(onlineversion):
+        if StrictVersion(localversion) < StrictVersion(onlineversion):
             update = True
         else:
             update = False

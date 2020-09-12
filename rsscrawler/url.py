@@ -4,12 +4,12 @@
 
 import concurrent.futures
 
-import requests
 import cloudscraper
+import requests
 
-from rsscrawler.rsscommon import check_is_site
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import RssDb
+from rsscrawler.common import check_is_site
+from rsscrawler.config import RssConfig
+from rsscrawler.db import RssDb
 
 
 def check_url(configfile, dbfile, scraper=False):
