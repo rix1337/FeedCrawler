@@ -56,6 +56,7 @@ from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
 from rsscrawler.rsscommon import Unbuffered
+from rsscrawler.rsscommon import add_decrypt
 from rsscrawler.rsscommon import is_device
 from rsscrawler.rsscommon import longest_substr
 from rsscrawler.rsscommon import readable_time
@@ -322,6 +323,9 @@ def crawldog(configfile, dbfile):
                                                 db.delete(title[0])
                                                 db.store(title[0], 'retried')
                                         else:
+                                            add_decrypt(package['name'], package['url'], "", dbfile)
+                                            device = remove_from_linkgrabber(configfile, device, package['linkids'],
+                                                                             [package['uuid']])
                                             notify_list.append("[Click'n'Load notwendig] - " + title[0])
                                             print(u"[Click'n'Load notwendig] - " + title[0])
                                             db.delete(title[0])

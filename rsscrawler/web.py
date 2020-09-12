@@ -1164,27 +1164,11 @@ if (title) {
                 decrypt_name = decrypt["name"]
                 decrypt_url = decrypt["url"] + "#" + decrypt_name + "|" + decrypt["password"]
 
-            failed_name = False
-            failed_url = False
-            failed = get_info(configfile, device)
-            if failed:
-                device = failed[0]
-                failed_packages = failed[4][3]
-                if failed_packages:
-                    failed = failed_packages[0]
-                    failed_name = failed["name"]
-                    failed_url = failed["url"] + "#" + failed_name + "|" + "|" + str(failed["linkids"]) + ";" + str(
-                        failed["uuid"])
-
             return jsonify(
                 {
                     "to_decrypt": {
                         "name": decrypt_name,
                         "url": decrypt_url,
-                    },
-                    "failed": {
-                        "name": failed_name,
-                        "url": failed_url,
                     }
                 }
             )

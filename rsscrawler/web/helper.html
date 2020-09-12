@@ -6,26 +6,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
     <link href="../img/favicon.ico" rel="icon" type="image/x-icon">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/rsscrawler.css">
 
     <title>RSScrawler Sponsors Helper</title>
 </head>
 
 <body ng-cloak class="text-center">
+<div id="head" class="container app col">
+    <h1>
+        <i class="fas fa-rss"></i> RSScrawler Sponsors Helper</h1>
+    <span class="btn btn-outline-success disabled" ng-if="!to_decrypt.url && !to_decrypt.name">Keine verschlüsselten Links vorhanden</span>
 
-<span ng-if="!to_decrypt.url && !to_decrypt.name && !failed.url && !failed.name">Nothing to decrypt</span>
-
-<p>
-    <a ng-if="to_decrypt.url && to_decrypt.name" ng-href="{{ to_decrypt.url }}" target="_blank">[SJ] {{ to_decrypt.name
+    <a class="btn btn-outline-danger" ng-if="to_decrypt.url && to_decrypt.name" ng-href="{{ to_decrypt.url }}"
+       target="_blank">{{ to_decrypt.name
         }}</a>
-</p>
-
-<p>
-    <a ng-if="failed.url && failed.name" ng-href="{{ failed.url }}" target="_blank">[FC] {{ failed.name }}</a>
-</p>
-
+</div>
 <script src="../js/jquery.slim.min.js"></script>
 <script src="../js/angular.min.js"></script>
 <script src="../js/helper.js"></script>
+<script src="../js/fontawesome-all.min.js"></script>
 </body>
 
 </html>{% endraw %}

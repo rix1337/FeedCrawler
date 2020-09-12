@@ -7,22 +7,14 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
             url: false
         };
 
-        $scope.failed = {
-            name: false,
-            url: false
-        };
-
         $scope.current_to_decrypt = "";
-        $scope.current_failed = "";
 
         $scope.wnd_to_decrypt = false;
-        $scope.wnd_failed = false;
 
         function getToDecrypt() {
             $http.get('./api/to_decrypt/')
                 .then(function (res) {
                     $scope.to_decrypt = res.data.to_decrypt;
-                    $scope.failed = res.data.failed;
                     startToDecrypt()
                 }, function (res) {
                     console.log('[RSScrawler Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!');
@@ -37,15 +29,6 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                 if ($scope.to_decrypt.name && $scope.to_decrypt.url) {
                     $scope.current_to_decrypt = $scope.to_decrypt.name
                     $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
-                }
-            }
-            if ($scope.failed.name !== $scope.current_failed) {
-                if ($scope.wnd_failed) {
-                    $scope.wnd_failed.close();
-                }
-                if ($scope.failed.name && $scope.failed.url) {
-                    $scope.current_failed = $scope.failed.name
-                    $scope.wnd_failed = window.open($scope.failed.url);
                 }
             }
         }
