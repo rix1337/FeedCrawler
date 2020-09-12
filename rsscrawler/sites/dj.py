@@ -234,7 +234,7 @@ class DJ:
                             language_id = 0
                         if language_id:
                             m = re.search(self.pattern, title.lower())
-                            if not m and not "720p" in title and not "1080p" in title and not "2160p" in title:
+                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
                                 m = re.search(self.pattern.replace(
                                     "480p", "."), title.lower())
                                 self.quality = "480p"

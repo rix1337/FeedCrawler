@@ -699,7 +699,7 @@ def download_sj(payload, configfile, dbfile):
         list_title = sanitize(title)
         if not cont:
             cont = ""
-        if not list_title in cont:
+        if list_title not in cont:
             ListDb(dbfile, liste).store(list_title)
 
     config = RssConfig('SJ', configfile)

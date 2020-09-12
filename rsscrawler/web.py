@@ -48,7 +48,7 @@ from rsscrawler.myjd import update_jdownloader
 from rsscrawler.notifiers import notify
 
 
-def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address):
+def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device):
     global device
     device = _device
     global helper_active
@@ -146,8 +146,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         line = line.replace("[", "")
                         line = re.sub(r",\d{3}", "", line)
                         line = line.split(" - ")
-                        for l in line:
-                            payload.append(l)
+                        for line_part in line:
+                            payload.append(line_part)
                         log.append(payload)
                     i += 1
             return jsonify(
@@ -1322,7 +1322,7 @@ if (title) {
     http_server.serve_forever()
 
 
-def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device, local_address):
+def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _device):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('rsscrawler')
@@ -1356,4 +1356,4 @@ def start(port, docker, configfile, dbfile, log_level, log_file, log_format, _de
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device, local_address)
+    app_container(port, docker, configfile, dbfile, log_file, no_logger, _device)

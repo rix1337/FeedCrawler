@@ -11,6 +11,7 @@ try:
         long_description = f.read()
 except:
     import io
+
     long_description = io.open('README.md', encoding='utf-8').read()
 
 with open('requirements.txt') as f:
@@ -38,5 +39,5 @@ setuptools.setup(
         'console_scripts': [
             'rsscrawler = rsscrawler.crawler:main',
         ],
-},
+    },
 )

@@ -509,7 +509,8 @@ class Linkgrabber:
             "saveTo": True,
             "startAt": 0,
             "status": True
-        }]):
+        }
+    ]):
         """
         Get the links in the linkgrabber list
         """
@@ -540,24 +541,24 @@ class Toolbar:
         self.device = device
         self.url = "/toolbar"
 
-    def get_status(self, params=None):
+    def get_status(self):
         resp = self.device.action(self.url + "/getStatus")
         return resp
 
-    def status_downloadSpeedLimit(self):
+    def status_downloadspeedlimit(self):
         self.status = self.get_status()
         if self.status['limit']:
             return 1
         else:
             return 0
 
-    def enable_downloadSpeedLimit(self):
-        self.limit_enabled = self.status_downloadSpeedLimit()
+    def enable_downloadspeedlimit(self):
+        self.limit_enabled = self.status_downloadspeedlimit()
         if not self.limit_enabled:
             self.device.action(self.url + "/toggleDownloadSpeedLimit")
 
-    def disable_downloadSpeedLimit(self):
-        self.limit_enabled = self.status_downloadSpeedLimit()
+    def disable_downloadspeedlimit(self):
+        self.limit_enabled = self.status_downloadspeedlimit()
         if self.limit_enabled:
             self.device.action(self.url + "/toggleDownloadSpeedLimit")
 
@@ -772,8 +773,7 @@ class Jddevice:
                         conn['cooldown'] = time.time() + 60
             # None of the direct connections worked, we set a cooldown for direct connections
             self.__direct_connection_consecutive_failures += 1
-            self.__direct_connection_cooldown = time.time() + \
-                                                (60 * self.__direct_connection_consecutive_failures)
+            self.__direct_connection_cooldown = time.time() + (60 * self.__direct_connection_consecutive_failures)
             # None of the direct connections worked, we use the My.JDownloader api
             response = self.myjd.request_api(path, http_action, params,
                                              action_url)
@@ -839,8 +839,8 @@ class Myjdapi:
 
         """
         secret_hash = hashlib.sha256()
-        secret_hash.update(email.lower().encode('utf-8') \
-                           + password.encode('utf-8') \
+        secret_hash.update(email.lower().encode('utf-8')
+                           + password.encode('utf-8')
                            + domain.lower().encode('utf-8'))
         return secret_hash.digest()
 
@@ -1047,13 +1047,13 @@ class Myjdapi:
             query += ["rid=" + str(self.__request_id)]
             if self.__server_encryption_token is None:
                 query += [
-                    "signature=" \
+                    "signature="
                     + str(self.__signature_create(self.__login_secret,
                                                   query[0] + "&".join(query[1:])))
                 ]
             else:
                 query += [
-                    "signature=" \
+                    "signature="
                     + str(self.__signature_create(self.__server_encryption_token,
                                                   query[0] + "&".join(query[1:])))
                 ]
@@ -1107,7 +1107,7 @@ class Myjdapi:
                         timeout=3,
                         verify=False)
                     print("Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
-                except requests.exceptions.RequestException as e:
+                except requests.exceptions.RequestException:
                     return None
         if encrypted_response.status_code == 403:
             raise TokenExpiredException
