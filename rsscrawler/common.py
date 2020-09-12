@@ -9,9 +9,9 @@ import re
 import socket
 
 from rsscrawler import myjdapi
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import ListDb
-from rsscrawler.rssdb import RssDb
+from rsscrawler.config import RssConfig
+from rsscrawler.db import ListDb
+from rsscrawler.db import RssDb
 
 log_info = logging.info
 log_error = logging.error

@@ -5,9 +5,9 @@
 import os
 import sys
 
+from rsscrawler.config import RssConfig
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
-from rsscrawler.rssconfig import RssConfig
 
 
 def config(configpath):

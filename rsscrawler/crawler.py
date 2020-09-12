@@ -43,9 +43,16 @@ from docopt import docopt
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
+from rsscrawler import common
 from rsscrawler import files
-from rsscrawler import rsscommon
 from rsscrawler import version
+from rsscrawler.common import Unbuffered
+from rsscrawler.common import add_decrypt
+from rsscrawler.common import is_device
+from rsscrawler.common import longest_substr
+from rsscrawler.common import readable_time
+from rsscrawler.config import RssConfig
+from rsscrawler.db import RssDb
 from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
@@ -55,13 +62,6 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
-from rsscrawler.rsscommon import Unbuffered
-from rsscrawler.rsscommon import add_decrypt
-from rsscrawler.rsscommon import is_device
-from rsscrawler.rsscommon import longest_substr
-from rsscrawler.rsscommon import readable_time
-from rsscrawler.rssconfig import RssConfig
-from rsscrawler.rssdb import RssDb
 from rsscrawler.sites.bl import BL
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
@@ -463,7 +463,7 @@ def main():
         prefix = '/' + rsscrawler.get("prefix")
     else:
         prefix = ''
-    local_address = 'http://' + rsscommon.check_ip() + ':' + str(port) + prefix
+    local_address = 'http://' + common.check_ip() + ':' + str(port) + prefix
     if not arguments['--docker']:
         print(u'Der Webserver ist erreichbar unter ' + local_address)
 

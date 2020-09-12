@@ -11,7 +11,7 @@ from urllib.request import urlopen, Request
 
 import simplejson as json
 
-from rsscrawler.rssconfig import RssConfig
+from rsscrawler.config import RssConfig
 
 log_info = logging.info
 log_error = logging.error
