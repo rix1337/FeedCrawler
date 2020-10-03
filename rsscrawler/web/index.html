@@ -120,13 +120,15 @@
                                         <div class="progress-bar progress-bar-striped progress-bar-animated"
                                              role="progressbar"
                                              aria-valuenow="x.percentage" aria-valuemin="0" aria-valuemax="100"
-                                             ng-style="{ 'width': x.percentage + '%' }">
+                                             ng-style="{ 'width': x.percentage + '%' }"
+                                             ng-class="{'bg-info': x.eta_ext}">
                                             <div id="percentage"><span ng-bind="x.percentage"></span> %</div>
                                         </div>
                                     </div>
                                 </li>
-                                <li class="list-group-item"><span ng-bind="x.speed"></span> - <span
-                                        ng-bind="x.eta"></span>
+                                <li class="list-group-item"><span ng-bind="x.speed"></span><span ng-if="x.eta_ext">Entpacken</span>
+                                    - <span
+                                            ng-bind="x.eta"></span><span ng-if="x.eta_ext" ng-bind="x.eta_ext"></span>
                                 </li>
                             </ul>
                             <ul class="list-group list-group-flush">
