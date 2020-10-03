@@ -243,8 +243,8 @@ def check_packages_types(links, packages, configfile, device):
                     eta_ext = eta_ext[0].replace("d", "").replace("m", "").replace("s", "")
                 if len(eta_ext) == 5:
                     eta_ext = "00:" + eta_ext
-                    if len(eta_ext) == 5:
-                        eta_ext = "00:" + eta_ext
+                elif len(eta_ext) == 2:
+                    eta_ext = "00:00:" + eta_ext
         if package_failed:
             package_offline = False
         if package_failed and not package_offline and len(urls) == 1:
