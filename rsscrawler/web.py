@@ -1227,7 +1227,6 @@ if (title) {
                     pass
 
                 RssDb(dbfile, 'crawldog').store(name, 'added')
-                device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                 if device:
                     if ids:
                         ids = ids.replace("%20", "").split(";")
@@ -1254,6 +1253,7 @@ if (title) {
                         is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
                         if not is_episode:
                             re_name = rreplace(name.lower(), "-", ".*", 1)
+                            re_name = re_name.replace(".untouched", "")
                             season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
                             if season_string:
                                 re_name = re_name.replace(season_string[0], season_string[0] + '.*')
@@ -1269,6 +1269,12 @@ if (title) {
                                                           '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
                         else:
                             re_name = name
+                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+
+                        if season_string:
+                            season_string = season_string[0].replace("s", "S")
+                        else:
+                            season_string = "^unmatchable$"
 
                         packages = get_packages_in_linkgrabber(configfile, device)
                         if packages:
@@ -1300,13 +1306,20 @@ if (title) {
                         packages = get_to_decrypt(dbfile)
                         if packages:
                             for package in packages:
-                                if re.match(re.compile(re_name), package['name'].lower()):
+                                if re.match(re.compile(re_name), package['name'].lower().replace(".untouched", "")):
                                     episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                    remove_decrypt(package['name'], dbfile)
                                     if episode:
                                         RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
-                                    remove_decrypt(package['name'], dbfile)
+                                        episode = str(episode[0])
+                                        if len(episode) == 1:
+                                            episode = "0" + episode
+                                        name = name.replace(season_string + ".",
+                                                            season_string + "E" + episode + ".")
+                                        break
                         remove_decrypt(name, dbfile)
                     try:
+                        device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
                         notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")

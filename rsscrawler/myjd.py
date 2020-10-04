@@ -233,9 +233,18 @@ def check_packages_types(links, packages, configfile, device):
             if h == 'linkcrawlerretry':
                 package_failed = True
         status = package.get('status')
+        eta_ext = False
         if status:
-            if 'Ein Fehler ist aufgetreten!' in status or 'An error occurred!' in status:
+            if 'fehler' in status.lower() or 'error' in status.lower():
                 package_failed = True
+            elif "entpacken" in status.lower() or "extracting" in status.lower():
+                eta_ext = re.findall(r'eta: (.*?)\)', status, re.IGNORECASE)
+                if eta_ext:
+                    eta_ext = eta_ext[0].replace("d", "").replace("m", "").replace("s", "")
+                if len(eta_ext) == 5:
+                    eta_ext = "00:" + eta_ext
+                elif len(eta_ext) == 2:
+                    eta_ext = "00:00:" + eta_ext
         if package_failed:
             package_offline = False
         if package_failed and not package_offline and len(urls) == 1:
@@ -266,6 +275,7 @@ def check_packages_types(links, packages, configfile, device):
                               "percentage": completed,
                               "speed": speed,
                               "eta": eta,
+                              "eta_ext": eta_ext,
                               "urls": urls,
                               "filenames": filenames,
                               "linkids": linkids,
