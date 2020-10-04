@@ -507,7 +507,7 @@ def download_bl(payload, device, configfile, dbfile):
             url_hosters = []
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
-                url_hosters.append(['https://' + nk + '/' + hoster["href"], hoster.text])
+                url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         elif "FX" in site:
             key = payload[1]
             password = payload[2]
