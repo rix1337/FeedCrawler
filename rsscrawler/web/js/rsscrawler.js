@@ -66,6 +66,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
+    $scope.helper_active = false;
+    $scope.helper_available = false;
+
     $scope.hostnames = {
         sj: 'Nicht gesetzt!',
         dj: 'Nicht gesetzt!',
@@ -217,6 +220,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         internalRemove(name);
     };
 
+    $scope.myJDretry = function (linkids, uuid, links) {
+        myJDretry(linkids, uuid, links)
+    };
+
     $scope.myJDcnl = function (uuid) {
         myJDcnl(uuid)
     };
@@ -337,6 +344,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     $(".docker").prop("disabled", true);
                 }
                 $scope.helper_active = res.data.version.helper_active;
+                if ($scope.helper_active) {
+                    $.get("http://127.0.0.1:9666/", function (data) {
+                        $scope.helper_available = (data === 'JDownloader');
+                        if ($scope.helper_available) {
+                            console.log("Click'n'Load des RSScrawler Sponsors Helper ist verfügbar!");
+                        }
+                    });
+                }
                 let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
                 if ($scope.update) {
@@ -588,8 +603,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     }
                 }
                 if ($scope.to_decrypt) {
+                    let first = true;
                     for (let package of $scope.to_decrypt) {
                         package.type = "to_decrypt";
+                        package.first = first;
+                        first = false;
                         $scope.myjd_packages.push(package);
                     }
                 }

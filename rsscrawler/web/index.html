@@ -213,6 +213,11 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item" ng-if="x.url">
+                                    <a ng-if="helper_active && helper_available && x.first"
+                                       ng-href="{{x.url}}#{{x.name}}"
+                                       class="cnl-button btn btn-outline-success" ng-show="!cnl_active" type="submit"
+                                       title="Da der Click'n'Load des RSScrawler Sponsors Helper verfügbar ist, kann die Click'n'Load Automatik hiermit umgangen werden."
+                                       target="_blank">Sponsors Helper Click'n'Load</a>
                                     <a ng-if="!myjd_grabbing" ng-href="{{x.url}}#{{x.name}}"
                                        ng-click="internalCnl(x.name, x.password)"
                                        class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
@@ -246,6 +251,12 @@
                             </div>
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
+                                    <a href="" class="btn btn-outline-info" ng-show="!cnl_active"
+                                       title="Erneut hinzufügen"
+                                       data-toggle="tooltip"
+                                       ng-click="myJDretry(x.linkids, x.uuid, x.urls)"><i class="fas fa-undo"></i>
+                                        Erneut
+                                        hinzufügen</a>
                                     <a href="" class="btn btn-outline-danger" title="Löschen" data-toggle="tooltip"
                                        ng-click="myJDremove(x.linkids, x.uuid)"><i class="fas fa-trash"></i> Löschen</a>
                                 </li>
