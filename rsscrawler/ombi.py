@@ -101,8 +101,6 @@ def ombi(configfile, dbfile, device, log_debug):
 
     scraper = False
 
-    # ToDo: Remove
-    requested_movies = []
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
