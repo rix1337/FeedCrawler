@@ -558,14 +558,17 @@ def download_bl(payload, device, configfile, dbfile):
             else:
                 fail = True
             if fail:
-                search_title = re.findall(
-                    r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                search_url = "http://www.imdb.com/find?q=" + search_title
-                search_page = get_url(search_url, configfile, dbfile)
-                search_results = re.findall(
-                    r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                    search_page)
-                total_results = len(search_results)
+                try:
+                    search_title = re.findall(
+                        r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+                    search_url = "http://www.imdb.com/find?q=" + search_title
+                    search_page = get_url(search_url, configfile, dbfile)
+                    search_results = re.findall(
+                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                        search_page)
+                    total_results = len(search_results)
+                except:
+                    return False
                 if staffel:
                     try:
                         imdb_id = search_results[0][0]
