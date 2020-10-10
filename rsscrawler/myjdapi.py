@@ -1062,7 +1062,7 @@ class Myjdapi:
                 encrypted_response = requests.get(api + query, timeout=3)
             except:
                 encrypted_response = requests.get(api + query, timeout=3, verify=False)
-                print("Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
+                print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
             if params is not None:
@@ -1106,7 +1106,7 @@ class Myjdapi:
                         data=encrypted_data,
                         timeout=3,
                         verify=False)
-                    print("Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
+                    print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
                 except requests.exceptions.RequestException:
                     return None
         if encrypted_response.status_code == 403:

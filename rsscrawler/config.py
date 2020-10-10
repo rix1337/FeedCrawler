@@ -63,10 +63,7 @@ class RssConfig(object):
         ],
         'Ombi': [
             ("url", "str", ""),
-            ("api", "str", ""),
-            ("tvd_api", "str", ""),
-            ("tvd_user", "str", ""),
-            ("tvd_userkey", "str", "")
+            ("api", "str", "")
         ],
         'MB': [
             ("quality", "str", "1080p"),
