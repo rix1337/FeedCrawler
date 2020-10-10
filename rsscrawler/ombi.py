@@ -76,7 +76,7 @@ def imdb_show(imdb_id, configfile, dbfile, scraper):
         return title, eps, scraper
     except:
         print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
-        return False, False
+        return False, False, False
 
 
 def ombi(configfile, dbfile, device, log_debug):
@@ -155,6 +155,7 @@ def ombi(configfile, dbfile, device, log_debug):
                             if infos:
                                 title = infos[0]
                                 all_eps = infos[1]
+                                scraper = infos[2]
                                 check_sn = False
                                 if all_eps:
                                     check_sn = all_eps.get(sn)
