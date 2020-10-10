@@ -243,7 +243,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "ombi": {
                             "url": ombi.get("url"),
                             "api": ombi.get("api"),
-                            "mdb_api": ombi.get("mdb_api"),
                             "tvd_api": ombi.get("tvd_api"),
                             "tvd_user": ombi.get("tvd_user"),
                             "tvd_userkey": ombi.get("tvd_userkey")
@@ -376,7 +375,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             section.save("url", to_str(data['ombi']['url']))
             section.save("api", to_str(data['ombi']['api']))
-            section.save("mdb_api", to_str(data['ombi']['mdb_api']))
             section.save("tvd_api", to_str(data['ombi']['tvd_api']))
             section.save("tvd_user", to_str(data['ombi']['tvd_user']))
             section.save("tvd_userkey", to_str(data['ombi']['tvd_userkey']))

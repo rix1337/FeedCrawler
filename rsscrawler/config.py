@@ -64,7 +64,6 @@ class RssConfig(object):
         'Ombi': [
             ("url", "str", ""),
             ("api", "str", ""),
-            ("mdb_api", "str", ""),
             ("tvd_api", "str", ""),
             ("tvd_user", "str", ""),
             ("tvd_userkey", "str", "")

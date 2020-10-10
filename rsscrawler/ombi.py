@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import json
+import re
 
 import requests
 
@@ -14,24 +15,6 @@ from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.url import get_url_headers
 from rsscrawler.url import post_url_json
-
-
-def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
-    get_title = get_url_headers(
-        'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=de-DE', configfile,
-        dbfile, headers={'Content-Type': 'application/json'})[0]
-    raw_title = json.loads(get_title.text).get("title")
-    if not raw_title:
-        get_title = get_url_headers(
-            'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=en-US', configfile,
-            dbfile, headers={'Content-Type': 'application/json'})[0]
-        raw_title = json.loads(get_title.text).get("title")
-    if raw_title:
-        title = sanitize(raw_title)
-        return title
-    else:
-        log_debug("Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        return False
 
 
 def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug):
@@ -124,6 +107,21 @@ def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
     return False
 
 
+def imdb_movie(imdb_id, configfile, dbfile, scraper):
+    try:
+        result = \
+            get_url_headers('https://www.imdb.com/title/' + imdb_id + '/?lang=de', configfile, dbfile, scraper=scraper,
+                            headers={'Accept-Language': 'de'})[0].text
+        try:
+            raw_title = re.findall(r"<title>(.*) \((?:(?:19|20)\d{2})\) - IMDb</title>", result)[0]
+        except:
+            raw_title = re.findall(r'<meta name="title" content="(.*) \((?:(?:19|20)\d{2})\) - IMDb"', result)[0]
+        title = sanitize(raw_title)
+        return title, scraper
+    except:
+        return False, False
+
+
 def ombi(configfile, dbfile, device, log_debug):
     db = RssDb(dbfile, 'Ombi')
     config = RssConfig('Ombi', configfile)
@@ -133,19 +131,14 @@ def ombi(configfile, dbfile, device, log_debug):
     if not url or not api:
         return device
 
-    mdb_api = config.get('mdb_api')
     tvd_api = config.get('tvd_api')
     tvd_user = config.get('tvd_user')
     tvd_userkey = config.get('tvd_userkey')
     english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
-        if mdb_api:
-            requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
-            requested_movies = json.loads(requested_movies.text)
-        else:
-            requested_movies = []
-            log_debug("Aufgrund fehlender API-Zugangsdaten werden keine Filme aus Ombi importiert.")
+        requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
+        requested_movies = json.loads(requested_movies.text)
         if tvd_api and tvd_user and tvd_userkey:
             requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
             requested_shows = json.loads(requested_shows.text)
@@ -156,13 +149,17 @@ def ombi(configfile, dbfile, device, log_debug):
         log_debug("Ombi ist nicht erreichbar!")
         return False
 
+    scraper = False
+
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
-                tmdbid = r.get("theMovieDbId")
-                if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
+                imdb_id = r.get("imdbId")
+                if not db.retrieve('movie_' + str(imdb_id)) == 'added':
+                    response = imdb_movie(imdb_id, configfile, dbfile, scraper)
+                    title = response[0]
                     if title:
+                        scraper = response[1]
                         best_result = search.best_result_bl(title, configfile, dbfile)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                         if best_result:
@@ -173,7 +170,9 @@ def ombi(configfile, dbfile, device, log_debug):
                             print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                             if best_result:
                                 search.download_bl(best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'added')
+                        db.store('movie_' + str(imdb_id), 'added')
+                    else:
+                        log_debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
     for r in requested_shows:
         tvdbid = r.get("tvDbId")
