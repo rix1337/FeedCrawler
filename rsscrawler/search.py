@@ -384,6 +384,8 @@ def best_result_bl(title, configfile, dbfile):
     best_result = bl_results.get(best_match)
     if best_result:
         best_title = best_result.get('title')
+        if not re.match(r"^" + title.replace(" ", ".") + r".*$", best_title, re.IGNORECASE):
+            best_title = False
         best_payload = best_result.get('payload')
     else:
         best_title = None
@@ -440,8 +442,12 @@ def best_result_sj(title, configfile, dbfile):
     best_match = 'result' + str(best_match)
     try:
         best_title = sj_results.get(best_match).get('title')
+        if not re.match(r"^" + title.replace(" ", ".") + r".*$", best_title, re.IGNORECASE):
+            best_title = False
         best_payload = sj_results.get(best_match).get('payload')
     except:
+        best_title = False
+    if not best_title:
         logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["SJ_Serien", "MB_Staffeln"]
         for liste in listen:
@@ -450,7 +456,7 @@ def best_result_sj(title, configfile, dbfile):
                 cont = ""
             if title not in cont:
                 ListDb(dbfile, liste).store(title)
-            return
+            return False
     logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_payload
 
@@ -558,14 +564,17 @@ def download_bl(payload, device, configfile, dbfile):
             else:
                 fail = True
             if fail:
-                search_title = re.findall(
-                    r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                search_url = "http://www.imdb.com/find?q=" + search_title
-                search_page = get_url(search_url, configfile, dbfile)
-                search_results = re.findall(
-                    r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                    search_page)
-                total_results = len(search_results)
+                try:
+                    search_title = re.findall(
+                        r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+                    search_url = "http://www.imdb.com/find?q=" + search_title
+                    search_page = get_url(search_url, configfile, dbfile)
+                    search_results = re.findall(
+                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
+                        search_page)
+                    total_results = len(search_results)
+                except:
+                    return False
                 if staffel:
                     try:
                         imdb_id = search_results[0][0]

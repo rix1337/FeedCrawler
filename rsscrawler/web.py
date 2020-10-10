@@ -243,10 +243,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
                         "ombi": {
                             "url": ombi.get("url"),
                             "api": ombi.get("api"),
-                            "mdb_api": ombi.get("mdb_api"),
-                            "tvd_api": ombi.get("tvd_api"),
-                            "tvd_user": ombi.get("tvd_user"),
-                            "tvd_userkey": ombi.get("tvd_userkey")
                         },
                         "crawljobs": {
                             "autostart": crawljobs.get("autostart"),
@@ -376,10 +372,6 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 
             section.save("url", to_str(data['ombi']['url']))
             section.save("api", to_str(data['ombi']['api']))
-            section.save("mdb_api", to_str(data['ombi']['mdb_api']))
-            section.save("tvd_api", to_str(data['ombi']['tvd_api']))
-            section.save("tvd_user", to_str(data['ombi']['tvd_user']))
-            section.save("tvd_userkey", to_str(data['ombi']['tvd_userkey']))
 
             section = RssConfig("MB", configfile)
             section.save("quality", to_str(data['mb']['quality']))
@@ -1229,26 +1221,30 @@ if (title) {
                 RssDb(dbfile, 'crawldog').store(name, 'added')
                 if device:
                     if ids:
-                        ids = ids.replace("%20", "").split(";")
-                        linkids = ids[0]
-                        uuids = ids[1]
+                        try:
+                            ids = ids.replace("%20", "").split(";")
+                            linkids = ids[0]
+                            uuids = ids[1]
+                        except:
+                            linkids = False
+                            uuids = False
+                        if ids and uuids:
+                            linkids_raw = ast.literal_eval(linkids)
+                            linkids = []
+                            if isinstance(linkids_raw, (list, tuple)):
+                                for linkid in linkids_raw:
+                                    linkids.append(linkid)
+                            else:
+                                linkids.append(linkids_raw)
+                            uuids_raw = ast.literal_eval(uuids)
+                            uuids = []
+                            if isinstance(uuids_raw, (list, tuple)):
+                                for uuid in uuids_raw:
+                                    uuids.append(uuid)
+                            else:
+                                uuids.append(uuids_raw)
 
-                        linkids_raw = ast.literal_eval(linkids)
-                        linkids = []
-                        if isinstance(linkids_raw, (list, tuple)):
-                            for linkid in linkids_raw:
-                                linkids.append(linkid)
-                        else:
-                            linkids.append(linkids_raw)
-                        uuids_raw = ast.literal_eval(uuids)
-                        uuids = []
-                        if isinstance(uuids_raw, (list, tuple)):
-                            for uuid in uuids_raw:
-                                uuids.append(uuid)
-                        else:
-                            uuids.append(uuids_raw)
-
-                        remove_from_linkgrabber(configfile, device, linkids, uuids)
+                            remove_from_linkgrabber(configfile, device, linkids, uuids)
                     else:
                         is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
                         if not is_episode:

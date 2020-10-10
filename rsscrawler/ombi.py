@@ -3,8 +3,10 @@
 # Projekt von https://github.com/rix1337
 
 import json
+import re
 
 import requests
+from bs4 import BeautifulSoup
 
 from rsscrawler import search
 from rsscrawler.common import decode_base64
@@ -13,115 +15,68 @@ from rsscrawler.common import sanitize
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.url import get_url_headers
-from rsscrawler.url import post_url_json
 
 
-def mdb(configfile, dbfile, tmdbid, mdb_api, log_debug):
-    get_title = get_url_headers(
-        'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=de-DE', configfile,
-        dbfile, headers={'Content-Type': 'application/json'})[0]
-    raw_title = json.loads(get_title.text).get("title")
-    if not raw_title:
-        get_title = get_url_headers(
-            'https://api.themoviedb.org/3/movie/' + str(tmdbid) + '?api_key=' + mdb_api + '&language=en-US', configfile,
-            dbfile, headers={'Content-Type': 'application/json'})[0]
-        raw_title = json.loads(get_title.text).get("title")
-    if raw_title:
-        title = sanitize(raw_title)
-        return title
-    else:
-        log_debug("Aufgrund fehlerhafter API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        return False
+def get_imdb(url, configfile, dbfile, scraper):
+    result = get_url_headers(url, configfile, dbfile,
+                             scraper=scraper,
+                             headers={'Accept-Language': 'de'}
+                             )
+    output = result[0].text
+    scraper = result[1]
+    return output, scraper
 
 
-def get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug):
-    db = RssDb(dbfile, 'Ombi')
-    response = post_url_json("https://api.thetvdb.com/login", configfile, dbfile, json={
-        'username': tvd_user,
-        'userkey': tvd_userkey,
-        'apikey': tvd_api,
-    })
-    if response:
-        response = json.loads(response)
-        token = response.get('token')
-        db.delete("tvdb_token")
-        db.store("tvdb_token", token)
-
-        if token:
-            return token
-    else:
-        log_debug("Aufgrund fehlerhafter API-Zugangsdaten werden keine Serien aus Ombi importiert.")
-        return False
+def get_title(input):
+    try:
+        raw_title = re.findall(r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
+    except:
+        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2})\) - IMDb"', input)[0]
+    return sanitize(raw_title)
 
 
-def tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug):
-    db = RssDb(dbfile, 'Ombi')
-    token = db.retrieve('tvdb_token')
+def imdb_movie(imdb_id, configfile, dbfile, scraper):
+    try:
+        result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile, scraper)
+        output = result[0]
+        scraper = result[1]
 
-    if not token:
-        token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
+        title = get_title(output)
 
-    if token:
-        get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                   headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                            'Accept': 'application/json', 'Accept-Language': 'de'})[0]
+        return title, scraper
+    except:
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        return False, False
 
-        if get_info.status_code == 401:
-            token = get_tvdb_token(configfile, dbfile, tvd_user, tvd_userkey, tvd_api, log_debug)
-            if token:
-                get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                           headers={'Authorization': 'Bearer ' + token,
-                                                    'Content-Type': 'application/json',
-                                                    'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-            else:
-                return False
 
-        raw_data = json.loads(get_info.text)
-        raw_info = raw_data.get('data')
-        raw_title = raw_info.get('seriesName')
-        if not raw_title:
-            get_info = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid), configfile, dbfile,
-                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'en'})[0]
-            raw_data = json.loads(get_info.text)
-            raw_info = raw_data.get('data')
-            raw_title = raw_info.get('seriesName')
-        title = sanitize(raw_title)
-        get_episodes = get_url_headers('https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes', configfile,
-                                       dbfile,
-                                       headers={'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json',
-                                                'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-        raw_episode_data = json.loads(get_episodes.text)
-        episodes = raw_episode_data.get('data')
-        total_pages = raw_episode_data.get('links')
-        if total_pages:
-            pages = total_pages.get('last')
-            if pages > 1:
-                page = 2
-                while page <= pages:
-                    get_episodes = get_url_headers(
-                        'https://api.thetvdb.com/series/' + str(tvdbid) + '/episodes?page=' + str(page), configfile,
-                        dbfile,
-                        headers={'Authorization': 'Bearer ' + token,
-                                 'Content-Type': 'application/json',
-                                 'Accept': 'application/json', 'Accept-Language': 'de'})[0]
-                    raw_episode_data = json.loads(get_episodes.text)
-                    more_episodes = raw_episode_data.get('data')
-                    episodes = episodes + more_episodes
-                    page += 1
-            eps = {}
+def imdb_show(imdb_id, configfile, dbfile, scraper):
+    try:
+        result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile, scraper)
+        output = result[0]
+        scraper = result[1]
+
+        title = get_title(output)
+
+        eps = {}
+        soup = BeautifulSoup(output, 'lxml')
+        seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
+        for season in seasons:
+            result = get_imdb("https://www.imdb.com" + season['href'], configfile, dbfile, scraper)
+            output = result[0]
+            scraper = result[1]
+
+            sn = int(season.text)
+            ep = []
+            soup = BeautifulSoup(output, 'lxml')
+            episodes = soup.find_all("meta", itemprop="episodeNumber")
             for e in episodes:
-                season = e.get("airedSeason")
-                if season > 0:
-                    episode = e.get("airedEpisodeNumber")
-                    current = eps.get(season)
-                    if current:
-                        eps[season] = current + [episode]
-                    else:
-                        eps[season] = [episode]
-            return title, eps
-        return title, False
-    return False
+                ep.append(int(e['content']))
+            eps[sn] = ep
+
+        return title, eps, scraper
+    except:
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        return False, False, False
 
 
 def ombi(configfile, dbfile, device, log_debug):
@@ -133,36 +88,28 @@ def ombi(configfile, dbfile, device, log_debug):
     if not url or not api:
         return device
 
-    mdb_api = config.get('mdb_api')
-    tvd_api = config.get('tvd_api')
-    tvd_user = config.get('tvd_user')
-    tvd_userkey = config.get('tvd_userkey')
     english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
-        if mdb_api:
-            requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
-            requested_movies = json.loads(requested_movies.text)
-        else:
-            requested_movies = []
-            log_debug("Aufgrund fehlender API-Zugangsdaten werden keine Filme aus Ombi importiert.")
-        if tvd_api and tvd_user and tvd_userkey:
-            requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
-            requested_shows = json.loads(requested_shows.text)
-        else:
-            requested_shows = []
-            log_debug("Aufgrund fehlender API-Zugangsdaten werden keine Serien aus Ombi importiert.")
+        requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
+        requested_movies = json.loads(requested_movies.text)
+        requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
+        requested_shows = json.loads(requested_shows.text)
     except:
         log_debug("Ombi ist nicht erreichbar!")
         return False
 
+    scraper = False
+
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
-                tmdbid = r.get("theMovieDbId")
-                if not db.retrieve('tmdb_' + str(tmdbid)) == 'added':
-                    title = mdb(configfile, dbfile, tmdbid, mdb_api, log_debug)
+                imdb_id = r.get("imdbId")
+                if not db.retrieve('movie_' + str(imdb_id)) == 'added':
+                    response = imdb_movie(imdb_id, configfile, dbfile, scraper)
+                    title = response[0]
                     if title:
+                        scraper = response[1]
                         best_result = search.best_result_bl(title, configfile, dbfile)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                         if best_result:
@@ -173,10 +120,12 @@ def ombi(configfile, dbfile, device, log_debug):
                             print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                             if best_result:
                                 search.download_bl(best_result, device, configfile, dbfile)
-                        db.store('tmdb_' + str(tmdbid), 'added')
+                        db.store('movie_' + str(imdb_id), 'added')
+                    else:
+                        log_debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
     for r in requested_shows:
-        tvdbid = r.get("tvDbId")
+        imdb_id = r.get("imdbId")
         infos = None
         child_requests = r.get("childRequests")
         for cr in child_requests:
@@ -198,18 +147,18 @@ def ombi(configfile, dbfile, device, log_debug):
                                 if len(e) == 1:
                                     e = "0" + e
                                 se = s + "E" + e
-                                if not db.retrieve('tvdb_' + str(tvdbid) + '_' + se) == 'added':
+                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
                                     eps.append(enr)
                         if eps:
                             if not infos:
-                                infos = tvdb(configfile, dbfile, tvdbid, tvd_user, tvd_userkey, tvd_api, log_debug)
+                                infos = imdb_show(imdb_id, configfile, dbfile, scraper)
                             if infos:
                                 title = infos[0]
                                 all_eps = infos[1]
+                                scraper = infos[2]
+                                check_sn = False
                                 if all_eps:
                                     check_sn = all_eps.get(sn)
-                                else:
-                                    check_sn = False
                                 if check_sn:
                                     sn_length = len(eps)
                                     check_sn_length = len(check_sn)
@@ -233,12 +182,12 @@ def ombi(configfile, dbfile, device, log_debug):
                                                         if len(e) == 1:
                                                             e = "0" + e
                                                         se = s + "E" + e
-                                                        db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                                        db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                                     if not add_season:
                                                         log_debug(
                                                             u"Konnte kein Release für " + title + " " + se + "finden.")
                                                     break
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                            db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                     else:
                                         payload = search.best_result_sj(title, configfile, dbfile)
                                         if payload:
@@ -250,7 +199,7 @@ def ombi(configfile, dbfile, device, log_debug):
                                             if len(e) == 1:
                                                 e = "0" + e
                                             se = s + "E" + e
-                                            db.store('tvdb_' + str(tvdbid) + '_' + se, 'added')
+                                            db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                     print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
 
     return device
