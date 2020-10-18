@@ -1249,7 +1249,7 @@ if (title) {
                         is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
                         if not is_episode:
                             re_name = rreplace(name.lower(), "-", ".*", 1)
-                            re_name = re_name.replace(".untouched", "")
+                            re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
                             season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
                             if season_string:
                                 re_name = re_name.replace(season_string[0], season_string[0] + '.*')
@@ -1302,7 +1302,9 @@ if (title) {
                         packages = get_to_decrypt(dbfile)
                         if packages:
                             for package in packages:
-                                if re.match(re.compile(re_name), package['name'].lower().replace(".untouched", "")):
+                                if re.match(re.compile(re_name),
+                                            package['name'].lower().replace(".untouched", ".*").replace("dd+51",
+                                                                                                      "dd.51")):
                                     episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                     remove_decrypt(package['name'], dbfile)
                                     if episode:
