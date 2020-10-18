@@ -133,7 +133,7 @@ class SF:
                 episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
                 season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
                 season_title = rreplace(title.lower().replace(episode_string, ''), "-", ".*", 1).lower()
-                season_title = season_title.replace(".untouched", "")
+                season_title = season_title.replace(".untouched", ".*").replace(".dd+51", ".dd.51")
                 episode = str(int(episode_string.replace("e", "")))
                 season = str(int(season_string.replace("s", "")))
                 episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title)
