@@ -45,9 +45,6 @@ if [[ "$version" == 'LATEST' ]]; then
   GH_TAGS="$GH_REPO/releases/latest"
 fi
 
-# Validate token.
-#curl -o /dev/null -sH "$AUTH" $GH_REPO || { echo "Error: Invalid repo, token or network issue!";  exit 1; }
-
 # Read asset tags.
 response=$(curl -sH "$AUTH" $GH_TAGS)
 
@@ -61,4 +58,4 @@ echo "Uploading asset... "
 # Construct url
 GH_ASSET="https://uploads.github.com/repos/$owner/$repo/releases/$id/assets?name=$(basename $filename)"
 
-curl "$GITHUB_OAUTH_BASIC" --data-binary @"$filename" -H "Authorization: token $github_api_token" -H "Content-Type: application/octet-stream" $GH_ASSET
+curl --data-binary @"$filename" -H "$AUTH" -H "Content-Type: application/octet-stream" $GH_ASSET
