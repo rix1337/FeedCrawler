@@ -11,7 +11,7 @@ https://gitter.im/RSScrawler/Lobby
 
 - **Genutzte Version** (kein Support für alte Releases)
 
-- **Wird Python 3.7 oder aktueller genutzt?**
+- **Wird Python 3.9 oder aktueller genutzt?**
 
 ## Fehlerbeschreibung
 

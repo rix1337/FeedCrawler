@@ -2,28 +2,30 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+from logging import handlers
+
 import ast
+import gevent
 import json
 import logging
 import os
 import re
 import sys
 import time
-from functools import wraps
-from logging import handlers
-
-import gevent
 from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
+from functools import wraps
 from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
+import rsscrawler.myjdapi
 from rsscrawler import search
 from rsscrawler import version
 from rsscrawler.common import Unbuffered
 from rsscrawler.common import decode_base64
 from rsscrawler.common import get_to_decrypt
+from rsscrawler.common import is_device
 from rsscrawler.common import remove_decrypt
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
@@ -33,6 +35,7 @@ from rsscrawler.myjd import check_device
 from rsscrawler.myjd import do_add_decrypted
 from rsscrawler.myjd import do_package_replace
 from rsscrawler.myjd import download
+from rsscrawler.myjd import get_device
 from rsscrawler.myjd import get_if_one_device
 from rsscrawler.myjd import get_info
 from rsscrawler.myjd import get_packages_in_linkgrabber
@@ -1271,8 +1274,13 @@ if (title) {
                             season_string = season_string[0].replace("s", "S")
                         else:
                             season_string = "^unmatchable$"
-
-                        packages = get_packages_in_linkgrabber(configfile, device)
+                        try:
+                            packages = get_packages_in_linkgrabber(configfile, device)
+                        except rsscrawler.myjdapi.TokenExpiredException:
+                            device = get_device(configfile)
+                            if not device or not is_device(device):
+                                return "Failed", 500
+                            packages = get_packages_in_linkgrabber(configfile, device)
                         if packages:
                             failed = packages[0]
                             offline = packages[1]
@@ -1304,7 +1312,7 @@ if (title) {
                             for package in packages:
                                 if re.match(re.compile(re_name),
                                             package['name'].lower().replace(".untouched", ".*").replace("dd+51",
-                                                                                                      "dd.51")):
+                                                                                                        "dd.51")):
                                     episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                     remove_decrypt(package['name'], dbfile)
                                     if episode:
