@@ -128,7 +128,7 @@ class SF:
             response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
             info = json.loads(response)
 
-            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', title)
+            is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
             if is_episode:
                 episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
                 season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
@@ -136,7 +136,7 @@ class SF:
                 season_title = season_title.replace(".untouched", ".*").replace(".dd+51", ".dd.51")
                 episode = str(int(episode_string.replace("e", "")))
                 season = str(int(season_string.replace("s", "")))
-                episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title)
+                episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title, re.IGNORECASE)
                 if episode_name:
                     season_title = season_title.replace(episode_name[0], '')
                 codec_tags = [".h264", ".x264"]
@@ -149,6 +149,9 @@ class SF:
                 season = False
                 episode = False
                 season_title = title
+                multiple_episodes = re.findall(r'(e\d{1,3}-e*\d{1,3}\.)', season_title, re.IGNORECASE)
+                if multiple_episodes:
+                    season_title = season_title.replace(multiple_episodes[0], '.*')
 
             content = BeautifulSoup(info['html'], 'lxml')
             releases = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
