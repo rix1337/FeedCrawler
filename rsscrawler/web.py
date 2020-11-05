@@ -56,6 +56,8 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
     device = _device
     global helper_active
     helper_active = False
+    global already_added
+    already_added = []
 
     base_dir = '.'
     if getattr(sys, 'frozen', False):
@@ -1174,6 +1176,7 @@ if (title) {
     @requires_auth
     def to_download(payload):
         global device
+        global already_added
         hostnames = RssConfig('Hostnames', configfile)
         sj = hostnames.get('sj')
         dj = hostnames.get('dj')
@@ -1328,14 +1331,21 @@ if (title) {
                                         break
                         remove_decrypt(name, dbfile)
                     try:
-                        device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
-                        notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                        if name not in already_added:
+                            device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                            try:
+                                notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                            except:
+                                print(u"Benachrichtigung konnte nicht versendet werden!")
+                            print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
+                            already_added.append(name)
+                            return "<script type='text/javascript'>" \
+                                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                   "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                        else:
+                            print(name + u" wurde bereits hinzugefügt")
                     except:
-                        print(u"Benachrichtigung konnte nicht versendet werden!")
-                    print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
-                    return "<script type='text/javascript'>" \
-                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                        print(name + u" konnte nicht hinzugefügt werden!")
             return "Failed", 400
         else:
             return "Failed", 405
