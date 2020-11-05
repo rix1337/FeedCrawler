@@ -31,7 +31,7 @@ def get_title(input):
     try:
         raw_title = re.findall(r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
     except:
-        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2})\) - IMDb"', input)[0]
+        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2}).*\) - IMDb"', input)[0]
     return sanitize(raw_title)
 
 
@@ -60,12 +60,14 @@ def imdb_show(imdb_id, configfile, dbfile, scraper):
         eps = {}
         soup = BeautifulSoup(output, 'lxml')
         seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
-        for season in seasons:
-            result = get_imdb("https://www.imdb.com" + season['href'], configfile, dbfile, scraper)
+        latest_season = int(seasons[0].text)
+        total_seasons = list(range(1, latest_season + 1))
+        for sn in total_seasons:
+            result = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn), configfile,
+                              dbfile, scraper)
             output = result[0]
             scraper = result[1]
 
-            sn = int(season.text)
             ep = []
             soup = BeautifulSoup(output, 'lxml')
             episodes = soup.find_all("meta", itemprop="episodeNumber")
