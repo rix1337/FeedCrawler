@@ -1248,6 +1248,7 @@ if (title) {
                                 uuids.append(uuids_raw)
 
                             remove_from_linkgrabber(configfile, device, linkids, uuids)
+                            remove_decrypt(name, dbfile)
                     else:
                         is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
                         if not is_episode:
@@ -1294,6 +1295,7 @@ if (title) {
                                             linkids = package['linkids']
                                             uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            remove_decrypt(name, dbfile)
                                             break
                                 if offline:
                                     for package in offline:
@@ -1304,6 +1306,7 @@ if (title) {
                                             linkids = package['linkids']
                                             uuids = [package['uuid']]
                                             remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                            remove_decrypt(name, dbfile)
                                             break
                             except:
                                 pass
