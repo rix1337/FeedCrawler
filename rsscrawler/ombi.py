@@ -35,6 +35,14 @@ def get_title(input):
     return sanitize(raw_title)
 
 
+def get_year(input):
+    try:
+        raw_year = re.findall(r"<title>(?:.*) \((.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
+    except:
+        raw_year = re.findall(r'<meta name="title" content="(?:.*) \((.*(?:19|20)\d{2}).*\) - IMDb"', input)[0]
+    return sanitize(raw_year)
+
+
 def imdb_movie(imdb_id, configfile, dbfile, scraper):
     try:
         result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile, scraper)
@@ -42,8 +50,9 @@ def imdb_movie(imdb_id, configfile, dbfile, scraper):
         scraper = result[1]
 
         title = get_title(output)
+        year = get_year(output)
 
-        return title, scraper
+        return title + " " + year, scraper
     except:
         print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False
