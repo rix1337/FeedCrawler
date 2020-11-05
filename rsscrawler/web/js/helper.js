@@ -43,6 +43,14 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
         };
 
         $scope.updateToDecrypt();
+
+        $scope.cleanRam = function () {
+            $timeout(function () {
+                window.close();
+            }, 3600000)
+        };
+
+        $scope.cleanRam();
     }
 )
 ;
