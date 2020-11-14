@@ -1329,21 +1329,28 @@ if (title) {
                                         name = name.replace(season_string + ".",
                                                             season_string + "E" + episode + ".")
                                         break
+                        time.sleep(1)
                         remove_decrypt(name, dbfile)
                     try:
-                        if name not in already_added:
-                            device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
-                            try:
-                                notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
-                            except:
-                                print(u"Benachrichtigung konnte nicht versendet werden!")
-                            print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
-                            already_added.append(name)
-                            return "<script type='text/javascript'>" \
-                                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                   "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
-                        else:
-                            print(name + u" wurde bereits hinzugefügt")
+                        epoch = int(time.time())
+                        for item in already_added:
+                            if item[0] == name:
+                                if int(item[1]) + 30 > epoch:
+                                    print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
+                                    return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt", 400
+                                else:
+                                    already_added.remove(item)
+
+                        device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                        try:
+                            notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                        except:
+                            print(u"Benachrichtigung konnte nicht versendet werden!")
+                        print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
+                        already_added.append([name, str(epoch)])
+                        return "<script type='text/javascript'>" \
+                               "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                               "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
                     except:
                         print(name + u" konnte nicht hinzugefügt werden!")
             return "Failed", 400
