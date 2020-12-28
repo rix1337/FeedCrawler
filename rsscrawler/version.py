@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "8.3.5"
+    return "8.3.6"
 
 
 def create_version_file():
