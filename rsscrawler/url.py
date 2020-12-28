@@ -425,13 +425,6 @@ def get_url(url, configfile, dbfile, scraper=False):
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
-    # Temporary fix for FX
-    if site and "FX" in site:
-        scraper = requests.session()
-        scraper.headers = scraper.headers
-        scraper.cookies = scraper.cookies
-        scraper.verify = False
-
     if proxy:
         try:
             if site and "SJ" in site:
@@ -540,13 +533,6 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
-    # Temporary fix for FX
-    if site and "FX" in site:
-        scraper = requests.session()
-        scraper.headers = scraper.headers
-        scraper.cookies = scraper.cookies
-        scraper.verify = False
-
     if proxy:
         try:
             if site and "SJ" in site:
@@ -653,13 +639,6 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     db = RssDb(dbfile, 'proxystatus')
     db_normal = RssDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
-
-    # Temporary fix for FX
-    if site and "FX" in site:
-        scraper = requests.session()
-        scraper.headers = scraper.headers
-        scraper.cookies = scraper.cookies
-        scraper.verify = False
 
     if proxy:
         try:
