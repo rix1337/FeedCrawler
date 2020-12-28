@@ -104,10 +104,13 @@ def ombi(configfile, dbfile, device, log_debug):
     try:
         requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
         requested_movies = json.loads(requested_movies.text)
+        print(u"Ombi: " + str(len(requested_movies)) + " angefragte Filme gefunden")
         requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
         requested_shows = json.loads(requested_shows.text)
+        print(u"Ombi: " + str(len(requested_shows)) + " angefragte Serien gefunden")
     except:
         log_debug("Ombi ist nicht erreichbar!")
+        print(u"Ombi ist nicht erreichbar!")
         return False
 
     scraper = False
