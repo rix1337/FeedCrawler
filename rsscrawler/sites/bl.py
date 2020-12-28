@@ -51,7 +51,7 @@ class BL:
         self.HW_FEED_URLS = [self.HW_URL]
         self.HS_URL = 'https://' + self.hs + '/feed'
         self.HS_FEED_URLS = [self.HS_URL]
-        self.FX_URL = 'https://' + self.fx + '/feed'
+        self.FX_URL = 'https://' + self.fx
         self.FX_FEED_URLS = [self.FX_URL]
         self.NK_URL = 'https://' + self.nk + '/'
         self.NK_FEED_URLS = [self.NK_URL]
