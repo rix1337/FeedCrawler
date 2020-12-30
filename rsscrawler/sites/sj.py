@@ -135,7 +135,7 @@ class SJ:
                             if 'added' not in storage and 'notdl' not in storage:
                                 wrong_hoster = '[SJ/Hoster fehlt] - ' + title
                                 if 'wrong_hoster' not in storage:
-                                    self.log_info(wrong_hoster)
+                                    print(wrong_hoster)
                                     self.db.store(title, 'wrong_hoster')
                                     notify([wrong_hoster], self.configfile)
                                 else:
