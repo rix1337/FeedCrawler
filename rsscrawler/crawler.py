@@ -28,6 +28,9 @@ Options:
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
+import traceback
+from logging import handlers
+
 import logging
 import multiprocessing
 import os
@@ -36,9 +39,6 @@ import re
 import signal
 import sys
 import time
-import traceback
-from logging import handlers
-
 from docopt import docopt
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -101,6 +101,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     log_debug = logger.debug
 
+    ombi_first_launch = True
+
     crawltimes = RssDb(dbfile, "crawltimes")
 
     arguments = docopt(__doc__, version='RSScrawler')
@@ -114,8 +116,23 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 crawltimes.update_store("active", "True")
                 crawltimes.update_store("start_time", start_time * 1000)
                 log_debug("--------Alle Suchfunktion gestartet.--------")
+                requested_movies = 0
+                requested_shows = 0
+                ombi_string = ""
                 if device:
-                    device = ombi(configfile, dbfile, device, log_debug)
+                    ombi_results = ombi(configfile, dbfile, device, log_debug, ombi_first_launch)
+                    device = ombi_results[0]
+                    ombi_results = ombi_results[1]
+                    requested_movies = ombi_results[0]
+                    requested_shows = ombi_results[1]
+                if requested_movies or requested_shows:
+                    ombi_string = " - Ombi suchte: "
+                    if requested_movies:
+                        ombi_string = ombi_string + str(requested_movies) + " Filme"
+                        if requested_shows:
+                            ombi_string = ombi_string + " und "
+                    if requested_shows:
+                        ombi_string = ombi_string + str(requested_shows) + " Serien"
                 for task in search_pool(configfile, dbfile, device, logger, scraper):
                     name = task._INTERNAL_NAME
                     try:
@@ -133,10 +150,10 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 next_start = end_time + wait
                 log_debug(
                     "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                        total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
+                        total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
                 print(time.strftime("%Y-%m-%d %H:%M:%S") +
                       u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait))
+                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
                 crawltimes.update_store("end_time", end_time * 1000)
                 crawltimes.update_store("total_time", readable_time(total_time))
                 crawltimes.update_store("next_start", next_start * 1000)
@@ -153,8 +170,23 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             scraper = check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
+            requested_movies = 0
+            requested_shows = 0
+            ombi_string = ""
             if device:
-                device = ombi(configfile, dbfile, device, log_debug)
+                ombi_results = ombi(configfile, dbfile, device, log_debug, ombi_first_launch)
+                device = ombi_results[0]
+                ombi_results = ombi_results[1]
+                requested_movies = ombi_results[0]
+                requested_shows = ombi_results[1]
+            if requested_movies or requested_shows:
+                ombi_string = " - Ombi suchte: "
+                if requested_movies:
+                    ombi_string = ombi_string + str(requested_movies) + " Filme"
+                    if requested_shows:
+                        ombi_string = ombi_string + " und "
+                if requested_shows:
+                    ombi_string = ombi_string + str(requested_shows) + " Serien"
             for task in search_pool(configfile, dbfile, device, logger, scraper):
                 name = task._INTERNAL_NAME
                 try:
@@ -167,9 +199,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             end_time = time.time()
             total_time = end_time - start_time
             log_debug(
-                "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---")
+                "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---" + ombi_string)
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!")
+                  u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!" + ombi_string)
         except Exception:
             traceback.print_exc()
             time.sleep(10)

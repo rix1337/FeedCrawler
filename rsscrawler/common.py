@@ -116,6 +116,8 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         except:
             return True
 
+    # ToDo find pattern for complete seasons
+
     db = RssDb(dbfile, 'rsscrawler')
     results = db.retrieve_all_beginning_with(search_title)
 
