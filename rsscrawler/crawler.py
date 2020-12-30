@@ -125,6 +125,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                     ombi_results = ombi_results[1]
                     requested_movies = ombi_results[0]
                     requested_shows = ombi_results[1]
+                    ombi_first_launch = False
                 if requested_movies or requested_shows:
                     ombi_string = " - Ombi suchte: "
                     if requested_movies:
