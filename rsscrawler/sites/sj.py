@@ -127,8 +127,9 @@ class SJ:
                     if item['name'] == title:
                         valid = False
                         for hoster in item['hoster']:
-                            if check_hoster(hoster, self.configfile):
-                                valid = True
+                            if hoster:
+                                if check_hoster(hoster, self.configfile):
+                                    valid = True
                         if not valid and not self.hoster_fallback:
                             storage = self.db.retrieve_all(title)
                             if 'added' not in storage and 'notdl' not in storage:
