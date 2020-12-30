@@ -117,7 +117,18 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
             return True
 
     db = RssDb(dbfile, 'rsscrawler')
-    results = db.retrieve_all_beginning_with(search_title)
+    is_episode = re.findall(r'.*\.s\d{1,3}(e\d{1,3}|e\d{1,3}-.*\d{1,3})\..*', title, re.IGNORECASE)
+    if is_episode:
+        episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', search_title, re.IGNORECASE)
+        if episode_name:
+            search_title = search_title.replace(episode_name[0], "")
+        season_search_title = search_title.replace(is_episode[0], "") + "."
+        results = db.retrieve_all_beginning_with(season_search_title)
+        if not results:
+            results = db.retrieve_all_beginning_with(search_title)
+    else:
+        db = RssDb(dbfile, 'rsscrawler')
+        results = db.retrieve_all_beginning_with(search_title)
 
     if not results:
         return True

@@ -890,7 +890,7 @@ class BL:
                         if 'added' not in storage and 'notdl' not in storage:
                             wrong_hoster = '[HEVC-Suche/Hoster fehlt] - ' + key
                             if 'wrong_hoster' not in storage:
-                                self.log_info(wrong_hoster)
+                                print(wrong_hoster)
                                 self.db.store(key, 'wrong_hoster')
                                 notify([wrong_hoster], self.configfile)
                             else:
@@ -1025,7 +1025,7 @@ class BL:
                     if 'added' not in storage and 'notdl' not in storage:
                         wrong_hoster = '[DL-Suche/Hoster fehlt] - ' + key
                         if 'wrong_hoster' not in storage:
-                            self.log_info(wrong_hoster)
+                            print(wrong_hoster)
                             self.db.store(key, 'wrong_hoster')
                             notify([wrong_hoster], self.configfile)
                         else:
@@ -1124,7 +1124,7 @@ class BL:
             if 'added' not in storage and 'notdl' not in storage:
                 wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
-                    self.log_info(wrong_hoster)
+                    print(wrong_hoster)
                     self.db.store(key, 'wrong_hoster')
                     notify([wrong_hoster], self.configfile)
                 else:
@@ -1288,7 +1288,7 @@ class BL:
             if 'added' not in storage and 'notdl' not in storage:
                 wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
                 if 'wrong_hoster' not in storage:
-                    self.log_info(wrong_hoster)
+                    print(wrong_hoster)
                     self.db.store(key, 'wrong_hoster')
                     notify([wrong_hoster], self.configfile)
                 else:

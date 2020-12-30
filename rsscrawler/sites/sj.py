@@ -127,14 +127,15 @@ class SJ:
                     if item['name'] == title:
                         valid = False
                         for hoster in item['hoster']:
-                            if check_hoster(hoster, self.configfile):
-                                valid = True
+                            if hoster:
+                                if check_hoster(hoster, self.configfile):
+                                    valid = True
                         if not valid and not self.hoster_fallback:
                             storage = self.db.retrieve_all(title)
                             if 'added' not in storage and 'notdl' not in storage:
                                 wrong_hoster = '[SJ/Hoster fehlt] - ' + title
                                 if 'wrong_hoster' not in storage:
-                                    self.log_info(wrong_hoster)
+                                    print(wrong_hoster)
                                     self.db.store(title, 'wrong_hoster')
                                     notify([wrong_hoster], self.configfile)
                                 else:

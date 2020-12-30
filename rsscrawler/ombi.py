@@ -90,28 +90,31 @@ def imdb_show(imdb_id, configfile, dbfile, scraper):
         return False, False, False
 
 
-def ombi(configfile, dbfile, device, log_debug):
+def ombi(configfile, dbfile, device, log_debug, first_launch):
     db = RssDb(dbfile, 'Ombi')
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
 
     if not url or not api:
-        return device
+        return [device, [0, 0]]
 
     english = RssConfig('RSScrawler', configfile).get('english')
 
     try:
         requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
         requested_movies = json.loads(requested_movies.text)
-        print(u"Ombi: " + str(len(requested_movies)) + " angefragte Filme gefunden")
         requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
         requested_shows = json.loads(requested_shows.text)
-        print(u"Ombi: " + str(len(requested_shows)) + " angefragte Serien gefunden")
+        len_movies = len(requested_movies)
+        len_shows = len(requested_shows)
+        if first_launch:
+            log_debug("Erfolgreich mit Ombi verbunden.")
+            print(u"Erfolgreich mit Ombi verbunden.")
     except:
         log_debug("Ombi ist nicht erreichbar!")
         print(u"Ombi ist nicht erreichbar!")
-        return False
+        return [False, [0, 0]]
 
     scraper = False
 
@@ -216,4 +219,4 @@ def ombi(configfile, dbfile, device, log_debug):
                                             db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                     print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
 
-    return device
+    return [device, [len_movies, len_shows]]
