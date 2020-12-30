@@ -1,9 +1,10 @@
 # [RSScrawler] Fehlermeldung
 
-Dieser Bereich dient der Fehlermeldung.
+Dieser Bereich dient ausschließlich der Fehlermeldung.
 
-Für Rückfragen und Chat gibt es:
-https://gitter.im/RSScrawler/Lobby
+**Ideen/Feature Requests** gehören in die [Discussions](https://github.com/rix1337/RSScrawler/discussions/).
+
+Für **Rückfragen** und Allgemeines gibt es den [Chat auf gitter](https://gitter.im/RSScrawler/Lobby).
 
 ## Zwingend erforderlich
 
