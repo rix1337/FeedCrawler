@@ -58,9 +58,9 @@ def imdb_movie(imdb_id, configfile, dbfile, scraper):
         return False, False
 
 
-def imdb_show(imdb_id, configfile, dbfile, scraper):
+def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
     try:
-        result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile, scraper)
+        result = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id, configfile, dbfile, scraper)
         output = result[0]
         scraper = result[1]
 
@@ -68,7 +68,17 @@ def imdb_show(imdb_id, configfile, dbfile, scraper):
 
         eps = {}
         soup = BeautifulSoup(output, 'lxml')
+        imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
         seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
+        if not seasons:
+            episode_guide = soup.find_all("a", {"class": "np_episode_guide"})[0]["href"]
+            result = get_imdb("https://www.imdb.com/" + episode_guide, configfile, dbfile, scraper)
+            output = result[0]
+            scraper = result[1]
+            soup = BeautifulSoup(output, 'lxml')
+            imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
+            seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
+
         latest_season = int(seasons[0].text)
         total_seasons = list(range(1, latest_season + 1))
         for sn in total_seasons:
@@ -86,7 +96,7 @@ def imdb_show(imdb_id, configfile, dbfile, scraper):
 
         return title, eps, scraper
     except:
-        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + ombi_imdb_id)
         return False, False, False
 
 
