@@ -208,8 +208,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             time.sleep(10)
 
 
-def web_server(port, docker, configfile, dbfile, log_level, log_file, log_format, device):
-    start(port, docker, configfile, dbfile, log_level, log_file, log_format, device)
+def web_server(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, device):
+    start(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, device)
 
 
 def crawldog(configfile, dbfile):
@@ -506,7 +506,8 @@ def main():
         RssDb(dbfile, 'cdc').reset()
 
     p = multiprocessing.Process(target=web_server,
-                                args=(port, docker, configfile, dbfile, log_level, log_file, log_format, device))
+                                args=(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format,
+                                      device))
     p.start()
 
     if not arguments['--testlauf']:
