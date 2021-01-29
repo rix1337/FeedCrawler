@@ -2,11 +2,10 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import cloudscraper
 import json
 import logging
 import re
-
-import cloudscraper
 from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
 
@@ -755,10 +754,15 @@ def download_sj(payload, configfile, dbfile):
                     if ep:
                         existing = result_episodes.get(season)
                         if existing:
+                            valid = False
                             for e in existing:
                                 if e == ep:
                                     if rate(name, ignore) > rate(existing[e], ignore):
-                                        existing.update({ep: name})
+                                        valid = True
+                                else:
+                                    valid = True
+                            if valid:
+                                existing.update({ep: name})
                         else:
                             existing = {ep: name}
                         result_episodes.update({season: existing})
