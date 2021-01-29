@@ -1138,6 +1138,8 @@ if (title) {
     @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_sj.user.js", methods=['GET'])
     @requires_auth
     def rsscrawler_sponsors_helper_sj():
+        if not helper_active:
+            return "Forbidden", 403
         hostnames = RssConfig('Hostnames', configfile)
         sj = hostnames.get('sj')
         dj = hostnames.get('dj')
@@ -1215,6 +1217,89 @@ if (title) {
         }
     }, 100);
 }
+""", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_fc.user.js", methods=['GET'])
+    @requires_auth
+    def rsscrawler_sponsors_helper_fc():
+        if not helper_active:
+            return "Forbidden", 403
+        hostnames = RssConfig('Hostnames', configfile)
+        fc = hostnames.get('fc').replace("www.", "")
+        if request.method == 'GET':
+            return """// ==UserScript==
+// @name            RSScrawler Sponsors Helper (FC)
+// @author          rix1337
+// @description     Forwards Click'n'Load to RSScrawler
+// @version         0.3.4
+// @match           https://*.""" + fc + """/*
+// @match           https://*.""" + fc.replace("cc", "co") + """/*
+// ==/UserScript==
+// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
+var sponsorsURL = '""" + local_address + """';
+// Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
+var sponsorsHoster = '';
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0]
+var password = tag[1]
+var ids = tag[2]
+var urlParams = new URLSearchParams(window.location.search);
+
+
+function Sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+    var mirrorsAvailable = false;
+    try {
+        mirrorsAvailable = document.querySelector('.mirror').querySelectorAll("a");
+    } catch {}
+    var cnlAllowed = false;
+
+if (mirrorsAvailable && sponsorsHoster) {
+    const currentURL = window.location.href;
+    var desiredMirror = "";
+    var i;
+    for (i = 0; i < mirrorsAvailable.length; i++) {
+        if (mirrorsAvailable[i].text.includes(sponsorsHoster)) {
+            var ep = "";
+            var cur_ep = urlParams.get('episode');
+            if (cur_ep) {
+                ep = "&episode=" + cur_ep;
+            }
+            desiredMirror = mirrorsAvailable[i].href + ep + window.location.hash;
+        }
+    }
+
+    if (desiredMirror) {
+        if (!currentURL.includes(desiredMirror)) {
+            console.log("[RSScrawler Sponsors Helper] switching to desired Mirror: " + sponsorsHoster);
+            window.location = desiredMirror;
+        } else {
+            console.log("[RSScrawler Sponsors Helper] already at the desired Mirror: " + sponsorsHoster);
+            cnlAllowed = true;
+        }
+    } else {
+        console.log("[RSScrawler Sponsors Helper] desired Mirror not available: " + sponsorsHoster);
+        cnlAllowed = true;
+    }
+} else {
+    cnlAllowed = true;
+}
+
+
+var cnlExists = setInterval(async function() {
+    if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
+        clearInterval(cnlExists);
+        document.getElementById("cnl_btn").click();
+        console.log("[RSScrawler Sponsors Helper] attempting Click'n'Load");
+        await Sleep(4000);
+        window.close();
+    }
+}, 100);
 """, 200
         else:
             return "Failed", 405

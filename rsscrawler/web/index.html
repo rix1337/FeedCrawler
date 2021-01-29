@@ -218,10 +218,15 @@
                                        class="cnl-button btn btn-outline-success" ng-show="!cnl_active" type="submit"
                                        title="Da der Click'n'Load des RSScrawler Sponsors Helper verfügbar ist, kann die Click'n'Load Automatik hiermit umgangen werden."
                                        target="_blank">Sponsors Helper Click'n'Load</a>
-                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase()) && helper_active && helper_available">Bitte zuerst
+                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase().replace('www.', '')) && helper_active && helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_sponsors_helper_sj.user.js"
                                            target="_blank">RSScrawler Sponsors Helper (SJ)</a> installieren!
+                                    </span>
+                                    <span ng-if="( x.url.includes(hostnames.fc.toLowerCase().replace('www.', '')) || x.url.includes(hostnames.sf.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a href="./sponsors_helper/rsscrawler_sponsors_helper_fc.user.js"
+                                           target="_blank">RSScrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                                     <a ng-if="!myjd_grabbing" ng-href="{{x.url}}#{{x.name}}"
                                        ng-click="internalCnl(x.name, x.password)"
