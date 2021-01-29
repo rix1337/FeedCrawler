@@ -700,7 +700,7 @@ def download_sj(payload, configfile, dbfile):
     api_url = 'https://' + sj + '/api/media/' + series_id + '/releases'
     releases = get_url(api_url, configfile, dbfile)
 
-    seasons = json.loads(releases)
+    unsorted_seasons = json.loads(releases)
 
     listen = ["SJ_Serien", "MB_Staffeln"]
     for liste in listen:
@@ -719,10 +719,22 @@ def download_sj(payload, configfile, dbfile):
     result_seasons = {}
     result_episodes = {}
 
+    seasons = {}
+    for season in unsorted_seasons:
+        if "sp" in season.lower():
+            seasons[season] = unsorted_seasons[season]
+    for season in unsorted_seasons:
+        if "sp" not in season.lower():
+            seasons[season] = unsorted_seasons[season]
+
     for season in seasons:
         releases = seasons[season]
         for release in releases['items']:
             name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
+            try:
+                season = re.findall(r'.*\.(s\d{1,3}).*', name, re.IGNORECASE)[0]
+            except:
+                pass
             hosters = release['hoster']
             try:
                 valid = bool(release['resolution'] == quality)
