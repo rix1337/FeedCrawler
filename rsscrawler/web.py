@@ -1098,14 +1098,15 @@ def app_container(port, docker, configfile, dbfile, log_file, no_logger, _device
 // @name            RSScrawler Helper (SJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
-// @version         0.2.0
+// @version         0.3.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
 // @exclude         https://""" + sj + """/serie/search?q=*
 // @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
-document.body.addEventListener('mousedown', function(e) {
+
+document.body.addEventListener('mousedown', function (e) {
     if (e.target.tagName != "A") return;
     var anchor = e.target;
     if (anchor.href.search(/""" + sj + """\/serie\//i) != -1) {
@@ -1115,24 +1116,21 @@ document.body.addEventListener('mousedown', function(e) {
     }
 });
 
-function Sleep(milliseconds) {
-   return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-
 var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0]
-var password = tag[1]
+var title = tag[0];
+var password = tag[1];
 if (title) {
     $('.wrapper').prepend('<h3>[RSScrawler Helper] ' + title + '</h3>');
     $(".container").hide();
-    var checkExist = setInterval(async function() {
+    var checkExist = setInterval(async function () {
         if ($("tr:contains('" + title + "')").length) {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
             clearInterval(checkExist);
         }
     }, 100);
-};
+}
+
 """, 200
         else:
             return "Failed", 405
