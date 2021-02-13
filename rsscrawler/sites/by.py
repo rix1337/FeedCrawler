@@ -14,11 +14,6 @@ from rsscrawler.common import is_retail
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb
 from rsscrawler.db import RssDb
-from rsscrawler.fakefeed import fx_download_links
-from rsscrawler.fakefeed import fx_feed_enricher
-from rsscrawler.fakefeed import hs_feed_enricher
-from rsscrawler.fakefeed import hs_search_to_soup
-from rsscrawler.fakefeed import nk_feed_enricher
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
@@ -38,22 +33,10 @@ class BL:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.by = self.hostnames.get('by')
-        self.hw = self.hostnames.get('hw')
-        self.hs = self.hostnames.get('hs')
-        self.fx = self.hostnames.get('fx')
-        self.nk = self.hostnames.get('nk')
+        self.url = self.hostnames.get('by')
 
-        self.BY_URL = 'https://' + self.by + '/feed/'
-        self.BY_FEED_URLS = [self.BY_URL]
-        self.HW_URL = 'https://' + self.hw + '/feed/'
-        self.HW_FEED_URLS = [self.HW_URL]
-        self.HS_URL = 'https://' + self.hs + '/feed'
-        self.HS_FEED_URLS = [self.HS_URL]
-        self.FX_URL = 'https://' + self.fx
-        self.FX_FEED_URLS = [self.FX_URL]
-        self.NK_URL = 'https://' + self.nk + '/'
-        self.NK_FEED_URLS = [self.NK_URL]
+        self.URL = 'https://' + self.url + '/feed/'
+        self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
@@ -72,53 +55,17 @@ class BL:
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            page_url = self.BY_URL + "?paged=" + str(i)
-            if page_url not in self.BY_FEED_URLS:
-                self.BY_FEED_URLS.append(page_url)
-            i += 1
-
-        i = 2
-        while i <= search:
-            page_url = self.HW_URL + "?paged=" + str(i)
-            if page_url not in self.HW_FEED_URLS:
-                self.HW_FEED_URLS.append(page_url)
-            i += 1
-
-        i = 2
-        while i <= search:
-            page_url = self.HS_URL + "?paged=" + str(i)
-            if page_url not in self.HS_FEED_URLS:
-                self.HS_FEED_URLS.append(page_url)
-            i += 1
-
-        i = 2
-        while i <= search:
-            page_url = self.FX_URL + "/page/" + str(i)
-            if page_url not in self.FX_FEED_URLS:
-                self.FX_FEED_URLS.append(page_url)
-            i += 1
-
-        i = 2
-        while i <= search:
-            page_url = self.NK_URL + "page-" + str(i)
-            if page_url not in self.NK_FEED_URLS:
-                self.NK_FEED_URLS.append(page_url)
+            page_url = self.URL + "?paged=" + str(i)
+            if page_url not in self.FEED_URLS:
+                self.FEED_URLS.append(page_url)
             i += 1
 
         self.cdc = RssDb(self.dbfile, 'cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers_by = {'If-Modified-Since': str(self.cdc.retrieve("BYHeaders-" + self.filename))}
-        self.headers_hw = {'If-Modified-Since': str(self.cdc.retrieve("HWHeaders-" + self.filename))}
-        self.headers_hs = {'If-Modified-Since': str(self.cdc.retrieve("HSHeaders-" + self.filename))}
-        self.headers_fx = {'If-Modified-Since': str(self.cdc.retrieve("FXHeaders-" + self.filename))}
-        self.headers_nk = {'If-Modified-Since': str(self.cdc.retrieve("NKHeaders-" + self.filename))}
 
         self.last_sha_by = self.cdc.retrieve("BY-" + self.filename)
-        self.last_sha_hw = self.cdc.retrieve("HW-" + self.filename)
-        self.last_sha_hs = self.cdc.retrieve("HS-" + self.filename)
-        self.last_sha_fx = self.cdc.retrieve("FX-" + self.filename)
-        self.last_sha_nk = self.cdc.retrieve("NK-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
                     "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
                     "hevc_retail", "retail_only", "hoster_fallback"]
@@ -128,16 +75,8 @@ class BL:
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
-        self.i_by_done = False
-        self.i_hw_done = False
-        self.i_hs_done = False
-        self.i_fx_done = False
-        self.i_nk_done = False
-        self.by_done = False
-        self.hw_done = False
-        self.hs_done = False
-        self.fx_done = False
-        self.nk_done = False
+        self.search_imdb_done = False
+        self.search_regular_done = False
         self.dl_unsatisfied = False
 
         try:
@@ -229,48 +168,16 @@ class BL:
             if content:
                 post.title = post.title.strip(u'\u200b')
 
-            if site == "BY":
-                if self.i_by_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche BY-Suche ab!")
-                    return added_items
-            elif site == "HW":
-                if self.i_hw_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche HW-Suche ab!")
-                    return added_items
-            elif site == "HS":
-                if self.i_hs_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
-                    return added_items
-            elif site == "FX":
-                if self.i_fx_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
-                    return added_items
-            else:
-                if self.i_nk_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche NK-Suche ab!")
-                    return added_items
+            if self.search_imdb_done:
+                self.log_debug(
+                    site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche BY-Suche ab!")
+                return added_items
 
             concat = post.title + post.published + settings + score
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("BY" in site and sha == self.last_sha_by) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx) or (
-                    "NK" in site and sha == self.last_sha_nk):
-                if "BY" in site:
-                    self.i_by_done = True
-                elif "HW" in site:
-                    self.i_hw_done = True
-                elif "HS" in site:
-                    self.i_hs_done = True
-                elif "FX" in site:
-                    self.i_fx_done = True
-                else:
-                    self.i_nk_done = True
+            if sha == self.last_sha_by:
+                self.search_imdb_done = True
 
             if content:
                 if "mkv" in content.lower():
@@ -469,21 +376,9 @@ class BL:
                         download_score = float(download_score[0].replace(
                             ",", "."))
                         if download_score > imdb:
-                            if "BY" in site:
-                                password = self.by
-                            elif "HW" in site:
-                                password = self.hw
-                            elif "HS" in site:
-                                password = self.hs
-                            elif "FX" in site:
-                                password = self.fx.split('.')[0]
-                            else:
-                                password = self.nk.split('.')[0].capitalize()
+                            password = self.url
 
-                            if "FX" not in site:
-                                download_pages = self.get_download_links(content)
-                            else:
-                                download_pages = fx_download_links(content, post.title, self.configfile)
+                            download_pages = self.get_download_links(content)
 
                             if '.3d.' not in post.title.lower():
                                 found = self.imdb_download(
@@ -502,16 +397,7 @@ class BL:
         if not self.pattern:
             return
         added_items = []
-        if "BY" in site:
-            password = self.by
-        elif "HW" in site:
-            password = self.hw
-        elif "HS" in site:
-            password = self.hs
-        elif "FX" in site:
-            password = self.fx.split('.')[0]
-        else:
-            password = self.nk.split('.')[0].capitalize()
+        password = self.url
         ignore = "|".join(
             [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
             "ignore") else r"^unmatchable$"
@@ -531,48 +417,16 @@ class BL:
             if content:
                 post.title = post.title.strip(u'\u200b')
 
-            if site == "BY":
-                if self.by_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche BY-Suche ab!")
-                    return added_items
-            elif site == "HW":
-                if self.hw_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HW-Suche ab!")
-                    return added_items
-            elif site == "HS":
-                if self.hs_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche HS-Suche ab!")
-                    return added_items
-            elif site == "FX":
-                if self.fx_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche FX-Suche ab!")
-                    return added_items
-            else:
-                if self.nk_done:
-                    self.log_debug(
-                        site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche NK-Suche ab!")
-                    return added_items
+            if self.search_regular_done:
+                self.log_debug(
+                    site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche BY-Suche ab!")
+                return added_items
 
             concat = post.title + post.published + settings + liste
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if ("BY" in site and sha == self.last_sha_by) or ("HW" in site and sha == self.last_sha_hw) or (
-                    "HS" in site and sha == self.last_sha_hs) or ("FX" in site and sha == self.last_sha_fx) or (
-                    "NK" in site and sha == self.last_sha_nk):
-                if "BY" in site:
-                    self.by_done = True
-                elif "HW" in site:
-                    self.hw_done = True
-                elif "HS" in site:
-                    self.hs_done = True
-                elif "FX" in site:
-                    self.fx_done = True
-                else:
-                    self.nk_done = True
+            if sha == self.last_sha_by:
+                self.search_regular_done = True
 
             found = re.search(s, post.title.lower())
 
@@ -726,20 +580,9 @@ class BL:
         search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
         feedsearch_title = fullhd_title(title).split('.German', 1)[0]
         search_results = []
-        if self.by:
+        if self.url:
             search_results.append(feedparser.parse(
-                get_url('https://' + self.by + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper)))
-        if self.hw:
-            search_results.append(feedparser.parse(
-                get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper)))
-        if self.hs:
-            search_results.append(hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
-                                                    self.configfile, self.dbfile, self.scraper))
-        if self.fx:
-            search_results.append(feedparser.parse(
-                get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
+                get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper)))
 
         i = 0
@@ -752,14 +595,10 @@ class BL:
 
             for (key, value) in self.adhoc_search(content, feedsearch_title):
                 if is_hevc(key) and "1080p" in key:
-                    if i < 3:
-                        download_links = self.get_download_links(value)
-                    else:
-                        # FX
-                        download_links = fx_download_links(content, key, self.configfile)
+                    download_links = self.get_download_links(value)
                     if download_links:
                         for download_link in download_links:
-                            if self.by.split('.')[0] in download_link:
+                            if self.url.split('.')[0] in download_link:
                                 self.log_debug("Fake-Link erkannt!")
                                 break
                         storage = self.db.retrieve_all(key)
@@ -907,20 +746,9 @@ class BL:
             fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
                 0].split('.HEVC-', 1)[0]
         search_results = []
-        if self.by:
+        if self.url:
             search_results.append(feedparser.parse(
-                get_url('https://' + self.by + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper)))
-        if self.hw:
-            search_results.append(feedparser.parse(
-                get_url('https://' + self.hw + '/search/' + search_title + "/feed/rss2/",
-                        self.configfile, self.dbfile, self.scraper)))
-        if self.hs:
-            search_results.append(hs_search_to_soup('https://' + self.hs + '/search/' + search_title + '/feed/',
-                                                    self.configfile, self.dbfile, self.scraper))
-        if self.fx:
-            search_results.append(feedparser.parse(
-                get_url('https://' + self.fx + '/search/' + search_title + "/feed/rss2/",
+                get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                         self.configfile, self.dbfile, self.scraper)))
 
         i = 0
@@ -940,19 +768,14 @@ class BL:
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (nicht HEVC)" % key)
                     continue
-                # this enables automatic remuxing of 720p files with a 1080p dual language version
                 if ".720p." in key.lower():
                     path_suffix = "/Remux"
                 else:
                     path_suffix = ""
-                if i < 3:
-                    download_links = self.get_download_links(value)
-                else:
-                    # FX
-                    download_links = fx_download_links(content, key, self.configfile)
+                download_links = self.get_download_links(value)
                 if download_links:
                     for download_link in download_links:
-                        if self.by.split('.')[0] in download_link:
+                        if self.url.split('.')[0] in download_link:
                             self.log_debug("Fake-Link erkannt!")
                             break
                     storage = self.db.retrieve_all(key)
@@ -1051,7 +874,7 @@ class BL:
                         return
         if download_links:
             for download_link in download_links:
-                if self.by.split('.')[0] in download_link:
+                if self.url.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             englisch = False
@@ -1149,13 +972,10 @@ class BL:
                         self.log_debug(
                             "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                         return
-        if "FX" not in site:
-            download_links = self.get_download_links(content)
-        else:
-            download_links = fx_download_links(content, key, self.configfile)
+        download_links = self.get_download_links(content)
         if download_links:
             for download_link in download_links:
-                if self.by.split('.')[0] in download_link:
+                if self.url.split('.')[0] in download_link:
                     self.log_debug("Fake-Link erkannt!")
                     break
             storage = self.db.retrieve_all(key)
@@ -1312,11 +1132,7 @@ class BL:
 
     def periodical_task(self):
         imdb = self.imdb
-        by_urls = []
-        hw_urls = []
-        hs_urls = []
-        fx_urls = []
-        nk_urls = []
+        urls = []
 
         if self.filename == 'MB_Staffeln':
             if not self.config.get('crawlseasons'):
@@ -1344,21 +1160,9 @@ class BL:
             if liste:
                 self.pattern = r'(' + "|".join(liste).lower() + ').*'
 
-        if self.by:
-            for URL in self.BY_FEED_URLS:
-                by_urls.append(URL)
-        if self.hw:
-            for URL in self.HW_FEED_URLS:
-                hw_urls.append(URL)
-        if self.hs:
-            for URL in self.HS_FEED_URLS:
-                hs_urls.append(URL)
-        if self.fx:
-            for URL in self.FX_FEED_URLS:
-                fx_urls.append(URL)
-        if self.nk:
-            for URL in self.NK_FEED_URLS:
-                nk_urls.append(URL)
+        if self.url:
+            for URL in self.FEED_URLS:
+                urls.append(URL)
 
         if not self.pattern:
             self.log_debug(
@@ -1370,161 +1174,49 @@ class BL:
                 "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
             return self.device
 
-        by_304 = False
+        loading_304 = False
         try:
-            first_by = get_url_headers(by_urls[0], self.configfile, self.dbfile, self.headers_by, self.scraper)
-            self.scraper = first_by[1]
-            first_by = first_by[0]
-            first_page_by = feedparser.parse(first_by.content)
-            if first_by.status_code == 304:
-                by_304 = True
+            first_page_raw = get_url_headers(urls[0], self.configfile, self.dbfile, self.headers_by, self.scraper)
+            self.scraper = first_page_raw[1]
+            first_page_raw = first_page_raw[0]
+            first_page_content = feedparser.parse(first_page_raw.content)
+            if first_page_raw.status_code == 304:
+                loading_304 = True
         except:
-            by_304 = True
-            first_page_by = False
+            loading_304 = True
+            first_page_content = False
             self.log_debug("Fehler beim Abruf von BY - breche BY-Suche ab!")
-
-        hw_304 = False
-        try:
-            first_hw = get_url_headers(hw_urls[0], self.configfile, self.dbfile, self.headers_hw, self.scraper)
-            self.scraper = first_hw[1]
-            first_hw = first_hw[0]
-            first_page_hw = feedparser.parse(first_hw.content)
-            if first_hw.status_code == 304:
-                hw_304 = True
-        except:
-            hw_304 = True
-            first_page_hw = False
-            self.log_debug("Fehler beim Abruf von HW - breche HW-Suche ab!")
-
-        hs_304 = False
-        try:
-            first_hs = get_url_headers(hs_urls[0], self.configfile, self.dbfile, self.headers_hs, self.scraper)
-            self.scraper = first_hs[1]
-            first_hs = first_hs[0]
-            first_page_hs = hs_feed_enricher(first_hs.content, self.configfile, self.dbfile, self.scraper)
-            if first_hs.status_code == 304:
-                hs_304 = True
-        except:
-            hs_304 = True
-            first_page_hs = False
-            self.log_debug("Fehler beim Abruf von HS - breche HS-Suche ab!")
-
-        fx_304 = False
-        try:
-            first_fx = get_url_headers(fx_urls[0], self.configfile, self.dbfile, self.headers_fx, self.scraper)
-            self.scraper = first_fx[1]
-            first_fx = first_fx[0]
-            first_page_fx = fx_feed_enricher(first_fx.content, self.configfile)
-            if first_fx.status_code == 304:
-                fx_304 = True
-        except:
-            fx_304 = True
-            first_page_fx = False
-            self.log_debug("Fehler beim Abruf von FX - breche FX-Suche ab!")
-
-        nk_304 = False
-        try:
-            first_nk = get_url_headers(nk_urls[0], self.configfile, self.dbfile, self.headers_nk, self.scraper)
-            self.scraper = first_nk[1]
-            first_nk = first_nk[0]
-            first_page_nk = nk_feed_enricher(first_nk.content, self.NK_URL, self.configfile, self.dbfile,
-                                             self.scraper)
-            if first_nk.status_code == 304:
-                nk_304 = True
-        except:
-            nk_304 = True
-            first_page_nk = False
-            self.log_debug("Fehler beim Abruf von NK - breche NK-Suche ab!")
 
         set_all = self.settings_hash(False)
 
         if self.last_set_all == set_all:
-            if by_304 and hw_304 and hs_304 and fx_304 and nk_304:
-                self.log_debug("Alle Blog-Feeds seit letztem Aufruf nicht aktualisiert - breche Suche ab!")
-                return self.device
-            if by_304:
-                by_urls = []
+            if loading_304:
+                urls = []
                 self.log_debug("BY-Feed seit letztem Aufruf nicht aktualisiert - breche BY-Suche ab!")
-            if hw_304:
-                hw_urls = []
-                self.log_debug("HW-Feed seit letztem Aufruf nicht aktualisiert - breche HW-Suche ab!")
-            if hs_304:
-                hs_urls = []
-                self.log_debug("HS-Feed seit letztem Aufruf nicht aktualisiert - breche HS-Suche ab!")
-            if fx_304:
-                fx_urls = []
-                self.log_debug("FX-Feed seit letztem Aufruf nicht aktualisiert - breche FX-Suche ab!")
-            if nk_304:
-                nk_urls = []
-                self.log_debug("NK-Feed seit letztem Aufruf nicht aktualisiert - breche NK-Suche ab!")
 
-        sha_by = None
-        sha_hw = None
-        sha_hs = None
-        sha_fx = None
-        sha_nk = None
+        sha = None
 
         if self.filename != 'IMDB':
-            if not by_304 and first_page_by:
-                for i in first_page_by.entries:
+            if not loading_304 and first_page_content:
+                for i in first_page_content.entries:
                     concat_by = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_by = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not hw_304 and first_page_hw:
-                for i in first_page_hw.entries:
-                    concat_hw = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not hs_304 and first_page_hs:
-                for i in first_page_hs.entries:
-                    concat_hs = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not fx_304 and first_page_fx:
-                for i in first_page_fx.entries:
-                    concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not nk_304 and first_page_nk:
-                for i in first_page_nk.entries:
-                    concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
+                    sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
                     break
         else:
-            if not by_304 and first_page_by:
-                for i in first_page_by.entries:
+            if not loading_304 and first_page_content:
+                for i in first_page_content.entries:
                     concat_by = i.title + i.published + str(self.settings) + str(self.imdb)
-                    sha_by = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not hw_304 and first_page_hw:
-                for i in first_page_hw.entries:
-                    concat_hw = i.title + i.published + str(self.settings) + str(self.imdb)
-                    sha_hw = hashlib.sha256(concat_hw.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not hs_304 and first_page_hs:
-                for i in first_page_hs.entries:
-                    concat_hs = i.title + i.published + str(self.settings) + str(self.imdb)
-                    sha_hs = hashlib.sha256(concat_hs.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not fx_304 and first_page_fx:
-                for i in first_page_fx.entries:
-                    concat_fx = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_fx = hashlib.sha256(concat_fx.encode('ascii', 'ignore')).hexdigest()
-                    break
-            if not nk_304 and first_page_nk:
-                for i in first_page_nk.entries:
-                    concat_nk = i.title + i.published + str(self.settings) + str(self.pattern)
-                    sha_nk = hashlib.sha256(concat_nk.encode('ascii', 'ignore')).hexdigest()
+                    sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
                     break
 
         added_items = []
         if self.filename == "IMDB":
             if imdb > 0:
                 i = 0
-                for url in by_urls:
-                    if not self.i_by_done:
-                        if i == 0 and first_page_by:
-                            by_parsed_url = first_page_by
+                for url in urls:
+                    if not self.search_imdb_done:
+                        if i == 0 and first_page_content:
+                            by_parsed_url = first_page_content
                         else:
                             by_parsed_url = feedparser.parse(
                                 get_url(url, self.configfile, self.dbfile, self.scraper))
@@ -1533,66 +1225,12 @@ class BL:
                             for f in found:
                                 added_items.append(f)
                         i += 1
-                i = 0
-                for url in hw_urls:
-                    if not self.i_hw_done:
-                        if i == 0 and first_page_hw:
-                            hw_parsed_url = first_page_hw
-                        else:
-                            hw_parsed_url = feedparser.parse(
-                                get_url(url, self.configfile, self.dbfile, self.scraper))
-                        found = self.imdb_search(imdb, hw_parsed_url, "HW")
-                        if found:
-                            for f in found:
-                                added_items.append(f)
-                        i += 1
-                i = 0
-                for url in hs_urls:
-                    if not self.i_hs_done:
-                        if i == 0 and first_page_hs:
-                            hs_parsed_url = first_page_hs
-                        else:
-                            hs_parsed_url = hs_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
-                                self.scraper)
-                        found = self.imdb_search(imdb, hs_parsed_url, "HS")
-                        if found:
-                            for f in found:
-                                added_items.append(f)
-                        i += 1
-                i = 0
-                for url in fx_urls:
-                    if not self.i_fx_done:
-                        if i == 0 and first_page_fx:
-                            fx_parsed_url = first_page_fx
-                        else:
-                            fx_parsed_url = fx_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
-                        found = self.imdb_search(imdb, fx_parsed_url, "FX")
-                        if found:
-                            for f in found:
-                                added_items.append(f)
-                        i += 1
-                for url in nk_urls:
-                    if not self.i_nk_done:
-                        if i == 0 and first_page_nk:
-                            nk_parsed_url = first_page_nk
-                        else:
-                            nk_parsed_url = nk_feed_enricher(
-                                get_url(url, self.configfile, self.dbfile, self.scraper), self.NK_URL, self.configfile,
-                                self.dbfile,
-                                self.scraper)
-                        found = self.imdb_search(imdb, nk_parsed_url, "NK")
-                        if found:
-                            for f in found:
-                                added_items.append(f)
-                        i += 1
         else:
             i = 0
-            for url in by_urls:
-                if not self.by_done:
-                    if i == 0 and first_page_by:
-                        by_parsed_url = first_page_by
+            for url in urls:
+                if not self.search_regular_done:
+                    if i == 0 and first_page_content:
+                        by_parsed_url = first_page_content
                     else:
                         by_parsed_url = feedparser.parse(
                             get_url(url, self.configfile, self.dbfile, self.scraper))
@@ -1602,59 +1240,6 @@ class BL:
                             added_items.append(f)
                     i += 1
             i = 0
-            for url in hw_urls:
-                if not self.hw_done:
-                    if i == 0 and first_page_hw:
-                        hw_parsed_url = first_page_hw
-                    else:
-                        hw_parsed_url = feedparser.parse(
-                            get_url(url, self.configfile, self.dbfile, self.scraper))
-                    found = self.feed_search(hw_parsed_url, "HW")
-                    if found:
-                        for f in found:
-                            added_items.append(f)
-                    i += 1
-            i = 0
-            for url in hs_urls:
-                if not self.hs_done:
-                    if i == 0 and first_page_hs:
-                        hs_parsed_url = first_page_hs
-                    else:
-                        hs_parsed_url = hs_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
-                            self.scraper)
-                    found = self.feed_search(hs_parsed_url, "HS")
-                    if found:
-                        for f in found:
-                            added_items.append(f)
-                    i += 1
-            i = 0
-            for url in fx_urls:
-                if not self.fx_done:
-                    if i == 0 and first_page_fx:
-                        fx_parsed_url = first_page_fx
-                    else:
-                        fx_parsed_url = fx_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
-                    found = self.feed_search(fx_parsed_url, "FX")
-                    if found:
-                        for f in found:
-                            added_items.append(f)
-                    i += 1
-            for url in nk_urls:
-                if not self.nk_done:
-                    if i == 0 and first_page_nk:
-                        nk_parsed_url = first_page_nk
-                    else:
-                        nk_parsed_url = nk_feed_enricher(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.NK_URL, self.configfile,
-                            self.dbfile,
-                            self.scraper)
-                    found = self.feed_search(nk_parsed_url, "NK")
-                    if found:
-                        for f in found:
-                            added_items.append(f)
-                    i += 1
 
         settings_changed = False
         if set_all:
@@ -1664,80 +1249,20 @@ class BL:
                 self.cdc.store("ALLSet-" + self.filename, new_set_all)
             else:
                 settings_changed = True
-        if sha_by:
+        if sha:
             if not self.dl_unsatisfied and not settings_changed:
                 self.cdc.delete("BY-" + self.filename)
-                self.cdc.store("BY-" + self.filename, sha_by)
+                self.cdc.store("BY-" + self.filename, sha)
             else:
                 self.log_debug(
                     "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues BY-CDC!")
-        if sha_hw:
-            if not self.dl_unsatisfied and not settings_changed:
-                self.cdc.delete("HW-" + self.filename)
-                self.cdc.store("HW-" + self.filename, sha_hw)
-            else:
-                self.log_debug(
-                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HW-CDC!")
-        if sha_hs:
-            if not self.dl_unsatisfied and not settings_changed:
-                self.cdc.delete("HS-" + self.filename)
-                self.cdc.store("HS-" + self.filename, sha_hs)
-            else:
-                self.log_debug(
-                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues HS-CDC!")
-        if sha_fx:
-            if not self.dl_unsatisfied and not settings_changed:
-                self.cdc.delete("FX-" + self.filename)
-                self.cdc.store("FX-" + self.filename, sha_fx)
-            else:
-                self.log_debug(
-                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues FX-CDC!")
-        if sha_nk:
-            if not self.dl_unsatisfied and not settings_changed:
-                self.cdc.delete("NK-" + self.filename)
-                self.cdc.store("NK-" + self.filename, sha_nk)
-            else:
-                self.log_debug(
-                    "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues NK-CDC!")
-        if not by_304:
+        if not loading_304:
             try:
-                header = first_by.headers['Last-Modified']
+                header = first_page_raw.headers['Last-Modified']
             except KeyError:
                 header = False
             if header:
                 self.cdc.delete("BYHeaders-" + self.filename)
                 self.cdc.store("BYHeaders-" + self.filename, header)
-        if not hw_304:
-            try:
-                header = first_hw.headers['Last-Modified']
-            except KeyError:
-                header = False
-            if header:
-                self.cdc.delete("HWHeaders-" + self.filename)
-                self.cdc.store("HWHeaders-" + self.filename, header)
-        if not hs_304:
-            try:
-                header = first_hs.headers['Last-Modified']
-            except KeyError:
-                header = False
-            if header:
-                self.cdc.delete("HSHeaders-" + self.filename)
-                self.cdc.store("HSHeaders-" + self.filename, header)
-        if not fx_304:
-            try:
-                header = first_fx.headers['Last-Modified']
-            except KeyError:
-                header = False
-            if header:
-                self.cdc.delete("FXHeaders-" + self.filename)
-                self.cdc.store("FXHeaders-" + self.filename, header)
-        if not nk_304:
-            try:
-                header = first_nk.headers['Last-Modified']
-            except KeyError:
-                header = False
-            if header:
-                self.cdc.delete("NKHeaders-" + self.filename)
-                self.cdc.store("NKHeaders-" + self.filename, header)
 
         return self.device
