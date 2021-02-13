@@ -2,10 +2,9 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import feedparser
 import hashlib
 import re
-
-import feedparser
 
 from rsscrawler.common import check_hoster
 from rsscrawler.common import check_valid_release
@@ -822,7 +821,7 @@ class BL:
                                 retail = False
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                            "RSScrawler",
+                                                            "RSScrawler/Filme",
                                                             download_links,
                                                             password)
                                 if self.device:
@@ -844,7 +843,7 @@ class BL:
                                 retail = False
                             if retail:
                                 self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                            "RSScrawler/3Dcrawler",
+                                                            "RSScrawler/3D-Filme",
                                                             download_links,
                                                             password)
                                 if self.device:
@@ -858,8 +857,14 @@ class BL:
                                     notify([log_entry], self.configfile)
                                     return log_entry
                         elif self.filename == 'MB_Regex':
+                            if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
+                                path = "RSScrawler/Serien"
+                            elif '.3d.' in key:
+                                path = "RSScrawler/3D-Filme"
+                            else:
+                                path = "RSScrawler/Filme"
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler",
+                                                        path,
                                                         download_links,
                                                         password)
                             if self.device:
@@ -968,7 +973,7 @@ class BL:
                                 if is_retail(key, '0', self.dbfile):
                                     retail = True
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler" + path_suffix, download_links, password)
+                                                    "RSScrawler/Filme" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -985,7 +990,7 @@ class BL:
                             if is_retail(key, '2', self.dbfile):
                                 retail = True
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler/3Dcrawler" + path_suffix, download_links, password)
+                                                    "RSScrawler/3D-Filme" + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -997,8 +1002,14 @@ class BL:
                             notify([log_entry], self.configfile)
                             return log_entry
                     elif self.filename == 'MB_Regex':
+                        if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
+                            path = "RSScrawler/Serien"
+                        elif '.3d.' in key:
+                            path = "RSScrawler/3D-Filme"
+                        else:
+                            path = "RSScrawler/Filme"
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler" + path_suffix, download_links, password)
+                                                    path + path_suffix, download_links, password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -1080,7 +1091,7 @@ class BL:
                         else:
                             if is_retail(key, '0', self.dbfile):
                                 retail = True
-                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
                                             download_links, password)
                 if self.device:
                     self.db.store(
@@ -1104,7 +1115,7 @@ class BL:
                         if self.config.get('enforcedl'):
                             if is_retail(key, '2', self.dbfile):
                                 retail = True
-                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
                                             download_links,
                                             password)
                 if self.device:
@@ -1213,7 +1224,7 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if is_retail(key, '0', self.dbfile):
                             retail = True
-                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
                                             download_links, password)
                 if self.device:
                     self.db.store(
@@ -1240,7 +1251,7 @@ class BL:
                     if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                         if is_retail(key, '2', self.dbfile):
                             retail = True
-                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3Dcrawler",
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
                                             download_links,
                                             password)
                 if self.device:
@@ -1271,7 +1282,13 @@ class BL:
                     notify([log_entry], self.configfile)
                     added_items.append(log_entry)
             else:
-                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
+                    path = "RSScrawler/Serien"
+                elif '.3d.' in key:
+                    path = "RSScrawler/3D-Filme"
+                else:
+                    path = "RSScrawler/Filme"
+                self.device = myjd_download(self.configfile, self.dbfile, self.device, key, path,
                                             download_links, password)
                 if self.device:
                     self.db.store(

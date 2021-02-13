@@ -1508,7 +1508,14 @@ var cnlExists = setInterval(async function() {
                                 else:
                                     already_added.remove(item)
 
-                        device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                        if re.search(r'\.S(\d{1,3})(\.|-|E)', name):
+                            path = "RSScrawler/Serien"
+                        elif '.3d.' in name:
+                            path = "RSScrawler/3D-Filme"
+                        else:
+                            path = "RSScrawler/Filme"
+
+                        device = download(configfile, dbfile, device, name, path, links, password)
                         try:
                             notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                         except:
