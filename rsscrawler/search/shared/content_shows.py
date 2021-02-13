@@ -14,7 +14,7 @@ from rsscrawler.search.search import get, logger, rate
 from rsscrawler.url import get_url
 
 
-def best_result_sj(title, configfile, dbfile):
+def get_best_result(title, configfile, dbfile):
     try:
         sj_results = get(title, configfile, dbfile, sj_only=True)[1]
     except:
@@ -62,7 +62,7 @@ def best_result_sj(title, configfile, dbfile):
     return best_payload
 
 
-def download_sj(payload, configfile, dbfile):
+def download(payload, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
 

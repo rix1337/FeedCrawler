@@ -22,7 +22,6 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 import rsscrawler.myjdapi
 import rsscrawler.search.shared.content_all
 import rsscrawler.search.shared.content_shows
-from rsscrawler.search import search
 from rsscrawler import version
 from rsscrawler.common import Unbuffered
 from rsscrawler.common import decode_base64
@@ -51,6 +50,7 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.myjd import update_jdownloader
 from rsscrawler.notifiers import notify
+from rsscrawler.search import search
 
 
 def app_container(port, local_address, docker, configfile, dbfile, log_file, no_logger, _device):
@@ -626,9 +626,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
     def download_movie(title):
         global device
         if request.method == 'POST':
-            payload = rsscrawler.search.shared.content_all.best_result_bl(title, configfile, dbfile)
+            payload = rsscrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
             if payload:
-                matches = rsscrawler.search.shared.content_all.download_bl(payload, device, configfile, dbfile)
+                matches = rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile)
                 return "Success: " + str(matches), 200
             else:
                 return "Failed", 400
@@ -640,9 +640,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
     def download_show(title):
         global device
         if request.method == 'POST':
-            payload = rsscrawler.search.shared.content_shows.best_result_sj(title, configfile, dbfile)
+            payload = rsscrawler.search.shared.content_shows.get_best_result(title, configfile, dbfile)
             if payload:
-                matches = rsscrawler.search.shared.content_shows.download_sj(payload, configfile, dbfile)
+                matches = rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile)
                 if matches:
                     return "Success: " + str(matches), 200
             return "Failed", 400
@@ -654,7 +654,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
     def download_bl(payload):
         global device
         if request.method == 'POST':
-            if rsscrawler.search.shared.content_all.download_bl(payload, device, configfile, dbfile):
+            if rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400
@@ -666,7 +666,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
     def download_sj(payload):
         global device
         if request.method == 'POST':
-            if rsscrawler.search.shared.content_shows.download_sj(payload, configfile, dbfile):
+            if rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile):
                 return "Success", 200
             else:
                 return "Failed", 400

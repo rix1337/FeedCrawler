@@ -19,7 +19,7 @@ from rsscrawler.sites.by import BL
 from rsscrawler.url import get_url
 
 
-def best_result_bl(title, configfile, dbfile):
+def get_best_result(title, configfile, dbfile):
     title = sanitize(title)
     try:
         bl_results = get(title, configfile, dbfile, bl_only=True)[0]
@@ -86,7 +86,7 @@ def best_result_bl(title, configfile, dbfile):
         return best_payload
 
 
-def download_bl(payload, device, configfile, dbfile):
+def download(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
     mb = hostnames.get('mb')
     nk = hostnames.get('nk')

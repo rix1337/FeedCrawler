@@ -4,13 +4,11 @@
 
 import json
 import re
-
 import requests
 from bs4 import BeautifulSoup
 
 import rsscrawler.search.shared.content_all
 import rsscrawler.search.shared.content_shows
-from rsscrawler.search import search
 from rsscrawler.common import decode_base64
 from rsscrawler.common import encode_base64
 from rsscrawler.common import sanitize
@@ -139,17 +137,18 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
                     title = response[0]
                     if title:
                         scraper = response[1]
-                        best_result = rsscrawler.search.shared.content_all.best_result_bl(title, configfile, dbfile)
+                        best_result = rsscrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                         if best_result:
-                            rsscrawler.search.shared.content_all.download_bl(best_result, device, configfile, dbfile)
+                            rsscrawler.search.shared.content_all.download(best_result, device, configfile, dbfile)
                         if english:
                             title = r.get('title')
-                            best_result = rsscrawler.search.shared.content_all.best_result_bl(title, configfile, dbfile)
+                            best_result = rsscrawler.search.shared.content_all.get_best_result(title, configfile,
+                                                                                               dbfile)
                             print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                             if best_result:
-                                rsscrawler.search.shared.content_all.download_bl(best_result, device, configfile,
-                                                                                 dbfile)
+                                rsscrawler.search.shared.content_all.download(best_result, device, configfile,
+                                                                              dbfile)
                         db.store('movie_' + str(imdb_id), 'added')
                     else:
                         log_debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
@@ -198,18 +197,18 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
                                             if len(e) == 1:
                                                 e = "0" + e
                                             se = s + "E" + e
-                                            payload = rsscrawler.search.shared.content_shows.best_result_sj(title,
-                                                                                                            configfile,
-                                                                                                            dbfile)
+                                            payload = rsscrawler.search.shared.content_shows.get_best_result(title,
+                                                                                                             configfile,
+                                                                                                             dbfile)
                                             if payload:
                                                 payload = decode_base64(payload).split("|")
                                                 payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
-                                                added_episode = rsscrawler.search.shared.content_shows.download_sj(
+                                                added_episode = rsscrawler.search.shared.content_shows.download(
                                                     payload, configfile, dbfile)
                                                 if not added_episode:
                                                     payload = decode_base64(payload).split("|")
                                                     payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                                    add_season = rsscrawler.search.shared.content_shows.download_sj(
+                                                    add_season = rsscrawler.search.shared.content_shows.download(
                                                         payload, configfile, dbfile)
                                                     for e in eps:
                                                         e = str(e)
@@ -223,14 +222,14 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
                                                     break
                                             db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                     else:
-                                        payload = rsscrawler.search.shared.content_shows.best_result_sj(title,
-                                                                                                        configfile,
-                                                                                                        dbfile)
+                                        payload = rsscrawler.search.shared.content_shows.get_best_result(title,
+                                                                                                         configfile,
+                                                                                                         dbfile)
                                         if payload:
                                             payload = decode_base64(payload).split("|")
                                             payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                            rsscrawler.search.shared.content_shows.download_sj(payload, configfile,
-                                                                                               dbfile)
+                                            rsscrawler.search.shared.content_shows.download(payload, configfile,
+                                                                                            dbfile)
                                         for ep in eps:
                                             e = str(ep)
                                             if len(e) == 1:
