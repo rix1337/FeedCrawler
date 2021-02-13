@@ -70,7 +70,7 @@ def adhoc_search(self, feed, title):
         [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
         "ignore") else r"^unmatchable$"
 
-    s = re.sub(self.SUBSTITUTE, ".", title).lower()
+    s = re.sub(self.SUBSTITUTE, "../..", title).lower()
     for post in feed.entries:
         found = re.search(s, post.title.lower())
         if found:
@@ -346,9 +346,9 @@ def search_feed(self, feed, site):
         "ignore") else r"^unmatchable$"
 
     if "Regex" not in self.filename:
-        s = re.sub(self.SUBSTITUTE, ".", "^" + self.pattern + r'.(\d{4}|German|\d{3,4}p).*').lower()
+        s = re.sub(self.SUBSTITUTE, "../..", "^" + self.pattern + r'.(\d{4}|German|\d{3,4}p).*').lower()
     else:
-        s = re.sub(self.SUBSTITUTE, ".", self.pattern).lower()
+        s = re.sub(self.SUBSTITUTE, "../..", self.pattern).lower()
     settings = str(self.settings)
     liste = str(self.pattern)
     for post in feed.entries:

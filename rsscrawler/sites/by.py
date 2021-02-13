@@ -5,7 +5,7 @@
 import feedparser
 import hashlib
 
-import rsscrawler.shared_blogs as shared_blogs
+import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.url import get_url

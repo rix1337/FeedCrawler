@@ -62,7 +62,7 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
-from rsscrawler.sites.bl import BL
+from rsscrawler.sites.by import BL
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
 from rsscrawler.sites.sf import SF
