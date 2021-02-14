@@ -2,9 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import concurrent.futures
-
 import cloudscraper
+import concurrent.futures
 import requests
 
 from rsscrawler.common import check_is_site
@@ -19,7 +18,6 @@ def check_url(configfile, dbfile, scraper=False):
     sf = hostnames.get('sf')
     by = hostnames.get('by')
     mw = hostnames.get('mw')
-    hs = hostnames.get('hs')
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     dd = hostnames.get('dd')
@@ -34,7 +32,6 @@ def check_url(configfile, dbfile, scraper=False):
     by_url = 'https://' + by
     mw_url = 'https://' + mw
     fx_url = 'https://' + fx
-    hs_url = 'https://' + hs + '/collection/neuerscheinungen/'
     nk_url = 'https://' + nk
     dd_url = 'https://' + dd
     fc_url = 'https://' + fc
@@ -45,7 +42,6 @@ def check_url(configfile, dbfile, scraper=False):
     by_blocked_proxy = False
     mw_blocked_proxy = False
     fx_blocked_proxy = False
-    hs_blocked_proxy = False
     nk_blocked_proxy = False
     dd_blocked_proxy = False
     fc_blocked_proxy = False
@@ -55,7 +51,6 @@ def check_url(configfile, dbfile, scraper=False):
     by_blocked = False
     mw_blocked = False
     fx_blocked = False
-    hs_blocked = False
     nk_blocked = False
     dd_blocked = False
     fc_blocked = False
@@ -67,7 +62,6 @@ def check_url(configfile, dbfile, scraper=False):
     db.delete("BY")
     db.delete("MW")
     db.delete("FX")
-    db.delete("HS")
     db.delete("NK")
     db.delete("DD")
     db.delete("FC")
@@ -78,7 +72,6 @@ def check_url(configfile, dbfile, scraper=False):
     db_normal.delete("BY")
     db_normal.delete("MW")
     db_normal.delete("FX")
-    db_normal.delete("HS")
     db_normal.delete("NK")
     db_normal.delete("DD")
     db_normal.delete("FC")
@@ -197,22 +190,6 @@ def check_url(configfile, dbfile, scraper=False):
             if fx_blocked_proxy:
                 print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("FX", "Blocked")
-                scraper = cloudscraper.create_scraper()
-
-        if not hs:
-            db.store("HS", "Blocked")
-        else:
-            try:
-                if "200" not in str(
-                        scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
-                    hs_blocked_proxy = True
-                else:
-                    db.delete("HS")
-            except:
-                hs_blocked_proxy = True
-            if hs_blocked_proxy:
-                print(u"Der Zugriff auf HS ist mit der aktuellen Proxy-IP nicht möglich!")
-                db.store("HS", "Blocked")
                 scraper = cloudscraper.create_scraper()
 
         if not nk:
@@ -356,20 +333,6 @@ def check_url(configfile, dbfile, scraper=False):
                 db_normal.store("FX", "Blocked")
                 print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
 
-    if not proxy or (proxy and hs_blocked_proxy and fallback):
-        if not hs:
-            db.store("HS", "Blocked")
-        else:
-            try:
-                if "200" not in str(
-                        scraper.get(hs_url, timeout=30, allow_redirects=False).status_code):
-                    hs_blocked = True
-            except:
-                hs_blocked = True
-            if hs_blocked:
-                db_normal.store("HS", "Blocked")
-                print(u"Der Zugriff auf HS ist mit der aktuellen IP nicht möglich!")
-
     if not proxy or (proxy and nk_blocked_proxy and fallback):
         if not nk:
             db.store("NK", "Blocked")
@@ -463,12 +426,6 @@ def get_url(url, configfile, dbfile, scraper=False):
                         return scraper.get(url, timeout=30).text
                     else:
                         return ""
-            elif site and "HS" in site:
-                if db.retrieve("HS"):
-                    if config.get("fallback") and not db_normal.retrieve("HS"):
-                        return scraper.get(url, timeout=30).text
-                    else:
-                        return ""
             elif site and "NK" in site:
                 if db.retrieve("NK"):
                     if config.get("fallback") and not db_normal.retrieve("NK"):
@@ -507,8 +464,6 @@ def get_url(url, configfile, dbfile, scraper=False):
             elif site and "MW" in site and db_normal.retrieve("MW"):
                 return ""
             elif site and "FX" in site and db_normal.retrieve("FX"):
-                return ""
-            elif site and "HS" in site and db_normal.retrieve("HS"):
                 return ""
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ""
@@ -571,12 +526,6 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
                         return [scraper.get(url, headers=headers, timeout=30), scraper]
                     else:
                         return ["", scraper]
-            elif site and "HS" in site:
-                if db.retrieve("HS"):
-                    if config.get("fallback") and not db_normal.retrieve("HS"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
-                    else:
-                        return ["", scraper]
             elif site and "NK" in site:
                 if db.retrieve("NK"):
                     if config.get("fallback") and not db_normal.retrieve("NK"):
@@ -615,8 +564,6 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
                 return ["", scraper]
             elif site and "FX" in site and db_normal.retrieve("FX"):
                 return ["", scraper]
-            elif site and "HS" in site and db_normal.retrieve("HS"):
-                return ["", scraper]
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ["", scraper]
             elif site and "DD" in site and db_normal.retrieve("DD"):
@@ -628,6 +575,106 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ["", scraper]
+
+
+def get_redirected_url(url, configfile, dbfile, scraper=False):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    if not scraper:
+        scraper = cloudscraper.create_scraper()
+
+    db = RssDb(dbfile, 'proxystatus')
+    db_normal = RssDb(dbfile, 'normalstatus')
+    site = check_is_site(url, configfile)
+
+    if proxy:
+        try:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "DJ" in site:
+                if db.retrieve("DJ"):
+                    if config.get("fallback") and not db_normal.retrieve("DJ"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "SF" in site:
+                if db.retrieve("SF"):
+                    if config.get("fallback") and not db_normal.retrieve("SF"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "BY" in site:
+                if db.retrieve("BY"):
+                    if config.get("fallback") and not db_normal.retrieve("BY"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "MW" in site:
+                if db.retrieve("MW"):
+                    if config.get("fallback") and not db_normal.retrieve("MW"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "FX" in site:
+                if db.retrieve("FX"):
+                    if config.get("fallback") and not db_normal.retrieve("FX"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "NK" in site:
+                if db.retrieve("NK"):
+                    if config.get("fallback") and not db_normal.retrieve("NK"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "DD" in site:
+                if db.retrieve("DD"):
+                    if config.get("fallback") and not db_normal.retrieve("DD"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "FC" in site:
+                if db.retrieve("FC"):
+                    if config.get("fallback") and not db_normal.retrieve("FC"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.get(url, allow_redirects=False, proxies=proxies, timeout=30).headers._store["location"][
+                1]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return url
+    else:
+        try:
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return url
+            elif site and "DJ" in site and db_normal.retrieve("DJ"):
+                return url
+            elif site and "SF" in site and db_normal.retrieve("SF"):
+                return url
+            elif site and "BY" in site and db_normal.retrieve("BY"):
+                return url
+            elif site and "MW" in site and db_normal.retrieve("MW"):
+                return url
+            elif site and "FX" in site and db_normal.retrieve("FX"):
+                return url
+            elif site and "NK" in site and db_normal.retrieve("NK"):
+                return url
+            elif site and "DD" in site and db_normal.retrieve("DD"):
+                return url
+            elif site and "FC" in site and db_normal.retrieve("FC"):
+                return url
+            response = scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return url
 
 
 def post_url(url, configfile, dbfile, data, scraper=False):
@@ -678,12 +725,6 @@ def post_url(url, configfile, dbfile, data, scraper=False):
                         return scraper.post(url, data, timeout=30).content
                     else:
                         return ""
-            elif site and "HS" in site:
-                if db.retrieve("HS"):
-                    if config.get("fallback") and not db_normal.retrieve("HS"):
-                        return scraper.post(url, data, timeout=30).content
-                    else:
-                        return ""
             elif site and "NK" in site:
                 if db.retrieve("NK"):
                     if config.get("fallback") and not db_normal.retrieve("NK"):
@@ -721,8 +762,6 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             elif site and "MW" in site and db_normal.retrieve("MW"):
                 return ""
             elif site and "FX" in site and db_normal.retrieve("FX"):
-                return ""
-            elif site and "HS" in site and db_normal.retrieve("HS"):
                 return ""
             elif site and "NK" in site and db_normal.retrieve("NK"):
                 return ""

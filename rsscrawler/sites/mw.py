@@ -5,11 +5,12 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.sites.shared.fake_feed import hs_feed_enricher
+from rsscrawler.sites.shared.fake_feed import mw_feed_enricher
+
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    _SITE = 'HS'
+    _SITE = 'MW'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
@@ -18,10 +19,10 @@ class BL:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.url = self.hostnames.get('hs')
-        self.password = self.url
+        self.url = self.hostnames.get('mw')
+        self.password = self.url.split('.')[0]
 
-        self.URL = 'https://' + self.url + '/feed'
+        self.URL = 'https://' + self.url
         self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
@@ -41,7 +42,7 @@ class BL:
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            page_url = self.URL + "?paged=" + str(i)
+            page_url = self.URL + "/liste/" + str(i)
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
@@ -51,9 +52,8 @@ class BL:
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
 
         self.last_sha_by = self.cdc.retrieve(self._SITE + "-" + self.filename)
-        settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
-                    "hevc_retail", "retail_only", "hoster_fallback"]
+        settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
+                    "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -70,5 +70,5 @@ class BL:
             self.imdb = 0.0
 
     def periodical_task(self):
-        self.device = shared_blogs.periodical_task(self, hs_feed_enricher)
+        self.device = shared_blogs.periodical_task(self, mw_feed_enricher)
         return self.device

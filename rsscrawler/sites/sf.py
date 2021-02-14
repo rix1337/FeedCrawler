@@ -6,7 +6,6 @@ import datetime
 import hashlib
 import json
 import re
-
 from bs4 import BeautifulSoup
 
 from rsscrawler.common import add_decrypt
@@ -16,8 +15,9 @@ from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb
 from rsscrawler.db import RssDb
-from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
+from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
+from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -158,8 +158,9 @@ class SF:
             links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
             valid = False
             for link in links:
-                download_link = link['href']
                 if check_hoster(link.text.replace('\n', ''), self.configfile):
+                    download_link = get_redirected_url("https://" + self.sf + link['href'], self.configfile,
+                                                       self.dbfile, self.scraper)
                     valid = True
                     break
             if not valid and not self.hoster_fallback:
@@ -199,7 +200,6 @@ class SF:
         if 'added' in storage or 'notdl' in storage:
             self.log_debug(title + " - Release ignoriert (bereits gefunden)")
         else:
-            download_link = 'https://' + self.sf + download_link
             if season and episode:
                 download_link = download_link.replace('&_=',
                                                       '&season=' + str(season) + '&episode=' + str(episode) + '&_=')

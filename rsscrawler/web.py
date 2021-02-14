@@ -202,10 +202,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             sj_conf = RssConfig('SJ', configfile)
             dj_conf = RssConfig('DJ', configfile)
             dd_conf = RssConfig('DD', configfile)
-            if not mb_conf.get("crawl3dtype"):
-                crawl_3d_type = "hsbs"
-            else:
-                crawl_3d_type = mb_conf.get("crawl3dtype")
             return jsonify(
                 {
                     "settings": {
@@ -264,8 +260,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "imdb_year": to_int(mb_conf.get("imdbyear")),
                             "force_dl": mb_conf.get("enforcedl"),
                             "cutoff": mb_conf.get("cutoff"),
-                            "crawl_3d": mb_conf.get("crawl3d"),
-                            "crawl_3d_type": crawl_3d_type,
                             "hevc_retail": mb_conf.get("hevc_retail"),
                             "retail_only": mb_conf.get("retail_only"),
                             "hoster_fallback": mb_conf.get("hoster_fallback"),
@@ -386,8 +380,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             section.save("ignore", to_str(data['mb']['ignore']).lower())
             section.save("regex", to_str(data['mb']['regex']))
             section.save("cutoff", to_str(data['mb']['cutoff']))
-            section.save("crawl3d", to_str(data['mb']['crawl_3d']))
-            section.save("crawl3dtype", to_str(data['mb']['crawl_3d_type']))
             section.save("enforcedl", to_str(data['mb']['force_dl']))
             section.save("crawlseasons", to_str(data['mbsj']['enabled']))
             section.save("seasonsquality", to_str(data['mbsj']['quality']))
@@ -488,7 +480,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         dj = hostnames.get('dj')
         sf = hostnames.get('sf')
         by = hostnames.get('by')
-        hs = hostnames.get('hs')
         fx = hostnames.get('fx')
         mw = hostnames.get('mw')
         nk = hostnames.get('nk')
@@ -501,13 +492,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 by = by.replace("b", "B", 1)
-                hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 mw = mw.replace("m", "M", 1).replace("w", "W", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [by, hs, fx, mw, nk])))
+                bl = ' / '.join(list(filter(None, [by, fx, mw, nk])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -519,8 +509,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     sf = "Nicht gesetzt!"
                 if not by:
                     by = "Nicht gesetzt!"
-                if not hs:
-                    hs = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
                 if not mw:
@@ -544,7 +532,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "dj": dj,
                             "sf": sf,
                             "by": by,
-                            "hs": hs,
                             "fx": fx,
                             "mw": mw,
                             "nk": nk,
@@ -582,7 +569,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SF": check("SF", db_proxy),
                         "BY": check("BY", db_proxy),
                         "FX": check("FX", db_proxy),
-                        "HS": check("HS", db_proxy),
                         "MW": check("MW", db_proxy),
                         "NK": check("NK", db_proxy),
                         "DD": check("DD", db_proxy),
@@ -594,7 +580,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SF": check("SF", db_normal),
                         "BY": check("BY", db_normal),
                         "FX": check("FX", db_normal),
-                        "HS": check("HS", db_normal),
                         "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),
                         "DD": check("DD", db_normal),
@@ -1034,7 +1019,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     "lists": {
                         "mb": {
                             "filme": get_list('MB_Filme'),
-                            "filme3d": get_list('MB_3D'),
                             "regex": get_list('MB_Regex'),
                         },
                         "sj": {
@@ -1056,8 +1040,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             data = request.json
             ListDb(dbfile, "MB_Filme").store_list(
                 data['mb']['filme'].split('\n'))
-            ListDb(dbfile, "MB_3D").store_list(
-                data['mb']['filme3d'].split('\n'))
             ListDb(dbfile, "MB_Staffeln").store_list(
                 data['mbsj']['staffeln'].split('\n'))
             ListDb(dbfile, "MB_Regex").store_list(
@@ -1352,12 +1334,11 @@ var cnlExists = setInterval(async function() {
         sf = hostnames.get('sf')
         mb = hostnames.get('mb')
         hw = hostnames.get('hw')
-        hs = hostnames.get('hs')
         fx = hostnames.get('fx')
         nk = hostnames.get('nk')
         fc = hostnames.get('fc')
 
-        check_replace = [sj, dj, sf, mb, hw, hs, fx, nk, fc]
+        check_replace = [sj, dj, sf, mb, hw, fx, nk, fc]
         to_replace = []
         for check_name in check_replace:
             if check_name:
@@ -1512,8 +1493,6 @@ var cnlExists = setInterval(async function() {
 
                         if re.search(r'\.S(\d{1,3})(\.|-|E)', name):
                             path = "RSScrawler/Serien"
-                        elif '.3d.' in name:
-                            path = "RSScrawler/3D-Filme"
                         else:
                             path = "RSScrawler/Filme"
 

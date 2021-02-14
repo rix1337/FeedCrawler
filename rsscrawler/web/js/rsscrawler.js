@@ -74,7 +74,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         dj: 'Nicht gesetzt!',
         sf: 'Nicht gesetzt!',
         by: 'Nicht gesetzt!',
-        hs: 'Nicht gesetzt!',
         fx: 'Nicht gesetzt!',
         mw: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
@@ -112,11 +111,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             value: 'web.*-(tvs|4sj|tvr)|web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip',
             label: 'BluRay/WebRetail (TVS/4SJ/TvR)'
         }
-    ];
-
-    $scope.types_3d = [
-        {value: 'hsbs', label: 'H-SBS'},
-        {value: 'hou', label: 'H-OU'}
     ];
 
     $scope.crawltimes = false;

@@ -13,6 +13,7 @@ from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
 from rsscrawler.sites.shared.fake_feed import fx_get_download_links
+from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -70,7 +71,7 @@ def get_best_result(title, configfile, dbfile):
         if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
-    if not is_retail(best_title, 1, dbfile):
+    if not is_retail(best_title, dbfile):
         logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -86,6 +87,8 @@ def get_best_result(title, configfile, dbfile):
 
 def download(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
+    by = hostnames.get('by')
+    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
 
     payload = decode_base64(payload).split("|")
@@ -116,10 +119,15 @@ def download(payload, device, configfile, dbfile):
                 if link:
                     link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
                     url_hosters.append([link["href"], link.text.replace(" ", "")])
-        elif "HS" in site:
-            download = soup.find("div", {"class": "entry-content"})
-            key = soup.find("h2", {"class": "entry-title"}).text
-            url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
+        elif "MW" in site:
+            key = password
+            links = soup.find("strong", text=key).parent.nextSibling.findAll("a")
+            url_hosters = []
+            for link in links:
+                if link:
+                    link_href = 'https://' + mw + "/" + link["href"]
+                    link_text = link.parent.parent.find("td").text
+                    url_hosters.append([link_href, link_text])
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
             url_hosters = []
@@ -139,14 +147,20 @@ def download(payload, device, configfile, dbfile):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
                     if check_hoster(link_hoster, configfile):
-                        links[link_hoster] = url_hoster[0]
+                        link = url_hoster[0]
+                        if by in link or mw in link:
+                            link = get_redirected_url(link, configfile, dbfile, False)
+                        links[link_hoster] = link
                 except:
                     pass
             if config.get("hoster_fallback") and not links:
                 for url_hoster in reversed(url_hosters):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
-                    links[link_hoster] = url_hoster[0]
+                    link = url_hoster[0]
+                    if by in link or mw in link:
+                        link = get_redirected_url(link, configfile, dbfile, False)
+                    links[link_hoster] = link
             download_links = list(links.values())
         else:
             download_links = fx_get_download_links(url, key, configfile)
@@ -174,32 +188,11 @@ def download(payload, device, configfile, dbfile):
                     logger.info(log_entry)
                     notify([log_entry], configfile)
                     return True
-            elif '.3d.' in key.lower():
-                retail = False
-                if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if config.get('enforcedl'):
-                        if is_retail(key, '2', dbfile):
-                            retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler/3D-Filme", download_links, password):
-                    db.store(
-                        key,
-                        'notdl' if config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[Suche/Film' + (
-                        '/Retail' if retail else "") + '/3D] - ' + key + ' - [' + site + ']'
-                    logger.info(log_entry)
-                    notify([log_entry], configfile)
-                    return True
             else:
                 retail = False
                 if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if config.get('enforcedl'):
-                        if is_retail(key, '1', dbfile):
-                            retail = True
-                    else:
-                        if is_retail(key, '0', dbfile):
-                            retail = True
+                    if is_retail(key, dbfile):
+                        retail = True
                 if myjd_download(configfile, dbfile, device, key, "RSScrawler/Filme", download_links, password):
                     db.store(
                         key,
