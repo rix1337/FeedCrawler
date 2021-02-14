@@ -488,7 +488,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         dj = hostnames.get('dj')
         sf = hostnames.get('sf')
         by = hostnames.get('by')
-        hs = hostnames.get('hs')
         fx = hostnames.get('fx')
         mw = hostnames.get('mw')
         nk = hostnames.get('nk')
@@ -501,13 +500,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 by = by.replace("b", "B", 1)
-                hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 mw = mw.replace("m", "M", 1).replace("w", "W", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [by, hs, fx, mw, nk])))
+                bl = ' / '.join(list(filter(None, [by, fx, mw, nk])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -519,8 +517,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     sf = "Nicht gesetzt!"
                 if not by:
                     by = "Nicht gesetzt!"
-                if not hs:
-                    hs = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
                 if not mw:
@@ -544,7 +540,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "dj": dj,
                             "sf": sf,
                             "by": by,
-                            "hs": hs,
                             "fx": fx,
                             "mw": mw,
                             "nk": nk,
@@ -582,7 +577,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SF": check("SF", db_proxy),
                         "BY": check("BY", db_proxy),
                         "FX": check("FX", db_proxy),
-                        "HS": check("HS", db_proxy),
                         "MW": check("MW", db_proxy),
                         "NK": check("NK", db_proxy),
                         "DD": check("DD", db_proxy),
@@ -594,7 +588,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SF": check("SF", db_normal),
                         "BY": check("BY", db_normal),
                         "FX": check("FX", db_normal),
-                        "HS": check("HS", db_normal),
                         "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),
                         "DD": check("DD", db_normal),
@@ -1352,12 +1345,11 @@ var cnlExists = setInterval(async function() {
         sf = hostnames.get('sf')
         mb = hostnames.get('mb')
         hw = hostnames.get('hw')
-        hs = hostnames.get('hs')
         fx = hostnames.get('fx')
         nk = hostnames.get('nk')
         fc = hostnames.get('fc')
 
-        check_replace = [sj, dj, sf, mb, hw, hs, fx, nk, fc]
+        check_replace = [sj, dj, sf, mb, hw, fx, nk, fc]
         to_replace = []
         for check_name in check_replace:
             if check_name:

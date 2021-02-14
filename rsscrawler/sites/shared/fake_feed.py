@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import feedparser
 import json
 import re
 from bs4 import BeautifulSoup
@@ -206,121 +205,6 @@ def fx_search_results(content, configfile, dbfile, scraper):
     return items
 
 
-def hs_feed_enricher(feed, configfile, dbfile, scraper):
-    feed = feedparser.parse(feed)
-
-    async_results = []
-    for post in feed.entries:
-        try:
-            async_results.append(post.links[0].href)
-        except:
-            pass
-
-    # ToDo requires paid cloudscraper version (or needs removal)
-    async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
-
-    entries = []
-    if async_results:
-        for result in async_results:
-            try:
-                content = []
-                details = result
-                title = BeautifulSoup(details, 'lxml').find("h2", {"class": "entry-title"}).text
-                published = BeautifulSoup(details, 'lxml').find("p", {"class": "blog-post-meta"}).contents[0]
-                data = BeautifulSoup(details, 'lxml').find("div", {"class": "entry-content"}).contents[2]
-                content.append(str(data).replace("\n", ""))
-                content = "".join(content)
-
-                entries.append(FakeFeedParserDict({
-                    "title": title,
-                    "published": published,
-                    "content": [FakeFeedParserDict({
-                        "value": content})]
-                }))
-            except:
-                pass
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def hs_search_results(url):
-    content = []
-    search = BeautifulSoup(url, 'lxml')
-    if search:
-        results = search.find_all("item")
-        if results:
-            for r in results:
-                try:
-                    title = r.title.next
-                    link = r.find("comments").text
-                    content.append((title, link))
-                except:
-                    break
-    return content
-
-
-def hs_search_to_feedparser_dict(beautifulsoup_object_list):
-    entries = []
-    for beautifulsoup_object in beautifulsoup_object_list:
-        title = beautifulsoup_object["key"]
-        # TODO: this is entirely broken
-        item_head = beautifulsoup_object["value"].find_all("p", {"class": "blog-post-meta"})
-        item_download = beautifulsoup_object["value"].find_all("div", {"class": "entry-content"})
-
-        i = 0
-        for item in item_head:
-            contents = item_download[i].contents
-            published = item.contents[0]
-            content = []
-            data = contents[2]
-            content.append(str(data).replace("\n", ""))
-            content = "".join(content)
-
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "published": published,
-                "content": [FakeFeedParserDict({
-                    "value": content})]
-            }))
-
-            i += 1
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def hs_search_to_soup(url, configfile, dbfile, scraper):
-    content = []
-    search = BeautifulSoup(get_url(url, configfile, dbfile, scraper), 'lxml')
-    if search:
-        results = search.find_all("item")
-        if results:
-            async_results = []
-            for r in results:
-                try:
-                    async_results.append(r.link.next)
-                except:
-                    pass
-            async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
-            # TODO: This is a bug, if async results is ordered differently than results
-            i = 0
-            for r in results:
-                try:
-                    title = r.title.next
-                    details = BeautifulSoup(async_results[i], 'lxml')
-                    content.append({
-                        "key": title,
-                        "value": details
-                    })
-                except:
-                    pass
-                i += 1
-    return hs_search_to_feedparser_dict(content)
-
-
 def mw_feed_enricher(content, configfile, dbfile, scraper):
     unused_get_feed_parameter(dbfile)
     unused_get_feed_parameter(scraper)
@@ -371,6 +255,34 @@ def mw_feed_enricher(content, configfile, dbfile, scraper):
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def mw_search_results(content, base_url, search_phrase, quality, configfile, dbfile):
+    content = BeautifulSoup(content, 'lxml')
+    additional_results = content.findAll("a", href=re.compile("/liste/"))
+    additional_pages = []
+    for additional_result in additional_results:
+        page = base_url + additional_result["href"]
+        if page not in additional_pages:
+            additional_pages.append(page)
+
+    posts = content.findAll(text=re.compile("Releases vorhanden", re.IGNORECASE))
+    results = []
+    for post in posts:
+        try:
+            link = base_url + post.parent["href"]
+            releases = get_url(link, configfile, dbfile)
+
+            content = BeautifulSoup(releases, 'lxml')
+            posts = content.findAll("div", {"class": "accordion"})
+            for post in posts:
+                details = post.text.replace(" | ", "|").split("|")
+                title = details[0].split(" ")[0]
+                if quality.lower() in title.lower() and search_phrase.replace("+", ".").lower() in title.lower():
+                    results.append([title, link])
+        except:
+            pass
+    return results
 
 
 def nk_feed_enricher(content, configfile, dbfile, scraper):

@@ -29,7 +29,6 @@ class RssConfig(object):
             ("dj", "str", ""),
             ("sf", "str", ""),
             ("by", "str", ""),
-            ("hs", "str", ""),
             ("fx", "str", ""),
             ("mw", "str", ""),
             ("nk", "str", ""),
