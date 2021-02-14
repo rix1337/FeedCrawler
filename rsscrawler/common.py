@@ -68,10 +68,10 @@ def check_is_site(string, configfile):
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
-    mb = hostnames.get('mb')
-    hw = hostnames.get('hw')
+    by = hostnames.get('by')
     hs = hostnames.get('hs')
     fx = hostnames.get('fx')
+    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
     dd = hostnames.get('dd')
     fc = hostnames.get('fc')
@@ -82,14 +82,14 @@ def check_is_site(string, configfile):
         return "DJ"
     elif sf and sf.split('.')[0] in string:
         return "SF"
-    elif mb and mb.split('.')[0] in string:
-        return "MB"
-    elif hw and hw.split('.')[0] in string:
-        return "HW"
+    elif by and by.split('.')[0] in string:
+        return "BY"
     elif fx and fx.split('.')[0] in string:
         return "FX"
     elif hs and hs.split('.')[0] in string:
         return "HS"
+    elif mw and mw.split('.')[0] in string:
+        return "MW"
     elif nk and nk.split('.')[0] in string:
         return "NK"
     elif dd and dd.split('.')[0] in string:

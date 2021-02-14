@@ -25,8 +25,6 @@ logger = logging.getLogger('rsscrawler')
 
 def get(title, configfile, dbfile, bl_only=False, sj_only=False):
     hostnames = RssConfig('Hostnames', configfile)
-    mb = hostnames.get('mb')
-    hw = hostnames.get('hw')
     hs = hostnames.get('hs')
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
@@ -67,14 +65,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         else:
             search_quality = ""
 
-        if mb:
-            mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        else:
-            mb_search = None
-        if hw:
-            hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + '/feed/rss2/'
-        else:
-            hw_search = None
         if hs:
             hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '/feed'
         else:
@@ -84,21 +74,15 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         else:
             fx_search = None
 
-        async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
+        async_results = get_urls_async([hs_search, fx_search], configfile, dbfile, scraper)
         scraper = async_results[1]
         async_results = async_results[0]
 
-        mb_results = []
-        hw_results = []
         hs_results = []
         fx_results = []
 
         for res in async_results:
-            if check_is_site(res, configfile) == 'MB':
-                mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif check_is_site(res, configfile) == 'HW':
-                hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-            elif check_is_site(res, configfile) == 'HS':
+            if check_is_site(res, configfile) == 'HS':
                 hs_results = hs_search_results(res)
             elif check_is_site(res, configfile) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
@@ -109,29 +93,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
         else:
             nk_results = []
-
-        password = mb
-        for result in mb_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            if not result[0].endswith("-MB") and not result[0].endswith(".MB"):
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (MB)"])
-
-        password = hw
-        for result in hw_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            unrated.append(
-                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = hs
         for result in hs_results:
@@ -167,14 +128,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         if config.get("crawl3d"):
-            if mb:
-                mb_search = 'https://' + mb + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            else:
-                mb_search = None
-            if hw:
-                hw_search = 'https://' + hw + '/search/' + bl_query + search_quality + "+3D/feed/rss2/"
-            else:
-                hw_search = None
             if hs:
                 hs_search = 'https://' + hs + '/search/' + bl_query + search_quality + '+3D/feed'
             else:
@@ -184,20 +137,14 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             else:
                 fx_search = None
 
-            async_results = get_urls_async([mb_search, hw_search, hs_search, fx_search], configfile, dbfile, scraper)
+            async_results = get_urls_async([hs_search, fx_search], configfile, dbfile, scraper)
             async_results = async_results[0]
 
-            mb_results = []
-            hw_results = []
             hs_results = []
             fx_results = []
 
             for res in async_results:
-                if check_is_site(res, configfile) == 'MB':
-                    mb_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif check_is_site(res, configfile) == 'HW':
-                    hw_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
-                elif check_is_site(res, configfile) == 'HS':
+                if check_is_site(res, configfile) == 'HS':
                     hs_results = hs_search_results(res)
                 elif check_is_site(res, configfile) == 'FX':
                     fx_results = re.findall(r'<title>(.*?)<\/title>\n.*?<link>(.*?)<\/link>', res)
@@ -208,18 +155,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                 nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
             else:
                 nk_results = []
-
-            password = mb
-            for result in mb_results:
-                if not result[1].endswith("-MB") and not result[1].endswith(".MB"):
-                    unrated.append(
-                        [rate(result[0], ignore), encode_base64(result[1] + "|" + password),
-                         result[0] + " (3D-MB)"])
-
-            password = hw
-            for result in hw_results:
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (3D-HW)"])
 
             password = hs
             for result in hs_results:

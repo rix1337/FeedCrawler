@@ -487,10 +487,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         sj = hostnames.get('sj')
         dj = hostnames.get('dj')
         sf = hostnames.get('sf')
-        mb = hostnames.get('mb')
-        hw = hostnames.get('hw')
+        by = hostnames.get('by')
         hs = hostnames.get('hs')
         fx = hostnames.get('fx')
+        mw = hostnames.get('mw')
         nk = hostnames.get('nk')
         dd = hostnames.get('dd')
         fc = hostnames.get('fc')
@@ -500,14 +500,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
-                mb = mb.replace("m", "M", 1).replace("b", "B", 1)
-                hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+                by = by.replace("b", "B", 1)
                 hs = hs.replace("h", "H", 1).replace("d", "D", 1).replace("s", "S", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+                mw = mw.replace("m", "M", 1).replace("w", "W", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [mb, hw, hs, fx, nk])))
+                bl = ' / '.join(list(filter(None, [by, hs, fx, mw, nk])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -517,14 +517,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     dj = "Nicht gesetzt!"
                 if not sf:
                     sf = "Nicht gesetzt!"
-                if not mb:
-                    mb = "Nicht gesetzt!"
-                if not hw:
-                    hw = "Nicht gesetzt!"
+                if not by:
+                    by = "Nicht gesetzt!"
                 if not hs:
                     hs = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
+                if not mw:
+                    mw = "Nicht gesetzt!"
                 if not nk:
                     nk = "Nicht gesetzt!"
                 if not dd:
@@ -543,10 +543,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "sj": sj,
                             "dj": dj,
                             "sf": sf,
-                            "mb": mb,
-                            "hw": hw,
+                            "by": by,
                             "hs": hs,
                             "fx": fx,
+                            "mw": mw,
                             "nk": nk,
                             "dd": dd,
                             "fc": fc,
@@ -580,10 +580,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SJ": check("SJ", db_proxy),
                         "DJ": check("DJ", db_proxy),
                         "SF": check("SF", db_proxy),
-                        "MB": check("MB", db_proxy),
-                        "HW": check("HW", db_proxy),
+                        "BY": check("BY", db_proxy),
                         "FX": check("FX", db_proxy),
                         "HS": check("HS", db_proxy),
+                        "MW": check("MW", db_proxy),
                         "NK": check("NK", db_proxy),
                         "DD": check("DD", db_proxy),
                         "FC": check("FC", db_proxy)
@@ -592,10 +592,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SJ": check("SJ", db_normal),
                         "DJ": check("DJ", db_normal),
                         "SF": check("SF", db_normal),
-                        "MB": check("MB", db_normal),
-                        "HW": check("HW", db_normal),
+                        "BY": check("BY", db_normal),
                         "FX": check("FX", db_normal),
                         "HS": check("HS", db_normal),
+                        "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),
                         "DD": check("DD", db_normal),
                         "FC": check("FC", db_normal)
