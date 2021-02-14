@@ -62,7 +62,7 @@ def by_feed_enricher(content, configfile, dbfile, scraper):
                     async_link_results.append(link["src"])
                 async_link_results = get_urls_async(async_link_results, configfile, dbfile, scraper)
                 links = async_link_results[0]
-                scraper = async_results[1]
+                scraper = async_link_results[1]
                 for link in links:
                     link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
                     content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
@@ -90,7 +90,7 @@ def by_search_results(content, base_url):
     for post in posts:
         try:
             title = post.text.replace(" ", ".")
-            link = base_url + post['href']
+            link = "https://" + base_url + post['href']
             results.append([title, link])
         except:
             pass
