@@ -12,7 +12,7 @@ from rsscrawler.common import fullhd_title
 from rsscrawler.common import is_hevc
 from rsscrawler.common import is_retail
 from rsscrawler.db import ListDb
-from rsscrawler.fakefeed import fx_get_download_links
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
@@ -26,12 +26,12 @@ def get_download_links(self, content):
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
     links = {}
     for url_hoster in reversed(url_hosters):
-        hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+        hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
         if check_hoster(hoster, self.configfile):
             links[hoster] = url_hoster[0]
     if self.hoster_fallback and not links:
         for url_hoster in reversed(url_hosters):
-            hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+            hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
             links[hoster] = url_hoster[0]
     return list(links.values())
 

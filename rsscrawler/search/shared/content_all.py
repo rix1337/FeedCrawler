@@ -9,11 +9,12 @@ from rapidfuzz import fuzz
 from rsscrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb, RssDb
-from rsscrawler.fakefeed import fx_get_download_links
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.url import get_url
+from rsscrawler.url import get_urls_async
 
 
 def get_best_result(title, configfile, dbfile):
@@ -102,7 +103,20 @@ def download(payload, device, configfile, dbfile):
     if not site:
         return False
     else:
-        if "HS" in site:
+        if "BY" in site:
+            key = soup.find("small").text
+            links = soup.find_all("iframe")
+            async_link_results = []
+            for link in links:
+                async_link_results.append(link["src"])
+            async_link_results = get_urls_async(async_link_results, configfile, dbfile)
+            links = async_link_results[0]
+            url_hosters = []
+            for link in links:
+                if link:
+                    link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+                    url_hosters.append([link["href"], link.text.replace(" ", "")])
+        elif "HS" in site:
             download = soup.find("div", {"class": "entry-content"})
             key = soup.find("h2", {"class": "entry-title"}).text
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
@@ -122,14 +136,16 @@ def download(payload, device, configfile, dbfile):
         if not "FX" in site:
             for url_hoster in reversed(url_hosters):
                 try:
-                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
+                        "ddownload", "ddl")
                     if check_hoster(link_hoster, configfile):
                         links[link_hoster] = url_hoster[0]
                 except:
                     pass
             if config.get("hoster_fallback") and not links:
                 for url_hoster in reversed(url_hosters):
-                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
+                        "ddownload", "ddl")
                     links[link_hoster] = url_hoster[0]
             download_links = list(links.values())
         else:

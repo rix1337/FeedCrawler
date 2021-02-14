@@ -5,7 +5,7 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.fakefeed import nk_feed_enricher
+from rsscrawler.sites.shared.fake_feed import nk_feed_enricher
 
 
 class BL:

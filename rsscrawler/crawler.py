@@ -62,6 +62,7 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
+from rsscrawler.sites.by import BL as BY
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
 from rsscrawler.sites.fx import BL as FX
@@ -389,11 +390,11 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
-        # BY(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        # BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        # BY(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        # BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        # BY(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
         HS(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         HS(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         HS(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),

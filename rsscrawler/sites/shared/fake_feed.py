@@ -25,6 +25,78 @@ def unused_get_feed_parameter(param):
     return param
 
 
+def by_feed_enricher(content, configfile, dbfile, scraper):
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('by')
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
+    async_results = []
+    for post in posts:
+        try:
+            async_results.append(base_url + post['href'])
+        except:
+            pass
+    async_results = get_urls_async(async_results, configfile, dbfile, scraper)
+    results = async_results[0]
+    scraper = async_results[1]
+
+    entries = []
+    if results:
+        for result in results:
+            try:
+                content = []
+                details = BeautifulSoup(result, 'lxml').findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
+                title = details.find("small").text
+                published = details.find("th", {"align": "RIGHT"}).text
+                try:
+                    imdb = details.find("a", href=re.compile("imdb.com"))
+                    imdb_link = imdb["href"].replace("https://anonym.to/?", "")
+                    imdb_score = imdb.text.replace(" ", "").replace("/10", "")
+                    if "0.0" in imdb_score:
+                        imdb_score = "9.9"
+                    content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
+                except:
+                    pass
+                links = details.find_all("iframe")
+                async_link_results = []
+                for link in links:
+                    async_link_results.append(link["src"])
+                async_link_results = get_urls_async(async_link_results, configfile, dbfile, scraper)
+                links = async_link_results[0]
+                scraper = async_link_results[1]
+                for link in links:
+                    link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+                    content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
+
+                content = "".join(content)
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content + " mkv"})]
+                }))
+            except:
+                pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def by_search_results(content, base_url):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("/category/"))
+    results = []
+    for post in posts:
+        try:
+            title = post.text.replace(" ", ".")
+            link = "https://" + base_url + post['href']
+            results.append([title, link])
+        except:
+            pass
+    return results
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
