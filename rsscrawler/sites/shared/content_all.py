@@ -12,12 +12,14 @@ from rsscrawler.common import fullhd_title
 from rsscrawler.common import is_hevc
 from rsscrawler.common import is_retail
 from rsscrawler.db import ListDb
+from rsscrawler.fakefeed import fx_get_download_links
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
+from rsscrawler.url import get_url_headers
 
 
 def get_download_links(self, content):
@@ -297,8 +299,9 @@ def search_imdb(self, imdb, feed, site):
                         self.log_debug(
                             "%s - Release ignoriert (Film zu alt)" % post.title)
                         continue
-                    vote_count = re.findall(
-                        r'ratingCount">(.*?)<\/span>', imdb_details)
+                    vote_count = re.findall(r'ratingCount">(.*?)<\/span>', imdb_details)
+                    if not vote_count:
+                        vote_count = re.findall(r'ratingCount.+?(\d{1,}),', imdb_details)
                     if not vote_count:
                         self.log_debug(
                             "%s - Wertungsanzahl nicht ermittelbar" % post.title)
@@ -318,7 +321,10 @@ def search_imdb(self, imdb, feed, site):
                     if download_score > imdb:
                         password = self.url
 
-                        download_pages = get_download_links(self, content)
+                        if "FX" not in site:
+                            download_pages = get_download_links(content)
+                        else:
+                            download_pages = fx_get_download_links(content, post.title, self.configfile)
 
                         if '.3d.' not in post.title.lower():
                             found = download_imdb(self,
@@ -539,7 +545,10 @@ def download_hevc(self, title, password):
 
         for (key, value) in adhoc_search(self, content, feedsearch_title):
             if is_hevc(key) and "1080p" in key:
-                download_links = self.get_download_links(value)
+                if "FX" not in site:
+                    download_links = get_download_links(content)
+                else:
+                    download_links = fx_get_download_links(content, key, self.configfile)
                 if download_links:
                     for download_link in download_links:
                         if self.url.split('.')[0] in download_link:
@@ -717,7 +726,11 @@ def download_dual_language(self, title, password, hevc=False):
                 path_suffix = "/Remux"
             else:
                 path_suffix = ""
-            download_links = self.get_download_links(value)
+
+            if "FX" not in site:
+                download_links = get_download_links(content)
+            else:
+                download_links = fx_get_download_links(content, key, self.configfile)
             if download_links:
                 for download_link in download_links:
                     if self.url.split('.')[0] in download_link:
@@ -919,7 +932,10 @@ def download_feed(self, key, content, password, site, hevc_retail):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
-    download_links = get_download_links(self, content)
+    if "FX" not in site:
+        download_links = get_download_links(content)
+    else:
+        download_links = fx_get_download_links(content, key, self.configfile)
     if download_links:
         for download_link in download_links:
             if self.url.split('.')[0] in download_link:
@@ -1076,3 +1092,142 @@ def download_feed(self, key, content, password, site, hevc_retail):
             else:
                 self.log_debug(wrong_hoster)
     return added_items
+
+
+def periodical_task(self, get_feed_method):
+    imdb = self.imdb
+    urls = []
+
+    if self.filename == 'MB_Staffeln':
+        if not self.config.get('crawlseasons'):
+            return self.device
+        liste = get_movies_list(self, self.filename)
+        if liste:
+            self.pattern = r'(' + "|".join(liste).lower() + ').*'
+    elif self.filename == 'MB_Regex':
+        if not self.config.get('regex'):
+            self.log_debug(
+                "Regex deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
+            return self.device
+        liste = get_movies_list(self, self.filename)
+        if liste:
+            self.pattern = r'(' + "|".join(liste).lower() + ').*'
+    elif self.filename == "IMDB":
+        self.pattern = self.filename
+    else:
+        if self.filename == 'MB_3D':
+            if not self.config.get('crawl3d'):
+                self.log_debug(
+                    "3D-Suche deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
+                return self.device
+        liste = get_movies_list(self, self.filename)
+        if liste:
+            self.pattern = r'(' + "|".join(liste).lower() + ').*'
+
+    if self.url:
+        for URL in self.FEED_URLS:
+            urls.append(URL)
+
+    if not self.pattern:
+        self.log_debug(
+            "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
+        return self.device
+
+    if self.filename == 'IMDB' and imdb == 0:
+        self.log_debug(
+            "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
+        return self.device
+
+    loading_304 = False
+    try:
+        first_page_raw = get_url_headers(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
+        self.scraper = first_page_raw[1]
+        first_page_raw = first_page_raw[0]
+        first_page_content = get_feed_method(first_page_raw.content, self.configfile)
+        if first_page_raw.status_code == 304:
+            loading_304 = True
+    except:
+        loading_304 = True
+        first_page_content = False
+        self.log_debug("Fehler beim Abruf von " + self._SITE + " - breche " + self._SITE + "-Suche ab!")
+
+    set_all = settings_hash(self, False)
+
+    if self.last_set_all == set_all:
+        if loading_304:
+            urls = []
+            self.log_debug(
+                self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche " + self._SITE + "-Suche ab!")
+
+    sha = None
+
+    if self.filename != 'IMDB':
+        if not loading_304 and first_page_content:
+            for i in first_page_content.entries:
+                concat_by = i.title + i.published + str(self.settings) + str(self.pattern)
+                sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
+                break
+    else:
+        if not loading_304 and first_page_content:
+            for i in first_page_content.entries:
+                concat_by = i.title + i.published + str(self.settings) + str(self.imdb)
+                sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
+                break
+
+    added_items = []
+    if self.filename == "IMDB":
+        if imdb > 0:
+            i = 0
+            for url in urls:
+                if not self.search_imdb_done:
+                    if i == 0 and first_page_content:
+                        by_parsed_url = first_page_content
+                    else:
+                        by_parsed_url = get_feed_method(
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
+                    found = search_imdb(self, imdb, by_parsed_url, self._SITE)
+                    if found:
+                        for f in found:
+                            added_items.append(f)
+                    i += 1
+    else:
+        i = 0
+        for url in urls:
+            if not self.search_regular_done:
+                if i == 0 and first_page_content:
+                    by_parsed_url = first_page_content
+                else:
+                    by_parsed_url = get_feed_method(
+                        get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
+                found = search_feed(self, by_parsed_url, self._SITE)
+                if found:
+                    for f in found:
+                        added_items.append(f)
+                i += 1
+        i = 0
+
+    settings_changed = False
+    if set_all:
+        new_set_all = settings_hash(self, True)
+        if set_all == new_set_all:
+            self.cdc.delete("ALLSet-" + self.filename)
+            self.cdc.store("ALLSet-" + self.filename, new_set_all)
+        else:
+            settings_changed = True
+    if sha:
+        if not self.dl_unsatisfied and not settings_changed:
+            self.cdc.delete(self._SITE + "-" + self.filename)
+            self.cdc.store(self._SITE + "-" + self.filename, sha)
+        else:
+            self.log_debug(
+                "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self._SITE + "-CDC!")
+    if not loading_304:
+        try:
+            header = first_page_raw.headers['Last-Modified']
+        except KeyError:
+            header = False
+        if header:
+            self.cdc.delete(self._SITE + "Headers-" + self.filename)
+            self.cdc.store(self._SITE + "Headers-" + self.filename, header)
+
+    return self.device

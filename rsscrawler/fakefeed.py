@@ -27,7 +27,7 @@ def fx_content_to_soup(content):
     return content
 
 
-def fx_download_links(content, title, configfile):
+def fx_get_download_links(content, title, configfile):
     hostnames = RssConfig('Hostnames', configfile)
     fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     try:
@@ -79,7 +79,7 @@ def fx_feed_enricher(feed, configfile):
                         "published": published,
                         "content": [
                             FakeFeedParserDict({
-                                "value": str(article)
+                                "value": str(article) + " mkv"
                             })]
                     }))
         except:

@@ -11,7 +11,7 @@ from rapidfuzz import fuzz
 from rsscrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb, RssDb
-from rsscrawler.fakefeed import fx_download_links
+from rsscrawler.fakefeed import fx_get_download_links
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
@@ -162,7 +162,7 @@ def download(payload, device, configfile, dbfile):
                         links[link_hoster] = url_hoster[0]
             download_links = list(links.values())
         elif "FX" in site:
-            download_links = fx_download_links(url, key, configfile)
+            download_links = fx_get_download_links(url, key, configfile)
 
         englisch = False
         if "*englisch" in key.lower() or "*english" in key.lower():
