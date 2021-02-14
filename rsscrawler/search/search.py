@@ -125,7 +125,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
-        password = mw.split('.')[0].capitalize()
         for result in mw_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -134,7 +133,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
             unrated.append(
-                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (MW)"])
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + result[0]), result[0] + " (MW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:
