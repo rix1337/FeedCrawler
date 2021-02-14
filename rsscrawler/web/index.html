@@ -396,11 +396,6 @@
                 <h4>Filme</h4>
                 <textarea ng-model="lists.mb.filme" class="liste form-control" data-toggle="tooltip"
                           title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
-                <h4 ng-if="settings.mb.crawl_3d">3D-Filme</h4>
-                <textarea ng-if="settings.mb.crawl_3d" ng-model="lists.mb.filme3d"
-                          class="liste form-control"
-                          data-toggle="tooltip"
-                          title="Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern)."></textarea>
                 <h4 ng-if="settings.mb.regex">Filme/Serien (RegEx)</h4>
                 <textarea ng-if="settings.mb.regex" ng-model="lists.mb.regex" class="liste form-control"
                           data-toggle="tooltip"
@@ -1188,20 +1183,6 @@
                           data-toggle="tooltip"
                           title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste."></span>
                 </label>
-                <h4>3D-Releases suchen</h4>
-                <label class="switch">
-                    <input type="checkbox"
-                           ng-model="settings.mb.crawl_3d">
-                    <span class="slider round"
-                          data-toggle="tooltip"
-                          title="Wenn aktiviert, sucht das Script zusätzlich auch nach 3D Releases unabhängig von der oben gesetzten Auflösung."></span>
-                </label>
-                <h4 ng-if="settings.mb.crawl_3d">3D-Format</h4>
-                <select ng-if="settings.mb.crawl_3d"
-                        ng-model="settings.mb.crawl_3d_type"
-                        ng-options="t.value as t.label for t in types_3d"
-                        class="form-control" data-toggle="tooltip"
-                        title="Das gewünschte Format der 3D-Filme wählen."></select>
                 <h4>Hoster-Fallback</h4>
                 <label class="switch">
                     <input type="checkbox"

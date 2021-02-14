@@ -71,7 +71,7 @@ def get_best_result(title, configfile, dbfile):
         if title not in cont:
             ListDb(dbfile, liste).store(title)
         return False
-    if not is_retail(best_title, 1, dbfile):
+    if not is_retail(best_title, dbfile):
         logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "MB_Filme"
         cont = ListDb(dbfile, liste).retrieve()
@@ -179,32 +179,11 @@ def download(payload, device, configfile, dbfile):
                     logger.info(log_entry)
                     notify([log_entry], configfile)
                     return True
-            elif '.3d.' in key.lower():
-                retail = False
-                if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if config.get('enforcedl'):
-                        if is_retail(key, '2', dbfile):
-                            retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler/3D-Filme", download_links, password):
-                    db.store(
-                        key,
-                        'notdl' if config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[Suche/Film' + (
-                        '/Retail' if retail else "") + '/3D] - ' + key + ' - [' + site + ']'
-                    logger.info(log_entry)
-                    notify([log_entry], configfile)
-                    return True
             else:
                 retail = False
                 if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if config.get('enforcedl'):
-                        if is_retail(key, '1', dbfile):
-                            retail = True
-                    else:
-                        if is_retail(key, '0', dbfile):
-                            retail = True
+                    if is_retail(key, dbfile):
+                        retail = True
                 if myjd_download(configfile, dbfile, device, key, "RSScrawler/Filme", download_links, password):
                     db.store(
                         key,

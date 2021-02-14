@@ -202,10 +202,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             sj_conf = RssConfig('SJ', configfile)
             dj_conf = RssConfig('DJ', configfile)
             dd_conf = RssConfig('DD', configfile)
-            if not mb_conf.get("crawl3dtype"):
-                crawl_3d_type = "hsbs"
-            else:
-                crawl_3d_type = mb_conf.get("crawl3dtype")
             return jsonify(
                 {
                     "settings": {
@@ -264,8 +260,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "imdb_year": to_int(mb_conf.get("imdbyear")),
                             "force_dl": mb_conf.get("enforcedl"),
                             "cutoff": mb_conf.get("cutoff"),
-                            "crawl_3d": mb_conf.get("crawl3d"),
-                            "crawl_3d_type": crawl_3d_type,
                             "hevc_retail": mb_conf.get("hevc_retail"),
                             "retail_only": mb_conf.get("retail_only"),
                             "hoster_fallback": mb_conf.get("hoster_fallback"),
@@ -386,8 +380,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             section.save("ignore", to_str(data['mb']['ignore']).lower())
             section.save("regex", to_str(data['mb']['regex']))
             section.save("cutoff", to_str(data['mb']['cutoff']))
-            section.save("crawl3d", to_str(data['mb']['crawl_3d']))
-            section.save("crawl3dtype", to_str(data['mb']['crawl_3d_type']))
             section.save("enforcedl", to_str(data['mb']['force_dl']))
             section.save("crawlseasons", to_str(data['mbsj']['enabled']))
             section.save("seasonsquality", to_str(data['mbsj']['quality']))
@@ -1027,7 +1019,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     "lists": {
                         "mb": {
                             "filme": get_list('MB_Filme'),
-                            "filme3d": get_list('MB_3D'),
                             "regex": get_list('MB_Regex'),
                         },
                         "sj": {
@@ -1049,8 +1040,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             data = request.json
             ListDb(dbfile, "MB_Filme").store_list(
                 data['mb']['filme'].split('\n'))
-            ListDb(dbfile, "MB_3D").store_list(
-                data['mb']['filme3d'].split('\n'))
             ListDb(dbfile, "MB_Staffeln").store_list(
                 data['mbsj']['staffeln'].split('\n'))
             ListDb(dbfile, "MB_Regex").store_list(
@@ -1504,8 +1493,6 @@ var cnlExists = setInterval(async function() {
 
                         if re.search(r'\.S(\d{1,3})(\.|-|E)', name):
                             path = "RSScrawler/Serien"
-                        elif '.3d.' in name:
-                            path = "RSScrawler/3D-Filme"
                         else:
                             path = "RSScrawler/Filme"
 

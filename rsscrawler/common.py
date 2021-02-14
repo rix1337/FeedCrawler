@@ -99,7 +99,7 @@ def check_is_site(string, configfile):
 
 def check_valid_release(title, retail_only, hevc_retail, dbfile):
     if retail_only:
-        if not is_retail(title, False, False):
+        if not is_retail(title, False):
             return False
 
     if ".German" in title:
@@ -145,7 +145,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
     # Get all previously found Releases and categorize them by their tags
     for r in results:
         if any(s in r.lower() for s in bluray_tags):
-            if is_retail(r, False, False):
+            if is_retail(r, False):
                 retail.append(r)
             else:
                 bluray.append(r)
@@ -160,7 +160,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
     # If no release is in the higher category, propers are allowed anytime
     # If no HEVC is available in the current category or higher and the current release is HEVC, it will be allowed
     if any(s in title.lower() for s in bluray_tags):
-        if is_retail(r, False, False):
+        if is_retail(r, False):
             if len(retail) > 0:
                 if hevc_retail:
                     if is_hevc(title):
@@ -264,14 +264,14 @@ def is_hevc(key):
         return False
 
 
-def is_retail(key, identifier, dbfile):
+def is_retail(key, dbfile):
     retailfinder = re.search(
         r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
         key)
     if retailfinder:
-        # If these are False, just a retail check is desired
-        if identifier and dbfile:
-            remove(key, identifier, dbfile)
+        # If this is False, just a retail check is desired
+        if dbfile:
+            remove(key, dbfile)
         return True
     else:
         return False
@@ -314,14 +314,11 @@ def readable_time(time):
     return time
 
 
-def remove(retailtitel, identifier, dbfile):
+def remove(retailtitel, dbfile):
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
-    if identifier == '2':
-        liste = "MB_3D"
-    else:
-        liste = "MB_Filme"
+    liste = "MB_Filme"
     cont = ListDb(dbfile, liste).retrieve()
     new_cont = []
     if cont:

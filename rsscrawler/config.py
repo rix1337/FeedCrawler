@@ -70,8 +70,6 @@ class RssConfig(object):
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
             ("regex", "bool", "False"),
             ("cutoff", "bool", "True"),
-            ("crawl3d", "bool", "False"),
-            ("crawl3dtype", "str", "hsbs"),
             ("enforcedl", "bool", "False"),
             ("crawlseasons", "bool", "True"),
             ("seasonsquality", "str", "1080p"),

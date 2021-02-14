@@ -10,6 +10,7 @@ from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
+from rsscrawler.url import post_url
 
 
 class FakeFeedParserDict(dict):
@@ -258,30 +259,34 @@ def mw_feed_enricher(content, configfile, dbfile, scraper):
 
 
 def mw_search_results(content, base_url, search_phrase, quality, configfile, dbfile):
-    content = BeautifulSoup(content, 'lxml')
-    additional_results = content.findAll("a", href=re.compile("/liste/"))
+    contents = [BeautifulSoup(content, 'lxml')]
+    additional_results = contents[0].findAll("a", href=re.compile("/liste/"))
     additional_pages = []
     for additional_result in additional_results:
         page = base_url + additional_result["href"]
         if page not in additional_pages:
             additional_pages.append(page)
+    for page in additional_pages:
+        contents.append(BeautifulSoup(
+            post_url(page, configfile, dbfile, data={'search': search_phrase.replace("+", " ")}), 'lxml'))
 
-    posts = content.findAll(text=re.compile("Releases vorhanden", re.IGNORECASE))
     results = []
-    for post in posts:
-        try:
-            link = base_url + post.parent["href"]
-            releases = get_url(link, configfile, dbfile)
+    for content in contents:
+        posts = content.findAll(text=re.compile("Releases vorhanden", re.IGNORECASE))
+        for post in posts:
+            try:
+                link = base_url + post.parent["href"]
+                releases = get_url(link, configfile, dbfile)
 
-            content = BeautifulSoup(releases, 'lxml')
-            posts = content.findAll("div", {"class": "accordion"})
-            for post in posts:
-                details = post.text.replace(" | ", "|").split("|")
-                title = details[0].split(" ")[0]
-                if quality.lower() in title.lower() and search_phrase.replace("+", ".").lower() in title.lower():
-                    results.append([title, link])
-        except:
-            pass
+                content = BeautifulSoup(releases, 'lxml')
+                posts = content.findAll("div", {"class": "accordion"})
+                for p in posts:
+                    details = p.text.replace(" | ", "|").split("|")
+                    title = details[0].split(" ")[0]
+                    if quality.lower() in title.lower() and search_phrase.replace("+", ".").lower() in title.lower():
+                        results.append([title, link])
+            except:
+                pass
     return results
 
 

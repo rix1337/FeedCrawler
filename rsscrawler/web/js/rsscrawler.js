@@ -113,11 +113,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     ];
 
-    $scope.types_3d = [
-        {value: 'hsbs', label: 'H-SBS'},
-        {value: 'hou', label: 'H-OU'}
-    ];
-
     $scope.crawltimes = false;
     $scope.blocked_proxy = false;
     $scope.blocked_normal = false;

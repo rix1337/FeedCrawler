@@ -56,9 +56,8 @@ def get_movies_list(self, liste):
 
 def settings_hash(self, refresh):
     if refresh:
-        settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
-                    "crawlseasons", "seasonsquality", "seasonpacks", "seasonssource", "imdbyear", "imdb",
-                    "hevc_retail", "retail_only", "hoster_fallback"]
+        settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
+                    "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
@@ -93,7 +92,7 @@ def adhoc_search(self, feed, title):
                 if found:
                     if self.hevc_retail:
                         if is_hevc(post.title) and "1080p" in post.title:
-                            if is_retail(post.title, False, False):
+                            if is_retail(post.title, False):
                                 self.log_debug(
                                     "%s - Release ist 1080p-HEVC-Retail" % post.title)
                                 found = False
@@ -149,7 +148,11 @@ def search_imdb(self, imdb, feed, site):
                         "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % post.title)
                     continue
                 quality_set = self.config.get('quality')
-                if '.3d.' not in post.title.lower():
+                if '.3d.' in post.title.lower():
+                    self.log_debug(
+                        "%s - Release ignoriert (3D-Film)" % post.title)
+                    return
+                else:
                     if quality_set == "480p":
                         if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                             quality_match = False
@@ -161,7 +164,7 @@ def search_imdb(self, imdb, feed, site):
                     if not quality_match:
                         if self.hevc_retail:
                             if is_hevc(post.title) and "1080p" in post.title:
-                                if is_retail(post.title, False, False):
+                                if is_retail(post.title, False):
                                     self.log_debug(
                                         "%s - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                     hevc_retail = True
@@ -169,30 +172,6 @@ def search_imdb(self, imdb, feed, site):
                     if not quality_match:
                         self.log_debug(
                             "%s - Release ignoriert (falsche Aufloesung)" % post.title)
-                        continue
-                else:
-                    if not self.config.get('crawl3d'):
-                        self.log_debug(
-                            "%s - Release ignoriert (3D-Suche deaktiviert)" % post.title)
-                        return
-                    if self.config.get('crawl3d'):
-                        if not re.search(quality_set, post.title.lower()):
-                            continue
-                        if not self.config.get("crawl3dtype"):
-                            c3d_type = "hsbs"
-                        else:
-                            c3d_type = self.config.get("crawl3dtype")
-                        if c3d_type == "hsbs":
-                            if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                self.log_debug(
-                                    "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                continue
-                        elif c3d_type == "hou":
-                            if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                self.log_debug(
-                                    "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                continue
-                    else:
                         continue
 
                 ignore = "|".join(
@@ -202,7 +181,7 @@ def search_imdb(self, imdb, feed, site):
                 if found:
                     if self.hevc_retail:
                         if is_hevc(post.title) and "1080p" in post.title:
-                            if is_retail(post.title, False, False):
+                            if is_retail(post.title, False):
                                 self.log_debug(
                                     "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                 hevc_retail = True
@@ -335,14 +314,9 @@ def search_imdb(self, imdb, feed, site):
                         else:
                             download_pages = fx_get_download_links(content, post.title, self.configfile)
 
-                        if '.3d.' not in post.title.lower():
-                            found = download_imdb(self,
-                                                  post.title, download_pages, str(download_score), imdb_url,
-                                                  imdb_details, site, hevc_retail)
-                        else:
-                            found = download_imdb(self,
-                                                  post.title, download_pages, str(download_score), imdb_url,
-                                                  imdb_details, site, hevc_retail)
+                        found = download_imdb(self,
+                                              post.title, download_pages, str(download_score), imdb_url,
+                                              imdb_details, site, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -393,7 +367,7 @@ def search_feed(self, feed, site):
                     if found:
                         if self.hevc_retail:
                             if is_hevc(post.title) and "1080p" in post.title:
-                                if is_retail(post.title, False, False):
+                                if is_retail(post.title, False):
                                     self.log_debug(
                                         "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                     hevc_retail = True
@@ -423,7 +397,7 @@ def search_feed(self, feed, site):
                         if not found:
                             if self.hevc_retail:
                                 if is_hevc(post.title) and "1080p" in post.title:
-                                    if is_retail(post.title, False, False):
+                                    if is_retail(post.title, False):
                                         self.log_debug(
                                             "%s  - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
                                         hevc_retail = True
@@ -441,42 +415,6 @@ def search_feed(self, feed, site):
                             if found:
                                 for i in found:
                                     added_items.append(i)
-                    elif self.filename == 'MB_3D':
-                        if '.3d.' in post.title.lower():
-                            if self.config.get('crawl3d'):
-                                if not re.search(ss, post.title.lower()):
-                                    continue
-                                if not self.config.get("crawl3dtype"):
-                                    c3d_type = "hsbs"
-                                else:
-                                    c3d_type = self.config.get("crawl3dtype")
-                                if c3d_type == "hsbs":
-                                    if re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                        self.log_debug(
-                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                        continue
-                                elif c3d_type == "hou":
-                                    if not re.match(r'.*\.(H-OU|HOU)\..*', post.title):
-                                        self.log_debug(
-                                            "%s - Release ignoriert (Falsches 3D-Format)" % post.title)
-                                        continue
-                                found = True
-                            else:
-                                continue
-                        if found:
-                            if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
-                                continue
-                            episode = re.search(
-                                r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
-                            if episode:
-                                self.log_debug(
-                                    "%s - Release ignoriert (Serienepisode)" % post.title)
-                                continue
-                            found = download_feed(self, post.title, content, site, hevc_retail)
-                            if found:
-                                for i in found:
-                                    added_items.append(i)
-
                     elif self.filename == 'MB_Staffeln':
                         validsource = re.search(self.config.get(
                             "seasonssource"), post.title.lower())
@@ -610,9 +548,9 @@ def download_hevc(self, title):
                                     return
 
                     if self.filename == 'MB_Filme' or 'IMDB':
-                        if self.config.get('cutoff') and is_retail(key, '1', self.dbfile):
+                        if self.config.get('cutoff') and is_retail(key, self.dbfile):
                             retail = True
-                        elif is_retail(key, False, False):
+                        elif is_retail(key, False):
                             retail = True
                         else:
                             retail = False
@@ -631,33 +569,9 @@ def download_hevc(self, title):
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 return log_entry
-                    elif self.filename == 'MB_3D':
-                        if self.config.get('cutoff') and is_retail(key, '2', self.dbfile):
-                            retail = True
-                        elif is_retail(key, False, False):
-                            retail = True
-                        else:
-                            retail = False
-                        if retail:
-                            self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler/3D-Filme",
-                                                        download_links,
-                                                        self.password)
-                            if self.device:
-                                self.db.store(
-                                    key,
-                                    'added'
-                                )
-                                log_entry = '[Film' + (
-                                    '/Retail' if retail else "") + '/3D/HEVC] - ' + key + ' - [' + site + ']'
-                                self.log_info(log_entry)
-                                notify([log_entry], self.configfile)
-                                return log_entry
                     elif self.filename == 'MB_Regex':
                         if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
                             path = "RSScrawler/Serien"
-                        elif '.3d.' in key:
-                            path = "RSScrawler/3D-Filme"
                         else:
                             path = "RSScrawler/Filme"
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
@@ -753,12 +667,8 @@ def download_dual_language(self, title, hevc=False):
                 elif self.filename == 'MB_Filme' or 'IMDB':
                     retail = False
                     if self.config.get('cutoff'):
-                        if self.config.get('enforcedl'):
-                            if is_retail(key, '1', self.dbfile):
-                                retail = True
-                        else:
-                            if is_retail(key, '0', self.dbfile):
-                                retail = True
+                        if is_retail(key, self.dbfile):
+                            retail = True
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                 "RSScrawler/Filme" + path_suffix, download_links, self.password)
                     if self.device:
@@ -771,28 +681,9 @@ def download_dual_language(self, title, hevc=False):
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
-                elif self.filename == 'MB_3D':
-                    retail = False
-                    if self.config.get('cutoff'):
-                        if is_retail(key, '2', self.dbfile):
-                            retail = True
-                    self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler/3D-Filme" + path_suffix, download_links, self.password)
-                    if self.device:
-                        self.db.store(
-                            key,
-                            'added'
-                        )
-                        log_entry = '[Film' + (
-                            '/Retail' if retail else "") + '/3D/Zweisprachig] - ' + key + ' - [' + site + ']'
-                        self.log_info(log_entry)
-                        notify([log_entry], self.configfile)
-                        return log_entry
                 elif self.filename == 'MB_Regex':
                     if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
                         path = "RSScrawler/Serien"
-                    elif '.3d.' in key:
-                        path = "RSScrawler/3D-Filme"
                     else:
                         path = "RSScrawler/Filme"
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
@@ -834,7 +725,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
-            if not is_hevc(key) and is_retail(key, False, False):
+            if not is_hevc(key) and is_retail(key, False):
                 if download_hevc(self, key):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
@@ -868,16 +759,17 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
                         "%s - Kein zweisprachiges Release gefunden!" % key)
                     return
 
-        if '.3d.' not in key.lower():
+        if '.3d.' in key.lower():
+            self.log_debug(
+                "%s - Release ignoriert (3D-Film)" % key.title)
+            return
+        else:
             retail = False
             if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                     'enforcedl'):
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                     if self.config.get('enforcedl'):
-                        if is_retail(key, '1', self.dbfile):
-                            retail = True
-                    else:
-                        if is_retail(key, '0', self.dbfile):
+                        if is_retail(key, self.dbfile):
                             retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
                                         download_links, self.password)
@@ -891,29 +783,6 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
                     '/Englisch - ' if englisch and not retail else "") + (
                                 '/Englisch/Retail' if englisch and retail else "") + (
                                 '/Retail' if not englisch and retail else "") + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
-                self.log_info(log_entry)
-                notify([log_entry], self.configfile)
-                added_items.append(log_entry)
-        else:
-            retail = False
-            if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
-                    'enforcedl'):
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if self.config.get('enforcedl'):
-                        if is_retail(key, '2', self.dbfile):
-                            retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
-                                        download_links,
-                                        self.password)
-            if self.device:
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[IMDB ' + score + '/Film' + (
-                    '/Retail' if retail else "") + '/3D' + (
                                 '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
@@ -935,7 +804,7 @@ def download_feed(self, key, content, site, hevc_retail):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
-            if not is_hevc(key) and is_retail(key, False, False):
+            if not is_hevc(key) and is_retail(key, False):
                 if download_hevc(self, key):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
@@ -1003,15 +872,11 @@ def download_feed(self, key, content, site, hevc_retail):
             if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                     'enforcedl'):
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if self.config.get('enforcedl'):
-                        if is_retail(key, '1', self.dbfile):
-                            retail = True
-                    else:
-                        if is_retail(key, '0', self.dbfile):
-                            retail = True
+                    if is_retail(key, self.dbfile):
+                        retail = True
             else:
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if is_retail(key, '0', self.dbfile):
+                    if is_retail(key, self.dbfile):
                         retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
                                         download_links, self.password)
@@ -1025,33 +890,6 @@ def download_feed(self, key, content, site, hevc_retail):
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + (
                                 '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
-                self.log_info(log_entry)
-                notify([log_entry], self.configfile)
-                added_items.append(log_entry)
-        elif self.filename == 'MB_3D':
-            retail = False
-            if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
-                    'enforcedl'):
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if self.config.get('enforcedl'):
-                        if is_retail(key, '2', self.dbfile):
-                            retail = True
-            else:
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if is_retail(key, '2', self.dbfile):
-                        retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
-                                        download_links,
-                                        self.password)
-            if self.device:
-                self.db.store(
-                    key,
-                    'notdl' if self.config.get(
-                        'enforcedl') and '.dl.' not in key.lower() else 'added'
-                )
-                log_entry = '[Film - ' + (
-                    '/Retail' if retail else "") + '/3D - ' + (
-                                '/HEVC' if hevc_retail else '') + ']' + key + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
@@ -1073,8 +911,6 @@ def download_feed(self, key, content, site, hevc_retail):
         else:
             if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
                 path = "RSScrawler/Serien"
-            elif '.3d.' in key:
-                path = "RSScrawler/3D-Filme"
             else:
                 path = "RSScrawler/Filme"
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, path,
@@ -1123,11 +959,6 @@ def periodical_task(self, get_feed_method):
     elif self.filename == "IMDB":
         self.pattern = self.filename
     else:
-        if self.filename == 'MB_3D':
-            if not self.config.get('crawl3d'):
-                self.log_debug(
-                    "3D-Suche deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
-                return self.device
         liste = get_movies_list(self, self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
