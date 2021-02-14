@@ -73,10 +73,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         sj: 'Nicht gesetzt!',
         dj: 'Nicht gesetzt!',
         sf: 'Nicht gesetzt!',
-        mb: 'Nicht gesetzt!',
-        hw: 'Nicht gesetzt!',
+        by: 'Nicht gesetzt!',
         hs: 'Nicht gesetzt!',
         fx: 'Nicht gesetzt!',
+        mw: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
         dd: 'Nicht gesetzt!',
         fc: 'Nicht gesetzt!'

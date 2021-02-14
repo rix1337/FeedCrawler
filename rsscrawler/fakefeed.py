@@ -2,10 +2,9 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import feedparser
 import json
 import re
-
-import feedparser
 from bs4 import BeautifulSoup
 
 from rsscrawler.common import rreplace
@@ -22,12 +21,16 @@ class FakeFeedParserDict(dict):
             raise AttributeError("No such attribute: " + name)
 
 
+def unused_get_feed_parameter(param):
+    return param
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
 
 
-def fx_download_links(content, title, configfile):
+def fx_get_download_links(content, title, configfile):
     hostnames = RssConfig('Hostnames', configfile)
     fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     try:
@@ -47,7 +50,10 @@ def fx_download_links(content, title, configfile):
     return download_links
 
 
-def fx_feed_enricher(feed, configfile):
+def fx_feed_enricher(feed, configfile, dbfile=False, scraper=False):
+    unused_get_feed_parameter(dbfile)
+    unused_get_feed_parameter(scraper)
+
     hostnames = RssConfig('Hostnames', configfile)
     fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     if not fc:
@@ -79,7 +85,7 @@ def fx_feed_enricher(feed, configfile):
                         "published": published,
                         "content": [
                             FakeFeedParserDict({
-                                "value": str(article)
+                                "value": str(article) + " mkv"
                             })]
                     }))
         except:
@@ -137,6 +143,8 @@ def hs_feed_enricher(feed, configfile, dbfile, scraper):
             async_results.append(post.links[0].href)
         except:
             pass
+
+    # ToDo requires paid cloudscraper version (or needs removal)
     async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
 
     entries = []
@@ -241,7 +249,8 @@ def hs_search_to_soup(url, configfile, dbfile, scraper):
     return hs_search_to_feedparser_dict(content)
 
 
-def nk_feed_enricher(content, base_url, configfile, dbfile, scraper):
+def nk_feed_enricher(content, configfile, dbfile, scraper):
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
