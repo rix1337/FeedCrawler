@@ -316,26 +316,26 @@ def search_imdb(self, imdb, feed, site):
                         continue
                     download_score = re.findall(
                         r'ratingValue">(.*?)<\/span>', imdb_details)
+                    if not download_score:
+                        self.log_debug(
+                            "%s - IMDB-Wertung nicht ermittelbar" % post.title)
+                        continue
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
-                        password = self.url
-
                         if "FX" not in site:
-                            download_pages = get_download_links(content)
+                            download_pages = get_download_links(self, content)
                         else:
                             download_pages = fx_get_download_links(content, post.title, self.configfile)
 
                         if '.3d.' not in post.title.lower():
                             found = download_imdb(self,
                                                   post.title, download_pages, str(download_score), imdb_url,
-                                                  imdb_details,
-                                                  password, site, hevc_retail)
+                                                  imdb_details, site, hevc_retail)
                         else:
                             found = download_imdb(self,
                                                   post.title, download_pages, str(download_score), imdb_url,
-                                                  imdb_details,
-                                                  password, site, hevc_retail)
+                                                  imdb_details, site, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -346,7 +346,6 @@ def search_feed(self, feed, site):
     if not self.pattern:
         return
     added_items = []
-    password = self.url
     ignore = "|".join(
         [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
         "ignore") else r"^unmatchable$"
@@ -431,7 +430,7 @@ def search_feed(self, feed, site):
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, password, site, hevc_retail)
+                            found = download_feed(self, post.title, content, site, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -466,7 +465,7 @@ def search_feed(self, feed, site):
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, password, site, hevc_retail)
+                            found = download_feed(self, post.title, content, site, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -514,19 +513,19 @@ def search_feed(self, feed, site):
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, password, site, hevc_retail)
+                            found = download_feed(self, post.title, content, site, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
                     else:
-                        found = download_feed(self, post.title, content, password, site, hevc_retail)
+                        found = download_feed(self, post.title, content, site, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
     return added_items
 
 
-def download_hevc(self, title, password):
+def download_hevc(self, title):
     search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = []
@@ -547,7 +546,7 @@ def download_hevc(self, title, password):
         for (key, value) in adhoc_search(self, content, feedsearch_title):
             if is_hevc(key) and "1080p" in key:
                 if "FX" not in site:
-                    download_links = get_download_links(content)
+                    download_links = get_download_links(self, content)
                 else:
                     download_links = fx_get_download_links(content, key, self.configfile)
                 if download_links:
@@ -579,7 +578,7 @@ def download_hevc(self, title, password):
                                               self.scraper,
                                               self.log_debug)
                         if not imdb_id:
-                            dual_found = download_dual_language(self, key, password, True)
+                            dual_found = download_dual_language(self, key, True)
                             if dual_found and ".1080p." in key:
                                 return
                             elif not dual_found and not englisch:
@@ -594,7 +593,7 @@ def download_hevc(self, title, password):
                             if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile,
                                                      self.scraper,
                                                      self.log_debug):
-                                dual_found = download_dual_language(self, key, password, True)
+                                dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
                                     return
                                 elif not dual_found and not englisch:
@@ -614,7 +613,7 @@ def download_hevc(self, title, password):
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                         "RSScrawler/Filme",
                                                         download_links,
-                                                        password)
+                                                        self.password)
                             if self.device:
                                 self.db.store(
                                     key,
@@ -636,7 +635,7 @@ def download_hevc(self, title, password):
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                         "RSScrawler/3D-Filme",
                                                         download_links,
-                                                        password)
+                                                        self.password)
                             if self.device:
                                 self.db.store(
                                     key,
@@ -657,7 +656,7 @@ def download_hevc(self, title, password):
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                     path,
                                                     download_links,
-                                                    password)
+                                                    self.password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -671,7 +670,7 @@ def download_hevc(self, title, password):
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
                                                     "RSScrawler",
                                                     download_links,
-                                                    password)
+                                                    self.password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -693,7 +692,7 @@ def download_hevc(self, title, password):
                             self.log_debug(wrong_hoster)
 
 
-def download_dual_language(self, title, password, hevc=False):
+def download_dual_language(self, title, hevc=False):
     search_title = \
         fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
             0].split('.HEVC-', 1)[0].replace(".", " ").replace(" ", "+")
@@ -730,7 +729,7 @@ def download_dual_language(self, title, password, hevc=False):
                 path_suffix = ""
 
             if "FX" not in site:
-                download_links = get_download_links(content)
+                download_links = get_download_links(self, content)
             else:
                 download_links = fx_get_download_links(content, key, self.configfile)
             if download_links:
@@ -754,7 +753,7 @@ def download_dual_language(self, title, password, hevc=False):
                             if is_retail(key, '0', self.dbfile):
                                 retail = True
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler/Filme" + path_suffix, download_links, password)
+                                                "RSScrawler/Filme" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -771,7 +770,7 @@ def download_dual_language(self, title, password, hevc=False):
                         if is_retail(key, '2', self.dbfile):
                             retail = True
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler/3D-Filme" + path_suffix, download_links, password)
+                                                "RSScrawler/3D-Filme" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -790,7 +789,7 @@ def download_dual_language(self, title, password, hevc=False):
                     else:
                         path = "RSScrawler/Filme"
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                path + path_suffix, download_links, password)
+                                                path + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -802,7 +801,7 @@ def download_dual_language(self, title, password, hevc=False):
                         return log_entry
                 else:
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler" + path_suffix, download_links, password)
+                                                "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -824,12 +823,12 @@ def download_dual_language(self, title, password, hevc=False):
                         self.log_debug(wrong_hoster)
 
 
-def download_imdb(self, key, download_links, score, imdb_url, imdb_details, password, site, hevc_retail):
+def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site, hevc_retail):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False, False):
-                if download_hevc(self, key, password):
+                if download_hevc(self, key):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
@@ -852,7 +851,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, pass
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
             if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
                                      self.log_debug):
-                dual_found = download_dual_language(self, key, password)
+                dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
                     added_items.append(dual_found)
                     if ".1080p." in key:
@@ -874,7 +873,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, pass
                         if is_retail(key, '0', self.dbfile):
                             retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
-                                        download_links, password)
+                                        download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -899,7 +898,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, pass
                             retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
                                         download_links,
-                                        password)
+                                        self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -925,17 +924,17 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, pass
     return added_items
 
 
-def download_feed(self, key, content, password, site, hevc_retail):
+def download_feed(self, key, content, site, hevc_retail):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False, False):
-                if download_hevc(self, key, password):
+                if download_hevc(self, key):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
     if "FX" not in site:
-        download_links = get_download_links(content)
+        download_links = get_download_links(self, content)
     else:
         download_links = fx_get_download_links(content, key, self.configfile)
     if download_links:
@@ -966,7 +965,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
             imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile, self.scraper,
                                   self.log_debug)
             if not imdb_id:
-                dual_found = download_dual_language(self, key, password)
+                dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
                     added_items.append(dual_found)
                     if ".1080p." in key:
@@ -982,7 +981,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
                 imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
                 if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
                                          self.log_debug):
-                    dual_found = download_dual_language(self, key, password)
+                    dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
                         added_items.append(dual_found)
                         if ".1080p." in key:
@@ -1008,7 +1007,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
                     if is_retail(key, '0', self.dbfile):
                         retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
-                                        download_links, password)
+                                        download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -1036,7 +1035,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
                         retail = True
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/3D-Filme",
                                         download_links,
-                                        password)
+                                        self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -1051,7 +1050,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
                 added_items.append(log_entry)
         elif self.filename == 'MB_Staffeln':
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                        download_links, password)
+                                        download_links, self.password)
             if self.device:
                 self.db.store(
                     key.replace(".COMPLETE", "").replace(
@@ -1072,7 +1071,7 @@ def download_feed(self, key, content, password, site, hevc_retail):
             else:
                 path = "RSScrawler/Filme"
             self.device = myjd_download(self.configfile, self.dbfile, self.device, key, path,
-                                        download_links, password)
+                                        download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -1201,14 +1200,13 @@ def periodical_task(self, get_feed_method):
                     by_parsed_url = first_page_content
                 else:
                     by_parsed_url = get_feed_method(
-                        get_url(url, self.configfile, self.dbfile, self.scraper), self.dbfile, self.scraper,
-                        self.configfile)
+                        get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                        self.scraper)
                 found = search_feed(self, by_parsed_url, self._SITE)
                 if found:
                     for f in found:
                         added_items.append(f)
                 i += 1
-        i = 0
 
     settings_changed = False
     if set_all:

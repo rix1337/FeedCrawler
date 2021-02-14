@@ -2,8 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import cloudscraper
-import logging
 import re
 from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
@@ -15,7 +13,6 @@ from rsscrawler.fakefeed import fx_get_download_links
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
-from rsscrawler.sites.by import BL
 from rsscrawler.url import get_url
 
 
@@ -88,9 +85,7 @@ def get_best_result(title, configfile, dbfile):
 
 def download(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
-    mb = hostnames.get('mb')
     nk = hostnames.get('nk')
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -107,29 +102,7 @@ def download(payload, device, configfile, dbfile):
     if not site:
         return False
     else:
-        if "MB" in site:
-            if not fc:
-                print(u"FC Hostname nicht gesetzt. MB kann keine Links finden!")
-                return False
-            key = soup.find("span", {"class": "fn"}).text
-            hosters = soup.find_all("a", href=re.compile(fc))
-            url_hosters = []
-            for hoster in hosters:
-                dl = hoster["href"]
-                hoster = hoster.text
-                url_hosters.append([dl, hoster])
-        elif "HW" in site:
-            if not fc:
-                print(u"FC Hostname nicht gesetzt. MB kann keine Links finden!")
-                return False
-            key = re.findall(r'Permanent Link: (.*?)"', str(soup)).pop()
-            hosters = soup.find_all("a", href=re.compile(fc))
-            url_hosters = []
-            for hoster in hosters:
-                dl = hoster["href"]
-                hoster = hoster.text
-                url_hosters.append([dl, hoster])
-        elif "HS" in site:
+        if "HS" in site:
             download = soup.find("div", {"class": "entry-content"})
             key = soup.find("h2", {"class": "entry-title"}).text
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', str(download))
@@ -146,22 +119,20 @@ def download(payload, device, configfile, dbfile):
             return False
 
         links = {}
-        if "MB" in site or "HW" in site or "HS" in site or "NK" in site:
+        if not "FX" in site:
             for url_hoster in reversed(url_hosters):
                 try:
-                    if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                        link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                        if check_hoster(link_hoster, configfile):
-                            links[link_hoster] = url_hoster[0]
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    if check_hoster(link_hoster, configfile):
+                        links[link_hoster] = url_hoster[0]
                 except:
                     pass
             if config.get("hoster_fallback") and not links:
                 for url_hoster in reversed(url_hosters):
-                    if mb.split('.')[0] not in url_hoster[0] and "https://goo.gl/" not in url_hoster[0]:
-                        link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
-                        links[link_hoster] = url_hoster[0]
+                    link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-")
+                    links[link_hoster] = url_hoster[0]
             download_links = list(links.values())
-        elif "FX" in site:
+        else:
             download_links = fx_get_download_links(url, key, configfile)
 
         englisch = False
@@ -174,89 +145,9 @@ def download(payload, device, configfile, dbfile):
 
         staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
 
-        if config.get('enforcedl') and '.dl.' not in key.lower():
-            fail = False
-            get_imdb_url = url
-            key_regex = r'<title>' + \
-                        re.escape(
-                            key) + r'.*?<\/title>\n.*?<link>(?:(?:.*?\n){1,25}).*?[mM][kK][vV].*?(?:|href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?)[iI][mM][dD][bB].*?(?!\d(?:\.|\,)\d)(?:.|.*?)<\/a>'
-            imdb_id = re.findall(key_regex, get_imdb_url)
-            if len(imdb_id) > 0:
-                if not imdb_id[0]:
-                    fail = True
-                else:
-                    imdb_id = imdb_id[0]
-            else:
-                fail = True
-            if fail:
-                try:
-                    search_title = re.findall(
-                        r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-                    search_url = "http://www.imdb.com/find?q=" + search_title
-                    search_page = get_url(search_url, configfile, dbfile)
-                    search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                        search_page)
-                    total_results = len(search_results)
-                except:
-                    return False
-                if staffel:
-                    try:
-                        imdb_id = search_results[0][0]
-                    except:
-                        imdb_id = False
-                else:
-                    no_series = False
-                    while total_results > 0:
-                        attempt = 0
-                        for result in search_results:
-                            if result[3] == "TV Series":
-                                no_series = False
-                                total_results -= 1
-                                attempt += 1
-                            else:
-                                no_series = True
-                                imdb_id = search_results[attempt][0]
-                                total_results = 0
-                                break
-                    if no_series is False:
-                        logger.debug(
-                            "%s - Keine passende Film-IMDB-Seite gefunden" % key)
-
-            if staffel:
-                filename = 'MB_Staffeln'
-            else:
-                filename = 'MB_Filme'
-
-            scraper = cloudscraper.create_scraper()
-            blog = BL(configfile, dbfile, device, logging, scraper, filename=filename)
-
-            if not imdb_id:
-                if not blog.dual_download(key, password):
-                    logger.debug(
-                        "%s - Kein zweisprachiges Release gefunden." % key)
-            else:
-                if isinstance(imdb_id, list):
-                    imdb_id = imdb_id.pop()
-                imdb_url = "http://www.imdb.com/title/" + imdb_id
-                details = get_url(imdb_url, configfile, dbfile)
-                if not details:
-                    logger.debug("%s - Originalsprache nicht ermittelbar" % key)
-                original_language = re.findall(
-                    r"Language:<\/h4>\n.*?\n.*?url'>(.*?)<\/a>", details)
-                if original_language:
-                    original_language = original_language[0]
-                if original_language == "German":
-                    logger.debug(
-                        "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
-                else:
-                    if not blog.dual_download(key, password) and not englisch:
-                        logger.debug(
-                            "%s - Kein zweisprachiges Release gefunden!" % key)
-
         if download_links:
             if staffel:
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler/Serien", download_links, password):
                     db.store(
                         key.replace(".COMPLETE", "").replace(".Complete", ""),
                         'notdl' if config.get(
@@ -273,7 +164,7 @@ def download(payload, device, configfile, dbfile):
                     if config.get('enforcedl'):
                         if is_retail(key, '2', dbfile):
                             retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler/3Dcrawler", download_links, password):
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler/3D-Filme", download_links, password):
                     db.store(
                         key,
                         'notdl' if config.get(
@@ -293,7 +184,7 @@ def download(payload, device, configfile, dbfile):
                     else:
                         if is_retail(key, '0', dbfile):
                             retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler/Filme", download_links, password):
                     db.store(
                         key,
                         'notdl' if config.get(
