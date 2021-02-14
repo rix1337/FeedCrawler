@@ -12,12 +12,13 @@ from rsscrawler.common import fullhd_title
 from rsscrawler.common import is_hevc
 from rsscrawler.common import is_retail
 from rsscrawler.db import ListDb
-from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.url import check_is_site
+from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -28,11 +29,17 @@ def get_download_links(self, content):
     for url_hoster in reversed(url_hosters):
         hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
         if check_hoster(hoster, self.configfile):
-            links[hoster] = url_hoster[0]
+            link = url_hoster[0]
+            if self.url in link:
+                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+            links[hoster] = link
     if self.hoster_fallback and not links:
         for url_hoster in reversed(url_hosters):
             hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
-            links[hoster] = url_hoster[0]
+            link = url_hoster[0]
+            if self.url in link:
+                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+            links[hoster] = link
     return list(links.values())
 
 

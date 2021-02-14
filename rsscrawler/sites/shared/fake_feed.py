@@ -321,6 +321,58 @@ def hs_search_to_soup(url, configfile, dbfile, scraper):
     return hs_search_to_feedparser_dict(content)
 
 
+def mw_feed_enricher(content, configfile, dbfile, scraper):
+    unused_get_feed_parameter(dbfile)
+    unused_get_feed_parameter(scraper)
+
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('mw')
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("div", {"class": "accordion"})
+
+    entries = []
+    for post in posts:
+        try:
+            content = []
+            details = post.text.replace(" | ", "|").split("|")
+            title = details[0].split(" ")[0]
+            for detail in details:
+                if "update" in detail.lower():
+                    published = detail
+            try:
+                imdb = post.find_previous_sibling("a")
+                imdb_link = imdb["href"]
+                imdb_score = imdb.text.replace(" ", "").replace("/10", "")
+                if "0.0" in imdb_score:
+                    imdb_score = "9.9"
+                elif len(imdb_score) == 1:
+                    imdb_score = imdb_score + ".0"
+                content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
+            except:
+                pass
+
+            links = post.nextSibling.findAll("a")
+            for link in links:
+                if link:
+                    link_href = base_url + "/" + link["href"]
+                    link_text = link.parent.parent.find("td").text
+                    content.append('href="' + link_href + '">' + link_text + '<')
+
+            content = "".join(content)
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "published": published,
+                "content": [FakeFeedParserDict({
+                    "value": content + " mkv"})]
+            }))
+        except:
+            pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
 def nk_feed_enricher(content, configfile, dbfile, scraper):
     base_url = "https://" + RssConfig('Hostnames', configfile).get('nk')
     content = BeautifulSoup(content, 'lxml')

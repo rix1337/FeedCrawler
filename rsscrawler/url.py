@@ -2,9 +2,8 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import concurrent.futures
-
 import cloudscraper
+import concurrent.futures
 import requests
 
 from rsscrawler.common import check_is_site
@@ -628,6 +627,114 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ["", scraper]
+
+
+def get_redirected_url(url, configfile, dbfile, scraper=False):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    if not scraper:
+        scraper = cloudscraper.create_scraper()
+
+    db = RssDb(dbfile, 'proxystatus')
+    db_normal = RssDb(dbfile, 'normalstatus')
+    site = check_is_site(url, configfile)
+
+    if proxy:
+        try:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "DJ" in site:
+                if db.retrieve("DJ"):
+                    if config.get("fallback") and not db_normal.retrieve("DJ"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "SF" in site:
+                if db.retrieve("SF"):
+                    if config.get("fallback") and not db_normal.retrieve("SF"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "BY" in site:
+                if db.retrieve("BY"):
+                    if config.get("fallback") and not db_normal.retrieve("BY"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "MW" in site:
+                if db.retrieve("MW"):
+                    if config.get("fallback") and not db_normal.retrieve("MW"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "FX" in site:
+                if db.retrieve("FX"):
+                    if config.get("fallback") and not db_normal.retrieve("FX"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "HS" in site:
+                if db.retrieve("HS"):
+                    if config.get("fallback") and not db_normal.retrieve("HS"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "NK" in site:
+                if db.retrieve("NK"):
+                    if config.get("fallback") and not db_normal.retrieve("NK"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "DD" in site:
+                if db.retrieve("DD"):
+                    if config.get("fallback") and not db_normal.retrieve("DD"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            elif site and "FC" in site:
+                if db.retrieve("FC"):
+                    if config.get("fallback") and not db_normal.retrieve("FC"):
+                        return scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+                    else:
+                        return url
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.get(url, allow_redirects=False, proxies=proxies, timeout=30).headers._store["location"][
+                1]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return url
+    else:
+        try:
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return url
+            elif site and "DJ" in site and db_normal.retrieve("DJ"):
+                return url
+            elif site and "SF" in site and db_normal.retrieve("SF"):
+                return url
+            elif site and "BY" in site and db_normal.retrieve("BY"):
+                return url
+            elif site and "MW" in site and db_normal.retrieve("MW"):
+                return url
+            elif site and "FX" in site and db_normal.retrieve("FX"):
+                return url
+            elif site and "HS" in site and db_normal.retrieve("HS"):
+                return url
+            elif site and "NK" in site and db_normal.retrieve("NK"):
+                return url
+            elif site and "DD" in site and db_normal.retrieve("DD"):
+                return url
+            elif site and "FC" in site and db_normal.retrieve("FC"):
+                return url
+            response = scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return url
 
 
 def post_url(url, configfile, dbfile, data, scraper=False):

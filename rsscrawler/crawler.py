@@ -67,6 +67,7 @@ from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
 from rsscrawler.sites.fx import BL as FX
 from rsscrawler.sites.hs import BL as HS
+from rsscrawler.sites.mw import BL as MW
 from rsscrawler.sites.nk import BL as NK
 from rsscrawler.sites.sf import SF
 from rsscrawler.sites.sj import SJ
@@ -405,11 +406,11 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
-        # MW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        # MW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        # MW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        # MW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        # MW(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
+        MW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        MW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        MW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        MW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        MW(configfile, dbfile, device, logger, scraper, filename='MB_3D'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         NK(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),

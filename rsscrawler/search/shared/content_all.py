@@ -13,6 +13,7 @@ from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
 from rsscrawler.sites.shared.fake_feed import fx_get_download_links
+from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 
@@ -86,6 +87,8 @@ def get_best_result(title, configfile, dbfile):
 
 def download(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
+    by = hostnames.get('by')
+    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
 
     payload = decode_base64(payload).split("|")
@@ -139,14 +142,20 @@ def download(payload, device, configfile, dbfile):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
                     if check_hoster(link_hoster, configfile):
-                        links[link_hoster] = url_hoster[0]
+                        link = url_hoster[0]
+                        if by in link or mw in link:
+                            link = get_redirected_url(link, configfile, dbfile, False)
+                        links[link_hoster] = link
                 except:
                     pass
             if config.get("hoster_fallback") and not links:
                 for url_hoster in reversed(url_hosters):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
-                    links[link_hoster] = url_hoster[0]
+                    link = url_hoster[0]
+                    if by in link or mw in link:
+                        link = get_redirected_url(link, configfile, dbfile, False)
+                    links[link_hoster] = link
             download_links = list(links.values())
         else:
             download_links = fx_get_download_links(url, key, configfile)
