@@ -5,11 +5,12 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.sites.shared.fake_feed import hs_feed_enricher
+from rsscrawler.sites.shared.fake_feed import by_feed_enricher
+
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    _SITE = 'HS'
+    _SITE = 'BY'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
@@ -18,10 +19,13 @@ class BL:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.url = self.hostnames.get('hs')
-        self.password = self.url
+        self.url = self.hostnames.get('by')
+        self.password = self.url.split('.')[0]
 
-        self.URL = 'https://' + self.url + '/feed'
+        if "MB_Staffeln" not in filename:
+            self.URL = 'https://' + self.url + "/?cat=1"
+        else:
+            self.URL = 'https://' + self.url + "/?cat=2"
         self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
@@ -41,7 +45,7 @@ class BL:
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            page_url = self.URL + "?paged=" + str(i)
+            page_url = self.URL + "&start=" + str(i)
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
@@ -70,5 +74,5 @@ class BL:
             self.imdb = 0.0
 
     def periodical_task(self):
-        self.device = shared_blogs.periodical_task(self, hs_feed_enricher)
+        self.device = shared_blogs.periodical_task(self, by_feed_enricher)
         return self.device

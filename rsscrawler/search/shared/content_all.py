@@ -9,7 +9,7 @@ from rapidfuzz import fuzz
 from rsscrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb, RssDb
-from rsscrawler.fakefeed import fx_get_download_links
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger

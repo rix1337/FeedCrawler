@@ -16,7 +16,7 @@ from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
 from rsscrawler.db import ListDb
 from rsscrawler.db import RssDb
-from rsscrawler.fakefeed import sf_releases_to_feedparser_dict
+from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
 from rsscrawler.notifiers import notify
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
