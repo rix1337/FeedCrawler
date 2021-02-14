@@ -249,7 +249,8 @@ def hs_search_to_soup(url, configfile, dbfile, scraper):
     return hs_search_to_feedparser_dict(content)
 
 
-def nk_feed_enricher(content, base_url, configfile, dbfile, scraper):
+def nk_feed_enricher(content, configfile, dbfile, scraper):
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []

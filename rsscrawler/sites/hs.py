@@ -19,6 +19,7 @@ class BL:
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
         self.url = self.hostnames.get('hs')
+        self.password = self.url
 
         self.URL = 'https://' + self.url + '/feed'
         self.FEED_URLS = [self.URL]
@@ -47,7 +48,7 @@ class BL:
         self.cdc = RssDb(self.dbfile, 'cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("HSHeaders-" + self.filename))}
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
 
         self.last_sha_by = self.cdc.retrieve(self._SITE + "-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "crawl3d", "crawl3dtype", "enforcedl",
