@@ -61,7 +61,7 @@ def settings_hash(self, refresh):
         if self.filename == "IMDB":
             self.pattern = self.filename
         else:
-            liste = self.get_movies_list(self.filename)
+            liste = get_movies_list(self, self.filename)
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
     settings = str(self.settings) + str(self.pattern)
     return hashlib.sha256(settings.encode('ascii', 'ignore')).hexdigest()
@@ -531,6 +531,7 @@ def download_hevc(self, title, password):
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = []
     if self.url:
+        # ToDo Broken (import search method!)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -701,6 +702,7 @@ def download_dual_language(self, title, password, hevc=False):
             0].split('.HEVC-', 1)[0]
     search_results = []
     if self.url:
+        # ToDo Broken (import search method!)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -1143,7 +1145,7 @@ def periodical_task(self, get_feed_method):
         first_page_raw = get_url_headers(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
         self.scraper = first_page_raw[1]
         first_page_raw = first_page_raw[0]
-        first_page_content = get_feed_method(first_page_raw.content, self.configfile)
+        first_page_content = get_feed_method(first_page_raw.content, self.configfile, self.dbfile, self.scraper)
         if first_page_raw.status_code == 304:
             loading_304 = True
     except:
@@ -1184,7 +1186,8 @@ def periodical_task(self, get_feed_method):
                         by_parsed_url = first_page_content
                     else:
                         by_parsed_url = get_feed_method(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
+                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                            self.scraper)
                     found = search_imdb(self, imdb, by_parsed_url, self._SITE)
                     if found:
                         for f in found:
@@ -1198,7 +1201,8 @@ def periodical_task(self, get_feed_method):
                     by_parsed_url = first_page_content
                 else:
                     by_parsed_url = get_feed_method(
-                        get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile)
+                        get_url(url, self.configfile, self.dbfile, self.scraper), self.dbfile, self.scraper,
+                        self.configfile)
                 found = search_feed(self, by_parsed_url, self._SITE)
                 if found:
                     for f in found:
