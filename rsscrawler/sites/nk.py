@@ -6,6 +6,8 @@ import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.sites.shared.fake_feed import nk_feed_enricher
+from rsscrawler.url import get_url
+from rsscrawler.url import get_url_headers
 
 
 class BL:
@@ -70,5 +72,5 @@ class BL:
             self.imdb = 0.0
 
     def periodical_task(self):
-        self.device = shared_blogs.periodical_task(self, nk_feed_enricher)
+        self.device = shared_blogs.periodical_task(self, nk_feed_enricher, get_url, get_url_headers)
         return self.device

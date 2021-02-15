@@ -5,6 +5,7 @@
 import feedparser
 import hashlib
 import re
+from bs4 import BeautifulSoup
 
 from rsscrawler.common import check_hoster
 from rsscrawler.common import check_valid_release
@@ -17,10 +18,10 @@ from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.sites.shared.fake_feed import fx_get_download_links
+from rsscrawler.sites.shared.fake_feed import ww_get_download_links
 from rsscrawler.url import check_is_site
 from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
-from rsscrawler.url import get_url_headers
 
 
 def get_download_links(self, content):
@@ -204,7 +205,7 @@ def search_imdb(self, imdb, feed, site):
                 year_in_title = re.findall(
                     r"\.((?:19|20)\d{2})\.", post.title)
                 years_in_title = len(year_in_title)
-                if years_in_title > 0:
+                if years_in_title:
                     title_year = year_in_title[years_in_title - 1]
                 else:
                     title_year = ""
@@ -224,33 +225,23 @@ def search_imdb(self, imdb, feed, site):
                                 "Oe", u"Ö").replace("Ue", u"Ü")
                     except:
                         break
-                    search_url = "http://www.imdb.com/find?q=" + search_title
+                    search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
                     search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
-                    search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                        search_page)
-                    no_series = False
-                    total_results = len(search_results)
-                    if total_results == 0:
-                        imdb_url = ""
-                    else:
-                        while total_results > 0:
-                            attempt = 0
-                            for result in search_results:
-                                if result[3] == "TV Series":
-                                    no_series = False
-                                    total_results -= 1
-                                    attempt += 1
-                                else:
-                                    no_series = True
-                                    imdb_url = "http://www.imdb.com/title/" + \
-                                               search_results[attempt][0]
-                                    title_year = search_results[attempt][2]
-                                    total_results = 0
-                                    break
-                        if no_series is False:
-                            self.log_debug(
-                                "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
+                    search_soup = BeautifulSoup(search_page, 'lxml')
+                    search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
+                                                                                              {"class": "result_text"})
+                    found = False
+                    for result in search_results:
+                        if "TV Series" not in result.text:
+                            found = True
+                            href = result.find("a")
+                            if not title_year:
+                                title_year = re.findall(r"(\d{4})", href.next.next)[0]
+                            imdb_url = "http://www.imdb.com" + href["href"]
+                            break
+                    if not found:
+                        self.log_debug(
+                            "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
 
                 imdb_details = ""
                 min_year = self.config.get("imdbyear")
@@ -309,10 +300,13 @@ def search_imdb(self, imdb, feed, site):
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
-                        if "FX" not in site:
-                            download_pages = get_download_links(self, content)
-                        else:
+                        if "FX" in site:
                             download_pages = fx_get_download_links(content, post.title, self.configfile)
+                        elif "WW" in site:
+                            download_pages = ww_get_download_links(content, post.title, self.configfile, self.dbfile,
+                                                                   self.scraper)
+                        else:
+                            download_pages = get_download_links(self, content)
 
                         found = download_imdb(self,
                                               post.title, download_pages, str(download_score), imdb_url,
@@ -475,7 +469,7 @@ def download_hevc(self, title):
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = []
     if self.url:
-        # ToDo Broken (import search method!)
+        # ToDo: This is broken code (web search needs to be adapted)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -622,7 +616,7 @@ def download_dual_language(self, title, hevc=False):
             0].split('.HEVC-', 1)[0]
     search_results = []
     if self.url:
-        # ToDo Broken (import search method!)
+        # ToDo: This is broken code (web search needs to be adapted)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -938,7 +932,7 @@ def download_feed(self, key, content, site, hevc_retail):
     return added_items
 
 
-def periodical_task(self, get_feed_method):
+def periodical_task(self, get_feed_method, get_url_method, get_url_headers_method):
     imdb = self.imdb
     urls = []
 
@@ -979,7 +973,7 @@ def periodical_task(self, get_feed_method):
 
     loading_304 = False
     try:
-        first_page_raw = get_url_headers(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
+        first_page_raw = get_url_headers_method(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
         self.scraper = first_page_raw[1]
         first_page_raw = first_page_raw[0]
         first_page_content = get_feed_method(first_page_raw.content, self.configfile, self.dbfile, self.scraper)
@@ -1023,7 +1017,8 @@ def periodical_task(self, get_feed_method):
                         by_parsed_url = first_page_content
                     else:
                         by_parsed_url = get_feed_method(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                            get_url_method(url, self.configfile, self.dbfile, self.scraper), self.configfile,
+                            self.dbfile,
                             self.scraper)
                     found = search_imdb(self, imdb, by_parsed_url, self._SITE)
                     if found:
@@ -1038,7 +1033,7 @@ def periodical_task(self, get_feed_method):
                     by_parsed_url = first_page_content
                 else:
                     by_parsed_url = get_feed_method(
-                        get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
+                        get_url_method(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
                         self.scraper)
                 found = search_feed(self, by_parsed_url, self._SITE)
                 if found:

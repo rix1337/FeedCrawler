@@ -11,6 +11,7 @@ from rsscrawler.config import RssConfig
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
+from rsscrawler.url import post_url_headers
 
 
 class FakeFeedParserDict(dict):
@@ -347,6 +348,65 @@ def nk_search_results(content, base_url):
         except:
             pass
     return results
+
+
+def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
+    try:
+        if not headers:
+            headers = {}
+        payload = url.split("|")
+        url = payload[0]
+        referer = payload[0].replace("/ajax", payload[1])
+        data = payload[2]
+        headers["Referer"] = referer
+        response = post_url_headers(url, configfile, dbfile, headers, data, scraper)
+        if not response[0].text or response[0].status_code is not (200 or 304):
+            print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            return ""
+        return response
+    except:
+        return ""
+
+
+def ww_get_download_links(content, title, configfile, dbfile, scraper):
+    content = content.replace("mkv|", "")
+    try:
+        response = get_url(content, configfile, dbfile, scraper)
+        if not response[0].text or response[0].status_code is not (200 or 304):
+            print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            return False
+        # ToDo get Link
+        response = BeautifulSoup(response, 'lxml')
+    except:
+        return False
+    return False
+
+
+def ww_feed_enricher(content, configfile, dbfile, scraper):
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('ww')
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("li")
+    entries = []
+    if posts:
+        for post in posts:
+            try:
+                link = post.findAll("a", href=re.compile("/download"))[1]
+                title = link.nextSibling.nextSibling
+                published = post.find("span", {"class": "main-date"}).text.replace("\n", "")
+                content = "mkv|" + base_url + link["href"]
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content})]
+                }))
+            except:
+                pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):

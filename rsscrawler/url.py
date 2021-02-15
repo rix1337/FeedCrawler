@@ -22,6 +22,7 @@ def check_url(configfile, dbfile, scraper=False):
     nk = hostnames.get('nk')
     dd = hostnames.get('dd')
     fc = hostnames.get('fc')
+    # ToDo: Check WW
 
     if not scraper:
         scraper = cloudscraper.create_scraper()
@@ -774,6 +775,105 @@ def post_url(url, configfile, dbfile, data, scraper=False):
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
             return ""
+
+
+def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
+    config = RssConfig('RSScrawler', configfile)
+    proxy = config.get('proxy')
+    if not scraper:
+        scraper = cloudscraper.create_scraper()
+
+    db = RssDb(dbfile, 'proxystatus')
+    db_normal = RssDb(dbfile, 'normalstatus')
+    site = check_is_site(url, configfile)
+
+    if proxy:
+        try:
+            if site and "SJ" in site:
+                if db.retrieve("SJ"):
+                    if config.get("fallback") and not db_normal.retrieve("SJ"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "DJ" in site:
+                if db.retrieve("DJ"):
+                    if config.get("fallback") and not db_normal.retrieve("DJ"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "SF" in site:
+                if db.retrieve("SF"):
+                    if config.get("fallback") and not db_normal.retrieve("SF"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "BY" in site:
+                if db.retrieve("BY"):
+                    if config.get("fallback") and not db_normal.retrieve("BY"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "MW" in site:
+                if db.retrieve("MW"):
+                    if config.get("fallback") and not db_normal.retrieve("MW"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "FX" in site:
+                if db.retrieve("FX"):
+                    if config.get("fallback") and not db_normal.retrieve("FX"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "NK" in site:
+                if db.retrieve("NK"):
+                    if config.get("fallback") and not db_normal.retrieve("NK"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "DD" in site:
+                if db.retrieve("DD"):
+                    if config.get("fallback") and not db_normal.retrieve("DD"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            elif site and "FC" in site:
+                if db.retrieve("FC"):
+                    if config.get("fallback") and not db_normal.retrieve("FC"):
+                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                    else:
+                        return ["", scraper]
+            proxies = {'http': proxy, 'https': proxy}
+            response = scraper.post(url, data, headers=headers, proxies=proxies, timeout=30)
+            return [response, scraper]
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return ["", scraper]
+    else:
+        try:
+            if site and "SJ" in site and db_normal.retrieve("SJ"):
+                return ["", scraper]
+            elif site and "DJ" in site and db_normal.retrieve("DJ"):
+                return ["", scraper]
+            elif site and "SF" in site and db_normal.retrieve("SF"):
+                return ["", scraper]
+            elif site and "BY" in site and db_normal.retrieve("BY"):
+                return ["", scraper]
+            elif site and "MW" in site and db_normal.retrieve("MW"):
+                return ["", scraper]
+            elif site and "FX" in site and db_normal.retrieve("FX"):
+                return ["", scraper]
+            elif site and "NK" in site and db_normal.retrieve("NK"):
+                return ["", scraper]
+            elif site and "DD" in site and db_normal.retrieve("DD"):
+                return ["", scraper]
+            elif site and "FC" in site and db_normal.retrieve("FC"):
+                return ["", scraper]
+            response = scraper.post(url, data, headers=headers, timeout=30)
+            return [response, scraper]
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            return ["", scraper]
 
 
 def get_urls_async(urls, configfile, dbfile, scraper=False):
