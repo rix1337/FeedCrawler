@@ -369,14 +369,18 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
 
 
 def ww_get_download_links(content, title, configfile, dbfile, scraper):
+    base_url = "https://" + RssConfig('Hostnames', configfile).get('ww')
     content = content.replace("mkv|", "")
     try:
         response = get_url(content, configfile, dbfile, scraper)
-        if not response[0].text or response[0].status_code is not (200 or 304):
+        if not response:
             print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return False
         # ToDo get Link
-        response = BeautifulSoup(response, 'lxml')
+        links = BeautifulSoup(response, 'lxml').findAll("div", {"id": "download-links"})
+        for link in links:
+            # ToDo append to content that get_download_links will parse appending base_url
+            print(base_url)
     except:
         return False
     return False
