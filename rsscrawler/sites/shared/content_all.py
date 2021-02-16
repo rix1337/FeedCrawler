@@ -32,14 +32,18 @@ def get_download_links(self, content):
         if check_hoster(hoster, self.configfile):
             link = url_hoster[0]
             if self.url in link:
-                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                if demasked_link:
+                    link = demasked_link
             links[hoster] = link
     if self.hoster_fallback and not links:
         for url_hoster in reversed(url_hosters):
             hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
             link = url_hoster[0]
             if self.url in link:
-                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                if demasked_link:
+                    link = demasked_link
             links[hoster] = link
     return list(links.values())
 
@@ -291,20 +295,23 @@ def search_imdb(self, imdb, feed, site):
                             post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + str(
                                 vote_count) + ")")
                         continue
-                    download_score = re.findall(
-                        r'ratingValue">(.*?)<\/span>', imdb_details)
+                    download_score = re.findall(r'ratingValue">(.*?)<\/span>', imdb_details)
                     if not download_score:
-                        self.log_debug(
-                            "%s - IMDB-Wertung nicht ermittelbar" % post.title)
-                        continue
+                        download_score = re.findall(r'ratingValue": "(.*?)"', imdb_details)
+                        if not download_score:
+                            self.log_debug(
+                                "%s - IMDB-Wertung nicht ermittelbar" % post.title)
+                            continue
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
                         if "FX" in site:
                             download_pages = fx_get_download_links(content, post.title, self.configfile)
                         elif "WW" in site:
-                            download_pages = ww_get_download_links(content, post.title, self.configfile, self.dbfile,
-                                                                   self.scraper)
+                            download_pages = get_download_links(self, ww_get_download_links(content, post.title,
+                                                                                            self.configfile,
+                                                                                            self.dbfile,
+                                                                                            self.scraper))
                         else:
                             download_pages = get_download_links(self, content)
 
@@ -489,10 +496,6 @@ def download_hevc(self, title):
                 else:
                     download_links = fx_get_download_links(content, key, self.configfile)
                 if download_links:
-                    for download_link in download_links:
-                        if self.url.split('.')[0] in download_link:
-                            self.log_debug("Fake-Link erkannt!")
-                            break
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                     if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
@@ -648,10 +651,6 @@ def download_dual_language(self, title, hevc=False):
             else:
                 download_links = fx_get_download_links(content, key, self.configfile)
             if download_links:
-                for download_link in download_links:
-                    if self.url.split('.')[0] in download_link:
-                        self.log_debug("Fake-Link erkannt!")
-                        break
                 storage = self.db.retrieve_all(key)
                 storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                 if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
@@ -725,10 +724,6 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
     if download_links:
-        for download_link in download_links:
-            if self.url.split('.')[0] in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                break
         englisch = False
         if "*englisch" in key.lower() or "*english" in key.lower():
             key = key.replace(
@@ -808,10 +803,6 @@ def download_feed(self, key, content, site, hevc_retail):
     else:
         download_links = fx_get_download_links(content, key, self.configfile)
     if download_links:
-        for download_link in download_links:
-            if self.url.split('.')[0] in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                break
         storage = self.db.retrieve_all(key)
         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
         if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:

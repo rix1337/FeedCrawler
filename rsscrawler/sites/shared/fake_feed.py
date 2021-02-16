@@ -319,7 +319,7 @@ def nk_feed_enricher(content, configfile, dbfile, scraper):
                     pass
                 links = details.find_all("a", href=re.compile("/go/"))
                 for link in links:
-                    content.append('href="' + base_url + link["href"] + '"' + link.text + '<')
+                    content.append('href="' + base_url + link["href"] + '">' + link.text + '<')
                 content = "".join(content)
 
                 entries.append(FakeFeedParserDict({
@@ -360,7 +360,8 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
         data = payload[2]
         headers["Referer"] = referer
         response = post_url_headers(url, configfile, dbfile, headers, data, scraper)
-        if not response[0].text or response[0].status_code is not (200 or 304):
+        if not response[0].text or response[0].status_code is not (200 or 304) or not '<span class="main-rls">' in \
+                                                                                      response[0].text:
             print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return ""
         return response
@@ -371,19 +372,22 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
 def ww_get_download_links(content, title, configfile, dbfile, scraper):
     base_url = "https://" + RssConfig('Hostnames', configfile).get('ww')
     content = content.replace("mkv|", "")
+    download_links = []
     try:
         response = get_url(content, configfile, dbfile, scraper)
-        if not response:
+        if not response or "NinjaFirewall 429" in response:
             print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return False
-        # ToDo get Link
         links = BeautifulSoup(response, 'lxml').findAll("div", {"id": "download-links"})
         for link in links:
-            # ToDo append to content that get_download_links will parse appending base_url
-            print(base_url)
+            hoster = link.text
+            if 'Direct Download 100 MBit/s' not in hoster:
+                url = base_url + link.find("a")["href"]
+                download_links.append('href="' + url + '" ' + hoster + '<')
+        download_links = "".join(download_links)
+        return download_links
     except:
         return False
-    return False
 
 
 def ww_feed_enricher(content, configfile, dbfile, scraper):
@@ -395,7 +399,7 @@ def ww_feed_enricher(content, configfile, dbfile, scraper):
         for post in posts:
             try:
                 link = post.findAll("a", href=re.compile("/download"))[1]
-                title = link.nextSibling.nextSibling
+                title = link.nextSibling.nextSibling.strip()
                 published = post.find("span", {"class": "main-date"}).text.replace("\n", "")
                 content = "mkv|" + base_url + link["href"]
 

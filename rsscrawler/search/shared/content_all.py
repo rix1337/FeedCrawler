@@ -85,11 +85,12 @@ def get_best_result(title, configfile, dbfile):
         return best_payload
 
 
-def download(payload, device, configfile, dbfile):
+def download(payload, device, configfile, dbfile, scraper):
     hostnames = RssConfig('Hostnames', configfile)
     by = hostnames.get('by')
     mw = hostnames.get('mw')
     nk = hostnames.get('nk')
+    ww = hostnames.get('ww')
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -148,8 +149,10 @@ def download(payload, device, configfile, dbfile):
                         "ddownload", "ddl")
                     if check_hoster(link_hoster, configfile):
                         link = url_hoster[0]
-                        if by in link or mw in link:
-                            link = get_redirected_url(link, configfile, dbfile, False)
+                        if by in link or mw in link or ww in link:
+                            demasked_link = get_redirected_url(link, configfile, dbfile, False)
+                            if demasked_link:
+                                link = demasked_link
                         links[link_hoster] = link
                 except:
                     pass
@@ -158,8 +161,10 @@ def download(payload, device, configfile, dbfile):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
                     link = url_hoster[0]
-                    if by in link or mw in link:
-                        link = get_redirected_url(link, configfile, dbfile, False)
+                    if by in link or mw in link or ww in link:
+                        demasked_link = get_redirected_url(link, configfile, dbfile, False)
+                        if demasked_link:
+                            link = demasked_link
                     links[link_hoster] = link
             download_links = list(links.values())
         else:
