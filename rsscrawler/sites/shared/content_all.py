@@ -535,7 +535,7 @@ def download_hevc(self, title):
                             retail = False
                         if retail:
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler/Filme",
+                                                        "RSScrawler",
                                                         download_links,
                                                         self.password)
                             if self.device:
@@ -549,12 +549,8 @@ def download_hevc(self, title):
                                 notify([log_entry], self.configfile)
                                 return log_entry
                     elif self.filename == 'MB_Regex':
-                        if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
-                            path = "RSScrawler/Serien"
-                        else:
-                            path = "RSScrawler/Filme"
                         self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    path,
+                                                    "RSScrawler",
                                                     download_links,
                                                     self.password)
                         if self.device:
@@ -642,7 +638,7 @@ def download_dual_language(self, title, hevc=False):
                         if is_retail(key, self.dbfile):
                             retail = True
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler/Filme" + path_suffix, download_links, self.password)
+                                                "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -654,12 +650,8 @@ def download_dual_language(self, title, hevc=False):
                         notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_Regex':
-                    if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
-                        path = "RSScrawler/Serien"
-                    else:
-                        path = "RSScrawler/Filme"
                     self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                path + path_suffix, download_links, self.password)
+                                                "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -739,7 +731,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     if self.config.get('enforcedl'):
                         if is_retail(key, self.dbfile):
                             retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
+            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
                                         download_links, self.password)
             if self.device:
                 self.db.store(
@@ -839,7 +831,7 @@ def download_feed(self, key, content, hevc_retail):
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                     if is_retail(key, self.dbfile):
                         retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler/Filme",
+            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
                                         download_links, self.password)
             if self.device:
                 self.db.store(
@@ -870,11 +862,7 @@ def download_feed(self, key, content, hevc_retail):
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
         else:
-            if re.search(r'\.S(\d{1,3})(\.|-|E)', key):
-                path = "RSScrawler/Serien"
-            else:
-                path = "RSScrawler/Filme"
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, path,
+            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
                                         download_links, self.password)
             if self.device:
                 self.db.store(

@@ -72,7 +72,7 @@ class DD:
                                 "%s - Release ignoriert (bereits gefunden)" % key)
                         else:
                             self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler/Serien",
+                                                        "RSScrawler",
                                                         links, "")
                             if self.device:
                                 self.db.store(

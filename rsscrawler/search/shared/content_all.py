@@ -182,7 +182,7 @@ def download(payload, device, configfile, dbfile, scraper):
 
         if download_links:
             if staffel:
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler/Serien", download_links, password):
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                     db.store(
                         key.replace(".COMPLETE", "").replace(".Complete", ""),
                         'notdl' if config.get(
@@ -198,7 +198,7 @@ def download(payload, device, configfile, dbfile, scraper):
                 if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                     if is_retail(key, dbfile):
                         retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler/Filme", download_links, password):
+                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
                     db.store(
                         key,
                         'notdl' if config.get(
