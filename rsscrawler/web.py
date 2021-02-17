@@ -483,6 +483,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         fx = hostnames.get('fx')
         mw = hostnames.get('mw')
         nk = hostnames.get('nk')
+        ww = hostnames.get('ww')
         dd = hostnames.get('dd')
         fc = hostnames.get('fc')
 
@@ -495,9 +496,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 mw = mw.replace("m", "M", 1).replace("w", "W", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+                ww = ww.replace("w", "W", 2)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [by, fx, mw, nk])))
+                bl = ' / '.join(list(filter(None, [by, fx, mw, nk, ww])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -535,6 +537,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "fx": fx,
                             "mw": mw,
                             "nk": nk,
+                            "ww": ww,
                             "dd": dd,
                             "fc": fc,
                             "bl": bl,
@@ -571,6 +574,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "FX": check("FX", db_proxy),
                         "MW": check("MW", db_proxy),
                         "NK": check("NK", db_proxy),
+                        "WW": check("WW", db_proxy),
                         "DD": check("DD", db_proxy),
                         "FC": check("FC", db_proxy)
                     },
@@ -582,6 +586,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "FX": check("FX", db_normal),
                         "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),
+                        "WW": check("WW", db_normal),
                         "DD": check("DD", db_normal),
                         "FC": check("FC", db_normal)
                     }

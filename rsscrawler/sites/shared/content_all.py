@@ -5,8 +5,8 @@
 import feedparser
 import hashlib
 import re
+from bs4 import BeautifulSoup
 
-from rsscrawler.common import check_hoster
 from rsscrawler.common import check_valid_release
 from rsscrawler.common import fullhd_title
 from rsscrawler.common import is_hevc
@@ -16,31 +16,8 @@ from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
-from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.url import check_is_site
-from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
-from rsscrawler.url import get_url_headers
-
-
-def get_download_links(self, content):
-    url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
-    links = {}
-    for url_hoster in reversed(url_hosters):
-        hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
-        if check_hoster(hoster, self.configfile):
-            link = url_hoster[0]
-            if self.url in link:
-                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
-            links[hoster] = link
-    if self.hoster_fallback and not links:
-        for url_hoster in reversed(url_hosters):
-            hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
-            link = url_hoster[0]
-            if self.url in link:
-                link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
-            links[hoster] = link
-    return list(links.values())
 
 
 def get_movies_list(self, liste):
@@ -103,7 +80,7 @@ def adhoc_search(self, feed, title):
                 yield post.title, content
 
 
-def search_imdb(self, imdb, feed, site):
+def search_imdb(self, imdb, feed):
     added_items = []
     settings = str(self.settings)
     score = str(self.imdb)
@@ -118,7 +95,7 @@ def search_imdb(self, imdb, feed, site):
 
         if self.search_imdb_done:
             self.log_debug(
-                site + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche BY-Suche ab!")
+                self._SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche " + self._SITE + "-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + score
@@ -204,7 +181,7 @@ def search_imdb(self, imdb, feed, site):
                 year_in_title = re.findall(
                     r"\.((?:19|20)\d{2})\.", post.title)
                 years_in_title = len(year_in_title)
-                if years_in_title > 0:
+                if years_in_title:
                     title_year = year_in_title[years_in_title - 1]
                 else:
                     title_year = ""
@@ -224,43 +201,54 @@ def search_imdb(self, imdb, feed, site):
                                 "Oe", u"Ö").replace("Ue", u"Ü")
                     except:
                         break
-                    search_url = "http://www.imdb.com/find?q=" + search_title
+                    search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
                     search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
-                    search_results = re.findall(
-                        r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
-                        search_page)
-                    no_series = False
-                    total_results = len(search_results)
-                    if total_results == 0:
-                        imdb_url = ""
-                    else:
-                        while total_results > 0:
-                            attempt = 0
-                            for result in search_results:
-                                if result[3] == "TV Series":
-                                    no_series = False
-                                    total_results -= 1
-                                    attempt += 1
-                                else:
-                                    no_series = True
-                                    imdb_url = "http://www.imdb.com/title/" + \
-                                               search_results[attempt][0]
-                                    title_year = search_results[attempt][2]
-                                    total_results = 0
-                                    break
-                        if no_series is False:
-                            self.log_debug(
-                                "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
+                    search_soup = BeautifulSoup(search_page, 'lxml')
+                    try:
+                        search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
+                                                                                                  {
+                                                                                                      "class": "result_text"})
+                    except:
+                        try:
+                            search_title = \
+                                re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
+                                           post.title)[
+                                    0].replace(
+                                    ".", "+")
+                        except:
+                            break
+                        search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
+                        search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
+                        search_soup = BeautifulSoup(search_page, 'lxml')
+                        try:
+                            search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
+                                                                                                      {
+                                                                                                          "class": "result_text"})
+                        except:
+                            self.log_debug("%s - Kein passender IMDB-Eintrag gefunden" % post.title)
+                            continue
+                    found = False
+                    for result in search_results:
+                        if "TV Series" not in result.text:
+                            found = True
+                            href = result.find("a")
+                            if not title_year:
+                                title_year = re.findall(r"(\d{4})", href.next.next)[0]
+                            imdb_url = "http://www.imdb.com" + href["href"]
+                            break
+                    if not found:
+                        self.log_debug(
+                            "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
 
                 imdb_details = ""
                 min_year = self.config.get("imdbyear")
                 if min_year:
-                    if len(title_year) > 0:
+                    if title_year:
                         if title_year < min_year:
                             self.log_debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-                    elif len(imdb_url) > 0:
+                    elif imdb_url:
                         imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
                         if not imdb_details:
                             self.log_debug(
@@ -278,12 +266,12 @@ def search_imdb(self, imdb, feed, site):
                             self.log_debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-                if len(imdb_url) > 0:
-                    if len(imdb_details) == 0:
+                if imdb_url:
+                    if not imdb_details:
                         imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
                     if not imdb_details:
                         self.log_debug(
-                            "%s - Release ignoriert (Film zu alt)" % post.title)
+                            "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
                         continue
                     vote_count = re.findall(r'ratingCount">(.*?)<\/span>', imdb_details)
                     if not vote_count:
@@ -300,30 +288,27 @@ def search_imdb(self, imdb, feed, site):
                             post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + str(
                                 vote_count) + ")")
                         continue
-                    download_score = re.findall(
-                        r'ratingValue">(.*?)<\/span>', imdb_details)
+                    download_score = re.findall(r'ratingValue">(.*?)<\/span>', imdb_details)
                     if not download_score:
-                        self.log_debug(
-                            "%s - IMDB-Wertung nicht ermittelbar" % post.title)
-                        continue
+                        download_score = re.findall(r'ratingValue": "(.*?)"', imdb_details)
+                        if not download_score:
+                            self.log_debug(
+                                "%s - IMDB-Wertung nicht ermittelbar" % post.title)
+                            continue
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
-                        if "FX" not in site:
-                            download_pages = get_download_links(self, content)
-                        else:
-                            download_pages = fx_get_download_links(content, post.title, self.configfile)
-
+                        download_links = self.get_download_links_method(self, content, post.title)
                         found = download_imdb(self,
-                                              post.title, download_pages, str(download_score), imdb_url,
-                                              imdb_details, site, hevc_retail)
+                                              post.title, download_links, str(download_score), imdb_url,
+                                              imdb_details, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
     return added_items
 
 
-def search_feed(self, feed, site):
+def search_feed(self, feed):
     if not self.pattern:
         return
     added_items = []
@@ -348,7 +333,7 @@ def search_feed(self, feed, site):
 
         if self.search_regular_done:
             self.log_debug(
-                site + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche BY-Suche ab!")
+                self._SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche " + self._SITE + "-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + liste
@@ -411,7 +396,7 @@ def search_feed(self, feed, site):
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, site, hevc_retail)
+                            found = download_feed(self, post.title, content, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -423,7 +408,7 @@ def search_feed(self, feed, site):
                                 post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in site:
+                            if "FX" not in self._SITE:
                                 self.log_debug(
                                     post.title + " - Staffel noch nicht komplett")
                                 continue
@@ -458,12 +443,12 @@ def search_feed(self, feed, site):
                                 self.log_debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, site, hevc_retail)
+                            found = download_feed(self, post.title, content, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
                     else:
-                        found = download_feed(self, post.title, content, site, hevc_retail)
+                        found = download_feed(self, post.title, content, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -475,7 +460,7 @@ def download_hevc(self, title):
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = []
     if self.url:
-        # ToDo Broken (import search method!)
+        # ToDo: This is broken code (web search needs to be adapted)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -490,15 +475,9 @@ def download_hevc(self, title):
 
         for (key, value) in adhoc_search(self, content, feedsearch_title):
             if is_hevc(key) and "1080p" in key:
-                if "FX" not in site:
-                    download_links = get_download_links(self, content)
-                else:
-                    download_links = fx_get_download_links(content, key, self.configfile)
+                # ToDo This also is broken - since self.get_download_links_method is for the site and not self._SITE
+                download_links = self.get_download_links_method(self, content, key)
                 if download_links:
-                    for download_link in download_links:
-                        if self.url.split('.')[0] in download_link:
-                            self.log_debug("Fake-Link erkannt!")
-                            break
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                     if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
@@ -604,7 +583,7 @@ def download_hevc(self, title):
                 else:
                     storage = self.db.retrieve_all(key)
                     if 'added' not in storage and 'notdl' not in storage:
-                        wrong_hoster = '[HEVC-Suche/Hoster fehlt] - ' + key
+                        wrong_hoster = '[' + site + 'HEVC-Suche/Hoster fehlt] - ' + key
                         if 'wrong_hoster' not in storage:
                             print(wrong_hoster)
                             self.db.store(key, 'wrong_hoster')
@@ -622,7 +601,7 @@ def download_dual_language(self, title, hevc=False):
             0].split('.HEVC-', 1)[0]
     search_results = []
     if self.url:
-        # ToDo Broken (import search method!)
+        # ToDo: This is broken code (web search needs to be adapted)
         search_results.append(feedparser.parse(
             get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
                     self.configfile, self.dbfile, self.scraper)))
@@ -648,16 +627,9 @@ def download_dual_language(self, title, hevc=False):
                 path_suffix = "/Remux"
             else:
                 path_suffix = ""
-
-            if "FX" not in site:
-                download_links = get_download_links(self, content)
-            else:
-                download_links = fx_get_download_links(content, key, self.configfile)
+            # ToDo This also is broken - since self.get_download_links_method is for the site and not self._SITE
+            download_links = self.get_download_links_method(self, content, key)
             if download_links:
-                for download_link in download_links:
-                    if self.url.split('.')[0] in download_link:
-                        self.log_debug("Fake-Link erkannt!")
-                        break
                 storage = self.db.retrieve_all(key)
                 storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                 if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
@@ -712,7 +684,7 @@ def download_dual_language(self, title, hevc=False):
             else:
                 storage = self.db.retrieve_all(key)
                 if 'added' not in storage and 'notdl' not in storage:
-                    wrong_hoster = '[DL-Suche/Hoster fehlt] - ' + key
+                    wrong_hoster = '[' + site + 'DL-Suche/Hoster fehlt] - ' + key
                     if 'wrong_hoster' not in storage:
                         print(wrong_hoster)
                         self.db.store(key, 'wrong_hoster')
@@ -721,7 +693,7 @@ def download_dual_language(self, title, hevc=False):
                         self.log_debug(wrong_hoster)
 
 
-def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site, hevc_retail):
+def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc_retail):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
@@ -731,10 +703,6 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
     if download_links:
-        for download_link in download_links:
-            if self.url.split('.')[0] in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                break
         englisch = False
         if "*englisch" in key.lower() or "*english" in key.lower():
             key = key.replace(
@@ -783,14 +751,14 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
                     '/Englisch - ' if englisch and not retail else "") + (
                                 '/Englisch/Retail' if englisch and retail else "") + (
                                 '/Retail' if not englisch and retail else "") + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
+                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + self._SITE + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -800,7 +768,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, site
     return added_items
 
 
-def download_feed(self, key, content, site, hevc_retail):
+def download_feed(self, key, content, hevc_retail):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
@@ -809,15 +777,8 @@ def download_feed(self, key, content, site, hevc_retail):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
-    if "FX" not in site:
-        download_links = get_download_links(self, content)
-    else:
-        download_links = fx_get_download_links(content, key, self.configfile)
+    download_links = self.get_download_links_method(self, content, key)
     if download_links:
-        for download_link in download_links:
-            if self.url.split('.')[0] in download_link:
-                self.log_debug("Fake-Link erkannt!")
-                break
         storage = self.db.retrieve_all(key)
         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
         if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
@@ -889,7 +850,7 @@ def download_feed(self, key, content, site, hevc_retail):
                 log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
+                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + self._SITE + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
@@ -904,7 +865,7 @@ def download_feed(self, key, content, site, hevc_retail):
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
-                                                                                  "") + ' - [' + site + ']'
+                                                                                  "") + ' - [' + self._SITE + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
@@ -921,14 +882,14 @@ def download_feed(self, key, content, site, hevc_retail):
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + site + ']'
+                log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + self._SITE + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + site + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -938,7 +899,7 @@ def download_feed(self, key, content, site, hevc_retail):
     return added_items
 
 
-def periodical_task(self, get_feed_method):
+def periodical_task(self):
     imdb = self.imdb
     urls = []
 
@@ -979,10 +940,10 @@ def periodical_task(self, get_feed_method):
 
     loading_304 = False
     try:
-        first_page_raw = get_url_headers(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
+        first_page_raw = self.get_url_headers_method(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
         self.scraper = first_page_raw[1]
         first_page_raw = first_page_raw[0]
-        first_page_content = get_feed_method(first_page_raw.content, self.configfile, self.dbfile, self.scraper)
+        first_page_content = self.get_feed_method(self, first_page_raw.content)
         if first_page_raw.status_code == 304:
             loading_304 = True
     except:
@@ -1020,12 +981,12 @@ def periodical_task(self, get_feed_method):
             for url in urls:
                 if not self.search_imdb_done:
                     if i == 0 and first_page_content:
-                        by_parsed_url = first_page_content
+                        parsed_url = first_page_content
                     else:
-                        by_parsed_url = get_feed_method(
-                            get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
-                            self.scraper)
-                    found = search_imdb(self, imdb, by_parsed_url, self._SITE)
+                        parsed_url = self.get_feed_method(self,
+                                                          self.get_url_method(url, self.configfile, self.dbfile,
+                                                                              self.scraper))
+                    found = search_imdb(self, imdb, parsed_url)
                     if found:
                         for f in found:
                             added_items.append(f)
@@ -1035,12 +996,11 @@ def periodical_task(self, get_feed_method):
         for url in urls:
             if not self.search_regular_done:
                 if i == 0 and first_page_content:
-                    by_parsed_url = first_page_content
+                    parsed_url = first_page_content
                 else:
-                    by_parsed_url = get_feed_method(
-                        get_url(url, self.configfile, self.dbfile, self.scraper), self.configfile, self.dbfile,
-                        self.scraper)
-                found = search_feed(self, by_parsed_url, self._SITE)
+                    parsed_url = self.get_feed_method(self, self.get_url_method(url, self.configfile, self.dbfile,
+                                                                                self.scraper))
+                found = search_feed(self, parsed_url)
                 if found:
                     for f in found:
                         added_items.append(f)

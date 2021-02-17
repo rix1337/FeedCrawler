@@ -70,6 +70,7 @@ from rsscrawler.sites.mw import BL as MW
 from rsscrawler.sites.nk import BL as NK
 from rsscrawler.sites.sf import SF
 from rsscrawler.sites.sj import SJ
+from rsscrawler.sites.ww import BL as WW
 from rsscrawler.url import check_url
 from rsscrawler.web import start
 
@@ -390,10 +391,10 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
-        BY(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        BY(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         FX(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
@@ -406,6 +407,10 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         NK(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         DD(configfile, dbfile, device, logger, scraper)
     ]
 
