@@ -90,7 +90,7 @@ def check_is_site(string, configfile):
         return "MW"
     elif nk and nk.split('.')[0] in string:
         return "NK"
-    elif ww and nk.split('.')[0] in string:
+    elif ww and ww.split('.')[0] in string:
         return "WW"
     elif dd and dd.split('.')[0] in string:
         return "DD"

@@ -6,8 +6,10 @@ import json
 import re
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import check_hoster
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
+from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
 from rsscrawler.url import post_url
@@ -26,8 +28,51 @@ def unused_get_feed_parameter(param):
     return param
 
 
-def by_feed_enricher(content, configfile, dbfile, scraper):
-    base_url = "https://" + RssConfig('Hostnames', configfile).get('by')
+def get_download_links(self, content, title):
+    unused_get_feed_parameter(title)
+    url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
+    links = {}
+    for url_hoster in reversed(url_hosters):
+        hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+        if check_hoster(hoster, self.configfile):
+            link = url_hoster[0]
+            if self.url in link:
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                if demasked_link:
+                    link = demasked_link
+            links[hoster] = link
+    if self.hoster_fallback and not links:
+        for url_hoster in reversed(url_hosters):
+            hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+            link = url_hoster[0]
+            if self.url in link:
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                if demasked_link:
+                    link = demasked_link
+            links[hoster] = link
+    return list(links.values())
+
+
+def by_get_download_links(self, content, title):
+    async_link_results = re.findall(r'href="([^"\'>]*)"', content)
+    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile, self.scraper)
+
+    content = []
+    links = async_link_results[0]
+    for link in links:
+        link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+        try:
+            content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
+        except:
+            pass
+
+    content = "".join(content)
+    download_links = get_download_links(self, content, title)
+    return download_links
+
+
+def by_feed_enricher(self, content):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
     async_results = []
@@ -36,9 +81,8 @@ def by_feed_enricher(content, configfile, dbfile, scraper):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, configfile, dbfile, scraper)
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
     results = async_results[0]
-    scraper = async_results[1]
 
     entries = []
     if results:
@@ -58,15 +102,8 @@ def by_feed_enricher(content, configfile, dbfile, scraper):
                 except:
                     pass
                 links = details.find_all("iframe")
-                async_link_results = []
                 for link in links:
-                    async_link_results.append(link["src"])
-                async_link_results = get_urls_async(async_link_results, configfile, dbfile, scraper)
-                links = async_link_results[0]
-                scraper = async_link_results[1]
-                for link in links:
-                    link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
-                    content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
+                    content.append('href="' + link["src"] + '"')
 
                 content = "".join(content)
 
@@ -103,8 +140,8 @@ def fx_content_to_soup(content):
     return content
 
 
-def fx_get_download_links(content, title, configfile):
-    hostnames = RssConfig('Hostnames', configfile)
+def fx_get_download_links(self, content, title):
+    hostnames = RssConfig('Hostnames', self.configfile)
     fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     try:
         try:
@@ -123,11 +160,8 @@ def fx_get_download_links(content, title, configfile):
     return download_links
 
 
-def fx_feed_enricher(feed, configfile, dbfile=False, scraper=False):
-    unused_get_feed_parameter(dbfile)
-    unused_get_feed_parameter(scraper)
-
-    hostnames = RssConfig('Hostnames', configfile)
+def fx_feed_enricher(self, feed):
+    hostnames = RssConfig('Hostnames', self.configfile)
     fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     if not fc:
         fc = '^unmatchable$'
@@ -207,11 +241,11 @@ def fx_search_results(content, configfile, dbfile, scraper):
     return items
 
 
-def mw_feed_enricher(content, configfile, dbfile, scraper):
-    unused_get_feed_parameter(dbfile)
-    unused_get_feed_parameter(scraper)
+def mw_feed_enricher(self, content):
+    unused_get_feed_parameter(self.dbfile)
+    unused_get_feed_parameter(self.scraper)
 
-    base_url = "https://" + RssConfig('Hostnames', configfile).get('mw')
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('mw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("div", {"class": "accordion"})
 
@@ -291,8 +325,8 @@ def mw_search_results(content, base_url, search_phrase, quality, configfile, dbf
     return results
 
 
-def nk_feed_enricher(content, configfile, dbfile, scraper):
-    base_url = "https://" + RssConfig('Hostnames', configfile).get('nk')
+def nk_feed_enricher(self, content):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
@@ -301,7 +335,7 @@ def nk_feed_enricher(content, configfile, dbfile, scraper):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, configfile, dbfile, scraper)[0]
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)[0]
 
     entries = []
     if async_results:
@@ -369,12 +403,12 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
         return ""
 
 
-def ww_get_download_links(content, title, configfile, dbfile, scraper):
-    base_url = "https://" + RssConfig('Hostnames', configfile).get('ww')
+def ww_get_download_links(self, content, title):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('ww')
     content = content.replace("mkv|", "")
     download_links = []
     try:
-        response = get_url(content, configfile, dbfile, scraper)
+        response = get_url(content, self.configfile, self.dbfile, self.scraper)
         if not response or "NinjaFirewall 429" in response:
             print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return False
@@ -385,13 +419,15 @@ def ww_get_download_links(content, title, configfile, dbfile, scraper):
                 url = base_url + link.find("a")["href"]
                 download_links.append('href="' + url + '" ' + hoster + '<')
         download_links = "".join(download_links)
+
+        download_links = get_download_links(self, download_links, title)
         return download_links
     except:
         return False
 
 
-def ww_feed_enricher(content, configfile, dbfile, scraper):
-    base_url = "https://" + RssConfig('Hostnames', configfile).get('ww')
+def ww_feed_enricher(self, content):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")
     entries = []

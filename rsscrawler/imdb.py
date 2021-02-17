@@ -3,7 +3,6 @@
 # Projekt von https://github.com/rix1337
 
 import re
-
 from bs4 import BeautifulSoup
 
 from rsscrawler.url import get_url
@@ -60,12 +59,40 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, scrap
     original_language = False
     if imdb_details and len(imdb_details) > 0:
         soup = BeautifulSoup(imdb_details, 'lxml')
-        original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
+        try:
+            original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
+        except:
+            pass
     elif imdb_url and len(imdb_url) > 0:
         imdb_details = get_url(imdb_url, configfile, dbfile, scraper)
         if imdb_details:
             soup = BeautifulSoup(imdb_details, 'lxml')
-            original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
+            try:
+                original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
+            except:
+                pass
+
+    if not original_language:
+        if imdb_details and len(imdb_details) > 0:
+            soup = BeautifulSoup(imdb_details, 'lxml')
+            try:
+                original_language = \
+                    soup.find('h3', text=re.compile(r'Language')).next.next.next.text.strip().replace("\n", "").split(
+                        ",")[
+                        0]
+            except:
+                pass
+        elif imdb_url and len(imdb_url) > 0:
+            imdb_details = get_url(imdb_url, configfile, dbfile, scraper)
+            if imdb_details:
+                soup = BeautifulSoup(imdb_details, 'lxml')
+                try:
+                    original_language = \
+                        soup.find('h3', text=re.compile(r'Language')).next.next.next.text.strip().replace("\n",
+                                                                                                          "").split(
+                            ",")[0]
+                except:
+                    pass
 
     if not original_language:
         log_debug("%s - Originalsprache nicht ermittelbar" % key)

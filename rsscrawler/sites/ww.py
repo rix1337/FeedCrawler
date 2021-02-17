@@ -6,6 +6,7 @@ import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.sites.shared.fake_feed import ww_feed_enricher
+from rsscrawler.sites.shared.fake_feed import ww_get_download_links
 from rsscrawler.sites.shared.fake_feed import ww_post_url_headers
 
 
@@ -74,11 +75,16 @@ class BL:
         self.search_regular_done = False
         self.dl_unsatisfied = False
 
+        self.get_feed_method = ww_feed_enricher
+        self.get_url_method = ww_post_url_headers
+        self.get_url_headers_method = ww_post_url_headers
+        self.get_download_links_method = ww_get_download_links
+
         try:
             self.imdb = float(self.config.get('imdb'))
         except:
             self.imdb = 0.0
 
     def periodical_task(self):
-        self.device = shared_blogs.periodical_task(self, ww_feed_enricher, ww_post_url_headers, ww_post_url_headers)
+        self.device = shared_blogs.periodical_task(self)
         return self.device
