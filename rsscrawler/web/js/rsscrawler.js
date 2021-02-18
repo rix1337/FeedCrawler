@@ -79,8 +79,13 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         nk: 'Nicht gesetzt!',
         ww: 'Nicht gesetzt!',
         dd: 'Nicht gesetzt!',
-        fc: 'Nicht gesetzt!'
+        fc: 'Nicht gesetzt!',
+        bl: 'Nicht gesetzt!',
+        s: 'Nicht gesetzt!',
+        sjbl: 'Nicht gesetzt!'
     };
+
+    $scope.sjbl_enabled = false;
 
     $scope.mb_search = [
         {value: '1', label: '30 Einträge'},
@@ -309,6 +314,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $http.get('api/hostnames/')
             .then(function (res) {
                 $scope.hostnames = res.data.hostnames;
+                not_set = 'Nicht gesetzt!'
+                $scope.sjbl_enabled = !(($scope.hostnames.bl === not_set && $scope.hostnames.s !== not_set) || ($scope.hostnames.bl !== not_set && $scope.hostnames.s === not_set));
                 console.log('Hostnamen abgerufen!');
             }, function (res) {
                 console.log('Konnte Hostnamen nicht abrufen!');
