@@ -343,7 +343,7 @@
            aria-label="Search"
            data-toggle="tooltip"
            ng-keypress="($event.charCode==13)? searchNow() : return"
-           title="Bequeme Suchfunktion für Filme, Serien und andere verfügbare Titel. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
+           title="Bequeme Suchfunktion für SJ, BY, FX und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
     <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"
        ng-show="search || (!results.sj && !results.bl)"><i id="spinner-search"
                                                            ng-if="searching"
@@ -380,7 +380,7 @@
 
 <div id="lists" class="col card app container">
     <h3><i class="fas fa-bars"></i> Listen</h3>
-    <div class="card">
+    <div class="card" ng-show="hostnames.bl != 'Nicht gesetzt!'">
         <div class="card-header" id="headingZeroOne">
             <h5 class="mb-0">
                 <button class="btn btn-link" data-toggle="collapse" data-target="#collapseZeroOne"
@@ -403,7 +403,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.s != 'Nicht gesetzt!'">
         <div class="card-header" id="headingZeroTwo">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -430,7 +430,7 @@
             </div>
         </div>
     </div>
-    <div class="card" ng-show="settings.mbsj.enabled">
+    <div class="card" ng-show="settings.mbsj.enabled && hostnames.sjbl != 'Nicht gesetzt!'">
         <div class="card-header" id="headingZeroThree">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -450,7 +450,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.dj != 'Nicht gesetzt!'">
         <div class="card-header" id="headingZeroFour">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -569,83 +569,87 @@
         </div>
         <div id="collapseOneTwo" class="collapse" aria-labelledby="headingOneTwo" data-parent="#help">
             <div id="helpText" class="card-body">
-                <h3>Beispiele für {{ hostnames.bl }}</h3>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>Film.*.Titel.*</i>
+                <div ng-show="hostnames.bl != 'Nicht gesetzt!'">
+                    <h3>Beispiele für {{ hostnames.bl }}</h3>
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>Film.*.Titel.*</i>
+                        </div>
+                        <div class="col text-left card">Sucht nach allen Filmen die mit Film beginnen und
+                            Titel
+                            enthalten.
+                        </div>
                     </div>
-                    <div class="col text-left card">Sucht nach allen Filmen die mit Film beginnen und
-                        Titel
-                        enthalten.
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>.*-GROUP</i> oder
+                            <i>-GROUP</i>
+                        </div>
+                        <div class="col text-left card">sucht nach allen Releases der GROUP.</div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>.*-GROUP</i> oder
-                        <i>-GROUP</i>
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>.*1080p.*-GROUP</i>
+                        </div>
+                        <div class="col text-left card">sucht nach allen Full-HD Releases der GROUP.</div>
                     </div>
-                    <div class="col text-left card">sucht nach allen Releases der GROUP.</div>
-                </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>.*1080p.*-GROUP</i>
-                    </div>
-                    <div class="col text-left card">sucht nach allen Full-HD Releases der GROUP.</div>
-                </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
-                    </div>
-                    <div class="col text-left card">sucht nach HD-BluRay Releases von Film Titel,
-                        zweisprachig
-                        und in
-                        720p
-                        der GROUP.
-                    </div>
-                </div>
-                <h3>Beispiele für {{ hostnames.s }}</h3>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
-                    </div>
-                    <div class="col text-left card">sucht nach Releases der GROUP von Staffel 1 der
-                        Serien
-                        Titel
-                        in 720p
-                        auf
-                        Deutsch.
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
+                        </div>
+                        <div class="col text-left card">sucht nach HD-BluRay Releases von Film Titel,
+                            zweisprachig
+                            und in
+                            720p
+                            der GROUP.
+                        </div>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>Serien.Titel.*</i>
+                <div ng-show="hostnames.s != 'Nicht gesetzt!'">
+                    <h3>Beispiele für {{ hostnames.s }}</h3>
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
+                        </div>
+                        <div class="col text-left card">sucht nach Releases der GROUP von Staffel 1 der
+                            Serien
+                            Titel
+                            in 720p
+                            auf
+                            Deutsch.
+                        </div>
                     </div>
-                    <div class="col text-left card">sucht nach allen Releases von Serien Titel
-                        (nützlich,
-                        wenn
-                        man sonst
-                        HDTV
-                        aussortiert).
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>Serien.Titel.*</i>
+                        </div>
+                        <div class="col text-left card">sucht nach allen Releases von Serien Titel
+                            (nützlich,
+                            wenn
+                            man sonst
+                            HDTV
+                            aussortiert).
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>Serien.Titel.*.DL.*.720p.*</i>
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>Serien.Titel.*.DL.*.720p.*</i>
+                        </div>
+                        <div class="col text-left card">sucht nach zweisprachigen Releases in 720p von
+                            Serien
+                            Titel.
+                        </div>
                     </div>
-                    <div class="col text-left card">sucht nach zweisprachigen Releases in 720p von
-                        Serien
-                        Titel.
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col text-left card bg-light">
-                        <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
-                    </div>
-                    <div class="col text-left card">sucht nach Serie (aber nicht Diese Serie oder Andere
-                        Serie),
-                        zweisprachig
-                        und in 720p und ausschließlich
-                        nach Releases von GROUP oder ANDEREGROUP.
+                    <div class="row">
+                        <div class="col text-left card bg-light">
+                            <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
+                        </div>
+                        <div class="col text-left card">sucht nach Serie (aber nicht Diese Serie oder Andere
+                            Serie),
+                            zweisprachig
+                            und in 720p und ausschließlich
+                            nach Releases von GROUP oder ANDEREGROUP.
+                        </div>
                     </div>
                 </div>
                 <h3>All diese Regeln lassen sich beliebig kombinieren.</h3>
@@ -1123,7 +1127,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.bl != 'Nicht gesetzt!'">
         <div class="card-header" id="headingTwoFive">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -1208,7 +1212,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.s != 'Nicht gesetzt!'">
         <div class="card-header" id="headingTwoSix">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -1264,7 +1268,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.sjbl != 'Nicht gesetzt!'">
         <div class="card-header" id="headingTwoSeven">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -1305,7 +1309,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.dj != 'Nicht gesetzt!'">
         <div class="card-header" id="headingTwoEight">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
@@ -1345,7 +1349,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="card" ng-show="hostnames.dd != 'Nicht gesetzt!'">
         <div class="card-header" id="headingTwoNine">
             <h5 class="mb-0">
                 <button class="btn btn-link collapsed" data-toggle="collapse"
