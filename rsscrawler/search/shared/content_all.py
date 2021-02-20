@@ -110,7 +110,9 @@ def download(payload, device, configfile, dbfile):
             links = soup.find_all("iframe")
             async_link_results = []
             for link in links:
-                async_link_results.append(link["src"])
+                link = link["src"]
+                if 'https://' + by in link:
+                    async_link_results.append(link)
             async_link_results = get_urls_async(async_link_results, configfile, dbfile)
             links = async_link_results[0]
             url_hosters = []
@@ -157,7 +159,11 @@ def download(payload, device, configfile, dbfile):
                     links[link_hoster] = link
             download_links = list(links.values())
         else:
-            download_links = fx_get_download_links(url, key, configfile)
+            class FX:
+                configfile = ""
+
+            FX.configfile = configfile
+            download_links = fx_get_download_links(FX, url, key)
 
         englisch = False
         if "*englisch" in key.lower() or "*english" in key.lower():

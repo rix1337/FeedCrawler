@@ -102,8 +102,9 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                         result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
-            unrated.append(
-                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
+            if "xxx" not in result[0].lower():
+                unrated.append(
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
 
         password = fx.split('.')[0]
         for result in fx_results:
