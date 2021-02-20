@@ -119,7 +119,8 @@ def download(payload, device, configfile, dbfile):
             for link in links:
                 if link:
                     link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
-                    url_hosters.append([link["href"], link.text.replace(" ", "")])
+                    if link:
+                        url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
             url_hosters = []
