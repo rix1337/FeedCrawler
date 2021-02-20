@@ -128,6 +128,8 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
 
     scraper = False
 
+    if requested_movies:
+        log_debug("Die Suchfunktion für Filme nutzt BY, FX und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
@@ -153,6 +155,8 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
                     else:
                         log_debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
+    if requested_shows:
+        log_debug("Die Suchfunktion für Serien nutzt SJ, sofern dessen Hostname gesetzt wurde.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         infos = None
