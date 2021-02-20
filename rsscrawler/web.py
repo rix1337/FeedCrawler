@@ -481,7 +481,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         sf = hostnames.get('sf')
         by = hostnames.get('by')
         fx = hostnames.get('fx')
-        mw = hostnames.get('mw')
         nk = hostnames.get('nk')
         ww = hostnames.get('ww')
         dd = hostnames.get('dd')
@@ -494,12 +493,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 by = by.replace("b", "B", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
-                mw = mw.replace("m", "M", 1).replace("w", "W", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 ww = ww.replace("w", "W", 2)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [by, fx, mw, nk, ww])))
+                bl = ' / '.join(list(filter(None, [by, fx, nk, ww])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -513,8 +511,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     by = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
-                if not mw:
-                    mw = "Nicht gesetzt!"
                 if not nk:
                     nk = "Nicht gesetzt!"
                 if not dd:
@@ -535,7 +531,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "sf": sf,
                             "by": by,
                             "fx": fx,
-                            "mw": mw,
                             "nk": nk,
                             "ww": ww,
                             "dd": dd,
@@ -572,7 +567,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "SF": check("SF", db_proxy),
                         "BY": check("BY", db_proxy),
                         "FX": check("FX", db_proxy),
-                        "MW": check("MW", db_proxy),
                         "NK": check("NK", db_proxy),
                         "WW": check("WW", db_proxy),
                         "DD": check("DD", db_proxy),

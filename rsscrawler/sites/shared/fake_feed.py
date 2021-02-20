@@ -12,7 +12,6 @@ from rsscrawler.config import RssConfig
 from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
-from rsscrawler.url import post_url
 from rsscrawler.url import post_url_headers
 
 
@@ -239,90 +238,6 @@ def fx_search_results(content, configfile, dbfile, scraper):
                             continue
                     items.append([title, link + "|" + title])
     return items
-
-
-def mw_feed_enricher(self, content):
-    unused_get_feed_parameter(self.dbfile)
-    unused_get_feed_parameter(self.scraper)
-
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('mw')
-    content = BeautifulSoup(content, 'lxml')
-    posts = content.findAll("div", {"class": "accordion"})
-
-    entries = []
-    for post in posts:
-        try:
-            content = []
-            details = post.text.replace(" | ", "|").split("|")
-            title = details[0].split(" ")[0]
-            for detail in details:
-                if "update" in detail.lower():
-                    published = detail
-            try:
-                imdb = post.find_previous_sibling("a")
-                imdb_link = imdb["href"]
-                imdb_score = imdb.text.replace(" ", "").replace("/10", "")
-                if "0.0" in imdb_score:
-                    imdb_score = "9.9"
-                elif len(imdb_score) == 1:
-                    imdb_score = imdb_score + ".0"
-                content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
-            except:
-                pass
-
-            links = post.nextSibling.findAll("a")
-            for link in links:
-                if link:
-                    link_href = base_url + "/" + link["href"]
-                    link_text = link.parent.parent.find("td").text
-                    content.append('href="' + link_href + '">' + link_text + '<')
-
-            content = "".join(content)
-
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "published": published,
-                "content": [FakeFeedParserDict({
-                    "value": content + " mkv"})]
-            }))
-        except:
-            pass
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def mw_search_results(content, base_url, search_phrase, quality, configfile, dbfile):
-    contents = [BeautifulSoup(content, 'lxml')]
-    additional_results = contents[0].findAll("a", href=re.compile("/liste/"))
-    additional_pages = []
-    for additional_result in additional_results:
-        page = base_url + additional_result["href"]
-        if page not in additional_pages:
-            additional_pages.append(page)
-    for page in additional_pages:
-        contents.append(BeautifulSoup(
-            post_url(page, configfile, dbfile, data={'search': search_phrase.replace("+", " ")}), 'lxml'))
-
-    results = []
-    for content in contents:
-        posts = content.findAll(text=re.compile("Releases vorhanden", re.IGNORECASE))
-        for post in posts:
-            try:
-                link = base_url + post.parent["href"]
-                releases = get_url(link, configfile, dbfile)
-
-                content = BeautifulSoup(releases, 'lxml')
-                posts = content.findAll("div", {"class": "accordion"})
-                for p in posts:
-                    details = p.text.replace(" | ", "|").split("|")
-                    title = details[0].split(" ")[0]
-                    if quality.lower() in title.lower() and search_phrase.replace("+", ".").lower() in title.lower():
-                        results.append([title, link])
-            except:
-                pass
-    return results
 
 
 def nk_feed_enricher(self, content):

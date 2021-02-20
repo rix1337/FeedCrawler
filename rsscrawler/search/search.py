@@ -15,7 +15,6 @@ from rsscrawler.config import RssConfig
 from rsscrawler.sites.shared.fake_feed import by_search_results
 from rsscrawler.sites.shared.fake_feed import fx_content_to_soup
 from rsscrawler.sites.shared.fake_feed import fx_search_results
-from rsscrawler.sites.shared.fake_feed import mw_search_results
 from rsscrawler.sites.shared.fake_feed import nk_search_results
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
@@ -28,7 +27,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
     hostnames = RssConfig('Hostnames', configfile)
     by = hostnames.get('by')
     fx = hostnames.get('fx')
-    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
     sj = hostnames.get('sj')
 
@@ -89,13 +87,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             elif check_is_site(res, configfile) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
 
-        if mw:
-            mw_search = post_url('https://' + mw + "/liste", configfile, dbfile,
-                                 data={'search': bl_query.replace("+", " ")})
-            mw_results = mw_search_results(mw_search, 'https://' + mw, mb_query, quality, configfile, dbfile)
-        else:
-            mw_results = []
-
         if nk:
             nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
                                  data={'search': bl_query.replace("+", " ") + " " + quality})
@@ -124,16 +115,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                     continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
-
-        for result in mw_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            unrated.append(
-                [rate(result[0], ignore), encode_base64(result[1] + "|" + result[0]), result[0] + " (MW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:

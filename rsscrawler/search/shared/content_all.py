@@ -85,12 +85,10 @@ def get_best_result(title, configfile, dbfile):
         return best_payload
 
 
-def download(payload, device, configfile, dbfile, scraper):
+def download(payload, device, configfile, dbfile):
     hostnames = RssConfig('Hostnames', configfile)
     by = hostnames.get('by')
-    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
-    ww = hostnames.get('ww')
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -120,15 +118,6 @@ def download(payload, device, configfile, dbfile, scraper):
                 if link:
                     link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
                     url_hosters.append([link["href"], link.text.replace(" ", "")])
-        elif "MW" in site:
-            key = password
-            links = soup.find("strong", text=key).parent.nextSibling.findAll("a")
-            url_hosters = []
-            for link in links:
-                if link:
-                    link_href = 'https://' + mw + "/" + link["href"]
-                    link_text = link.parent.parent.find("td").text
-                    url_hosters.append([link_href, link_text])
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
             url_hosters = []
@@ -149,7 +138,7 @@ def download(payload, device, configfile, dbfile, scraper):
                         "ddownload", "ddl")
                     if check_hoster(link_hoster, configfile):
                         link = url_hoster[0]
-                        if by in link or mw in link or ww in link:
+                        if by in link:
                             demasked_link = get_redirected_url(link, configfile, dbfile, False)
                             if demasked_link:
                                 link = demasked_link
@@ -161,7 +150,7 @@ def download(payload, device, configfile, dbfile, scraper):
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
                     link = url_hoster[0]
-                    if by in link or mw in link or ww in link:
+                    if by in link:
                         demasked_link = get_redirected_url(link, configfile, dbfile, False)
                         if demasked_link:
                             link = demasked_link

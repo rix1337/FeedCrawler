@@ -70,7 +70,6 @@ def check_is_site(string, configfile):
     sf = hostnames.get('sf')
     by = hostnames.get('by')
     fx = hostnames.get('fx')
-    mw = hostnames.get('mw')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
     dd = hostnames.get('dd')
@@ -86,8 +85,6 @@ def check_is_site(string, configfile):
         return "BY"
     elif fx and fx.split('.')[0] in string:
         return "FX"
-    elif mw and mw.split('.')[0] in string:
-        return "MW"
     elif nk and nk.split('.')[0] in string:
         return "NK"
     elif ww and ww.split('.')[0] in string:
