@@ -493,7 +493,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 by = by.replace("b", "B", 1)
-                dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "w", 1)
+                dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 ww = ww.replace("w", "W", 2)
@@ -1087,7 +1087,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             return """// ==UserScript==
 // @name            RSScrawler Helper (SJ)
 // @author          rix1337
-// @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
+// @description     Forwards decrypted SJ Download links to RSScrawler
 // @version         0.3.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
@@ -1125,6 +1125,117 @@ if (title) {
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/sponsors_helper/rsscrawler_helper_dw.user.js", methods=['GET'])
+    @requires_auth
+    def rsscrawler_sponsors_helper_dw():
+        if not helper_active:
+            return "Forbidden", 403
+        hostnames = RssConfig('Hostnames', configfile)
+        dw = hostnames.get('dw')
+        if request.method == 'GET':
+            return """// ==UserScript==
+// @name            RSScrawler Helper (DW)
+// @author          rix1337
+// @description     Forwards decrypted DW Download links to RSScrawler
+// @version         0.1.0
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+// @match           https://""" + dw + """/*
+// ==/UserScript==
+
+document.body.addEventListener('mousedown', function (e) {
+    if (e.target.tagName != "A") return;
+    var anchor = e.target;
+    if (anchor.href.search(/""" + dw + """\/download\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    }
+});
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0];
+var password = tag[1];
+if (title) {
+    var dlExists = setInterval(async function() {
+        if ($("tr:contains('Download Part')").length) {
+            var items = $("tr:contains('Download Part')").find("a");
+            var links = [];
+            items.each(function(index){
+                links.push(items[index].href);
+            })
+            console.log("[RSScrawler Helper] found download links: " + links);
+            clearInterval(dlExists);
+            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
+            window.close();
+        }
+    }, 100);
+}
+""", 200
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_dw.user.js", methods=['GET'])
+    @requires_auth
+    def rsscrawler_sponsors_helper_dw():
+        if not helper_active:
+            return "Forbidden", 403
+        hostnames = RssConfig('Hostnames', configfile)
+        dw = hostnames.get('dw')
+        if request.method == 'GET':
+            return """// ==UserScript==
+// @name            RSScrawler Sponsors Helper (DW)
+// @author          rix1337
+// @description     Clicks the correct download button on DW sub pages to speed up Click'n'Load
+// @version         0.1.0
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+// @match           https://""" + dw + """/*
+// ==/UserScript==
+// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
+var sponsorsURL = '""" + local_address + """';
+// Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
+var sponsorsHoster = '';
+
+document.body.addEventListener('mousedown', function (e) {
+    if (e.target.tagName != "A") return;
+    var anchor = e.target;
+    if (anchor.href.search(/""" + dw + """\/download\//i) != -1) {
+        anchor.href = anchor.href + '#' + anchor.text;
+    }
+});
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0];
+var password = tag[1];
+if (title) {
+    $('.container').prepend('<h3>[RSScrawler Sponsors Helper] ' + title + '</h3>');
+    var checkExist = setInterval(async function() {
+        if (sponsorsHoster && $("span:contains('Download Mirror')").find('a[data-original-title="Download bei ' + sponsorsHoster + '"]').length) {
+            $("span:contains('Download Mirror')").find('a[data-original-title="Download bei ' + sponsorsHoster + '"]').click();
+        } else {
+            $("span:contains('Download Mirror 1')").click();
+        }
+        console.log("[RSScrawler Sponsors Helper] clicked Download button to trigger reCAPTCHA");
+        clearInterval(checkExist);
+    }, 100);
+
+    var dlExists = setInterval(async function() {
+        if ($("tr:contains('Download Part')").length) {
+            var items = $("tr:contains('Download Part')").find("a");
+            var links = [];
+            items.each(function(index){
+                links.push(items[index].href);
+            })
+            console.log("[RSScrawler Sponsors Helper] found download links: " + links);
+            clearInterval(dlExists);
+            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
+            window.close();
+        }
+    }, 100);
+}
+""", 200
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_sj.user.js", methods=['GET'])
     @requires_auth
     def rsscrawler_sponsors_helper_sj():
@@ -1145,6 +1256,7 @@ if (title) {
 // @exclude         https://""" + sj + """/serie/search?q=*
 // @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
+// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
@@ -1192,7 +1304,7 @@ if (title) {
         }
     }, 100);
 
-    var dlExists = setInterval(function() {
+    var dlExists = setInterval(async function() {
         if ($("tr:contains('Download Part')").length) {
             var items = $("tr:contains('Download Part')").find("a");
             var links = [];
