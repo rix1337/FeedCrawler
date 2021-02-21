@@ -25,11 +25,10 @@ class BL:
         self.url = self.hostnames.get('dw')
         self.password = self.url.split('.')[0]
 
-        # ToDo Adapt for DW
         if "MB_Staffeln" not in filename:
-            self.URL = 'https://' + self.url + "/?cat=1"
+            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/movies/"
         else:
-            self.URL = 'https://' + self.url + "/?cat=2"
+            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"
         self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
@@ -48,9 +47,8 @@ class BL:
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
-        # ToDo Adapt for DW
         while i <= search:
-            page_url = self.URL + "&start=" + str(i)
+            page_url = self.URL + "order/zeit/sort/D/seite/" + str(i) + "/"
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1

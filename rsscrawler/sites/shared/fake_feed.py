@@ -135,65 +135,79 @@ def by_search_results(content, base_url):
 
 
 def dw_get_download_links(self, content, title):
-    # ToDo Adapt for DW
-    hostnames = RssConfig('Hostnames', self.configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+    unused_get_feed_parameter(title)
     try:
-        try:
-            content = BeautifulSoup(content, 'lxml')
-        except:
-            content = BeautifulSoup(str(content), 'lxml')
-        try:
-            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
-        except:
-            if not fc:
-                fc = '^unmatchable$'
-                print(u"FC Hostname nicht gesetzt. DW kann keine Links finden!")
-            download_links = re.findall(r'"(https://.+?' + fc + '.+?)"', str(content))
+        download_link = False
+        hosters = re.findall(r'hosters="(.*)"', content)[0].split("|")
+        for hoster in hosters:
+            hoster = hoster.lower().replace("ddownload", "ddl")
+            if check_hoster(hoster, self.configfile):
+                download_link = re.findall(r'href="(.*)"hosters="', content)[0]
+        if self.hoster_fallback and not download_link:
+            download_link = re.findall(r'href="(.*)"hosters="', content)[0]
     except:
         return False
-    return download_links
+    return [download_link]
 
 
-def dw_feed_enricher(self, feed):
-    # ToDo Adapt for DW
-    hostnames = RssConfig('Hostnames', self.configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
-    if not fc:
-        fc = '^unmatchable$'
-        print(u"FC Hostname nicht gesetzt. DW kann keine Links finden!")
-
-    feed = BeautifulSoup(feed, 'lxml')
-    articles = feed.findAll("article")
-    entries = []
-
-    for article in articles:
+def dw_feed_enricher(self, content):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('dw')
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("download/"))
+    href_by_id = {}
+    async_results = []
+    for post in posts:
         try:
-            article = BeautifulSoup(str(article), 'lxml')
-            titles = article.findAll("a", href=re.compile(fc))
-            for title in titles:
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
-                if title:
-                    if "download" in title.lower():
-                        try:
-                            title = str(article.find("strong", text=re.compile(r".*Release.*")).nextSibling)
-                        except:
-                            continue
-                    published = ""
-                    dates = article.findAll("time")
-                    for date in dates:
-                        published = date["datetime"]
-                    entries.append(FakeFeedParserDict({
-                        "title": title,
-                        "published": published,
-                        "content": [
-                            FakeFeedParserDict({
-                                "value": str(article) + " mkv"
-                            })]
-                    }))
+            post_id = post['href'].replace("download/", "").split("/")[0]
+            post_link = base_url + "/" + post['href']
+            post_hosters = post.parent.findAll("img", src=re.compile(r"images/icon_hoster"))
+            hosters = []
+            for hoster in post_hosters:
+                hosters.append(hoster["title"].replace("Download bei ", ""))
+            hosters = "|".join(hosters)
+            href_by_id[post_id] = {
+                "hosters": hosters,
+                "link": post_link
+            }
+            async_results.append(post_link)
         except:
-            print(u"DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
-            continue
+            pass
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    results = async_results[0]
+
+    entries = []
+    if results:
+        for result in results:
+            try:
+                content = []
+                details = BeautifulSoup(result, 'lxml')
+                title = details.title.text.split(' //')[0].replace("*mirror*", "").strip()
+                post_id = details.find("a", {"data-warezkorb": re.compile(r"\d*")})["data-warezkorb"]
+                details = details.findAll("div", {"class": "row"})[3]
+                published = details.findAll("td")[1].text.replace("Datum", "")
+                try:
+                    imdb = details.findAll("td")[6].find("a")
+                    imdb_link = imdb["href"]
+                    imdb_score = imdb.find("b").text.replace(" ", "").replace("/10", "")
+                    if "0.0" in imdb_score:
+                        imdb_score = "9.9"
+                    content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
+                except:
+                    pass
+
+                content.append('href="' + href_by_id[post_id]["link"] + '"')
+                content.append('hosters="' + href_by_id[post_id]["hosters"] + '"')
+
+                content = "".join(content)
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content + " mkv"})]
+                }))
+            except:
+                pass
 
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
