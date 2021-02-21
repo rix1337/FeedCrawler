@@ -1125,54 +1125,6 @@ if (title) {
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_helper_dw.user.js", methods=['GET'])
-    @requires_auth
-    def rsscrawler_sponsors_helper_dw():
-        if not helper_active:
-            return "Forbidden", 403
-        hostnames = RssConfig('Hostnames', configfile)
-        dw = hostnames.get('dw')
-        if request.method == 'GET':
-            return """// ==UserScript==
-// @name            RSScrawler Helper (DW)
-// @author          rix1337
-// @description     Forwards decrypted DW Download links to RSScrawler
-// @version         0.1.0
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + dw + """/*
-// ==/UserScript==
-
-document.body.addEventListener('mousedown', function (e) {
-    if (e.target.tagName != "A") return;
-    var anchor = e.target;
-    if (anchor.href.search(/""" + dw + """\/download\//i) != -1) {
-        anchor.href = anchor.href + '#' + anchor.text;
-    }
-});
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0];
-var password = tag[1];
-if (title) {
-    var dlExists = setInterval(async function() {
-        if ($("tr:contains('Download Part')").length) {
-            var items = $("tr:contains('Download Part')").find("a");
-            var links = [];
-            items.each(function(index){
-                links.push(items[index].href);
-            })
-            console.log("[RSScrawler Helper] found download links: " + links);
-            clearInterval(dlExists);
-            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
-            window.close();
-        }
-    }, 100);
-}
-""", 200
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_dw.user.js", methods=['GET'])
     @requires_auth
     def rsscrawler_sponsors_helper_dw():

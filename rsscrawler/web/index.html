@@ -218,12 +218,17 @@
                                        class="cnl-button btn btn-outline-success" ng-show="!cnl_active" type="submit"
                                        title="Da der Click'n'Load des RSScrawler Sponsors Helper verfügbar ist, kann die Click'n'Load Automatik hiermit umgangen werden."
                                        target="_blank">Sponsors Helper Click'n'Load</a>
-                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase().replace('www.', '')) && helper_active && helper_available && x.first">Bitte zuerst
+                                    <span ng-if="( hostnames.sj && x.url.includes(hostnames.sj.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_sponsors_helper_sj.user.js"
                                            target="_blank">RSScrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
-                                    <span ng-if="( x.url.includes(hostnames.fc.toLowerCase().replace('www.', '')) || x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
+                                    <span ng-if="( hostnames.dw && x.url.includes(hostnames.dw.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a href="./sponsors_helper/rsscrawler_sponsors_helper_dw.user.js"
+                                           target="_blank">RSScrawler Sponsors Helper (DW)</a> installieren!
+                                    </span>
+                                    <span ng-if="( hostnames.fc && x.url.includes(hostnames.fc.toLowerCase().replace('www.', '')) ) || ( hostnames.ww && x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) ) && helper_active && helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_sponsors_helper_fc.user.js"
                                            target="_blank">RSScrawler Sponsors Helper (FC)</a> installieren!
@@ -234,7 +239,7 @@
                                        target="_blank"
                                        title="Click'n'Load innerhalb einer Minute auslösen!"
                                        data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                    <span ng-if="x.url.includes(hostnames.sj.toLowerCase())">Bitte zuerst
+                                    <span ng-if="hostnames.sj && x.url.includes(hostnames.sj.toLowerCase())">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_helper_sj.user.js"
                                            target="_blank">RSScrawler Helper (SJ)</a> installieren!

@@ -387,8 +387,6 @@ def search_feed(self, feed):
                                         hevc_retail = True
                                         found = True
                         if found:
-                            if self.filename == 'MB_Staffeln' and '.complete.' not in post.title.lower():
-                                continue
                             episode = re.search(
                                 r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
                             if episode:
@@ -407,7 +405,7 @@ def search_feed(self, feed):
                                 post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in self._SITE:
+                            if "FX" not in self._SITE or "DW" not in self._SITE:
                                 self.log_debug(
                                     post.title + " - Staffel noch nicht komplett")
                                 continue

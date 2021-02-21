@@ -149,13 +149,13 @@ def dw_get_download_links(self, content, title):
     unused_get_feed_parameter(title)
     try:
         download_link = False
-        hosters = re.findall(r'hosters="(.*)"', content)[0].split("|")
+        hosters = re.findall(r'HOSTERS="(.*)"', content)[0].split("|")
         for hoster in hosters:
             hoster = hoster.lower().replace("ddownload", "ddl")
             if check_hoster(hoster, self.configfile):
-                download_link = re.findall(r'href="(.*)"hosters="', content)[0]
+                download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
         if self.hoster_fallback and not download_link:
-            download_link = re.findall(r'href="(.*)"hosters="', content)[0]
+            download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
     except:
         return False
     return [download_link]
@@ -206,8 +206,8 @@ def dw_feed_enricher(self, content):
                 except:
                     pass
 
-                content.append('href="' + href_by_id[post_id]["link"] + '"')
-                content.append('hosters="' + href_by_id[post_id]["hosters"] + '"')
+                content.append('DOWNLOADLINK="' + href_by_id[post_id]["link"] + '"')
+                content.append('HOSTERS="' + href_by_id[post_id]["hosters"] + '"')
 
                 content = "".join(content)
 
