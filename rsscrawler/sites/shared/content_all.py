@@ -14,7 +14,6 @@ from rsscrawler.common import is_retail
 from rsscrawler.db import ListDb
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
-from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
@@ -534,10 +533,10 @@ def download_hevc(self, title):
                         else:
                             retail = False
                         if retail:
-                            self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                        "RSScrawler",
-                                                        download_links,
-                                                        self.password)
+                            self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                               "RSScrawler",
+                                                               download_links,
+                                                               self.password)
                             if self.device:
                                 self.db.store(
                                     key,
@@ -549,10 +548,10 @@ def download_hevc(self, title):
                                 notify([log_entry], self.configfile)
                                 return log_entry
                     elif self.filename == 'MB_Regex':
-                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler",
-                                                    download_links,
-                                                    self.password)
+                        self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                           "RSScrawler",
+                                                           download_links,
+                                                           self.password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -563,10 +562,10 @@ def download_hevc(self, title):
                             notify([log_entry], self.configfile)
                             return log_entry
                     else:
-                        self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                    "RSScrawler",
-                                                    download_links,
-                                                    self.password)
+                        self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                           "RSScrawler",
+                                                           download_links,
+                                                           self.password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -637,8 +636,8 @@ def download_dual_language(self, title, hevc=False):
                     if self.config.get('cutoff'):
                         if is_retail(key, self.dbfile):
                             retail = True
-                    self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                       "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -650,8 +649,8 @@ def download_dual_language(self, title, hevc=False):
                         notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_Regex':
-                    self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                       "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -662,8 +661,8 @@ def download_dual_language(self, title, hevc=False):
                         notify([log_entry], self.configfile)
                         return log_entry
                 else:
-                    self.device = myjd_download(self.configfile, self.dbfile, self.device, key,
-                                                "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
+                                                       "RSScrawler" + path_suffix, download_links, self.password)
                     if self.device:
                         self.db.store(
                             key,
@@ -731,8 +730,8 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     if self.config.get('enforcedl'):
                         if is_retail(key, self.dbfile):
                             retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                        download_links, self.password)
+            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                               download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -831,8 +830,8 @@ def download_feed(self, key, content, hevc_retail):
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                     if is_retail(key, self.dbfile):
                         retail = True
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                        download_links, self.password)
+            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                               download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -847,8 +846,8 @@ def download_feed(self, key, content, hevc_retail):
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
         elif self.filename == 'MB_Staffeln':
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                        download_links, self.password)
+            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                               download_links, self.password)
             if self.device:
                 self.db.store(
                     key.replace(".COMPLETE", "").replace(
@@ -862,8 +861,8 @@ def download_feed(self, key, content, hevc_retail):
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
         else:
-            self.device = myjd_download(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                        download_links, self.password)
+            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                               download_links, self.password)
             if self.device:
                 self.db.store(
                     key,

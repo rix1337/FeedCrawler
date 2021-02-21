@@ -6,6 +6,7 @@ import json
 import re
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import add_decrypt
 from rsscrawler.common import check_hoster
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
@@ -50,6 +51,16 @@ def get_download_links(self, content, title):
                     link = demasked_link
             links[hoster] = link
     return list(links.values())
+
+
+def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, download_links, password):
+    unused_get_feed_parameter(configfile)
+    unused_get_feed_parameter(path)
+
+    if add_decrypt(key, download_links[0], password, dbfile):
+        return device
+    else:
+        return False
 
 
 def by_get_download_links(self, content, title):

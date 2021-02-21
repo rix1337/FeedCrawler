@@ -7,9 +7,9 @@ from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 from rsscrawler.sites.shared.fake_feed import dw_feed_enricher
 from rsscrawler.sites.shared.fake_feed import dw_get_download_links
+from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
-
 
 class BL:
     _INTERNAL_NAME = 'MB'
@@ -74,6 +74,7 @@ class BL:
         self.get_url_method = get_url
         self.get_url_headers_method = get_url_headers
         self.get_download_links_method = dw_get_download_links
+        self.download_method = add_decrypt_instead_of_download
 
         try:
             self.imdb = float(self.config.get('imdb'))

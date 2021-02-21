@@ -5,6 +5,7 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
+from rsscrawler.myjd import myjd_download
 from rsscrawler.sites.shared.fake_feed import ww_feed_enricher
 from rsscrawler.sites.shared.fake_feed import ww_get_download_links
 from rsscrawler.sites.shared.fake_feed import ww_post_url_headers
@@ -79,6 +80,7 @@ class BL:
         self.get_url_method = ww_post_url_headers
         self.get_url_headers_method = ww_post_url_headers
         self.get_download_links_method = ww_get_download_links
+        self.download_method = myjd_download
 
         try:
             self.imdb = float(self.config.get('imdb'))
