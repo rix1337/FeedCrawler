@@ -6,6 +6,7 @@ import json
 import re
 from bs4 import BeautifulSoup
 
+from rsscrawler.common import add_decrypt
 from rsscrawler.common import check_hoster
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
@@ -50,6 +51,16 @@ def get_download_links(self, content, title):
                     link = demasked_link
             links[hoster] = link
     return list(links.values())
+
+
+def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, download_links, password):
+    unused_get_feed_parameter(configfile)
+    unused_get_feed_parameter(path)
+
+    if add_decrypt(key, download_links[0], password, dbfile):
+        return device
+    else:
+        return False
 
 
 def by_get_download_links(self, content, title):
@@ -132,6 +143,86 @@ def by_search_results(content, base_url):
         except:
             pass
     return results
+
+
+def dw_get_download_links(self, content, title):
+    unused_get_feed_parameter(title)
+    try:
+        download_link = False
+        hosters = re.findall(r'HOSTERS="(.*)"', content)[0].split("|")
+        for hoster in hosters:
+            hoster = hoster.lower().replace("ddownload", "ddl")
+            if check_hoster(hoster, self.configfile):
+                download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
+        if self.hoster_fallback and not download_link:
+            download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
+    except:
+        return False
+    return [download_link]
+
+
+def dw_feed_enricher(self, content):
+    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('dw')
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("download/"))
+    href_by_id = {}
+    async_results = []
+    for post in posts:
+        try:
+            post_id = post['href'].replace("download/", "").split("/")[0]
+            post_link = base_url + "/" + post['href']
+            post_hosters = post.parent.findAll("img", src=re.compile(r"images/icon_hoster"))
+            hosters = []
+            for hoster in post_hosters:
+                hosters.append(hoster["title"].replace("Download bei ", ""))
+            hosters = "|".join(hosters)
+            href_by_id[post_id] = {
+                "hosters": hosters,
+                "link": post_link
+            }
+            async_results.append(post_link)
+        except:
+            pass
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    results = async_results[0]
+
+    entries = []
+    if results:
+        for result in results:
+            try:
+                content = []
+                details = BeautifulSoup(result, 'lxml')
+                title = details.title.text.split(' //')[0].replace("*mirror*", "").strip()
+                post_id = details.find("a", {"data-warezkorb": re.compile(r"\d*")})["data-warezkorb"]
+                details = details.findAll("div", {"class": "row"})[3]
+                published = details.findAll("td")[1].text.replace("Datum", "")
+                try:
+                    imdb = details.findAll("td")[6].find("a")
+                    imdb_link = imdb["href"]
+                    imdb_score = imdb.find("b").text.replace(" ", "").replace("/10", "")
+                    if "0.0" in imdb_score:
+                        imdb_score = "9.9"
+                    content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
+                except:
+                    pass
+
+                content.append('DOWNLOADLINK="' + href_by_id[post_id]["link"] + '"')
+                content.append('HOSTERS="' + href_by_id[post_id]["hosters"] + '"')
+
+                content = "".join(content)
+
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [FakeFeedParserDict({
+                        "value": content + " mkv"})]
+                }))
+            except:
+                pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def fx_content_to_soup(content):

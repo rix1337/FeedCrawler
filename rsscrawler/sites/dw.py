@@ -5,16 +5,15 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.myjd import myjd_download
-from rsscrawler.sites.shared.fake_feed import get_download_links
-from rsscrawler.sites.shared.fake_feed import nk_feed_enricher
+from rsscrawler.sites.shared.fake_feed import dw_feed_enricher
+from rsscrawler.sites.shared.fake_feed import dw_get_download_links
+from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
-
 class BL:
     _INTERNAL_NAME = 'MB'
-    _SITE = 'NK'
+    _SITE = 'DW'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
@@ -23,10 +22,13 @@ class BL:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.url = self.hostnames.get('nk')
-        self.password = self.url.split('.')[0].capitalize()
+        self.url = self.hostnames.get('dw')
+        self.password = self.url.split('.')[0]
 
-        self.URL = 'https://' + self.url + '/'
+        if "MB_Staffeln" not in filename:
+            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/movies/"
+        else:
+            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"
         self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
@@ -46,7 +48,7 @@ class BL:
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            page_url = self.URL + "page-" + str(i)
+            page_url = self.URL + "order/zeit/sort/D/seite/" + str(i) + "/"
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
@@ -68,11 +70,11 @@ class BL:
         self.search_regular_done = False
         self.dl_unsatisfied = False
 
-        self.get_feed_method = nk_feed_enricher
+        self.get_feed_method = dw_feed_enricher
         self.get_url_method = get_url
         self.get_url_headers_method = get_url_headers
-        self.get_download_links_method = get_download_links
-        self.download_method = myjd_download
+        self.get_download_links_method = dw_get_download_links
+        self.download_method = add_decrypt_instead_of_download
 
         try:
             self.imdb = float(self.config.get('imdb'))

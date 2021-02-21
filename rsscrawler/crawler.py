@@ -65,6 +65,7 @@ from rsscrawler.ombi import ombi
 from rsscrawler.sites.by import BL as BY
 from rsscrawler.sites.dd import DD
 from rsscrawler.sites.dj import DJ
+from rsscrawler.sites.dw import BL as DW
 from rsscrawler.sites.fx import BL as FX
 from rsscrawler.sites.nk import BL as NK
 from rsscrawler.sites.sf import SF
@@ -390,6 +391,10 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
+        DW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        DW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        DW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
@@ -446,7 +451,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['sj', 'dj', 'sf', 'by', 'fx', 'nk', 'ww', 'dd', 'fc']
+    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd', 'fc']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:

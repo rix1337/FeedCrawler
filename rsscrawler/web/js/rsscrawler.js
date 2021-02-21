@@ -74,6 +74,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         dj: 'Nicht gesetzt!',
         sf: 'Nicht gesetzt!',
         by: 'Nicht gesetzt!',
+        dw: 'Nicht gesetzt!',
         fx: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
         ww: 'Nicht gesetzt!',
@@ -87,12 +88,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.sjbl_enabled = false;
 
     $scope.mb_search = [
-        {value: '1', label: '30 Einträge'},
-        {value: '3', label: '90 Einträge'},
-        {value: '5', label: '150 Einträge'},
-        {value: '10', label: '300 Einträge'},
-        {value: '15', label: '450 Einträge'},
-        {value: '30', label: '900 Einträge'}
+        {value: '1', label: '1 Seite'},
+        {value: '3', label: '3 Seiten'},
+        {value: '5', label: '5 Seiten'},
+        {value: '10', label: '10 Seiten'},
+        {value: '15', label: '15 Seiten'},
+        {value: '30', label: '30 Seiten'}
     ];
 
     $scope.resolutions = [
