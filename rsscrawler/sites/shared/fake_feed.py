@@ -134,6 +134,72 @@ def by_search_results(content, base_url):
     return results
 
 
+def dw_get_download_links(self, content, title):
+    # ToDo Adapt for DW
+    hostnames = RssConfig('Hostnames', self.configfile)
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+    try:
+        try:
+            content = BeautifulSoup(content, 'lxml')
+        except:
+            content = BeautifulSoup(str(content), 'lxml')
+        try:
+            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
+        except:
+            if not fc:
+                fc = '^unmatchable$'
+                print(u"FC Hostname nicht gesetzt. DW kann keine Links finden!")
+            download_links = re.findall(r'"(https://.+?' + fc + '.+?)"', str(content))
+    except:
+        return False
+    return download_links
+
+
+def dw_feed_enricher(self, feed):
+    # ToDo Adapt for DW
+    hostnames = RssConfig('Hostnames', self.configfile)
+    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+    if not fc:
+        fc = '^unmatchable$'
+        print(u"FC Hostname nicht gesetzt. DW kann keine Links finden!")
+
+    feed = BeautifulSoup(feed, 'lxml')
+    articles = feed.findAll("article")
+    entries = []
+
+    for article in articles:
+        try:
+            article = BeautifulSoup(str(article), 'lxml')
+            titles = article.findAll("a", href=re.compile(fc))
+            for title in titles:
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+                if title:
+                    if "download" in title.lower():
+                        try:
+                            title = str(article.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                        except:
+                            continue
+                    published = ""
+                    dates = article.findAll("time")
+                    for date in dates:
+                        published = date["datetime"]
+                    entries.append(FakeFeedParserDict({
+                        "title": title,
+                        "published": published,
+                        "content": [
+                            FakeFeedParserDict({
+                                "value": str(article) + " mkv"
+                            })]
+                    }))
+        except:
+            print(u"DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content

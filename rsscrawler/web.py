@@ -480,6 +480,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         dj = hostnames.get('dj')
         sf = hostnames.get('sf')
         by = hostnames.get('by')
+        dw = hostnames.get('dw')
         fx = hostnames.get('fx')
         nk = hostnames.get('nk')
         ww = hostnames.get('ww')
@@ -492,12 +493,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 by = by.replace("b", "B", 1)
+                dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "w", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 ww = ww.replace("w", "W", 2)
                 dd = dd.replace("d", "D", 2)
                 fc = fc.replace("f", "F", 1).replace("c", "C", 1)
-                bl = ' / '.join(list(filter(None, [by, fx, nk, ww])))
+                bl = ' / '.join(list(filter(None, [by, dw, fx, nk, ww])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -509,6 +511,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     sf = "Nicht gesetzt!"
                 if not by:
                     by = "Nicht gesetzt!"
+                if not dw:
+                    dw = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
                 if not nk:
@@ -530,6 +534,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "dj": dj,
                             "sf": sf,
                             "by": by,
+                            "dw": dw,
                             "fx": fx,
                             "nk": nk,
                             "ww": ww,
@@ -566,6 +571,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "DJ": check("DJ", db_proxy),
                         "SF": check("SF", db_proxy),
                         "BY": check("BY", db_proxy),
+                        "DW": check("DW", db_proxy),
                         "FX": check("FX", db_proxy),
                         "NK": check("NK", db_proxy),
                         "WW": check("WW", db_proxy),
@@ -577,6 +583,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "DJ": check("DJ", db_normal),
                         "SF": check("SF", db_normal),
                         "BY": check("BY", db_normal),
+                        "DW": check("DW", db_normal),
                         "FX": check("FX", db_normal),
                         "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),

@@ -54,7 +54,7 @@ class BL:
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
 
-        self.last_sha_by = self.cdc.retrieve(self._SITE + "-" + self.filename)
+        self.last_sha = self.cdc.retrieve(self._SITE + "-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
                     "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []

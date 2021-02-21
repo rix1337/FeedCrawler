@@ -101,7 +101,7 @@ def search_imdb(self, imdb, feed):
         concat = post.title + post.published + settings + score
         sha = hashlib.sha256(concat.encode(
             'ascii', 'ignore')).hexdigest()
-        if sha == self.last_sha_by:
+        if sha == self.last_sha:
             self.search_imdb_done = True
 
         if content:
@@ -339,7 +339,7 @@ def search_feed(self, feed):
         concat = post.title + post.published + settings + liste
         sha = hashlib.sha256(concat.encode(
             'ascii', 'ignore')).hexdigest()
-        if sha == self.last_sha_by:
+        if sha == self.last_sha:
             self.search_regular_done = True
 
         found = re.search(s, post.title.lower())
