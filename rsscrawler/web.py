@@ -263,6 +263,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "hevc_retail": mb_conf.get("hevc_retail"),
                             "retail_only": mb_conf.get("retail_only"),
                             "hoster_fallback": mb_conf.get("hoster_fallback"),
+                            "prefer_dw_mirror": mb_conf.get("prefer_dw_mirror"),
                         },
                         "sj": {
                             "quality": sj_conf.get("quality"),
@@ -399,6 +400,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
             section.save("retail_only", to_str(data['mb']['retail_only']))
             section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
+            section.save("prefer_dw_mirror", to_str(data['mb']['prefer_dw_mirror']))
 
             section = RssConfig("SJ", configfile)
 
@@ -485,7 +487,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         nk = hostnames.get('nk')
         ww = hostnames.get('ww')
         dd = hostnames.get('dd')
-        fc = hostnames.get('fc')
 
         if request.method == 'GET':
             try:
@@ -498,7 +499,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 ww = ww.replace("w", "W", 2)
                 dd = dd.replace("d", "D", 2)
-                fc = fc.replace("f", "F", 1).replace("c", "C", 1)
                 bl = ' / '.join(list(filter(None, [by, dw, fx, nk, ww])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
@@ -519,8 +519,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                     nk = "Nicht gesetzt!"
                 if not dd:
                     dd = "Nicht gesetzt!"
-                if not fc:
-                    fc = "Nicht gesetzt!"
                 if not bl:
                     bl = "Nicht gesetzt!"
                 if not s:
@@ -539,7 +537,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "nk": nk,
                             "ww": ww,
                             "dd": dd,
-                            "fc": fc,
                             "bl": bl,
                             "s": s,
                             "sjbl": sjbl
@@ -575,8 +572,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "FX": check("FX", db_proxy),
                         "NK": check("NK", db_proxy),
                         "WW": check("WW", db_proxy),
-                        "DD": check("DD", db_proxy),
-                        "FC": check("FC", db_proxy)
+                        "DD": check("DD", db_proxy)
                     },
                     "normal": {
                         "SJ": check("SJ", db_normal),
@@ -588,8 +584,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                         "HW": check("HW", db_normal),
                         "NK": check("NK", db_normal),
                         "WW": check("WW", db_normal),
-                        "DD": check("DD", db_normal),
-                        "FC": check("FC", db_normal)
+                        "DD": check("DD", db_normal)
                     }
                 }
             )
@@ -1280,16 +1275,14 @@ if (title) {
     def rsscrawler_sponsors_helper_fc():
         if not helper_active:
             return "Forbidden", 403
-        hostnames = RssConfig('Hostnames', configfile)
-        fc = hostnames.get('fc').replace("www.", "")
         if request.method == 'GET':
             return """// ==UserScript==
 // @name            RSScrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to RSScrawler
 // @version         0.3.4
-// @match           https://*.""" + fc + """/*
-// @match           https://*.""" + fc.replace("cc", "co") + """/*
+// @match           https://*.filecrypt.cc/*
+// @match           https://*.filecrypt.co/*
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
@@ -1406,9 +1399,8 @@ var cnlExists = setInterval(async function() {
         hw = hostnames.get('hw')
         fx = hostnames.get('fx')
         nk = hostnames.get('nk')
-        fc = hostnames.get('fc')
 
-        check_replace = [sj, dj, sf, mb, hw, fx, nk, fc]
+        check_replace = [sj, dj, sf, mb, hw, fx, nk]
         to_replace = []
         for check_name in check_replace:
             if check_name:
@@ -1437,12 +1429,6 @@ var cnlExists = setInterval(async function() {
                     ids = payload[3]
                 except:
                     ids = False
-                try:
-                    dlc = re.findall(r"DownloadDLC\(\'(.*)\'\)", links)
-                    if dlc:
-                        links = "https://" + fc + "/DLC/" + dlc[0] + ".dlc"
-                except:
-                    pass
 
                 RssDb(dbfile, 'crawldog').store(name, 'added')
                 if device:

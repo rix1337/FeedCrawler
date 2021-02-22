@@ -391,10 +391,10 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
-        DW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        DW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        DW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        # DW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        # DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        # DW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        # DW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
@@ -446,12 +446,14 @@ def main():
             hostnames.save(host, string)
         if re.match(r'.*[A-Z].*', string):
             hostnames.save(host, string.lower())
-        if not string:
-            print(u'Kein Hostname gesetzt: ' + host.upper() + ' (Seite wird ignoriert!)')
+        if string:
+            print(u'Hostname für ' + host.upper() + ": " + string)
+        else:
+            print(u'Hostname für ' + host.upper() + ': Nicht gesetzt!')
         return string
 
     set_hostnames = {}
-    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd', 'fc']
+    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:

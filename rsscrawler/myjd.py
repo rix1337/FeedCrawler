@@ -4,7 +4,6 @@
 
 import re
 import time
-
 from rapidfuzz import fuzz
 
 import rsscrawler.myjdapi
@@ -311,9 +310,7 @@ def get_state(configfile, device):
         return False
 
 
-def cryptor_url_first(configfile, failed_package):
-    hostnames = RssConfig('Hostnames', configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
+def cryptor_url_first(failed_package):
     resorted_failed_package = []
     for p in failed_package:
         pk = {'name': p['name'], 'path': p['path'], 'urls': p['urls'], 'linkids': p['linkids'], 'uuid': p['uuid']}
@@ -322,7 +319,7 @@ def cryptor_url_first(configfile, failed_package):
         links = split_urls(pk['urls'])
         for u in links:
             if not cryptor_found:
-                if fc in u:
+                if "filecrypt" in u:
                     pk['url'] = u
                     cryptor_found = True
         if not cryptor_found:
@@ -376,9 +373,9 @@ def get_info(configfile, device):
                 device = packages_in_linkgrabber[3]
 
             if packages_in_linkgrabber_failed:
-                packages_in_linkgrabber_failed = cryptor_url_first(configfile, packages_in_linkgrabber_failed)
+                packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
             if packages_in_downloader_failed:
-                packages_in_downloader_failed = cryptor_url_first(configfile, packages_in_downloader_failed)
+                packages_in_downloader_failed = cryptor_url_first(packages_in_downloader_failed)
 
             if packages_in_downloader_failed and packages_in_linkgrabber_failed:
                 packages_failed = packages_in_downloader_failed + packages_in_linkgrabber_failed

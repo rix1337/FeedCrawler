@@ -33,8 +33,7 @@ class RssConfig(object):
             ("fx", "str", ""),
             ("nk", "str", ""),
             ("ww", "str", ""),
-            ("dd", "str", ""),
-            ("fc", "str", "")
+            ("dd", "str", "")
         ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
@@ -81,7 +80,8 @@ class RssConfig(object):
             ("imdb", "str", "0.0"),
             ("hevc_retail", "bool", "False"),
             ("retail_only", "bool", "False"),
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
+            ("prefer_dw_mirror", "bool", "False")
         ],
         'SJ': [
             ("quality", "str", "1080p"),

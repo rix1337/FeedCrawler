@@ -44,6 +44,7 @@ class BL:
         self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
+        self.prefer_dw_mirror = self.config.get("prefer_dw_mirror")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
