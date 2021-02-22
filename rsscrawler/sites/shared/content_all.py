@@ -794,6 +794,7 @@ def download_feed(self, key, content, hevc_retail):
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
 
+    download_links = False
     if self.prefer_dw_mirror and "DW" not in self._SITE:
         download_links = dw_mirror(self, key)
         site = "DW/" + self._SITE
