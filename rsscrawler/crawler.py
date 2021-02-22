@@ -453,7 +453,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd', 'fc']
+    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:

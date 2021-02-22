@@ -129,7 +129,7 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
     scraper = False
 
     if requested_movies:
-        log_debug("Die Suchfunktion für Filme nutzt BY, FX und NK, sofern deren Hostnamen gesetzt wurden.")
+        log_debug("Die Suchfunktion für Filme nutzt BY, DW, FX und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):

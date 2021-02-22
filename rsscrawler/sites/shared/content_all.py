@@ -2,7 +2,6 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import feedparser
 import hashlib
 import re
 from bs4 import BeautifulSoup
@@ -14,7 +13,14 @@ from rsscrawler.common import is_retail
 from rsscrawler.db import ListDb
 from rsscrawler.imdb import get_imdb_id
 from rsscrawler.imdb import get_original_language
+from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
+from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
+from rsscrawler.sites.shared.fake_feed import by_page_download_link
+from rsscrawler.sites.shared.fake_feed import dw_page_download_link
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
+from rsscrawler.sites.shared.fake_feed import get_search_results
+from rsscrawler.sites.shared.fake_feed import nk_page_download_link
 from rsscrawler.url import check_is_site
 from rsscrawler.url import get_url
 
@@ -47,36 +53,6 @@ def settings_hash(self, refresh):
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
     settings = str(self.settings) + str(self.pattern)
     return hashlib.sha256(settings.encode('ascii', 'ignore')).hexdigest()
-
-
-def adhoc_search(self, feed, title):
-    ignore = "|".join(
-        [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
-        "ignore") else r"^unmatchable$"
-
-    s = re.sub(self.SUBSTITUTE, "../..", title).lower()
-    for post in feed.entries:
-        found = re.search(s, post.title.lower())
-        if found:
-            try:
-                content = post.content[0].value
-            except:
-                self.log_debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
-                content = False
-            if content:
-                found = re.search(ignore, post.title.lower())
-                if found:
-                    if self.hevc_retail:
-                        if is_hevc(post.title) and "1080p" in post.title:
-                            if is_retail(post.title, False):
-                                self.log_debug(
-                                    "%s - Release ist 1080p-HEVC-Retail" % post.title)
-                                found = False
-                if found:
-                    self.log_debug(
-                        "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
-                    continue
-                yield post.title, content
 
 
 def search_imdb(self, imdb, feed):
@@ -455,25 +431,43 @@ def search_feed(self, feed):
 def download_hevc(self, title):
     search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
-    search_results = []
-    if self.url:
-        # ToDo: This is broken code (web search needs to be adapted)
-        search_results.append(feedparser.parse(
-            get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)))
+    search_results = get_search_results(self, search_title)
 
     i = 0
-    for content in search_results:
+    for result in search_results:
         i += 1
 
-        site = check_is_site(str(content), self.configfile)
-        if not site:
-            site = ""
+        key = result[0]
 
-        for (key, value) in adhoc_search(self, content, feedsearch_title):
+        if feedsearch_title in key:
+            payload = result[1].split("|")
+            link = payload[0]
+            password = payload[1]
+
+            link_grabbed = False
+
+            site = check_is_site(link, self.configfile)
+            if not site:
+                continue
+            elif "BY" in site:
+                get_download_links_method = by_page_download_link
+                download_method = myjd_download
+            elif "DW" in site:
+                get_download_links_method = dw_page_download_link
+                download_method = add_decrypt_instead_of_download
+            elif "FX" in site:
+                link = get_url(link, self.configfile, self.dbfile)
+                link_grabbed = True
+                get_download_links_method = fx_get_download_links
+                download_method = myjd_download
+            elif "NK" in site:
+                get_download_links_method = nk_page_download_link
+                download_method = myjd_download
+            else:
+                continue
+
             if is_hevc(key) and "1080p" in key:
-                # ToDo This also is broken - since self.get_download_links_method is for the site and not self._SITE
-                download_links = self.get_download_links_method(self, content, key)
+                download_links = get_download_links_method(self, link, key)
                 if download_links:
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
@@ -495,7 +489,9 @@ def download_hevc(self, title):
                             return
 
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                        imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile,
+                        if not link_grabbed:
+                            link = get_url(link, self.configfile, self.dbfile)
+                        imdb_id = get_imdb_id(key, link, self.filename, self.configfile, self.dbfile,
                                               self.scraper,
                                               self.log_debug)
                         if not imdb_id:
@@ -531,10 +527,10 @@ def download_hevc(self, title):
                         else:
                             retail = False
                         if retail:
-                            self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                               "RSScrawler",
-                                                               download_links,
-                                                               self.password)
+                            self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                          "RSScrawler",
+                                                          download_links,
+                                                          password)
                             if self.device:
                                 self.db.store(
                                     key,
@@ -546,10 +542,10 @@ def download_hevc(self, title):
                                 notify([log_entry], self.configfile)
                                 return log_entry
                     elif self.filename == 'MB_Regex':
-                        self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                           "RSScrawler",
-                                                           download_links,
-                                                           self.password)
+                        self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                      "RSScrawler",
+                                                      download_links,
+                                                      password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -560,10 +556,10 @@ def download_hevc(self, title):
                             notify([log_entry], self.configfile)
                             return log_entry
                     else:
-                        self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                           "RSScrawler",
-                                                           download_links,
-                                                           self.password)
+                        self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                      "RSScrawler",
+                                                      download_links,
+                                                      password)
                         if self.device:
                             self.db.store(
                                 key,
@@ -586,33 +582,55 @@ def download_hevc(self, title):
 
 
 def download_dual_language(self, title, hevc=False):
-    search_title = \
-        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
-            0].split('.HEVC-', 1)[0].replace(".", " ").replace(" ", "+")
+    search_title = fullhd_title(title).split('.x264', 1)[0].split('.h264', 1)[0].split('.h265', 1)[0].split('.x265', 1)[
+        0].split('.HEVC-', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = \
-        fullhd_title(title).split('.x264-', 1)[0].split('.h264-', 1)[0].split('.h265-', 1)[0].split('.x265-', 1)[
+        fullhd_title(title).split('.German', 1)[0].split('.x264', 1)[0].split('.h264', 1)[0].split('.h265', 1)[0].split(
+            '.x265', 1)[
             0].split('.HEVC-', 1)[0]
-    search_results = []
-    if self.url:
-        # ToDo: This is broken code (web search needs to be adapted)
-        search_results.append(feedparser.parse(
-            get_url('https://' + self.url + '/search/' + search_title + "/feed/rss2/",
-                    self.configfile, self.dbfile, self.scraper)))
+    search_results = get_search_results(self, search_title)
+
+    hevc_found = False
+    for result in search_results:
+        key = result[0]
+        if feedsearch_title in key and ".dl." in key.lower() and (hevc and is_hevc(key)):
+            hevc_found = True
 
     i = 0
-    for content in search_results:
+    for result in search_results:
         i += 1
 
-        site = check_is_site(str(content), self.configfile)
-        if not site:
-            site = ""
+        key = result[0]
 
-        for (key, value) in adhoc_search(self, content, feedsearch_title):
+        if feedsearch_title in key:
+            payload = result[1].split("|")
+            link = payload[0]
+            password = payload[1]
+
+            site = check_is_site(link, self.configfile)
+            if not site:
+                continue
+            elif "BY" in site:
+                get_download_links_method = by_page_download_link
+                download_method = myjd_download
+            elif "DW" in site:
+                get_download_links_method = dw_page_download_link
+                download_method = add_decrypt_instead_of_download
+            elif "FX" in site:
+                link = get_url(link, self.configfile, self.dbfile)
+                get_download_links_method = fx_get_download_links
+                download_method = myjd_download
+            elif "NK" in site:
+                get_download_links_method = nk_page_download_link
+                download_method = myjd_download
+            else:
+                continue
+
             if ".dl." not in key.lower():
                 self.log_debug(
                     "%s - Release ignoriert (nicht zweisprachig)" % key)
                 continue
-            if hevc and not is_hevc(key):
+            if hevc and hevc_found and not is_hevc(key):
                 self.log_debug(
                     "%s - zweisprachiges Release ignoriert (nicht HEVC)" % key)
                 continue
@@ -620,8 +638,8 @@ def download_dual_language(self, title, hevc=False):
                 path_suffix = "/Remux"
             else:
                 path_suffix = ""
-            # ToDo This also is broken - since self.get_download_links_method is for the site and not self._SITE
-            download_links = self.get_download_links_method(self, content, key)
+
+            download_links = get_download_links_method(self, link, key)
             if download_links:
                 storage = self.db.retrieve_all(key)
                 storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
@@ -634,8 +652,8 @@ def download_dual_language(self, title, hevc=False):
                     if self.config.get('cutoff'):
                         if is_retail(key, self.dbfile):
                             retail = True
-                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                       "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                  "RSScrawler" + path_suffix, download_links, password)
                     if self.device:
                         self.db.store(
                             key,
@@ -647,8 +665,8 @@ def download_dual_language(self, title, hevc=False):
                         notify([log_entry], self.configfile)
                         return log_entry
                 elif self.filename == 'MB_Regex':
-                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                       "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                  "RSScrawler" + path_suffix, download_links, password)
                     if self.device:
                         self.db.store(
                             key,
@@ -659,8 +677,8 @@ def download_dual_language(self, title, hevc=False):
                         notify([log_entry], self.configfile)
                         return log_entry
                 else:
-                    self.device = self.download_method(self.configfile, self.dbfile, self.device, key,
-                                                       "RSScrawler" + path_suffix, download_links, self.password)
+                    self.device = download_method(self.configfile, self.dbfile, self.device, key,
+                                                  "RSScrawler" + path_suffix, download_links, password)
                     if self.device:
                         self.db.store(
                             key,

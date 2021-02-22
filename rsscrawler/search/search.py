@@ -134,8 +134,9 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
                         result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
-            unrated.append(
-                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
+            if "-low" not in result[0].lower():
+                unrated.append(
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:

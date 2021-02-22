@@ -228,7 +228,7 @@
                                         <a href="./sponsors_helper/rsscrawler_sponsors_helper_dw.user.js"
                                            target="_blank">RSScrawler Sponsors Helper (DW)</a> installieren!
                                     </span>
-                                    <span ng-if="( hostnames.fc && x.url.includes(hostnames.fc.toLowerCase().replace('www.', '')) ) || ( hostnames.ww && x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) ) && helper_active && helper_available && x.first">Bitte zuerst
+                                    <span ng-if="x.url.includes('filecrypt') || ( hostnames.ww && x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) ) && helper_active && helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/rsscrawler_sponsors_helper_fc.user.js"
                                            target="_blank">RSScrawler Sponsors Helper (FC)</a> installieren!
@@ -348,7 +348,7 @@
            aria-label="Search"
            data-toggle="tooltip"
            ng-keypress="($event.charCode==13)? searchNow() : return"
-           title="Bequeme Suchfunktion für SJ, BY, FX und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
+           title="Bequeme Suchfunktion für SJ, BY, DW, FX und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
     <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"
        ng-show="search || (!results.sj && !results.bl)"><i id="spinner-search"
                                                            ng-if="searching"
@@ -746,20 +746,6 @@
                                     <i ng-if="blocked_proxy.DD" class="fas fa-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DD" class="far fa-lightbulb text-success"
-                                       title="Seite mit Proxy verfügbar"></i>
-                                </span>
-                            </li>
-                            <li class="list-group-item">{{ hostnames.fc }} (FC)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FC)">
-                                    <i ng-if="blocked_normal.FC" class="fas fa-lightbulb text-danger"
-                                       title="Seite ohne Proxy gesperrt!"></i>
-                                    <i ng-if="!blocked_normal.FC" class="far fa-lightbulb text-success"
-                                       title="Seite ohne Proxy verfügbar"></i>
-                                </span>
-                                <span ng-if="settings.general.proxy">
-                                    <i ng-if="blocked_proxy.FC" class="fas fa-lightbulb text-danger"
-                                       title="Seite mit Proxy gesperrt"></i>
-                                    <i ng-if="!blocked_proxy.FC" class="far fa-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>

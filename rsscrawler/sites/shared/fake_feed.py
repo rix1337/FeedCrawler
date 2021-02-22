@@ -8,11 +8,13 @@ from bs4 import BeautifulSoup
 
 from rsscrawler.common import add_decrypt
 from rsscrawler.common import check_hoster
+from rsscrawler.common import check_is_site
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
 from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
+from rsscrawler.url import post_url
 from rsscrawler.url import post_url_headers
 
 
@@ -31,6 +33,10 @@ def unused_get_feed_parameter(param):
 def get_download_links(self, content, title):
     unused_get_feed_parameter(title)
     url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', content)
+    return check_download_links(self, url_hosters)
+
+
+def check_download_links(self, url_hosters):
     links = {}
     for url_hoster in reversed(url_hosters):
         hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
@@ -51,6 +57,103 @@ def get_download_links(self, content, title):
                     link = demasked_link
             links[hoster] = link
     return list(links.values())
+
+
+def get_search_results(self, bl_query):
+    hostnames = RssConfig('Hostnames', self.configfile)
+    by = hostnames.get('by')
+    dw = hostnames.get('dw')
+    fx = hostnames.get('fx')
+    nk = hostnames.get('nk')
+
+    search_results = []
+
+    config = RssConfig('MB', self.configfile)
+    quality = config.get('quality')
+
+    if "480p" not in quality:
+        search_quality = "+" + quality
+    else:
+        search_quality = ""
+
+    if by:
+        by_search = 'https://' + by + '/?q=' + bl_query + search_quality
+    else:
+        by_search = None
+    if dw:
+        dw_search = 'https://' + dw + '/?kategorie=Movies&search=' + bl_query + search_quality
+    else:
+        dw_search = None
+    if fx:
+        fx_search = 'https://' + fx + '/?s=' + bl_query
+    else:
+        fx_search = None
+
+    async_results = get_urls_async([by_search, dw_search, fx_search], self.configfile, self.dbfile, self.scraper)
+    scraper = async_results[1]
+    async_results = async_results[0]
+
+    by_results = []
+    dw_results = []
+    fx_results = []
+
+    for res in async_results:
+        if check_is_site(res, self.configfile) == 'BY':
+            by_results = by_search_results(res, by)
+        elif check_is_site(res, self.configfile) == 'DW':
+            dw_results = dw_search_results(res, dw)
+        elif check_is_site(res, self.configfile) == 'FX':
+            fx_results = fx_search_results(fx_content_to_soup(res), self.configfile, self.dbfile, scraper)
+
+    if nk:
+        nk_search = post_url('https://' + nk + "/search", self.configfile, self.dbfile,
+                             data={'search': bl_query.replace("+", " ") + " " + quality})
+        nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+    else:
+        nk_results = []
+
+    password = by
+    for result in by_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        if "xxx" not in result[0].lower():
+            search_results.append([result[0], result[1] + "|" + password])
+
+    password = dw
+    for result in dw_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        search_results.append([result[0], result[1] + "|" + password])
+
+    for result in fx_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        if "-low" not in result[0].lower():
+            search_results.append([result[0], result[1]])
+
+        password = nk.split('.')[0].capitalize()
+    for result in nk_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        search_results.append([result[0], result[1] + "|" + password])
+
+    return search_results
 
 
 def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, download_links, password):
@@ -143,6 +246,28 @@ def by_search_results(content, base_url):
         except:
             pass
     return results
+
+
+def by_page_download_link(self, download_link, key):
+    unused_get_feed_parameter(key)
+    by = self.hostnames.get('by')
+    download_link = get_url(download_link, self.configfile, self.dbfile)
+    soup = BeautifulSoup(download_link, 'lxml')
+    links = soup.find_all("iframe")
+    async_link_results = []
+    for link in links:
+        link = link["src"]
+        if 'https://' + by in link:
+            async_link_results.append(link)
+    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile)
+    links = async_link_results[0]
+    url_hosters = []
+    for link in links:
+        if link:
+            link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+            if link:
+                url_hosters.append([link["href"], link.text.replace(" ", "")])
+    return check_download_links(self, url_hosters)
 
 
 def dw_get_download_links(self, content, title):
@@ -239,6 +364,12 @@ def dw_search_results(content, base_url):
     return results
 
 
+def dw_page_download_link(self, download_link, key):
+    unused_get_feed_parameter(self)
+    unused_get_feed_parameter(key)
+    return [download_link]
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
@@ -246,7 +377,6 @@ def fx_content_to_soup(content):
 
 def fx_get_download_links(self, content, title):
     hostnames = RssConfig('Hostnames', self.configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
     try:
         try:
             content = BeautifulSoup(content, 'lxml')
@@ -255,10 +385,7 @@ def fx_get_download_links(self, content, title):
         try:
             download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
         except:
-            if not fc:
-                fc = '^unmatchable$'
-                print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
-            download_links = re.findall(r'"(https://.+?' + fc + '.+?)"', str(content))
+            download_links = re.findall(r'"(https://.+?filecrypt.cc.+?)"', str(content))
     except:
         return False
     return download_links
@@ -266,10 +393,6 @@ def fx_get_download_links(self, content, title):
 
 def fx_feed_enricher(self, feed):
     hostnames = RssConfig('Hostnames', self.configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
-    if not fc:
-        fc = '^unmatchable$'
-        print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
 
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
@@ -278,7 +401,7 @@ def fx_feed_enricher(self, feed):
     for article in articles:
         try:
             article = BeautifulSoup(str(article), 'lxml')
-            titles = article.findAll("a", href=re.compile(fc))
+            titles = article.findAll("a", href=re.compile("filecrypt"))
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
                 if title:
@@ -310,10 +433,6 @@ def fx_feed_enricher(self, feed):
 
 def fx_search_results(content, configfile, dbfile, scraper):
     hostnames = RssConfig('Hostnames', configfile)
-    fc = hostnames.get('fc').replace('www.', '').split('.')[0]
-    if not fc:
-        fc = '^unmatchable$'
-        print(u"FC Hostname nicht gesetzt. FX kann keine Links finden!")
 
     articles = content.find("main").find_all("article")
     result_urls = []
@@ -331,7 +450,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
 
         for result in results:
             article = BeautifulSoup(str(result), 'lxml')
-            titles = article.find_all("a", href=re.compile(fc))
+            titles = article.find_all("a", href=re.compile("filecrypt"))
             for title in titles:
                 link = article.find("link", rel="canonical")["href"]
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
@@ -402,6 +521,18 @@ def nk_search_results(content, base_url):
         except:
             pass
     return results
+
+
+def nk_page_download_link(self, download_link, key):
+    unused_get_feed_parameter(key)
+    nk = self.hostnames.get('nk')
+    download_link = get_url(download_link, self.configfile, self.dbfile)
+    soup = BeautifulSoup(download_link, 'lxml')
+    url_hosters = []
+    hosters = soup.find_all("a", href=re.compile("/go/"))
+    for hoster in hosters:
+        url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
+    return check_download_links(self, url_hosters)
 
 
 def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
