@@ -17,6 +17,7 @@ from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
 from rsscrawler.sites.shared.fake_feed import by_page_download_link
+from rsscrawler.sites.shared.fake_feed import dw_mirror
 from rsscrawler.sites.shared.fake_feed import dw_page_download_link
 from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.sites.shared.fake_feed import get_search_results
@@ -273,10 +274,18 @@ def search_imdb(self, imdb, feed):
                     download_score = float(download_score[0].replace(
                         ",", "."))
                     if download_score > imdb:
-                        download_links = self.get_download_links_method(self, content, post.title)
+                        download_links = False
+                        if self.prefer_dw_mirror and "DW" not in self._SITE:
+                            download_links = dw_mirror(self, post.title)
+                            site = "DW/" + self._SITE
+                            download_method = add_decrypt_instead_of_download
+                        if not download_links:
+                            download_links = self.get_download_links_method(self, content, post.title)
+                            site = self._SITE
+                            download_method = self.download_method
                         found = download_imdb(self,
                                               post.title, download_links, str(download_score), imdb_url,
-                                              imdb_details, hevc_retail)
+                                              imdb_details, hevc_retail, site, download_method)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -700,7 +709,7 @@ def download_dual_language(self, title, hevc=False):
                         self.log_debug(wrong_hoster)
 
 
-def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc_retail):
+def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc_retail, site, download_method):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
@@ -746,8 +755,8 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     if self.config.get('enforcedl'):
                         if is_retail(key, self.dbfile):
                             retail = True
-            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                               download_links, self.password)
+            self.device = download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                          download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -758,7 +767,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     '/Englisch - ' if englisch and not retail else "") + (
                                 '/Englisch/Retail' if englisch and retail else "") + (
                                 '/Retail' if not englisch and retail else "") + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + self._SITE + ']'
+                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
@@ -784,7 +793,15 @@ def download_feed(self, key, content, hevc_retail):
                     self.log_debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
-    download_links = self.get_download_links_method(self, content, key)
+
+    if self.prefer_dw_mirror and "DW" not in self._SITE:
+        download_links = dw_mirror(self, key)
+        site = "DW/" + self._SITE
+        download_method = add_decrypt_instead_of_download
+    if not download_links:
+        download_links = self.get_download_links_method(self, content, key)
+        site = self._SITE
+        download_method = self.download_method
     if download_links:
         storage = self.db.retrieve_all(key)
         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
@@ -846,8 +863,8 @@ def download_feed(self, key, content, hevc_retail):
                 if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
                     if is_retail(key, self.dbfile):
                         retail = True
-            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                               download_links, self.password)
+            self.device = download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                          download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
@@ -857,13 +874,13 @@ def download_feed(self, key, content, hevc_retail):
                 log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + self._SITE + ']'
+                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
         elif self.filename == 'MB_Staffeln':
-            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                               download_links, self.password)
+            self.device = download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                          download_links, self.password)
             if self.device:
                 self.db.store(
                     key.replace(".COMPLETE", "").replace(
@@ -872,20 +889,20 @@ def download_feed(self, key, content, hevc_retail):
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
-                                                                                  "") + ' - [' + self._SITE + ']'
+                                                                                  "") + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
         else:
-            self.device = self.download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
-                                               download_links, self.password)
+            self.device = download_method(self.configfile, self.dbfile, self.device, key, "RSScrawler",
+                                          download_links, self.password)
             if self.device:
                 self.db.store(
                     key,
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + self._SITE + ']'
+                log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + site + ']'
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)

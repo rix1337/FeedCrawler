@@ -375,7 +375,7 @@ def dw_mirror(self, title):
         dw_results = dw_search_results(dw_results, dw)
 
         for result in dw_results:
-            return result[1]
+            return [result[1].split("|")[0]]
 
     return False
 
