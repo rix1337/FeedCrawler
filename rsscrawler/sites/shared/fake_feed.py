@@ -364,6 +364,22 @@ def dw_search_results(content, base_url):
     return results
 
 
+def dw_mirror(self, title):
+    hostnames = RssConfig('Hostnames', self.configfile)
+    dw = hostnames.get('dw')
+
+    if dw:
+        dw_search = 'https://' + dw + '/?search=' + title
+
+        dw_results = get_url(dw_search, self.configfile, self.dbfile, self.scraper)
+        dw_results = dw_search_results(dw_results, dw)
+
+        for result in dw_results:
+            return result[1]
+
+    return False
+
+
 def dw_page_download_link(self, download_link, key):
     unused_get_feed_parameter(self)
     unused_get_feed_parameter(key)

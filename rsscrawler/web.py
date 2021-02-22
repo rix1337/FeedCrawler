@@ -263,6 +263,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
                             "hevc_retail": mb_conf.get("hevc_retail"),
                             "retail_only": mb_conf.get("retail_only"),
                             "hoster_fallback": mb_conf.get("hoster_fallback"),
+                            "prefer_dw_mirror": mb_conf.get("prefer_dw_mirror"),
                         },
                         "sj": {
                             "quality": sj_conf.get("quality"),
@@ -399,6 +400,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
             section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
             section.save("retail_only", to_str(data['mb']['retail_only']))
             section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
+            section.save("prefer_dw_mirror", to_str(data['mb']['prefer_dw_mirror']))
 
             section = RssConfig("SJ", configfile)
 
