@@ -513,18 +513,16 @@
         </div>
         <div id="collapseZeroZero" class="collapse" aria-labelledby="headingZeroZero" data-parent="#help">
             <div class="card-body">
-                <p>Der RSScrawler Sponsors Helper ist ein Docker-Image das {{ !!hostnames.sj ? hostnames.sj : 'SJ'
-                    }}-Captchas vollständig selbst löst und dem
-                    RSScrawler entschlüsselt übergibt.</br>
-                    Captchas von {{ !!hostnames.fc ? hostnames.fc : 'FC' }} lassen sich bequem per Webinterface/VNC
-                    lösen.
-                    Das Entschlüsseln und die Übergabe der Links übernimmt der RSScrawler Sponsors Helper ebenfalls
-                    vollautomatisch.</br>
-                    Perspektivisch soll der Helper auch die Captchas auf {{ !!hostnames.fc ? hostnames.fc : 'FC' }}
-                    lösen.</p>
-                <p>Aufgrund des Pflegeaufwandes erhalten nur aktive <a
-                        href="https://github.com/users/rix1337/sponsorship"
-                        target="_blank">Sponsoren</a> Zugriff darauf.</br>
+                <p>Der RSScrawler Sponsors Helper ist ein Docker-Image, das SJ-, DJ- und DW-Captchas vollständig
+                    automatisiert löst und dem RSScrawler entschlüsselt übergibt.
+                    Für den höchsten Automatisierungsgrad sollten entsprechend nur für diese Seiten die Hostnamen
+                    hinterlegt werden.</p>
+                <p>Captchas von FC lassen sich manuell per Webinterface/VNC lösen.
+                    Das Entschlüsseln und die Übergabe der Links übernimmt der RSScrawler Sponsors Helper dann ebenfalls
+                    vollautomatisch.</p>
+                <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
+                                                             target="_blank">Sponsoren</a> zur Verfügung (daher der
+                    Name).</br>
                     Die Freischaltung erfolgt unter Angabe der eigenen Docker-ID per PN auf <a
                             href="https://gitter.im/RSScrawler/Lobby" target="_blank">Gitter</a>.</p>
                 <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account beim

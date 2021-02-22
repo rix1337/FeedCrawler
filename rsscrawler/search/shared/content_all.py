@@ -12,6 +12,7 @@ from rsscrawler.db import ListDb, RssDb
 from rsscrawler.myjd import myjd_download
 from rsscrawler.notifiers import notify
 from rsscrawler.search.search import get, logger
+from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
 from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
@@ -86,6 +87,8 @@ def get_best_result(title, configfile, dbfile):
 
 
 def download(payload, device, configfile, dbfile):
+    config = RssConfig('MB', configfile)
+    db = RssDb(dbfile, 'rsscrawler')
     hostnames = RssConfig('Hostnames', configfile)
     by = hostnames.get('by')
     nk = hostnames.get('nk')
@@ -93,18 +96,22 @@ def download(payload, device, configfile, dbfile):
     payload = decode_base64(payload).split("|")
     link = payload[0]
     password = payload[1]
-    url = get_url(link, configfile, dbfile)
-    if not url or "NinjaFirewall 429" in url:
-        return False
-
-    config = RssConfig('MB', configfile)
-    db = RssDb(dbfile, 'rsscrawler')
-    soup = BeautifulSoup(url, 'lxml')
 
     site = check_is_site(link, configfile)
     if not site:
         return False
+    elif "DW" in site:
+        download_method = add_decrypt_instead_of_download
+        download_links = [link]
+        key = payload[1]
+        password = payload[2]
     else:
+        url = get_url(link, configfile, dbfile)
+        if not url or "NinjaFirewall 429" in url:
+            return False
+        download_method = myjd_download
+        soup = BeautifulSoup(url, 'lxml')
+
         if "BY" in site:
             key = soup.find("small").text
             links = soup.find_all("iframe")
@@ -134,7 +141,13 @@ def download(payload, device, configfile, dbfile):
             return False
 
         links = {}
-        if not "FX" in site:
+        if "FX" in site:
+            class FX:
+                configfile = ""
+
+            FX.configfile = configfile
+            download_links = fx_get_download_links(FX, url, key)
+        else:
             for url_hoster in reversed(url_hosters):
                 try:
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
@@ -159,52 +172,46 @@ def download(payload, device, configfile, dbfile):
                             link = demasked_link
                     links[link_hoster] = link
             download_links = list(links.values())
+
+    englisch = False
+    if "*englisch" in key.lower() or "*english" in key.lower():
+        key = key.replace(
+            '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
+                                                                                      "").replace(
+            "*", "")
+        englisch = True
+
+    staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
+
+    if download_links:
+        if staffel:
+            if download_method(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                db.store(
+                    key.replace(".COMPLETE", "").replace(".Complete", ""),
+                    'notdl' if config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
+                                                                                        "") + ' - [' + site + ']'
+                logger.info(log_entry)
+                notify([log_entry], configfile)
+                return True
         else:
-            class FX:
-                configfile = ""
-
-            FX.configfile = configfile
-            download_links = fx_get_download_links(FX, url, key)
-
-        englisch = False
-        if "*englisch" in key.lower() or "*english" in key.lower():
-            key = key.replace(
-                '*ENGLISCH', '').replace("*Englisch", "").replace("*ENGLISH", "").replace("*English",
-                                                                                          "").replace(
-                "*", "")
-            englisch = True
-
-        staffel = re.search(r"s\d{1,2}(-s\d{1,2}|-\d{1,2}|\.)", key.lower())
-
-        if download_links:
-            if staffel:
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
-                    db.store(
-                        key.replace(".COMPLETE", "").replace(".Complete", ""),
-                        'notdl' if config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
-                                                                                            "") + ' - [' + site + ']'
-                    logger.info(log_entry)
-                    notify([log_entry], configfile)
-                    return True
-            else:
-                retail = False
-                if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                    if is_retail(key, dbfile):
-                        retail = True
-                if myjd_download(configfile, dbfile, device, key, "RSScrawler", download_links, password):
-                    db.store(
-                        key,
-                        'notdl' if config.get(
-                            'enforcedl') and '.dl.' not in key.lower() else 'added'
-                    )
-                    log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
-                        '/Englisch/Retail' if englisch and retail else '') + (
-                                    '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
-                    logger.info(log_entry)
-                    notify([log_entry], configfile)
-                    return [key]
-        else:
-            return False
+            retail = False
+            if config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                if is_retail(key, dbfile):
+                    retail = True
+            if download_method(configfile, dbfile, device, key, "RSScrawler", download_links, password):
+                db.store(
+                    key,
+                    'notdl' if config.get(
+                        'enforcedl') and '.dl.' not in key.lower() else 'added'
+                )
+                log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
+                    '/Englisch/Retail' if englisch and retail else '') + (
+                                '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
+                logger.info(log_entry)
+                notify([log_entry], configfile)
+                return [key]
+    else:
+        return False

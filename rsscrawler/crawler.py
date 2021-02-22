@@ -446,8 +446,10 @@ def main():
             hostnames.save(host, string)
         if re.match(r'.*[A-Z].*', string):
             hostnames.save(host, string.lower())
-        if not string:
-            print(u'Kein Hostname gesetzt: ' + host.upper() + ' (Seite wird ignoriert!)')
+        if string:
+            print(u'Hostname für ' + host.upper() + ": " + string)
+        else:
+            print(u'Hostname für ' + host.upper() + ': Nicht gesetzt!')
         return string
 
     set_hostnames = {}

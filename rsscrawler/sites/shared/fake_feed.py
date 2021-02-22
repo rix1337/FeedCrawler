@@ -225,6 +225,20 @@ def dw_feed_enricher(self, content):
     return feed
 
 
+def dw_search_results(content, base_url):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("download/"))
+    results = []
+    for post in posts:
+        try:
+            title = post.text.strip()
+            link = "https://" + base_url + '/' + post['href']
+            results.append([title, link + "|" + title])
+        except:
+            pass
+    return results
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
