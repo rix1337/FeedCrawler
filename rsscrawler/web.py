@@ -1280,9 +1280,9 @@ if (title) {
 // @name            RSScrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to RSScrawler
-// @version         0.3.4
-// @match           https://*.filecrypt.cc/*
-// @match           https://*.filecrypt.co/*
+// @version         0.3.5
+// @match           *.filecrypt.cc/*
+// @match           *.filecrypt.co/*
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
