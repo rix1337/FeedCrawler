@@ -1373,7 +1373,8 @@ var cnlExists = setInterval(async function() {
             if decrypt:
                 decrypt = decrypt[0]
                 decrypt_name = decrypt["name"]
-                decrypt_url = decrypt["url"] + "#" + decrypt_name + "|" + decrypt["password"]
+                decrypt_url = decrypt["url"].replace("http://", "https://") + "#" + decrypt_name + "|" + decrypt[
+                    "password"]
 
             return jsonify(
                 {
@@ -1389,26 +1390,10 @@ var cnlExists = setInterval(async function() {
     @app.route(prefix + "/sponsors_helper/to_download/<payload>", methods=['GET'])
     @requires_auth
     def to_download(payload):
-        global device
-        global already_added
-        hostnames = RssConfig('Hostnames', configfile)
-        sj = hostnames.get('sj')
-        dj = hostnames.get('dj')
-        sf = hostnames.get('sf')
-        mb = hostnames.get('mb')
-        hw = hostnames.get('hw')
-        fx = hostnames.get('fx')
-        nk = hostnames.get('nk')
-
-        check_replace = [sj, dj, sf, mb, hw, fx, nk]
-        to_replace = []
-        for check_name in check_replace:
-            if check_name:
-                to_replace.append(" - " + check_name)
-                if " - " + check_name.replace("www.", "") not in to_replace:
-                    to_replace.append(" - " + check_name.replace("www.", ""))
-
         if request.method == 'GET':
+            global device
+            global already_added
+
             try:
                 payload = decode_base64(payload).split("|")
             except:
@@ -1416,11 +1401,7 @@ var cnlExists = setInterval(async function() {
             if payload:
                 links = payload[0]
                 name = payload[1]
-                try:
-                    for r in to_replace:
-                        name = name.replace(r, "")
-                except:
-                    pass
+
                 try:
                     password = payload[2]
                 except:
@@ -1548,6 +1529,9 @@ var cnlExists = setInterval(async function() {
                                     already_added.remove(item)
 
                         device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                        db = RssDb(dbfile, 'rsscrawler')
+                        if not db.retrieve(name):
+                            db.store(name, 'added')
                         try:
                             notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
                         except:
