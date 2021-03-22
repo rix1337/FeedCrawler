@@ -125,6 +125,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
     $scope.searching = false;
+    $scope.starting = false;
     $scope.myjd_state = false;
     $scope.myjd_packages = [];
     $scope.time = 0;
@@ -201,6 +202,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.getMyJD = function () {
         getMyJD();
+    };
+
+    $scope.startNow = function () {
+        startNow();
     };
 
     $scope.myJDmove = function (linkids, uuid) {
@@ -301,6 +306,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getCrawlTimes() {
         $http.get('api/crawltimes/')
             .then(function (res) {
+                $scope.starting = false;
                 $scope.crawltimes = res.data.crawltimes;
                 console.log('Laufzeiten abgerufen!');
             }, function (res) {
@@ -652,6 +658,20 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.myjd_connection_error = true;
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
+            });
+    }
+
+    function startNow() {
+        showInfoLong("Starte Suchlauf...");
+        $scope.starting = true;
+        $http.post('api/start_now/')
+            .then(function (res) {
+                $(".alert-info").slideUp(1500);
+            }, function (res) {
+                $scope.starting = false;
+                console.log('Konnte Suchlauf nicht starten!');
+                showDanger('Konnte Suchlauf nicht starten!');
+                $(".alert-info").slideUp(1500);
             });
     }
 

@@ -114,6 +114,10 @@ td {
     resize: none;
 }
 
+#start_now {
+    color: #007bff;
+}
+
 #heart, .remove {
     color: #d53343;
 }

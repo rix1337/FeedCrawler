@@ -591,6 +591,28 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/api/start_now/", methods=['POST'])
+    @requires_auth
+    def start_now():
+        global device
+        if request.method == 'POST':
+            RssDb(dbfile, 'crawltimes').store("startnow", "True")
+            i = 3
+            started = False
+            while i > 0:
+                if not RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    started = True
+                    break
+                i -= 1
+                time.sleep(5)
+
+            if started:
+                return "Success", 200
+            else:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/search/<title>", methods=['GET'])
     @requires_auth
     def search_title(title):
