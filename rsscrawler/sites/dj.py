@@ -3,17 +3,12 @@
 # Projekt von https://github.com/rix1337
 
 import hashlib
-import json
 import re
 
-from rsscrawler.common import add_decrypt
-from rsscrawler.common import check_hoster
-from rsscrawler.common import check_valid_release
+import rsscrawler.sites.shared.content_shows as shared_shows
 from rsscrawler.config import RssConfig
-from rsscrawler.db import ListDb
 from rsscrawler.db import RssDb
 from rsscrawler.sites.shared.fake_feed import j_releases_to_feedparser_dict
-from rsscrawler.notifiers import notify
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -43,111 +38,30 @@ class DJ:
         self.last_set_dj = self.cdc.retrieve("DJSet-" + self.filename)
         self.last_sha_dj = self.cdc.retrieve("DJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("DJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
+        self.settings_array = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
         self.settings.append(self.hosters)
-        for s in settings:
+        for s in self.settings_array:
             self.settings.append(self.config.get(s))
+
+        self.retail_only = False
+        self.hevc_retail = False
+
+        self.mediatype = "Dokus"
+        self.listtype = ""
 
         self.empty_list = False
         if self.filename == 'DJ_Dokus_Regex':
-            self.level = 1
+            self.listtype = " (RegEx)"
+        list_content = shared_shows.get_series_list(self)
+        if list_content:
+            self.pattern = r'^(' + "|".join(list_content).lower() + ')'
         else:
-            self.level = 0
-
-        self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
-        self.listtype = ""
+            self.empty_list = True
 
         self.day = 0
-
-    def settings_hash(self, refresh):
-        if refresh:
-            settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
-            self.settings = []
-            self.settings.append(self.rsscrawler.get("english"))
-            self.settings.append(self.rsscrawler.get("surround"))
-            self.settings.append(self.hosters)
-            for s in settings:
-                self.settings.append(self.config.get(s))
-            self.pattern = r'^\[.*\] (' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
-        set_dj = str(self.settings) + str(self.pattern)
-        return hashlib.sha256(set_dj.encode('ascii', 'ignore')).hexdigest()
-
-    def get_series_list(self, liste, series_type):
-        if series_type == 1:
-            self.listtype = " (RegEx)"
-        cont = ListDb(self.dbfile, liste).retrieve()
-        titles = []
-        if cont:
-            for title in cont:
-                if title:
-                    title = title.replace(" ", ".")
-                    titles.append(title)
-        if not titles:
-            self.empty_list = True
-        return titles
-
-    def parse_download(self, series_url, title, language_id):
-        if not check_valid_release(title, False, False, self.dbfile):
-            self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
-            return
-        try:
-            series_info = get_url(series_url, self.configfile, self.dbfile)
-            series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-            api_url = 'https://' + self.dj + '/api/media/' + series_id + '/releases'
-
-            response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
-            seasons = json.loads(response)
-            for season in seasons:
-                season = seasons[season]
-                for item in season['items']:
-                    if item['name'] == title:
-                        valid = False
-                        for hoster in item['hoster']:
-                            if check_hoster(hoster, self.configfile):
-                                valid = True
-                        if not valid and not self.hoster_fallback:
-                            storage = self.db.retrieve_all(title)
-                            if 'added' not in storage and 'notdl' not in storage:
-                                wrong_hoster = '[DJ/Hoster fehlt] - ' + title
-                                if 'wrong_hoster' not in storage:
-                                    print(wrong_hoster)
-                                    self.db.store(title, 'wrong_hoster')
-                                    notify([wrong_hoster], self.configfile)
-                                else:
-                                    self.log_debug(wrong_hoster)
-                        else:
-                            return self.send_package(title, series_url, language_id)
-        except:
-            print(u"DJ hat die Doku-API angepasst. Breche Download-Prüfung ab!")
-
-    def send_package(self, title, series_url, language_id):
-        englisch = ""
-        if language_id == 2:
-            englisch = "Englisch - "
-        if self.filename == 'DJ_Dokus_Regex':
-            link_placeholder = '[Doku/RegEx] - ' + englisch
-        else:
-            link_placeholder = '[Doku] - ' + englisch
-        try:
-            storage = self.db.retrieve_all(title)
-        except Exception as e:
-            self.log_debug(
-                "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-            return
-
-        if 'added' in storage or 'notdl' in storage:
-            self.log_debug(title + " - Release ignoriert (bereits gefunden)")
-        else:
-            download = add_decrypt(title, series_url, self.dj, self.dbfile)
-            if download:
-                self.db.store(title, 'added')
-                log_entry = link_placeholder + title + ' - [DJ]'
-                self.log_info(log_entry)
-                notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
-                return log_entry
 
     def periodical_task(self):
         if not self.dj:

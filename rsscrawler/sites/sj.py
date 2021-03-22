@@ -19,7 +19,7 @@ class SJ:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.sj = self.hostnames.get('sj')
+        self.j = self.hostnames.get('sj')
 
         self.filename = filename
         if "MB_Staffeln" in self.filename:
@@ -41,13 +41,16 @@ class SJ:
         self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
+        self.settings_array = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
         self.settings.append(self.hosters)
-        for s in settings:
+        for s in self.settings_array:
             self.settings.append(self.config.get(s))
+
+        self.mediatype = "Serien"
+        self.listtype = ""
 
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
@@ -57,16 +60,11 @@ class SJ:
             self.listtype = " (Staffeln)"
         elif self.filename == 'SJ_Serien_Regex':
             self.listtype = " (RegEx)"
-        else:
-            self.level = 0
-
         list_content = shared_shows.get_series_list(self)
         if list_content:
             self.pattern = r'^(' + "|".join(list_content).lower() + ')'
         else:
             self.empty_list = True
-
-        self.listtype = ""
 
         self.day = 0
 
