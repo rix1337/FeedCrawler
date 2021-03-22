@@ -8,12 +8,12 @@ import json
 import re
 from bs4 import BeautifulSoup
 
+import rsscrawler.sites.shared.content_shows as shared_shows
 from rsscrawler.common import add_decrypt
 from rsscrawler.common import check_hoster
 from rsscrawler.common import check_valid_release
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
-from rsscrawler.db import ListDb
 from rsscrawler.db import RssDb
 from rsscrawler.notifiers import notify
 from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
@@ -23,8 +23,9 @@ from rsscrawler.url import get_url_headers
 
 
 class SF:
-    def __init__(self, configfile, dbfile, device, logging, scraper, filename, internal_name):
-        self._INTERNAL_NAME = internal_name
+    _INTERNAL_NAME = "SJ"
+
+    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -32,7 +33,10 @@ class SF:
         self.hostnames = RssConfig('Hostnames', self.configfile)
         self.sf = self.hostnames.get('sf')
 
-        self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
+        if "MB_Staffeln" in self.filename:
+            self.config = RssConfig("MB", self.configfile)
+        else:
+            self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
@@ -49,61 +53,34 @@ class SF:
         self.last_set_sf = self.cdc.retrieve("SFSet-" + self.filename)
         self.last_sha_sf = self.cdc.retrieve("SF-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SFHeaders-" + self.filename))}
-        settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
+        self.settings_array = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
         self.settings.append(self.hosters)
-        for s in settings:
+        for s in self.settings_array:
             self.settings.append(self.config.get(s))
+
+        self.mediatype = "Serien"
+        self.listtype = ""
 
         self.empty_list = False
         if self.filename == 'SJ_Staffeln_Regex':
-            self.level = 3
+            self.listtype = " (Staffeln/RegEx)"
         elif self.filename == 'MB_Staffeln':
             self.seasonssource = self.config.get('seasonssource').lower()
-            self.level = 2
+            self.listtype = " (Staffeln)"
         elif self.filename == 'SJ_Serien_Regex':
-            self.level = 1
+            self.listtype = " (RegEx)"
+        list_content = shared_shows.get_series_list(self)
+        if list_content:
+            self.pattern = r'^(' + "|".join(list_content).lower() + ')'
         else:
-            self.level = 0
-
-        self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
-        self.listtype = ""
+            self.empty_list = True
 
         self.day = 0
 
-    def settings_hash(self, refresh):
-        if refresh:
-            settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
-            self.settings = []
-            self.settings.append(self.rsscrawler.get("english"))
-            self.settings.append(self.rsscrawler.get("surround"))
-            self.settings.append(self.hosters)
-            for s in settings:
-                self.settings.append(self.config.get(s))
-            self.pattern = r'^(' + "|".join(self.get_series_list(self.filename, self.level)).lower() + ')'
-        set_sf = str(self.settings) + str(self.pattern)
-        return hashlib.sha256(set_sf.encode('ascii', 'ignore')).hexdigest()
-
-    def get_series_list(self, liste, series_type):
-        if series_type == 1:
-            self.listtype = " (RegEx)"
-        elif series_type == 2:
-            self.listtype = " (Staffeln)"
-        elif series_type == 3:
-            self.listtype = " (Staffeln/RegEx)"
-        cont = ListDb(self.dbfile, liste).retrieve()
-        titles = []
-        if cont:
-            for title in cont:
-                if title:
-                    title = title.replace(" ", ".")
-                    titles.append(title)
-        if not titles:
-            self.empty_list = True
-        return titles
-
+    # ToDo Refactor to content_shows
     def parse_download(self, series_url, title, language_id):
         if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
             self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
@@ -179,6 +156,7 @@ class SF:
         except:
             print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
 
+    # ToDo Refactor to content_shows
     def send_package(self, title, download_link, language_id, season, episode):
         englisch = ""
         if language_id == 2:
@@ -213,6 +191,7 @@ class SF:
                 notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
                 return log_entry
 
+    # ToDo Refactor to content_shows
     def periodical_task(self):
         if not self.sf:
             return self.device
