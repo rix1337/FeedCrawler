@@ -9,8 +9,10 @@ from bs4 import BeautifulSoup
 from rsscrawler.common import add_decrypt
 from rsscrawler.common import check_hoster
 from rsscrawler.common import check_is_site
+from rsscrawler.common import check_valid_release
 from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
+from rsscrawler.notifiers import notify
 from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_urls_async
@@ -408,8 +410,6 @@ def fx_get_download_links(self, content, title):
 
 
 def fx_feed_enricher(self, feed):
-    hostnames = RssConfig('Hostnames', self.configfile)
-
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
     entries = []
@@ -448,8 +448,6 @@ def fx_feed_enricher(self, feed):
 
 
 def fx_search_results(content, configfile, dbfile, scraper):
-    hostnames = RssConfig('Hostnames', configfile)
-
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
@@ -646,6 +644,53 @@ def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_o
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def j_parse_download(self, series_url, title, language_id):
+    if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
+        self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        return False
+    if self.filename == 'MB_Staffeln':
+        if not self.config.get("seasonpacks"):
+            staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
+            if staffelpack:
+                self.log_debug(
+                    "%s - Release ignoriert (Staffelpaket)" % title)
+                return False
+        if not re.search(self.seasonssource, title.lower()):
+            self.log_debug(title + " - Release hat falsche Quelle")
+            return False
+    try:
+        series_info = get_url(series_url, self.configfile, self.dbfile)
+        series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
+        api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
+
+        response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+        seasons = json.loads(response)
+        for season in seasons:
+            season = seasons[season]
+            for item in season['items']:
+                if item['name'] == title:
+                    valid = False
+                    for hoster in item['hoster']:
+                        if hoster:
+                            if check_hoster(hoster, self.configfile):
+                                valid = True
+                    if not valid and not self.hoster_fallback:
+                        storage = self.db.retrieve_all(title)
+                        if 'added' not in storage and 'notdl' not in storage:
+                            wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                            if 'wrong_hoster' not in storage:
+                                print(wrong_hoster)
+                                self.db.store(title, 'wrong_hoster')
+                                notify([wrong_hoster], self.configfile)
+                            else:
+                                self.log_debug(wrong_hoster)
+                    else:
+                        return [title, series_url, language_id]
+    except:
+        print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+        return False
 
 
 def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):

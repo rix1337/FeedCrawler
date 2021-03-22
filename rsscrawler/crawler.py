@@ -349,10 +349,10 @@ def crawldog(configfile, dbfile):
 
 def search_pool(configfile, dbfile, device, logger, scraper):
     return [
-        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex', internal_name='SJ'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln', internal_name='MB'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex'),
+        SJ(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus', internal_name='DJ'),
         DJ(configfile, dbfile, device, logger, scraper, filename='DJ_Dokus_Regex', internal_name='DJ'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien', internal_name='SJ'),
