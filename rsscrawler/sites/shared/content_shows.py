@@ -162,7 +162,7 @@ def periodical_task(self):
                      str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if sha == self.last_sha_j:
+            if sha == self.last_sha:
                 self.log_debug(
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break

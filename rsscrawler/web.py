@@ -1102,9 +1102,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         dj = hostnames.get('dj')
         if request.method == 'GET':
             return """// ==UserScript==
-// @name            RSScrawler Helper (SJ)
+// @name            RSScrawler Helper (SJ/DJ)
 // @author          rix1337
-// @description     Forwards decrypted SJ Download links to RSScrawler
+// @description     Forwards decrypted SJ/DJ Download links to RSScrawler
 // @version         0.3.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
@@ -1215,9 +1215,9 @@ if (title) {
         dj = hostnames.get('dj')
         if request.method == 'GET':
             return """// ==UserScript==
-// @name            RSScrawler Sponsors Helper (SJ)
+// @name            RSScrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
-// @description     Clicks the correct download button on SJ sub pages to speed up Click'n'Load
+// @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
 // @version         0.3.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*

@@ -38,8 +38,8 @@ class SJ:
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.cdc = RssDb(self.dbfile, 'cdc')
-        self.last_set_sj = self.cdc.retrieve("SJSet-" + self.filename)
-        self.last_sha_sj = self.cdc.retrieve("SJ-" + self.filename)
+        self.last_set = self.cdc.retrieve("SJSet-" + self.filename)
+        self.last_sha = self.cdc.retrieve("SJ-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SJHeaders-" + self.filename))}
         self.settings_array = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
