@@ -7,7 +7,6 @@
 
 Usage:
   crawler.py [--config="<CFGPFAD>"]
-                [--testlauf]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-user=<NUTZERNAME>]
@@ -24,7 +23,6 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
-  --testlauf                Intern: Einmalige Ausführung von RSScrawler (ohne auf MyJDownloader-Konto zu achten)
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
@@ -109,86 +107,15 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     crawltimes = RssDb(dbfile, "crawltimes")
 
-    arguments = docopt(__doc__, version='RSScrawler')
-    if not arguments['--testlauf']:
-        while True:
-            try:
-                if not device or not is_device(device):
-                    device = get_device(configfile)
-                scraper = check_url(configfile, dbfile)
-                start_time = time.time()
-                crawltimes.update_store("active", "True")
-                crawltimes.update_store("start_time", start_time * 1000)
-                log_debug("--------Alle Suchfunktion gestartet.--------")
-                requested_movies = 0
-                requested_shows = 0
-                ombi_string = ""
-                if device:
-                    ombi_results = ombi(configfile, dbfile, device, log_debug, ombi_first_launch)
-                    device = ombi_results[0]
-                    ombi_results = ombi_results[1]
-                    requested_movies = ombi_results[0]
-                    requested_shows = ombi_results[1]
-                    ombi_first_launch = False
-                if requested_movies or requested_shows:
-                    ombi_string = " - Ombi suchte: "
-                    if requested_movies:
-                        ombi_string = ombi_string + str(requested_movies) + " Filme"
-                        if requested_shows:
-                            ombi_string = ombi_string + " und "
-                    if requested_shows:
-                        ombi_string = ombi_string + str(requested_shows) + " Serien"
-                for task in search_pool(configfile, dbfile, device, logger, scraper):
-                    name = task._INTERNAL_NAME
-                    try:
-                        file = " - Liste: " + task.filename
-                    except AttributeError:
-                        file = ""
-                    log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                    device = task.periodical_task()
-                    log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
-                end_time = time.time()
-                total_time = end_time - start_time
-                interval = int(rsscrawler.get('interval')) * 60
-                random_range = random.randrange(0, interval // 4)
-                wait = interval + random_range
-                next_start = end_time + wait
-                log_debug(
-                    "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                        total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
-                crawltimes.update_store("end_time", end_time * 1000)
-                crawltimes.update_store("total_time", readable_time(total_time))
-                crawltimes.update_store("next_start", next_start * 1000)
-                crawltimes.update_store("active", "False")
-
-                wait_chunks = wait // 10
-                start_now_triggered = False
-                while wait_chunks:
-                    time.sleep(10)
-                    if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
-                        RssDb(dbfile, 'crawltimes').delete("startnow")
-                        start_now_triggered = True
-                        break
-
-                    wait_chunks -= 1
-
-                if start_now_triggered:
-                    log_debug("----------Wartezeit vorzeitig beendet----------")
-                else:
-                    log_debug("-------------Wartezeit verstrichen-------------")
-            except Exception:
-                traceback.print_exc()
-                time.sleep(10)
-    else:
+    while True:
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
             scraper = check_url(configfile, dbfile)
             start_time = time.time()
-            log_debug("--------Testlauf gestartet.--------")
+            crawltimes.update_store("active", "True")
+            crawltimes.update_store("start_time", start_time * 1000)
+            log_debug("--------Alle Suchfunktion gestartet.--------")
             requested_movies = 0
             requested_shows = 0
             ombi_string = ""
@@ -198,6 +125,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 ombi_results = ombi_results[1]
                 requested_movies = ombi_results[0]
                 requested_shows = ombi_results[1]
+                ombi_first_launch = False
             if requested_movies or requested_shows:
                 ombi_string = " - Ombi suchte: "
                 if requested_movies:
@@ -213,14 +141,40 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                task.periodical_task()
+                device = task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
             end_time = time.time()
             total_time = end_time - start_time
+            interval = int(rsscrawler.get('interval')) * 60
+            random_range = random.randrange(0, interval // 4)
+            wait = interval + random_range
+            next_start = end_time + wait
             log_debug(
-                "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---" + ombi_string)
+                "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                    total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!" + ombi_string)
+                  u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
+            crawltimes.update_store("end_time", end_time * 1000)
+            crawltimes.update_store("total_time", readable_time(total_time))
+            crawltimes.update_store("next_start", next_start * 1000)
+            crawltimes.update_store("active", "False")
+
+            wait_chunks = wait // 10
+            start_now_triggered = False
+            while wait_chunks:
+                time.sleep(10)
+                if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    RssDb(dbfile, 'crawltimes').delete("startnow")
+                    start_now_triggered = True
+                    break
+
+                wait_chunks -= 1
+
+            if start_now_triggered:
+                log_debug("----------Wartezeit vorzeitig beendet----------")
+            else:
+                log_debug("-------------Wartezeit verstrichen-------------")
         except Exception:
             traceback.print_exc()
             time.sleep(10)
@@ -473,49 +427,46 @@ def main():
         if hostname:
             set_hostnames[name] = hostname
 
-    if not arguments['--testlauf'] and not set_hostnames:
+    if not set_hostnames:
         print(u'Keine Hostnamen in der RSScrawler.ini gefunden! Beende RSScrawler!')
         time.sleep(10)
         sys.exit(1)
 
     disable_request_warnings(InsecureRequestWarning)
 
-    if arguments['--testlauf']:
-        device = False
-    else:
-        if not os.path.exists(configfile):
-            if arguments['--docker']:
-                if arguments['--jd-user'] and arguments['--jd-pass']:
-                    device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                              arguments['--jd-pass'], arguments['--jd-device'])
-                else:
-                    device = False
-            else:
-                device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                          arguments['--jd-pass'],
-                                          arguments['--jd-device'])
-        else:
-            rsscrawler = RssConfig('RSScrawler', configfile)
-            user = rsscrawler.get('myjd_user')
-            password = rsscrawler.get('myjd_pass')
-            if user and password:
-                device = get_device(configfile)
-                if not device:
-                    device = get_if_one_device(user, password)
-                    if device:
-                        print(u"Gerätename " + device + " automatisch ermittelt.")
-                        rsscrawler.save('myjd_device', device)
-                        device = get_device(configfile)
-            else:
+    if not os.path.exists(configfile):
+        if arguments['--docker']:
+            if arguments['--jd-user'] and arguments['--jd-pass']:
                 device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
                                           arguments['--jd-pass'], arguments['--jd-device'])
-
-        if not device and not arguments['--testlauf']:
-            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
-            time.sleep(10)
-            sys.exit(1)
+            else:
+                device = False
         else:
-            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
+            device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                      arguments['--jd-pass'],
+                                      arguments['--jd-device'])
+    else:
+        rsscrawler = RssConfig('RSScrawler', configfile)
+        user = rsscrawler.get('myjd_user')
+        password = rsscrawler.get('myjd_pass')
+        if user and password:
+            device = get_device(configfile)
+            if not device:
+                device = get_if_one_device(user, password)
+                if device:
+                    print(u"Gerätename " + device + " automatisch ermittelt.")
+                    rsscrawler.save('myjd_device', device)
+                    device = get_device(configfile)
+        else:
+            device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
+                                      arguments['--jd-pass'], arguments['--jd-device'])
+
+    if not device:
+        print(u'My JDownloader Zugangsdaten fehlerhaft! Beende RSScrawler!')
+        time.sleep(10)
+        sys.exit(1)
+    else:
+        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
     rsscrawler = RssConfig('RSScrawler', configfile)
 
@@ -545,35 +496,30 @@ def main():
                                       device))
     p.start()
 
-    if not arguments['--testlauf']:
-        c = multiprocessing.Process(target=crawler,
-                                    args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
-        c.start()
+    c = multiprocessing.Process(target=crawler,
+                                args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
+    c.start()
 
-        w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))
-        w.start()
+    w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))
+    w.start()
 
-        print(u'Drücke [Strg] + [C] zum Beenden')
+    print(u'Drücke [Strg] + [C] zum Beenden')
 
-        def signal_handler():
-            print(u'Beende RSScrawler...')
-            p.terminate()
-            c.terminate()
-            w.terminate()
-            sys.exit(0)
-
-        signal.signal(signal.SIGINT, signal_handler)
-
-        try:
-            while True:
-                signal.pause()
-        except AttributeError:
-            while True:
-                time.sleep(1)
-    else:
-        crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format)
+    def signal_handler():
+        print(u'Beende RSScrawler...')
         p.terminate()
+        c.terminate()
+        w.terminate()
         sys.exit(0)
+
+    signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        while True:
+            signal.pause()
+    except AttributeError:
+        while True:
+            time.sleep(1)
 
 
 if __name__ == "__main__":
