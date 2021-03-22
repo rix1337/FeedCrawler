@@ -663,7 +663,7 @@ def j_parse_download(self, series_url, title, language_id):
     try:
         series_info = get_url(series_url, self.configfile, self.dbfile)
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-        api_url = 'https://' + self.j + '/api/media/' + series_id + '/releases'
+        api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
 
         response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
         seasons = json.loads(response)
@@ -679,7 +679,7 @@ def j_parse_download(self, series_url, title, language_id):
                     if not valid and not self.hoster_fallback:
                         storage = self.db.retrieve_all(title)
                         if 'added' not in storage and 'notdl' not in storage:
-                            wrong_hoster = '[' + self._INTERNAL_NAME + '/Hoster fehlt] - ' + title
+                            wrong_hoster = '[SJ/Hoster fehlt] - ' + title
                             if 'wrong_hoster' not in storage:
                                 print(wrong_hoster)
                                 self.db.store(title, 'wrong_hoster')
@@ -689,7 +689,7 @@ def j_parse_download(self, series_url, title, language_id):
                     else:
                         return [title, series_url, language_id]
     except:
-        print(self._INTERNAL_NAME + u" hat die " + self.mediatype + "-API angepasst. Breche Download-Prüfung ab!")
+        print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False
 
 

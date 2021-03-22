@@ -25,15 +25,16 @@ def get_series_list(self):
 
 def settings_hash(self, refresh):
     if refresh:
+        settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
         self.settings.append(self.hosters)
-        for s in self.settings_array:
+        for s in settings:
             self.settings.append(self.config.get(s))
         self.pattern = r'^(' + "|".join(get_series_list(self)).lower() + ')'
-    set = str(self.settings) + str(self.pattern)
-    return hashlib.sha256(set.encode('ascii', 'ignore')).hexdigest()
+    set_sj = str(self.settings) + str(self.pattern)
+    return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
 
 
 def send_package(self, title, series_url, language_id):
@@ -46,12 +47,8 @@ def send_package(self, title, series_url, language_id):
         link_placeholder = '[Episode' + englisch + '] - '
     elif self.filename == 'SJ_Staffeln_Regex]':
         link_placeholder = '[Staffel/RegEx' + englisch + '] - '
-    elif self.filename == 'MB_Staffeln':
+    else:
         link_placeholder = '[Staffel' + englisch + '] - '
-    elif self.filename == 'DJ_Dokus_Regex':
-        link_placeholder = '[Doku/RegEx' + englisch + '] - '
-    elif self.filename == 'DJ_Dokus':
-        link_placeholder = '[Doku' + englisch + '] - '
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
@@ -62,7 +59,7 @@ def send_package(self, title, series_url, language_id):
     if 'added' in storage or 'notdl' in storage:
         self.log_debug(title + " - Release ignoriert (bereits gefunden)")
     else:
-        download = add_decrypt(title, series_url, self.j, self.dbfile)
+        download = add_decrypt(title, series_url, self.sj, self.dbfile)
         if download:
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - [' + self._INTERNAL_NAME + ']'
@@ -72,7 +69,7 @@ def send_package(self, title, series_url, language_id):
 
 
 def periodical_task(self):
-    if not self.j:
+    if not self.sj:
         return self.device
 
     if self.filename == 'SJ_Serien_Regex':
@@ -87,14 +84,10 @@ def periodical_task(self):
         if not self.config.get('crawlseasons'):
             self.log_debug("Suche für " + self._INTERNAL_NAME + "-Staffeln deaktiviert!")
             return self.device
-    elif self.filename == 'DJ_Dokus_Regex':
-        if not self.config.get('regex'):
-            self.log_debug("Suche für DJ-Regex deaktiviert!")
-            return self.device
 
     if self.empty_list:
         self.log_debug(
-            "Liste ist leer. Stoppe Suche für " + self.mediatype + "!" + self.listtype)
+            "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
         return self.device
     try:
         reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
@@ -102,23 +95,23 @@ def periodical_task(self):
     except TypeError:
         reject = r"^unmatchable$"
 
-    set = settings_hash(self, False)
+    set_sj = settings_hash(self, False)
 
     header = False
     response = False
 
     while self.day < 8:
-        if self.last_set == set:
+        if self.last_set_sj == set_sj:
             try:
-                response = get_url_headers('https://' + self.j + '/api/releases/latest/' + str(self.day),
+                response = get_url_headers('https://' + self.sj + '/api/releases/latest/' + str(self.day),
                                            self.configfile,
                                            self.dbfile, self.headers, self.scraper)
                 self.scraper = response[1]
                 response = response[0]
                 if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                    feed = self.get_feed_method(response.text, "seasons", 'https://' + self.j, True)
+                    feed = self.get_feed_method(response.text, "seasons", 'https://' + self.sj, True)
                 else:
-                    feed = self.get_feed_method(response.text, "episodes", 'https://' + self.j, True)
+                    feed = self.get_feed_method(response.text, "episodes", 'https://' + self.sj, True)
             except:
                 print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
@@ -126,31 +119,31 @@ def periodical_task(self):
             if response:
                 if response.status_code == 304:
                     self.log_debug(
-                        self._INTERNAL_NAME + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                        "' + self._INTERNAL_NAME + '-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                     return self.device
                 header = True
         else:
             try:
-                response = get_url('https://' + self.j + '/api/releases/latest/' + str(self.day), self.configfile,
+                response = get_url('https://' + self.sj + '/api/releases/latest/' + str(self.day), self.configfile,
                                    self.dbfile, self.scraper)
                 if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                     feed = self.get_feed_method(response, "seasons",
-                                                'https://' + self.j,
+                                                'https://' + self.sj,
                                                 True)
                 else:
                     feed = self.get_feed_method(response, "episodes",
-                                                'https://' + self.j,
+                                                'https://' + self.sj,
                                                 True)
             except:
-                print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
+                print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
         self.day += 1
 
         if feed and feed.entries:
-            first_post_j = feed.entries[0]
-            concat_j = first_post_j.title + first_post_j.published + str(self.settings) + str(self.pattern)
-            sha_j = hashlib.sha256(concat_j.encode(
+            first_post_sj = feed.entries[0]
+            concat_sj = first_post_sj.title + first_post_sj.published + str(self.settings) + str(self.pattern)
+            sha_sj = hashlib.sha256(concat_sj.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
             self.log_debug(
@@ -162,7 +155,7 @@ def periodical_task(self):
                      str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if sha == self.last_sha:
+            if sha == self.last_sha_sj:
                 self.log_debug(
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
@@ -170,7 +163,7 @@ def periodical_task(self):
             series_url = post.series_url
             title = post.title.replace("-", "-")
 
-            if self.filename == 'SJ_Serien_Regex' or self.filename == 'DJ_Dokus_Regex':
+            if self.filename == 'SJ_Serien_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1
@@ -320,13 +313,13 @@ def periodical_task(self):
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
-    if set:
-        new_set = settings_hash(self, True)
-        if set == new_set:
+    if set_sj:
+        new_set_sj = settings_hash(self, True)
+        if set_sj == new_set_sj:
             self.cdc.delete(self._INTERNAL_NAME + "Set-" + self.filename)
-            self.cdc.store(self._INTERNAL_NAME + "Set-" + self.filename, set)
+            self.cdc.store(self._INTERNAL_NAME + "Set-" + self.filename, set_sj)
             self.cdc.delete(self._INTERNAL_NAME + "-" + self.filename)
-            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha_j)
+            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha_sj)
 
     if header and response:
         self.cdc.delete(self._INTERNAL_NAME + "Headers-" + self.filename)
