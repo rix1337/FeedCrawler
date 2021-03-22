@@ -163,8 +163,22 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 crawltimes.update_store("total_time", readable_time(total_time))
                 crawltimes.update_store("next_start", next_start * 1000)
                 crawltimes.update_store("active", "False")
-                time.sleep(wait)
-                log_debug("-------------Wartezeit verstrichen-------------")
+
+                wait_chunks = wait // 10
+                start_now_triggered = False
+                while wait_chunks:
+                    time.sleep(10)
+                    if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                        RssDb(dbfile, 'crawltimes').delete("startnow")
+                        start_now_triggered = True
+                        break
+
+                    wait_chunks -= 1
+
+                if start_now_triggered:
+                    log_debug("----------Wartezeit vorzeitig beendet----------")
+                else:
+                    log_debug("-------------Wartezeit verstrichen-------------")
             except Exception:
                 traceback.print_exc()
                 time.sleep(10)

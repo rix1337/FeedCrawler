@@ -597,14 +597,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, no_
         global device
         if request.method == 'POST':
             RssDb(dbfile, 'crawltimes').store("startnow", "True")
-            i = 10
+            i = 3
             started = False
             while i > 0:
                 if not RssDb(dbfile, 'crawltimes').retrieve("startnow"):
                     started = True
                     break
                 i -= 1
-                time.sleep(1)
+                time.sleep(5)
 
             if started:
                 return "Success", 200
