@@ -142,15 +142,15 @@ def periodical_task(self):
                                                 'https://' + self.j,
                                                 True)
             except:
-                print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
+                print(u"DJ hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
         self.day += 1
 
         if feed and feed.entries:
-            first_post_sj = feed.entries[0]
-            concat_sj = first_post_sj.title + first_post_sj.published + str(self.settings) + str(self.pattern)
-            sha_sj = hashlib.sha256(concat_sj.encode(
+            first_post_j = feed.entries[0]
+            concat_j = first_post_j.title + first_post_j.published + str(self.settings) + str(self.pattern)
+            sha_j = hashlib.sha256(concat_j.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
             self.log_debug(
@@ -162,7 +162,7 @@ def periodical_task(self):
                      str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if sha == self.last_sha_sj:
+            if sha == self.last_sha_j:
                 self.log_debug(
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
@@ -170,7 +170,7 @@ def periodical_task(self):
             series_url = post.series_url
             title = post.title.replace("-", "-")
 
-            if self.filename == 'SJ_Serien_Regex':
+            if self.filename == 'SJ_Serien_Regex' or self.filename == 'DJ_Dokus_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1
@@ -326,7 +326,7 @@ def periodical_task(self):
             self.cdc.delete(self._INTERNAL_NAME + "Set-" + self.filename)
             self.cdc.store(self._INTERNAL_NAME + "Set-" + self.filename, set)
             self.cdc.delete(self._INTERNAL_NAME + "-" + self.filename)
-            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha_sj)
+            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha_j)
 
     if header and response:
         self.cdc.delete(self._INTERNAL_NAME + "Headers-" + self.filename)
