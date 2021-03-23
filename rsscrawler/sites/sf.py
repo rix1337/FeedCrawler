@@ -4,20 +4,12 @@
 
 import datetime
 import hashlib
-import json
 import re
-from bs4 import BeautifulSoup
 
 import rsscrawler.sites.shared.content_shows as shared_shows
-from rsscrawler.common import add_decrypt
-from rsscrawler.common import check_hoster
-from rsscrawler.common import check_valid_release
-from rsscrawler.common import rreplace
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.notifiers import notify
 from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
-from rsscrawler.url import get_redirected_url
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -79,117 +71,6 @@ class SF:
             self.empty_list = True
 
         self.day = 0
-
-    # ToDo Refactor to content_shows
-    def parse_download(self, series_url, title, language_id):
-        if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
-            self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
-            return
-        if self.filename == 'MB_Staffeln':
-            if not self.config.get("seasonpacks"):
-                staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
-                if staffelpack:
-                    self.log_debug(
-                        "%s - Release ignoriert (Staffelpaket)" % title)
-                    return
-            if not re.search(self.seasonssource, title.lower()):
-                self.log_debug(title + " - Release hat falsche Quelle")
-                return
-        try:
-            if language_id == 2:
-                lang = 'EN'
-            else:
-                lang = 'DE'
-            epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
-            api_url = series_url + '?lang=' + lang + '&_=' + epoch
-            response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
-            info = json.loads(response)
-
-            is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
-            if is_episode:
-                episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
-                season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
-                season_title = rreplace(title.lower().replace(episode_string, ''), "-", ".*", 1).lower().replace(
-                    ".repack", "")
-                season_title = season_title.replace(".untouched", ".*").replace(".dd+51", ".dd.51")
-                episode = str(int(episode_string.replace("e", "")))
-                season = str(int(season_string.replace("s", "")))
-                episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title, re.IGNORECASE)
-                if episode_name:
-                    season_title = season_title.replace(episode_name[0], '')
-                codec_tags = [".h264", ".x264"]
-                for tag in codec_tags:
-                    season_title = season_title.replace(tag, ".*264")
-                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
-                for tag in web_tags:
-                    season_title = season_title.replace(tag, ".web.*")
-            else:
-                season = False
-                episode = False
-                season_title = title
-                multiple_episodes = re.findall(r'(e\d{1,3}-e*\d{1,3}\.)', season_title, re.IGNORECASE)
-                if multiple_episodes:
-                    season_title = season_title.replace(multiple_episodes[0], '.*')
-
-            content = BeautifulSoup(info['html'], 'lxml')
-            releases = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
-            links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
-            valid = False
-            for link in links:
-                if check_hoster(link.text.replace('\n', ''), self.configfile):
-                    download_link = get_redirected_url("https://" + self.sf + link['href'], self.configfile,
-                                                       self.dbfile, self.scraper)
-                    valid = True
-                    break
-            if not valid and not self.hoster_fallback:
-                storage = self.db.retrieve_all(title)
-                if 'added' not in storage and 'notdl' not in storage:
-                    wrong_hoster = '[SF/Hoster fehlt] - ' + title
-                    if 'wrong_hoster' not in storage:
-                        print(wrong_hoster)
-                        self.db.store(title, 'wrong_hoster')
-                        notify([wrong_hoster], self.configfile)
-                    else:
-                        self.log_debug(wrong_hoster)
-            else:
-                return self.send_package(title, download_link, language_id, season, episode)
-        except:
-            print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
-
-    # ToDo Refactor to content_shows
-    def send_package(self, title, download_link, language_id, season, episode):
-        englisch = ""
-        if language_id == 2:
-            englisch = "/Englisch"
-        if self.filename == 'SJ_Serien_Regex':
-            link_placeholder = '[Episode/RegEx' + englisch + '] - '
-        elif self.filename == 'SJ_Serien':
-            link_placeholder = '[Episode' + englisch + '] - '
-        elif self.filename == 'SJ_Staffeln_Regex]':
-            link_placeholder = '[Staffel/RegEx' + englisch + '] - '
-        else:
-            link_placeholder = '[Staffel' + englisch + '] - '
-        try:
-            storage = self.db.retrieve_all(title)
-        except Exception as e:
-            self.log_debug(
-                "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-            return
-
-        if 'added' in storage or 'notdl' in storage:
-            self.log_debug(title + " - Release ignoriert (bereits gefunden)")
-        else:
-            if season and episode:
-                download_link = download_link.replace('&_=',
-                                                      '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
-
-            download = add_decrypt(title, download_link, self.sf, self.dbfile)
-            if download:
-                self.db.store(title, 'added')
-                log_entry = link_placeholder + title + ' - [SF]'
-                self.log_info(log_entry)
-                notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
-                return log_entry
 
     # ToDo Refactor to content_shows
     def periodical_task(self):

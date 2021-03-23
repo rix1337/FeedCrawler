@@ -37,29 +37,36 @@ def settings_hash(self, refresh):
     return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
 
 
-def send_package(self, title, series_url, language_id):
-    englisch = ""
+def send_package(self, title, link, language_id, season, episode):
+    englisch = ''
     if language_id == 2:
-        englisch = "/Englisch"
-    if self.filename == 'SJ_Serien_Regex':
-        link_placeholder = '[Episode/RegEx' + englisch + '] - '
-    elif self.filename == 'SJ_Serien':
+        englisch = '/Englisch'
+    if self.filename == 'SJ_Serien':
         link_placeholder = '[Episode' + englisch + '] - '
-    elif self.filename == 'SJ_Staffeln_Regex]':
+    elif self.filename == 'SJ_Serien_Regex':
+        link_placeholder = '[Episode/RegEx' + englisch + '] - '
+    elif self.filename == 'SJ_Staffeln_Regex':
         link_placeholder = '[Staffel/RegEx' + englisch + '] - '
-    else:
+    elif self.filename == 'MB_Staffeln':
         link_placeholder = '[Staffel' + englisch + '] - '
+    elif self.filename == 'DJ_Dokus':
+        link_placeholder = '[Doku] - ' + englisch
+    elif self.filename == 'DJ_Dokus_Regex':
+        link_placeholder = '[Doku/RegEx] - ' + englisch
+    else:
+        return
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
         self.log_debug(
             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-        return
 
     if 'added' in storage or 'notdl' in storage:
         self.log_debug(title + " - Release ignoriert (bereits gefunden)")
     else:
-        download = add_decrypt(title, series_url, self.sj, self.dbfile)
+        if season and episode:
+            link = link.replace('&_=', '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
+        download = add_decrypt(title, link, self.s, self.dbfile)
         if download:
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - [' + self._INTERNAL_NAME + ']'
@@ -189,9 +196,9 @@ def periodical_task(self):
                                 self.log_debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
-                            to_download = self.parse_download_method(self, series_url, title, language_id)
-                            if to_download:
-                                send_package(self, to_download[0], to_download[1], to_download[2])
+                            package = self.parse_download_method(self, series_url, title, language_id)
+                            if package:
+                                send_package(self, package[0], package[1], package[2], package[3], package[4])
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -224,9 +231,9 @@ def periodical_task(self):
                                 self.log_debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
-                            to_download = self.parse_download_method(self, series_url, title, language_id)
-                            if to_download:
-                                send_package(self, to_download[0], to_download[1], to_download[2])
+                            package = self.parse_download_method(self, series_url, title, language_id)
+                            if package:
+                                send_package(self, package[0], package[1], package[2], package[3], package[4])
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -266,9 +273,9 @@ def periodical_task(self):
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                to_download = self.parse_download_method(self, series_url, title, language_id)
-                                if to_download:
-                                    send_package(self, to_download[0], to_download[1], to_download[2])
+                                package = self.parse_download_method(self, series_url, title, language_id)
+                                if package:
+                                    send_package(self, package[0], package[1], package[2], package[3], package[4])
                         else:
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -306,9 +313,9 @@ def periodical_task(self):
                                     self.log_debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
-                                to_download = self.parse_download_method(self, series_url, title, language_id)
-                                if to_download:
-                                    send_package(self, to_download[0], to_download[1], to_download[2])
+                                package = self.parse_download_method(self, series_url, title, language_id)
+                                if package:
+                                    send_package(self, package[0], package[1], package[2], package[3], package[4])
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
