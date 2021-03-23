@@ -664,7 +664,7 @@ def j_parse_download(self, series_url, title, language_id):
     try:
         series_info = get_url(series_url, self.configfile, self.dbfile)
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
-        api_url = 'https://' + self.sj + '/api/media/' + series_id + '/releases'
+        api_url = 'https://' + self.url + '/api/media/' + series_id + '/releases'
 
         response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
         seasons = json.loads(response)

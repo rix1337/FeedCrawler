@@ -23,7 +23,7 @@ class SF:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.sf = self.hostnames.get('sf')
+        self.url = self.hostnames.get('sf')
 
         if "MB_Staffeln" in self.filename:
             self.config = RssConfig("MB", self.configfile)

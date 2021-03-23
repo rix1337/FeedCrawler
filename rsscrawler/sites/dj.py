@@ -18,7 +18,7 @@ class DJ:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.j = self.hostnames.get('dj')
+        self.url = self.hostnames.get('dj')
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
