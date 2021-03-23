@@ -27,7 +27,7 @@ def check_url(configfile, dbfile, scraper=False):
         scraper = cloudscraper.create_scraper()
 
     sj_url = 'https://' + sj
-    dj_url = 'https://' + sj
+    dj_url = 'https://' + dj
     sf_url = 'https://' + sf
     by_url = 'https://' + by
     dw_url = 'https://' + dw
