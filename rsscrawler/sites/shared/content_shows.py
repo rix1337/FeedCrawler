@@ -9,7 +9,6 @@ import re
 from rsscrawler.common import add_decrypt
 from rsscrawler.db import ListDb
 from rsscrawler.notifiers import notify
-from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
 
@@ -36,6 +35,18 @@ def settings_hash(self, refresh):
         self.pattern = r'^(' + "|".join(get_series_list(self)).lower() + ')'
     current_set = str(self.settings) + str(self.pattern)
     return hashlib.sha256(current_set.encode('ascii', 'ignore')).hexdigest()
+
+
+def feed_url(self):
+    if self._INTERNAL_NAME == "SJ" or self._INTERNAL_NAME == "DJ":
+        url = 'https://' + self.url + '/api/releases/latest/' + str(self.day)
+        return url
+    elif self._INTERNAL_NAME == "SF":
+        delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+        url = 'https://' + self.url + '/updates/' + delta
+        return url
+    else:
+        return False
 
 
 def send_package(self, title, link, language_id, season, episode):
@@ -111,19 +122,17 @@ def periodical_task(self):
     while self.day < 8:
         if self.last_set == current_set:
             try:
-                # SJ/DJ
-                response = get_url_headers('https://' + self.url + '/api/releases/latest/' + str(self.day),
-                                           self.configfile, self.dbfile, self.headers, self.scraper)
-                # SF
-                delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
-                response = get_url_headers('https://' + self.url + '/updates/' + delta, self.configfile,
-                                           self.dbfile, self.headers, self.scraper)
-                self.scraper = response[1]
-                response = response[0]
-                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                    feed = self.get_feed_method(response.text, "seasons", 'https://' + self.url, True)
+                url = feed_url(self)
+                if url:
+                    response = get_url_headers(url, self.configfile, self.dbfile, self.headers, self.scraper)
+                    self.scraper = response[1]
+                    response = response[0]
+                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                        feed = self.get_feed_method(response.text, "seasons", 'https://' + self.url, True)
+                    else:
+                        feed = self.get_feed_method(response.text, "episodes", 'https://' + self.url, True)
                 else:
-                    feed = self.get_feed_method(response.text, "episodes", 'https://' + self.url, True)
+                    feed = False
             except:
                 print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
@@ -136,21 +145,19 @@ def periodical_task(self):
                 header = True
         else:
             try:
-                # SJ/DJ:
-                response = get_url('https://' + self.url + '/api/releases/latest/' + str(self.day), self.configfile,
-                                   self.dbfile, self.scraper)
-                # SF:
-                delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
-                response = get_url('https://' + self.url + '/updates/' + delta, self.configfile,
-                                   self.dbfile, self.scraper)
-                if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                    feed = self.get_feed_method(response, "seasons",
-                                                'https://' + self.url,
-                                                True)
+                url = feed_url(self)
+                if url:
+                    response = get_url_headers(url, self.configfile, self.dbfile, self.headers, self.scraper)
+                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                        feed = self.get_feed_method(response, "seasons",
+                                                    'https://' + self.url,
+                                                    True)
+                    else:
+                        feed = self.get_feed_method(response, "episodes",
+                                                    'https://' + self.url,
+                                                    True)
                 else:
-                    feed = self.get_feed_method(response, "episodes",
-                                                'https://' + self.url,
-                                                True)
+                    feed = False
             except:
                 print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
