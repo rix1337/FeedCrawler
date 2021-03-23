@@ -2,6 +2,7 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import datetime
 import hashlib
 import re
 
@@ -33,8 +34,8 @@ def settings_hash(self, refresh):
         for s in settings:
             self.settings.append(self.config.get(s))
         self.pattern = r'^(' + "|".join(get_series_list(self)).lower() + ')'
-    set_sj = str(self.settings) + str(self.pattern)
-    return hashlib.sha256(set_sj.encode('ascii', 'ignore')).hexdigest()
+    current_set = str(self.settings) + str(self.pattern)
+    return hashlib.sha256(current_set.encode('ascii', 'ignore')).hexdigest()
 
 
 def send_package(self, title, link, language_id, season, episode):
@@ -102,16 +103,20 @@ def periodical_task(self):
     except TypeError:
         reject = r"^unmatchable$"
 
-    set_sj = settings_hash(self, False)
+    current_set = settings_hash(self, False)
 
     header = False
     response = False
 
     while self.day < 8:
-        if self.last_set_sj == set_sj:
+        if self.last_set == current_set:
             try:
+                # SJ/DJ
                 response = get_url_headers('https://' + self.url + '/api/releases/latest/' + str(self.day),
-                                           self.configfile,
+                                           self.configfile, self.dbfile, self.headers, self.scraper)
+                # SF
+                delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+                response = get_url_headers('https://' + self.url + '/updates/' + delta, self.configfile,
                                            self.dbfile, self.headers, self.scraper)
                 self.scraper = response[1]
                 response = response[0]
@@ -126,12 +131,17 @@ def periodical_task(self):
             if response:
                 if response.status_code == 304:
                     self.log_debug(
-                        "' + self._INTERNAL_NAME + '-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                        self._INTERNAL_NAME + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                     return self.device
                 header = True
         else:
             try:
+                # SJ/DJ:
                 response = get_url('https://' + self.url + '/api/releases/latest/' + str(self.day), self.configfile,
+                                   self.dbfile, self.scraper)
+                # SF:
+                delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+                response = get_url('https://' + self.url + '/updates/' + delta, self.configfile,
                                    self.dbfile, self.scraper)
                 if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
                     feed = self.get_feed_method(response, "seasons",
@@ -148,9 +158,9 @@ def periodical_task(self):
         self.day += 1
 
         if feed and feed.entries:
-            first_post_sj = feed.entries[0]
-            concat_sj = first_post_sj.title + first_post_sj.published + str(self.settings) + str(self.pattern)
-            sha_sj = hashlib.sha256(concat_sj.encode(
+            first_post = feed.entries[0]
+            concat = first_post.title + first_post.published + str(self.settings) + str(self.pattern)
+            sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
             self.log_debug(
@@ -162,7 +172,7 @@ def periodical_task(self):
                      str(self.settings) + str(self.pattern)
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
-            if sha == self.last_sha_sj:
+            if sha == self.last_sha:
                 self.log_debug(
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
@@ -320,13 +330,13 @@ def periodical_task(self):
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
-    if set_sj:
-        new_set_sj = settings_hash(self, True)
-        if set_sj == new_set_sj:
+    if current_set:
+        new_set = settings_hash(self, True)
+        if current_set == new_set:
             self.cdc.delete(self._INTERNAL_NAME + "Set-" + self.filename)
-            self.cdc.store(self._INTERNAL_NAME + "Set-" + self.filename, set_sj)
+            self.cdc.store(self._INTERNAL_NAME + "Set-" + self.filename, current_set)
             self.cdc.delete(self._INTERNAL_NAME + "-" + self.filename)
-            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha_sj)
+            self.cdc.store(self._INTERNAL_NAME + "-" + self.filename, sha)
 
     if header and response:
         self.cdc.delete(self._INTERNAL_NAME + "Headers-" + self.filename)

@@ -2,16 +2,11 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
-import datetime
-import hashlib
-import re
-
 import rsscrawler.sites.shared.content_shows as shared_shows
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
+from rsscrawler.sites.shared.fake_feed import sf_parse_download
 from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
-from rsscrawler.url import get_url
-from rsscrawler.url import get_url_headers
 
 
 class SF:
@@ -25,6 +20,7 @@ class SF:
         self.hostnames = RssConfig('Hostnames', self.configfile)
         self.url = self.hostnames.get('sf')
 
+        self.filename = filename
         if "MB_Staffeln" in self.filename:
             self.config = RssConfig("MB", self.configfile)
         else:
@@ -38,12 +34,11 @@ class SF:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.scraper = scraper
-        self.filename = filename
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
         self.cdc = RssDb(self.dbfile, 'cdc')
-        self.last_set_sf = self.cdc.retrieve("SFSet-" + self.filename)
-        self.last_sha_sf = self.cdc.retrieve("SF-" + self.filename)
+        self.last_set = self.cdc.retrieve("SFSet-" + self.filename)
+        self.last_sha = self.cdc.retrieve("SF-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve("SFHeaders-" + self.filename))}
         self.settings_array = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
@@ -72,254 +67,9 @@ class SF:
 
         self.day = 0
 
-    # ToDo Refactor to content_shows
+        self.get_feed_method = sf_releases_to_feedparser_dict
+        self.parse_download_method = sf_parse_download
+
     def periodical_task(self):
-        if not self.sf:
-            return self.device
-
-        if self.filename == 'SJ_Serien_Regex':
-            if not self.config.get('regex'):
-                self.log_debug("Suche für SF-Regex deaktiviert!")
-                return self.device
-        elif self.filename == 'SJ_Staffeln_Regex':
-            if not self.config.get('regex'):
-                self.log_debug("Suche für SF-Regex deaktiviert!")
-                return self.device
-        elif self.filename == 'MB_Staffeln':
-            if not self.config.get('crawlseasons'):
-                self.log_debug("Suche für SF-Staffeln deaktiviert!")
-                return self.device
-        if self.empty_list:
-            self.log_debug(
-                "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
-            return self.device
-        try:
-            reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
-                self.config.get("rejectlist")) > 0 else r"^unmatchable$"
-        except TypeError:
-            reject = r"^unmatchable$"
-
-        set_sf = self.settings_hash(False)
-
-        header = False
-        response = False
-
-        while self.day < 8:
-            if self.last_set_sf == set_sf:
-                try:
-                    delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
-                    response = get_url_headers('https://' + self.sf + '/updates/' + delta, self.configfile,
-                                               self.dbfile, self.headers, self.scraper)
-                    self.scraper = response[1]
-                    response = response[0]
-                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sf_releases_to_feedparser_dict(response.text, "seasons", 'https://' + self.sf, True)
-                    else:
-                        feed = sf_releases_to_feedparser_dict(response.text, "episodes", 'https://' + self.sf, True)
-                except:
-                    print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
-                    feed = False
-
-                if response:
-                    if response.status_code == 304:
-                        self.log_debug(
-                            "SF-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
-                        return self.device
-                    header = True
-            else:
-                try:
-                    delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
-                    response = get_url('https://' + self.sf + '/updates/' + delta, self.configfile,
-                                       self.dbfile, self.scraper)
-                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = sf_releases_to_feedparser_dict(response, "seasons",
-                                                              'https://' + self.sf,
-                                                              True)
-                    else:
-                        feed = sf_releases_to_feedparser_dict(response, "episodes",
-                                                              'https://' + self.sf,
-                                                              True)
-                except:
-                    print(u"SF hat die Feed-API angepasst. Breche Suche ab!")
-                    feed = False
-
-            self.day += 1
-
-            if feed and feed.entries:
-                first_post_sf = feed.entries[0]
-                concat_sf = first_post_sf.title + first_post_sf.published + str(self.settings) + str(self.pattern)
-                sha_sf = hashlib.sha256(concat_sf.encode(
-                    'ascii', 'ignore')).hexdigest()
-            else:
-                self.log_debug(
-                    "Feed ist leer - breche  Suche ab!")
-                return False
-
-            for post in feed.entries:
-                concat = post.title + post.published + \
-                         str(self.settings) + str(self.pattern)
-                sha = hashlib.sha256(concat.encode(
-                    'ascii', 'ignore')).hexdigest()
-                if sha == self.last_sha_sf:
-                    self.log_debug(
-                        "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
-                    break
-
-                series_url = post.series_url
-                title = post.title.replace("-", "-")
-
-                if self.filename == 'SJ_Serien_Regex':
-                    if self.config.get("regex"):
-                        if '.german.' in title.lower():
-                            language_id = 1
-                        elif self.rsscrawler.get('english'):
-                            language_id = 2
-                        else:
-                            language_id = 0
-                        if language_id:
-                            m = re.search(self.pattern, title.lower())
-                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                                m = re.search(self.pattern.replace(
-                                    "480p", "."), title.lower())
-                                self.quality = "480p"
-                            if m:
-                                if "720p" in title.lower():
-                                    self.quality = "720p"
-                                if "1080p" in title.lower():
-                                    self.quality = "1080p"
-                                if "2160p" in title.lower():
-                                    self.quality = "2160p"
-                                m = re.search(reject, title.lower())
-                                if m:
-                                    self.log_debug(
-                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                                title = re.sub(r'\[.*\] ', '', post.title)
-                                self.parse_download(series_url, title, language_id)
-                        else:
-                            self.log_debug(
-                                "%s - Englische Releases deaktiviert" % title)
-
-                    else:
-                        continue
-                elif self.filename == 'SJ_Staffeln_Regex':
-                    if self.config.get("regex"):
-                        if '.german.' in title.lower():
-                            language_id = 1
-                        elif self.rsscrawler.get('english'):
-                            language_id = 2
-                        else:
-                            language_id = 0
-                        if language_id:
-                            m = re.search(self.pattern, title.lower())
-                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                                m = re.search(self.pattern.replace(
-                                    "480p", "."), title.lower())
-                                self.quality = "480p"
-                            if m:
-                                if "720p" in title.lower():
-                                    self.quality = "720p"
-                                if "1080p" in title.lower():
-                                    self.quality = "1080p"
-                                if "2160p" in title.lower():
-                                    self.quality = "2160p"
-                                m = re.search(reject, title.lower())
-                                if m:
-                                    self.log_debug(
-                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                                title = re.sub(r'\[.*\] ', '', post.title)
-                                self.parse_download(series_url, title, language_id)
-                        else:
-                            self.log_debug(
-                                "%s - Englische Releases deaktiviert" % title)
-
-                    else:
-                        continue
-                else:
-                    if self.config.get("quality") != '480p':
-                        m = re.search(self.pattern, title.lower())
-                        if m:
-                            if '.german.' in title.lower():
-                                language_id = 1
-                            elif self.rsscrawler.get('english'):
-                                language_id = 2
-                            else:
-                                language_id = 0
-                            if language_id:
-                                mm = re.search(self.quality, title.lower())
-                                if mm:
-                                    mmm = re.search(reject, title.lower())
-                                    if mmm:
-                                        self.log_debug(
-                                            title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
-                                        continue
-                                    if self.rsscrawler.get("surround"):
-                                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                            self.log_debug(
-                                                title + " - Release ignoriert (kein Mehrkanalton)")
-                                            continue
-                                    try:
-                                        storage = self.db.retrieve_all(title)
-                                    except Exception as e:
-                                        self.log_debug(
-                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                        return self.device
-                                    if 'added' in storage:
-                                        self.log_debug(
-                                            title + " - Release ignoriert (bereits gefunden)")
-                                        continue
-                                    self.parse_download(series_url, title, language_id)
-                            else:
-                                self.log_debug(
-                                    "%s - Englische Releases deaktiviert" % title)
-
-                        else:
-                            m = re.search(self.pattern, title.lower())
-                            if m:
-                                if '.german.' in title.lower():
-                                    language_id = 1
-                                elif self.rsscrawler.get('english'):
-                                    language_id = 2
-                                else:
-                                    language_id = 0
-                                if language_id:
-                                    if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
-                                        continue
-                                    mm = re.search(reject, title.lower())
-                                    if mm:
-                                        self.log_debug(
-                                            title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
-                                        continue
-                                    if self.rsscrawler.get("surround"):
-                                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                            self.log_debug(
-                                                title + " - Release ignoriert (kein Mehrkanalton)")
-                                            continue
-                                    title = re.sub(r'\[.*\] ', '', post.title)
-                                    try:
-                                        storage = self.db.retrieve_all(title)
-                                    except Exception as e:
-                                        self.log_debug(
-                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                        return self.device
-                                    if 'added' in storage:
-                                        self.log_debug(
-                                            title + " - Release ignoriert (bereits gefunden)")
-                                        continue
-                                    self.parse_download(series_url, title, language_id)
-                                else:
-                                    self.log_debug(
-                                        "%s - Englische Releases deaktiviert" % title)
-
-        if set_sf:
-            new_set_sf = self.settings_hash(True)
-            if set_sf == new_set_sf:
-                self.cdc.delete("SFSet-" + self.filename)
-                self.cdc.store("SFSet-" + self.filename, set_sf)
-                self.cdc.delete("SF-" + self.filename)
-                self.cdc.store("SF-" + self.filename, sha_sf)
-
-        if header and response:
-            self.cdc.delete("SFHeaders-" + self.filename)
-            self.cdc.store("SFHeaders-" + self.filename, response.headers['date'])
-
+        self.device = shared_shows.periodical_task(self)
         return self.device
