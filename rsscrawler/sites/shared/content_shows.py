@@ -9,6 +9,7 @@ import re
 from rsscrawler.common import add_decrypt
 from rsscrawler.db import ListDb
 from rsscrawler.notifiers import notify
+from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
 
@@ -147,15 +148,11 @@ def periodical_task(self):
             try:
                 url = feed_url(self)
                 if url:
-                    response = get_url_headers(url, self.configfile, self.dbfile, self.headers, self.scraper)
+                    response = get_url(url, self.configfile, self.dbfile, self.scraper)
                     if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
-                        feed = self.get_feed_method(response, "seasons",
-                                                    'https://' + self.url,
-                                                    True)
+                        feed = self.get_feed_method(response, "seasons", 'https://' + self.url, True)
                     else:
-                        feed = self.get_feed_method(response, "episodes",
-                                                    'https://' + self.url,
-                                                    True)
+                        feed = self.get_feed_method(response, "episodes", 'https://' + self.url, True)
                 else:
                     feed = False
             except:

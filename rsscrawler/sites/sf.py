@@ -10,7 +10,7 @@ from rsscrawler.sites.shared.fake_feed import sf_releases_to_feedparser_dict
 
 
 class SF:
-    _INTERNAL_NAME = "SJ"
+    _INTERNAL_NAME = "SF"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
         self.configfile = configfile
@@ -24,7 +24,7 @@ class SF:
         if "MB_Staffeln" in self.filename:
             self.config = RssConfig("MB", self.configfile)
         else:
-            self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
+            self.config = RssConfig("SJ", self.configfile)
         self.rsscrawler = RssConfig("RSScrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
