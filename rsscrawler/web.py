@@ -5,7 +5,6 @@
 from logging import handlers
 
 import ast
-import gevent
 import json
 import logging
 import os
@@ -14,10 +13,10 @@ import sys
 import time
 from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
 from functools import wraps
-from gevent.pywsgi import WSGIServer
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
+from waitress import serve
 
 import rsscrawler.myjdapi
 import rsscrawler.search.shared.content_all
@@ -53,7 +52,7 @@ from rsscrawler.notifiers import notify
 from rsscrawler.search import search
 
 
-def app_container(port, local_address, docker, configfile, dbfile, log_file, no_logger, _device):
+def app_container(port, local_address, docker, configfile, dbfile, log_file, _device):
     global device
     device = _device
     global helper_active
@@ -1569,8 +1568,7 @@ var cnlExists = setInterval(async function() {
         else:
             return "Failed", 405
 
-    http_server = WSGIServer(('0.0.0.0', port), app, log=no_logger)
-    http_server.serve_forever()
+    serve(app, host='0.0.0.0', port=port, threads=10, _quiet=True)
 
 
 def start(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, _device):
@@ -1599,12 +1597,9 @@ def start(port, local_address, docker, configfile, dbfile, log_level, log_file, 
 
     disable_request_warnings(InsecureRequestWarning)
 
-    no_logger = logging.getLogger("gevent").setLevel(logging.WARNING)
-    gevent.hub.Hub.NOT_ERROR = (Exception,)
-
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
 
-    app_container(port, local_address, docker, configfile, dbfile, log_file, no_logger, _device)
+    app_container(port, local_address, docker, configfile, dbfile, log_file, _device)

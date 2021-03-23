@@ -8,10 +8,10 @@ docopt
 feedparser
 flask
 rapidfuzz
-gevent
 lxml
 passlib
 pycryptodomex
 python-dateutil
 requests[socks]
 simplejson
+waitress
