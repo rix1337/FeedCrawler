@@ -1217,7 +1217,7 @@ if (title) {
 // @name            RSScrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.3.1
+// @version         0.3.2
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
@@ -1228,6 +1228,10 @@ if (title) {
 var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
+
+jQuery.expr[':'].contains = function(a, i, m) {
+ return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+};
 
 document.body.addEventListener('mousedown', function (e) {
     if (e.target.tagName != "A") return;
@@ -1262,6 +1266,7 @@ if (title) {
             }
             $("button:contains('filer')").click();
             $("button:contains('turbo')").click();
+            $("button:contains('1fichier')").click();
             if (sponsorsHoster) {
                 $("button:contains('" + sponsorsHoster + "')").click();
             }
