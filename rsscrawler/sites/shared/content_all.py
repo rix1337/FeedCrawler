@@ -985,14 +985,14 @@ def periodical_task(self):
     if self.filename != 'IMDB':
         if not loading_304 and first_page_content:
             for i in first_page_content.entries:
-                concat_by = i.title + i.published + str(self.settings) + str(self.pattern)
-                sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
+                concat = i.title + i.published + str(self.settings) + str(self.pattern)
+                sha = hashlib.sha256(concat.encode('ascii', 'ignore')).hexdigest()
                 break
     else:
         if not loading_304 and first_page_content:
             for i in first_page_content.entries:
-                concat_by = i.title + i.published + str(self.settings) + str(self.imdb)
-                sha = hashlib.sha256(concat_by.encode('ascii', 'ignore')).hexdigest()
+                concat = i.title + i.published + str(self.settings) + str(self.imdb)
+                sha = hashlib.sha256(concat.encode('ascii', 'ignore')).hexdigest()
                 break
 
     added_items = []

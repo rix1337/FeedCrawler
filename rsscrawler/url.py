@@ -3,12 +3,39 @@
 # Projekt von https://github.com/rix1337
 
 import cloudscraper
+import codecs
 import concurrent.futures
+import functools
+import hashlib
+import pickle
 import requests
 
 from rsscrawler.common import check_is_site
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
+
+
+def cache_text(func):
+    @functools.wraps(func)
+    def cache_request(*args, **kwargs):
+        to_hash = ""
+        dbfile = False
+        for a in args:
+            if isinstance(a, str) and "RSScrawler.db" in a:
+                dbfile = a
+            if not isinstance(a, cloudscraper.CloudScraper):
+                to_hash += str(a)
+        hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
+        cached = RssDb(dbfile, 'cached_requests').retrieve(hashed)
+        if dbfile and cached:
+            print("Cache hit for " + args[0])
+            return pickle.loads(codecs.decode(cached.encode(), "base64"))
+        else:
+            value = func(*args, **kwargs)
+            RssDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+            return value
+
+    return cache_request
 
 
 def check_url(configfile, dbfile, scraper=False):
@@ -380,6 +407,7 @@ def check_url(configfile, dbfile, scraper=False):
     return scraper
 
 
+@cache_text
 def get_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')

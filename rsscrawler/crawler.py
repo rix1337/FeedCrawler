@@ -115,6 +115,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             try:
                 if not device or not is_device(device):
                     device = get_device(configfile)
+                RssDb(dbfile, 'cached_requests').reset()
+                RssDb(dbfile, 'cached_requests').cleanup()
                 scraper = check_url(configfile, dbfile)
                 start_time = time.time()
                 crawltimes.update_store("active", "True")
@@ -186,6 +188,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
+            RssDb(dbfile, 'cached_requests').reset()
+            RssDb(dbfile, 'cached_requests').cleanup()
             scraper = check_url(configfile, dbfile)
             start_time = time.time()
             log_debug("--------Testlauf gestartet.--------")
