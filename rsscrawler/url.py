@@ -15,25 +15,50 @@ from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
 
 
-def cache_text(func):
+class DbFileMissingExpection(Exception):
+    """Exception raised for missing dbfile path.
+
+    Attributes:
+        url -- url(s) from the request that caused the error
+        message -- explanation of the error
+    """
+
+    def __init__(self, url, message="The dbfile parameter required for caching this request is missing!"):
+        self.url = url
+        self.message = message
+        super().__init__(self.message + ", url(s): " + self.url)
+
+
+def cache(func):
+    """Decorator that caches a request based on its arguments, excluding the scraper object."""
+
     @functools.wraps(func)
     def cache_request(*args, **kwargs):
         to_hash = ""
         dbfile = False
         for a in args:
+            # The path to the db file which we will use for caching is always one of the arguments
             if isinstance(a, str) and "RSScrawler.db" in a:
                 dbfile = a
+            # Ignore the scraper object when caching
             if not isinstance(a, cloudscraper.CloudScraper):
-                to_hash += str(a)
+                # convert all arguments to hashable strings
+                to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
+        # This hash is based on all arguments of the request
         hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
-        cached = RssDb(dbfile, 'cached_requests').retrieve(hashed)
-        if dbfile and cached:
-            print("Cache hit for " + args[0])
-            return pickle.loads(codecs.decode(cached.encode(), "base64"))
-        else:
-            value = func(*args, **kwargs)
-            RssDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
-            return value
+
+        if dbfile:
+            # Check if there is a cached request for this hash
+            cached = RssDb(dbfile, 'cached_requests').retrieve(hashed)
+            if cached:
+                # Unpack and return the cached result instead of processing the request
+                return pickle.loads(codecs.decode(cached.encode(), "base64"))
+            else:
+                #
+                value = func(*args, **kwargs)
+                RssDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+                return value
+        raise DbFileMissingExpection(str(args[0]))
 
     return cache_request
 
@@ -407,7 +432,7 @@ def check_url(configfile, dbfile, scraper=False):
     return scraper
 
 
-@cache_text
+@cache
 def get_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -508,6 +533,7 @@ def get_url(url, configfile, dbfile, scraper=False):
             return ""
 
 
+@cache
 def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -607,6 +633,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
             return ["", scraper]
 
 
+@cache
 def get_redirected_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -703,6 +730,7 @@ def get_redirected_url(url, configfile, dbfile, scraper=False):
             return url
 
 
+@cache
 def post_url(url, configfile, dbfile, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -802,6 +830,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             return ""
 
 
+@cache
 def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -901,6 +930,7 @@ def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
             return ["", scraper]
 
 
+@cache
 def get_urls_async(urls, configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
