@@ -1229,9 +1229,11 @@ var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
 
-jQuery.expr[':'].contains = function(a, i, m) {
- return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
-};
+$.expr[":"].contains = $.expr.createPseudo(function(arg) {
+    return function( elem ) {
+        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
+    };
+});
 
 document.body.addEventListener('mousedown', function (e) {
     if (e.target.tagName != "A") return;
@@ -1264,13 +1266,18 @@ if (title) {
             if (requiresLogin) {
                 clearInterval(checkExist);
             }
-            $("button:contains('filer')").click();
-            $("button:contains('turbo')").click();
-            $("button:contains('1fichier')").click();
-            if (sponsorsHoster) {
+            if ( sponsorsHoster && $("button:contains('" + sponsorsHoster + "')").length) {
                 $("button:contains('" + sponsorsHoster + "')").click();
+            } else if ( $("button:contains('1fichier')").length) {
+                $("button:contains('1fichier')").click();
+            } else if ( $("button:contains('turbo')").length) {
+                $("button:contains('turbo')").click();
+            } else if ( $("button:contains('filer')").length) {
+                $("button:contains('filer')").click();
+            } else {
+                $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
             }
-            console.log("[RSScrawler Sponsors Helper] clicked Download button to trigger reCAPTCHA");
+            console.log("[RSScrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
             clearInterval(checkExist);
         }
     }, 100);
