@@ -1217,7 +1217,7 @@ if (title) {
 // @name            RSScrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.3.0
+// @version         0.3.1
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
@@ -1254,20 +1254,18 @@ if (title) {
         if ($("tr:contains('" + title + "')").length) {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-            if (sponsorsHelper) {
-                console.log("[RSScrawler Sponsors Helper] clicked Download button of " + title);
-                await Sleep(500);
-                var requiresLogin = $(".alert-warning").length;
-                if (requiresLogin) {
-                    clearInterval(checkExist);
-                }
-                $("button:contains('filer')").click();
-                $("button:contains('turbo')").click();
-                if (sponsorsHoster) {
-                    $("button:contains('" + sponsorsHoster + "')").click();
-                }
-                console.log("[RSScrawler Sponsors Helper] clicked Download button to trigger reCAPTCHA");
+            console.log("[RSScrawler Sponsors Helper] clicked Download button of " + title);
+            await Sleep(500);
+            var requiresLogin = $(".alert-warning").length;
+            if (requiresLogin) {
+                clearInterval(checkExist);
             }
+            $("button:contains('filer')").click();
+            $("button:contains('turbo')").click();
+            if (sponsorsHoster) {
+                $("button:contains('" + sponsorsHoster + "')").click();
+            }
+            console.log("[RSScrawler Sponsors Helper] clicked Download button to trigger reCAPTCHA");
             clearInterval(checkExist);
         }
     }, 100);
