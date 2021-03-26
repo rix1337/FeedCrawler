@@ -62,15 +62,15 @@ from rsscrawler.myjd import remove_from_linkgrabber
 from rsscrawler.myjd import retry_decrypt
 from rsscrawler.notifiers import notify
 from rsscrawler.ombi import ombi
-from rsscrawler.sites.by import BL as BY
-from rsscrawler.sites.dd import DD
-from rsscrawler.sites.dj import DJ
-from rsscrawler.sites.dw import BL as DW
-from rsscrawler.sites.fx import BL as FX
-from rsscrawler.sites.nk import BL as NK
-from rsscrawler.sites.sf import SF
-from rsscrawler.sites.sj import SJ
-from rsscrawler.sites.ww import BL as WW
+from rsscrawler.sites.content_all_by import BL as BY
+from rsscrawler.sites.content_all_dw import BL as DW
+from rsscrawler.sites.content_all_fx import BL as FX
+from rsscrawler.sites.content_all_nk import BL as NK
+from rsscrawler.sites.content_all_ww import BL as WW
+from rsscrawler.sites.content_shows_dd import DD
+from rsscrawler.sites.content_shows_dj import DJ
+from rsscrawler.sites.content_shows_sf import SF
+from rsscrawler.sites.content_shows_sj import SJ
 from rsscrawler.url import check_url
 from rsscrawler.web import start
 
@@ -378,18 +378,19 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        DD(configfile, dbfile, device, logger, scraper),
         DW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         DW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         DW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        WW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         FX(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         FX(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        WW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         NK(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         NK(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
@@ -397,8 +398,7 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         BY(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         BY(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        DD(configfile, dbfile, device, logger, scraper)
+        BY(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln')
     ]
 
 
