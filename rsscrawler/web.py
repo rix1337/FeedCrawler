@@ -220,7 +220,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                             "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                             "one_mirror_policy": general_conf.get("one_mirror_policy"),
                             "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
-                            "prefer_dw_mirror": mb_conf.get("prefer_dw_mirror"),
+                            "prefer_dw_mirror": general_conf.get("prefer_dw_mirror"),
                         },
                         "hosters": {
                             "rapidgator": hosters.get("rapidgator"),
@@ -340,7 +340,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
             section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
             section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
-            section.save("prefer_dw_mirror", to_str(data['mb']['prefer_dw_mirror']))
+            section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
 
             section = RssConfig("Crawljobs", configfile)
 
