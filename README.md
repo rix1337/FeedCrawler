@@ -39,7 +39,7 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 ### Im Folgenden wird die manuelle Installation beschrieben:
 
 ####  Voraussetzungen
-* [Python 3.9](https://www.python.org/downloads/) oder neuer
+* [Python 3.6](https://www.python.org/downloads/) oder neuer
 * [pip](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [MyJDownloader-Konto](https://my.jdownloader.org)
 
