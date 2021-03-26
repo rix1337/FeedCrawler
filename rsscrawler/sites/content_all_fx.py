@@ -5,16 +5,16 @@
 import rsscrawler.sites.shared.content_all as shared_blogs
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
-from rsscrawler.sites.shared.fake_feed import add_decrypt_instead_of_download
-from rsscrawler.sites.shared.fake_feed import dw_feed_enricher
-from rsscrawler.sites.shared.fake_feed import dw_get_download_links
+from rsscrawler.myjd import myjd_download
+from rsscrawler.sites.shared.fake_feed import fx_feed_enricher
+from rsscrawler.sites.shared.fake_feed import fx_get_download_links
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
 
 class BL:
     _INTERNAL_NAME = 'MB'
-    _SITE = 'DW'
+    _SITE = 'FX'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
@@ -23,13 +23,10 @@ class BL:
         self.device = device
 
         self.hostnames = RssConfig('Hostnames', self.configfile)
-        self.url = self.hostnames.get('dw')
+        self.url = self.hostnames.get('fx')
         self.password = self.url.split('.')[0]
 
-        if "MB_Staffeln" not in filename:
-            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/movies/"
-        else:
-            self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"
+        self.URL = 'https://' + self.url
         self.FEED_URLS = [self.URL]
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
@@ -45,12 +42,12 @@ class BL:
         self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.prefer_dw_mirror = self.config.get("prefer_dw_mirror")
+        self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            page_url = self.URL + "order/zeit/sort/D/seite/" + str(i) + "/"
+            page_url = self.URL + "/page/" + str(i)
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
@@ -65,6 +62,7 @@ class BL:
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -72,11 +70,11 @@ class BL:
         self.search_regular_done = False
         self.dl_unsatisfied = False
 
-        self.get_feed_method = dw_feed_enricher
+        self.get_feed_method = fx_feed_enricher
         self.get_url_method = get_url
         self.get_url_headers_method = get_url_headers
-        self.get_download_links_method = dw_get_download_links
-        self.download_method = add_decrypt_instead_of_download
+        self.get_download_links_method = fx_get_download_links
+        self.download_method = myjd_download
 
         try:
             self.imdb = float(self.config.get('imdb'))

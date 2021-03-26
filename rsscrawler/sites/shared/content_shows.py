@@ -9,6 +9,7 @@ import re
 from rsscrawler.common import add_decrypt
 from rsscrawler.db import ListDb
 from rsscrawler.notifiers import notify
+from rsscrawler.sites.shared.fake_feed import dw_mirror
 from rsscrawler.url import get_url
 from rsscrawler.url import get_url_headers
 
@@ -46,11 +47,15 @@ def feed_url(self):
         delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
         url = 'https://' + self.url + '/updates/' + delta
         return url
+    elif self._INTERNAL_NAME == "DWs":
+        url = 'https://' + self.url + "/downloads/hauptkategorie/serien/order/zeit/sort/D/seite/" + str(
+            self.day + 1) + "/"
+        return url
     else:
         return False
 
 
-def send_package(self, title, link, language_id, season, episode):
+def send_package(self, title, link, language_id, season, episode, site):
     englisch = ''
     if language_id == 2:
         englisch = '/Englisch'
@@ -82,7 +87,7 @@ def send_package(self, title, link, language_id, season, episode):
         download = add_decrypt(title, link, self.url, self.dbfile)
         if download:
             self.db.store(title, 'added')
-            log_entry = link_placeholder + title + ' - [' + self._INTERNAL_NAME + ']'
+            log_entry = link_placeholder + title + ' - [' + site + ']'
             self.log_info(log_entry)
             notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
             return log_entry
@@ -212,7 +217,17 @@ def periodical_task(self):
                             title = re.sub(r'\[.*\] ', '', post.title)
                             package = self.parse_download_method(self, series_url, title, language_id)
                             if package:
-                                send_package(self, package[0], package[1], package[2], package[3], package[4])
+                                title = package[0]
+                                site = self._INTERNAL_NAME
+                                if self.prefer_dw_mirror and "DW" not in site:
+                                    download_link = dw_mirror(self, title)
+                                    site = "DWs/" + site
+                                else:
+                                    download_link = package[1]
+                                language_id = package[2]
+                                season = package[3]
+                                episode = package[4]
+                                send_package(self, title, download_link, language_id, season, episode, site)
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -247,7 +262,17 @@ def periodical_task(self):
                             title = re.sub(r'\[.*\] ', '', post.title)
                             package = self.parse_download_method(self, series_url, title, language_id)
                             if package:
-                                send_package(self, package[0], package[1], package[2], package[3], package[4])
+                                title = package[0]
+                                site = self._INTERNAL_NAME
+                                if self.prefer_dw_mirror and "DW" not in site:
+                                    download_link = dw_mirror(self, title)
+                                    site = "DWs/" + site
+                                else:
+                                    download_link = package[1]
+                                language_id = package[2]
+                                season = package[3]
+                                episode = package[4]
+                                send_package(self, title, download_link, language_id, season, episode, site)
                     else:
                         self.log_debug(
                             "%s - Englische Releases deaktiviert" % title)
@@ -289,7 +314,17 @@ def periodical_task(self):
                                     continue
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
-                                    send_package(self, package[0], package[1], package[2], package[3], package[4])
+                                    title = package[0]
+                                    site = self._INTERNAL_NAME
+                                    if self.prefer_dw_mirror and "DW" not in site:
+                                        download_link = dw_mirror(self, title)
+                                        site = "DWs/" + site
+                                    else:
+                                        download_link = package[1]
+                                    language_id = package[2]
+                                    season = package[3]
+                                    episode = package[4]
+                                    send_package(self, title, download_link, language_id, season, episode, site)
                         else:
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -329,7 +364,17 @@ def periodical_task(self):
                                     continue
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
-                                    send_package(self, package[0], package[1], package[2], package[3], package[4])
+                                    title = package[0]
+                                    site = self._INTERNAL_NAME
+                                    if self.prefer_dw_mirror and "DW" not in site:
+                                        download_link = dw_mirror(self, title)
+                                        site = "DWs/" + site
+                                    else:
+                                        download_link = package[1]
+                                    language_id = package[2]
+                                    season = package[3]
+                                    episode = package[4]
+                                    send_package(self, title, download_link, language_id, season, episode, site)
                             else:
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
