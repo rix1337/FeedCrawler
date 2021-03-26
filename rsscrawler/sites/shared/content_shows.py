@@ -219,7 +219,7 @@ def periodical_task(self):
                             if package:
                                 title = package[0]
                                 site = self._INTERNAL_NAME
-                                if self.prefer_dw_mirror and "DW" not in self._SITE:
+                                if self.prefer_dw_mirror and "DW" not in site:
                                     download_link = dw_mirror(self, title)
                                     site = "DWs/" + site
                                 else:
@@ -264,7 +264,7 @@ def periodical_task(self):
                             if package:
                                 title = package[0]
                                 site = self._INTERNAL_NAME
-                                if self.prefer_dw_mirror and "DW" not in self._SITE:
+                                if self.prefer_dw_mirror and "DW" not in site:
                                     download_link = dw_mirror(self, title)
                                     site = "DWs/" + site
                                 else:
@@ -316,7 +316,7 @@ def periodical_task(self):
                                 if package:
                                     title = package[0]
                                     site = self._INTERNAL_NAME
-                                    if self.prefer_dw_mirror and "DW" not in self._SITE:
+                                    if self.prefer_dw_mirror and "DW" not in site:
                                         download_link = dw_mirror(self, title)
                                         site = "DWs/" + site
                                     else:
@@ -366,7 +366,7 @@ def periodical_task(self):
                                 if package:
                                     title = package[0]
                                     site = self._INTERNAL_NAME
-                                    if self.prefer_dw_mirror and "DW" not in self._SITE:
+                                    if self.prefer_dw_mirror and "DW" not in site:
                                         download_link = dw_mirror(self, title)
                                         site = "DWs/" + site
                                     else:
