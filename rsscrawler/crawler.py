@@ -163,12 +163,11 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
             log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
             log_debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+            ombi_string = ""
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!")
-            if ombi_string:
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+                total_time) + u")!",
+                  ombi_string + " - " + request_cache_string if ombi_string else request_cache_string)
             print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             crawltimes.update_store("end_time", end_time * 1000)
             crawltimes.update_store("total_time", readable_time(total_time))
