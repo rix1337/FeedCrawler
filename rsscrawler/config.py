@@ -22,7 +22,8 @@ class RssConfig(object):
             ("fallback", "bool", "False"),
             ("closed_myjd_tab", "bool", "False"),
             ("one_mirror_policy", "bool", "False"),
-            ("packages_per_myjd_page", "int", "3")
+            ("packages_per_myjd_page", "int", "3"),
+            ("prefer_dw_mirror", "bool", "False")
         ],
         'Hostnames': [
             ("sj", "str", ""),
@@ -80,8 +81,7 @@ class RssConfig(object):
             ("imdb", "str", "0.0"),
             ("hevc_retail", "bool", "False"),
             ("retail_only", "bool", "False"),
-            ("hoster_fallback", "bool", "False"),
-            ("prefer_dw_mirror", "bool", "False")
+            ("hoster_fallback", "bool", "False")
         ],
         'SJ': [
             ("quality", "str", "1080p"),

@@ -45,7 +45,7 @@ class BL:
         self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.prefer_dw_mirror = self.config.get("prefer_dw_mirror")
+        self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
 
         search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
@@ -65,6 +65,7 @@ class BL:
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))

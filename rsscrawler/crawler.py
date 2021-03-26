@@ -377,6 +377,10 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         DW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
         DW(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
+        FX(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
+        FX(configfile, dbfile, device, logger, scraper, filename='IMDB'),
+        FX(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
+        FX(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex'),
         SJ(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex'),
@@ -387,10 +391,6 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Serien_Regex'),
         SF(configfile, dbfile, device, logger, scraper, filename='SJ_Staffeln_Regex'),
         SF(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
-        FX(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
-        FX(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        FX(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
-        FX(configfile, dbfile, device, logger, scraper, filename='MB_Staffeln'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Regex'),
         WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         WW(configfile, dbfile, device, logger, scraper, filename='MB_Filme'),
@@ -445,7 +445,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['sj', 'dj', 'sf', 'by', 'dw', 'fx', 'nk', 'ww', 'dd']
+    list_names = ['dw', 'fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by', 'dd']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:
