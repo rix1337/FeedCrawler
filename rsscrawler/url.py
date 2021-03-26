@@ -3,12 +3,64 @@
 # Projekt von https://github.com/rix1337
 
 import cloudscraper
+import codecs
 import concurrent.futures
-import requests
+import datetime
+import functools
+import hashlib
+import pickle
 
 from rsscrawler.common import check_is_site
 from rsscrawler.config import RssConfig
 from rsscrawler.db import RssDb
+
+
+class DbFileMissingExpection(Exception):
+    """Exception raised for missing dbfile path.
+
+    Attributes:
+        url -- url(s) from the request that caused the error
+        message -- explanation of the error
+    """
+
+    def __init__(self, url, message="The dbfile parameter required for caching this request is missing!"):
+        self.url = url
+        self.message = message
+        super().__init__(self.message + ", url(s): " + self.url)
+
+
+def cache(func):
+    """Decorator that caches a functions return values for specific arguments, excluding the scraper object."""
+
+    @functools.wraps(func)
+    def cache_returned_values(*args, **kwargs):
+        to_hash = ""
+        dbfile = False
+        for a in args:
+            # The path to the db file which we will use for caching is always one of the arguments
+            if isinstance(a, str) and "RSScrawler.db" in a:
+                dbfile = a
+            # Ignore the scraper object when caching
+            if not isinstance(a, cloudscraper.CloudScraper):
+                # convert all arguments to hashable strings
+                to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
+        # This hash is based on all arguments of the request
+        hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
+
+        if dbfile:
+            # Check if there is a cached request for this hash
+            cached = RssDb(dbfile, 'cached_requests').retrieve(hashed)
+            if cached:
+                # Unpack and return the cached result instead of processing the request
+                return pickle.loads(codecs.decode(cached.encode(), "base64"))
+            else:
+                #
+                value = func(*args, **kwargs)
+                RssDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+                return value
+        raise DbFileMissingExpection(str(args[0]))
+
+    return cache_returned_values
 
 
 def check_url(configfile, dbfile, scraper=False):
@@ -120,9 +172,10 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("SF", "Blocked")
         else:
             try:
-                if "block." in str(
-                        scraper.get(sf_url, proxies=proxies, timeout=30,
-                                    allow_redirects=False).headers.get("location")):
+                delta = datetime.datetime.now().strftime("%Y-%m-%d")
+                sf_test = scraper.get(sf_url + '/updates/' + delta, proxies=proxies, timeout=30, allow_redirects=False)
+                if not sf_test.text or sf_test.status_code is not (
+                        200 or 304) or '<h3><a href="/' not in sf_test.text:
                     sf_blocked_proxy = True
                 else:
                     db.delete("SF")
@@ -137,9 +190,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("BY", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(by_url, proxies=proxies, timeout=30,
-                                    allow_redirects=False)):
+                if scraper.get(by_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
                     by_blocked_proxy = True
                 else:
                     db.delete("BY")
@@ -154,9 +205,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DW", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(dw_url, proxies=proxies, timeout=30,
-                                    allow_redirects=False)):
+                if scraper.get(dw_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
                     dw_blocked_proxy = True
                 else:
                     db.delete("DW")
@@ -171,22 +220,12 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("FX", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(fx_url, proxies=proxies, timeout=30,
-                                    allow_redirects=False)):
+                if scraper.get(fx_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
                     fx_blocked_proxy = True
                 else:
                     db.delete("FX")
             except:
                 fx_blocked_proxy = True
-                session = requests.session()
-                session.headers = scraper.headers
-                session.cookies = scraper.cookies
-                session.verify = False
-                if "<Response [200]>" in str(
-                        session.get(fx_url, proxies=proxies, timeout=30,
-                                    allow_redirects=False)):
-                    fx_blocked_proxy = False
             if fx_blocked_proxy:
                 print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("FX", "Blocked")
@@ -196,8 +235,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("NK", "Blocked")
         else:
             try:
-                if "200" not in str(
-                        scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
+                if scraper.get(nk_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
                     nk_blocked_proxy = True
                 else:
                     db.delete("NK")
@@ -212,9 +250,10 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("WW", "Blocked")
         else:
             try:
-                ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1", timeout=30, allow_redirects=False)
+                ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1", proxies=proxies, timeout=30,
+                                       allow_redirects=False)
                 if not ww_test.text or ww_test.status_code is not (
-                        200 or 304) or not '<span class="main-rls">' in ww_test.text:
+                        200 or 304) or '<span class="main-rls">' not in ww_test.text:
                     ww_blocked_proxy = True
                 else:
                     db.delete("WW")
@@ -229,8 +268,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DD", "Blocked")
         else:
             try:
-                if "200" not in str(
-                        scraper.get(dd_url, timeout=30, allow_redirects=False).status_code):
+                if scraper.get(dd_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
                     dd_blocked_proxy = True
                 else:
                     db.delete("DD")
@@ -271,13 +309,15 @@ def check_url(configfile, dbfile, scraper=False):
                 db_normal.store("DJ", "Blocked")
                 print(u"Der Zugriff auf DJ ist mit der aktuellen IP nicht möglich!")
 
+    if not proxy or (proxy and sf_blocked_proxy and fallback):
         if not sf:
             db.store("SF", "Blocked")
         else:
             try:
-                if "block." in str(
-                        scraper.get(sf_url, timeout=30, allow_redirects=False).headers.get(
-                            "location")):
+                delta = datetime.datetime.now().strftime("%Y-%m-%d")
+                sf_test = scraper.get(sf_url + '/updates/' + delta, timeout=30, allow_redirects=False)
+                if not sf_test.text or sf_test.status_code is not (
+                        200 or 304) or '<h3><a href="/' not in sf_test.text:
                     sf_blocked = True
             except:
                 sf_blocked = True
@@ -290,8 +330,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("BY", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(by_url, timeout=30, allow_redirects=False)):
+                if scraper.get(by_url, timeout=30, allow_redirects=False).status_code == 403:
                     by_blocked = True
             except:
                 by_blocked = True
@@ -304,8 +343,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DW", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(dw_url, timeout=30, allow_redirects=False)):
+                if scraper.get(dw_url, timeout=30, allow_redirects=False).status_code == 403:
                     dw_blocked = True
             except:
                 dw_blocked = True
@@ -318,18 +356,10 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("FX", "Blocked")
         else:
             try:
-                if "<Response [403]>" in str(
-                        scraper.get(fx_url, timeout=30, allow_redirects=False)):
+                if scraper.get(fx_url, timeout=30, allow_redirects=False).status_code == 403:
                     fx_blocked = True
             except:
                 fx_blocked = True
-                session = requests.session()
-                session.headers = scraper.headers
-                session.cookies = scraper.cookies
-                session.verify = False
-                if "<Response [200]>" in str(
-                        session.get(fx_url, timeout=30, allow_redirects=False)):
-                    fx_blocked = False
             if fx_blocked:
                 db_normal.store("FX", "Blocked")
                 print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
@@ -339,8 +369,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("NK", "Blocked")
         else:
             try:
-                if "200" not in str(
-                        scraper.get(nk_url, timeout=30, allow_redirects=False).status_code):
+                if scraper.get(nk_url, timeout=30, allow_redirects=False).status_code == 403:
                     nk_blocked = True
             except:
                 nk_blocked = True
@@ -355,7 +384,7 @@ def check_url(configfile, dbfile, scraper=False):
             try:
                 ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1", timeout=30, allow_redirects=False)
                 if not ww_test.text or ww_test.status_code is not (
-                        200 or 304) or not '<span class="main-rls">' in ww_test.text:
+                        200 or 304) or '<span class="main-rls">' not in ww_test.text:
                     ww_blocked = True
             except:
                 ww_blocked = True
@@ -368,8 +397,7 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DD", "Blocked")
         else:
             try:
-                if "200" not in str(
-                        scraper.get(dd_url, timeout=30, allow_redirects=False).status_code):
+                if scraper.get(dd_url, timeout=30, allow_redirects=False).status_code == 403:
                     dd_blocked = True
             except:
                 dd_blocked = True
@@ -380,6 +408,7 @@ def check_url(configfile, dbfile, scraper=False):
     return scraper
 
 
+@cache
 def get_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -480,6 +509,7 @@ def get_url(url, configfile, dbfile, scraper=False):
             return ""
 
 
+@cache
 def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -579,6 +609,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
             return ["", scraper]
 
 
+@cache
 def get_redirected_url(url, configfile, dbfile, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -675,6 +706,7 @@ def get_redirected_url(url, configfile, dbfile, scraper=False):
             return url
 
 
+@cache
 def post_url(url, configfile, dbfile, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -774,6 +806,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             return ""
 
 
+@cache
 def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
     config = RssConfig('RSScrawler', configfile)
     proxy = config.get('proxy')
@@ -873,6 +906,7 @@ def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
             return ["", scraper]
 
 
+@cache
 def get_urls_async(urls, configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()

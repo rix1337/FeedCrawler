@@ -110,85 +110,17 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
     crawltimes = RssDb(dbfile, "crawltimes")
 
     arguments = docopt(__doc__, version='RSScrawler')
-    if not arguments['--testlauf']:
-        while True:
-            try:
-                if not device or not is_device(device):
-                    device = get_device(configfile)
-                scraper = check_url(configfile, dbfile)
-                start_time = time.time()
-                crawltimes.update_store("active", "True")
-                crawltimes.update_store("start_time", start_time * 1000)
-                log_debug("--------Alle Suchfunktion gestartet.--------")
-                requested_movies = 0
-                requested_shows = 0
-                ombi_string = ""
-                if device:
-                    ombi_results = ombi(configfile, dbfile, device, log_debug, ombi_first_launch)
-                    device = ombi_results[0]
-                    ombi_results = ombi_results[1]
-                    requested_movies = ombi_results[0]
-                    requested_shows = ombi_results[1]
-                    ombi_first_launch = False
-                if requested_movies or requested_shows:
-                    ombi_string = " - Ombi suchte: "
-                    if requested_movies:
-                        ombi_string = ombi_string + str(requested_movies) + " Filme"
-                        if requested_shows:
-                            ombi_string = ombi_string + " und "
-                    if requested_shows:
-                        ombi_string = ombi_string + str(requested_shows) + " Serien"
-                for task in search_pool(configfile, dbfile, device, logger, scraper):
-                    name = task._INTERNAL_NAME
-                    try:
-                        file = " - Liste: " + task.filename
-                    except AttributeError:
-                        file = ""
-                    log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                    device = task.periodical_task()
-                    log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
-                end_time = time.time()
-                total_time = end_time - start_time
-                interval = int(rsscrawler.get('interval')) * 60
-                random_range = random.randrange(0, interval // 4)
-                wait = interval + random_range
-                next_start = end_time + wait
-                log_debug(
-                    "-----Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                        total_time) + ")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
-                    total_time) + u")! Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + ombi_string)
-                crawltimes.update_store("end_time", end_time * 1000)
-                crawltimes.update_store("total_time", readable_time(total_time))
-                crawltimes.update_store("next_start", next_start * 1000)
-                crawltimes.update_store("active", "False")
-
-                wait_chunks = wait // 10
-                start_now_triggered = False
-                while wait_chunks:
-                    time.sleep(10)
-                    if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
-                        RssDb(dbfile, 'crawltimes').delete("startnow")
-                        start_now_triggered = True
-                        break
-
-                    wait_chunks -= 1
-
-                if start_now_triggered:
-                    log_debug("----------Wartezeit vorzeitig beendet----------")
-                else:
-                    log_debug("-------------Wartezeit verstrichen-------------")
-            except Exception:
-                traceback.print_exc()
-                time.sleep(10)
-    else:
+    while True:
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
+            RssDb(dbfile, 'cached_requests').reset()
+            RssDb(dbfile, 'cached_requests').cleanup()
             scraper = check_url(configfile, dbfile)
             start_time = time.time()
-            log_debug("--------Testlauf gestartet.--------")
+            crawltimes.update_store("active", "True")
+            crawltimes.update_store("start_time", start_time * 1000)
+            log_debug("--------Alle Suchfunktion gestartet.--------")
             requested_movies = 0
             requested_shows = 0
             ombi_string = ""
@@ -198,8 +130,9 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 ombi_results = ombi_results[1]
                 requested_movies = ombi_results[0]
                 requested_shows = ombi_results[1]
+                ombi_first_launch = False
             if requested_movies or requested_shows:
-                ombi_string = " - Ombi suchte: "
+                ombi_string = u"Die Ombi-Suche lief für: "
                 if requested_movies:
                     ombi_string = ombi_string + str(requested_movies) + " Filme"
                     if requested_shows:
@@ -213,14 +146,54 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 except AttributeError:
                     file = ""
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                task.periodical_task()
+                device = task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
+            cached_requests = RssDb(dbfile, 'cached_requests').count()
+            request_cache_string = u"Der RSScrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
             total_time = end_time - start_time
-            log_debug(
-                "---Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!---" + ombi_string)
+            interval = int(rsscrawler.get('interval')) * 60
+            random_range = random.randrange(0, interval // 4)
+            wait = interval + random_range
+            next_start = end_time + wait
+            log_debug(time.strftime("%Y-%m-%d %H:%M:%S") +
+                      " - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                total_time) + u")!")
+            if ombi_string:
+                log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+            log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            log_debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+            ombi_string = ""
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Testlauf ausgeführt (Dauer: " + readable_time(total_time) + ")!" + ombi_string)
+                  u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                total_time) + u")!",
+                  ombi_string + " - " + request_cache_string if ombi_string else request_cache_string)
+            print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+            crawltimes.update_store("end_time", end_time * 1000)
+            crawltimes.update_store("total_time", readable_time(total_time))
+            crawltimes.update_store("next_start", next_start * 1000)
+            crawltimes.update_store("active", "False")
+
+            if arguments['--testlauf']:
+                log_debug(u"-----------Testlauf beendet!-----------")
+                print(u"-----------Testlauf beendet!-----------")
+                return
+
+            wait_chunks = wait // 10
+            start_now_triggered = False
+            while wait_chunks:
+                time.sleep(10)
+                if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    RssDb(dbfile, 'crawltimes').delete("startnow")
+                    start_now_triggered = True
+                    break
+
+                wait_chunks -= 1
+
+            if start_now_triggered:
+                log_debug("----------Wartezeit vorzeitig beendet----------")
+            else:
+                log_debug("-------------Wartezeit verstrichen-------------")
         except Exception:
             traceback.print_exc()
             time.sleep(10)

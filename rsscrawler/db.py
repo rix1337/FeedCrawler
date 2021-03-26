@@ -20,6 +20,14 @@ class RssDb(object):
             self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
             self._conn.commit()
 
+    def cleanup(self):
+        self._conn.execute("VACUUM")
+        return
+
+    def count(self):
+        res = self._conn.execute("SELECT Count() FROM %s" % self._table).fetchone()
+        return res[0] if res else None
+
     def retrieve(self, key):
         res = self._conn.execute(
             "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
