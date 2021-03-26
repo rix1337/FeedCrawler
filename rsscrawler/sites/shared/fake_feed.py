@@ -378,7 +378,26 @@ def dw_mirror(self, title):
         dw_results = dw_search_results(dw_results, dw)
 
         for result in dw_results:
-            return [result[1].split("|")[0]]
+            release_url = result[1].split("|")[0]
+            release_info = get_url(release_url, self.configfile, self.dbfile)
+            post_hosters = BeautifulSoup(release_info, 'lxml').find("div", {"id": "download"}).findAll("img",
+                                                                                                       src=re.compile(
+                                                                                                           r"images/hosterimg"))
+            hosters = []
+            valid = False
+            for hoster in post_hosters:
+                hoster = hoster["title"].replace("Premium-Account bei ", "").replace("ddownload", "ddl")
+                if hoster not in hosters:
+                    hosters.append(hoster)
+
+            for hoster in hosters:
+                if hoster:
+                    if check_hoster(hoster, self.configfile):
+                        valid = True
+            if not valid and not self.hoster_fallback:
+                return False
+            else:
+                return release_url
 
     return False
 
@@ -421,7 +440,7 @@ def dw_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episod
     return feed
 
 
-def dw_parse_download(self, series_url, title, language_id):
+def dw_parse_download(self, release_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
         self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
@@ -436,9 +455,10 @@ def dw_parse_download(self, series_url, title, language_id):
             self.log_debug(title + " - Release hat falsche Quelle")
             return False
     try:
-        series_info = get_url(series_url, self.configfile, self.dbfile)
-        post_hosters = BeautifulSoup(series_info, 'lxml').find("div", {"id": "download"}).findAll("img", src=re.compile(
-            r"images/hosterimg"))
+        release_info = get_url(release_url, self.configfile, self.dbfile)
+        post_hosters = BeautifulSoup(release_info, 'lxml').find("div", {"id": "download"}).findAll("img",
+                                                                                                   src=re.compile(
+                                                                                                       r"images/hosterimg"))
         hosters = []
         valid = False
         for hoster in post_hosters:
@@ -462,7 +482,7 @@ def dw_parse_download(self, series_url, title, language_id):
                     self.log_debug(wrong_hoster)
                 return False
         else:
-            return [title, series_url, language_id, False, False]
+            return [title, release_url, language_id, False, False]
     except:
         print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False

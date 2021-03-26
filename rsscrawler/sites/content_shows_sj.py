@@ -37,6 +37,7 @@ class SJ:
         self.scraper = scraper
         self.db = RssDb(self.dbfile, 'rsscrawler')
         self.quality = self.config.get("quality")
+        self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
         self.cdc = RssDb(self.dbfile, 'cdc')
         self.last_set = self.cdc.retrieve("SJSet-" + self.filename)
         self.last_sha = self.cdc.retrieve("SJ-" + self.filename)
@@ -45,6 +46,7 @@ class SJ:
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in self.settings_array:
             self.settings.append(self.config.get(s))
