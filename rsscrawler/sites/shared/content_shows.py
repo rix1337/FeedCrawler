@@ -46,6 +46,10 @@ def feed_url(self):
         delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
         url = 'https://' + self.url + '/updates/' + delta
         return url
+    elif self._INTERNAL_NAME == "DWs":
+        url = 'https://' + self.url + "/downloads/hauptkategorie/serien/order/zeit/sort/D/seite/" + str(
+            self.day + 1) + "/"
+        return url
     else:
         return False
 

@@ -389,13 +389,92 @@ def dw_page_download_link(self, download_link, key):
     return [download_link]
 
 
+def dw_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
+    releases = BeautifulSoup(releases, 'lxml')
+    posts = releases.findAll("a", href=re.compile("download/"))
+    entries = []
+
+    for post in posts:
+        try:
+            title = post.text
+            is_episode = re.match(r'.*(S\d{1,3}E\d{1,3}).*', title)
+            if check_seasons_or_episodes:
+                try:
+                    if list_type == 'seasons' and is_episode:
+                        continue
+                    elif list_type == 'episodes' and not is_episode:
+                        continue
+                except:
+                    continue
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "series_url": base_url + "/" + post['href'],
+                "published": post.parent.parent.find_all("td")[1].text.strip()
+            }))
+
+        except:
+            pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def dw_parse_download(self, series_url, title, language_id):
+    if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
+        self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        return False
+    if self.filename == 'MB_Staffeln':
+        if not self.config.get("seasonpacks"):
+            staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
+            if staffelpack:
+                self.log_debug(
+                    "%s - Release ignoriert (Staffelpaket)" % title)
+                return False
+        if not re.search(self.seasonssource, title.lower()):
+            self.log_debug(title + " - Release hat falsche Quelle")
+            return False
+    try:
+        series_info = get_url(series_url, self.configfile, self.dbfile)
+        post_hosters = BeautifulSoup(series_info, 'lxml').find("div", {"id": "download"}).findAll("img", src=re.compile(
+            r"images/hosterimg"))
+        hosters = []
+        valid = False
+        for hoster in post_hosters:
+            hoster = hoster["title"].replace("Premium-Account bei ", "").replace("ddownload", "ddl")
+            if hoster not in hosters:
+                hosters.append(hoster)
+
+        for hoster in hosters:
+            if hoster:
+                if check_hoster(hoster, self.configfile):
+                    valid = True
+        if not valid and not self.hoster_fallback:
+            storage = self.db.retrieve_all(title)
+            if 'added' not in storage and 'notdl' not in storage:
+                wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                if 'wrong_hoster' not in storage:
+                    print(wrong_hoster)
+                    self.db.store(title, 'wrong_hoster')
+                    notify([wrong_hoster], self.configfile)
+                else:
+                    self.log_debug(wrong_hoster)
+                return False
+        else:
+            return [title, series_url, language_id, False, False]
+    except:
+        print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+        return False
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
 
 
 def fx_get_download_links(self, content, title):
-    hostnames = RssConfig('Hostnames', self.configfile)
+    unused_get_feed_parameter(self)
     try:
         try:
             content = BeautifulSoup(content, 'lxml')
@@ -411,6 +490,7 @@ def fx_get_download_links(self, content, title):
 
 
 def fx_feed_enricher(self, feed):
+    unused_get_feed_parameter(self)
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
     entries = []
