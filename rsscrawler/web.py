@@ -1435,7 +1435,7 @@ var cnlExists = setInterval(async function() {
                 return "Failed", 400
             if payload:
                 links = payload[0]
-                name = payload[1]
+                name = payload[1].replace("%20", "")
 
                 try:
                     password = payload[2]
