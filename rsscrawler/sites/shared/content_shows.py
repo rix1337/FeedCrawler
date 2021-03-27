@@ -27,10 +27,14 @@ def get_series_list(self):
 
 def settings_hash(self, refresh):
     if refresh:
-        settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
+        if self._INTERNAL_NAME == "DJ":
+            settings = ["quality", "rejectlist", "regex", "hoster_fallback"]
+        else:
+            settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))
         self.settings.append(self.rsscrawler.get("surround"))
+        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -99,15 +103,15 @@ def periodical_task(self):
 
     if self.filename == 'SJ_Serien_Regex':
         if not self.config.get('regex'):
-            self.log_debug("Suche für " + self._INTERNAL_NAME + "-Regex deaktiviert!")
+            self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return self.device
     elif self.filename == 'SJ_Staffeln_Regex':
         if not self.config.get('regex'):
-            self.log_debug("Suche für " + self._INTERNAL_NAME + "-Regex deaktiviert!")
+            self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return self.device
     elif self.filename == 'MB_Staffeln':
         if not self.config.get('crawlseasons'):
-            self.log_debug("Suche für " + self._INTERNAL_NAME + "-Staffeln deaktiviert!")
+            self.log_debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
             return self.device
 
     if self.empty_list:
@@ -140,13 +144,13 @@ def periodical_task(self):
                 else:
                     feed = False
             except:
-                print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
+                print(self._SITE + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
             if response:
                 if response.status_code == 304:
                     self.log_debug(
-                        self._INTERNAL_NAME + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
+                        self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                     return self.device
                 header = True
         else:
@@ -161,7 +165,7 @@ def periodical_task(self):
                 else:
                     feed = False
             except:
-                print(self._INTERNAL_NAME + u" hat die Feed-API angepasst. Breche Suche ab!")
+                print(self._SITE + u" hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
         self.day += 1
@@ -218,7 +222,7 @@ def periodical_task(self):
                             package = self.parse_download_method(self, series_url, title, language_id)
                             if package:
                                 title = package[0]
-                                site = self._INTERNAL_NAME
+                                site = self._SITE
                                 if self.prefer_dw_mirror and "DW" not in site:
                                     download_link = dw_mirror(self, title)
                                     site = "DWs/" + site
@@ -263,7 +267,7 @@ def periodical_task(self):
                             package = self.parse_download_method(self, series_url, title, language_id)
                             if package:
                                 title = package[0]
-                                site = self._INTERNAL_NAME
+                                site = self._SITE
                                 if self.prefer_dw_mirror and "DW" not in site:
                                     download_link = dw_mirror(self, title)
                                     site = "DWs/" + site
@@ -315,7 +319,7 @@ def periodical_task(self):
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
                                     title = package[0]
-                                    site = self._INTERNAL_NAME
+                                    site = self._SITE
                                     if self.prefer_dw_mirror and "DW" not in site:
                                         download_link = dw_mirror(self, title)
                                         site = "DWs/" + site
@@ -365,7 +369,7 @@ def periodical_task(self):
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
                                     title = package[0]
-                                    site = self._INTERNAL_NAME
+                                    site = self._SITE
                                     if self.prefer_dw_mirror and "DW" not in site:
                                         download_link = dw_mirror(self, title)
                                         site = "DWs/" + site

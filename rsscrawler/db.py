@@ -13,7 +13,7 @@ def get_first(iterable):
 
 class RssDb(object):
     def __init__(self, file, table):
-        self._conn = sqlite3.connect(file, check_same_thread=False)
+        self._conn = sqlite3.connect(file, check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
@@ -81,7 +81,7 @@ class RssDb(object):
 
 class ListDb(object):
     def __init__(self, file, table):
-        self._conn = sqlite3.connect(file, check_same_thread=False)
+        self._conn = sqlite3.connect(file, check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():

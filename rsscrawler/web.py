@@ -597,19 +597,21 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def start_now():
         global device
         if request.method == 'POST':
-            RssDb(dbfile, 'crawltimes').store("startnow", "True")
-            i = 3
-            started = False
-            while i > 0:
-                if not RssDb(dbfile, 'crawltimes').retrieve("startnow"):
-                    started = True
-                    break
-                i -= 1
-                time.sleep(5)
-
-            if started:
-                return "Success", 200
-            else:
+            try:
+                RssDb(dbfile, 'crawltimes').store("startnow", "True")
+                i = 3
+                started = False
+                while i > 0:
+                    if not RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                        started = True
+                        break
+                    i -= 1
+                    time.sleep(5)
+                if started:
+                    return "Success", 200
+                else:
+                    return "Failed", 400
+            except:
                 return "Failed", 400
         else:
             return "Failed", 405
@@ -1433,7 +1435,7 @@ var cnlExists = setInterval(async function() {
                 return "Failed", 400
             if payload:
                 links = payload[0]
-                name = payload[1]
+                name = payload[1].replace("%20", "")
 
                 try:
                     password = payload[2]
@@ -1536,9 +1538,12 @@ var cnlExists = setInterval(async function() {
                         packages = get_to_decrypt(dbfile)
                         if packages:
                             for package in packages:
-                                if re.match(re.compile(re_name),
-                                            package['name'].lower().replace(".untouched", ".*").replace("dd+51",
-                                                                                                        "dd.51")):
+                                if name == package["name"].strip():
+                                    name = package["name"]
+                                elif re.match(re.compile(re_name),
+                                              package['name'].lower().strip().replace(".untouched", ".*").replace(
+                                                  "dd+51",
+                                                  "dd.51")):
                                     episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                     remove_decrypt(package['name'], dbfile)
                                     if episode:
