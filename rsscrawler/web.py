@@ -1538,9 +1538,12 @@ var cnlExists = setInterval(async function() {
                         packages = get_to_decrypt(dbfile)
                         if packages:
                             for package in packages:
-                                if re.match(re.compile(re_name),
-                                            package['name'].lower().replace(".untouched", ".*").replace("dd+51",
-                                                                                                        "dd.51")):
+                                if name == package["name"].strip():
+                                    name = package["name"]
+                                elif re.match(re.compile(re_name),
+                                              package['name'].lower().strip().replace(".untouched", ".*").replace(
+                                                  "dd+51",
+                                                  "dd.51")):
                                     episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                     remove_decrypt(package['name'], dbfile)
                                     if episode:
