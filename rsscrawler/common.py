@@ -334,10 +334,14 @@ def remove(retailtitel, dbfile):
 
 def remove_decrypt(title, dbfile):
     try:
-        RssDb(dbfile, 'to_decrypt').delete(title)
-        return True
+        all_titles = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        for t in all_titles:
+            if t[0].strip() == title.strip():
+                RssDb(dbfile, 'to_decrypt').delete(t[0])
+                return True
     except:
-        return False
+        pass
+    return False
 
 
 def retail_sub(title):

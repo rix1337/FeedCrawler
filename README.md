@@ -51,7 +51,15 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 #### Bekannte Fehler
 
-Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
+Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
+-Fehlermeldungen, so muss der Container gestoppt, die `RSScrawler.db` beliebig (bspw. zu `RSScrawler-Temp.db`) umbenannt
+und direkt wieder zurück zu `RSScrawler.db` umbenannt werden. Hintergrund ist, dass der RSScrawler nicht während die
+Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround stellt
+sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
+
+Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
+nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
+Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 #### Update
 
