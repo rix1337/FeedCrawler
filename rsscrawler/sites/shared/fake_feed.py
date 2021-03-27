@@ -163,7 +163,7 @@ def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, downl
     unused_get_feed_parameter(configfile)
     unused_get_feed_parameter(path)
 
-    if add_decrypt(key, download_links[0], password, dbfile):
+    if add_decrypt(key.strip(), download_links[0], password, dbfile):
         return device
     else:
         return False
