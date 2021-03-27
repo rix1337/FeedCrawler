@@ -10,7 +10,8 @@ from rsscrawler.sites.shared.fake_feed import j_releases_to_feedparser_dict
 
 
 class DJ:
-    _INTERNAL_NAME = "DJ"
+    _INTERNAL_NAME = 'DJ'
+    _SITE = 'DJ'
 
     def __init__(self, configfile, dbfile, device, logging, scraper, filename):
         self.configfile = configfile
@@ -33,9 +34,9 @@ class DJ:
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
         self.cdc = RssDb(self.dbfile, 'cdc')
-        self.last_set = self.cdc.retrieve("DJSet-" + self.filename)
-        self.last_sha = self.cdc.retrieve("DJ-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve("DJHeaders-" + self.filename))}
+        self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
+        self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._INTERNAL_NAME + "Headers-" + self.filename))}
         self.settings_array = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
         self.settings.append(self.rsscrawler.get("english"))

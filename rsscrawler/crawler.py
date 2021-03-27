@@ -67,7 +67,7 @@ from rsscrawler.sites.content_all_dw import BL as DW
 from rsscrawler.sites.content_all_fx import BL as FX
 from rsscrawler.sites.content_all_nk import BL as NK
 from rsscrawler.sites.content_all_ww import BL as WW
-from rsscrawler.sites.content_shows_dd import DD
+from rsscrawler.sites.content_custom_dd import DD
 from rsscrawler.sites.content_shows_dj import DJ
 from rsscrawler.sites.content_shows_dw import DWs
 from rsscrawler.sites.content_shows_sf import SF
@@ -141,7 +141,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
             for task in search_pool(configfile, dbfile, device, logger, scraper):
-                name = task._INTERNAL_NAME
+                name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
@@ -174,6 +174,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
+            RssDb(dbfile, 'cached_requests').reset()
+            RssDb(dbfile, 'cached_requests').cleanup()
 
             if arguments['--testlauf']:
                 log_debug(u"-----------Testlauf beendet!-----------")

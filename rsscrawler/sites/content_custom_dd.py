@@ -2,12 +2,11 @@
 # RSScrawler
 # Projekt von https://github.com/rix1337
 
+import feedparser
 import re
 from datetime import datetime
-from time import time
-
-import feedparser
 from dateutil import parser
+from time import time
 
 from rsscrawler.common import check_hoster
 from rsscrawler.config import RssConfig
@@ -19,6 +18,7 @@ from rsscrawler.url import get_url
 
 class DD:
     _INTERNAL_NAME = 'DD'
+    _SITE = 'DD'
 
     def __init__(self, configfile, dbfile, device, logging, scraper):
         self.configfile = configfile
@@ -60,7 +60,7 @@ class DD:
                         storage = self.db.retrieve_all(key)
                         if not links:
                             if 'added' not in storage and 'notdl' not in storage:
-                                wrong_hoster = '[DD/Hoster fehlt] - ' + key
+                                wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
                                 if 'wrong_hoster' not in storage:
                                     print(wrong_hoster)
                                     self.db.store(key, 'wrong_hoster')
@@ -79,7 +79,7 @@ class DD:
                                     key,
                                     'added'
                                 )
-                                log_entry = '[Englisch] - ' + key + ' - [DD]'
+                                log_entry = '[Englisch] - ' + key + ' - [' + self._SITE + ']'
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 added_items.append(log_entry)
@@ -87,5 +87,5 @@ class DD:
                         self.log_debug(
                             "%s - Releasezeitpunkt weniger als 30 Minuten in der Vergangenheit - wird ignoriert." % key)
         else:
-            self.log_debug("Liste ist leer. Stoppe Suche für DD!")
+            self.log_debug("Liste ist leer. Stoppe Suche für " + self._SITE + "!")
         return self.device
