@@ -486,6 +486,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                     }
                 )
             except:
+                time.sleep(3)
                 return "Failed", 400
         else:
             return "Failed", 405
