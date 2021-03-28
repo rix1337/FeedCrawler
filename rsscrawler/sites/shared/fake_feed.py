@@ -397,7 +397,7 @@ def dw_mirror(self, title):
             if not valid and not self.hoster_fallback:
                 return False
             else:
-                return release_url
+                return [release_url]
 
     return False
 
