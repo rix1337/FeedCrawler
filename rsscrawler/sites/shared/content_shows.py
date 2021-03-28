@@ -125,6 +125,7 @@ def periodical_task(self):
         reject = r"^unmatchable$"
 
     current_set = settings_hash(self, False)
+    sha = False
 
     header = False
     response = False
@@ -395,7 +396,7 @@ def periodical_task(self):
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
-    if current_set:
+    if current_set and sha:
         new_set = settings_hash(self, True)
         if current_set == new_set:
             self.cdc.delete(self._INTERNAL_NAME + "Set-" + self.filename)
