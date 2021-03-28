@@ -229,7 +229,7 @@ def periodical_task(self):
                                     download_links = dw_mirror(self, title)
                                     if download_links:
                                         download_link = download_links[0]
-                                        site = "DWs/" + site
+                                        site = "DW/" + site
                                 if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
@@ -277,7 +277,7 @@ def periodical_task(self):
                                     download_links = dw_mirror(self, title)
                                     if download_links:
                                         download_link = download_links[0]
-                                        site = "DWs/" + site
+                                        site = "DW/" + site
                                 if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
@@ -332,7 +332,7 @@ def periodical_task(self):
                                         download_links = dw_mirror(self, title)
                                         if download_links:
                                             download_link = download_links[0]
-                                            site = "DWs/" + site
+                                            site = "DW/" + site
                                     if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]
@@ -385,7 +385,7 @@ def periodical_task(self):
                                         download_links = dw_mirror(self, title)
                                         if download_links:
                                             download_link = download_links[0]
-                                            site = "DWs/" + site
+                                            site = "DW/" + site
                                     if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]
