@@ -141,50 +141,59 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def get_delete_log():
         if request.method == 'GET':
-            log = []
-            if os.path.isfile(log_file):
-                logfile = open(log_file)
-                i = 0
-                for line in reversed(logfile.readlines()):
-                    if line and line != "\n":
-                        payload = [i]
-                        line = line.replace("]", "")
-                        line = line.replace("[", "")
-                        line = re.sub(r",\d{3}", "", line)
-                        line = line.split(" - ")
-                        for line_part in line:
-                            payload.append(line_part)
-                        log.append(payload)
-                    i += 1
-            return jsonify(
-                {
-                    "log": log,
-                }
-            )
+            try:
+                log = []
+                if os.path.isfile(log_file):
+                    logfile = open(log_file)
+                    i = 0
+                    for line in reversed(logfile.readlines()):
+                        if line and line != "\n":
+                            payload = [i]
+                            line = line.replace("]", "")
+                            line = line.replace("[", "")
+                            line = re.sub(r",\d{3}", "", line)
+                            line = line.split(" - ")
+                            for line_part in line:
+                                payload.append(line_part)
+                            log.append(payload)
+                        i += 1
+                return jsonify(
+                    {
+                        "log": log,
+                    }
+                )
+            except:
+                return "Failed", 400
         elif request.method == 'DELETE':
-            open(log_file, 'w').close()
-            return "Success", 200
+            try:
+                open(log_file, 'w').close()
+                return "Success", 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
     @app.route(prefix + "/api/log_row/<row>", methods=['DELETE'])
     @requires_auth
     def get_delete_log_row(row):
-        row = to_int(row)
         if request.method == 'DELETE':
-            log = []
-            if os.path.isfile(log_file):
-                logfile = open(log_file)
-                i = 0
-                for line in reversed(logfile.readlines()):
-                    if line and line != "\n":
-                        if i != row:
-                            log.append(line)
-                    i += 1
-                log = "".join(reversed(log))
-                with open(log_file, 'w') as file:
-                    file.write(log)
-            return "Success", 200
+            try:
+                row = to_int(row)
+                log = []
+                if os.path.isfile(log_file):
+                    logfile = open(log_file)
+                    i = 0
+                    for line in reversed(logfile.readlines()):
+                        if line and line != "\n":
+                            if i != row:
+                                log.append(line)
+                        i += 1
+                    log = "".join(reversed(log))
+                    with open(log_file, 'w') as file:
+                        file.write(log)
+                return "Success", 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -192,236 +201,242 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def get_post_settings():
         if request.method == 'GET':
-            general_conf = RssConfig('RSScrawler', configfile)
-            hosters = RssConfig('Hosters', configfile)
-            alerts = RssConfig('Notifications', configfile)
-            ombi = RssConfig('Ombi', configfile)
-            crawljobs = RssConfig('Crawljobs', configfile)
-            mb_conf = RssConfig('MB', configfile)
-            sj_conf = RssConfig('SJ', configfile)
-            dj_conf = RssConfig('DJ', configfile)
-            dd_conf = RssConfig('DD', configfile)
-            return jsonify(
-                {
-                    "settings": {
-                        "general": {
-                            "auth_user": general_conf.get("auth_user"),
-                            "auth_hash": general_conf.get("auth_hash"),
-                            "myjd_user": general_conf.get("myjd_user"),
-                            "myjd_pass": general_conf.get("myjd_pass"),
-                            "myjd_device": general_conf.get("myjd_device"),
-                            "port": to_int(general_conf.get("port")),
-                            "prefix": general_conf.get("prefix"),
-                            "interval": to_int(general_conf.get("interval")),
-                            "english": general_conf.get("english"),
-                            "surround": general_conf.get("surround"),
-                            "proxy": general_conf.get("proxy"),
-                            "fallback": general_conf.get("fallback"),
-                            "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
-                            "one_mirror_policy": general_conf.get("one_mirror_policy"),
-                            "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
-                            "prefer_dw_mirror": general_conf.get("prefer_dw_mirror"),
-                        },
-                        "hosters": {
-                            "rapidgator": hosters.get("rapidgator"),
-                            "turbobit": hosters.get("turbobit"),
-                            "uploaded": hosters.get("uploaded"),
-                            "zippyshare": hosters.get("zippyshare"),
-                            "oboom": hosters.get("oboom"),
-                            "ddl": hosters.get("ddl"),
-                            "filefactory": hosters.get("filefactory"),
-                            "uptobox": hosters.get("uptobox"),
-                            "onefichier": hosters.get("1fichier"),
-                            "filer": hosters.get("filer"),
-                            "nitroflare": hosters.get("nitroflare"),
-                            "ironfiles": hosters.get("ironfiles"),
-                            "k2s": hosters.get("k2s"),
-                        },
-                        "alerts": {
-                            "pushbullet": alerts.get("pushbullet"),
-                            "pushover": alerts.get("pushover"),
-                            "homeassistant": alerts.get("homeassistant"),
-                            "telegram": alerts.get("telegram"),
-                        },
-                        "ombi": {
-                            "url": ombi.get("url"),
-                            "api": ombi.get("api"),
-                        },
-                        "crawljobs": {
-                            "autostart": crawljobs.get("autostart"),
-                            "subdir": crawljobs.get("subdir"),
-                        },
-                        "mb": {
-                            "quality": mb_conf.get("quality"),
-                            "search": mb_conf.get("search"),
-                            "ignore": mb_conf.get("ignore"),
-                            "regex": mb_conf.get("regex"),
-                            "imdb_score": to_float(mb_conf.get("imdb")),
-                            "imdb_year": to_int(mb_conf.get("imdbyear")),
-                            "force_dl": mb_conf.get("enforcedl"),
-                            "cutoff": mb_conf.get("cutoff"),
-                            "hevc_retail": mb_conf.get("hevc_retail"),
-                            "retail_only": mb_conf.get("retail_only"),
-                            "hoster_fallback": mb_conf.get("hoster_fallback"),
-                        },
-                        "sj": {
-                            "quality": sj_conf.get("quality"),
-                            "ignore": sj_conf.get("rejectlist"),
-                            "regex": sj_conf.get("regex"),
-                            "hevc_retail": sj_conf.get("hevc_retail"),
-                            "retail_only": sj_conf.get("retail_only"),
-                            "hoster_fallback": sj_conf.get("hoster_fallback"),
-                        },
-                        "mbsj": {
-                            "enabled": mb_conf.get("crawlseasons"),
-                            "quality": mb_conf.get("seasonsquality"),
-                            "packs": mb_conf.get("seasonpacks"),
-                            "source": mb_conf.get("seasonssource"),
-                        },
-                        "dj": {
-                            "quality": dj_conf.get("quality"),
-                            "ignore": dj_conf.get("rejectlist"),
-                            "regex": dj_conf.get("regex"),
-                            "hoster_fallback": dj_conf.get("hoster_fallback"),
-                        },
-                        "dd": {
-                            "feeds": dd_conf.get("feeds"),
-                            "hoster_fallback": dd_conf.get("hoster_fallback"),
+            try:
+                general_conf = RssConfig('RSScrawler', configfile)
+                hosters = RssConfig('Hosters', configfile)
+                alerts = RssConfig('Notifications', configfile)
+                ombi = RssConfig('Ombi', configfile)
+                crawljobs = RssConfig('Crawljobs', configfile)
+                mb_conf = RssConfig('MB', configfile)
+                sj_conf = RssConfig('SJ', configfile)
+                dj_conf = RssConfig('DJ', configfile)
+                dd_conf = RssConfig('DD', configfile)
+                return jsonify(
+                    {
+                        "settings": {
+                            "general": {
+                                "auth_user": general_conf.get("auth_user"),
+                                "auth_hash": general_conf.get("auth_hash"),
+                                "myjd_user": general_conf.get("myjd_user"),
+                                "myjd_pass": general_conf.get("myjd_pass"),
+                                "myjd_device": general_conf.get("myjd_device"),
+                                "port": to_int(general_conf.get("port")),
+                                "prefix": general_conf.get("prefix"),
+                                "interval": to_int(general_conf.get("interval")),
+                                "english": general_conf.get("english"),
+                                "surround": general_conf.get("surround"),
+                                "proxy": general_conf.get("proxy"),
+                                "fallback": general_conf.get("fallback"),
+                                "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
+                                "one_mirror_policy": general_conf.get("one_mirror_policy"),
+                                "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
+                                "prefer_dw_mirror": general_conf.get("prefer_dw_mirror"),
+                            },
+                            "hosters": {
+                                "rapidgator": hosters.get("rapidgator"),
+                                "turbobit": hosters.get("turbobit"),
+                                "uploaded": hosters.get("uploaded"),
+                                "zippyshare": hosters.get("zippyshare"),
+                                "oboom": hosters.get("oboom"),
+                                "ddl": hosters.get("ddl"),
+                                "filefactory": hosters.get("filefactory"),
+                                "uptobox": hosters.get("uptobox"),
+                                "onefichier": hosters.get("1fichier"),
+                                "filer": hosters.get("filer"),
+                                "nitroflare": hosters.get("nitroflare"),
+                                "ironfiles": hosters.get("ironfiles"),
+                                "k2s": hosters.get("k2s"),
+                            },
+                            "alerts": {
+                                "pushbullet": alerts.get("pushbullet"),
+                                "pushover": alerts.get("pushover"),
+                                "homeassistant": alerts.get("homeassistant"),
+                                "telegram": alerts.get("telegram"),
+                            },
+                            "ombi": {
+                                "url": ombi.get("url"),
+                                "api": ombi.get("api"),
+                            },
+                            "crawljobs": {
+                                "autostart": crawljobs.get("autostart"),
+                                "subdir": crawljobs.get("subdir"),
+                            },
+                            "mb": {
+                                "quality": mb_conf.get("quality"),
+                                "search": mb_conf.get("search"),
+                                "ignore": mb_conf.get("ignore"),
+                                "regex": mb_conf.get("regex"),
+                                "imdb_score": to_float(mb_conf.get("imdb")),
+                                "imdb_year": to_int(mb_conf.get("imdbyear")),
+                                "force_dl": mb_conf.get("enforcedl"),
+                                "cutoff": mb_conf.get("cutoff"),
+                                "hevc_retail": mb_conf.get("hevc_retail"),
+                                "retail_only": mb_conf.get("retail_only"),
+                                "hoster_fallback": mb_conf.get("hoster_fallback"),
+                            },
+                            "sj": {
+                                "quality": sj_conf.get("quality"),
+                                "ignore": sj_conf.get("rejectlist"),
+                                "regex": sj_conf.get("regex"),
+                                "hevc_retail": sj_conf.get("hevc_retail"),
+                                "retail_only": sj_conf.get("retail_only"),
+                                "hoster_fallback": sj_conf.get("hoster_fallback"),
+                            },
+                            "mbsj": {
+                                "enabled": mb_conf.get("crawlseasons"),
+                                "quality": mb_conf.get("seasonsquality"),
+                                "packs": mb_conf.get("seasonpacks"),
+                                "source": mb_conf.get("seasonssource"),
+                            },
+                            "dj": {
+                                "quality": dj_conf.get("quality"),
+                                "ignore": dj_conf.get("rejectlist"),
+                                "regex": dj_conf.get("regex"),
+                                "hoster_fallback": dj_conf.get("hoster_fallback"),
+                            },
+                            "dd": {
+                                "feeds": dd_conf.get("feeds"),
+                                "hoster_fallback": dd_conf.get("hoster_fallback"),
+                            }
                         }
                     }
-                }
-            )
+                )
+            except:
+                return "Failed", 400
         if request.method == 'POST':
-            data = request.json
+            try:
+                data = request.json
 
-            section = RssConfig("RSScrawler", configfile)
+                section = RssConfig("RSScrawler", configfile)
 
-            section.save(
-                "auth_user", to_str(data['general']['auth_user']))
+                section.save(
+                    "auth_user", to_str(data['general']['auth_user']))
 
-            auth_hash = data['general']['auth_hash']
-            if auth_hash and "$pbkdf2-sha256" not in auth_hash:
-                auth_hash = pbkdf2_sha256.hash(auth_hash)
-            section.save(
-                "auth_hash", to_str(auth_hash))
+                auth_hash = data['general']['auth_hash']
+                if auth_hash and "$pbkdf2-sha256" not in auth_hash:
+                    auth_hash = pbkdf2_sha256.hash(auth_hash)
+                section.save(
+                    "auth_hash", to_str(auth_hash))
 
-            myjd_user = to_str(data['general']['myjd_user'])
-            myjd_pass = to_str(data['general']['myjd_pass'])
-            myjd_device = to_str(data['general']['myjd_device'])
+                myjd_user = to_str(data['general']['myjd_user'])
+                myjd_pass = to_str(data['general']['myjd_pass'])
+                myjd_device = to_str(data['general']['myjd_device'])
 
-            if myjd_user and myjd_pass and not myjd_device:
-                myjd_device = get_if_one_device(myjd_user, myjd_pass)
-                if myjd_device:
-                    print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
-
-            if myjd_user and myjd_pass and myjd_device:
-                device_check = check_device(myjd_user, myjd_pass, myjd_device)
-                if not device_check:
+                if myjd_user and myjd_pass and not myjd_device:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
                         print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
-                    else:
-                        print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
-                        return "Failed", 400
 
-            section.save("myjd_user", myjd_user)
-            section.save("myjd_pass", myjd_pass)
-            section.save("myjd_device", myjd_device)
-            section.save("port", to_str(data['general']['port']))
-            section.save("prefix", to_str(data['general']['prefix']).lower())
-            interval = to_str(data['general']['interval'])
-            if to_int(interval) < 5:
-                interval = '5'
-            section.save("interval", interval)
-            section.save("english", to_str(data['general']['english']))
-            section.save("surround", to_str(data['general']['surround']))
-            section.save("proxy", to_str(data['general']['proxy']))
-            section.save("fallback", to_str(data['general']['fallback']))
-            section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
-            section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
-            section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
-            section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
+                if myjd_user and myjd_pass and myjd_device:
+                    device_check = check_device(myjd_user, myjd_pass, myjd_device)
+                    if not device_check:
+                        myjd_device = get_if_one_device(myjd_user, myjd_pass)
+                        if myjd_device:
+                            print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                        else:
+                            print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                            return "Failed", 400
 
-            section = RssConfig("Crawljobs", configfile)
+                section.save("myjd_user", myjd_user)
+                section.save("myjd_pass", myjd_pass)
+                section.save("myjd_device", myjd_device)
+                section.save("port", to_str(data['general']['port']))
+                section.save("prefix", to_str(data['general']['prefix']).lower())
+                interval = to_str(data['general']['interval'])
+                if to_int(interval) < 5:
+                    interval = '5'
+                section.save("interval", interval)
+                section.save("english", to_str(data['general']['english']))
+                section.save("surround", to_str(data['general']['surround']))
+                section.save("proxy", to_str(data['general']['proxy']))
+                section.save("fallback", to_str(data['general']['fallback']))
+                section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
+                section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
+                section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
+                section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
 
-            section.save("autostart", to_str(data['crawljobs']['autostart']))
-            section.save("subdir", to_str(data['crawljobs']['subdir']))
+                section = RssConfig("Crawljobs", configfile)
 
-            section = RssConfig("Notifications", configfile)
+                section.save("autostart", to_str(data['crawljobs']['autostart']))
+                section.save("subdir", to_str(data['crawljobs']['subdir']))
 
-            section.save("pushbullet", to_str(data['alerts']['pushbullet']))
-            section.save("pushover", to_str(data['alerts']['pushover']))
-            section.save("telegram", to_str(data['alerts']['telegram']))
-            section.save("homeassistant", to_str(data['alerts']['homeassistant']))
+                section = RssConfig("Notifications", configfile)
 
-            section = RssConfig("Hosters", configfile)
+                section.save("pushbullet", to_str(data['alerts']['pushbullet']))
+                section.save("pushover", to_str(data['alerts']['pushover']))
+                section.save("telegram", to_str(data['alerts']['telegram']))
+                section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
-            section.save("rapidgator", to_str(data['hosters']['rapidgator']))
-            section.save("turbobit", to_str(data['hosters']['turbobit']))
-            section.save("uploaded", to_str(data['hosters']['uploaded']))
-            section.save("zippyshare", to_str(data['hosters']['zippyshare']))
-            section.save("oboom", to_str(data['hosters']['oboom']))
-            section.save("ddl", to_str(data['hosters']['ddl']))
-            section.save("filefactory", to_str(data['hosters']['filefactory']))
-            section.save("uptobox", to_str(data['hosters']['uptobox']))
-            section.save("1fichier", to_str(data['hosters']['onefichier']))
-            section.save("filer", to_str(data['hosters']['filer']))
-            section.save("nitroflare", to_str(data['hosters']['nitroflare']))
-            section.save("ironfiles", to_str(data['hosters']['ironfiles']))
-            section.save("k2s", to_str(data['hosters']['k2s']))
+                section = RssConfig("Hosters", configfile)
 
-            section = RssConfig("Ombi", configfile)
+                section.save("rapidgator", to_str(data['hosters']['rapidgator']))
+                section.save("turbobit", to_str(data['hosters']['turbobit']))
+                section.save("uploaded", to_str(data['hosters']['uploaded']))
+                section.save("zippyshare", to_str(data['hosters']['zippyshare']))
+                section.save("oboom", to_str(data['hosters']['oboom']))
+                section.save("ddl", to_str(data['hosters']['ddl']))
+                section.save("filefactory", to_str(data['hosters']['filefactory']))
+                section.save("uptobox", to_str(data['hosters']['uptobox']))
+                section.save("1fichier", to_str(data['hosters']['onefichier']))
+                section.save("filer", to_str(data['hosters']['filer']))
+                section.save("nitroflare", to_str(data['hosters']['nitroflare']))
+                section.save("ironfiles", to_str(data['hosters']['ironfiles']))
+                section.save("k2s", to_str(data['hosters']['k2s']))
 
-            section.save("url", to_str(data['ombi']['url']))
-            section.save("api", to_str(data['ombi']['api']))
+                section = RssConfig("Ombi", configfile)
 
-            section = RssConfig("MB", configfile)
-            section.save("quality", to_str(data['mb']['quality']))
-            section.save("search", to_str(data['mb']['search']))
-            section.save("ignore", to_str(data['mb']['ignore']).lower())
-            section.save("regex", to_str(data['mb']['regex']))
-            section.save("cutoff", to_str(data['mb']['cutoff']))
-            section.save("enforcedl", to_str(data['mb']['force_dl']))
-            section.save("crawlseasons", to_str(data['mbsj']['enabled']))
-            section.save("seasonsquality", to_str(data['mbsj']['quality']))
-            section.save("seasonpacks", to_str(data['mbsj']['packs']))
-            section.save("seasonssource", to_str(data['mbsj']['source']).lower())
-            section.save("imdbyear", to_str(data['mb']['imdb_year']))
-            imdb = to_str(data['mb']['imdb_score'])
-            if re.match('[^0-9]', imdb):
-                imdb = 0.0
-            elif imdb == '':
-                imdb = 0.0
-            else:
-                imdb = round(float(to_str(data['mb']['imdb_score']).replace(",", ".")), 1)
-            if imdb > 10:
-                imdb = 10.0
-            section.save("imdb", to_str(imdb))
-            section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
-            section.save("retail_only", to_str(data['mb']['retail_only']))
-            section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
+                section.save("url", to_str(data['ombi']['url']))
+                section.save("api", to_str(data['ombi']['api']))
 
-            section = RssConfig("SJ", configfile)
+                section = RssConfig("MB", configfile)
+                section.save("quality", to_str(data['mb']['quality']))
+                section.save("search", to_str(data['mb']['search']))
+                section.save("ignore", to_str(data['mb']['ignore']).lower())
+                section.save("regex", to_str(data['mb']['regex']))
+                section.save("cutoff", to_str(data['mb']['cutoff']))
+                section.save("enforcedl", to_str(data['mb']['force_dl']))
+                section.save("crawlseasons", to_str(data['mbsj']['enabled']))
+                section.save("seasonsquality", to_str(data['mbsj']['quality']))
+                section.save("seasonpacks", to_str(data['mbsj']['packs']))
+                section.save("seasonssource", to_str(data['mbsj']['source']).lower())
+                section.save("imdbyear", to_str(data['mb']['imdb_year']))
+                imdb = to_str(data['mb']['imdb_score'])
+                if re.match('[^0-9]', imdb):
+                    imdb = 0.0
+                elif imdb == '':
+                    imdb = 0.0
+                else:
+                    imdb = round(float(to_str(data['mb']['imdb_score']).replace(",", ".")), 1)
+                if imdb > 10:
+                    imdb = 10.0
+                section.save("imdb", to_str(imdb))
+                section.save("hevc_retail", to_str(data['mb']['hevc_retail']))
+                section.save("retail_only", to_str(data['mb']['retail_only']))
+                section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
-            section.save("quality", to_str(data['sj']['quality']))
-            section.save("rejectlist", to_str(data['sj']['ignore']).lower())
-            section.save("regex", to_str(data['sj']['regex']))
-            section.save("hevc_retail", to_str(data['sj']['hevc_retail']))
-            section.save("retail_only", to_str(data['sj']['retail_only']))
-            section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
+                section = RssConfig("SJ", configfile)
 
-            section = RssConfig("DJ", configfile)
+                section.save("quality", to_str(data['sj']['quality']))
+                section.save("rejectlist", to_str(data['sj']['ignore']).lower())
+                section.save("regex", to_str(data['sj']['regex']))
+                section.save("hevc_retail", to_str(data['sj']['hevc_retail']))
+                section.save("retail_only", to_str(data['sj']['retail_only']))
+                section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
-            section.save("quality", to_str(data['dj']['quality']))
-            section.save("rejectlist", to_str(data['dj']['ignore']).lower())
-            section.save("regex", to_str(data['dj']['regex']))
-            section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
+                section = RssConfig("DJ", configfile)
 
-            section = RssConfig("DD", configfile)
+                section.save("quality", to_str(data['dj']['quality']))
+                section.save("rejectlist", to_str(data['dj']['ignore']).lower())
+                section.save("regex", to_str(data['dj']['regex']))
+                section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
-            section.save("feeds", to_str(data['dd']['feeds']))
-            section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
-            return "Success", 201
+                section = RssConfig("DD", configfile)
+
+                section.save("feeds", to_str(data['dd']['feeds']))
+                section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
+                return "Success", 201
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -429,24 +444,27 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def get_version():
         if request.method == 'GET':
-            ver = "v." + version.get_version()
-            if version.update_check()[0]:
-                updateready = True
-                updateversion = version.update_check()[1]
-                print(u'Update steht bereit (' + updateversion +
-                      ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
-            else:
-                updateready = False
-            return jsonify(
-                {
-                    "version": {
-                        "ver": ver,
-                        "update_ready": updateready,
-                        "docker": docker,
-                        "helper_active": helper_active
+            try:
+                ver = "v." + version.get_version()
+                if version.update_check()[0]:
+                    updateready = True
+                    updateversion = version.update_check()[1]
+                    print(u'Update steht bereit (' + updateversion +
+                          ')! Weitere Informationen unter https://github.com/rix1337/RSScrawler/releases/latest')
+                else:
+                    updateready = False
+                return jsonify(
+                    {
+                        "version": {
+                            "ver": ver,
+                            "update_ready": updateready,
+                            "docker": docker,
+                            "helper_active": helper_active
+                        }
                     }
-                }
-            )
+                )
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -456,39 +474,38 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         if request.method == 'GET':
             try:
                 crawltimes = RssDb(dbfile, "crawltimes")
-            except:
-                time.sleep(3)
-                return "Failed", 400
-            return jsonify(
-                {
-                    "crawltimes": {
-                        "active": to_bool(crawltimes.retrieve("active")),
-                        "start_time": to_float(crawltimes.retrieve("start_time")),
-                        "end_time": to_float(crawltimes.retrieve("end_time")),
-                        "total_time": crawltimes.retrieve("total_time"),
-                        "next_start": to_float(crawltimes.retrieve("next_start")),
+                return jsonify(
+                    {
+                        "crawltimes": {
+                            "active": to_bool(crawltimes.retrieve("active")),
+                            "start_time": to_float(crawltimes.retrieve("start_time")),
+                            "end_time": to_float(crawltimes.retrieve("end_time")),
+                            "total_time": crawltimes.retrieve("total_time"),
+                            "next_start": to_float(crawltimes.retrieve("next_start")),
+                        }
                     }
-                }
-            )
+                )
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
     @app.route(prefix + "/api/hostnames/", methods=['GET'])
     @requires_auth
     def get_hostnames():
-        hostnames = RssConfig('Hostnames', configfile)
-        dw = hostnames.get('dw')
-        fx = hostnames.get('fx')
-        sj = hostnames.get('sj')
-        dj = hostnames.get('dj')
-        sf = hostnames.get('sf')
-        ww = hostnames.get('ww')
-        nk = hostnames.get('nk')
-        by = hostnames.get('by')
-        dd = hostnames.get('dd')
-
         if request.method == 'GET':
             try:
+                hostnames = RssConfig('Hostnames', configfile)
+                dw = hostnames.get('dw')
+                fx = hostnames.get('fx')
+                sj = hostnames.get('sj')
+                dj = hostnames.get('dj')
+                sf = hostnames.get('sf')
+                ww = hostnames.get('ww')
+                nk = hostnames.get('nk')
+                by = hostnames.get('by')
+                dd = hostnames.get('dd')
+
                 dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
@@ -552,50 +569,48 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/blocked_sites/", methods=['GET'])
     @requires_auth
     def get_blocked_sites():
-        def check(site, db):
-            return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
-
         if request.method == 'GET':
             try:
+                def check(site, db):
+                    return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
+
                 db_proxy = RssDb(dbfile, 'proxystatus')
                 db_normal = RssDb(dbfile, 'normalstatus')
-            except:
-                time.sleep(3)
-                return "Failed", 400
-            return jsonify(
-                {
-                    "proxy": {
-                        "SJ": check("SJ", db_proxy),
-                        "DJ": check("DJ", db_proxy),
-                        "SF": check("SF", db_proxy),
-                        "BY": check("BY", db_proxy),
-                        "DW": check("DW", db_proxy),
-                        "FX": check("FX", db_proxy),
-                        "NK": check("NK", db_proxy),
-                        "WW": check("WW", db_proxy),
-                        "DD": check("DD", db_proxy)
-                    },
-                    "normal": {
-                        "SJ": check("SJ", db_normal),
-                        "DJ": check("DJ", db_normal),
-                        "SF": check("SF", db_normal),
-                        "BY": check("BY", db_normal),
-                        "DW": check("DW", db_normal),
-                        "FX": check("FX", db_normal),
-                        "HW": check("HW", db_normal),
-                        "NK": check("NK", db_normal),
-                        "WW": check("WW", db_normal),
-                        "DD": check("DD", db_normal)
+                return jsonify(
+                    {
+                        "proxy": {
+                            "SJ": check("SJ", db_proxy),
+                            "DJ": check("DJ", db_proxy),
+                            "SF": check("SF", db_proxy),
+                            "BY": check("BY", db_proxy),
+                            "DW": check("DW", db_proxy),
+                            "FX": check("FX", db_proxy),
+                            "NK": check("NK", db_proxy),
+                            "WW": check("WW", db_proxy),
+                            "DD": check("DD", db_proxy)
+                        },
+                        "normal": {
+                            "SJ": check("SJ", db_normal),
+                            "DJ": check("DJ", db_normal),
+                            "SF": check("SF", db_normal),
+                            "BY": check("BY", db_normal),
+                            "DW": check("DW", db_normal),
+                            "FX": check("FX", db_normal),
+                            "HW": check("HW", db_normal),
+                            "NK": check("NK", db_normal),
+                            "WW": check("WW", db_normal),
+                            "DD": check("DD", db_normal)
+                        }
                     }
-                }
-            )
+                )
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
     @app.route(prefix + "/api/start_now/", methods=['POST'])
     @requires_auth
     def start_now():
-        global device
         if request.method == 'POST':
             try:
                 RssDb(dbfile, 'crawltimes').store("startnow", "True")
@@ -620,15 +635,18 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def search_title(title):
         if request.method == 'GET':
-            results = search.get(title, configfile, dbfile)
-            return jsonify(
-                {
-                    "results": {
-                        "bl": results[0],
-                        "sj": results[1]
+            try:
+                results = search.get(title, configfile, dbfile)
+                return jsonify(
+                    {
+                        "results": {
+                            "bl": results[0],
+                            "sj": results[1]
+                        }
                     }
-                }
-            ), 200
+                ), 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -637,12 +655,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def download_movie(title):
         global device
         if request.method == 'POST':
-            payload = rsscrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
-            if payload:
-                matches = rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile)
-                return "Success: " + str(matches), 200
-            else:
-                return "Failed", 400
+            try:
+                payload = rsscrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
+                if payload:
+                    matches = rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile)
+                    return "Success: " + str(matches), 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -651,11 +671,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def download_show(title):
         global device
         if request.method == 'POST':
-            payload = rsscrawler.search.shared.content_shows.get_best_result(title, configfile, dbfile)
-            if payload:
-                matches = rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile)
-                if matches:
-                    return "Success: " + str(matches), 200
+            try:
+                payload = rsscrawler.search.shared.content_shows.get_best_result(title, configfile, dbfile)
+                if payload:
+                    matches = rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile)
+                    if matches:
+                        return "Success: " + str(matches), 200
+            except:
+                pass
             return "Failed", 400
         else:
             return "Failed", 405
@@ -665,10 +688,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def download_bl(payload):
         global device
         if request.method == 'POST':
-            if rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile):
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                if rsscrawler.search.shared.content_all.download(payload, device, configfile, dbfile):
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -677,10 +702,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def download_sj(payload):
         global device
         if request.method == 'POST':
-            if rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile):
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                if rsscrawler.search.shared.content_shows.download(payload, configfile, dbfile):
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -689,26 +716,28 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_info():
         global device
         if request.method == 'GET':
-            myjd = get_info(configfile, device)
-            packages_to_decrypt = get_to_decrypt(dbfile)
-            if myjd:
-                device = myjd[0]
-                return jsonify(
-                    {
-                        "downloader_state": myjd[1],
-                        "grabber_collecting": myjd[2],
-                        "update_ready": myjd[3],
-                        "packages": {
-                            "downloader": myjd[4][0],
-                            "linkgrabber_decrypted": myjd[4][1],
-                            "linkgrabber_offline": myjd[4][2],
-                            "linkgrabber_failed": myjd[4][3],
-                            "to_decrypt": packages_to_decrypt
+            try:
+                myjd = get_info(configfile, device)
+                packages_to_decrypt = get_to_decrypt(dbfile)
+                if myjd:
+                    device = myjd[0]
+                    return jsonify(
+                        {
+                            "downloader_state": myjd[1],
+                            "grabber_collecting": myjd[2],
+                            "update_ready": myjd[3],
+                            "packages": {
+                                "downloader": myjd[4][0],
+                                "linkgrabber_decrypted": myjd[4][1],
+                                "linkgrabber_offline": myjd[4][2],
+                                "linkgrabber_failed": myjd[4][3],
+                                "to_decrypt": packages_to_decrypt
+                            }
                         }
-                    }
-                ), 200
-            else:
-                return "Failed", 400
+                    ), 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -717,17 +746,19 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_state():
         global device
         if request.method == 'GET':
-            myjd = get_state(configfile, device)
-            if myjd:
-                device = myjd[0]
-                return jsonify(
-                    {
-                        "downloader_state": myjd[1],
-                        "grabber_collecting": myjd[2]
-                    }
-                ), 200
-            else:
-                return "Failed", 400
+            try:
+                myjd = get_state(configfile, device)
+                if myjd:
+                    device = myjd[0]
+                    return jsonify(
+                        {
+                            "downloader_state": myjd[1],
+                            "grabber_collecting": myjd[2]
+                        }
+                    ), 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -736,25 +767,27 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_move(linkids, uuids):
         global device
         if request.method == 'POST':
-            linkids_raw = ast.literal_eval(linkids)
-            linkids = []
-            if isinstance(linkids_raw, (list, tuple)):
-                for linkid in linkids_raw:
-                    linkids.append(linkid)
-            else:
-                linkids.append(linkids_raw)
-            uuids_raw = ast.literal_eval(uuids)
-            uuids = []
-            if isinstance(uuids_raw, (list, tuple)):
-                for uuid in uuids_raw:
-                    uuids.append(uuid)
-            else:
-                uuids.append(uuids_raw)
-            device = move_to_downloads(configfile, device, linkids, uuids)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                linkids_raw = ast.literal_eval(linkids)
+                linkids = []
+                if isinstance(linkids_raw, (list, tuple)):
+                    for linkid in linkids_raw:
+                        linkids.append(linkid)
+                else:
+                    linkids.append(linkids_raw)
+                uuids_raw = ast.literal_eval(uuids)
+                uuids = []
+                if isinstance(uuids_raw, (list, tuple)):
+                    for uuid in uuids_raw:
+                        uuids.append(uuid)
+                else:
+                    uuids.append(uuids_raw)
+                device = move_to_downloads(configfile, device, linkids, uuids)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -763,25 +796,27 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_remove(linkids, uuids):
         global device
         if request.method == 'POST':
-            linkids_raw = ast.literal_eval(linkids)
-            linkids = []
-            if isinstance(linkids_raw, (list, tuple)):
-                for linkid in linkids_raw:
-                    linkids.append(linkid)
-            else:
-                linkids.append(linkids_raw)
-            uuids_raw = ast.literal_eval(uuids)
-            uuids = []
-            if isinstance(uuids_raw, (list, tuple)):
-                for uuid in uuids_raw:
-                    uuids.append(uuid)
-            else:
-                uuids.append(uuids_raw)
-            device = remove_from_linkgrabber(configfile, device, linkids, uuids)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                linkids_raw = ast.literal_eval(linkids)
+                linkids = []
+                if isinstance(linkids_raw, (list, tuple)):
+                    for linkid in linkids_raw:
+                        linkids.append(linkid)
+                else:
+                    linkids.append(linkids_raw)
+                uuids_raw = ast.literal_eval(uuids)
+                uuids = []
+                if isinstance(uuids_raw, (list, tuple)):
+                    for uuid in uuids_raw:
+                        uuids.append(uuid)
+                else:
+                    uuids.append(uuids_raw)
+                device = remove_from_linkgrabber(configfile, device, linkids, uuids)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -790,11 +825,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def internal_remove(name):
         global device
         if request.method == 'POST':
-            delete = remove_decrypt(name, dbfile)
-            if delete:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                delete = remove_decrypt(name, dbfile)
+                if delete:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -803,27 +840,29 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_retry(linkids, uuids, b64_links):
         global device
         if request.method == 'POST':
-            linkids_raw = ast.literal_eval(linkids)
-            linkids = []
-            if isinstance(linkids_raw, (list, tuple)):
-                for linkid in linkids_raw:
-                    linkids.append(linkid)
-            else:
-                linkids.append(linkids_raw)
-            uuids_raw = ast.literal_eval(uuids)
-            uuids = []
-            if isinstance(uuids_raw, (list, tuple)):
-                for uuid in uuids_raw:
-                    uuids.append(uuid)
-            else:
-                uuids.append(uuids_raw)
-            links = decode_base64(b64_links)
-            links = links.split("\n")
-            device = retry_decrypt(configfile, dbfile, device, linkids, uuids, links)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                linkids_raw = ast.literal_eval(linkids)
+                linkids = []
+                if isinstance(linkids_raw, (list, tuple)):
+                    for linkid in linkids_raw:
+                        linkids.append(linkid)
+                else:
+                    linkids.append(linkids_raw)
+                uuids_raw = ast.literal_eval(uuids)
+                uuids = []
+                if isinstance(uuids_raw, (list, tuple)):
+                    for uuid in uuids_raw:
+                        uuids.append(uuid)
+                else:
+                    uuids.append(uuids_raw)
+                links = decode_base64(b64_links)
+                links = links.split("\n")
+                device = retry_decrypt(configfile, dbfile, device, linkids, uuids, links)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -832,11 +871,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_update():
         global device
         if request.method == 'POST':
-            device = update_jdownloader(configfile, device)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                device = update_jdownloader(configfile, device)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -845,11 +886,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_start():
         global device
         if request.method == 'POST':
-            device = jdownloader_start(configfile, device)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                device = jdownloader_start(configfile, device)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -857,13 +900,15 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def myjd_pause(bl):
         global device
-        bl = json.loads(bl)
         if request.method == 'POST':
-            device = jdownloader_pause(configfile, device, bl)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                bl = json.loads(bl)
+                device = jdownloader_pause(configfile, device, bl)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -872,11 +917,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_stop():
         global device
         if request.method == 'POST':
-            device = jdownloader_stop(configfile, device)
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+            try:
+                device = jdownloader_stop(configfile, device)
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -885,87 +932,89 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def myjd_cnl(uuid):
         global device
         if request.method == 'POST':
-            failed = get_info(configfile, device)
-            if failed:
-                device = failed[0]
-                decrypted_packages = failed[4][1]
-                offline_packages = failed[4][2]
-                failed_packages = failed[4][3]
-            else:
-                failed_packages = False
-                decrypted_packages = False
-            if not failed_packages:
-                return "Failed", 500
-
-            title = False
-            old_package = False
-            if failed_packages:
-                for op in failed_packages:
-                    if str(op['uuid']) == str(uuid):
-                        title = op['name']
-                        old_package = op
-                        break
-
-            if not old_package or not title:
-                return "Failed", 500
-
-            known_packages = []
-            if decrypted_packages:
-                for dp in decrypted_packages:
-                    known_packages.append(dp['uuid'])
-            if offline_packages:
-                for op in offline_packages:
-                    known_packages.append(op['uuid'])
-
-            cnl_package = False
-            grabber_was_collecting = False
-            i = 12
-            while i > 0:
-                i -= 1
-                time.sleep(5)
+            try:
                 failed = get_info(configfile, device)
                 if failed:
                     device = failed[0]
-                    grabber_collecting = failed[2]
-                    if grabber_was_collecting or grabber_collecting:
-                        grabber_was_collecting = grabber_collecting
-                        i -= 1
-                        time.sleep(5)
-                    else:
-                        if not grabber_collecting:
-                            decrypted_packages = failed[4][1]
-                            offline_packages = failed[4][2]
-                            another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                           known_packages)[0]
-                            if another_device:
-                                device = another_device
-                                info = get_info(configfile, device)
-                                if info:
-                                    device = info[0]
-                                    grabber_collecting = info[2]
-                                    decrypted_packages = info[4][1]
-                                    offline_packages = info[4][2]
+                    decrypted_packages = failed[4][1]
+                    offline_packages = failed[4][2]
+                    failed_packages = failed[4][3]
+                else:
+                    failed_packages = False
+                    decrypted_packages = False
+                if not failed_packages:
+                    return "Failed", 500
 
-                            if not grabber_collecting and decrypted_packages:
-                                for dp in decrypted_packages:
-                                    if dp['uuid'] not in known_packages:
-                                        cnl_package = dp
-                                        i = 0
-                            if not grabber_collecting and offline_packages:
-                                for op in offline_packages:
-                                    if op['uuid'] not in known_packages:
-                                        cnl_package = op
-                                        i = 0
+                title = False
+                old_package = False
+                if failed_packages:
+                    for op in failed_packages:
+                        if str(op['uuid']) == str(uuid):
+                            title = op['name']
+                            old_package = op
+                            break
 
-            if not cnl_package:
-                return "No Package added through Click'n'Load in time!", 504
+                if not old_package or not title:
+                    return "Failed", 500
 
-            replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
-            device = replaced[0]
-            if device:
-                return "Success", 200
-            else:
-                return "Failed", 400
+                known_packages = []
+                if decrypted_packages:
+                    for dp in decrypted_packages:
+                        known_packages.append(dp['uuid'])
+                if offline_packages:
+                    for op in offline_packages:
+                        known_packages.append(op['uuid'])
+
+                cnl_package = False
+                grabber_was_collecting = False
+                i = 12
+                while i > 0:
+                    i -= 1
+                    time.sleep(5)
+                    failed = get_info(configfile, device)
+                    if failed:
+                        device = failed[0]
+                        grabber_collecting = failed[2]
+                        if grabber_was_collecting or grabber_collecting:
+                            grabber_was_collecting = grabber_collecting
+                            i -= 1
+                            time.sleep(5)
+                        else:
+                            if not grabber_collecting:
+                                decrypted_packages = failed[4][1]
+                                offline_packages = failed[4][2]
+                                another_device = package_merge(configfile, device, decrypted_packages, title,
+                                                               known_packages)[0]
+                                if another_device:
+                                    device = another_device
+                                    info = get_info(configfile, device)
+                                    if info:
+                                        device = info[0]
+                                        grabber_collecting = info[2]
+                                        decrypted_packages = info[4][1]
+                                        offline_packages = info[4][2]
+
+                                if not grabber_collecting and decrypted_packages:
+                                    for dp in decrypted_packages:
+                                        if dp['uuid'] not in known_packages:
+                                            cnl_package = dp
+                                            i = 0
+                                if not grabber_collecting and offline_packages:
+                                    for op in offline_packages:
+                                        if op['uuid'] not in known_packages:
+                                            cnl_package = op
+                                            i = 0
+
+                if not cnl_package:
+                    return "No Package added through Click'n'Load in time!", 504
+
+                replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
+                device = replaced[0]
+                if device:
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
@@ -974,113 +1023,121 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def internal_cnl(name, password):
         global device
         if request.method == 'POST':
-            failed = get_info(configfile, device)
-            if failed:
-                device = failed[0]
-                decrypted_packages = failed[4][1]
-                offline_packages = failed[4][2]
-            else:
-                decrypted_packages = False
-
-            known_packages = []
-            if decrypted_packages:
-                for dp in decrypted_packages:
-                    known_packages.append(dp['uuid'])
-            if offline_packages:
-                for op in offline_packages:
-                    known_packages.append(op['uuid'])
-
-            cnl_packages = []
-            grabber_was_collecting = False
-            i = 12
-            while i > 0:
-                i -= 1
-                time.sleep(5)
+            try:
                 failed = get_info(configfile, device)
                 if failed:
                     device = failed[0]
-                    grabber_collecting = failed[2]
-                    if grabber_was_collecting or grabber_collecting:
-                        grabber_was_collecting = grabber_collecting
-                        i -= 1
-                        time.sleep(5)
-                    else:
-                        if not grabber_collecting:
-                            decrypted_packages = failed[4][1]
-                            offline_packages = failed[4][2]
-                            if not grabber_collecting and decrypted_packages:
-                                for dp in decrypted_packages:
-                                    if dp['uuid'] not in known_packages:
-                                        cnl_packages.append(dp)
-                                        i = 0
-                            if not grabber_collecting and offline_packages:
-                                for op in offline_packages:
-                                    if op['uuid'] not in known_packages:
-                                        cnl_packages.append(op)
-                                        i = 0
+                    decrypted_packages = failed[4][1]
+                    offline_packages = failed[4][2]
+                else:
+                    decrypted_packages = False
 
-            if not cnl_packages:
-                return "No Package added through Click'n'Load in time!", 504
+                known_packages = []
+                if decrypted_packages:
+                    for dp in decrypted_packages:
+                        known_packages.append(dp['uuid'])
+                if offline_packages:
+                    for op in offline_packages:
+                        known_packages.append(op['uuid'])
 
-            replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_packages)
-            device = replaced[0]
-            if device:
-                remove_decrypt(name, dbfile)
-                return "Success", 200
-            else:
-                return "Failed", 400
+                cnl_packages = []
+                grabber_was_collecting = False
+                i = 12
+                while i > 0:
+                    i -= 1
+                    time.sleep(5)
+                    failed = get_info(configfile, device)
+                    if failed:
+                        device = failed[0]
+                        grabber_collecting = failed[2]
+                        if grabber_was_collecting or grabber_collecting:
+                            grabber_was_collecting = grabber_collecting
+                            i -= 1
+                            time.sleep(5)
+                        else:
+                            if not grabber_collecting:
+                                decrypted_packages = failed[4][1]
+                                offline_packages = failed[4][2]
+                                if not grabber_collecting and decrypted_packages:
+                                    for dp in decrypted_packages:
+                                        if dp['uuid'] not in known_packages:
+                                            cnl_packages.append(dp)
+                                            i = 0
+                                if not grabber_collecting and offline_packages:
+                                    for op in offline_packages:
+                                        if op['uuid'] not in known_packages:
+                                            cnl_packages.append(op)
+                                            i = 0
+
+                if not cnl_packages:
+                    return "No Package added through Click'n'Load in time!", 504
+
+                replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_packages)
+                device = replaced[0]
+                if device:
+                    remove_decrypt(name, dbfile)
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
-
-    def get_list(liste):
-        cont = ListDb(dbfile, liste).retrieve()
-        return "\n".join(cont) if cont else ""
 
     @app.route(prefix + "/api/lists/", methods=['GET', 'POST'])
     @requires_auth
     def get_post_lists():
         if request.method == 'GET':
-            return jsonify(
-                {
-                    "lists": {
-                        "mb": {
-                            "filme": get_list('MB_Filme'),
-                            "regex": get_list('MB_Regex'),
+            try:
+                def get_list(liste):
+                    cont = ListDb(dbfile, liste).retrieve()
+                    return "\n".join(cont) if cont else ""
+
+                return jsonify(
+                    {
+                        "lists": {
+                            "mb": {
+                                "filme": get_list('MB_Filme'),
+                                "regex": get_list('MB_Regex'),
+                            },
+                            "sj": {
+                                "serien": get_list('SJ_Serien'),
+                                "regex": get_list('SJ_Serien_Regex'),
+                                "staffeln_regex": get_list('SJ_Staffeln_Regex'),
+                            },
+                            "dj": {
+                                "dokus": get_list('DJ_Dokus'),
+                                "regex": get_list('DJ_Dokus_Regex'),
+                            },
+                            "mbsj": {
+                                "staffeln": get_list('MB_Staffeln'),
+                            }
                         },
-                        "sj": {
-                            "serien": get_list('SJ_Serien'),
-                            "regex": get_list('SJ_Serien_Regex'),
-                            "staffeln_regex": get_list('SJ_Staffeln_Regex'),
-                        },
-                        "dj": {
-                            "dokus": get_list('DJ_Dokus'),
-                            "regex": get_list('DJ_Dokus_Regex'),
-                        },
-                        "mbsj": {
-                            "staffeln": get_list('MB_Staffeln'),
-                        }
-                    },
-                }
-            )
+                    }
+                )
+            except:
+                return "Failed", 400
         if request.method == 'POST':
-            data = request.json
-            ListDb(dbfile, "MB_Filme").store_list(
-                data['mb']['filme'].split('\n'))
-            ListDb(dbfile, "MB_Staffeln").store_list(
-                data['mbsj']['staffeln'].split('\n'))
-            ListDb(dbfile, "MB_Regex").store_list(
-                data['mb']['regex'].split('\n'))
-            ListDb(dbfile, "SJ_Serien").store_list(
-                data['sj']['serien'].split('\n'))
-            ListDb(dbfile, "SJ_Serien_Regex").store_list(
-                data['sj']['regex'].split('\n'))
-            ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
-                data['sj']['staffeln_regex'].split('\n'))
-            ListDb(dbfile, "DJ_Dokus").store_list(
-                data['dj']['dokus'].split('\n'))
-            ListDb(dbfile, "DJ_Dokus_Regex").store_list(
-                data['dj']['regex'].split('\n'))
-            return "Success", 201
+            try:
+                data = request.json
+                ListDb(dbfile, "MB_Filme").store_list(
+                    data['mb']['filme'].split('\n'))
+                ListDb(dbfile, "MB_Staffeln").store_list(
+                    data['mbsj']['staffeln'].split('\n'))
+                ListDb(dbfile, "MB_Regex").store_list(
+                    data['mb']['regex'].split('\n'))
+                ListDb(dbfile, "SJ_Serien").store_list(
+                    data['sj']['serien'].split('\n'))
+                ListDb(dbfile, "SJ_Serien_Regex").store_list(
+                    data['sj']['regex'].split('\n'))
+                ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
+                    data['sj']['staffeln_regex'].split('\n'))
+                ListDb(dbfile, "DJ_Dokus").store_list(
+                    data['dj']['dokus'].split('\n'))
+                ListDb(dbfile, "DJ_Dokus_Regex").store_list(
+                    data['dj']['regex'].split('\n'))
+                return "Success", 201
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -1088,23 +1145,26 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @requires_auth
     def redirect_user(target):
         if request.method == 'GET':
-            if target == "captcha":
-                return redirect("http://getcaptchasolution.com/zuoo67f5cq", code=302)
-            elif target == "multihoster":
-                return redirect("http://linksnappy.com/?ref=397097", code=302)
-            else:
-                return "Failed", 405
+            try:
+                if target == "captcha":
+                    return redirect("http://getcaptchasolution.com/zuoo67f5cq", code=302)
+                elif target == "multihoster":
+                    return redirect("http://linksnappy.com/?ref=397097", code=302)
+            except:
+                pass
+            return "Failed", 400
         else:
             return "Failed", 405
 
     @app.route(prefix + "/sponsors_helper/rsscrawler_helper_sj.user.js", methods=['GET'])
     @requires_auth
     def rsscrawler_helper_sj():
-        hostnames = RssConfig('Hostnames', configfile)
-        sj = hostnames.get('sj')
-        dj = hostnames.get('dj')
         if request.method == 'GET':
-            return """// ==UserScript==
+            try:
+                hostnames = RssConfig('Hostnames', configfile)
+                sj = hostnames.get('sj')
+                dj = hostnames.get('dj')
+                return """// ==UserScript==
 // @name            RSScrawler Helper (SJ/DJ)
 // @author          rix1337
 // @description     Forwards decrypted SJ/DJ Download links to RSScrawler
@@ -1142,6 +1202,8 @@ if (title) {
 }
 
 """, 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -1150,10 +1212,11 @@ if (title) {
     def rsscrawler_sponsors_helper_dw():
         if not helper_active:
             return "Forbidden", 403
-        hostnames = RssConfig('Hostnames', configfile)
-        dw = hostnames.get('dw')
         if request.method == 'GET':
-            return """// ==UserScript==
+            try:
+                hostnames = RssConfig('Hostnames', configfile)
+                dw = hostnames.get('dw')
+                return """// ==UserScript==
 // @name            RSScrawler Sponsors Helper (DW)
 // @author          rix1337
 // @description     Clicks the correct download button on DW sub pages to speed up Click'n'Load
@@ -1205,6 +1268,8 @@ if (title) {
     }, 100);
 }
 """, 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -1213,11 +1278,12 @@ if (title) {
     def rsscrawler_sponsors_helper_sj():
         if not helper_active:
             return "Forbidden", 403
-        hostnames = RssConfig('Hostnames', configfile)
-        sj = hostnames.get('sj')
-        dj = hostnames.get('dj')
         if request.method == 'GET':
-            return """// ==UserScript==
+            try:
+                hostnames = RssConfig('Hostnames', configfile)
+                sj = hostnames.get('sj')
+                dj = hostnames.get('dj')
+                return """// ==UserScript==
 // @name            RSScrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
@@ -1302,6 +1368,8 @@ if (title) {
     }, 100);
 }
 """, 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -1311,7 +1379,8 @@ if (title) {
         if not helper_active:
             return "Forbidden", 403
         if request.method == 'GET':
-            return """// ==UserScript==
+            try:
+                return """// ==UserScript==
 // @name            RSScrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to RSScrawler
@@ -1383,6 +1452,8 @@ var cnlExists = setInterval(async function() {
     }
 }, 100);
 """, 200
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
@@ -1399,188 +1470,193 @@ var cnlExists = setInterval(async function() {
     @app.route(prefix + "/sponsors_helper/api/to_decrypt/", methods=['GET'])
     @requires_auth
     def to_decrypt_api():
+        global device
         if request.method == 'GET':
-            global device
+            try:
+                decrypt_name = False
+                decrypt_url = False
+                decrypt = get_to_decrypt(dbfile)
+                if decrypt:
+                    decrypt = decrypt[0]
+                    decrypt_name = decrypt["name"]
+                    decrypt_url = decrypt["url"].replace("http://", "https://") + "#" + decrypt_name + "|" + decrypt[
+                        "password"]
 
-            decrypt_name = False
-            decrypt_url = False
-            decrypt = get_to_decrypt(dbfile)
-            if decrypt:
-                decrypt = decrypt[0]
-                decrypt_name = decrypt["name"]
-                decrypt_url = decrypt["url"].replace("http://", "https://") + "#" + decrypt_name + "|" + decrypt[
-                    "password"]
-
-            return jsonify(
-                {
-                    "to_decrypt": {
-                        "name": decrypt_name,
-                        "url": decrypt_url,
+                return jsonify(
+                    {
+                        "to_decrypt": {
+                            "name": decrypt_name,
+                            "url": decrypt_url,
+                        }
                     }
-                }
-            )
+                )
+            except:
+                return "Failed", 400
         else:
             return "Failed", 405
 
     @app.route(prefix + "/sponsors_helper/to_download/<payload>", methods=['GET'])
     @requires_auth
     def to_download(payload):
+        global device
         if request.method == 'GET':
-            global device
-            global already_added
-
             try:
-                payload = decode_base64(payload).split("|")
-            except:
-                return "Failed", 400
-            if payload:
-                links = payload[0]
-                name = payload[1].replace("%20", "")
+                global already_added
 
                 try:
-                    password = payload[2]
+                    payload = decode_base64(payload).split("|")
                 except:
-                    password = ""
-                try:
-                    ids = payload[3]
-                except:
-                    ids = False
+                    return "Failed", 400
+                if payload:
+                    links = payload[0]
+                    name = payload[1].replace("%20", "")
 
-                RssDb(dbfile, 'crawldog').store(name, 'added')
-                if device:
-                    if ids:
-                        try:
-                            ids = ids.replace("%20", "").split(";")
-                            linkids = ids[0]
-                            uuids = ids[1]
-                        except:
-                            linkids = False
-                            uuids = False
-                        if ids and uuids:
-                            linkids_raw = ast.literal_eval(linkids)
-                            linkids = []
-                            if isinstance(linkids_raw, (list, tuple)):
-                                for linkid in linkids_raw:
-                                    linkids.append(linkid)
-                            else:
-                                linkids.append(linkids_raw)
-                            uuids_raw = ast.literal_eval(uuids)
-                            uuids = []
-                            if isinstance(uuids_raw, (list, tuple)):
-                                for uuid in uuids_raw:
-                                    uuids.append(uuid)
-                            else:
-                                uuids.append(uuids_raw)
-
-                            remove_from_linkgrabber(configfile, device, linkids, uuids)
-                            remove_decrypt(name, dbfile)
-                    else:
-                        is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
-                        if not is_episode:
-                            re_name = rreplace(name.lower(), "-", ".*", 1)
-                            re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
-                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
-                            if season_string:
-                                re_name = re_name.replace(season_string[0], season_string[0] + '.*')
-                            codec_tags = [".h264", ".x264"]
-                            for tag in codec_tags:
-                                re_name = re_name.replace(tag, ".*264")
-                            web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
-                            for tag in web_tags:
-                                re_name = re_name.replace(tag, ".web.*")
-                            multigroup = re.findall(r'.*-((.*)\/(.*))', name.lower())
-                            if multigroup:
-                                re_name = re_name.replace(multigroup[0][0],
-                                                          '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
-                        else:
-                            re_name = name
-                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
-
-                        if season_string:
-                            season_string = season_string[0].replace("s", "S")
-                        else:
-                            season_string = "^unmatchable$"
-                        try:
-                            packages = get_packages_in_linkgrabber(configfile, device)
-                        except rsscrawler.myjdapi.TokenExpiredException:
-                            device = get_device(configfile)
-                            if not device or not is_device(device):
-                                return "Failed", 500
-                            packages = get_packages_in_linkgrabber(configfile, device)
-                        if packages:
-                            failed = packages[0]
-                            offline = packages[1]
-                            try:
-                                if failed:
-                                    for package in failed:
-                                        if re.match(re.compile(re_name), package['name'].lower()):
-                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                            if episode:
-                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
-                                            linkids = package['linkids']
-                                            uuids = [package['uuid']]
-                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                            remove_decrypt(name, dbfile)
-                                            break
-                                if offline:
-                                    for package in offline:
-                                        if re.match(re.compile(re_name), package['name'].lower()):
-                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                            if episode:
-                                                RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
-                                            linkids = package['linkids']
-                                            uuids = [package['uuid']]
-                                            remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                            remove_decrypt(name, dbfile)
-                                            break
-                            except:
-                                pass
-                        packages = get_to_decrypt(dbfile)
-                        if packages:
-                            for package in packages:
-                                if name == package["name"].strip():
-                                    name = package["name"]
-                                elif re.match(re.compile(re_name),
-                                              package['name'].lower().strip().replace(".untouched", ".*").replace(
-                                                  "dd+51",
-                                                  "dd.51")):
-                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                    remove_decrypt(package['name'], dbfile)
-                                    if episode:
-                                        RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
-                                        episode = str(episode[0])
-                                        if len(episode) == 1:
-                                            episode = "0" + episode
-                                        name = name.replace(season_string + ".",
-                                                            season_string + "E" + episode + ".")
-                                        break
-                        time.sleep(1)
-                        remove_decrypt(name, dbfile)
                     try:
-                        epoch = int(time.time())
-                        for item in already_added:
-                            if item[0] == name:
-                                if int(item[1]) + 30 > epoch:
-                                    print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
-                                    return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt", 400
-                                else:
-                                    already_added.remove(item)
-
-                        device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
-                        db = RssDb(dbfile, 'rsscrawler')
-                        if not db.retrieve(name):
-                            db.store(name, 'added')
-                        try:
-                            notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
-                        except:
-                            print(u"Benachrichtigung konnte nicht versendet werden!")
-                        print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
-                        already_added.append([name, str(epoch)])
-                        return "<script type='text/javascript'>" \
-                               "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                               "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                        password = payload[2]
                     except:
-                        print(name + u" konnte nicht hinzugefügt werden!")
+                        password = ""
+                    try:
+                        ids = payload[3]
+                    except:
+                        ids = False
+
+                    RssDb(dbfile, 'crawldog').store(name, 'added')
+                    if device:
+                        if ids:
+                            try:
+                                ids = ids.replace("%20", "").split(";")
+                                linkids = ids[0]
+                                uuids = ids[1]
+                            except:
+                                linkids = False
+                                uuids = False
+                            if ids and uuids:
+                                linkids_raw = ast.literal_eval(linkids)
+                                linkids = []
+                                if isinstance(linkids_raw, (list, tuple)):
+                                    for linkid in linkids_raw:
+                                        linkids.append(linkid)
+                                else:
+                                    linkids.append(linkids_raw)
+                                uuids_raw = ast.literal_eval(uuids)
+                                uuids = []
+                                if isinstance(uuids_raw, (list, tuple)):
+                                    for uuid in uuids_raw:
+                                        uuids.append(uuid)
+                                else:
+                                    uuids.append(uuids_raw)
+
+                                remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                remove_decrypt(name, dbfile)
+                        else:
+                            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
+                            if not is_episode:
+                                re_name = rreplace(name.lower(), "-", ".*", 1)
+                                re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
+                                season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                                if season_string:
+                                    re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                                codec_tags = [".h264", ".x264"]
+                                for tag in codec_tags:
+                                    re_name = re_name.replace(tag, ".*264")
+                                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                                for tag in web_tags:
+                                    re_name = re_name.replace(tag, ".web.*")
+                                multigroup = re.findall(r'.*-((.*)\/(.*))', name.lower())
+                                if multigroup:
+                                    re_name = re_name.replace(multigroup[0][0],
+                                                              '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+                            else:
+                                re_name = name
+                                season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+
+                            if season_string:
+                                season_string = season_string[0].replace("s", "S")
+                            else:
+                                season_string = "^unmatchable$"
+                            try:
+                                packages = get_packages_in_linkgrabber(configfile, device)
+                            except rsscrawler.myjdapi.TokenExpiredException:
+                                device = get_device(configfile)
+                                if not device or not is_device(device):
+                                    return "Failed", 500
+                                packages = get_packages_in_linkgrabber(configfile, device)
+                            if packages:
+                                failed = packages[0]
+                                offline = packages[1]
+                                try:
+                                    if failed:
+                                        for package in failed:
+                                            if re.match(re.compile(re_name), package['name'].lower()):
+                                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                                if episode:
+                                                    RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                linkids = package['linkids']
+                                                uuids = [package['uuid']]
+                                                remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                                remove_decrypt(name, dbfile)
+                                                break
+                                    if offline:
+                                        for package in offline:
+                                            if re.match(re.compile(re_name), package['name'].lower()):
+                                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                                if episode:
+                                                    RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                linkids = package['linkids']
+                                                uuids = [package['uuid']]
+                                                remove_from_linkgrabber(configfile, device, linkids, uuids)
+                                                remove_decrypt(name, dbfile)
+                                                break
+                                except:
+                                    pass
+                            packages = get_to_decrypt(dbfile)
+                            if packages:
+                                for package in packages:
+                                    if name == package["name"].strip():
+                                        name = package["name"]
+                                    elif re.match(re.compile(re_name),
+                                                  package['name'].lower().strip().replace(".untouched", ".*").replace(
+                                                      "dd+51",
+                                                      "dd.51")):
+                                        episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                        remove_decrypt(package['name'], dbfile)
+                                        if episode:
+                                            RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            episode = str(episode[0])
+                                            if len(episode) == 1:
+                                                episode = "0" + episode
+                                            name = name.replace(season_string + ".",
+                                                                season_string + "E" + episode + ".")
+                                            break
+                            time.sleep(1)
+                            remove_decrypt(name, dbfile)
+                        try:
+                            epoch = int(time.time())
+                            for item in already_added:
+                                if item[0] == name:
+                                    if int(item[1]) + 30 > epoch:
+                                        print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
+                                        return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt", 400
+                                    else:
+                                        already_added.remove(item)
+
+                            device = download(configfile, dbfile, device, name, "RSScrawler", links, password)
+                            db = RssDb(dbfile, 'rsscrawler')
+                            if not db.retrieve(name):
+                                db.store(name, 'added')
+                            try:
+                                notify(["[RSScrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                            except:
+                                print(u"Benachrichtigung konnte nicht versendet werden!")
+                            print(u"[RSScrawler Sponsors Helper erfolgreich] - " + name)
+                            already_added.append([name, str(epoch)])
+                            return "<script type='text/javascript'>" \
+                                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                   "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                        except:
+                            print(name + u" konnte nicht hinzugefügt werden!")
+            except:
+                pass
             return "Failed", 400
         else:
             return "Failed", 405

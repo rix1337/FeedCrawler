@@ -278,8 +278,9 @@ def search_imdb(self, imdb, feed):
                         download_links = False
                         if self.prefer_dw_mirror and "DW" not in self._SITE:
                             download_links = dw_mirror(self, post.title)
-                            site = "DW/" + self._SITE
-                            download_method = add_decrypt_instead_of_download
+                            if download_links:
+                                site = "DW/" + self._SITE
+                                download_method = add_decrypt_instead_of_download
                         if not download_links:
                             download_links = self.get_download_links_method(self, content, post.title)
                             site = self._SITE
@@ -798,8 +799,9 @@ def download_feed(self, key, content, hevc_retail):
     download_links = False
     if self.prefer_dw_mirror and "DW" not in self._SITE:
         download_links = dw_mirror(self, key)
-        site = "DW/" + self._SITE
-        download_method = add_decrypt_instead_of_download
+        if download_links:
+            site = "DW/" + self._SITE
+            download_method = add_decrypt_instead_of_download
     if not download_links:
         download_links = self.get_download_links_method(self, content, key)
         site = self._SITE

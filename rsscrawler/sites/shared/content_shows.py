@@ -125,6 +125,7 @@ def periodical_task(self):
         reject = r"^unmatchable$"
 
     current_set = settings_hash(self, False)
+    sha = False
 
     header = False
     response = False
@@ -223,10 +224,13 @@ def periodical_task(self):
                             if package:
                                 title = package[0]
                                 site = self._SITE
+                                download_link = False
                                 if self.prefer_dw_mirror and "DW" not in site:
-                                    download_link = dw_mirror(self, title)
-                                    site = "DWs/" + site
-                                else:
+                                    download_links = dw_mirror(self, title)
+                                    if download_links:
+                                        download_link = download_links[0]
+                                        site = "DWs/" + site
+                                if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
                                 season = package[3]
@@ -268,10 +272,13 @@ def periodical_task(self):
                             if package:
                                 title = package[0]
                                 site = self._SITE
+                                download_link = False
                                 if self.prefer_dw_mirror and "DW" not in site:
-                                    download_link = dw_mirror(self, title)
-                                    site = "DWs/" + site
-                                else:
+                                    download_links = dw_mirror(self, title)
+                                    if download_links:
+                                        download_link = download_links[0]
+                                        site = "DWs/" + site
+                                if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
                                 season = package[3]
@@ -320,10 +327,13 @@ def periodical_task(self):
                                 if package:
                                     title = package[0]
                                     site = self._SITE
+                                    download_link = False
                                     if self.prefer_dw_mirror and "DW" not in site:
-                                        download_link = dw_mirror(self, title)
-                                        site = "DWs/" + site
-                                    else:
+                                        download_links = dw_mirror(self, title)
+                                        if download_links:
+                                            download_link = download_links[0]
+                                            site = "DWs/" + site
+                                    if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]
                                     season = package[3]
@@ -370,10 +380,13 @@ def periodical_task(self):
                                 if package:
                                     title = package[0]
                                     site = self._SITE
+                                    download_link = False
                                     if self.prefer_dw_mirror and "DW" not in site:
-                                        download_link = dw_mirror(self, title)
-                                        site = "DWs/" + site
-                                    else:
+                                        download_links = dw_mirror(self, title)
+                                        if download_links:
+                                            download_link = download_links[0]
+                                            site = "DWs/" + site
+                                    if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]
                                     season = package[3]
@@ -383,7 +396,7 @@ def periodical_task(self):
                                 self.log_debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
-    if current_set:
+    if current_set and sha:
         new_set = settings_hash(self, True)
         if current_set == new_set:
             self.cdc.delete(self._INTERNAL_NAME + "Set-" + self.filename)
