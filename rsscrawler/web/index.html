@@ -35,9 +35,9 @@
         </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
-    <a ng-if=" !helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
-       title="Einfach über Github Sponsorship..."
-       class="btn btn-dark" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Bedanken</a>
+    <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+       title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
+       class="btn btn-outline-danger" data-toggle="tooltip"><i id="heart" class="far fa-frown"></i> Kein aktiver Sponsor</a>
     <a ng-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
        title="Vielen Dank für die aktive Github Sponsorship!"
        class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Aktiver
@@ -564,11 +564,13 @@
                     beim
                     unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
                 <span>
-                    Status:
-                    <i ng-if="!helper_active" class="fas fa-lightbulb text-danger"
-                       title="Kein RSScrawler Sponsors Helper aktiv!"></i>
-                    <i ng-if="helper_active" class="far fa-lightbulb text-success"
-                       title="RSScrawler Sponsors Helper aktiv"></i>
+                    <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+                       title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
+                       class="btn btn-outline-danger" data-toggle="tooltip"><i id="heart" class="far fa-frown"></i> Kein aktiver Sponsor</a>
+                    <a ng-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+                       title="Vielen Dank für die aktive Github Sponsorship!"
+                       class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="far fa-heart"></i> Aktiver
+                        Sponsor</a>
                 </span>
             </div>
         </div>
@@ -585,7 +587,7 @@
         </div>
         <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
             <div class="card-body">
-                <a href="./redirect_user/captcha" target="_blank">
+                <a href="./redirect_user/captcha" class="btn btn-outline-success" target="_blank">
                     Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
                 </a>
             </div>
@@ -603,9 +605,8 @@
         </div>
         <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
             <div class="card-body">
-                <a href="./redirect_user/multihoster" target="_blank">
-                    Linksnappy.com (50 GB kostenfreies Startguthaben für Rapidgator, 1Fichier, Filer, Turbobit,
-                    etc.)
+                <a href="./redirect_user/multihoster" class="btn btn-outline-success" target="_blank">
+                    Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
                 </a>
             </div>
         </div>
@@ -622,8 +623,8 @@
         </div>
         <div id="collapseOneTwo" class="collapse" aria-labelledby="headingOneTwo" data-parent="#help">
             <div id="helpText" class="card-body">
+                <h3>Beispiele</h3>
                 <div ng-show="hostnames.bl !== 'Nicht gesetzt!'">
-                    <h3>Beispiele für {{ hostnames.bl }}</h3>
                     <div class="row">
                         <div class="col text-left card bg-light">
                             <i>Film.*.Titel.*</i>
@@ -659,7 +660,6 @@
                     </div>
                 </div>
                 <div ng-show="hostnames.s !== 'Nicht gesetzt!'">
-                    <h3>Beispiele für {{ hostnames.s }}</h3>
                     <div class="row">
                         <div class="col text-left card bg-light">
                             <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -705,9 +705,9 @@
                         </div>
                     </div>
                 </div>
-                <h3>All diese Regeln lassen sich beliebig kombinieren.</h3>
-                <p>Falsche Regex-Einträge können allerdings das Script zum Absturz bringen!</p>
-                <p>Daher einfach auf
+                <p>All diese Regeln lassen sich beliebig kombinieren.<br/>
+                    Falsche Regex-Einträge können allerdings die Feed-Suche verhindern!</p>
+                <p>Daher vorher beispielsweise auf
                     <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen, ob ein Eintrag
                     matcht
                     (Beispielrelease unter Text eintragen - Expression sollte
@@ -728,9 +728,11 @@
         <div id="collapseOneThree" class="collapse" aria-labelledby="headingOneThree" data-parent="#help">
             <div class="card-body">
                 <div class="row">
-                    <div class="col">
+                    <div ng-if="hostnames.dw !== 'Nicht gesetzt!' || hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                         class="col">
                         <ul class="list-group">
-                            <li class="list-group-item">{{ hostnames.dw }} (DW)
+                            <li ng-show="hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dw }}
+                                (DW)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DW)">
                                     <i ng-if="blocked_normal.DW" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -744,7 +746,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.fx }} (FX)
+                            <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.fx }}
+                                (FX)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FX)">
                                     <i ng-if="blocked_normal.FX" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -758,7 +761,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.sj }} (SJ)
+                            <li ng-show="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sj }}
+                                (SJ)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SJ)">
                                     <i ng-if="blocked_normal.SJ" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -772,7 +776,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.dj }} (DJ)
+                            <li ng-show="hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dj }}
+                                (DJ)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DJ)">
                                     <i ng-if="blocked_normal.DJ" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -786,7 +791,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.sf }} (SF)
+                            <li ng-show="hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sf }}
+                                (SF)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SF)">
                                     <i ng-if="blocked_normal.SF" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -802,9 +808,11 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="col">
+                    <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!' || hostnames.dd !== 'Nicht gesetzt!'"
+                         class="col">
                         <ul class="list-group">
-                            <li class="list-group-item">{{ hostnames.ww }} (WW)
+                            <li ng-show="hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.ww }}
+                                (WW)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.WW)">
                                     <i ng-if="blocked_normal.WW" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -818,7 +826,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.nk }} (NK)
+                            <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.nk }}
+                                (NK)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.NK)">
                                     <i ng-if="blocked_normal.NK" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -832,7 +841,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.by }} (BY)
+                            <li ng-show="hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.by }}
+                                (BY)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.BY)">
                                     <i ng-if="blocked_normal.BY" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
@@ -846,7 +856,8 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                             </li>
-                            <li class="list-group-item">{{ hostnames.dd }} (DD)
+                            <li ng-show="hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dd }}
+                                (DD)
                                 <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DD)">
                                     <i ng-if="blocked_normal.DD" class="fas fa-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
