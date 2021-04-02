@@ -213,6 +213,7 @@ def crawldog(configfile, dbfile):
     db = RssDb(dbfile, 'crawldog')
 
     grabber_was_collecting = False
+    grabber_collecting = False
     device = False
 
     while True:
@@ -221,149 +222,155 @@ def crawldog(configfile, dbfile):
                 device = get_device(configfile)
 
             myjd_packages = get_info(configfile, device)
-            grabber_collecting = myjd_packages[2]
+            if myjd_packages:
+                grabber_collecting = myjd_packages[2]
 
-            if grabber_was_collecting or grabber_collecting:
-                grabber_was_collecting = grabber_collecting
-                time.sleep(5)
-            else:
-                packages_in_downloader_decrypted = myjd_packages[4][0]
-                packages_in_linkgrabber_decrypted = myjd_packages[4][1]
-                offline_packages = myjd_packages[4][2]
-                encrypted_packages = myjd_packages[4][3]
+                if grabber_was_collecting or grabber_collecting:
+                    grabber_was_collecting = grabber_collecting
+                    time.sleep(5)
+                else:
+                    packages_in_downloader_decrypted = myjd_packages[4][0]
+                    packages_in_linkgrabber_decrypted = myjd_packages[4][1]
+                    offline_packages = myjd_packages[4][2]
+                    encrypted_packages = myjd_packages[4][3]
 
-                try:
-                    watched_titles = db.retrieve_all_titles()
-                except:
-                    watched_titles = False
+                    try:
+                        watched_titles = db.retrieve_all_titles()
+                    except:
+                        watched_titles = False
 
-                notify_list = []
+                    notify_list = []
 
-                if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
+                    if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
 
-                    if watched_titles:
-                        for title in watched_titles:
-                            if packages_in_downloader_decrypted:
-                                for package in packages_in_downloader_decrypted:
-                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                        check = hoster_check(configfile, device, [package], title[0], [0])
-                                        device = check[0]
-                                        if device:
-                                            db.delete(title[0])
+                        if watched_titles:
+                            for title in watched_titles:
+                                if packages_in_downloader_decrypted:
+                                    for package in packages_in_downloader_decrypted:
+                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                            check = hoster_check(configfile, device, [package], title[0], [0])
+                                            device = check[0]
+                                            if device:
+                                                db.delete(title[0])
 
-                            if packages_in_linkgrabber_decrypted:
-                                for package in packages_in_linkgrabber_decrypted:
-                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                        check = hoster_check(configfile, device, [package], title[0], [0])
-                                        device = check[0]
-                                        episode = RssDb(dbfile, 'episode_remover').retrieve(title[0])
-                                        if episode:
-                                            filenames = package['filenames']
-                                            if len(filenames) > 1:
-                                                fname_episodes = []
-                                                for fname in filenames:
-                                                    try:
-                                                        if re.match(r'.*S\d{1,3}E\d{1,3}.*', fname,
-                                                                    flags=re.IGNORECASE):
-                                                            fname = re.findall(r'S\d{1,3}E(\d{1,3})', fname,
-                                                                               flags=re.IGNORECASE).pop()
-                                                        else:
+                                if packages_in_linkgrabber_decrypted:
+                                    for package in packages_in_linkgrabber_decrypted:
+                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                            check = hoster_check(configfile, device, [package], title[0], [0])
+                                            device = check[0]
+                                            episode = RssDb(dbfile, 'episode_remover').retrieve(title[0])
+                                            if episode:
+                                                filenames = package['filenames']
+                                                if len(filenames) > 1:
+                                                    fname_episodes = []
+                                                    for fname in filenames:
+                                                        try:
+                                                            if re.match(r'.*S\d{1,3}E\d{1,3}.*', fname,
+                                                                        flags=re.IGNORECASE):
+                                                                fname = re.findall(r'S\d{1,3}E(\d{1,3})', fname,
+                                                                                   flags=re.IGNORECASE).pop()
+                                                            else:
+                                                                fname = fname.replace("hddl8", "").replace("dd51",
+                                                                                                           "").replace(
+                                                                    "264", "").replace("265",
+                                                                                       "")
+                                                        except:
                                                             fname = fname.replace("hddl8", "").replace("dd51",
                                                                                                        "").replace(
-                                                                "264", "").replace("265",
-                                                                                   "")
-                                                    except:
-                                                        fname = fname.replace("hddl8", "").replace("dd51", "").replace(
-                                                            "264", "").replace("265", "")
-                                                    fname_episode = "".join(re.findall(r'\d+', fname.split(".part")[0]))
-                                                    try:
-                                                        fname_episodes.append(str(int(fname_episode)))
-                                                    except:
-                                                        pass
-                                                replacer = longest_substr(fname_episodes)
+                                                                "264", "").replace("265", "")
+                                                        fname_episode = "".join(
+                                                            re.findall(r'\d+', fname.split(".part")[0]))
+                                                        try:
+                                                            fname_episodes.append(str(int(fname_episode)))
+                                                        except:
+                                                            pass
+                                                    replacer = longest_substr(fname_episodes)
 
-                                                new_fname_episodes = []
-                                                for new_ep_fname in fname_episodes:
-                                                    try:
-                                                        new_fname_episodes.append(
-                                                            str(int(new_ep_fname.replace(replacer, ""))))
-                                                    except:
-                                                        pass
-                                                replacer = longest_substr(new_fname_episodes)
+                                                    new_fname_episodes = []
+                                                    for new_ep_fname in fname_episodes:
+                                                        try:
+                                                            new_fname_episodes.append(
+                                                                str(int(new_ep_fname.replace(replacer, ""))))
+                                                        except:
+                                                            pass
+                                                    replacer = longest_substr(new_fname_episodes)
 
-                                                newer_fname_episodes = []
-                                                for new_ep_fname in new_fname_episodes:
-                                                    try:
-                                                        newer_fname_episodes.append(
-                                                            str(int(re.sub(replacer, "", new_ep_fname, 1))))
-                                                    except:
-                                                        pass
+                                                    newer_fname_episodes = []
+                                                    for new_ep_fname in new_fname_episodes:
+                                                        try:
+                                                            newer_fname_episodes.append(
+                                                                str(int(re.sub(replacer, "", new_ep_fname, 1))))
+                                                        except:
+                                                            pass
 
-                                                replacer = longest_substr(newer_fname_episodes)
+                                                    replacer = longest_substr(newer_fname_episodes)
 
-                                                even_newer_fname_episodes = []
-                                                for newer_ep_fname in newer_fname_episodes:
-                                                    try:
-                                                        even_newer_fname_episodes.append(
-                                                            str(int(re.sub(replacer, "", newer_ep_fname, 1))))
-                                                    except:
-                                                        pass
+                                                    even_newer_fname_episodes = []
+                                                    for newer_ep_fname in newer_fname_episodes:
+                                                        try:
+                                                            even_newer_fname_episodes.append(
+                                                                str(int(re.sub(replacer, "", newer_ep_fname, 1))))
+                                                        except:
+                                                            pass
 
-                                                if even_newer_fname_episodes:
-                                                    fname_episodes = even_newer_fname_episodes
-                                                elif newer_fname_episodes:
-                                                    fname_episodes = newer_fname_episodes
-                                                elif new_fname_episodes:
-                                                    fname_episodes = new_fname_episodes
+                                                    if even_newer_fname_episodes:
+                                                        fname_episodes = even_newer_fname_episodes
+                                                    elif newer_fname_episodes:
+                                                        fname_episodes = newer_fname_episodes
+                                                    elif new_fname_episodes:
+                                                        fname_episodes = new_fname_episodes
 
-                                                delete_linkids = []
-                                                pos = 0
-                                                for delete_id in package['linkids']:
-                                                    if str(episode) != str(fname_episodes[pos]):
-                                                        delete_linkids.append(delete_id)
-                                                    pos += 1
-                                                if delete_linkids:
-                                                    delete_uuids = [package['uuid']]
-                                                    RssDb(dbfile, 'episode_remover').delete(title[0])
-                                                    device = remove_from_linkgrabber(configfile, device, delete_linkids,
-                                                                                     delete_uuids)
-                                        if autostart:
-                                            device = move_to_downloads(configfile, device, package['linkids'],
-                                                                       [package['uuid']])
-                                        if device:
-                                            db.delete(title[0])
-
-                            if offline_packages:
-                                for package in offline_packages:
-                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                        notify_list.append("[Offline] - " + title[0])
-                                        print((u"[Offline] - " + title[0]))
-                                        db.delete(title[0])
-
-                            if encrypted_packages:
-                                for package in encrypted_packages:
-                                    if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                        if title[1] == 'added':
-                                            if retry_decrypt(configfile, dbfile, device, package['linkids'],
-                                                             [package['uuid']],
-                                                             package['urls']):
+                                                    delete_linkids = []
+                                                    pos = 0
+                                                    for delete_id in package['linkids']:
+                                                        if str(episode) != str(fname_episodes[pos]):
+                                                            delete_linkids.append(delete_id)
+                                                        pos += 1
+                                                    if delete_linkids:
+                                                        delete_uuids = [package['uuid']]
+                                                        RssDb(dbfile, 'episode_remover').delete(title[0])
+                                                        device = remove_from_linkgrabber(configfile, device,
+                                                                                         delete_linkids,
+                                                                                         delete_uuids)
+                                            if autostart:
+                                                device = move_to_downloads(configfile, device, package['linkids'],
+                                                                           [package['uuid']])
+                                            if device:
                                                 db.delete(title[0])
-                                                db.store(title[0], 'retried')
-                                        else:
-                                            add_decrypt(package['name'], package['url'], "", dbfile)
-                                            device = remove_from_linkgrabber(configfile, device, package['linkids'],
-                                                                             [package['uuid']])
-                                            notify_list.append("[Click'n'Load notwendig] - " + title[0])
-                                            print(u"[Click'n'Load notwendig] - " + title[0])
-                                            db.delete(title[0])
-                else:
-                    if not grabber_collecting:
-                        db.reset()
 
-                if notify_list:
-                    notify(notify_list, configfile)
+                                if offline_packages:
+                                    for package in offline_packages:
+                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                            notify_list.append("[Offline] - " + title[0])
+                                            print((u"[Offline] - " + title[0]))
+                                            db.delete(title[0])
+
+                                if encrypted_packages:
+                                    for package in encrypted_packages:
+                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                            if title[1] == 'added':
+                                                if retry_decrypt(configfile, dbfile, device, package['linkids'],
+                                                                 [package['uuid']],
+                                                                 package['urls']):
+                                                    db.delete(title[0])
+                                                    db.store(title[0], 'retried')
+                                            else:
+                                                add_decrypt(package['name'], package['url'], "", dbfile)
+                                                device = remove_from_linkgrabber(configfile, device, package['linkids'],
+                                                                                 [package['uuid']])
+                                                notify_list.append("[Click'n'Load notwendig] - " + title[0])
+                                                print(u"[Click'n'Load notwendig] - " + title[0])
+                                                db.delete(title[0])
+                    else:
+                        if not grabber_collecting:
+                            db.reset()
+
+                    if notify_list:
+                        notify(notify_list, configfile)
 
                 time.sleep(30)
+            else:
+                print(u"Scheinbar ist der JDownloader nicht erreichbar - bitte prüfen und neustarten!")
         except Exception:
             traceback.print_exc()
             time.sleep(30)
