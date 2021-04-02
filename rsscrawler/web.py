@@ -1472,8 +1472,10 @@ var cnlExists = setInterval(async function() {
     @requires_auth
     def to_decrypt_api():
         global device
+        global helper_active
         if request.method == 'GET':
             try:
+                helper_active = True
                 decrypt_name = False
                 decrypt_url = False
                 decrypt = get_to_decrypt(dbfile)
