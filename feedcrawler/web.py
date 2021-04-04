@@ -1225,7 +1225,7 @@ if (title) {
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + dw + """/*
 // ==/UserScript==
-// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
+// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
 var sponsorsHoster = '';
@@ -1295,7 +1295,7 @@ if (title) {
 // @exclude         https://""" + sj + """/serie/search?q=*
 // @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
-// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
+// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
@@ -1389,7 +1389,7 @@ if (title) {
 // @match           *.filecrypt.cc/*
 // @match           *.filecrypt.co/*
 // ==/UserScript==
-// Hier muss die von außen erreichbare Adresse des RSScrawlers stehen (nicht bspw. die Docker-interne):
+// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
@@ -1686,7 +1686,7 @@ def start(port, local_address, docker, configfile, dbfile, log_level, log_file, 
 
     if log_level == 10:
         logfile_debug = logging.handlers.RotatingFileHandler(
-            log_file.replace("FeedCrawler.log", "RSScrawler_DEBUG.log"))
+            log_file.replace("FeedCrawler.log", "FeedCrawler_DEBUG.log"))
         logfile_debug.setFormatter(formatter)
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)

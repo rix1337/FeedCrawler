@@ -97,7 +97,7 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
 
     if log_level == 10:
         logfile_debug = logging.handlers.RotatingFileHandler(
-            log_file.replace("FeedCrawler.log", "RSScrawler_DEBUG.log"))
+            log_file.replace("FeedCrawler.log", "FeedCrawler_DEBUG.log"))
         logfile_debug.setFormatter(formatter)
         logfile_debug.setLevel(10)
         logger.addHandler(logfile_debug)
