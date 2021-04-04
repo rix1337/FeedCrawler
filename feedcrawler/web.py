@@ -1157,9 +1157,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_helper_sj.user.js", methods=['GET'])
+    @app.route(prefix + "/sponsors_helper/feedcrawler_helper_sj.user.js", methods=['GET'])
     @requires_auth
-    def rsscrawler_helper_sj():
+    def feedcrawler_helper_sj():
         if request.method == 'GET':
             try:
                 hostnames = RssConfig('Hostnames', configfile)
@@ -1208,9 +1208,9 @@ if (title) {
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_dw.user.js", methods=['GET'])
+    @app.route(prefix + "/sponsors_helper/feedcrawler_sponsors_helper_dw.user.js", methods=['GET'])
     @requires_auth
-    def rsscrawler_sponsors_helper_dw():
+    def feedcrawler_sponsors_helper_dw():
         if not helper_active:
             return "Forbidden", 403
         if request.method == 'GET':
@@ -1274,9 +1274,9 @@ if (title) {
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_sj.user.js", methods=['GET'])
+    @app.route(prefix + "/sponsors_helper/feedcrawler_sponsors_helper_sj.user.js", methods=['GET'])
     @requires_auth
-    def rsscrawler_sponsors_helper_sj():
+    def feedcrawler_sponsors_helper_sj():
         if not helper_active:
             return "Forbidden", 403
         if request.method == 'GET':
@@ -1374,9 +1374,9 @@ if (title) {
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/sponsors_helper/rsscrawler_sponsors_helper_fc.user.js", methods=['GET'])
+    @app.route(prefix + "/sponsors_helper/feedcrawler_sponsors_helper_fc.user.js", methods=['GET'])
     @requires_auth
-    def rsscrawler_sponsors_helper_fc():
+    def feedcrawler_sponsors_helper_fc():
         if not helper_active:
             return "Forbidden", 403
         if request.method == 'GET':
