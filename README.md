@@ -2,8 +2,8 @@
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
-[![PyPI version](https://badge.fury.io/py/rsscrawler.svg)](https://badge.fury.io/py/rsscrawler)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/rsscrawler)](https://github.com/rix1337/FeedCrawler/releases)
+[![PyPI version](https://badge.fury.io/py/feedcrawler.svg)](https://badge.fury.io/py/feedcrawler)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/feedcrawler)](https://github.com/rix1337/FeedCrawler/releases)
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
 [![Chat aufrufen unter https://gitter.im/FeedCrawler/Lobby](https://badges.gitter.im/FeedCrawler/Lobby.svg)](https://gitter.im/FeedCrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.com/rix1337/FeedCrawler.svg?branch=master)](https://travis-ci.com/rix1337/FeedCrawler)
@@ -17,8 +17,12 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ####  Einfache Einrichtung
 
 ##### Docker
-* Offizielles Repo im Docker Hub: [docker-rsscrawler](https://hub.docker.com/r/rix1337/docker-rsscrawler/)
-* Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des Containers wird automatisch die neueste Version heruntergeladen. Wird ein neues Image im Docker Hub bereitgestellt, sollte dennoch auf dieses aktualisiert werden!
+
+* Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
+* Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
+  sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des
+  Containers wird automatisch die neueste Version heruntergeladen. Wird ein neues Image im Docker Hub bereitgestellt,
+  sollte dennoch auf dieses aktualisiert werden!
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet werden.
 
 ##### Windows
@@ -47,7 +51,7 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 
 #### Installation
 
-```pip install rsscrawler```
+```pip install feedcrawler```
 
 Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
@@ -65,11 +69,11 @@ Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 #### Update
 
-```pip install -U rsscrawler```
+```pip install -U feedcrawler```
 
 #### Starten
 
-```rsscrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
+```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
 
 #### Hostnamen festlegen

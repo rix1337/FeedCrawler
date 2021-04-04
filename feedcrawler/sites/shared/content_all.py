@@ -42,9 +42,9 @@ def settings_hash(self, refresh):
         settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
                     "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
-        self.settings.append(self.rsscrawler.get("english"))
-        self.settings.append(self.rsscrawler.get("surround"))
-        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
+        self.settings.append(self.feedcrawler.get("english"))
+        self.settings.append(self.feedcrawler.get("surround"))
+        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -144,7 +144,7 @@ def search_imdb(self, imdb, feed):
                     self.log_debug(
                         "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                     continue
-                if self.rsscrawler.get("surround"):
+                if self.feedcrawler.get("surround"):
                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
                         self.log_debug(
                             post.title + " - Release ignoriert (kein Mehrkanalton)")
@@ -347,7 +347,7 @@ def search_feed(self, feed):
                         self.log_debug(
                             "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
                         continue
-                    if self.rsscrawler.get("surround"):
+                    if self.feedcrawler.get("surround"):
                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
                             self.log_debug(
                                 post.title + " - Release ignoriert (kein Mehrkanalton)")
@@ -494,7 +494,7 @@ def download_hevc(self, title):
                                                                                                       "").replace(
                             "*", "")
                         englisch = True
-                        if not self.rsscrawler.get('english'):
+                        if not self.feedcrawler.get('english'):
                             self.log_debug(
                                 "%s - Englische Releases deaktiviert" % key)
                             return
@@ -728,7 +728,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                                                                                           "").replace(
                 "*", "")
             englisch = True
-            if not self.rsscrawler.get('english'):
+            if not self.feedcrawler.get('english'):
                 self.log_debug(
                     "%s - Englische Releases deaktiviert" % key)
                 return
@@ -822,7 +822,7 @@ def download_feed(self, key, content, hevc_retail):
             key = key.replace(
                 '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace("*English*", "")
             englisch = True
-            if not self.rsscrawler.get('english'):
+            if not self.feedcrawler.get('english'):
                 self.log_debug(
                     "%s - Englische Releases deaktiviert" % key)
                 return

@@ -32,9 +32,9 @@ def settings_hash(self, refresh):
         else:
             settings = ["quality", "rejectlist", "regex", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
-        self.settings.append(self.rsscrawler.get("english"))
-        self.settings.append(self.rsscrawler.get("surround"))
-        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
+        self.settings.append(self.feedcrawler.get("english"))
+        self.settings.append(self.feedcrawler.get("surround"))
+        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -198,7 +198,7 @@ def periodical_task(self):
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1
-                    elif self.rsscrawler.get('english'):
+                    elif self.feedcrawler.get('english'):
                         language_id = 2
                     else:
                         language_id = 0
@@ -246,7 +246,7 @@ def periodical_task(self):
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1
-                    elif self.rsscrawler.get('english'):
+                    elif self.feedcrawler.get('english'):
                         language_id = 2
                     else:
                         language_id = 0
@@ -296,7 +296,7 @@ def periodical_task(self):
                     if m:
                         if '.german.' in title.lower():
                             language_id = 1
-                        elif self.rsscrawler.get('english'):
+                        elif self.feedcrawler.get('english'):
                             language_id = 2
                         else:
                             language_id = 0
@@ -308,7 +308,7 @@ def periodical_task(self):
                                     self.log_debug(
                                         title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
-                                if self.rsscrawler.get("surround"):
+                                if self.feedcrawler.get("surround"):
                                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
                                         self.log_debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")
@@ -348,7 +348,7 @@ def periodical_task(self):
                         if m:
                             if '.german.' in title.lower():
                                 language_id = 1
-                            elif self.rsscrawler.get('english'):
+                            elif self.feedcrawler.get('english'):
                                 language_id = 2
                             else:
                                 language_id = 0
@@ -360,7 +360,7 @@ def periodical_task(self):
                                     self.log_debug(
                                         title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
-                                if self.rsscrawler.get("surround"):
+                                if self.feedcrawler.get("surround"):
                                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
                                         self.log_debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")

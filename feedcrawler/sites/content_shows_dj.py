@@ -22,7 +22,7 @@ class DJ:
         self.url = self.hostnames.get('dj')
 
         self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.rsscrawler = RssConfig("FeedCrawler", self.configfile)
+        self.feedcrawler = RssConfig("FeedCrawler", self.configfile)
         self.hosters = RssConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.log_info = logging.info
@@ -32,16 +32,16 @@ class DJ:
         self.filename = filename
         self.db = FeedDb(self.dbfile, 'feedcrawler')
         self.quality = self.config.get("quality")
-        self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
+        self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
         self.cdc = FeedDb(self.dbfile, 'cdc')
         self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
         self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._INTERNAL_NAME + "Headers-" + self.filename))}
         self.settings_array = ["quality", "rejectlist", "regex", "hoster_fallback"]
         self.settings = []
-        self.settings.append(self.rsscrawler.get("english"))
-        self.settings.append(self.rsscrawler.get("surround"))
-        self.settings.append(self.rsscrawler.get("prefer_dw_mirror"))
+        self.settings.append(self.feedcrawler.get("english"))
+        self.settings.append(self.feedcrawler.get("surround"))
+        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in self.settings_array:
             self.settings.append(self.config.get(s))

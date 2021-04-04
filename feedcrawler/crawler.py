@@ -78,7 +78,7 @@ from feedcrawler.web import start
 version = "v." + version.get_version()
 
 
-def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format):
+def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format):
     sys.stdout = Unbuffered(sys.stdout)
 
     logger = logging.getLogger('feedcrawler')
@@ -153,7 +153,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
             total_time = end_time - start_time
-            interval = int(rsscrawler.get('interval')) * 60
+            interval = int(feedcrawler.get('interval')) * 60
             random_range = random.randrange(0, interval // 4)
             wait = interval + random_range
             next_start = end_time + wait
@@ -490,16 +490,16 @@ def main():
                                           arguments['--jd-pass'],
                                           arguments['--jd-device'])
         else:
-            rsscrawler = RssConfig('FeedCrawler', configfile)
-            user = rsscrawler.get('myjd_user')
-            password = rsscrawler.get('myjd_pass')
+            feedcrawler = RssConfig('FeedCrawler', configfile)
+            user = feedcrawler.get('myjd_user')
+            password = feedcrawler.get('myjd_pass')
             if user and password:
                 device = get_device(configfile)
                 if not device:
                     device = get_if_one_device(user, password)
                     if device:
                         print(u"Gerätename " + device + " automatisch ermittelt.")
-                        rsscrawler.save('myjd_device', device)
+                        feedcrawler.save('myjd_device', device)
                         device = get_device(configfile)
             else:
                 device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
@@ -512,9 +512,9 @@ def main():
         else:
             print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
-    rsscrawler = RssConfig('FeedCrawler', configfile)
+    feedcrawler = RssConfig('FeedCrawler', configfile)
 
-    port = int(rsscrawler.get("port"))
+    port = int(feedcrawler.get("port"))
     docker = False
     if arguments['--docker']:
         port = int('9090')
@@ -522,8 +522,8 @@ def main():
     elif arguments['--port']:
         port = int(arguments['--port'])
 
-    if rsscrawler.get("prefix"):
-        prefix = '/' + rsscrawler.get("prefix")
+    if feedcrawler.get("prefix"):
+        prefix = '/' + feedcrawler.get("prefix")
     else:
         prefix = ''
     local_address = 'http://' + common.check_ip() + ':' + str(port) + prefix
@@ -542,7 +542,7 @@ def main():
 
     if not arguments['--testlauf']:
         c = multiprocessing.Process(target=crawler,
-                                    args=(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format))
+                                    args=(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format))
         c.start()
 
         w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))
@@ -566,7 +566,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_format)
+        crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format)
         p.terminate()
         sys.exit(0)
 
