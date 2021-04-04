@@ -1,6 +1,6 @@
 import multiprocessing
 
-from rsscrawler import crawler
+from feedcrawler import crawler
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()

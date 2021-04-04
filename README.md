@@ -1,16 +1,16 @@
-#  RSScrawler
+# FeedCrawler
 
-RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
+FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 [![PyPI version](https://badge.fury.io/py/rsscrawler.svg)](https://badge.fury.io/py/rsscrawler)
-[![PyPI - Downloads](https://img.shields.io/pypi/dm/rsscrawler)](https://github.com/rix1337/RSScrawler/releases)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/rsscrawler)](https://github.com/rix1337/FeedCrawler/releases)
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
-[![Chat aufrufen unter https://gitter.im/RSScrawler/Lobby](https://badges.gitter.im/RSScrawler/Lobby.svg)](https://gitter.im/RSScrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.com/rix1337/RSScrawler.svg?branch=master)](https://travis-ci.com/rix1337/RSScrawler)
-[![GitHub license](https://img.shields.io/github/license/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/blob/master/LICENSE.md)
-[![GitHub issues](https://img.shields.io/github/issues/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/issues)
-[![GitHub stars](https://img.shields.io/github/stars/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/rix1337/RSScrawler.svg)](https://github.com/rix1337/RSScrawler/network)
+[![Chat aufrufen unter https://gitter.im/FeedCrawler/Lobby](https://badges.gitter.im/FeedCrawler/Lobby.svg)](https://gitter.im/FeedCrawler/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.com/rix1337/FeedCrawler.svg?branch=master)](https://travis-ci.com/rix1337/FeedCrawler)
+[![GitHub license](https://img.shields.io/github/license/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/blob/master/LICENSE.md)
+[![GitHub issues](https://img.shields.io/github/issues/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/issues)
+[![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/network)
 
 ***
 
@@ -22,7 +22,9 @@ RSScrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet werden.
 
 ##### Windows
-* Jedem [Release](https://github.com/rix1337/RSScrawler/releases) wird eine selbstständig unter Windows lauffähige Version des RSScrawlers beigefügt.
+
+* Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
+  Version des RSScrawlers beigefügt.
 * Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
 
@@ -47,15 +49,15 @@ Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat, bspw. [
 
 ```pip install rsscrawler```
 
-Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/RSScrawler/wiki)!
+Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
 #### Bekannte Fehler
 
 Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
--Fehlermeldungen, so muss der Container gestoppt, die `RSScrawler.db` beliebig (bspw. zu `RSScrawler-Temp.db`) umbenannt
-und direkt wieder zurück zu `RSScrawler.db` umbenannt werden. Hintergrund ist, dass der RSScrawler nicht während die
-Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround stellt
-sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
+-Fehlermeldungen, so muss der Container gestoppt, die `FeedCrawler.db` beliebig (bspw. zu `FeedCrawler-Temp.db`)
+umbenannt und direkt wieder zurück zu `FeedCrawler.db` umbenannt werden. Hintergrund ist, dass der FeedCrawler nicht
+während die Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround
+stellt sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
 
 Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
 nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
@@ -72,15 +74,17 @@ Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 #### Hostnamen festlegen
 
-RSScrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche Seiten durchsucht werden sollen.
-Diese Entscheidung trifft der Anwender selbstständig, indem er die _RSScrawler.ini_ in der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_).
-Eingetragen werden dort reine Hostnamen (ohne _https://_).
+FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche
+Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _RSScrawler.ini_ in
+der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werden dort reine Hostnamen (ohne _https://_).
 
 ##### Dabei gilt
+
 * Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
-* Ist nicht mindestens ein Hostname gesetzt, wird der RSScrawler nicht starten.
-* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des RSScrawlers, kann es zu Fehlern kommen.
-* Weder RSScrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
+* Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
+* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des RSScrawlers, kann es zu Fehlern
+  kommen.
+* Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
 
 
 #### Startparameter
@@ -102,4 +106,4 @@ Eingetragen werden dort reine Hostnamen (ohne _https://_).
 * [mmarquezs](https://github.com/mmarquezs/)
 * [Gutz-Pilz](https://github.com/Gutz-Pilz/)
 * [zapp-brannigan](https://github.com/zapp-brannigan/)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=RSScrawler)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler)

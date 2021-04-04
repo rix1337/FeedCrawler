@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler
+# FeedCrawler
 # Projekt von https://github.com/rix1337
 
 bs4

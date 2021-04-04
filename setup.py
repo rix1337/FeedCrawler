@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-# RSScrawler
+# FeedCrawler
 # Projekt von https://github.com/rix1337
 
 import setuptools
 
-from rsscrawler.version import get_version
+from feedcrawler.version import get_version
 
 try:
     with open('README.md', encoding='utf-8') as f:
@@ -18,14 +18,14 @@ with open('requirements.txt') as f:
     required = f.read().splitlines()
 
 setuptools.setup(
-    name="rsscrawler",
+    name="feedcrawler",
     version=get_version(),
     author="rix1337",
     author_email="",
     description="Automating JDownloader Downloads (German!)",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rix1337/RSScrawler",
+    url="https://github.com/rix1337/FeedCrawler",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=required,
@@ -37,7 +37,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'rsscrawler = rsscrawler.crawler:main',
+            'feedcrawler = feedcrawler.crawler:main',
         ],
     },
 )
