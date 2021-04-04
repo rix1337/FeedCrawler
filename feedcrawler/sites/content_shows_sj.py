@@ -6,8 +6,8 @@ import feedcrawler.sites.shared.content_shows as shared_shows
 from feedcrawler.config import RssConfig
 
 from feedcrawler.db import RssDb
-from feedcrawler.sites.shared.fake_feed import j_parse_download
-from feedcrawler.sites.shared.fake_feed import j_releases_to_feedparser_dict
+from feedcrawler.sites.shared.internal_feed import j_parse_download
+from feedcrawler.sites.shared.internal_feed import j_releases_to_feedparser_dict
 
 
 class SJ:

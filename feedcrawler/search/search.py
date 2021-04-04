@@ -12,11 +12,11 @@ from feedcrawler.common import check_is_site
 from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import RssConfig
-from feedcrawler.sites.shared.fake_feed import by_search_results
-from feedcrawler.sites.shared.fake_feed import dw_search_results
-from feedcrawler.sites.shared.fake_feed import fx_content_to_soup
-from feedcrawler.sites.shared.fake_feed import fx_search_results
-from feedcrawler.sites.shared.fake_feed import nk_search_results
+from feedcrawler.sites.shared.internal_feed import by_search_results
+from feedcrawler.sites.shared.internal_feed import dw_search_results
+from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
+from feedcrawler.sites.shared.internal_feed import fx_search_results
+from feedcrawler.sites.shared.internal_feed import nk_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url

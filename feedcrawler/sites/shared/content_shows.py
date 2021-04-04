@@ -9,7 +9,7 @@ import re
 from feedcrawler.common import add_decrypt
 from feedcrawler.db import ListDb
 from feedcrawler.notifiers import notify
-from feedcrawler.sites.shared.fake_feed import dw_mirror
+from feedcrawler.sites.shared.internal_feed import dw_mirror
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers
 

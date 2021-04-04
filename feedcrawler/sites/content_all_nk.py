@@ -6,8 +6,8 @@ import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import RssConfig
 from feedcrawler.db import RssDb
 from feedcrawler.myjd import myjd_download
-from feedcrawler.sites.shared.fake_feed import get_download_links
-from feedcrawler.sites.shared.fake_feed import nk_feed_enricher
+from feedcrawler.sites.shared.internal_feed import get_download_links
+from feedcrawler.sites.shared.internal_feed import nk_feed_enricher
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers
 
