@@ -431,6 +431,14 @@ def main():
     configfile = os.path.join(configpath, "FeedCrawler.ini")
     dbfile = os.path.join(configpath, "FeedCrawler.db")
 
+    # ToDo
+    # 1. Rename RSScrawler.ini to FeedCrawler.ini
+    # 2. Rename [RSScrawler] config Header to [FeedCrawler]
+    # 3. Rename site specific config headers
+    # 4. Rename RSScrawler.db to FeedCrawler.db
+    # 5. Rename "rsscrawler" table to "feedcrawler"
+    # 6. Rename site specific list names
+
     print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 
     log_level = logging.__dict__[
