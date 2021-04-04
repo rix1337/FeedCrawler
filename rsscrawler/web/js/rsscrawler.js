@@ -132,6 +132,20 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.loglength = 65;
     $scope.longlog = false;
+    $scope.accordionlength = 45;
+
+    $(window).resize(function () {
+        setAccordionWidth();
+    });
+
+    function setAccordionWidth() {
+        $scope.windowWidth = $(window).width();
+        if ($scope.windowWidth <= 768) {
+            $scope.accordionlength = 45;
+        } else {
+            $scope.accordionlength = 85;
+        }
+    }
 
     $scope.longerLog = function () {
         $scope.loglength = 999;
