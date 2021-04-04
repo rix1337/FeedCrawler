@@ -12,7 +12,7 @@ from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_size
 from feedcrawler.common import readable_time
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 
 
@@ -38,7 +38,7 @@ def ensure_string(potential_list):
 
 
 def get_device(configfile):
-    conf = RssConfig('FeedCrawler', configfile)
+    conf = CrawlerConfig('FeedCrawler', configfile)
     myjd_user = str(conf.get('myjd_user'))
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
@@ -224,7 +224,7 @@ def check_packages_types(links, packages, configfile, device):
                         filename = str(link.get('name'))
                         if filename not in filenames:
                             filenames.append(filename)
-            if RssConfig("FeedCrawler", configfile).get('one_mirror_policy'):
+            if CrawlerConfig("FeedCrawler", configfile).get('one_mirror_policy'):
                 if delete_linkids:
                     if package_online:
                         device = remove_from_linkgrabber(configfile, device, delete_linkids, [])
@@ -480,7 +480,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
             links = [old_links]
 
         links = str(links).replace(" ", "")
-        crawljobs = RssConfig('Crawljobs', configfile)
+        crawljobs = CrawlerConfig('Crawljobs', configfile)
         usesubdir = crawljobs.get("subdir")
         priority = "DEFAULT"
 

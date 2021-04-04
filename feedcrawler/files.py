@@ -5,7 +5,7 @@
 import os
 import sys
 
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 
@@ -61,13 +61,13 @@ def myjd_input(configfile, port, user, password, device):
 
     sections = ['FeedCrawler', 'MB', 'SJ', 'DD', 'Notifications', 'Crawljobs']
     for section in sections:
-        RssConfig(section, configfile)
+        CrawlerConfig(section, configfile)
     if port:
-        RssConfig('FeedCrawler', configfile).save("port", port)
+        CrawlerConfig('FeedCrawler', configfile).save("port", port)
 
-    RssConfig('FeedCrawler', configfile).save("myjd_user", user)
-    RssConfig('FeedCrawler', configfile).save("myjd_pass", password)
-    RssConfig('FeedCrawler', configfile).save("myjd_device", device)
+    CrawlerConfig('FeedCrawler', configfile).save("myjd_user", user)
+    CrawlerConfig('FeedCrawler', configfile).save("myjd_pass", password)
+    CrawlerConfig('FeedCrawler', configfile).save("myjd_device", device)
     device = get_device(configfile)
     if device:
         return device

@@ -7,7 +7,7 @@ import re
 from rapidfuzz import fuzz
 
 from feedcrawler.common import decode_base64, sanitize, check_hoster, add_decrypt
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, logger, rate
@@ -63,7 +63,7 @@ def get_best_result(title, configfile, dbfile):
 
 
 def download(payload, configfile, dbfile):
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
 
     payload = decode_base64(payload).split("|")
@@ -89,8 +89,8 @@ def download(payload, configfile, dbfile):
         if list_title not in cont:
             ListDb(dbfile, liste).store(list_title)
 
-    config = RssConfig('SJ', configfile)
-    english_ok = RssConfig('FeedCrawler', configfile).get("english")
+    config = CrawlerConfig('SJ', configfile)
+    english_ok = CrawlerConfig('FeedCrawler', configfile).get("english")
     quality = config.get('quality')
     ignore = config.get('rejectlist')
 

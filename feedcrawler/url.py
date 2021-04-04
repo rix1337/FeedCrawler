@@ -11,7 +11,7 @@ import hashlib
 import pickle
 
 from feedcrawler.common import check_is_site
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 
 
@@ -64,7 +64,7 @@ def cache(func):
 
 
 def check_url(configfile, dbfile, scraper=False):
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
@@ -128,8 +128,8 @@ def check_url(configfile, dbfile, scraper=False):
     db_normal.delete("WW")
     db_normal.delete("DD")
 
-    proxy = RssConfig('FeedCrawler', configfile).get('proxy')
-    fallback = RssConfig('FeedCrawler', configfile).get('fallback')
+    proxy = CrawlerConfig('FeedCrawler', configfile).get('proxy')
+    fallback = CrawlerConfig('FeedCrawler', configfile).get('fallback')
 
     if proxy:
         proxies = {'http': proxy, 'https': proxy}
@@ -410,7 +410,7 @@ def check_url(configfile, dbfile, scraper=False):
 
 @cache
 def get_url(url, configfile, dbfile, scraper=False):
-    config = RssConfig('FeedCrawler', configfile)
+    config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()
@@ -511,7 +511,7 @@ def get_url(url, configfile, dbfile, scraper=False):
 
 @cache
 def get_url_headers(url, configfile, dbfile, headers, scraper=False):
-    config = RssConfig('FeedCrawler', configfile)
+    config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()
@@ -611,7 +611,7 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
 
 @cache
 def get_redirected_url(url, configfile, dbfile, scraper=False):
-    config = RssConfig('FeedCrawler', configfile)
+    config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()
@@ -708,7 +708,7 @@ def get_redirected_url(url, configfile, dbfile, scraper=False):
 
 @cache
 def post_url(url, configfile, dbfile, data, scraper=False):
-    config = RssConfig('FeedCrawler', configfile)
+    config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()
@@ -808,7 +808,7 @@ def post_url(url, configfile, dbfile, data, scraper=False):
 
 @cache
 def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
-    config = RssConfig('FeedCrawler', configfile)
+    config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
     if not scraper:
         scraper = cloudscraper.create_scraper()

@@ -3,7 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import feedcrawler.sites.shared.content_all as shared_blogs
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.sites.shared.internal_feed import by_feed_enricher
@@ -22,7 +22,7 @@ class BL:
         self.dbfile = dbfile
         self.device = device
 
-        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.hostnames = CrawlerConfig('Hostnames', self.configfile)
         self.url = self.hostnames.get('by')
         self.password = self.url.split('.')[0]
 
@@ -32,8 +32,8 @@ class BL:
             self.URL = 'https://' + self.url + "/?cat=2"
         self.FEED_URLS = [self.URL]
 
-        self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.feedcrawler = RssConfig("FeedCrawler", self.configfile)
+        self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+        self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
@@ -43,11 +43,11 @@ class BL:
         self.db = FeedDb(self.dbfile, 'feedcrawler')
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
-        self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hosters = CrawlerConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
 
-        search = int(RssConfig(self._INTERNAL_NAME, self.configfile).get("search"))
+        search = int(CrawlerConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
             page_url = self.URL + "&start=" + str(i)

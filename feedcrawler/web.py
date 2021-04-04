@@ -28,7 +28,7 @@ from feedcrawler.common import get_to_decrypt
 from feedcrawler.common import is_device
 from feedcrawler.common import remove_decrypt
 from feedcrawler.common import rreplace
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import check_device
@@ -67,7 +67,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-    general = RssConfig('FeedCrawler', configfile)
+    general = CrawlerConfig('FeedCrawler', configfile)
     if general.get("prefix"):
         prefix = '/' + general.get("prefix")
     else:
@@ -96,7 +96,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def requires_auth(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            config = RssConfig('FeedCrawler', configfile)
+            config = CrawlerConfig('FeedCrawler', configfile)
             if config.get("auth_user") and config.get("auth_hash"):
                 auth = request.authorization
                 if not auth or not check_auth(config, auth.username, auth.password):
@@ -202,15 +202,15 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_post_settings():
         if request.method == 'GET':
             try:
-                general_conf = RssConfig('FeedCrawler', configfile)
-                hosters = RssConfig('Hosters', configfile)
-                alerts = RssConfig('Notifications', configfile)
-                ombi = RssConfig('Ombi', configfile)
-                crawljobs = RssConfig('Crawljobs', configfile)
-                mb_conf = RssConfig('MB', configfile)
-                sj_conf = RssConfig('SJ', configfile)
-                dj_conf = RssConfig('DJ', configfile)
-                dd_conf = RssConfig('DD', configfile)
+                general_conf = CrawlerConfig('FeedCrawler', configfile)
+                hosters = CrawlerConfig('Hosters', configfile)
+                alerts = CrawlerConfig('Notifications', configfile)
+                ombi = CrawlerConfig('Ombi', configfile)
+                crawljobs = CrawlerConfig('Crawljobs', configfile)
+                mb_conf = CrawlerConfig('MB', configfile)
+                sj_conf = CrawlerConfig('SJ', configfile)
+                dj_conf = CrawlerConfig('DJ', configfile)
+                dd_conf = CrawlerConfig('DD', configfile)
                 return jsonify(
                     {
                         "settings": {
@@ -307,7 +307,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
             try:
                 data = request.json
 
-                section = RssConfig("FeedCrawler", configfile)
+                section = CrawlerConfig("FeedCrawler", configfile)
 
                 section.save(
                     "auth_user", to_str(data['general']['auth_user']))
@@ -355,19 +355,19 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
                 section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
 
-                section = RssConfig("Crawljobs", configfile)
+                section = CrawlerConfig("Crawljobs", configfile)
 
                 section.save("autostart", to_str(data['crawljobs']['autostart']))
                 section.save("subdir", to_str(data['crawljobs']['subdir']))
 
-                section = RssConfig("Notifications", configfile)
+                section = CrawlerConfig("Notifications", configfile)
 
                 section.save("pushbullet", to_str(data['alerts']['pushbullet']))
                 section.save("pushover", to_str(data['alerts']['pushover']))
                 section.save("telegram", to_str(data['alerts']['telegram']))
                 section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
-                section = RssConfig("Hosters", configfile)
+                section = CrawlerConfig("Hosters", configfile)
 
                 section.save("rapidgator", to_str(data['hosters']['rapidgator']))
                 section.save("turbobit", to_str(data['hosters']['turbobit']))
@@ -383,12 +383,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("ironfiles", to_str(data['hosters']['ironfiles']))
                 section.save("k2s", to_str(data['hosters']['k2s']))
 
-                section = RssConfig("Ombi", configfile)
+                section = CrawlerConfig("Ombi", configfile)
 
                 section.save("url", to_str(data['ombi']['url']))
                 section.save("api", to_str(data['ombi']['api']))
 
-                section = RssConfig("MB", configfile)
+                section = CrawlerConfig("MB", configfile)
                 section.save("quality", to_str(data['mb']['quality']))
                 section.save("search", to_str(data['mb']['search']))
                 section.save("ignore", to_str(data['mb']['ignore']).lower())
@@ -414,7 +414,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['mb']['retail_only']))
                 section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
-                section = RssConfig("SJ", configfile)
+                section = CrawlerConfig("SJ", configfile)
 
                 section.save("quality", to_str(data['sj']['quality']))
                 section.save("rejectlist", to_str(data['sj']['ignore']).lower())
@@ -423,14 +423,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['sj']['retail_only']))
                 section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
-                section = RssConfig("DJ", configfile)
+                section = CrawlerConfig("DJ", configfile)
 
                 section.save("quality", to_str(data['dj']['quality']))
                 section.save("rejectlist", to_str(data['dj']['ignore']).lower())
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
-                section = RssConfig("DD", configfile)
+                section = CrawlerConfig("DD", configfile)
 
                 section.save("feeds", to_str(data['dd']['feeds']))
                 section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
@@ -496,7 +496,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_hostnames():
         if request.method == 'GET':
             try:
-                hostnames = RssConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames', configfile)
                 dw = hostnames.get('dw')
                 fx = hostnames.get('fx')
                 sj = hostnames.get('sj')
@@ -1162,7 +1162,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def feedcrawler_helper_sj():
         if request.method == 'GET':
             try:
-                hostnames = RssConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames', configfile)
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 return """// ==UserScript==
@@ -1215,7 +1215,7 @@ if (title) {
             return "Forbidden", 403
         if request.method == 'GET':
             try:
-                hostnames = RssConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames', configfile)
                 dw = hostnames.get('dw')
                 return """// ==UserScript==
 // @name            FeedCrawler Sponsors Helper (DW)
@@ -1281,7 +1281,7 @@ if (title) {
             return "Forbidden", 403
         if request.method == 'GET':
             try:
-                hostnames = RssConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames', configfile)
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 return """// ==UserScript==

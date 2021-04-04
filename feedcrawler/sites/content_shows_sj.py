@@ -3,7 +3,7 @@
 # Projekt von https://github.com/rix1337
 
 import feedcrawler.sites.shared.content_shows as shared_shows
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 
 from feedcrawler.db import FeedDb
 from feedcrawler.sites.shared.internal_feed import j_parse_download
@@ -19,19 +19,19 @@ class SJ:
         self.dbfile = dbfile
         self.device = device
 
-        self.hostnames = RssConfig('Hostnames', self.configfile)
+        self.hostnames = CrawlerConfig('Hostnames', self.configfile)
         self.url = self.hostnames.get('sj')
 
         self.filename = filename
         if "MB_Staffeln" in self.filename:
-            self.config = RssConfig("MB", self.configfile)
+            self.config = CrawlerConfig("MB", self.configfile)
         else:
-            self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
-        self.feedcrawler = RssConfig("FeedCrawler", self.configfile)
+            self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+        self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.hosters = RssConfig("Hosters", configfile).get_section()
+        self.hosters = CrawlerConfig("Hosters", configfile).get_section()
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug

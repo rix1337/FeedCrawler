@@ -9,7 +9,7 @@ import re
 import socket
 
 from feedcrawler import myjdapi
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
 
@@ -43,7 +43,7 @@ def add_decrypt(title, link, password, dbfile):
 
 
 def check_hoster(to_check, configfile):
-    hosters = RssConfig("Hosters", configfile).get_section()
+    hosters = CrawlerConfig("Hosters", configfile).get_section()
     for hoster in hosters:
         if hosters[hoster] == "True":
             if hoster in to_check.lower() or to_check.lower() in hoster:
@@ -64,7 +64,7 @@ def check_ip():
 
 
 def check_is_site(string, configfile):
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')

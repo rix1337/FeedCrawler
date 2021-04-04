@@ -5,7 +5,7 @@
 import configparser
 
 
-class RssConfig(object):
+class CrawlerConfig(object):
     _DEFAULT_CONFIG = {
         'FeedCrawler': [
             ("auth_user", "str", ""),

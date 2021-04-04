@@ -12,7 +12,7 @@ import feedcrawler.search.shared.content_shows
 from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.url import get_url_headers
 
@@ -102,14 +102,14 @@ def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
 
 def ombi(configfile, dbfile, device, log_debug, first_launch):
     db = FeedDb(dbfile, 'Ombi')
-    config = RssConfig('Ombi', configfile)
+    config = CrawlerConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')
 
     if not url or not api:
         return [device, [0, 0]]
 
-    english = RssConfig('FeedCrawler', configfile).get('english')
+    english = CrawlerConfig('FeedCrawler', configfile).get('english')
 
     try:
         requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})

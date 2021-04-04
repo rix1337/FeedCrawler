@@ -51,7 +51,7 @@ from feedcrawler.common import add_decrypt
 from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_time
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
@@ -208,7 +208,7 @@ def web_server(port, local_address, docker, configfile, dbfile, log_level, log_f
 
 def crawldog(configfile, dbfile):
     disable_request_warnings(InsecureRequestWarning)
-    crawljobs = RssConfig('Crawljobs', configfile)
+    crawljobs = CrawlerConfig('Crawljobs', configfile)
     autostart = crawljobs.get("autostart")
     db = FeedDb(dbfile, 'crawldog')
 
@@ -446,7 +446,7 @@ def main():
     log_file = os.path.join(configpath, 'FeedCrawler.log')
     log_format = '%(asctime)s - %(message)s'
 
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
 
     def clean_up_hostname(host, string):
         if '/' in string:
@@ -490,7 +490,7 @@ def main():
                                           arguments['--jd-pass'],
                                           arguments['--jd-device'])
         else:
-            feedcrawler = RssConfig('FeedCrawler', configfile)
+            feedcrawler = CrawlerConfig('FeedCrawler', configfile)
             user = feedcrawler.get('myjd_user')
             password = feedcrawler.get('myjd_pass')
             if user and password:
@@ -512,7 +512,7 @@ def main():
         else:
             print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
-    feedcrawler = RssConfig('FeedCrawler', configfile)
+    feedcrawler = CrawlerConfig('FeedCrawler', configfile)
 
     port = int(feedcrawler.get("port"))
     docker = False

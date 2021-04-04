@@ -11,7 +11,7 @@ from rapidfuzz import fuzz
 from feedcrawler.common import check_is_site
 from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.sites.shared.internal_feed import by_search_results
 from feedcrawler.sites.shared.internal_feed import dw_search_results
 from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
@@ -25,7 +25,7 @@ logger = logging.getLogger('feedcrawler')
 
 
 def get(title, configfile, dbfile, bl_only=False, sj_only=False):
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
     by = hostnames.get('by')
     dw = hostnames.get('dw')
     fx = hostnames.get('fx')
@@ -58,7 +58,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
         unrated = []
 
-        config = RssConfig('MB', configfile)
+        config = CrawlerConfig('MB', configfile)
         quality = config.get('quality')
         ignore = config.get('ignore')
 

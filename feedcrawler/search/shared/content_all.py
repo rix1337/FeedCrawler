@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
 
 from feedcrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
@@ -87,9 +87,9 @@ def get_best_result(title, configfile, dbfile):
 
 
 def download(payload, device, configfile, dbfile):
-    config = RssConfig('MB', configfile)
+    config = CrawlerConfig('MB', configfile)
     db = FeedDb(dbfile, 'feedcrawler')
-    hostnames = RssConfig('Hostnames', configfile)
+    hostnames = CrawlerConfig('Hostnames', configfile)
     by = hostnames.get('by')
     nk = hostnames.get('nk')
 

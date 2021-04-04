@@ -1,4 +1,5 @@
 # FeedCrawler
+<img src="/feedcrawler/web/img/favicon.ico" width="200">
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 

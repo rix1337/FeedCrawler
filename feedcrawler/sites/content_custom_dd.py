@@ -9,7 +9,7 @@ from dateutil import parser
 from time import time
 
 from feedcrawler.common import check_hoster
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
@@ -24,7 +24,7 @@ class DD:
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
-        self.config = RssConfig(self._INTERNAL_NAME, self.configfile)
+        self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug

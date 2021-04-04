@@ -11,7 +11,7 @@ from urllib.request import urlopen, Request
 
 import simplejson as json
 
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 
 log_info = logging.info
 log_error = logging.error
@@ -24,7 +24,7 @@ def api_request_cutter(message, n):
 
 
 def notify(items, configfile):
-    notifications = RssConfig('Notifications', configfile)
+    notifications = CrawlerConfig('Notifications', configfile)
     homeassistant_settings = notifications.get("homeassistant").split(',')
     pushbullet_token = notifications.get("pushbullet")
     telegram_settings = notifications.get("telegram").split(',')

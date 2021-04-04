@@ -12,7 +12,7 @@ from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import rreplace
-from feedcrawler.config import RssConfig
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
@@ -63,7 +63,7 @@ def check_download_links(self, url_hosters):
 
 
 def get_search_results(self, bl_query):
-    hostnames = RssConfig('Hostnames', self.configfile)
+    hostnames = CrawlerConfig('Hostnames', self.configfile)
     by = hostnames.get('by')
     dw = hostnames.get('dw')
     fx = hostnames.get('fx')
@@ -71,7 +71,7 @@ def get_search_results(self, bl_query):
 
     search_results = []
 
-    config = RssConfig('MB', self.configfile)
+    config = CrawlerConfig('MB', self.configfile)
     quality = config.get('quality')
 
     if "480p" not in quality:
@@ -188,7 +188,7 @@ def by_get_download_links(self, content, title):
 
 
 def by_feed_enricher(self, content):
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('by')
+    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
     async_results = []
@@ -290,7 +290,7 @@ def dw_get_download_links(self, content, title):
 
 
 def dw_feed_enricher(self, content):
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('dw')
+    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('dw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("download/"))
     href_by_id = {}
@@ -368,7 +368,7 @@ def dw_search_results(content, base_url):
 
 
 def dw_mirror(self, title):
-    hostnames = RssConfig('Hostnames', self.configfile)
+    hostnames = CrawlerConfig('Hostnames', self.configfile)
     dw = hostnames.get('dw')
 
     if dw:
@@ -580,7 +580,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
 
 
 def nk_feed_enricher(self, content):
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('nk')
+    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
@@ -670,7 +670,7 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
 
 
 def ww_get_download_links(self, content, title):
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('ww')
+    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('ww')
     content = content.replace("mkv|", "")
     download_links = []
     try:
@@ -693,7 +693,7 @@ def ww_get_download_links(self, content, title):
 
 
 def ww_feed_enricher(self, content):
-    base_url = "https://" + RssConfig('Hostnames', self.configfile).get('ww')
+    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")
     entries = []
