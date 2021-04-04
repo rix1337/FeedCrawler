@@ -155,6 +155,10 @@ p {
     margin-top: 16px;
 }
 
+.form-check {
+    display: inline-block;
+}
+
 .isDisabled {
     color: currentColor;
     cursor: not-allowed;
