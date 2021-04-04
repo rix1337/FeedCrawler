@@ -30,7 +30,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ##### Windows
 
 * Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
-  Version des RSScrawlers beigefügt.
+  Version des Feedcrawlers beigefügt.
 * Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
 
@@ -81,14 +81,14 @@ Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 #### Hostnamen festlegen
 
 FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche
-Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _RSScrawler.ini_ in
+Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _Feedcrawler.ini_ in
 der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werden dort reine Hostnamen (ohne _https://_).
 
 ##### Dabei gilt
 
 * Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
 * Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
-* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des RSScrawlers, kann es zu Fehlern
+* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des Feedcrawlers, kann es zu Fehlern
   kommen.
 * Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
 
