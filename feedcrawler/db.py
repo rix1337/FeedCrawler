@@ -11,7 +11,7 @@ def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
 
 
-class RssDb(object):
+class FeedDb(object):
     def __init__(self, file, table):
         self._conn = sqlite3.connect(file, check_same_thread=False, timeout=10)
         self._table = table

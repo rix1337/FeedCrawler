@@ -4,7 +4,7 @@
 
 import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.sites.shared.internal_feed import get_download_links
 from feedcrawler.sites.shared.internal_feed import nk_feed_enricher
@@ -37,7 +37,7 @@ class BL:
         self.scraper = scraper
         self.filename = filename
         self.pattern = False
-        self.db = RssDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'feedcrawler')
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
         self.hosters = RssConfig("Hosters", configfile).get_section()
@@ -51,7 +51,7 @@ class BL:
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
-        self.cdc = RssDb(self.dbfile, 'cdc')
+        self.cdc = FeedDb(self.dbfile, 'cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}

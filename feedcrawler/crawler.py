@@ -52,7 +52,7 @@ from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_time
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 from feedcrawler.myjd import get_info
@@ -108,15 +108,15 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
 
     ombi_first_launch = True
 
-    crawltimes = RssDb(dbfile, "crawltimes")
+    crawltimes = FeedDb(dbfile, "crawltimes")
 
     arguments = docopt(__doc__, version='FeedCrawler')
     while True:
         try:
             if not device or not is_device(device):
                 device = get_device(configfile)
-            RssDb(dbfile, 'cached_requests').reset()
-            RssDb(dbfile, 'cached_requests').cleanup()
+            FeedDb(dbfile, 'cached_requests').reset()
+            FeedDb(dbfile, 'cached_requests').cleanup()
             scraper = check_url(configfile, dbfile)
             start_time = time.time()
             crawltimes.update_store("active", "True")
@@ -149,7 +149,7 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
                 log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
                 device = task.periodical_task()
                 log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
-            cached_requests = RssDb(dbfile, 'cached_requests').count()
+            cached_requests = FeedDb(dbfile, 'cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
             total_time = end_time - start_time
@@ -174,8 +174,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
-            RssDb(dbfile, 'cached_requests').reset()
-            RssDb(dbfile, 'cached_requests').cleanup()
+            FeedDb(dbfile, 'cached_requests').reset()
+            FeedDb(dbfile, 'cached_requests').cleanup()
 
             if arguments['--testlauf']:
                 log_debug(u"-----------Testlauf beendet!-----------")
@@ -186,8 +186,8 @@ def crawler(configfile, dbfile, device, rsscrawler, log_level, log_file, log_for
             start_now_triggered = False
             while wait_chunks:
                 time.sleep(10)
-                if RssDb(dbfile, 'crawltimes').retrieve("startnow"):
-                    RssDb(dbfile, 'crawltimes').delete("startnow")
+                if FeedDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    FeedDb(dbfile, 'crawltimes').delete("startnow")
                     start_now_triggered = True
                     break
 
@@ -210,7 +210,7 @@ def crawldog(configfile, dbfile):
     disable_request_warnings(InsecureRequestWarning)
     crawljobs = RssConfig('Crawljobs', configfile)
     autostart = crawljobs.get("autostart")
-    db = RssDb(dbfile, 'crawldog')
+    db = FeedDb(dbfile, 'crawldog')
 
     grabber_was_collecting = False
     grabber_collecting = False
@@ -258,7 +258,7 @@ def crawldog(configfile, dbfile):
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                             check = hoster_check(configfile, device, [package], title[0], [0])
                                             device = check[0]
-                                            episode = RssDb(dbfile, 'episode_remover').retrieve(title[0])
+                                            episode = FeedDb(dbfile, 'episode_remover').retrieve(title[0])
                                             if episode:
                                                 filenames = package['filenames']
                                                 if len(filenames) > 1:
@@ -328,7 +328,7 @@ def crawldog(configfile, dbfile):
                                                         pos += 1
                                                     if delete_linkids:
                                                         delete_uuids = [package['uuid']]
-                                                        RssDb(dbfile, 'episode_remover').delete(title[0])
+                                                        FeedDb(dbfile, 'episode_remover').delete(title[0])
                                                         device = remove_from_linkgrabber(configfile, device,
                                                                                          delete_linkids,
                                                                                          delete_uuids)
@@ -525,7 +525,7 @@ def main():
     if arguments['--keep-cdc']:
         print(u"CDC-Tabelle nicht geleert!")
     else:
-        RssDb(dbfile, 'cdc').reset()
+        FeedDb(dbfile, 'cdc').reset()
 
     p = multiprocessing.Process(target=web_server,
                                 args=(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format,

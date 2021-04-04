@@ -30,7 +30,7 @@ from feedcrawler.common import remove_decrypt
 from feedcrawler.common import rreplace
 from feedcrawler.config import RssConfig
 from feedcrawler.db import ListDb
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.myjd import check_device
 from feedcrawler.myjd import do_add_decrypted
 from feedcrawler.myjd import do_package_replace
@@ -473,7 +473,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_crawltimes():
         if request.method == 'GET':
             try:
-                crawltimes = RssDb(dbfile, "crawltimes")
+                crawltimes = FeedDb(dbfile, "crawltimes")
                 return jsonify(
                     {
                         "crawltimes": {
@@ -575,8 +575,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 def check(site, db):
                     return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
 
-                db_proxy = RssDb(dbfile, 'proxystatus')
-                db_normal = RssDb(dbfile, 'normalstatus')
+                db_proxy = FeedDb(dbfile, 'proxystatus')
+                db_normal = FeedDb(dbfile, 'normalstatus')
                 return jsonify(
                     {
                         "proxy": {
@@ -614,11 +614,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def start_now():
         if request.method == 'POST':
             try:
-                RssDb(dbfile, 'crawltimes').store("startnow", "True")
+                FeedDb(dbfile, 'crawltimes').store("startnow", "True")
                 i = 3
                 started = False
                 while i > 0:
-                    if not RssDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    if not FeedDb(dbfile, 'crawltimes').retrieve("startnow"):
                         started = True
                         break
                     i -= 1
@@ -1523,7 +1523,7 @@ var cnlExists = setInterval(async function() {
                     except:
                         ids = False
 
-                    RssDb(dbfile, 'crawldog').store(name, 'added')
+                    FeedDb(dbfile, 'crawldog').store(name, 'added')
                     if device:
                         if ids:
                             try:
@@ -1593,7 +1593,7 @@ var cnlExists = setInterval(async function() {
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                                 if episode:
-                                                    RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
                                                 remove_from_linkgrabber(configfile, device, linkids, uuids)
@@ -1604,7 +1604,7 @@ var cnlExists = setInterval(async function() {
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                                 if episode:
-                                                    RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
                                                 remove_from_linkgrabber(configfile, device, linkids, uuids)
@@ -1624,7 +1624,7 @@ var cnlExists = setInterval(async function() {
                                         episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                         remove_decrypt(package['name'], dbfile)
                                         if episode:
-                                            RssDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
                                             episode = str(episode[0])
                                             if len(episode) == 1:
                                                 episode = "0" + episode
@@ -1644,7 +1644,7 @@ var cnlExists = setInterval(async function() {
                                         already_added.remove(item)
 
                             device = download(configfile, dbfile, device, name, "FeedCrawler", links, password)
-                            db = RssDb(dbfile, 'feedcrawler')
+                            db = FeedDb(dbfile, 'feedcrawler')
                             if not db.retrieve(name):
                                 db.store(name, 'added')
                             try:

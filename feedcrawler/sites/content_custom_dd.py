@@ -10,7 +10,7 @@ from time import time
 
 from feedcrawler.common import check_hoster
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_url
@@ -29,7 +29,7 @@ class DD:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.scraper = scraper
-        self.db = RssDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'feedcrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")

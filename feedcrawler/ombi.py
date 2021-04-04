@@ -13,7 +13,7 @@ from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.url import get_url_headers
 
 
@@ -101,7 +101,7 @@ def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
 
 
 def ombi(configfile, dbfile, device, log_debug, first_launch):
-    db = RssDb(dbfile, 'Ombi')
+    db = FeedDb(dbfile, 'Ombi')
     config = RssConfig('Ombi', configfile)
     url = config.get('url')
     api = config.get('api')

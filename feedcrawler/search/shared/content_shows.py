@@ -8,7 +8,7 @@ from rapidfuzz import fuzz
 
 from feedcrawler.common import decode_base64, sanitize, check_hoster, add_decrypt
 from feedcrawler.config import RssConfig
-from feedcrawler.db import ListDb, RssDb
+from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, logger, rate
 from feedcrawler.url import get_url
@@ -232,7 +232,7 @@ def download(payload, configfile, dbfile):
 
     notify_array = []
     for title in matches:
-        db = RssDb(dbfile, 'feedcrawler')
+        db = FeedDb(dbfile, 'feedcrawler')
         if add_decrypt(title, series_url, sj, dbfile):
             db.store(title, 'added')
             log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'

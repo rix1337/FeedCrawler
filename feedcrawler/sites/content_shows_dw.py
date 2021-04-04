@@ -4,7 +4,7 @@
 
 import feedcrawler.sites.shared.content_shows as shared_shows
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 from feedcrawler.sites.shared.internal_feed import dw_parse_download
 from feedcrawler.sites.shared.internal_feed import dw_to_feedparser_dict
 
@@ -35,10 +35,10 @@ class DWs:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.scraper = scraper
-        self.db = RssDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'feedcrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.rsscrawler.get("prefer_dw_mirror")
-        self.cdc = RssDb(self.dbfile, 'cdc')
+        self.cdc = FeedDb(self.dbfile, 'cdc')
         self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
         self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._INTERNAL_NAME + "Headers-" + self.filename))}

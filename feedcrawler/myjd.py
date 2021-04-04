@@ -13,7 +13,7 @@ from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_size
 from feedcrawler.common import readable_time
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 
 
 def split_urls(urls):
@@ -523,7 +523,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "comment": "FeedCrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
-        db = RssDb(dbfile, 'crawldog')
+        db = FeedDb(dbfile, 'crawldog')
         if db.retrieve(title):
             db.delete(title)
             db.store(title, 'retried')
@@ -765,8 +765,8 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
                     new_path = old_path.replace(old_title, new_title)
 
                     device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                    RssDb(dbfile, 'crawldog').store(new_title, 'added')
-                    RssDb(dbfile, 'crawldog').delete(old_title)
+                    FeedDb(dbfile, 'crawldog').store(new_title, 'added')
+                    FeedDb(dbfile, 'crawldog').delete(old_title)
                     return device
 
         device = download(configfile, dbfile, device, title, subdir, links, password)

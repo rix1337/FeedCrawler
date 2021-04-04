@@ -11,7 +11,7 @@ import socket
 from feedcrawler import myjdapi
 from feedcrawler.config import RssConfig
 from feedcrawler.db import ListDb
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 
 log_info = logging.info
 log_error = logging.error
@@ -36,7 +36,7 @@ class Unbuffered(object):
 
 def add_decrypt(title, link, password, dbfile):
     try:
-        RssDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
+        FeedDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
         return True
     except:
         return False
@@ -113,7 +113,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         except:
             return True
 
-    db = RssDb(dbfile, 'feedcrawler')
+    db = FeedDb(dbfile, 'feedcrawler')
     is_episode = re.findall(r'.*\.s\d{1,3}(e\d{1,3}|e\d{1,3}-.*\d{1,3})\..*', title, re.IGNORECASE)
     if is_episode:
         episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', search_title, re.IGNORECASE)
@@ -123,7 +123,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         season_results = db.retrieve_all_beginning_with(season_search_title)
         results = db.retrieve_all_beginning_with(search_title) + season_results
     else:
-        db = RssDb(dbfile, 'feedcrawler')
+        db = FeedDb(dbfile, 'feedcrawler')
         results = db.retrieve_all_beginning_with(search_title)
 
     if not results:
@@ -232,7 +232,7 @@ def fullhd_title(key):
 
 def get_to_decrypt(dbfile):
     try:
-        to_decrypt = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        to_decrypt = FeedDb(dbfile, 'to_decrypt').retrieve_all_titles()
         if to_decrypt:
             packages = []
             for package in to_decrypt:
@@ -334,10 +334,10 @@ def remove(retailtitel, dbfile):
 
 def remove_decrypt(title, dbfile):
     try:
-        all_titles = RssDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        all_titles = FeedDb(dbfile, 'to_decrypt').retrieve_all_titles()
         for t in all_titles:
             if t[0].strip() == title.strip():
-                RssDb(dbfile, 'to_decrypt').delete(t[0])
+                FeedDb(dbfile, 'to_decrypt').delete(t[0])
                 return True
     except:
         pass

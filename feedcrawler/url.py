@@ -12,7 +12,7 @@ import pickle
 
 from feedcrawler.common import check_is_site
 from feedcrawler.config import RssConfig
-from feedcrawler.db import RssDb
+from feedcrawler.db import FeedDb
 
 
 class DbFileMissingExpection(Exception):
@@ -49,14 +49,14 @@ def cache(func):
 
         if dbfile:
             # Check if there is a cached request for this hash
-            cached = RssDb(dbfile, 'cached_requests').retrieve(hashed)
+            cached = FeedDb(dbfile, 'cached_requests').retrieve(hashed)
             if cached:
                 # Unpack and return the cached result instead of processing the request
                 return pickle.loads(codecs.decode(cached.encode(), "base64"))
             else:
                 #
                 value = func(*args, **kwargs)
-                RssDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+                FeedDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
                 return value
         raise DbFileMissingExpection(str(args[0]))
 
@@ -107,7 +107,7 @@ def check_url(configfile, dbfile, scraper=False):
     ww_blocked = False
     dd_blocked = False
 
-    db = RssDb(dbfile, 'proxystatus')
+    db = FeedDb(dbfile, 'proxystatus')
     db.delete("SJ")
     db.delete("DJ")
     db.delete("SF")
@@ -117,7 +117,7 @@ def check_url(configfile, dbfile, scraper=False):
     db.delete("NK")
     db.delete("WW")
     db.delete("DD")
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     db_normal.delete("SJ")
     db_normal.delete("DJ")
     db_normal.delete("SF")
@@ -415,8 +415,8 @@ def get_url(url, configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    db = RssDb(dbfile, 'proxystatus')
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db = FeedDb(dbfile, 'proxystatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
     if proxy:
@@ -516,8 +516,8 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    db = RssDb(dbfile, 'proxystatus')
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db = FeedDb(dbfile, 'proxystatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
     if proxy:
@@ -616,8 +616,8 @@ def get_redirected_url(url, configfile, dbfile, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    db = RssDb(dbfile, 'proxystatus')
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db = FeedDb(dbfile, 'proxystatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
     if proxy:
@@ -713,8 +713,8 @@ def post_url(url, configfile, dbfile, data, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    db = RssDb(dbfile, 'proxystatus')
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db = FeedDb(dbfile, 'proxystatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
     if proxy:
@@ -813,8 +813,8 @@ def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
     if not scraper:
         scraper = cloudscraper.create_scraper()
 
-    db = RssDb(dbfile, 'proxystatus')
-    db_normal = RssDb(dbfile, 'normalstatus')
+    db = FeedDb(dbfile, 'proxystatus')
+    db_normal = FeedDb(dbfile, 'normalstatus')
     site = check_is_site(url, configfile)
 
     if proxy:
