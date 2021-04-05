@@ -1644,7 +1644,7 @@ var cnlExists = setInterval(async function() {
                                         already_added.remove(item)
 
                             device = download(configfile, dbfile, device, name, "FeedCrawler", links, password)
-                            db = FeedDb(dbfile, 'feedcrawler')
+                            db = FeedDb(dbfile, 'FeedCrawler')
                             if not db.retrieve(name):
                                 db.store(name, 'added')
                             try:

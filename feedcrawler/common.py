@@ -113,7 +113,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         except:
             return True
 
-    db = FeedDb(dbfile, 'feedcrawler')
+    db = FeedDb(dbfile, 'FeedCrawler')
     is_episode = re.findall(r'.*\.s\d{1,3}(e\d{1,3}|e\d{1,3}-.*\d{1,3})\..*', title, re.IGNORECASE)
     if is_episode:
         episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', search_title, re.IGNORECASE)
@@ -123,7 +123,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         season_results = db.retrieve_all_beginning_with(season_search_title)
         results = db.retrieve_all_beginning_with(search_title) + season_results
     else:
-        db = FeedDb(dbfile, 'feedcrawler')
+        db = FeedDb(dbfile, 'FeedCrawler')
         results = db.retrieve_all_beginning_with(search_title)
 
     if not results:

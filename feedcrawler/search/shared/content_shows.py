@@ -232,7 +232,7 @@ def download(payload, configfile, dbfile):
 
     notify_array = []
     for title in matches:
-        db = FeedDb(dbfile, 'feedcrawler')
+        db = FeedDb(dbfile, 'FeedCrawler')
         if add_decrypt(title, series_url, sj, dbfile):
             db.store(title, 'added')
             log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'

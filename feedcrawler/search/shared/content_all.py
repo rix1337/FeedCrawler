@@ -88,7 +88,7 @@ def get_best_result(title, configfile, dbfile):
 
 def download(payload, device, configfile, dbfile):
     config = CrawlerConfig('ContentAll', configfile)
-    db = FeedDb(dbfile, 'feedcrawler')
+    db = FeedDb(dbfile, 'FeedCrawler')
     hostnames = CrawlerConfig('Hostnames', configfile)
     by = hostnames.get('by')
     nk = hostnames.get('nk')
