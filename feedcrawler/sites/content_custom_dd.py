@@ -28,7 +28,7 @@ class DD:
         self.log_error = logging.error
         self.log_debug = logging.debug
         self.scraper = scraper
-        self.db = FeedDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'FeedCrawler')
 
     def periodical_task(self):
         feeds = self.config.get("feeds")

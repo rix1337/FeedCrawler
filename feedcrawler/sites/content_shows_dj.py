@@ -30,7 +30,7 @@ class DJ:
         self.log_debug = logging.debug
         self.scraper = scraper
         self.filename = filename
-        self.db = FeedDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'FeedCrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
         self.cdc = FeedDb(self.dbfile, 'cdc')

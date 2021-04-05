@@ -445,7 +445,7 @@ def main():
         with open(os.path.join(configpath, "RSScrawler.ini"), 'r') as file:
             filedata = file.read()
 
-        filedata = filedata.replace("[RSScrawler]", "[Feedcrawler]")
+        filedata = filedata.replace("[RSScrawler]", "[FeedCrawler]")
         filedata = filedata.replace("[MB]", "[ContentAll]")
         filedata = filedata.replace("[SJ]", "[ContentShows]")
         filedata = filedata.replace("[DJ]", "[CustomDJ]")

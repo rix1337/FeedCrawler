@@ -36,7 +36,7 @@ class BL:
         self.scraper = scraper
         self.filename = filename
         self.pattern = False
-        self.db = FeedDb(self.dbfile, 'feedcrawler')
+        self.db = FeedDb(self.dbfile, 'FeedCrawler')
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
         self.hosters = CrawlerConfig("Hosters", configfile).get_section()
