@@ -71,7 +71,7 @@ def get_search_results(self, bl_query):
 
     search_results = []
 
-    config = CrawlerConfig('MB', self.configfile)
+    config = CrawlerConfig('ContentAll', self.configfile)
     quality = config.get('quality')
 
     if "480p" not in quality:

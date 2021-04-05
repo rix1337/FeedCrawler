@@ -89,7 +89,7 @@ def download(payload, configfile, dbfile):
         if list_title not in cont:
             ListDb(dbfile, liste).store(list_title)
 
-    config = CrawlerConfig('SJ', configfile)
+    config = CrawlerConfig('ContentShows', configfile)
     english_ok = CrawlerConfig('FeedCrawler', configfile).get("english")
     quality = config.get('quality')
     ignore = config.get('rejectlist')

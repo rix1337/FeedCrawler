@@ -24,9 +24,9 @@ class SJ:
 
         self.filename = filename
         if "List_ContentAll_Seasons" in self.filename:
-            self.config = CrawlerConfig("MB", self.configfile)
+            self.config = CrawlerConfig("ContentAll", self.configfile)
         else:
-            self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+            self.config = CrawlerConfig("ContentShows", self.configfile)
         self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")

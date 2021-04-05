@@ -21,7 +21,7 @@ class DJ:
         self.hostnames = CrawlerConfig('Hostnames', self.configfile)
         self.url = self.hostnames.get('dj')
 
-        self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+        self.config = CrawlerConfig("CustomDJ", self.configfile)
         self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
         self.hosters = CrawlerConfig("Hosters", configfile).get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")

@@ -58,7 +58,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
         unrated = []
 
-        config = CrawlerConfig('MB', configfile)
+        config = CrawlerConfig('ContentAll', configfile)
         quality = config.get('quality')
         ignore = config.get('ignore')
 

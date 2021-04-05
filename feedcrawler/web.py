@@ -207,10 +207,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 alerts = CrawlerConfig('Notifications', configfile)
                 ombi = CrawlerConfig('Ombi', configfile)
                 crawljobs = CrawlerConfig('Crawljobs', configfile)
-                mb_conf = CrawlerConfig('MB', configfile)
-                sj_conf = CrawlerConfig('SJ', configfile)
-                dj_conf = CrawlerConfig('DJ', configfile)
-                dd_conf = CrawlerConfig('DD', configfile)
+                mb_conf = CrawlerConfig('ContentAll', configfile)
+                sj_conf = CrawlerConfig('ContentShows', configfile)
+                dj_conf = CrawlerConfig('CustomDJ', configfile)
+                dd_conf = CrawlerConfig('CustomDD', configfile)
                 return jsonify(
                     {
                         "settings": {
@@ -388,7 +388,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("url", to_str(data['ombi']['url']))
                 section.save("api", to_str(data['ombi']['api']))
 
-                section = CrawlerConfig("MB", configfile)
+                section = CrawlerConfig("ContentAll", configfile)
                 section.save("quality", to_str(data['mb']['quality']))
                 section.save("search", to_str(data['mb']['search']))
                 section.save("ignore", to_str(data['mb']['ignore']).lower())
@@ -414,7 +414,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['mb']['retail_only']))
                 section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
-                section = CrawlerConfig("SJ", configfile)
+                section = CrawlerConfig("ContentShows", configfile)
 
                 section.save("quality", to_str(data['sj']['quality']))
                 section.save("rejectlist", to_str(data['sj']['ignore']).lower())
@@ -423,14 +423,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['sj']['retail_only']))
                 section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
-                section = CrawlerConfig("DJ", configfile)
+                section = CrawlerConfig("CustomDJ", configfile)
 
                 section.save("quality", to_str(data['dj']['quality']))
                 section.save("rejectlist", to_str(data['dj']['ignore']).lower())
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
-                section = CrawlerConfig("DD", configfile)
+                section = CrawlerConfig("CustomDD", configfile)
 
                 section.save("feeds", to_str(data['dd']['feeds']))
                 section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))

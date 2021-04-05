@@ -13,7 +13,6 @@ from feedcrawler.url import get_url_headers
 
 
 class BL:
-    _INTERNAL_NAME = 'MB'
     _SITE = 'DW'
     SUBSTITUTE = r"[&#\s/]"
 
@@ -32,7 +31,7 @@ class BL:
             self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"
         self.FEED_URLS = [self.URL]
 
-        self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+        self.config = CrawlerConfig("ContentAll", self.configfile)
         self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
@@ -47,7 +46,7 @@ class BL:
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
 
-        search = int(CrawlerConfig(self._INTERNAL_NAME, self.configfile).get("search"))
+        search = int(CrawlerConfig("ContentAll", self.configfile).get("search"))
         i = 2
         while i <= search:
             page_url = self.URL + "order/zeit/sort/D/seite/" + str(i) + "/"

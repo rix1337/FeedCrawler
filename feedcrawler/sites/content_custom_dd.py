@@ -17,14 +17,13 @@ from feedcrawler.url import get_url
 
 
 class DD:
-    _INTERNAL_NAME = 'DD'
     _SITE = 'DD'
 
     def __init__(self, configfile, dbfile, device, logging, scraper):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
-        self.config = CrawlerConfig(self._INTERNAL_NAME, self.configfile)
+        self.config = CrawlerConfig("CustomDD", self.configfile)
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
