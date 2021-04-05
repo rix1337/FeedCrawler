@@ -25,7 +25,7 @@ class BL:
         self.url = self.hostnames.get('ww')
         self.password = self.url.split('.')[0]
 
-        if "MB_Staffeln" not in filename:
+        if "List_ContentAll_Seasons" not in filename:
             self.URL = 'https://' + self.url + "/ajax" + "|/cat/movies|p=1&t=c&q=5"
         else:
             self.URL = 'https://' + self.url + "/ajax" + "|/cat/series|p=1&t=c&q=9"
@@ -49,7 +49,7 @@ class BL:
         search = int(CrawlerConfig(self._INTERNAL_NAME, self.configfile).get("search"))
         i = 2
         while i <= search:
-            if "MB_Staffeln" not in filename:
+            if "List_ContentAll_Seasons" not in filename:
                 page_url = self.URL.replace("|p=1", "|p=" + str(i))
                 if page_url not in self.FEED_URLS:
                     self.FEED_URLS.append(page_url)

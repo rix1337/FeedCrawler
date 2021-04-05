@@ -1097,20 +1097,20 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                     {
                         "lists": {
                             "mb": {
-                                "filme": get_list('MB_Filme'),
-                                "regex": get_list('MB_Regex'),
+                                "filme": get_list('List_ContentAll_Movies'),
+                                "regex": get_list('List_ContentAll_Movies_Regex'),
                             },
                             "sj": {
-                                "serien": get_list('SJ_Serien'),
-                                "regex": get_list('SJ_Serien_Regex'),
-                                "staffeln_regex": get_list('SJ_Staffeln_Regex'),
+                                "serien": get_list('List_ContentShows_Shows'),
+                                "regex": get_list('List_ContentShows_Shows_Regex'),
+                                "staffeln_regex": get_list('List_ContentShows_Seasons_Regex'),
                             },
                             "dj": {
-                                "dokus": get_list('DJ_Dokus'),
-                                "regex": get_list('DJ_Dokus_Regex'),
+                                "dokus": get_list('List_CustomDJ_Documentaries'),
+                                "regex": get_list('List_CustomDJ_Documentaries_Regex'),
                             },
                             "mbsj": {
-                                "staffeln": get_list('MB_Staffeln'),
+                                "staffeln": get_list('List_ContentAll_Seasons'),
                             }
                         },
                     }
@@ -1120,21 +1120,21 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         if request.method == 'POST':
             try:
                 data = request.json
-                ListDb(dbfile, "MB_Filme").store_list(
+                ListDb(dbfile, "List_ContentAll_Movies").store_list(
                     data['mb']['filme'].split('\n'))
-                ListDb(dbfile, "MB_Staffeln").store_list(
+                ListDb(dbfile, "List_ContentAll_Seasons").store_list(
                     data['mbsj']['staffeln'].split('\n'))
-                ListDb(dbfile, "MB_Regex").store_list(
+                ListDb(dbfile, "List_ContentAll_Movies_Regex").store_list(
                     data['mb']['regex'].split('\n'))
-                ListDb(dbfile, "SJ_Serien").store_list(
+                ListDb(dbfile, "List_ContentShows_Shows").store_list(
                     data['sj']['serien'].split('\n'))
-                ListDb(dbfile, "SJ_Serien_Regex").store_list(
+                ListDb(dbfile, "List_ContentShows_Shows_Regex").store_list(
                     data['sj']['regex'].split('\n'))
-                ListDb(dbfile, "SJ_Staffeln_Regex").store_list(
+                ListDb(dbfile, "List_ContentShows_Seasons_Regex").store_list(
                     data['sj']['staffeln_regex'].split('\n'))
-                ListDb(dbfile, "DJ_Dokus").store_list(
+                ListDb(dbfile, "List_CustomDJ_Documentaries").store_list(
                     data['dj']['dokus'].split('\n'))
-                ListDb(dbfile, "DJ_Dokus_Regex").store_list(
+                ListDb(dbfile, "List_CustomDJ_Documentaries_Regex").store_list(
                     data['dj']['regex'].split('\n'))
                 return "Success", 201
             except:

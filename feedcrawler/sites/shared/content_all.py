@@ -352,13 +352,13 @@ def search_feed(self, feed):
                             self.log_debug(
                                 post.title + " - Release ignoriert (kein Mehrkanalton)")
                             continue
-                    if self.filename == 'MB_Staffeln':
+                    if self.filename == 'List_ContentAll_Seasons':
                         ss = self.config.get('seasonsquality')
                     elif 'Regex' not in self.filename:
                         ss = self.config.get('quality')
                     else:
                         ss = False
-                    if self.filename == 'MB_Filme':
+                    if self.filename == 'List_ContentAll_Movies':
                         if ss == "480p":
                             if "720p" in post.title.lower() or "1080p" in post.title.lower() or "1080i" in post.title.lower() or "2160p" in post.title.lower():
                                 continue
@@ -384,7 +384,7 @@ def search_feed(self, feed):
                             if found:
                                 for i in found:
                                     added_items.append(i)
-                    elif self.filename == 'MB_Staffeln':
+                    elif self.filename == 'List_ContentAll_Seasons':
                         validsource = re.search(self.config.get(
                             "seasonssource"), post.title.lower())
                         if not validsource:
@@ -408,7 +408,7 @@ def search_feed(self, feed):
                                 self.log_debug(
                                     "%s - Release ignoriert (Staffelpaket)" % post.title)
                                 continue
-                        if self.filename == 'MB_Staffeln':
+                        if self.filename == 'List_ContentAll_Seasons':
                             ss = self.config.get('seasonsquality')
                         elif 'Regex' not in self.filename:
                             ss = self.config.get('quality')
@@ -530,7 +530,7 @@ def download_hevc(self, title):
                                     self.dl_unsatisfied = True
                                     return
 
-                    if self.filename == 'MB_Filme' or self.filename == 'IMDB':
+                    if self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDB':
                         if self.config.get('cutoff') and is_retail(key, self.dbfile):
                             retail = True
                         elif is_retail(key, False):
@@ -552,7 +552,7 @@ def download_hevc(self, title):
                                 self.log_info(log_entry)
                                 notify([log_entry], self.configfile)
                                 return log_entry
-                    elif self.filename == 'MB_Regex':
+                    elif self.filename == 'List_ContentAll_Movies_Regex':
                         self.device = download_method(self.configfile, self.dbfile, self.device, key,
                                                       "FeedCrawler",
                                                       download_links,
@@ -658,7 +658,7 @@ def download_dual_language(self, title, hevc=False):
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
-                elif self.filename == 'MB_Filme' or self.filename == 'IMDB':
+                elif self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDB':
                     retail = False
                     if self.config.get('cutoff'):
                         if is_retail(key, self.dbfile):
@@ -675,7 +675,7 @@ def download_dual_language(self, title, hevc=False):
                         self.log_info(log_entry)
                         notify([log_entry], self.configfile)
                         return log_entry
-                elif self.filename == 'MB_Regex':
+                elif self.filename == 'List_ContentAll_Movies_Regex':
                     self.device = download_method(self.configfile, self.dbfile, self.device, key,
                                                   "FeedCrawler" + path_suffix, download_links, password)
                     if self.device:
@@ -856,7 +856,7 @@ def download_feed(self, key, content, hevc_retail):
                             "%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
                         self.dl_unsatisfied = True
                         return
-        if self.filename == 'MB_Filme':
+        if self.filename == 'List_ContentAll_Movies':
             retail = False
             if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                     'enforcedl'):
@@ -882,7 +882,7 @@ def download_feed(self, key, content, hevc_retail):
                 self.log_info(log_entry)
                 notify([log_entry], self.configfile)
                 added_items.append(log_entry)
-        elif self.filename == 'MB_Staffeln':
+        elif self.filename == 'List_ContentAll_Seasons':
             self.device = download_method(self.configfile, self.dbfile, self.device, key, "FeedCrawler",
                                           download_links, self.password)
             if self.device:
@@ -927,13 +927,13 @@ def periodical_task(self):
     imdb = self.imdb
     urls = []
 
-    if self.filename == 'MB_Staffeln':
+    if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
             return self.device
         liste = get_movies_list(self, self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
-    elif self.filename == 'MB_Regex':
+    elif self.filename == 'List_ContentAll_Movies_Regex':
         if not self.config.get('regex'):
             self.log_debug(
                 "Regex deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")

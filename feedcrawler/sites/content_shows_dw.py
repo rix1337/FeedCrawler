@@ -22,7 +22,7 @@ class DWs:
         self.url = self.hostnames.get('dw')
 
         self.filename = filename
-        if "MB_Staffeln" in self.filename:
+        if "List_ContentAll_Seasons" in self.filename:
             self.config = CrawlerConfig("MB", self.configfile)
         else:
             self.config = CrawlerConfig("SJ", self.configfile)
@@ -55,12 +55,12 @@ class DWs:
         self.listtype = ""
 
         self.empty_list = False
-        if self.filename == 'SJ_Staffeln_Regex':
+        if self.filename == 'List_ContentShows_Seasons_Regex':
             self.listtype = " (Staffeln/RegEx)"
-        elif self.filename == 'MB_Staffeln':
+        elif self.filename == 'List_ContentAll_Seasons':
             self.seasonssource = self.config.get('seasonssource').lower()
             self.listtype = " (Staffeln)"
-        elif self.filename == 'SJ_Serien_Regex':
+        elif self.filename == 'List_ContentShows_Shows_Regex':
             self.listtype = " (RegEx)"
         list_content = shared_shows.get_series_list(self)
         if list_content:

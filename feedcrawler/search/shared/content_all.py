@@ -65,7 +65,7 @@ def get_best_result(title, configfile, dbfile):
         best_payload = None
     if not best_title:
         logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
-        liste = "MB_Filme"
+        liste = "List_ContentAll_Movies"
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             cont = ""
@@ -74,7 +74,7 @@ def get_best_result(title, configfile, dbfile):
         return False
     if not is_retail(best_title, dbfile):
         logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
-        liste = "MB_Filme"
+        liste = "List_ContentAll_Movies"
         cont = ListDb(dbfile, liste).retrieve()
         if not cont:
             cont = ""

@@ -318,7 +318,7 @@ def remove(retailtitel, dbfile):
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
-    liste = "MB_Filme"
+    liste = "List_ContentAll_Movies"
     cont = ListDb(dbfile, liste).retrieve()
     new_cont = []
     if cont:

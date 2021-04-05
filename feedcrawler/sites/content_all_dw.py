@@ -26,7 +26,7 @@ class BL:
         self.url = self.hostnames.get('dw')
         self.password = self.url.split('.')[0]
 
-        if "MB_Staffeln" not in filename:
+        if "List_ContentAll_Seasons" not in filename:
             self.URL = 'https://' + self.url + "/downloads/hauptkategorie/movies/"
         else:
             self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"

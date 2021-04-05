@@ -63,17 +63,17 @@ def send_package(self, title, link, language_id, season, episode, site):
     englisch = ''
     if language_id == 2:
         englisch = '/Englisch'
-    if self.filename == 'SJ_Serien':
+    if self.filename == 'List_ContentShows_Shows':
         link_placeholder = '[Episode' + englisch + '] - '
-    elif self.filename == 'SJ_Serien_Regex':
+    elif self.filename == 'List_ContentShows_Shows_Regex':
         link_placeholder = '[Episode/RegEx' + englisch + '] - '
-    elif self.filename == 'SJ_Staffeln_Regex':
+    elif self.filename == 'List_ContentShows_Seasons_Regex':
         link_placeholder = '[Staffel/RegEx' + englisch + '] - '
-    elif self.filename == 'MB_Staffeln':
+    elif self.filename == 'List_ContentAll_Seasons':
         link_placeholder = '[Staffel' + englisch + '] - '
-    elif self.filename == 'DJ_Dokus':
+    elif self.filename == 'List_CustomDJ_Documentaries':
         link_placeholder = '[Doku] - ' + englisch
-    elif self.filename == 'DJ_Dokus_Regex':
+    elif self.filename == 'List_CustomDJ_Documentaries_Regex':
         link_placeholder = '[Doku/RegEx] - ' + englisch
     else:
         return
@@ -101,15 +101,15 @@ def periodical_task(self):
     if not self.url:
         return self.device
 
-    if self.filename == 'SJ_Serien_Regex':
+    if self.filename == 'List_ContentShows_Shows_Regex':
         if not self.config.get('regex'):
             self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return self.device
-    elif self.filename == 'SJ_Staffeln_Regex':
+    elif self.filename == 'List_ContentShows_Seasons_Regex':
         if not self.config.get('regex'):
             self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return self.device
-    elif self.filename == 'MB_Staffeln':
+    elif self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
             self.log_debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
             return self.device
@@ -138,7 +138,7 @@ def periodical_task(self):
                     response = get_url_headers(url, self.configfile, self.dbfile, self.headers, self.scraper)
                     self.scraper = response[1]
                     response = response[0]
-                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
                         feed = self.get_feed_method(response.text, "seasons", 'https://' + self.url, True)
                     else:
                         feed = self.get_feed_method(response.text, "episodes", 'https://' + self.url, True)
@@ -159,7 +159,7 @@ def periodical_task(self):
                 url = feed_url(self)
                 if url:
                     response = get_url(url, self.configfile, self.dbfile, self.scraper)
-                    if self.filename == "MB_Staffeln" or self.filename == "SJ_Staffeln_Regex":
+                    if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
                         feed = self.get_feed_method(response, "seasons", 'https://' + self.url, True)
                     else:
                         feed = self.get_feed_method(response, "episodes", 'https://' + self.url, True)
@@ -194,7 +194,7 @@ def periodical_task(self):
             series_url = post.series_url
             title = post.title.replace("-", "-")
 
-            if self.filename == 'SJ_Serien_Regex':
+            if self.filename == 'List_ContentShows_Shows_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1
@@ -242,7 +242,7 @@ def periodical_task(self):
 
                 else:
                     continue
-            elif self.filename == 'SJ_Staffeln_Regex':
+            elif self.filename == 'List_ContentShows_Seasons_Regex':
                 if self.config.get("regex"):
                     if '.german.' in title.lower():
                         language_id = 1

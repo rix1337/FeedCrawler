@@ -444,7 +444,7 @@ def dw_parse_download(self, release_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
         self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
-    if self.filename == 'MB_Staffeln':
+    if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
@@ -751,7 +751,7 @@ def j_parse_download(self, series_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
         self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
-    if self.filename == 'MB_Staffeln':
+    if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
@@ -831,7 +831,7 @@ def sf_parse_download(self, series_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
         self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
-    if self.filename == 'MB_Staffeln':
+    if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:

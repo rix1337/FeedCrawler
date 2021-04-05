@@ -30,7 +30,7 @@ def get_imdb_id(key, content, filename, configfile, dbfile, scraper, log_debug):
         except:
             return False
         total_results = len(search_results)
-        if filename == 'MB_Staffeln':
+        if filename == 'List_ContentAll_Seasons':
             imdb_id = search_results[0][0]
         else:
             no_series = False

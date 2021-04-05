@@ -50,7 +50,7 @@ def get_best_result(title, configfile, dbfile):
         best_title = False
     if not best_title:
         logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
-        listen = ["SJ_Serien", "MB_Staffeln"]
+        listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
         for liste in listen:
             cont = ListDb(dbfile, liste).retrieve()
             if not cont:
@@ -80,7 +80,7 @@ def download(payload, configfile, dbfile):
 
     unsorted_seasons = json.loads(releases)
 
-    listen = ["SJ_Serien", "MB_Staffeln"]
+    listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
     for liste in listen:
         cont = ListDb(dbfile, liste).retrieve()
         list_title = sanitize(title)

@@ -53,7 +53,7 @@ class DJ:
         self.listtype = ""
 
         self.empty_list = False
-        if self.filename == 'DJ_Dokus_Regex':
+        if self.filename == 'List_CustomDJ_Documentaries_Regex':
             self.listtype = " (RegEx)"
         list_content = shared_shows.get_series_list(self)
         if list_content:
