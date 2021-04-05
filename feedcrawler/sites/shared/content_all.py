@@ -530,7 +530,7 @@ def download_hevc(self, title):
                                     self.dl_unsatisfied = True
                                     return
 
-                    if self.filename == 'MB_Filme' or 'IMDB':
+                    if self.filename == 'MB_Filme' or self.filename == 'IMDB':
                         if self.config.get('cutoff') and is_retail(key, self.dbfile):
                             retail = True
                         elif is_retail(key, False):
@@ -658,7 +658,7 @@ def download_dual_language(self, title, hevc=False):
                     self.log_debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
-                elif self.filename == 'MB_Filme' or 'IMDB':
+                elif self.filename == 'MB_Filme' or self.filename == 'IMDB':
                     retail = False
                     if self.config.get('cutoff'):
                         if is_retail(key, self.dbfile):
