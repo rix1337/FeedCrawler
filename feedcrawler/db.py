@@ -78,6 +78,11 @@ class FeedDb(object):
         self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
         self._conn.commit()
 
+    def rename_table(self, new_name):
+        self._conn.execute("ALTER TABLE '%s' RENAME TO '%s'" %
+                           (self._table, new_name))
+        self._conn.commit()
+
 
 class ListDb(object):
     def __init__(self, file, table):

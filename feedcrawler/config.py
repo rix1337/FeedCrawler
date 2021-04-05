@@ -65,7 +65,7 @@ class CrawlerConfig(object):
             ("url", "str", ""),
             ("api", "str", "")
         ],
-        'MB': [
+        'ContentAll': [
             ("quality", "str", "1080p"),
             ("search", "int", "10"),
             ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
@@ -83,7 +83,7 @@ class CrawlerConfig(object):
             ("retail_only", "bool", "False"),
             ("hoster_fallback", "bool", "False")
         ],
-        'SJ': [
+        'ContentShows': [
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False"),
@@ -91,13 +91,13 @@ class CrawlerConfig(object):
             ("retail_only", "bool", "False"),
             ("hoster_fallback", "bool", "False")
         ],
-        'DJ': [
+        'CustomDJ': [
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
             ("hoster_fallback", "bool", "False")
         ],
-        'DD': [
+        'CustomDD': [
             ("feeds", "str", ""),
             ("hoster_fallback", "bool", "False")
         ]

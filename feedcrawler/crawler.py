@@ -431,13 +431,45 @@ def main():
     configfile = os.path.join(configpath, "FeedCrawler.ini")
     dbfile = os.path.join(configpath, "FeedCrawler.db")
 
-    # ToDo
-    # 1. Rename RSScrawler.ini to FeedCrawler.ini
-    # 2. Rename [RSScrawler] config Header to [FeedCrawler]
-    # 3. Rename site specific config headers
-    # 4. Rename RSScrawler.db to FeedCrawler.db
-    # 5. Rename "rsscrawler" table to "feedcrawler"
-    # 6. Rename site specific list names
+    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
+    if os.path.exists("RSScrawler.conf"):
+        os.remove("RSScrawler.conf")
+
+    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
+    if os.path.exists(os.path.join(configpath, "RSScrawler.log")):
+        os.rename(os.path.join(configpath, "RSScrawler.log"), os.path.join(configpath, "FeedCrawler.log"))
+        print(u"Migration des RSScrawler-Logs erfolgreich!")
+
+    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
+    if os.path.exists(os.path.join(configpath, "RSScrawler.ini")):
+        with open(os.path.join(configpath, "RSScrawler.ini"), 'r') as file:
+            filedata = file.read()
+
+        filedata = filedata.replace("[RSScrawler]", "[Feedcrawler]")
+        filedata = filedata.replace("[MB]", "[ContentAll]")
+        filedata = filedata.replace("[SJ]", "[ContentShows]")
+        filedata = filedata.replace("[DJ]", "[CustomDJ]")
+        filedata = filedata.replace("[DD]", "[CustomDD]")
+
+        with open(os.path.join(configpath, "FeedCrawler.ini"), 'w') as file:
+            file.write(filedata)
+
+        os.remove(os.path.join(configpath, "RSScrawler.ini"))
+        print(u"Migration der RSScrawler-Einstellungen erfolgreich!")
+
+    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
+    if os.path.exists(os.path.join(configpath, "RSScrawler.db")):
+        os.rename(os.path.join(configpath, "RSScrawler.db"), os.path.join(configpath, "FeedCrawler.db"))
+        FeedDb(dbfile, 'rsscrawler').rename_table('FeedCrawler')
+        FeedDb(dbfile, 'MB_Filme').rename_table('List_ContentAll_Movies')
+        FeedDb(dbfile, 'MB_Regex').rename_table('List_ContentAll_Movies_Regex')
+        FeedDb(dbfile, 'MB_Staffeln').rename_table('List_ContentAll_Seasons')
+        FeedDb(dbfile, 'SJ_Serien').rename_table('List_ContentShows_Shows')
+        FeedDb(dbfile, 'SJ_Serien_Regex').rename_table('List_ContentShows_Shows_Regex')
+        FeedDb(dbfile, 'SJ_Staffeln_Regex').rename_table('List_ContentShows_Seasons_Regex')
+        FeedDb(dbfile, 'DJ_Dokus').rename_table('List_CustomDJ_Documentaries')
+        FeedDb(dbfile, 'DJ_Dokus_Regex').rename_table('List_CustomDJ_Documentaries_Regex')
+        print(u"Migration der RSScrawler-Datenbank erfolgreich!")
 
     print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 
