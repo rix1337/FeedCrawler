@@ -347,7 +347,7 @@ def check_url(configfile, dbfile, scraper=False):
         else:
             try:
                 dw_test = scraper.get(dw_url + "/downloads/hauptkategorie/movies/", timeout=30,
-                                      allow_redirects=False).status_code == 403
+                                      allow_redirects=False)
                 if not dw_test.text or dw_test.status_code is not (
                         200 or 304) or '<a id="first_element" href=' not in dw_test.text:
                     dw_blocked = True
