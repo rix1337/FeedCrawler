@@ -62,18 +62,18 @@
             </thead>
             <tbody id="logbody">
             <tr ng-repeat="x in log | startFrom:currentPageLog*pageSizeLog | limitTo:pageSizeLog">
-                <td scope="row" class="text-left d-none d-lg-block">{{ x[1] }}</td>
-                <td scope="row" class="text-left" title="{{ x[3] }}">
+                <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
+                <td class="text-left" title="{{ x[3] }}">
                     {{ x[3] | limitTo: loglength }}
                     <a href='' ng-if="!longlog && x[3].length > 65" ng-click="longerLog()"
                        title="Titel vollständig anzeigen">...</a>
                     <a href='' ng-if="longlog && x[3].length > 65" ng-click="shorterLog()" title="Titel kürzen"><i
                             class="bi bi-x-circle"></i></a>
                 </td>
-                <td scope="row" class="text-left">{{ x[2] }}</td>
-                <td scope="row" class="text-left d-none d-lg-block">{{ x[4] }}</td>
-                <td scope="row" class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
-                                                      ng-click="deleteLogRow(x[0])"><i
+                <td class="text-left">{{ x[2] }}</td>
+                <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
+                <td class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
+                                          ng-click="deleteLogRow(x[0])"><i
                         class="bi bi-trash remove"></i></a></td>
             </tr>
             </tbody>
@@ -168,7 +168,7 @@
                                     <li class="list-group-item" ng-show="cnl_active">
                             <span class="cnl-spinner" title="Warte auf hinzugefügte Links!"
                                   data-toggle="tooltip">
-                                <div class="spinner-border spinner-border-sm" role="status"></div> Warte auf hinzugefügte Links!</span>
+                                <span class="spinner-border spinner-border-sm" role="status"></span> Warte auf hinzugefügte Links!</span>
                                     </li>
                                     <li class="list-group-item" ng-show="x.size"><span ng-bind="x.size"></span></li>
                                     <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
@@ -202,7 +202,7 @@
                                         <span class="cnl-spinner" ng-show="cnl_active"
                                               title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
                                               data-toggle="tooltip">
-                                <div class="spinner-border spinner-border-sm" role="status"></div> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
+                                <span class="spinner-border spinner-border-sm" role="status"></span> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
                                     </li>
                                     <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="x.urls">
                             <textarea ng-model="x.urls" class="urls drop form-control" data-toggle="tooltip"
@@ -277,7 +277,7 @@
                                         <span class="cnl-spinner" ng-show="cnl_active"
                                               title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
                                               data-toggle="tooltip">
-                                <div class="spinner-border spinner-border-sm" role="status"></div> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
+                                <span class="spinner-border spinner-border-sm" role="status"></span> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
                                     </li>
                                     <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
                                         <a href="" class="btn btn-outline-danger" ng-show="!cnl_active"
@@ -554,7 +554,7 @@
                     <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
                                                                  target="_blank">Sponsoren</a> zur Verfügung (daher
                         der
-                        Name).</br>
+                        Name).<br>
                         Die Freischaltung erfolgt unter Angabe der eigenen Docker-ID per PN auf <a
                                 href="https://gitter.im/FeedCrawler/Lobby" target="_blank">Gitter</a>.</p>
                     <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account
