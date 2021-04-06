@@ -205,7 +205,10 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DW", "Blocked")
         else:
             try:
-                if scraper.get(dw_url, proxies=proxies, timeout=30, allow_redirects=False).status_code == 403:
+                dw_test = scraper.get(dw_url + "/downloads/hauptkategorie/movies/", proxies=proxies, timeout=30,
+                                      allow_redirects=False)
+                if not dw_test.text or dw_test.status_code is not (
+                        200 or 304) or '<a id="first_element" href=' not in dw_test.text:
                     dw_blocked_proxy = True
                 else:
                     db.delete("DW")
@@ -343,7 +346,10 @@ def check_url(configfile, dbfile, scraper=False):
             db.store("DW", "Blocked")
         else:
             try:
-                if scraper.get(dw_url, timeout=30, allow_redirects=False).status_code == 403:
+                dw_test = scraper.get(dw_url + "/downloads/hauptkategorie/movies/", timeout=30,
+                                      allow_redirects=False).status_code == 403
+                if not dw_test.text or dw_test.status_code is not (
+                        200 or 304) or '<a id="first_element" href=' not in dw_test.text:
                     dw_blocked = True
             except:
                 dw_blocked = True
