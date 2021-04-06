@@ -8,7 +8,7 @@ body {
 }
 
 .log {
-    height: 20em;
+    height: 16em;
     overflow: auto;
     resize: none;
     color: black;

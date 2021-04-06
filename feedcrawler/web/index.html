@@ -534,37 +534,37 @@
 
 <div id="help" class="col card app container">
     <h3><i class="bi bi-question-diamond"></i> Hilfe</h3>
-    <div class="card">
-        <div class="card-header" id="headingZeroZero">
-            <h5 class="mb-0">
-                <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseZeroZero"
-                        aria-expanded="true"
-                        aria-controls="collapseZeroZero">
-                    <h3>FeedCrawler Sponsors Helper</h3>
+    <div class="accordion" id="accordionHelp">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOneZero">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOneZero"
+                        aria-expanded="false" aria-controls="collapseOneZero">
+                    FeedCrawler Sponsors Helper
                 </button>
-            </h5>
-        </div>
-        <div id="collapseZeroZero" class="collapse" aria-labelledby="headingZeroZero" data-parent="#help">
-            <div class="card-body">
-                <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das SJ-, DJ- und DW-Captchas vollständig
-                    automatisiert löst und dem FeedCrawler entschlüsselt übergibt.
-                    Für den höchsten Automatisierungsgrad sollten entsprechend nur für diese Seiten die
-                    Hostnamen
-                    hinterlegt werden.</p>
-                <p>Captchas von FC lassen sich manuell per Webinterface/VNC lösen.
-                    Das Entschlüsseln und die Übergabe der Links übernimmt der FeedCrawler Sponsors Helper dann
-                    ebenfalls
-                    vollautomatisch.</p>
-                <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
-                                                             target="_blank">Sponsoren</a> zur Verfügung (daher
-                    der
-                    Name).</br>
-                    Die Freischaltung erfolgt unter Angabe der eigenen Docker-ID per PN auf <a
-                            href="https://gitter.im/FeedCrawler/Lobby" target="_blank">Gitter</a>.</p>
-                <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account
-                    beim
-                    unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
-                <span>
+            </h2>
+            <div id="collapseOneZero" class="accordion-collapse collapse" aria-labelledby="headingOneZero"
+                 data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das SJ-, DJ- und DW-Captchas vollständig
+                        automatisiert löst und dem FeedCrawler entschlüsselt übergibt.
+                        Für den höchsten Automatisierungsgrad sollten entsprechend nur für diese Seiten die
+                        Hostnamen
+                        hinterlegt werden.</p>
+                    <p>Captchas von FC lassen sich manuell per Webinterface/VNC lösen.
+                        Das Entschlüsseln und die Übergabe der Links übernimmt der FeedCrawler Sponsors Helper dann
+                        ebenfalls
+                        vollautomatisch.</p>
+                    <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
+                                                                 target="_blank">Sponsoren</a> zur Verfügung (daher
+                        der
+                        Name).</br>
+                        Die Freischaltung erfolgt unter Angabe der eigenen Docker-ID per PN auf <a
+                                href="https://gitter.im/FeedCrawler/Lobby" target="_blank">Gitter</a>.</p>
+                    <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account
+                        beim
+                        unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
+                    <span>
                     <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
                        title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
                        class="btn btn-outline-danger" data-toggle="tooltip"><i id="heart" class="bi bi-emoji-frown"></i> Kein aktiver Sponsor</a>
@@ -573,326 +573,331 @@
                        class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="bi bi-heart"></i> Aktiver
                         Sponsor</a>
                 </span>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOneZero">
-            <h5 class="mb-0">
-                <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseOneZero"
-                        aria-expanded="true"
-                        aria-controls="collapseOneZero">
-                    <h3>Captchas</h3>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOneOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOneOne"
+                        aria-expanded="false" aria-controls="collapseOneOne">
+                    Captchas
                 </button>
-            </h5>
-        </div>
-        <div id="collapseOneZero" class="collapse" aria-labelledby="headingOneZero" data-parent="#help">
-            <div class="card-body">
-                <a href="./redirect_user/captcha" class="btn btn-outline-success" target="_blank">
-                    Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
-                </a>
+            </h2>
+            <div id="collapseOneOne" class="accordion-collapse collapse" aria-labelledby="headingOneOne"
+                 data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <a href="./redirect_user/captcha" class="btn btn-outline-success" target="_blank">
+                        Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
+                    </a>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOneOne">
-            <h5 class="mb-0">
-                <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseOneOne"
-                        aria-expanded="true"
-                        aria-controls="collapseOneOne">
-                    <h3>Multihoster</h3>
-                </button>
-            </h5>
-        </div>
-        <div id="collapseOneOne" class="collapse" aria-labelledby="headingOneOne" data-parent="#help">
-            <div class="card-body">
-                <a href="./redirect_user/multihoster" class="btn btn-outline-success" target="_blank">
-                    Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOneTwo">
-            <h5 class="mb-0">
-                <button class="btn collapsed" data-bs-toggle="collapse"
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOneTwo">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseOneTwo"
                         aria-expanded="false" aria-controls="collapseOneTwo">
-                    <h3>RegEx</h3>
+                    Multihoster
                 </button>
-            </h5>
-        </div>
-        <div id="collapseOneTwo" class="collapse" aria-labelledby="headingOneTwo" data-parent="#help">
-            <div id="helpText" class="card-body">
-                <h5>Beispiele</h5>
-                <div ng-show="hostnames.bl !== 'Nicht gesetzt!'">
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>Film.*.Titel.*</i>
-                        </div>
-                        <div class="col text-left card">Sucht nach allen Filmen die mit Film beginnen und
-                            Titel
-                            enthalten.
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>.*-GROUP</i> oder
-                            <i>-GROUP</i>
-                        </div>
-                        <div class="col text-left card">sucht nach allen Releases der GROUP.</div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>.*1080p.*-GROUP</i>
-                        </div>
-                        <div class="col text-left card">sucht nach allen Full-HD Releases der GROUP.</div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
-                        </div>
-                        <div class="col text-left card">sucht nach HD-BluRay Releases von Film Titel,
-                            zweisprachig
-                            und in
-                            720p
-                            der GROUP.
-                        </div>
-                    </div>
+            </h2>
+            <div id="collapseOneTwo" class="accordion-collapse collapse" aria-labelledby="headingOneTwo"
+                 data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <a href="./redirect_user/multihoster" class="btn btn-outline-success" target="_blank">
+                        Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
+                    </a>
                 </div>
-                <div ng-show="hostnames.s !== 'Nicht gesetzt!'">
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
-                        </div>
-                        <div class="col text-left card">sucht nach Releases der GROUP von Staffel 1 der
-                            Serien
-                            Titel
-                            in 720p
-                            auf
-                            Deutsch.
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>Serien.Titel.*</i>
-                        </div>
-                        <div class="col text-left card">sucht nach allen Releases von Serien Titel
-                            (nützlich,
-                            wenn
-                            man sonst
-                            HDTV
-                            aussortiert).
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>Serien.Titel.*.DL.*.720p.*</i>
-                        </div>
-                        <div class="col text-left card">sucht nach zweisprachigen Releases in 720p von
-                            Serien
-                            Titel.
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col text-left card bg-light">
-                            <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
-                        </div>
-                        <div class="col text-left card">sucht nach Serie (aber nicht Diese Serie oder Andere
-                            Serie),
-                            zweisprachig
-                            und in 720p und ausschließlich
-                            nach Releases von GROUP oder ANDEREGROUP.
-                        </div>
-                    </div>
-                </div>
-                <p>All diese Regeln lassen sich beliebig kombinieren.<br/>
-                    Falsche Regex-Einträge können allerdings die Feed-Suche verhindern!</p>
-                <p>Daher vorher beispielsweise auf
-                    <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen, ob ein Eintrag
-                    matcht
-                    (Beispielrelease unter Text eintragen - Expression sollte
-                    etwas finden).</p>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOneThree">
-            <h5 class="mb-0">
-                <button class="btn collapsed" data-bs-toggle="collapse"
+        <div class="accordion-item" ng-show="(hostnames.bl !== 'Nicht gesetzt!') || (hostnames.s !== 'Nicht gesetzt!')">
+            <h2 class="accordion-header" id="headingOneThree">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseOneThree"
                         aria-expanded="false" aria-controls="collapseOneThree">
-                    <h3>Seitenliste</h3>
+                    RegEx
                 </button>
-            </h5>
+            </h2>
+            <div id="collapseOneThree" class="accordion-collapse collapse" aria-labelledby="headingOneThree"
+                 data-bs-parent="#accordionHelp">
+                <div id="helpText" class="accordion-body">
+                    <h5>Beispiele</h5>
+                    <div ng-show="hostnames.bl !== 'Nicht gesetzt!'">
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>Film.*.Titel.*</i>
+                            </div>
+                            <div class="col text-left card">Sucht nach allen Filmen die mit Film beginnen und
+                                Titel
+                                enthalten.
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>.*-GROUP</i> oder
+                                <i>-GROUP</i>
+                            </div>
+                            <div class="col text-left card">sucht nach allen Releases der GROUP.</div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>.*1080p.*-GROUP</i>
+                            </div>
+                            <div class="col text-left card">sucht nach allen Full-HD Releases der GROUP.</div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
+                            </div>
+                            <div class="col text-left card">sucht nach HD-BluRay Releases von Film Titel,
+                                zweisprachig
+                                und in
+                                720p
+                                der GROUP.
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-show="hostnames.s !== 'Nicht gesetzt!'">
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
+                            </div>
+                            <div class="col text-left card">sucht nach Releases der GROUP von Staffel 1 der
+                                Serien
+                                Titel
+                                in 720p
+                                auf
+                                Deutsch.
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>Serien.Titel.*</i>
+                            </div>
+                            <div class="col text-left card">sucht nach allen Releases von Serien Titel
+                                (nützlich,
+                                wenn
+                                man sonst
+                                HDTV
+                                aussortiert).
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>Serien.Titel.*.DL.*.720p.*</i>
+                            </div>
+                            <div class="col text-left card">sucht nach zweisprachigen Releases in 720p von
+                                Serien
+                                Titel.
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col text-left card bg-light">
+                                <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
+                            </div>
+                            <div class="col text-left card">sucht nach Serie (aber nicht Diese Serie oder Andere
+                                Serie),
+                                zweisprachig
+                                und in 720p und ausschließlich
+                                nach Releases von GROUP oder ANDEREGROUP.
+                            </div>
+                        </div>
+                    </div>
+                    <p>All diese Regeln lassen sich beliebig kombinieren.<br/>
+                        Falsche Regex-Einträge können allerdings die Feed-Suche verhindern!</p>
+                    <p>Daher vorher beispielsweise auf
+                        <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen, ob ein Eintrag
+                        matcht
+                        (Beispielrelease unter Text eintragen - Expression sollte
+                        etwas finden).</p>
+                </div>
+            </div>
         </div>
-        <div id="collapseOneThree" class="collapse" aria-labelledby="headingOneThree" data-parent="#help">
-            <div class="card-body">
-                <div class="row">
-                    <div ng-if="hostnames.dw !== 'Nicht gesetzt!' || hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
-                         class="col">
-                        <ul class="list-group">
-                            <li ng-show="hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dw }}
-                                (DW)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DW)">
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOneFour">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOneFour"
+                        aria-expanded="false" aria-controls="collapseOneFour">
+                    Seitenliste
+                </button>
+            </h2>
+            <div id="collapseOneFour" class="accordion-collapse collapse" aria-labelledby="headingOneFour"
+                 data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <div class="row">
+                        <div ng-if="hostnames.dw !== 'Nicht gesetzt!' || hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                             class="col">
+                            <ul class="list-group">
+                                <li ng-show="hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dw
+                                    }}
+                                    (DW)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DW)">
                                     <i ng-if="blocked_normal.DW" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.DW" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.DW" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DW" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.fx }}
-                                (FX)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FX)">
+                                </li>
+                                <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.fx
+                                    }}
+                                    (FX)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.FX)">
                                     <i ng-if="blocked_normal.FX" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.FX" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.FX" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.FX" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sj }}
-                                (SJ)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SJ)">
+                                </li>
+                                <li ng-show="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sj
+                                    }}
+                                    (SJ)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SJ)">
                                     <i ng-if="blocked_normal.SJ" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.SJ" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.SJ" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.SJ" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dj }}
-                                (DJ)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DJ)">
+                                </li>
+                                <li ng-show="hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dj
+                                    }}
+                                    (DJ)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DJ)">
                                     <i ng-if="blocked_normal.DJ" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.DJ" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.DJ" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DJ" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sf }}
-                                (SF)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SF)">
+                                </li>
+                                <li ng-show="hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.sf
+                                    }}
+                                    (SF)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.SF)">
                                     <i ng-if="blocked_normal.SF" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.SF" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.SF" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.SF" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!' || hostnames.dd !== 'Nicht gesetzt!'"
-                         class="col">
-                        <ul class="list-group">
-                            <li ng-show="hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.ww }}
-                                (WW)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.WW)">
+                                </li>
+                            </ul>
+                        </div>
+                        <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!' || hostnames.dd !== 'Nicht gesetzt!'"
+                             class="col">
+                            <ul class="list-group">
+                                <li ng-show="hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.ww
+                                    }}
+                                    (WW)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.WW)">
                                     <i ng-if="blocked_normal.WW" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.WW" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.WW" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.WW" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.nk }}
-                                (NK)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.NK)">
+                                </li>
+                                <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.nk
+                                    }}
+                                    (NK)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.NK)">
                                     <i ng-if="blocked_normal.NK" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.NK" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.NK" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.NK" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.by }}
-                                (BY)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.BY)">
+                                </li>
+                                <li ng-show="hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.by
+                                    }}
+                                    (BY)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.BY)">
                                     <i ng-if="blocked_normal.BY" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.BY" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.BY" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.BY" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                            <li ng-show="hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dd }}
-                                (DD)
-                                <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DD)">
+                                </li>
+                                <li ng-show="hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{ hostnames.dd
+                                    }}
+                                    (DD)
+                                    <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DD)">
                                     <i ng-if="blocked_normal.DD" class="bi bi-lightbulb text-danger"
                                        title="Seite ohne Proxy gesperrt!"></i>
                                     <i ng-if="!blocked_normal.DD" class="bi bi-lightbulb text-success"
                                        title="Seite ohne Proxy verfügbar"></i>
                                 </span>
-                                <span ng-if="settings.general.proxy">
+                                    <span ng-if="settings.general.proxy">
                                     <i ng-if="blocked_proxy.DD" class="bi bi-lightbulb text-danger"
                                        title="Seite mit Proxy gesperrt"></i>
                                     <i ng-if="!blocked_proxy.DD" class="bi bi-lightbulb text-success"
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
-                            </li>
-                        </ul>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="card">
-        <div class="card-header" id="headingOneFour">
-            <h5 class="mb-0">
-                <button class="btn collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#collapseOneFour"
-                        aria-expanded="false" aria-controls="collapseOneFour">
-                    <h3>Wiki</h3>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOneFive">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                        data-bs-target="#collapseOneFive"
+                        aria-expanded="false" aria-controls="collapseOneFive">
+                    Wiki
                 </button>
-            </h5>
-        </div>
-        <div id="collapseOneFour" class="collapse" aria-labelledby="headingOneFour"
-             data-parent="#help">
-            <div class="card-body">
-                <a href="https://github.com/rix1337/FeedCrawler/wiki" class="btn btn-outline-success" target="_blank">Weitere
-                    Hinweise gibt es im Wiki.</a>
+            </h2>
+            <div id="collapseOneFive" class="accordion-collapse collapse" aria-labelledby="headingOneFive"
+                 data-bs-parent="#accordionHelp">
+                <div class="accordion-body">
+                    <a href="https://github.com/rix1337/FeedCrawler/wiki" class="btn btn-outline-success"
+                       target="_blank">Weitere
+                        Hinweise gibt es im Wiki.</a>
+                </div>
             </div>
         </div>
     </div>
@@ -901,7 +906,7 @@
 
 <div id="settings" class="col card app container">
     <h3><i class="bi bi-gear"></i> Einstellungen</h3>
-    <div class="card">
+    <div class="accordion-item">
         <div class="card-header" id="headingTwoZero">
             <h5 class="mb-0">
                 <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseTwoZero"
@@ -952,7 +957,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="accordion-item">
         <div class="card-header" id="headingTwoOne">
             <h5 class="mb-0">
                 <button class="btn" data-bs-toggle="collapse" data-bs-target="#collapseTwoOne"
@@ -1023,7 +1028,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="accordion-item">
         <div class="card-header" id="headingTwoTwo">
             <h5 class="mb-0">
                 <button class="btn collapsed" data-bs-toggle="collapse"
@@ -1127,7 +1132,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="accordion-item">
         <div class="card-header" id="headingTwoThree">
             <h5 class="mb-0">
                 <button class="btn collapsed" data-bs-toggle="collapse"
@@ -1156,7 +1161,7 @@
             </div>
         </div>
     </div>
-    <div class="card">
+    <div class="accordion-item">
         <div class="card-header" id="headingTwoFour">
             <h5 class="mb-0">
                 <button class="btn collapsed" data-bs-toggle="collapse"
