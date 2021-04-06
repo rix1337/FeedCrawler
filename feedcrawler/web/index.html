@@ -168,7 +168,7 @@
                                     <li class="list-group-item" ng-show="cnl_active">
                             <span class="cnl-spinner" title="Warte auf hinzugefügte Links!"
                                   data-toggle="tooltip">
-                                <div class="spinner-border" role="status"></div> Warte auf hinzugefügte Links!</span>
+                                <div class="spinner-border spinner-border-sm" role="status"></div> Warte auf hinzugefügte Links!</span>
                                     </li>
                                     <li class="list-group-item" ng-show="x.size"><span ng-bind="x.size"></span></li>
                                     <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
@@ -331,7 +331,7 @@
 
                     <div class="myjd_connection_state" ng-if="!myjd_state">
                         <p id="initial-loading">Verbinde mit My JDownloader...</p>
-                        <div id="spinner-myjd" class="spinner-border spinner-border-sm" role="status"></div>
+                        <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
                     </div>
                     <div class="myjd_connection_state" id="myjd_no_login" ng-if="myjd_connection_error">Fehler bei
                         Verbindung mit My

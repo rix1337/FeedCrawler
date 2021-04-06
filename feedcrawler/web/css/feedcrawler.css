@@ -105,10 +105,6 @@ td {
     white-space: nowrap;
 }
 
-#myjd_state, #spinner-myjd, #myjd_grabbing, #myjd_update {
-    font-size: 2em;
-}
-
 .urls {
     height: 4em;
     resize: none;
