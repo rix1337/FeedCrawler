@@ -1,1 +1,1 @@
-recursive-include rsscrawler/web *
+recursive-include feedcrawler/web *

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# RSScrawler
+# FeedCrawler
 # Projekt von https://github.com/rix1337
 
 # Python
@@ -16,7 +16,7 @@ dist
 venv
 *.egg-info
 
-# RSScrawler files
+# FeedCrawler files
 *.conf
 *.db
 *.log

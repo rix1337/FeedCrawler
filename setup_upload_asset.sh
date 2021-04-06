@@ -17,7 +17,7 @@
 #
 # Example:
 #
-# setup_upload_asset.sh github_api_token=TOKEN owner=rix1337 repo=rsscrawler version=v0.1.0 filename=./build.zip
+# setup_upload_asset.sh github_api_token=TOKEN owner=rix1337 repo=feedcrawler version=v0.1.0 filename=./build.zip
 #
 
 # Check dependencies.

@@ -16,7 +16,7 @@
 #
 # Example:
 #
-# setup_create_release.sh github_api_token=TOKEN owner=rix1337 repo=rsscrawler version=v0.1.0
+# setup_create_release.sh github_api_token=TOKEN owner=rix1337 repo=feedcrawler version=v0.1.0
 
 # Check dependencies.
 set -e
