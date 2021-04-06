@@ -280,7 +280,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $scope.log = res.data.log;
                 console.log('Log abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Log nicht abrufen!');
                 showDanger('Konnte Log nicht abrufen!');
             });
@@ -293,13 +293,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Einstellungen abgerufen!');
                 let year = (new Date).getFullYear();
                 $("#year").attr("max", year);
-                if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                    $scope.myjd_connection_error = false;
-                } else {
-                    $scope.myjd_connection_error = true;
-                }
+                $scope.myjd_connection_error = !($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device);
                 $scope.pageSizeMyJD = $scope.settings.general.packages_per_myjd_page;
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Einstellungen nicht abrufen!');
                 showDanger('Konnte Einstellungen nicht abrufen!');
             });
@@ -310,7 +306,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             .then(function (res) {
                 $scope.lists = res.data.lists;
                 console.log('Listen abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Listen nicht abrufen!');
                 showDanger('Konnte Listen nicht abrufen!');
             });
@@ -322,7 +318,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.starting = false;
                 $scope.crawltimes = res.data.crawltimes;
                 console.log('Laufzeiten abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Laufzeiten nicht abrufen!');
                 showDanger('Konnte Laufzeiten nicht abrufen!');
             });
@@ -335,7 +331,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 not_set = 'Nicht gesetzt!'
                 $scope.sjbl_enabled = !(($scope.hostnames.bl === not_set && $scope.hostnames.s !== not_set) || ($scope.hostnames.bl !== not_set && $scope.hostnames.s === not_set));
                 console.log('Hostnamen abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Hostnamen nicht abrufen!');
                 showDanger('Konnte Hostnamen nicht abrufen!');
             });
@@ -347,7 +343,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $scope.blocked_proxy = res.data.proxy;
                 $scope.blocked_normal = res.data.normal;
                 console.log('Blockierte Seiten abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte blockierte Seiten nicht abrufen!');
                 showDanger('Konnte blockierte Seiten nicht abrufen!');
             });
@@ -380,7 +376,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">github.com</a>.');
                 }
                 console.log('Version abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Version nicht abrufen!');
                 showDanger('Konnte Version nicht abrufen!');
             });
@@ -389,11 +385,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function setLists() {
         spinLists();
         $http.post('api/lists/', $scope.lists, 'application/json')
-            .then(function (res) {
+            .then(function () {
                 console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
                 showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
                 getLists();
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Listen nicht speichern!');
                 showDanger('Konnte Listen nicht speichern!');
             });
@@ -402,11 +398,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function setSettings() {
         spinSettings();
         $http.post('api/settings/', $scope.settings, 'application/json')
-            .then(function (res) {
+            .then(function () {
                 console.log('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
                 showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
                 getSettings();
-            }, function (res) {
+            }, function () {
                 getSettings();
                 console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
                 showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
@@ -416,12 +412,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function downloadBL(payload) {
         showInfoLong("Starte Download...");
         $http.post('api/download_bl/' + payload)
-            .then(function (res) {
+            .then(function () {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
                 getLists();
                 $(".alert-info").slideUp(500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
                 $(".alert-info").slideUp(500);
@@ -431,12 +427,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function downloadSJ(payload) {
         showInfoLong("Starte Download...");
         $http.post('api/download_sj/' + payload)
-            .then(function (res) {
+            .then(function () {
                 console.log('Download gestartet!');
                 showSuccess('Download gestartet!');
                 getLists();
                 $(".alert-info").slideUp(500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
                 $(".alert-info").slideUp(500);
@@ -446,11 +442,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function deleteLog() {
         spinLog();
         $http.delete('api/log/')
-            .then(function (res) {
+            .then(function () {
                 console.log('Log geleert!');
                 showSuccess('Log geleert!');
                 getLog();
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Log nicht leeren!');
                 showDanger('Konnte Log nicht leeren!');
             });
@@ -458,11 +454,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function deleteLogRow(row) {
         $http.delete('api/log_row/' + row)
-            .then(function (res) {
+            .then(function () {
                 console.log('Logeintrag gelöscht!');
                 showSuccess('Logeintrag gelöscht!');
                 getLog();
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Logeintrag nicht löschen!');
                 showDanger('Konnte Logeintrag nicht löschen!');
             });
@@ -488,7 +484,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                     getLists();
                     $("#spinner-search").fadeOut();
                     $scope.searching = false;
-                }, function (res) {
+                }, function () {
                     console.log('Konnte ' + title + ' nicht suchen!');
                     showDanger('Konnte  ' + title + ' nicht suchen!');
                     $("#spinner-search").fadeOut();
@@ -499,10 +495,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDupdate() {
         $('#myjd_update').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_update/')
-            .then(function (res) {
+            .then(function () {
                 getMyJDstate();
                 console.log('JDownloader geupdatet!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte JDownloader nicht updaten!');
                 showDanger('Konnte JDownloader nicht updaten!');
             });
@@ -511,10 +507,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDstart() {
         $('#myjd_start').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_start/')
-            .then(function (res) {
+            .then(function () {
                 getMyJDstate();
                 console.log('Download gestartet!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Downloads nicht starten!');
                 showDanger('Konnte Downloads nicht starten!');
             });
@@ -524,14 +520,14 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $('#myjd_pause').addClass('blinking').addClass('isDisabled');
         $('#myjd_unpause').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_pause/' + bl)
-            .then(function (res) {
+            .then(function () {
                 getMyJDstate();
                 if (bl) {
                     console.log('Download pausiert!');
                 } else {
                     console.log('Download fortgesetzt!');
                 }
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Downloads nicht fortsetzen!');
                 showDanger('Konnte Downloads nicht fortsetzen!');
             });
@@ -540,10 +536,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDstop() {
         $('#myjd_stop').addClass('blinking').addClass('isDisabled');
         $http.post('api/myjd_stop/')
-            .then(function (res) {
+            .then(function () {
                 getMyJDstate();
                 console.log('Download angehalten!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Downloads nicht anhalten!');
                 showDanger('Konnte Downloads nicht anhalten!');
             });
@@ -561,7 +557,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 $('#myjd_stop').removeClass('blinking').removeClass('isDisabled');
                 $('#myjd_update').removeClass('blinking').removeClass('isDisabled');
                 console.log('JDownloader Status abgerufen!');
-            }, function (res) {
+            }, function () {
                 console.log('Konnte JDownloader nicht erreichen!');
                 showDanger('Konnte JDownloader nicht erreichen!');
             });
@@ -617,40 +613,40 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
                 $scope.myjd_packages = [];
                 if ($scope.myjd_failed) {
-                    for (let package of $scope.myjd_failed) {
-                        package.type = "failed";
-                        $scope.myjd_packages.push(package);
+                    for (let p of $scope.myjd_failed) {
+                        p.type = "failed";
+                        $scope.myjd_packages.push(p);
                     }
                 }
                 if ($scope.to_decrypt) {
                     let first = true;
-                    for (let package of $scope.to_decrypt) {
-                        package.type = "to_decrypt";
-                        package.first = first;
+                    for (let p of $scope.to_decrypt) {
+                        p.type = "to_decrypt";
+                        p.first = first;
                         first = false;
-                        $scope.myjd_packages.push(package);
+                        $scope.myjd_packages.push(p);
                     }
                 }
                 if ($scope.myjd_offline) {
-                    for (let package of $scope.myjd_offline) {
-                        package.type = "offline";
-                        $scope.myjd_packages.push(package);
+                    for (let p of $scope.myjd_offline) {
+                        p.type = "offline";
+                        $scope.myjd_packages.push(p);
                     }
                 }
                 if ($scope.myjd_decrypted) {
-                    for (let package of $scope.myjd_decrypted) {
-                        package.type = "decrypted";
-                        $scope.myjd_packages.push(package);
+                    for (let p of $scope.myjd_decrypted) {
+                        p.type = "decrypted";
+                        $scope.myjd_packages.push(p);
                     }
                 }
                 if ($scope.myjd_downloads) {
-                    for (let package of $scope.myjd_downloads) {
-                        package.type = "online";
-                        $scope.myjd_packages.push(package);
+                    for (let p of $scope.myjd_downloads) {
+                        p.type = "online";
+                        $scope.myjd_packages.push(p);
                     }
                 }
 
-                if ($scope.myjd_packages.length == 0 || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
+                if ($scope.myjd_packages.length === 0 || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
                     if (!$scope.myjd_collapse_manual) {
                         $("#myjd_collapse").addClass('collapsed');
                         $("#collapseOne").removeClass('show');
@@ -663,7 +659,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
 
                 console.log('JDownloader abgerufen!');
-            }, function (res) {
+            }, function () {
                 $scope.myjd_grabbing = null;
                 $scope.myjd_downloads = null;
                 $scope.myjd_decrypted = null;
@@ -678,9 +674,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         showInfoLong("Starte Suchlauf...");
         $scope.starting = true;
         $http.post('api/start_now/')
-            .then(function (res) {
+            .then(function () {
                 $(".alert-info").slideUp(1500);
-            }, function (res) {
+            }, function () {
                 $scope.starting = false;
                 console.log('Konnte Suchlauf nicht starten!');
                 showDanger('Konnte Suchlauf nicht starten!');
@@ -691,10 +687,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDmove(linkids, uuid) {
         showInfoLong("Starte Download...");
         $http.post('api/myjd_move/' + linkids + "&" + uuid)
-            .then(function (res) {
+            .then(function () {
                 getMyJD();
                 $(".alert-info").slideUp(1500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
                 $(".alert-info").slideUp(1500);
@@ -704,11 +700,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function myJDremove(linkids, uuid) {
         showInfoLong("Lösche Download...");
         $http.post('api/myjd_remove/' + linkids + "&" + uuid)
-            .then(function (res) {
+            .then(function () {
                 if ($scope.myjd_failed) {
                     for (let failed_package of $scope.myjd_failed) {
                         let existing_uuid = failed_package['uuid'];
-                        if (uuid == existing_uuid) {
+                        if (uuid === existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
                         }
@@ -716,7 +712,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
                 getMyJD();
                 $(".alert-info").slideUp(1500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht löschen!');
                 showDanger('Konnte Download nicht löschen!');
                 $(".alert-info").slideUp(1500);
@@ -726,11 +722,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function internalRemove(name) {
         showInfoLong("Lösche Download...");
         $http.post('api/internal_remove/' + name)
-            .then(function (res) {
+            .then(function () {
                 if ($scope.to_decrypt) {
                     for (let failed_package of $scope.to_decrypt) {
                         let existing_name = failed_package['name'];
-                        if (name == existing_name) {
+                        if (name === existing_name) {
                             let index = $scope.to_decrypt.indexOf(failed_package);
                             $scope.to_decrypt.splice(index, 1)
                         }
@@ -738,7 +734,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
                 getMyJD();
                 $(".alert-info").slideUp(1500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht löschen!');
                 showDanger('Konnte Download nicht löschen!');
                 $(".alert-info").slideUp(1500);
@@ -749,11 +745,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         showInfoLong("Füge Download erneut hinzu...");
         links = btoa(links);
         $http.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
-            .then(function (res) {
+            .then(function () {
                 if ($scope.myjd_failed) {
                     for (let failed_package of $scope.myjd_failed) {
                         let existing_uuid = failed_package['uuid'];
-                        if (uuid == existing_uuid) {
+                        if (uuid === existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
                         }
@@ -761,7 +757,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
                 getMyJD();
                 $(".alert-info").slideUp(1500);
-            }, function (res) {
+            }, function () {
                 console.log('Konnte Download nicht erneut hinzufügen!');
                 showDanger('Konnte Download nicht erneut hinzufügen!');
                 $(".alert-info").slideUp(1500);
@@ -773,12 +769,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $scope.cnl_active = true;
         countDown(60);
         $http.post('api/myjd_cnl/' + uuid)
-            .then(function (res) {
+            .then(function () {
                 $scope.cnl_active = false;
                 if ($scope.myjd_failed) {
                     for (let failed_package of $scope.myjd_failed) {
                         let existing_uuid = failed_package['uuid'];
-                        if (uuid == existing_uuid) {
+                        if (uuid === existing_uuid) {
                             let index = $scope.myjd_failed.indexOf(failed_package);
                             $scope.myjd_failed.splice(index, 1)
                         }
@@ -799,12 +795,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $scope.cnl_active = true;
         countDown(60);
         $http.post('api/internal_cnl/' + name + "&" + password)
-            .then(function (res) {
+            .then(function () {
                 $scope.cnl_active = false;
                 if ($scope.to_decrypt) {
                     for (let failed_package of $scope.to_decrypt) {
                         let existing_name = failed_package['name'];
-                        if (name == existing_name) {
+                        if (name === existing_name) {
                             let index = $scope.to_decrypt.indexOf(failed_package);
                             $scope.to_decrypt.splice(index, 1)
                         }
