@@ -132,7 +132,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.loglength = 65;
     $scope.longlog = false;
-    $scope.accordionlength = 45;
 
     $(window).resize(function () {
         setAccordionWidth();
