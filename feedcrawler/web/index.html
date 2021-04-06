@@ -424,7 +424,7 @@
 <div id="lists" class="col card app container">
     <h3><i class="bi bi-text-left"></i> Listen</h3>
     <div class="accordion" id="accordionLists">
-        <div class="accordion-item">
+        <div class="accordion-item" ng-show="hostnames.bl !== 'Nicht gesetzt!'">
             <h2 class="accordion-header" id="headingZeroOne">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseZeroOne"
@@ -451,7 +451,7 @@
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
+        <div class="accordion-item" ng-show="hostnames.s !== 'Nicht gesetzt!'">
             <h2 class="accordion-header" id="headingZeroTwo">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseZeroTwo" aria-expanded="false" aria-controls="collapseZeroTwo">
@@ -481,7 +481,8 @@
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
+        <div class="accordion-item"
+             ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && settings.mbsj.enabled && sjbl_enabled">
             <h2 class="accordion-header" id="headingZeroThree">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseZeroThree" aria-expanded="false" aria-controls="collapseZeroThree">
@@ -498,7 +499,7 @@
                 </div>
             </div>
         </div>
-        <div class="accordion-item">
+        <div class="accordion-item" ng-show="hostnames.dj !== 'Nicht gesetzt!'">
             <h2 class="accordion-header" id="headingZeroFour">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseZeroFour" aria-expanded="false" aria-controls="collapseZeroFour">
@@ -1350,7 +1351,8 @@
                 </div>
             </div>
         </div>
-        <div class="accordion-item" ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && sjbl_enabled">
+        <div class="accordion-item"
+             ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && settings.mbsj.enabled && sjbl_enabled">
             <h2 class="accordion-header" id="headingTwoEight">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                         data-bs-target="#collapseTwoEight"
