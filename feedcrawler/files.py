@@ -59,7 +59,8 @@ def myjd_input(configfile, port, user, password, device):
     if not port:
         port = '9090'
 
-    sections = ['FeedCrawler', 'MB', 'SJ', 'DD', 'Notifications', 'Crawljobs']
+    sections = ['FeedCrawler', 'Hostnames', 'Crawljobs', 'Notifications', 'Hosters', 'Ombi', 'ContentAll',
+                'ContentShows', 'CustomDJ', 'CustomDD']
     for section in sections:
         CrawlerConfig(section, configfile)
     if port:
