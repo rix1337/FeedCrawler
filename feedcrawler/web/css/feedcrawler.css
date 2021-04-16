@@ -7,6 +7,12 @@ body {
     max-width: 80em;
 }
 
+.offcanvas-bottom {
+    height: unset;
+    min-height: 60%;
+    max-height: 100%;
+}
+
 .log {
     height: 260px;
     overflow: auto;
@@ -48,6 +54,10 @@ thead {
     padding: 0;
 }
 
+.myjd-items {
+    padding: 1em;
+}
+
 .alert {
     margin-bottom: 1em;
     max-width: 20em;
@@ -80,19 +90,15 @@ td {
     max-width: 50em;
 }
 
-#settings {
-    margin-bottom: 1em;
-}
-
 #head {
-    width: 24em;
+    max-width: 36em;
 }
 
 .border-top {
     margin: 1em;
 }
 
-#head, #myjd, #search, #log, #lists, #help {
+#head, #myjd, #log {
     margin-bottom: 2em;
 }
 
@@ -147,7 +153,7 @@ select {
     margin-right: auto;
 }
 
-input, select, textarea {
+input, select, textarea, .accordion {
     margin-bottom: 16px;
 }
 
