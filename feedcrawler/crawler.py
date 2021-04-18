@@ -67,7 +67,6 @@ from feedcrawler.sites.content_all_dw import BL as DW
 from feedcrawler.sites.content_all_fx import BL as FX
 from feedcrawler.sites.content_all_nk import BL as NK
 from feedcrawler.sites.content_all_ww import BL as WW
-from feedcrawler.sites.content_custom_dd import DD
 from feedcrawler.sites.content_shows_dj import DJ
 from feedcrawler.sites.content_shows_dw import DWs
 from feedcrawler.sites.content_shows_sf import SF
@@ -411,8 +410,7 @@ def search_pool(configfile, dbfile, device, logger, scraper):
         BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
         BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
         BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        DD(configfile, dbfile, device, logger, scraper),
+        BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons')
     ]
 
 
@@ -449,7 +447,6 @@ def main():
         filedata = filedata.replace("[MB]", "[ContentAll]")
         filedata = filedata.replace("[SJ]", "[ContentShows]")
         filedata = filedata.replace("[DJ]", "[CustomDJ]")
-        filedata = filedata.replace("[DD]", "[CustomDD]")
 
         with open(os.path.join(configpath, "FeedCrawler.ini"), 'w') as file:
             file.write(filedata)

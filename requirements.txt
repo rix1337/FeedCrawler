@@ -5,7 +5,6 @@
 bs4
 cloudscraper
 docopt
-feedparser
 flask
 rapidfuzz
 lxml

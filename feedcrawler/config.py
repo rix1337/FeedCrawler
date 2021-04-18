@@ -33,8 +33,7 @@ class CrawlerConfig(object):
             ("dw", "str", ""),
             ("fx", "str", ""),
             ("nk", "str", ""),
-            ("ww", "str", ""),
-            ("dd", "str", "")
+            ("ww", "str", "")
         ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
@@ -95,10 +94,6 @@ class CrawlerConfig(object):
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
-            ("hoster_fallback", "bool", "False")
-        ],
-        'CustomDD': [
-            ("feeds", "str", ""),
             ("hoster_fallback", "bool", "False")
         ]
     }

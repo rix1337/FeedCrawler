@@ -587,8 +587,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                             "DW": check("DW", db_proxy),
                             "FX": check("FX", db_proxy),
                             "NK": check("NK", db_proxy),
-                            "WW": check("WW", db_proxy),
-                            "DD": check("DD", db_proxy)
+                            "WW": check("WW", db_proxy)
                         },
                         "normal": {
                             "SJ": check("SJ", db_normal),
@@ -599,8 +598,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                             "FX": check("FX", db_normal),
                             "HW": check("HW", db_normal),
                             "NK": check("NK", db_normal),
-                            "WW": check("WW", db_normal),
-                            "DD": check("DD", db_normal)
+                            "WW": check("WW", db_normal)
                         }
                     }
                 )

@@ -1480,23 +1480,6 @@
                                        title="Seite mit Proxy verfügbar"></i>
                                 </span>
                                     </li>
-                                    <li ng-show="hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{
-                                        hostnames.dd
-                                        }}
-                                        (DD)
-                                        <span ng-if="!settings.general.proxy || (settings.general.fallback && blocked_proxy.DD)">
-                                    <i ng-if="blocked_normal.DD" class="bi bi-lightbulb text-danger"
-                                       title="Seite ohne Proxy gesperrt!"></i>
-                                    <i ng-if="!blocked_normal.DD" class="bi bi-lightbulb text-success"
-                                       title="Seite ohne Proxy verfügbar"></i>
-                                </span>
-                                        <span ng-if="settings.general.proxy">
-                                    <i ng-if="blocked_proxy.DD" class="bi bi-lightbulb text-danger"
-                                       title="Seite mit Proxy gesperrt"></i>
-                                    <i ng-if="!blocked_proxy.DD" class="bi bi-lightbulb text-success"
-                                       title="Seite mit Proxy verfügbar"></i>
-                                </span>
-                                    </li>
                                 </ul>
                             </div>
                         </div>
