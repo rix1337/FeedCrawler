@@ -340,7 +340,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getBlockedSites() {
         $http.get('api/blocked_sites/')
             .then(function (res) {
-                $scope.blocked_proxy = res.data.proxy;
                 $scope.blocked_normal = res.data.normal;
                 console.log('Blockierte Seiten abgerufen!');
             }, function () {

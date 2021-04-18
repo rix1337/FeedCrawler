@@ -155,7 +155,7 @@ def download(payload, device, configfile, dbfile):
                     if check_hoster(link_hoster, configfile):
                         link = url_hoster[0]
                         if by in link:
-                            demasked_link = get_redirected_url(link, configfile, dbfile, False)
+                            demasked_link = get_redirected_url(link, configfile, dbfile)
                             if demasked_link:
                                 link = demasked_link
                         links[link_hoster] = link
@@ -167,7 +167,7 @@ def download(payload, device, configfile, dbfile):
                         "ddownload", "ddl")
                     link = url_hoster[0]
                     if by in link:
-                        demasked_link = get_redirected_url(link, configfile, dbfile, False)
+                        demasked_link = get_redirected_url(link, configfile, dbfile)
                         if demasked_link:
                             link = demasked_link
                     links[link_hoster] = link

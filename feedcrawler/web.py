@@ -29,8 +29,8 @@ from feedcrawler.common import is_device
 from feedcrawler.common import remove_decrypt
 from feedcrawler.common import rreplace
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
+from feedcrawler.db import ListDb
 from feedcrawler.myjd import check_device
 from feedcrawler.myjd import do_add_decrypted
 from feedcrawler.myjd import do_package_replace
@@ -225,7 +225,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                                 "interval": to_int(general_conf.get("interval")),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
-                                "proxy": general_conf.get("proxy"),
                                 "fallback": general_conf.get("fallback"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                                 "one_mirror_policy": general_conf.get("one_mirror_policy"),
@@ -348,7 +347,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("interval", interval)
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
-                section.save("proxy", to_str(data['general']['proxy']))
                 section.save("fallback", to_str(data['general']['fallback']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
                 section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
@@ -576,29 +574,19 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                     return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
 
                 db_proxy = FeedDb(dbfile, 'proxystatus')
-                db_normal = FeedDb(dbfile, 'normalstatus')
+                db_status = FeedDb(dbfile, 'normalstatus')
                 return jsonify(
                     {
-                        "proxy": {
-                            "SJ": check("SJ", db_proxy),
-                            "DJ": check("DJ", db_proxy),
-                            "SF": check("SF", db_proxy),
-                            "BY": check("BY", db_proxy),
-                            "DW": check("DW", db_proxy),
-                            "FX": check("FX", db_proxy),
-                            "NK": check("NK", db_proxy),
-                            "WW": check("WW", db_proxy)
-                        },
-                        "normal": {
-                            "SJ": check("SJ", db_normal),
-                            "DJ": check("DJ", db_normal),
-                            "SF": check("SF", db_normal),
-                            "BY": check("BY", db_normal),
-                            "DW": check("DW", db_normal),
-                            "FX": check("FX", db_normal),
-                            "HW": check("HW", db_normal),
-                            "NK": check("NK", db_normal),
-                            "WW": check("WW", db_normal)
+                        "status": {
+                            "SJ": check("SJ", db_status),
+                            "DJ": check("DJ", db_status),
+                            "SF": check("SF", db_status),
+                            "BY": check("BY", db_status),
+                            "DW": check("DW", db_status),
+                            "FX": check("FX", db_status),
+                            "HW": check("HW", db_status),
+                            "NK": check("NK", db_status),
+                            "WW": check("WW", db_status)
                         }
                     }
                 )

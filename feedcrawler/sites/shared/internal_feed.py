@@ -882,8 +882,7 @@ def sf_parse_download(self, series_url, title, language_id):
         download_link = False
         for link in links:
             if check_hoster(link.text.replace('\n', ''), self.configfile):
-                download_link = get_redirected_url("https://" + self.url + link['href'], self.configfile,
-                                                   self.dbfile)
+                download_link = get_redirected_url("https://" + self.url + link['href'], self.configfile, self.dbfile)
                 break
         if not download_link and not self.hoster_fallback:
             storage = self.db.retrieve_all(title)

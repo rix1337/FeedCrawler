@@ -468,6 +468,11 @@ def main():
         FeedDb(dbfile, 'DJ_Dokus_Regex').rename_table('List_CustomDJ_Documentaries_Regex')
         print(u"Migration der RSScrawler-Datenbank erfolgreich!")
 
+    # ToDo further rename actions on Feedcrawler.ini
+    # ToDo Remove tables
+    #     db = FeedDb(dbfile, 'proxystatus')
+    #     db_status = FeedDb(dbfile, 'normalstatus')
+
     print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 
     log_level = logging.__dict__[

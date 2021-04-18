@@ -18,8 +18,6 @@ class CrawlerConfig(object):
             ("interval", "int", "10"),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
-            ("proxy", "str", ""),
-            ("fallback", "bool", "False"),
             ("closed_myjd_tab", "bool", "False"),
             ("one_mirror_policy", "bool", "False"),
             ("packages_per_myjd_page", "int", "3"),
