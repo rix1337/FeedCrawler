@@ -7,7 +7,7 @@
 
 Usage:
   crawler.py [--config="<CFGPFAD>"]
-                [--testlauf]
+                [--travis_ci]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-user=<NUTZERNAME>]
@@ -24,7 +24,7 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
-  --testlauf                Intern: Einmalige Ausführung von FeedCrawler (ohne auf MyJDownloader-Konto zu achten)
+  --travis_ci               Intern: Startparameter für die TravisCI-Prüfung
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
@@ -176,9 +176,9 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
             FeedDb(dbfile, 'cached_requests').reset()
             FeedDb(dbfile, 'cached_requests').cleanup()
 
-            if arguments['--testlauf']:
-                log_debug(u"-----------Testlauf beendet!-----------")
-                print(u"-----------Testlauf beendet!-----------")
+            if arguments['--travis_ci']:
+                log_debug(u"-----------travis_ci beendet!-----------")
+                print(u"-----------travis_ci beendet!-----------")
                 return
 
             wait_chunks = wait // 10
@@ -502,14 +502,14 @@ def main():
         if hostname:
             set_hostnames[name] = hostname
 
-    if not arguments['--testlauf'] and not set_hostnames:
+    if not arguments['--travis_ci'] and not set_hostnames:
         print(u'Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
         time.sleep(10)
         sys.exit(1)
 
     disable_request_warnings(InsecureRequestWarning)
 
-    if arguments['--testlauf']:
+    if arguments['--travis_ci']:
         device = False
     else:
         if not os.path.exists(configfile):
@@ -539,7 +539,7 @@ def main():
                 device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
                                           arguments['--jd-pass'], arguments['--jd-device'])
 
-        if not device and not arguments['--testlauf']:
+        if not device and not arguments['--travis_ci']:
             print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
             time.sleep(10)
             sys.exit(1)
@@ -574,7 +574,7 @@ def main():
                                       device))
     p.start()
 
-    if not arguments['--testlauf']:
+    if not arguments['--travis_ci']:
         c = multiprocessing.Process(target=crawler,
                                     args=(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format))
         c.start()
