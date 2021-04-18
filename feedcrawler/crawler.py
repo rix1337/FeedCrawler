@@ -116,7 +116,7 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
                 device = get_device(configfile)
             FeedDb(dbfile, 'cached_requests').reset()
             FeedDb(dbfile, 'cached_requests').cleanup()
-            scraper = check_url(configfile, dbfile)
+            check_url(configfile, dbfile)
             start_time = time.time()
             crawltimes.update_store("active", "True")
             crawltimes.update_store("start_time", start_time * 1000)
@@ -139,7 +139,7 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
                         ombi_string = ombi_string + " und "
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
-            for task in search_pool(configfile, dbfile, device, logger, scraper):
+            for task in search_pool(configfile, dbfile, device, logger):
                 name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
@@ -375,42 +375,42 @@ def crawldog(configfile, dbfile):
             time.sleep(30)
 
 
-def search_pool(configfile, dbfile, device, logger, scraper):
+def search_pool(configfile, dbfile, device, logger):
     return [
-        DWs(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows'),
-        DWs(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows_Regex'),
-        DWs(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Seasons_Regex'),
-        DWs(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        DW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
-        DW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        DW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        DW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        FX(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
-        FX(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        FX(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        FX(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows_Regex'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Seasons_Regex'),
-        SJ(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        DJ(configfile, dbfile, device, logger, scraper, filename='List_CustomDJ_Documentaries'),
-        DJ(configfile, dbfile, device, logger, scraper, filename='List_CustomDJ_Documentaries_Regex'),
-        SF(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows'),
-        SF(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Shows_Regex'),
-        SF(configfile, dbfile, device, logger, scraper, filename='List_ContentShows_Seasons_Regex'),
-        SF(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        WW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
-        WW(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        WW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        WW(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        NK(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
-        NK(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        NK(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        NK(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons'),
-        BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies_Regex'),
-        BY(configfile, dbfile, device, logger, scraper, filename='IMDB'),
-        BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Movies'),
-        BY(configfile, dbfile, device, logger, scraper, filename='List_ContentAll_Seasons')
+        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
+        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
+        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
+        DWs(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
+        DW(configfile, dbfile, device, logger, filename='IMDB'),
+        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
+        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
+        FX(configfile, dbfile, device, logger, filename='IMDB'),
+        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
+        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
+        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
+        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
+        SJ(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        DJ(configfile, dbfile, device, logger, filename='List_CustomDJ_Documentaries'),
+        DJ(configfile, dbfile, device, logger, filename='List_CustomDJ_Documentaries_Regex'),
+        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
+        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
+        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
+        SF(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
+        WW(configfile, dbfile, device, logger, filename='IMDB'),
+        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
+        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
+        NK(configfile, dbfile, device, logger, filename='IMDB'),
+        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
+        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
+        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
+        BY(configfile, dbfile, device, logger, filename='IMDB'),
+        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
+        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons')
     ]
 
 

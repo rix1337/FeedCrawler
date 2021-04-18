@@ -13,7 +13,7 @@ class DWs:
     _INTERNAL_NAME = 'DWs'
     _SITE = 'DW'
 
-    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
+    def __init__(self, configfile, dbfile, device, logging, filename):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -34,7 +34,6 @@ class DWs:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.scraper = scraper
         self.db = FeedDb(self.dbfile, 'FeedCrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")

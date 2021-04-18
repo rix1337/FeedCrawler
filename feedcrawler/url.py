@@ -2,68 +2,15 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
-import cloudscraper
-import codecs
 import concurrent.futures
 import datetime
-import functools
-import hashlib
-import pickle
 
 from feedcrawler.common import check_is_site
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 
 
-class DbFileMissingExpection(Exception):
-    """Exception raised for missing dbfile path.
-
-    Attributes:
-        url -- url(s) from the request that caused the error
-        message -- explanation of the error
-    """
-
-    def __init__(self, url, message="The dbfile parameter required for caching this request is missing!"):
-        self.url = url
-        self.message = message
-        super().__init__(self.message + ", url(s): " + self.url)
-
-
-def cache(func):
-    """Decorator that caches a functions return values for specific arguments, excluding the scraper object."""
-
-    @functools.wraps(func)
-    def cache_returned_values(*args, **kwargs):
-        to_hash = ""
-        dbfile = False
-        for a in args:
-            # The path to the db file which we will use for caching is always one of the arguments
-            if isinstance(a, str) and "FeedCrawler.db" in a:
-                dbfile = a
-            # Ignore the scraper object when caching
-            if not isinstance(a, cloudscraper.CloudScraper):
-                # convert all arguments to hashable strings
-                to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
-        # This hash is based on all arguments of the request
-        hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
-
-        if dbfile:
-            # Check if there is a cached request for this hash
-            cached = FeedDb(dbfile, 'cached_requests').retrieve(hashed)
-            if cached:
-                # Unpack and return the cached result instead of processing the request
-                return pickle.loads(codecs.decode(cached.encode(), "base64"))
-            else:
-                #
-                value = func(*args, **kwargs)
-                FeedDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
-                return value
-        raise DbFileMissingExpection(str(args[0]))
-
-    return cache_returned_values
-
-
-def check_url(configfile, dbfile, scraper=False):
+def check_url(configfile, dbfile=False):
     hostnames = CrawlerConfig('Hostnames', configfile)
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
@@ -73,9 +20,6 @@ def check_url(configfile, dbfile, scraper=False):
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
-
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     sj_url = 'https://' + sj
     dj_url = 'https://' + dj
@@ -143,7 +87,6 @@ def check_url(configfile, dbfile, scraper=False):
             if sj_blocked_proxy:
                 print(u"Der Zugriff auf SJ ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("SJ", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not dj:
             db.store("DJ", "Blocked")
@@ -160,7 +103,6 @@ def check_url(configfile, dbfile, scraper=False):
             if dj_blocked_proxy:
                 print(u"Der Zugriff auf DJ ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("DJ", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not sf:
             db.store("SF", "Blocked")
@@ -178,7 +120,6 @@ def check_url(configfile, dbfile, scraper=False):
             if sf_blocked_proxy:
                 print(u"Der Zugriff auf SF ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("SF", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not by:
             db.store("BY", "Blocked")
@@ -193,7 +134,6 @@ def check_url(configfile, dbfile, scraper=False):
             if by_blocked_proxy:
                 print(u"Der Zugriff auf BY ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("BY", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not dw:
             db.store("DW", "Blocked")
@@ -211,7 +151,6 @@ def check_url(configfile, dbfile, scraper=False):
             if dw_blocked_proxy:
                 print(u"Der Zugriff auf DW ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("DW", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not fx:
             db.store("FX", "Blocked")
@@ -226,7 +165,6 @@ def check_url(configfile, dbfile, scraper=False):
             if fx_blocked_proxy:
                 print(u"Der Zugriff auf FX ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("FX", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not nk:
             db.store("NK", "Blocked")
@@ -241,7 +179,6 @@ def check_url(configfile, dbfile, scraper=False):
             if nk_blocked_proxy:
                 print(u"Der Zugriff auf NK ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("NK", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
         if not ww:
             db.store("WW", "Blocked")
@@ -259,7 +196,6 @@ def check_url(configfile, dbfile, scraper=False):
             if ww_blocked_proxy:
                 print(u"Der Zugriff auf WW ist mit der aktuellen Proxy-IP nicht möglich!")
                 db.store("WW", "Blocked")
-                scraper = cloudscraper.create_scraper()
 
     if not proxy or (proxy and sj_blocked_proxy and fallback):
         if not sj:
@@ -377,15 +313,12 @@ def check_url(configfile, dbfile, scraper=False):
                 db_normal.store("WW", "Blocked")
                 print(u"Der Zugriff auf WW ist mit der aktuellen IP nicht möglich!")
 
-    return scraper
+    return
 
 
-@cache
-def get_url(url, configfile, dbfile, scraper=False):
+def get_url(url, configfile, dbfile=False):
     config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     db = FeedDb(dbfile, 'proxystatus')
     db_normal = FeedDb(dbfile, 'normalstatus')
@@ -473,12 +406,9 @@ def get_url(url, configfile, dbfile, scraper=False):
             return ""
 
 
-@cache
-def get_url_headers(url, configfile, dbfile, headers, scraper=False):
+def get_url_headers(url, configfile, dbfile, headers=False):
     config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     db = FeedDb(dbfile, 'proxystatus')
     db_normal = FeedDb(dbfile, 'normalstatus')
@@ -489,88 +419,85 @@ def get_url_headers(url, configfile, dbfile, headers, scraper=False):
             if site and "SJ" in site:
                 if db.retrieve("SJ"):
                     if config.get("fallback") and not db_normal.retrieve("SJ"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "DJ" in site:
                 if db.retrieve("DJ"):
                     if config.get("fallback") and not db_normal.retrieve("DJ"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "SF" in site:
                 if db.retrieve("SF"):
                     if config.get("fallback") and not db_normal.retrieve("SF"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "BY" in site:
                 if db.retrieve("BY"):
                     if config.get("fallback") and not db_normal.retrieve("BY"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "DW" in site:
                 if db.retrieve("DW"):
                     if config.get("fallback") and not db_normal.retrieve("DW"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "FX" in site:
                 if db.retrieve("FX"):
                     if config.get("fallback") and not db_normal.retrieve("FX"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "NK" in site:
                 if db.retrieve("NK"):
                     if config.get("fallback") and not db_normal.retrieve("NK"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "WW" in site:
                 if db.retrieve("WW"):
                     if config.get("fallback") and not db_normal.retrieve("WW"):
-                        return [scraper.get(url, headers=headers, timeout=30), scraper]
+                        return [scraper.get(url, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             proxies = {'http': proxy, 'https': proxy}
             response = scraper.get(url, headers=headers, proxies=proxies, timeout=30)
-            return [response, scraper]
+            return [response]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
-            return ["", scraper]
+            return [""]
     else:
         try:
             if site and "SJ" in site and db_normal.retrieve("SJ"):
-                return ["", scraper]
+                return [""]
             elif site and "DJ" in site and db_normal.retrieve("DJ"):
-                return ["", scraper]
+                return [""]
             elif site and "SF" in site and db_normal.retrieve("SF"):
-                return ["", scraper]
+                return [""]
             elif site and "BY" in site and db_normal.retrieve("BY"):
-                return ["", scraper]
+                return [""]
             elif site and "DW" in site and db_normal.retrieve("DW"):
-                return ["", scraper]
+                return [""]
             elif site and "FX" in site and db_normal.retrieve("FX"):
-                return ["", scraper]
+                return [""]
             elif site and "NK" in site and db_normal.retrieve("NK"):
-                return ["", scraper]
+                return [""]
             elif site and "WW" in site and db_normal.retrieve("WW"):
-                return ["", scraper]
+                return [""]
             response = scraper.get(url, headers=headers, timeout=30)
-            return [response, scraper]
+            return [response]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
-            return ["", scraper]
+            return [""]
 
 
-@cache
-def get_redirected_url(url, configfile, dbfile, scraper=False):
+def get_redirected_url(url, configfile, dbfile=False):
     config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     db = FeedDb(dbfile, 'proxystatus')
     db_normal = FeedDb(dbfile, 'normalstatus')
@@ -654,12 +581,9 @@ def get_redirected_url(url, configfile, dbfile, scraper=False):
             return url
 
 
-@cache
-def post_url(url, configfile, dbfile, data, scraper=False):
+def post_url(url, configfile, dbfile, data=False):
     config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     db = FeedDb(dbfile, 'proxystatus')
     db_normal = FeedDb(dbfile, 'normalstatus')
@@ -746,12 +670,9 @@ def post_url(url, configfile, dbfile, data, scraper=False):
             return ""
 
 
-@cache
-def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
+def post_url_headers(url, configfile, dbfile, headers, data=False):
     config = CrawlerConfig('FeedCrawler', configfile)
     proxy = config.get('proxy')
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
 
     db = FeedDb(dbfile, 'proxystatus')
     db_normal = FeedDb(dbfile, 'normalstatus')
@@ -762,90 +683,87 @@ def post_url_headers(url, configfile, dbfile, headers, data, scraper=False):
             if site and "SJ" in site:
                 if db.retrieve("SJ"):
                     if config.get("fallback") and not db_normal.retrieve("SJ"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "DJ" in site:
                 if db.retrieve("DJ"):
                     if config.get("fallback") and not db_normal.retrieve("DJ"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "SF" in site:
                 if db.retrieve("SF"):
                     if config.get("fallback") and not db_normal.retrieve("SF"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "BY" in site:
                 if db.retrieve("BY"):
                     if config.get("fallback") and not db_normal.retrieve("BY"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "DW" in site:
                 if db.retrieve("DW"):
                     if config.get("fallback") and not db_normal.retrieve("DW"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "FX" in site:
                 if db.retrieve("FX"):
                     if config.get("fallback") and not db_normal.retrieve("FX"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "NK" in site:
                 if db.retrieve("NK"):
                     if config.get("fallback") and not db_normal.retrieve("NK"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             elif site and "WW" in site:
                 if db.retrieve("WW"):
                     if config.get("fallback") and not db_normal.retrieve("WW"):
-                        return [scraper.post(url, data, headers=headers, timeout=30), scraper]
+                        return [scraper.post(url, data, headers=headers, timeout=30)]
                     else:
-                        return ["", scraper]
+                        return [""]
             proxies = {'http': proxy, 'https': proxy}
             response = scraper.post(url, data, headers=headers, proxies=proxies, timeout=30)
-            return [response, scraper]
+            return [response]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
-            return ["", scraper]
+            return [""]
     else:
         try:
             if site and "SJ" in site and db_normal.retrieve("SJ"):
-                return ["", scraper]
+                return [""]
             elif site and "DJ" in site and db_normal.retrieve("DJ"):
-                return ["", scraper]
+                return [""]
             elif site and "SF" in site and db_normal.retrieve("SF"):
-                return ["", scraper]
+                return [""]
             elif site and "BY" in site and db_normal.retrieve("BY"):
-                return ["", scraper]
+                return [""]
             elif site and "DW" in site and db_normal.retrieve("DW"):
-                return ["", scraper]
+                return [""]
             elif site and "FX" in site and db_normal.retrieve("FX"):
-                return ["", scraper]
+                return [""]
             elif site and "NK" in site and db_normal.retrieve("NK"):
-                return ["", scraper]
+                return [""]
             elif site and "WW" in site and db_normal.retrieve("WW"):
-                return ["", scraper]
+                return [""]
             response = scraper.post(url, data, headers=headers, timeout=30)
-            return [response, scraper]
+            return [response]
         except Exception as e:
             print(u"Fehler beim Abruf von: " + url + " " + str(e))
-            return ["", scraper]
+            return [""]
 
 
-@cache
-def get_urls_async(urls, configfile, dbfile, scraper=False):
-    if not scraper:
-        scraper = cloudscraper.create_scraper()
+def get_urls_async(urls, configfile, dbfile=False):
     results = []
 
     def load_url(url):
-        return get_url(url, configfile, dbfile, scraper)
+        return get_url(url, configfile, dbfile)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(load_url, url): url for url in urls}
@@ -855,4 +773,4 @@ def get_urls_async(urls, configfile, dbfile, scraper=False):
                 results.append(future.result())
             except Exception:
                 pass
-    return [results, scraper]
+    return [results]

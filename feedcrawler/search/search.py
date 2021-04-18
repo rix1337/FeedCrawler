@@ -2,7 +2,6 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
-import cloudscraper
 import logging
 import re
 from bs4 import BeautifulSoup
@@ -47,7 +46,6 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
     bl_final = {}
     sj_final = {}
-    scraper = cloudscraper.create_scraper()
 
     if not sj_only:
         mb_query = sanitize(title).replace(" ", "+")
@@ -80,8 +78,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         else:
             fx_search = None
 
-        async_results = get_urls_async([by_search, dw_search, fx_search], configfile, dbfile, scraper)
-        scraper = async_results[1]
+        async_results = get_urls_async([by_search, dw_search, fx_search], configfile, dbfile)
         async_results = async_results[0]
 
         by_results = []
@@ -94,7 +91,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             elif check_is_site(res, configfile) == 'DW':
                 dw_results = dw_search_results(res, dw)
             elif check_is_site(res, configfile) == 'FX':
-                fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile, scraper)
+                fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile)
 
         if nk:
             nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
@@ -163,7 +160,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
     if not bl_only:
         if sj:
             sj_query = sanitize(title).replace(" ", "+")
-            sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile, scraper)
+            sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile)
             try:
                 sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
             except:

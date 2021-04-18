@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from feedcrawler.url import get_url
 
 
-def get_imdb_id(key, content, filename, configfile, dbfile, scraper, log_debug):
+def get_imdb_id(key, content, filename, configfile, dbfile, log_debug):
     try:
         imdb_id = re.findall(
             r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
@@ -23,7 +23,7 @@ def get_imdb_id(key, content, filename, configfile, dbfile, scraper, log_debug):
             search_title = re.findall(
                 r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
             search_url = "http://www.imdb.com/find?q=" + search_title
-            search_page = get_url(search_url, configfile, dbfile, scraper)
+            search_page = get_url(search_url, configfile, dbfile)
             search_results = re.findall(
                 r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                 search_page)
@@ -55,7 +55,7 @@ def get_imdb_id(key, content, filename, configfile, dbfile, scraper, log_debug):
     return imdb_id
 
 
-def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, scraper, log_debug):
+def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, log_debug):
     original_language = False
     if imdb_details and len(imdb_details) > 0:
         soup = BeautifulSoup(imdb_details, 'lxml')
@@ -64,7 +64,7 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, scrap
         except:
             pass
     elif imdb_url and len(imdb_url) > 0:
-        imdb_details = get_url(imdb_url, configfile, dbfile, scraper)
+        imdb_details = get_url(imdb_url, configfile, dbfile)
         if imdb_details:
             soup = BeautifulSoup(imdb_details, 'lxml')
             try:
@@ -83,7 +83,7 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, scrap
             except:
                 pass
         elif imdb_url and len(imdb_url) > 0:
-            imdb_details = get_url(imdb_url, configfile, dbfile, scraper)
+            imdb_details = get_url(imdb_url, configfile, dbfile)
             if imdb_details:
                 soup = BeautifulSoup(imdb_details, 'lxml')
                 try:

@@ -17,14 +17,10 @@ from feedcrawler.db import FeedDb
 from feedcrawler.url import get_url_headers
 
 
-def get_imdb(url, configfile, dbfile, scraper):
-    result = get_url_headers(url, configfile, dbfile,
-                             scraper=scraper,
-                             headers={'Accept-Language': 'de'}
-                             )
+def get_imdb(url, configfile, dbfile):
+    result = get_url_headers(url, configfile, dbfile, headers={'Accept-Language': 'de'})
     output = result[0].text
-    scraper = result[1]
-    return output, scraper
+    return output
 
 
 def get_title(input):
@@ -43,26 +39,22 @@ def get_year(input):
     return sanitize(raw_year)
 
 
-def imdb_movie(imdb_id, configfile, dbfile, scraper):
+def imdb_movie(imdb_id, configfile, dbfile):
     try:
-        result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile, scraper)
+        result = get_imdb('https://www.imdb.com/title/' + imdb_id, configfile, dbfile)
         output = result[0]
-        scraper = result[1]
-
         title = get_title(output)
         year = get_year(output)
-
-        return title + " " + year, scraper
+        return title + " " + year
     except:
         print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False
 
 
-def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
+def imdb_show(ombi_imdb_id, configfile, dbfile):
     try:
-        result = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id, configfile, dbfile, scraper)
+        result = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id, configfile, dbfile)
         output = result[0]
-        scraper = result[1]
 
         title = get_title(output)
 
@@ -72,9 +64,9 @@ def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
         seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
         if not seasons:
             episode_guide = soup.find_all("a", {"class": "np_episode_guide"})[0]["href"]
-            result = get_imdb("https://www.imdb.com/" + episode_guide, configfile, dbfile, scraper)
+            result = get_imdb("https://www.imdb.com/" + episode_guide, configfile, dbfile)
             output = result[0]
-            scraper = result[1]
+
             soup = BeautifulSoup(output, 'lxml')
             imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
             seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
@@ -83,9 +75,8 @@ def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
         total_seasons = list(range(1, latest_season + 1))
         for sn in total_seasons:
             result = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn), configfile,
-                              dbfile, scraper)
+                              dbfile)
             output = result[0]
-            scraper = result[1]
 
             ep = []
             soup = BeautifulSoup(output, 'lxml')
@@ -94,7 +85,7 @@ def imdb_show(ombi_imdb_id, configfile, dbfile, scraper):
                 ep.append(int(e['content']))
             eps[sn] = ep
 
-        return title, eps, scraper
+        return title, eps
     except:
         print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + ombi_imdb_id)
         return False, False, False
@@ -126,8 +117,6 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
         print(u"Ombi ist nicht erreichbar!")
         return [False, [0, 0]]
 
-    scraper = False
-
     if requested_movies:
         log_debug("Die Suchfunktion für Filme nutzt BY, DW, FX und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
@@ -135,10 +124,9 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
             if not bool(r.get("available")):
                 imdb_id = r.get("imdbId")
                 if not db.retrieve('movie_' + str(imdb_id)) == 'added':
-                    response = imdb_movie(imdb_id, configfile, dbfile, scraper)
+                    response = imdb_movie(imdb_id, configfile, dbfile)
                     title = response[0]
                     if title:
-                        scraper = response[1]
                         best_result = feedcrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                         if best_result:
@@ -184,11 +172,10 @@ def ombi(configfile, dbfile, device, log_debug, first_launch):
                                     eps.append(enr)
                         if eps:
                             if not infos:
-                                infos = imdb_show(imdb_id, configfile, dbfile, scraper)
+                                infos = imdb_show(imdb_id, configfile, dbfile)
                             if infos:
                                 title = infos[0]
                                 all_eps = infos[1]
-                                scraper = infos[2]
                                 check_sn = False
                                 if all_eps:
                                     check_sn = all_eps.get(sn)

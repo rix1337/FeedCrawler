@@ -46,7 +46,7 @@ def check_download_links(self, url_hosters):
         if check_hoster(hoster, self.configfile):
             link = url_hoster[0]
             if self.url in link:
-                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile)
                 if demasked_link:
                     link = demasked_link
             links[hoster] = link
@@ -55,7 +55,7 @@ def check_download_links(self, url_hosters):
             hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
             link = url_hoster[0]
             if self.url in link:
-                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link, self.configfile, self.dbfile)
                 if demasked_link:
                     link = demasked_link
             links[hoster] = link
@@ -92,8 +92,7 @@ def get_search_results(self, bl_query):
     else:
         fx_search = None
 
-    async_results = get_urls_async([by_search, dw_search, fx_search], self.configfile, self.dbfile, self.scraper)
-    scraper = async_results[1]
+    async_results = get_urls_async([by_search, dw_search, fx_search], self.configfile, self.dbfile)
     async_results = async_results[0]
 
     by_results = []
@@ -106,7 +105,7 @@ def get_search_results(self, bl_query):
         elif check_is_site(res, self.configfile) == 'DW':
             dw_results = dw_search_results(res, dw)
         elif check_is_site(res, self.configfile) == 'FX':
-            fx_results = fx_search_results(fx_content_to_soup(res), self.configfile, self.dbfile, scraper)
+            fx_results = fx_search_results(fx_content_to_soup(res), self.configfile, self.dbfile)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search", self.configfile, self.dbfile,
@@ -171,7 +170,7 @@ def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, downl
 
 def by_get_download_links(self, content, title):
     async_link_results = re.findall(r'href="([^"\'>]*)"', content)
-    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile, self.scraper)
+    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile)
 
     content = []
     links = async_link_results[0]
@@ -197,7 +196,7 @@ def by_feed_enricher(self, content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile)
     results = async_results[0]
 
     entries = []
@@ -311,7 +310,7 @@ def dw_feed_enricher(self, content):
             async_results.append(post_link)
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile)
     results = async_results[0]
 
     entries = []
@@ -374,7 +373,7 @@ def dw_mirror(self, title):
     if dw:
         dw_search = 'https://' + dw + '/?search=' + title
 
-        dw_results = get_url(dw_search, self.configfile, self.dbfile, self.scraper)
+        dw_results = get_url(dw_search, self.configfile, self.dbfile)
         dw_results = dw_search_results(dw_results, dw)
 
         for result in dw_results:
@@ -548,7 +547,7 @@ def fx_feed_enricher(self, feed):
     return feed
 
 
-def fx_search_results(content, configfile, dbfile, scraper):
+def fx_search_results(content, configfile, dbfile):
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
@@ -561,7 +560,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
     if result_urls:
         results = []
         for url in result_urls:
-            results.append(get_url(url, configfile, dbfile, scraper))
+            results.append(get_url(url, configfile, dbfile))
 
         for result in results:
             article = BeautifulSoup(str(result), 'lxml')
@@ -589,7 +588,7 @@ def nk_feed_enricher(self, content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)[0]
+    async_results = get_urls_async(async_results, self.configfile, self.dbfile)[0]
 
     entries = []
     if async_results:
@@ -650,7 +649,7 @@ def nk_page_download_link(self, download_link, key):
     return check_download_links(self, url_hosters)
 
 
-def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
+def ww_post_url_headers(url, configfile, dbfile, headers=False):
     try:
         if not headers:
             headers = {}
@@ -659,7 +658,7 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
         referer = payload[0].replace("/ajax", payload[1])
         data = payload[2]
         headers["Referer"] = referer
-        response = post_url_headers(url, configfile, dbfile, headers, data, scraper)
+        response = post_url_headers(url, configfile, dbfile, headers, data)
         if not response[0].text or response[0].status_code is not (200 or 304) or not '<span class="main-rls">' in \
                                                                                       response[0].text:
             print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
@@ -674,7 +673,7 @@ def ww_get_download_links(self, content, title):
     content = content.replace("mkv|", "")
     download_links = []
     try:
-        response = get_url(content, self.configfile, self.dbfile, self.scraper)
+        response = get_url(content, self.configfile, self.dbfile)
         if not response or "NinjaFirewall 429" in response:
             print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return False
@@ -766,7 +765,7 @@ def j_parse_download(self, series_url, title, language_id):
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
         api_url = 'https://' + self.url + '/api/media/' + series_id + '/releases'
 
-        response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+        response = get_url(api_url, self.configfile, self.dbfile)
         seasons = json.loads(response)
         for season in seasons:
             season = seasons[season]
@@ -848,7 +847,7 @@ def sf_parse_download(self, series_url, title, language_id):
             lang = 'DE'
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
         api_url = series_url + '?lang=' + lang + '&_=' + epoch
-        response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+        response = get_url(api_url, self.configfile, self.dbfile)
         info = json.loads(response)
 
         is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
@@ -884,7 +883,7 @@ def sf_parse_download(self, series_url, title, language_id):
         for link in links:
             if check_hoster(link.text.replace('\n', ''), self.configfile):
                 download_link = get_redirected_url("https://" + self.url + link['href'], self.configfile,
-                                                   self.dbfile, self.scraper)
+                                                   self.dbfile)
                 break
         if not download_link and not self.hoster_fallback:
             storage = self.db.retrieve_all(title)

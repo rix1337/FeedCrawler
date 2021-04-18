@@ -179,7 +179,7 @@ def search_imdb(self, imdb, feed):
                     except:
                         break
                     search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
-                    search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
+                    search_page = get_url(search_url, self.configfile, self.dbfile)
                     search_soup = BeautifulSoup(search_page, 'lxml')
                     try:
                         search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
@@ -195,7 +195,7 @@ def search_imdb(self, imdb, feed):
                         except:
                             break
                         search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
-                        search_page = get_url(search_url, self.configfile, self.dbfile, self.scraper)
+                        search_page = get_url(search_url, self.configfile, self.dbfile)
                         search_soup = BeautifulSoup(search_page, 'lxml')
                         try:
                             search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
@@ -226,7 +226,7 @@ def search_imdb(self, imdb, feed):
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                     elif imdb_url:
-                        imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                        imdb_details = get_url(imdb_url, self.configfile, self.dbfile)
                         if not imdb_details:
                             self.log_debug(
                                 "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
@@ -245,7 +245,7 @@ def search_imdb(self, imdb, feed):
                             continue
                 if imdb_url:
                     if not imdb_details:
-                        imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                        imdb_details = get_url(imdb_url, self.configfile, self.dbfile)
                     if not imdb_details:
                         self.log_debug(
                             "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
@@ -502,9 +502,7 @@ def download_hevc(self, title):
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not link_grabbed:
                             link = get_url(link, self.configfile, self.dbfile)
-                        imdb_id = get_imdb_id(key, link, self.filename, self.configfile, self.dbfile,
-                                              self.scraper,
-                                              self.log_debug)
+                        imdb_id = get_imdb_id(key, link, self.filename, self.configfile, self.dbfile, self.log_debug)
                         if not imdb_id:
                             dual_found = download_dual_language(self, key, True)
                             if dual_found and ".1080p." in key:
@@ -517,9 +515,8 @@ def download_hevc(self, title):
                             if isinstance(imdb_id, list):
                                 imdb_id = imdb_id.pop()
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
-                            imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
+                            imdb_details = get_url(imdb_url, self.configfile, self.dbfile)
                             if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile,
-                                                     self.scraper,
                                                      self.log_debug):
                                 dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
@@ -733,7 +730,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
+            if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile,
                                      self.log_debug):
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
@@ -827,7 +824,7 @@ def download_feed(self, key, content, hevc_retail):
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile, self.scraper,
+            imdb_id = get_imdb_id(key, content, self.filename, self.configfile, self.dbfile,
                                   self.log_debug)
             if not imdb_id:
                 dual_found = download_dual_language(self, key, self.password)
@@ -843,8 +840,8 @@ def download_feed(self, key, content, hevc_retail):
                 if isinstance(imdb_id, list):
                     imdb_id = imdb_id.pop()
                 imdb_url = "http://www.imdb.com/title/" + imdb_id
-                imdb_details = get_url(imdb_url, self.configfile, self.dbfile, self.scraper)
-                if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile, self.scraper,
+                imdb_details = get_url(imdb_url, self.configfile, self.dbfile)
+                if get_original_language(key, imdb_details, imdb_url, self.configfile, self.dbfile,
                                          self.log_debug):
                     dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
@@ -964,8 +961,7 @@ def periodical_task(self):
 
     loading_304 = False
     try:
-        first_page_raw = self.get_url_headers_method(urls[0], self.configfile, self.dbfile, self.headers, self.scraper)
-        self.scraper = first_page_raw[1]
+        first_page_raw = self.get_url_headers_method(urls[0], self.configfile, self.dbfile, self.headers)
         first_page_raw = first_page_raw[0]
         first_page_content = self.get_feed_method(self, first_page_raw.content)
         if first_page_raw.status_code == 304:
@@ -1008,8 +1004,7 @@ def periodical_task(self):
                         parsed_url = first_page_content
                     else:
                         parsed_url = self.get_feed_method(self,
-                                                          self.get_url_method(url, self.configfile, self.dbfile,
-                                                                              self.scraper))
+                                                          self.get_url_method(url, self.configfile, self.dbfile))
                     found = search_imdb(self, imdb, parsed_url)
                     if found:
                         for f in found:
@@ -1022,8 +1017,7 @@ def periodical_task(self):
                 if i == 0 and first_page_content:
                     parsed_url = first_page_content
                 else:
-                    parsed_url = self.get_feed_method(self, self.get_url_method(url, self.configfile, self.dbfile,
-                                                                                self.scraper))
+                    parsed_url = self.get_feed_method(self, self.get_url_method(url, self.configfile, self.dbfile))
                 found = search_feed(self, parsed_url)
                 if found:
                     for f in found:

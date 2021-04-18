@@ -14,7 +14,7 @@ class SJ:
     _INTERNAL_NAME = 'SJ'
     _SITE = 'SJ'
 
-    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
+    def __init__(self, configfile, dbfile, device, logging, filename):
         self.configfile = configfile
         self.dbfile = dbfile
         self.device = device
@@ -35,7 +35,6 @@ class SJ:
         self.log_info = logging.info
         self.log_error = logging.error
         self.log_debug = logging.debug
-        self.scraper = scraper
         self.db = FeedDb(self.dbfile, 'FeedCrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
