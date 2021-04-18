@@ -225,7 +225,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                                 "interval": to_int(general_conf.get("interval")),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
-                                "fallback": general_conf.get("fallback"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                                 "one_mirror_policy": general_conf.get("one_mirror_policy"),
                                 "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
@@ -347,7 +346,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("interval", interval)
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
-                section.save("fallback", to_str(data['general']['fallback']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
                 section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
@@ -573,11 +571,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 def check(site, db):
                     return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
 
-                db_proxy = FeedDb(dbfile, 'proxystatus')
-                db_status = FeedDb(dbfile, 'normalstatus')
+                db_status = FeedDb(dbfile, 'site_status')
                 return jsonify(
                     {
-                        "status": {
+                        "site_status": {
                             "SJ": check("SJ", db_status),
                             "DJ": check("DJ", db_status),
                             "SF": check("SF", db_status),
