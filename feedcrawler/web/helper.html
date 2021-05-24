@@ -23,8 +23,11 @@
        target="_blank">{{ to_decrypt.name
         }}</a>
     <p>
-    <div title="Helper neu laden" onClick="window.location.href=window.location.href"
-         class="btn btn-outline-dark" data-toggle="tooltip"><i class="bi bi-arrow-counterclockwise"></i></div>
+    <div title="Helper neu laden" ng-click="update()"
+         class="btn btn-outline-dark" data-toggle="tooltip">
+        <div id="spinner-helper" style="display: none;"
+             class="spinner-border spinner-border-sm" role="status"></div>
+        <i class="bi bi-arrow-counterclockwise"></i></div>
     </p>
 </div>
 <script src="../js/jquery.slim.min.js"></script>
