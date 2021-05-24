@@ -7,15 +7,13 @@ import os
 import sys
 from logging import handlers
 
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.myjd import get_device
-from feedcrawler.myjd import get_if_one_device
-
+configpath = False
+log_level = False
+device = False
 configfile = False
 dbfile = False
 log_file = False
 log_file_debug = False
-device = False
 local_address = False
 port = False
 prefix = False
@@ -23,77 +21,33 @@ docker = False
 logger = False
 
 
-def config(configpath):
-    pathfile = "FeedCrawler.conf"
-    if configpath:
-        f = open(pathfile, "w")
-        f.write(configpath)
-        f.close()
-    elif os.path.exists(pathfile):
-        f = open(pathfile, "r")
-        configpath = f.readline()
-    else:
-        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-        configpath = input("Pfad angeben:")
-        if len(configpath) > 0:
-            f = open(pathfile, "w")
-            f.write(configpath)
-            f.close()
-    if len(configpath) == 0:
-        configpath = os.path.dirname(sys.argv[0])
-        configpath = configpath.replace("\\", "/")
-        configpath = configpath[:-1] if configpath.endswith('/') else configpath
-        f = open(pathfile, "w")
-        f.write(configpath)
-        f.close()
-    configpath = configpath.replace("\\", "/")
-    configpath = configpath[:-1] if configpath.endswith('/') else configpath
-    if not os.path.exists(configpath):
-        os.makedirs(configpath)
-    return configpath
+def get_globals():
+    return {
+        "configpath": configpath,
+        "log_level": log_level,
+        "device": device,
+        "local_address": local_address,
+        "port": port,
+        "prefix": prefix,
+        "docker": docker
+    }
 
 
-def myjd_input(port, user, password, device):
-    if user and password and device:
-        print(u"Zugangsdaten aus den Parametern übernommen.")
-    elif user and password and not device:
-        device = get_if_one_device(user, password)
-        if device:
-            print(u"Gerätename " + device + " automatisch ermittelt.")
-    else:
-        print(u"Bitte die Zugangsdaten für My JDownloader angeben:")
-        user = input("Nutzername/Email:")
-        password = input("Passwort:")
-        device = get_if_one_device(user, password)
-        if device:
-            print(u"Gerätename " + device + " automatisch ermittelt.")
-        else:
-            device = input(u"Gerätename:")
-    if not port:
-        port = '9090'
-
-    sections = ['FeedCrawler', 'Hostnames', 'Crawljobs', 'Notifications', 'Hosters', 'Ombi', 'ContentAll',
-                'ContentShows', 'CustomDJ']
-    for section in sections:
-        CrawlerConfig(section, configfile)
-    if port:
-        CrawlerConfig('FeedCrawler', configfile).save("port", port)
-
-    CrawlerConfig('FeedCrawler', configfile).save("myjd_user", user)
-    CrawlerConfig('FeedCrawler', configfile).save("myjd_pass", password)
-    CrawlerConfig('FeedCrawler', configfile).save("myjd_device", device)
-    device = get_device(configfile)
-    if device:
-        return device
-    else:
-        return False
+def set_globals(global_variables):
+    set_files(global_variables["configpath"])
+    set_logger(global_variables["log_level"])
+    set_device(global_variables["device"])
+    set_connection_info(global_variables["local_address"], global_variables["port"], global_variables["prefix"],
+                        global_variables["docker"])
 
 
-def set_files(configpath):
+def set_files(set_configpath):
+    global configpath
     global configfile
     global dbfile
     global log_file
     global log_file_debug
+    configpath = set_configpath
     configfile = os.path.join(configpath, "FeedCrawler.ini")
     dbfile = os.path.join(configpath, "FeedCrawler.db")
     log_file = os.path.join(configpath, 'FeedCrawler.log')
@@ -105,19 +59,10 @@ def set_device(set_device):
     device = set_device
 
 
-def set_connection_info(set_local_address, set_port, set_prefix, set_docker):
-    global local_address
-    global port
-    global prefix
-    global docker
-    local_address = set_local_address
-    port = set_port
-    prefix = set_prefix
-    docker = set_docker
-
-
 def set_logger(set_log_level):
+    global log_level
     global logger
+    log_level = set_log_level
 
     if log_file and log_file_debug:
         logger = logging.getLogger('feedcrawler')
@@ -141,6 +86,13 @@ def set_logger(set_log_level):
             logfile_debug.setLevel(10)
             logger.addHandler(logfile_debug)
 
-        logger = set_logger
-    else:
-        return False
+
+def set_connection_info(set_local_address, set_port, set_prefix, set_docker):
+    global local_address
+    global port
+    global prefix
+    global docker
+    local_address = set_local_address
+    port = set_port
+    prefix = set_prefix
+    docker = set_docker

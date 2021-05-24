@@ -4,13 +4,15 @@
 
 import json
 import re
+
 from rapidfuzz import fuzz
 
+from feedcrawler import internal
 from feedcrawler.common import decode_base64, sanitize, check_hoster, add_decrypt
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.notifiers import notify
-from feedcrawler.search.search import get, logger, rate
+from feedcrawler.search.search import get, rate
 from feedcrawler.url import get_url
 
 
@@ -49,7 +51,7 @@ def get_best_result(title):
     except:
         best_title = False
     if not best_title:
-        logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        internal.logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
         for liste in listen:
             cont = ListDb(liste).retrieve()
@@ -58,7 +60,7 @@ def get_best_result(title):
             if title not in cont:
                 ListDb(liste).store(title)
             return False
-    logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    internal.logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_payload
 
 
@@ -175,7 +177,7 @@ def download(payload):
                 pass
 
         if success:
-            logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
+            internal.logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
@@ -220,7 +222,7 @@ def download(payload):
                     del result_episodes[season]
             except:
                 pass
-            logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
+            internal.logger.debug(u"Websuche erfolgreich für " + title + " - " + season)
 
     matches = []
 
@@ -236,7 +238,7 @@ def download(payload):
         if add_decrypt(title, series_url, sj):
             db.store(title, 'added')
             log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'
-            logger.info(log_entry)
+            internal.logger.info(log_entry)
             notify_array.append(log_entry)
 
     notify(notify_array)

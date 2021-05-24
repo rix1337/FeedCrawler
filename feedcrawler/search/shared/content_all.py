@@ -3,15 +3,17 @@
 # Projekt von https://github.com/rix1337
 
 import re
+
 from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
 
+from feedcrawler import internal
 from feedcrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
-from feedcrawler.search.search import get, logger
+from feedcrawler.search.search import get
 from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
 from feedcrawler.sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.url import get_redirected_url
@@ -64,7 +66,7 @@ def get_best_result(title):
         best_title = None
         best_payload = None
     if not best_title:
-        logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        internal.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:
@@ -73,7 +75,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return False
     if not is_retail(best_title, True):
-        logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        internal.logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:
@@ -82,7 +84,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return best_payload
     else:
-        logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        internal.logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
         return best_payload
 
 
@@ -144,6 +146,7 @@ def download(payload):
         if "FX" in site:
             class FX:
                 unused = ""
+
             download_links = fx_get_download_links(FX, url, key)
         else:
             for url_hoster in reversed(url_hosters):
@@ -191,7 +194,7 @@ def download(payload):
                 )
                 log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                         "") + ' - [' + site + ']'
-                logger.info(log_entry)
+                internal.logger.info(log_entry)
                 notify([log_entry])
                 return True
         else:
@@ -208,7 +211,7 @@ def download(payload):
                 log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
-                logger.info(log_entry)
+                internal.logger.info(log_entry)
                 notify([log_entry])
                 return [key]
     else:

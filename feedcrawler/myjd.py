@@ -56,7 +56,7 @@ def get_device():
         except feedcrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
-        if not internal.device or not is_device(internal.device):
+        if not device or not is_device(device):
             return False
         internal.set_device(device)
         return True
@@ -69,7 +69,7 @@ def get_device():
         except feedcrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
-        if not internal.device or not is_device(internal.device):
+        if not device or not is_device(device):
             return False
         internal.set_device(device)
         return True
@@ -1095,6 +1095,41 @@ def do_add_decrypted(title, password, cnl_packages):
     links = ensure_string(urls).replace("\n\n", "\n")
     if remove_from_linkgrabber(linkids, uuids):
         if download(title, "FeedCrawler", links, password):
-                print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
-                return [True, title]
+            print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
+            return [True, title]
     return False
+
+
+def myjd_input(port, user, password, device):
+    if user and password and device:
+        print(u"Zugangsdaten aus den Parametern übernommen.")
+    elif user and password and not device:
+        one_device = get_if_one_device(user, password)
+        if one_device:
+            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+    else:
+        print(u"Bitte die Zugangsdaten für My JDownloader angeben:")
+        user = input("Nutzername/Email:")
+        password = input("Passwort:")
+        one_device = get_if_one_device(user, password)
+        if one_device:
+            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+        else:
+            device = input(u"Gerätename:")
+    if not port:
+        port = '9090'
+
+    sections = ['FeedCrawler', 'Hostnames', 'Crawljobs', 'Notifications', 'Hosters', 'Ombi', 'ContentAll',
+                'ContentShows', 'CustomDJ']
+    for section in sections:
+        CrawlerConfig(section)
+    if port:
+        CrawlerConfig('FeedCrawler').save("port", port)
+
+    CrawlerConfig('FeedCrawler').save("myjd_user", user)
+    CrawlerConfig('FeedCrawler').save("myjd_pass", password)
+    CrawlerConfig('FeedCrawler').save("myjd_device", device)
+    if get_device():
+        return
+    else:
+        return False

@@ -44,6 +44,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from feedcrawler import common
 from feedcrawler import internal
+from feedcrawler import myjd
 from feedcrawler import version
 from feedcrawler.common import Unbuffered
 from feedcrawler.common import add_decrypt
@@ -77,7 +78,9 @@ from feedcrawler.web import start
 version = "v." + version.get_version()
 
 
-def crawler():
+def crawler(global_variables):
+    internal.set_globals(global_variables)
+
     sys.stdout = Unbuffered(sys.stdout)
     logger = internal.logger
     disable_request_warnings(InsecureRequestWarning)
@@ -112,7 +115,7 @@ def crawler():
                         ombi_string = ombi_string + " und "
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
-            for task in search_pool(logger):
+            for task in search_pool():
                 name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
@@ -130,7 +133,7 @@ def crawler():
             wait = interval + random_range
             next_start = end_time + wait
             logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
-                      " - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                         " - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!")
             if ombi_string:
                 logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
@@ -175,11 +178,14 @@ def crawler():
             time.sleep(10)
 
 
-def web_server():
+def web_server(global_variables):
+    internal.set_globals(global_variables)
     start()
 
 
-def crawldog():
+def crawldog(global_variables):
+    internal.set_globals(global_variables)
+
     sys.stdout = Unbuffered(sys.stdout)
     disable_request_warnings(InsecureRequestWarning)
 
@@ -305,7 +311,7 @@ def crawldog():
                                                                                          delete_uuids)
                                             if autostart:
                                                 move_to_downloads(package['linkids'],
-                                                                           [package['uuid']])
+                                                                  [package['uuid']])
                                             if remove:
                                                 db.delete(title[0])
 
@@ -328,7 +334,7 @@ def crawldog():
                                             else:
                                                 add_decrypt(package['name'], package['url'], "")
                                                 remove_from_linkgrabber(package['linkids'],
-                                                                                 [package['uuid']])
+                                                                        [package['uuid']])
                                                 notify_list.append("[Click'n'Load notwendig] - " + title[0])
                                                 print(u"[Click'n'Load notwendig] - " + title[0])
                                                 db.delete(title[0])
@@ -397,7 +403,7 @@ def main():
     if arguments['--docker']:
         configpath = "/config"
     else:
-        configpath = internal.config(arguments['--config'])
+        configpath = common.configpath(arguments['--config'])
 
     internal.set_files(configpath)
 
@@ -442,43 +448,36 @@ def main():
 
     disable_request_warnings(InsecureRequestWarning)
 
-    if arguments['--travis_ci']:
-        device = False
-    else:
+    if not arguments['--travis_ci']:
         if not os.path.exists(internal.configfile):
             if arguments['--docker']:
                 if arguments['--jd-user'] and arguments['--jd-pass']:
-                    device = internal.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
-                                                 arguments['--jd-device'])
-                else:
-                    device = False
+                    myjd.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                    arguments['--jd-device'])
             else:
-                device = internal.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
-                                             arguments['--jd-device'])
+                myjd.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                arguments['--jd-device'])
         else:
             feedcrawler = CrawlerConfig('FeedCrawler')
             user = feedcrawler.get('myjd_user')
             password = feedcrawler.get('myjd_pass')
             if user and password:
-                device = get_device()
-                if not device:
-                    device = get_if_one_device(user, password)
-                    if device:
-                        print(u"Gerätename " + device + " automatisch ermittelt.")
-                        feedcrawler.save('myjd_device', device)
-                        device = get_device()
+                if not get_device():
+                    one_device = get_if_one_device(user, password)
+                    if one_device:
+                        print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                        feedcrawler.save('myjd_device', one_device)
+                        get_device()
             else:
-                device = internal.myjd_input(arguments['--port'], arguments['--jd-user'],
-                                             arguments['--jd-pass'], arguments['--jd-device'])
+                myjd.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                arguments['--jd-device'])
 
-        if not device and not arguments['--travis_ci']:
-            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
-            time.sleep(10)
-            sys.exit(1)
-        else:
-            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
-
-    internal.set_device(device)
+    if not internal.device and not arguments['--travis_ci']:
+        print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
+        time.sleep(10)
+        sys.exit(1)
+    else:
+        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + internal.device.name)
 
     feedcrawler = CrawlerConfig('FeedCrawler')
     port = int(feedcrawler.get("port"))
@@ -504,15 +503,16 @@ def main():
     else:
         FeedDb('cdc').reset()
 
-    p = multiprocessing.Process(target=web_server,
-                                args=(port, local_address, docker))
+    global_variables = internal.get_globals()
+
+    p = multiprocessing.Process(target=web_server, args=(global_variables,))
     p.start()
 
     if not arguments['--travis_ci']:
-        c = multiprocessing.Process(target=crawler)
+        c = multiprocessing.Process(target=crawler, args=(global_variables,))
         c.start()
 
-        w = multiprocessing.Process(target=crawldog)
+        w = multiprocessing.Process(target=crawldog, args=(global_variables,))
         w.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')

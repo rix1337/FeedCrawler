@@ -2,7 +2,6 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
-import logging
 import re
 from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
@@ -20,7 +19,7 @@ from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 
-logger = logging.getLogger('feedcrawler')
+
 
 
 def get(title, bl_only=False, sj_only=False):

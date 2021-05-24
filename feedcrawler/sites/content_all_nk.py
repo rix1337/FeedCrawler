@@ -31,7 +31,7 @@ class BL:
         self.db = FeedDb('FeedCrawler')
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
-        self.hosters = CrawlerConfig("Hosters").section()
+        self.hosters = CrawlerConfig("Hosters").get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
 

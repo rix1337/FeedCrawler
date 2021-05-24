@@ -4,18 +4,16 @@
 
 import base64
 import datetime
-import logging
+import os
 import re
 import socket
+import sys
 
+from feedcrawler import internal
 from feedcrawler import myjdapi
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
-
-log_info = logging.info
-log_error = logging.error
-log_debug = logging.debug
+from feedcrawler.db import ListDb
 
 
 class Unbuffered(object):
@@ -326,7 +324,7 @@ def remove(retailtitel):
             if line:
                 new_cont.append(line)
     ListDb(liste).store_list(new_cont)
-    log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
+    internal.logger.debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
 def remove_decrypt(title):
@@ -366,3 +364,33 @@ def sanitize(key):
                                                                                                                '').replace(
         ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
     return key
+
+
+def configpath(configpath):
+    pathfile = "FeedCrawler.conf"
+    if configpath:
+        f = open(pathfile, "w")
+        f.write(configpath)
+        f.close()
+    elif os.path.exists(pathfile):
+        f = open(pathfile, "r")
+        configpath = f.readline()
+    else:
+        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+        configpath = input("Pfad angeben:")
+        if len(configpath) > 0:
+            f = open(pathfile, "w")
+            f.write(configpath)
+            f.close()
+    if len(configpath) == 0:
+        configpath = os.path.dirname(sys.argv[0])
+        configpath = configpath.replace("\\", "/")
+        configpath = configpath[:-1] if configpath.endswith('/') else configpath
+        f = open(pathfile, "w")
+        f.write(configpath)
+        f.close()
+    configpath = configpath.replace("\\", "/")
+    configpath = configpath[:-1] if configpath.endswith('/') else configpath
+    if not os.path.exists(configpath):
+        os.makedirs(configpath)
+    return configpath
