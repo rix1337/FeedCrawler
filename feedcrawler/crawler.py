@@ -28,9 +28,6 @@ Options:
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
-import traceback
-from logging import handlers
-
 import logging
 import multiprocessing
 import os
@@ -39,12 +36,14 @@ import re
 import signal
 import sys
 import time
+import traceback
+
 from docopt import docopt
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 from feedcrawler import common
-from feedcrawler import files
+from feedcrawler import internal
 from feedcrawler import version
 from feedcrawler.common import Unbuffered
 from feedcrawler.common import add_decrypt
@@ -53,6 +52,7 @@ from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.flaresolverr import clean_cloudproxy_sessions
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 from feedcrawler.myjd import get_info
@@ -77,60 +77,33 @@ from feedcrawler.web import start
 version = "v." + version.get_version()
 
 
-def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format):
+def crawler():
     sys.stdout = Unbuffered(sys.stdout)
-
-    logger = logging.getLogger('feedcrawler')
-    logger.setLevel(log_level)
-
-    console = logging.StreamHandler(stream=sys.stdout)
-    formatter = logging.Formatter(log_format)
-    console.setLevel(log_level)
-
-    logfile = logging.handlers.RotatingFileHandler(log_file)
-    logfile.setFormatter(formatter)
-    logfile.setLevel(logging.INFO)
-
-    logger.addHandler(logfile)
-    logger.addHandler(console)
-
-    if log_level == 10:
-        logfile_debug = logging.handlers.RotatingFileHandler(
-            log_file.replace("FeedCrawler.log", "FeedCrawler_DEBUG.log"))
-        logfile_debug.setFormatter(formatter)
-        logfile_debug.setLevel(10)
-        logger.addHandler(logfile_debug)
-
+    logger = internal.logger
     disable_request_warnings(InsecureRequestWarning)
 
-    log_debug = logger.debug
-
     ombi_first_launch = True
-
-    crawltimes = FeedDb(dbfile, "crawltimes")
+    crawltimes = FeedDb("crawltimes")
+    feedcrawler = CrawlerConfig('FeedCrawler')
 
     arguments = docopt(__doc__, version='FeedCrawler')
     while True:
         try:
-            if not device or not is_device(device):
-                device = get_device(configfile)
-            FeedDb(dbfile, 'cached_requests').reset()
-            FeedDb(dbfile, 'cached_requests').cleanup()
-            check_url(configfile, dbfile)
+            if not internal.device or not is_device(internal.device):
+                get_device()
+            FeedDb('cached_requests').reset()
+            FeedDb('cached_requests').cleanup()
+            clean_cloudproxy_sessions()
+            check_url()
             start_time = time.time()
             crawltimes.update_store("active", "True")
             crawltimes.update_store("start_time", start_time * 1000)
-            log_debug("--------Alle Suchfunktion gestartet.--------")
-            requested_movies = 0
-            requested_shows = 0
+            logger.debug("--------Alle Suchfunktion gestartet.--------")
             ombi_string = ""
-            if device:
-                ombi_results = ombi(configfile, dbfile, device, log_debug, ombi_first_launch)
-                device = ombi_results[0]
-                ombi_results = ombi_results[1]
-                requested_movies = ombi_results[0]
-                requested_shows = ombi_results[1]
-                ombi_first_launch = False
+            ombi_results = ombi(ombi_first_launch)
+            requested_movies = ombi_results[0]
+            requested_shows = ombi_results[1]
+            ombi_first_launch = False
             if requested_movies or requested_shows:
                 ombi_string = u"Die Ombi-Suche lief für: "
                 if requested_movies:
@@ -139,16 +112,16 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
                         ombi_string = ombi_string + " und "
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
-            for task in search_pool(configfile, dbfile, device, logger):
+            for task in search_pool(logger):
                 name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
-                log_debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
-                device = task.periodical_task()
-                log_debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
-            cached_requests = FeedDb(dbfile, 'cached_requests').count()
+                logger.debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
+                task.periodical_task()
+                logger.debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
+            cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
             total_time = end_time - start_time
@@ -156,13 +129,13 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
             random_range = random.randrange(0, interval // 4)
             wait = interval + random_range
             next_start = end_time + wait
-            log_debug(time.strftime("%Y-%m-%d %H:%M:%S") +
+            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
                       " - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!")
             if ombi_string:
-                log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
-            log_debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
-            log_debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             ombi_string = ""
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
@@ -173,11 +146,12 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
-            FeedDb(dbfile, 'cached_requests').reset()
-            FeedDb(dbfile, 'cached_requests').cleanup()
+            clean_cloudproxy_sessions()
+            FeedDb('cached_requests').reset()
+            FeedDb('cached_requests').cleanup()
 
             if arguments['--travis_ci']:
-                log_debug(u"-----------travis_ci beendet!-----------")
+                logger.debug(u"-----------travis_ci beendet!-----------")
                 print(u"-----------travis_ci beendet!-----------")
                 return
 
@@ -185,42 +159,42 @@ def crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_fo
             start_now_triggered = False
             while wait_chunks:
                 time.sleep(10)
-                if FeedDb(dbfile, 'crawltimes').retrieve("startnow"):
-                    FeedDb(dbfile, 'crawltimes').delete("startnow")
+                if FeedDb('crawltimes').retrieve("startnow"):
+                    FeedDb('crawltimes').delete("startnow")
                     start_now_triggered = True
                     break
 
                 wait_chunks -= 1
 
             if start_now_triggered:
-                log_debug("----------Wartezeit vorzeitig beendet----------")
+                logger.debug("----------Wartezeit vorzeitig beendet----------")
             else:
-                log_debug("-------------Wartezeit verstrichen-------------")
+                logger.debug("-------------Wartezeit verstrichen-------------")
         except Exception:
             traceback.print_exc()
             time.sleep(10)
 
 
-def web_server(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, device):
-    start(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, device)
+def web_server():
+    start()
 
 
-def crawldog(configfile, dbfile):
+def crawldog():
+    sys.stdout = Unbuffered(sys.stdout)
     disable_request_warnings(InsecureRequestWarning)
-    crawljobs = CrawlerConfig('Crawljobs', configfile)
+
+    crawljobs = CrawlerConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
-    db = FeedDb(dbfile, 'crawldog')
+    db = FeedDb('crawldog')
 
     grabber_was_collecting = False
-    grabber_collecting = False
-    device = False
 
     while True:
         try:
-            if not device or not is_device(device):
-                device = get_device(configfile)
+            if not internal.device or not is_device(internal.device):
+                get_device()
 
-            myjd_packages = get_info(configfile, device)
+            myjd_packages = get_info()
             if myjd_packages:
                 grabber_collecting = myjd_packages[2]
 
@@ -247,17 +221,16 @@ def crawldog(configfile, dbfile):
                                 if packages_in_downloader_decrypted:
                                     for package in packages_in_downloader_decrypted:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                            check = hoster_check(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            if device:
+                                            check = hoster_check([package], title[0], [0])
+                                            remove = check[0]
+                                            if remove:
                                                 db.delete(title[0])
 
                                 if packages_in_linkgrabber_decrypted:
                                     for package in packages_in_linkgrabber_decrypted:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                            check = hoster_check(configfile, device, [package], title[0], [0])
-                                            device = check[0]
-                                            episode = FeedDb(dbfile, 'episode_remover').retrieve(title[0])
+                                            hoster_check([package], title[0], [0])
+                                            episode = FeedDb('episode_remover').retrieve(title[0])
                                             if episode:
                                                 filenames = package['filenames']
                                                 if len(filenames) > 1:
@@ -327,14 +300,13 @@ def crawldog(configfile, dbfile):
                                                         pos += 1
                                                     if delete_linkids:
                                                         delete_uuids = [package['uuid']]
-                                                        FeedDb(dbfile, 'episode_remover').delete(title[0])
-                                                        device = remove_from_linkgrabber(configfile, device,
-                                                                                         delete_linkids,
+                                                        FeedDb('episode_remover').delete(title[0])
+                                                        remove = remove_from_linkgrabber(delete_linkids,
                                                                                          delete_uuids)
                                             if autostart:
-                                                device = move_to_downloads(configfile, device, package['linkids'],
+                                                move_to_downloads(package['linkids'],
                                                                            [package['uuid']])
-                                            if device:
+                                            if remove:
                                                 db.delete(title[0])
 
                                 if offline_packages:
@@ -348,14 +320,14 @@ def crawldog(configfile, dbfile):
                                     for package in encrypted_packages:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                             if title[1] == 'added':
-                                                if retry_decrypt(configfile, dbfile, device, package['linkids'],
+                                                if retry_decrypt(package['linkids'],
                                                                  [package['uuid']],
                                                                  package['urls']):
                                                     db.delete(title[0])
                                                     db.store(title[0], 'retried')
                                             else:
-                                                add_decrypt(package['name'], package['url'], "", dbfile)
-                                                device = remove_from_linkgrabber(configfile, device, package['linkids'],
+                                                add_decrypt(package['name'], package['url'], "")
+                                                remove_from_linkgrabber(package['linkids'],
                                                                                  [package['uuid']])
                                                 notify_list.append("[Click'n'Load notwendig] - " + title[0])
                                                 print(u"[Click'n'Load notwendig] - " + title[0])
@@ -365,7 +337,7 @@ def crawldog(configfile, dbfile):
                             db.reset()
 
                     if notify_list:
-                        notify(notify_list, configfile)
+                        notify(notify_list)
 
                 time.sleep(30)
             else:
@@ -375,42 +347,42 @@ def crawldog(configfile, dbfile):
             time.sleep(30)
 
 
-def search_pool(configfile, dbfile, device, logger):
+def search_pool():
     return [
-        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
-        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
-        DWs(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
-        DWs(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
-        DW(configfile, dbfile, device, logger, filename='IMDB'),
-        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
-        DW(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
-        FX(configfile, dbfile, device, logger, filename='IMDB'),
-        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
-        FX(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
-        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
-        SJ(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
-        SJ(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        DJ(configfile, dbfile, device, logger, filename='List_CustomDJ_Documentaries'),
-        DJ(configfile, dbfile, device, logger, filename='List_CustomDJ_Documentaries_Regex'),
-        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Shows'),
-        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Shows_Regex'),
-        SF(configfile, dbfile, device, logger, filename='List_ContentShows_Seasons_Regex'),
-        SF(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
-        WW(configfile, dbfile, device, logger, filename='IMDB'),
-        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
-        WW(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
-        NK(configfile, dbfile, device, logger, filename='IMDB'),
-        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
-        NK(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons'),
-        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Movies_Regex'),
-        BY(configfile, dbfile, device, logger, filename='IMDB'),
-        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Movies'),
-        BY(configfile, dbfile, device, logger, filename='List_ContentAll_Seasons')
+        DWs(filename='List_ContentShows_Shows'),
+        DWs(filename='List_ContentShows_Shows_Regex'),
+        DWs(filename='List_ContentShows_Seasons_Regex'),
+        DWs(filename='List_ContentAll_Seasons'),
+        DW(filename='List_ContentAll_Movies_Regex'),
+        DW(filename='IMDB'),
+        DW(filename='List_ContentAll_Movies'),
+        DW(filename='List_ContentAll_Seasons'),
+        FX(filename='List_ContentAll_Movies_Regex'),
+        FX(filename='IMDB'),
+        FX(filename='List_ContentAll_Movies'),
+        FX(filename='List_ContentAll_Seasons'),
+        SJ(filename='List_ContentShows_Shows'),
+        SJ(filename='List_ContentShows_Shows_Regex'),
+        SJ(filename='List_ContentShows_Seasons_Regex'),
+        SJ(filename='List_ContentAll_Seasons'),
+        DJ(filename='List_CustomDJ_Documentaries'),
+        DJ(filename='List_CustomDJ_Documentaries_Regex'),
+        SF(filename='List_ContentShows_Shows'),
+        SF(filename='List_ContentShows_Shows_Regex'),
+        SF(filename='List_ContentShows_Seasons_Regex'),
+        SF(filename='List_ContentAll_Seasons'),
+        WW(filename='List_ContentAll_Movies_Regex'),
+        WW(filename='IMDB'),
+        WW(filename='List_ContentAll_Movies'),
+        WW(filename='List_ContentAll_Seasons'),
+        NK(filename='List_ContentAll_Movies_Regex'),
+        NK(filename='IMDB'),
+        NK(filename='List_ContentAll_Movies'),
+        NK(filename='List_ContentAll_Seasons'),
+        BY(filename='List_ContentAll_Movies_Regex'),
+        BY(filename='IMDB'),
+        BY(filename='List_ContentAll_Movies'),
+        BY(filename='List_ContentAll_Seasons')
     ]
 
 
@@ -425,62 +397,23 @@ def main():
     if arguments['--docker']:
         configpath = "/config"
     else:
-        configpath = files.config(arguments['--config'])
-    configfile = os.path.join(configpath, "FeedCrawler.ini")
-    dbfile = os.path.join(configpath, "FeedCrawler.db")
+        configpath = internal.config(arguments['--config'])
 
-    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
-    if os.path.exists("RSScrawler.conf"):
-        os.remove("RSScrawler.conf")
-
-    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
-    if os.path.exists(os.path.join(configpath, "RSScrawler.log")):
-        os.rename(os.path.join(configpath, "RSScrawler.log"), os.path.join(configpath, "FeedCrawler.log"))
-        print(u"Migration des RSScrawler-Logs erfolgreich!")
-
-    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
-    if os.path.exists(os.path.join(configpath, "RSScrawler.ini")):
-        with open(os.path.join(configpath, "RSScrawler.ini"), 'r') as file:
-            filedata = file.read()
-
-        filedata = filedata.replace("[RSScrawler]", "[FeedCrawler]")
-        filedata = filedata.replace("[MB]", "[ContentAll]")
-        filedata = filedata.replace("[SJ]", "[ContentShows]")
-        filedata = filedata.replace("[DJ]", "[CustomDJ]")
-
-        with open(os.path.join(configpath, "FeedCrawler.ini"), 'w') as file:
-            file.write(filedata)
-
-        os.remove(os.path.join(configpath, "RSScrawler.ini"))
-        print(u"Migration der RSScrawler-Einstellungen erfolgreich!")
-
-    # ToDo Remove this migration from RSScrawler to Feedcrawler in next major version
-    if os.path.exists(os.path.join(configpath, "RSScrawler.db")):
-        os.rename(os.path.join(configpath, "RSScrawler.db"), os.path.join(configpath, "FeedCrawler.db"))
-        FeedDb(dbfile, 'rsscrawler').rename_table('FeedCrawler')
-        FeedDb(dbfile, 'MB_Filme').rename_table('List_ContentAll_Movies')
-        FeedDb(dbfile, 'MB_Regex').rename_table('List_ContentAll_Movies_Regex')
-        FeedDb(dbfile, 'MB_Staffeln').rename_table('List_ContentAll_Seasons')
-        FeedDb(dbfile, 'SJ_Serien').rename_table('List_ContentShows_Shows')
-        FeedDb(dbfile, 'SJ_Serien_Regex').rename_table('List_ContentShows_Shows_Regex')
-        FeedDb(dbfile, 'SJ_Staffeln_Regex').rename_table('List_ContentShows_Seasons_Regex')
-        FeedDb(dbfile, 'DJ_Dokus').rename_table('List_CustomDJ_Documentaries')
-        FeedDb(dbfile, 'DJ_Dokus_Regex').rename_table('List_CustomDJ_Documentaries_Regex')
-        print(u"Migration der RSScrawler-Datenbank erfolgreich!")
+    internal.set_files(configpath)
 
     # ToDo further rename actions on Feedcrawler.ini
     # ToDo Remove tables
-    #     db = FeedDb(dbfile, 'proxystatus')
-    #     db_status = FeedDb(dbfile, 'normalstatus')
+    #     db = FeedDb('proxystatus')
+    #     db_status = FeedDb('normalstatus')
 
     print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 
     log_level = logging.__dict__[
         arguments['--log-level']] if arguments['--log-level'] in logging.__dict__ else logging.INFO
-    log_file = os.path.join(configpath, 'FeedCrawler.log')
-    log_format = '%(asctime)s - %(message)s'
 
-    hostnames = CrawlerConfig('Hostnames', configfile)
+    internal.set_logger(log_level)
+
+    hostnames = CrawlerConfig('Hostnames')
 
     def clean_up_hostname(host, string):
         if '/' in string:
@@ -496,7 +429,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['dw', 'fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by', 'dd']
+    list_names = ['dw', 'fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:
@@ -512,32 +445,31 @@ def main():
     if arguments['--travis_ci']:
         device = False
     else:
-        if not os.path.exists(configfile):
+        if not os.path.exists(internal.configfile):
             if arguments['--docker']:
                 if arguments['--jd-user'] and arguments['--jd-pass']:
-                    device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                              arguments['--jd-pass'], arguments['--jd-device'])
+                    device = internal.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                                 arguments['--jd-device'])
                 else:
                     device = False
             else:
-                device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                          arguments['--jd-pass'],
-                                          arguments['--jd-device'])
+                device = internal.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
+                                             arguments['--jd-device'])
         else:
-            feedcrawler = CrawlerConfig('FeedCrawler', configfile)
+            feedcrawler = CrawlerConfig('FeedCrawler')
             user = feedcrawler.get('myjd_user')
             password = feedcrawler.get('myjd_pass')
             if user and password:
-                device = get_device(configfile)
+                device = get_device()
                 if not device:
                     device = get_if_one_device(user, password)
                     if device:
                         print(u"Gerätename " + device + " automatisch ermittelt.")
                         feedcrawler.save('myjd_device', device)
-                        device = get_device(configfile)
+                        device = get_device()
             else:
-                device = files.myjd_input(configfile, arguments['--port'], arguments['--jd-user'],
-                                          arguments['--jd-pass'], arguments['--jd-device'])
+                device = internal.myjd_input(arguments['--port'], arguments['--jd-user'],
+                                             arguments['--jd-pass'], arguments['--jd-device'])
 
         if not device and not arguments['--travis_ci']:
             print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
@@ -546,8 +478,9 @@ def main():
         else:
             print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + device.name)
 
-    feedcrawler = CrawlerConfig('FeedCrawler', configfile)
+    internal.set_device(device)
 
+    feedcrawler = CrawlerConfig('FeedCrawler')
     port = int(feedcrawler.get("port"))
     docker = False
     if arguments['--docker']:
@@ -564,22 +497,22 @@ def main():
     if not arguments['--docker']:
         print(u'Der Webserver ist erreichbar unter ' + local_address)
 
+    internal.set_connection_info(local_address, port, prefix, docker)
+
     if arguments['--keep-cdc']:
         print(u"CDC-Tabelle nicht geleert!")
     else:
-        FeedDb(dbfile, 'cdc').reset()
+        FeedDb('cdc').reset()
 
     p = multiprocessing.Process(target=web_server,
-                                args=(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format,
-                                      device))
+                                args=(port, local_address, docker))
     p.start()
 
     if not arguments['--travis_ci']:
-        c = multiprocessing.Process(target=crawler,
-                                    args=(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format))
+        c = multiprocessing.Process(target=crawler)
         c.start()
 
-        w = multiprocessing.Process(target=crawldog, args=(configfile, dbfile))
+        w = multiprocessing.Process(target=crawldog)
         w.start()
 
         print(u'Drücke [Strg] + [C] zum Beenden')
@@ -600,7 +533,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(configfile, dbfile, device, feedcrawler, log_level, log_file, log_format)
+        crawler()
         p.terminate()
         sys.exit(0)
 

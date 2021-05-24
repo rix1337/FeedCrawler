@@ -5,13 +5,16 @@
 import concurrent.futures
 import datetime
 
+import requests
+
 from feedcrawler.common import check_is_site
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.flaresolverr import request
 
 
-def check_url(configfile, dbfile=False):
-    hostnames = CrawlerConfig('Hostnames', configfile)
+def check_url():
+    hostnames = CrawlerConfig('Hostnames')
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
@@ -39,7 +42,7 @@ def check_url(configfile, dbfile=False):
     nk_blocked = False
     ww_blocked = False
 
-    db_status = FeedDb(dbfile, 'site_status')
+    db_status = FeedDb('site_status')
     db_status.delete("SJ")
     db_status.delete("DJ")
     db_status.delete("SF")
@@ -53,9 +56,7 @@ def check_url(configfile, dbfile=False):
         db_status.store("SJ", "Blocked")
     else:
         try:
-            if "block." in str(
-                    scraper.get(sj_url, timeout=30, allow_redirects=False).headers.get(
-                        "location")):
+            if not request(sj_url)["status_code"] == 200:
                 sj_blocked = True
         except:
             sj_blocked = True
@@ -67,9 +68,7 @@ def check_url(configfile, dbfile=False):
         db_status.store("DJ", "Blocked")
     else:
         try:
-            if "block." in str(
-                    scraper.get(dj_url, timeout=30, allow_redirects=False).headers.get(
-                        "location")):
+            if not request(dj_url)["status_code"] == 200:
                 dj_blocked = True
         except:
             dj_blocked = True
@@ -82,9 +81,9 @@ def check_url(configfile, dbfile=False):
     else:
         try:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
-            sf_test = scraper.get(sf_url + '/updates/' + delta, timeout=30, allow_redirects=False)
-            if not sf_test.text or sf_test.status_code is not (
-                    200 or 304) or '<h3><a href="/' not in sf_test.text:
+            sf_test = request(sf_url + '/updates/' + delta)
+            if not sf_test["text"] or sf_test["status_code"] is not (
+                    200 or 304) or '<h3><a href="/' not in sf_test["text"]:
                 sf_blocked = True
         except:
             sf_blocked = True
@@ -96,7 +95,7 @@ def check_url(configfile, dbfile=False):
         db_status.store("BY", "Blocked")
     else:
         try:
-            if scraper.get(by_url, timeout=30, allow_redirects=False).status_code == 403:
+            if request(by_url)["status_code"] == 403:
                 by_blocked = True
         except:
             by_blocked = True
@@ -108,10 +107,9 @@ def check_url(configfile, dbfile=False):
         db_status.store("DW", "Blocked")
     else:
         try:
-            dw_test = scraper.get(dw_url + "/downloads/hauptkategorie/movies/", timeout=30,
-                                  allow_redirects=False)
-            if not dw_test.text or dw_test.status_code is not (
-                    200 or 304) or '<a id="first_element" href=' not in dw_test.text:
+            dw_test = request(dw_url + "/downloads/hauptkategorie/movies/")
+            if not dw_test["text"] or dw_test["status_code"] is not (
+                    200 or 304) or '<a id="first_element" href=' not in dw_test["text"]:
                 dw_blocked = True
         except:
             dw_blocked = True
@@ -123,7 +121,7 @@ def check_url(configfile, dbfile=False):
         db_status.store("FX", "Blocked")
     else:
         try:
-            if scraper.get(fx_url, timeout=30, allow_redirects=False).status_code == 403:
+            if request(fx_url)["status_code"] == 403:
                 fx_blocked = True
         except:
             fx_blocked = True
@@ -135,7 +133,7 @@ def check_url(configfile, dbfile=False):
         db_status.store("NK", "Blocked")
     else:
         try:
-            if scraper.get(nk_url, timeout=30, allow_redirects=False).status_code == 403:
+            if request(nk_url)["status_code"] == 403:
                 nk_blocked = True
         except:
             nk_blocked = True
@@ -147,9 +145,9 @@ def check_url(configfile, dbfile=False):
         db_status.store("WW", "Blocked")
     else:
         try:
-            ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1", timeout=30, allow_redirects=False)
-            if not ww_test.text or ww_test.status_code is not (
-                    200 or 304) or '<span class="main-rls">' not in ww_test.text:
+            ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1")
+            if not ww_test["text"] or ww_test["status_code"] is not (
+                    200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
                 ww_blocked = True
         except:
             ww_blocked = True
@@ -160,9 +158,9 @@ def check_url(configfile, dbfile=False):
     return
 
 
-def check_site_blocked(url, configfile, dbfile):
-    db_status = FeedDb(dbfile, 'site_status')
-    site = check_is_site(url, configfile)
+def check_site_blocked(url):
+    db_status = FeedDb('site_status')
+    site = check_is_site(url)
     check_against_sites = ["SJ", "DJ", "SF", "BY", "DW", "FX", "NK", "WW"]
     for check_against in check_against_sites:
         if site and check_against in site and db_status.retrieve(check_against):
@@ -170,66 +168,66 @@ def check_site_blocked(url, configfile, dbfile):
     return False
 
 
-def get_url(url, configfile, dbfile):
+def get_url(url):
     try:
-        if check_site_blocked(url, configfile, dbfile):
+        if check_site_blocked(url):
             return ""
-        response = scraper.get(url, timeout=30).text
+        response = request(url)["text"]
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
         return ""
 
 
-def get_url_headers(url, configfile, dbfile, headers=False):
+def get_url_headers(url, headers=False):
     try:
-        if check_site_blocked(url, configfile, dbfile):
+        if check_site_blocked(url):
             return [""]
-        response = scraper.get(url, headers=headers, timeout=30)
+        response = request(url, headers=headers)
         return [response]
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
         return [""]
 
 
-def get_redirected_url(url, configfile, dbfile):
+def get_redirected_url(url):
     try:
-        if check_site_blocked(url, configfile, dbfile):
+        if check_site_blocked(url):
             return url
-        redirect_url = scraper.get(url, allow_redirects=False, timeout=30).headers._store["location"][1]
+        redirect_url = requests.get(url, allow_redirects=False).headers._store["location"][1]
         return redirect_url
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
         return url
 
 
-def post_url(url, configfile, dbfile, data=False):
+def post_url(url, data=False):
     try:
-        if check_site_blocked(url, configfile, dbfile):
+        if check_site_blocked(url):
             return ""
-        response = scraper.post(url, data, timeout=30).content
+        response = scraper.post(url, data).content
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
         return ""
 
 
-def post_url_headers(url, configfile, dbfile, headers, data=False):
+def post_url_headers(url, headers, data=False):
     try:
-        if check_site_blocked(url, configfile, dbfile):
+        if check_site_blocked(url):
             return [""]
-        response = scraper.post(url, data, headers=headers, timeout=30)
+        response = scraper.post(url, data, headers=headers)
         return [response]
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
         return [""]
 
 
-def get_urls_async(urls, configfile, dbfile):
+def get_urls_async(urls):
     results = []
 
     def load_url(url):
-        return get_url(url, configfile, dbfile)
+        return get_url(url)
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(load_url, url): url for url in urls}

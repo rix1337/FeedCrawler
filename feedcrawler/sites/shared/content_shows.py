@@ -6,6 +6,7 @@ import datetime
 import hashlib
 import re
 
+from feedcrawler import internal
 from feedcrawler.common import add_decrypt
 from feedcrawler.db import ListDb
 from feedcrawler.notifiers import notify
@@ -15,7 +16,7 @@ from feedcrawler.url import get_url_headers
 
 
 def get_series_list(self):
-    cont = ListDb(self.dbfile, self.filename).retrieve()
+    cont = ListDb(self.filename).retrieve()
     titles = []
     if cont:
         for title in cont:
@@ -80,44 +81,44 @@ def send_package(self, title, link, language_id, season, episode, site):
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
-        self.log_debug(
+        internal.logger.debug(
             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
 
     if 'added' in storage or 'notdl' in storage:
-        self.log_debug(title + " - Release ignoriert (bereits gefunden)")
+        internal.logger.debug(title + " - Release ignoriert (bereits gefunden)")
     else:
         if season and episode:
             link = link.replace('&_=', '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
-        download = add_decrypt(title, link, self.url, self.dbfile)
+        download = add_decrypt(title, link, self.url)
         if download:
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - [' + site + ']'
-            self.log_info(log_entry)
-            notify(["[Click'n'Load notwendig] - " + log_entry], self.configfile)
+            internal.logger.info(log_entry)
+            notify(["[Click'n'Load notwendig] - " + log_entry])
             return log_entry
 
 
 def periodical_task(self):
     if not self.url:
-        return self.device
+        return
 
     if self.filename == 'List_ContentShows_Shows_Regex':
         if not self.config.get('regex'):
-            self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
-            return self.device
+            internal.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
+            return
     elif self.filename == 'List_ContentShows_Seasons_Regex':
         if not self.config.get('regex'):
-            self.log_debug("Suche für " + self._SITE + "-Regex deaktiviert!")
-            return self.device
+            internal.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
+            return
     elif self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
-            self.log_debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
-            return self.device
+            internal.logger.debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
+            return
 
     if self.empty_list:
-        self.log_debug(
+        internal.logger.debug(
             "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
-        return self.device
+        return
     try:
         reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
             self.config.get("rejectlist")) > 0 else r"^unmatchable$"
@@ -135,7 +136,7 @@ def periodical_task(self):
             try:
                 url = feed_url(self)
                 if url:
-                    response = get_url_headers(url, self.configfile, self.dbfile, self.headers)
+                    response = get_url_headers(url, self.headers)
                     response = response[0]
                     if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
                         feed = self.get_feed_method(response.text, "seasons", 'https://' + self.url, True)
@@ -149,15 +150,15 @@ def periodical_task(self):
 
             if response:
                 if response.status_code == 304:
-                    self.log_debug(
+                    internal.logger.debug(
                         self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
-                    return self.device
+                    return
                 header = True
         else:
             try:
                 url = feed_url(self)
                 if url:
-                    response = get_url(url, self.configfile, self.dbfile)
+                    response = get_url(url)
                     if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
                         feed = self.get_feed_method(response, "seasons", 'https://' + self.url, True)
                     else:
@@ -176,7 +177,7 @@ def periodical_task(self):
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
-            self.log_debug(
+            internal.logger.debug(
                 "Feed ist leer - breche  Suche ab!")
             return False
 
@@ -186,7 +187,7 @@ def periodical_task(self):
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
             if sha == self.last_sha:
-                self.log_debug(
+                internal.logger.debug(
                     "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                 break
 
@@ -216,7 +217,7 @@ def periodical_task(self):
                                 self.quality = "2160p"
                             m = re.search(reject, title.lower())
                             if m:
-                                self.log_debug(
+                                internal.logger.debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
                             package = self.parse_download_method(self, series_url, title, language_id)
@@ -236,7 +237,7 @@ def periodical_task(self):
                                 episode = package[4]
                                 send_package(self, title, download_link, language_id, season, episode, site)
                     else:
-                        self.log_debug(
+                        internal.logger.debug(
                             "%s - Englische Releases deaktiviert" % title)
 
                 else:
@@ -264,7 +265,7 @@ def periodical_task(self):
                                 self.quality = "2160p"
                             m = re.search(reject, title.lower())
                             if m:
-                                self.log_debug(
+                                internal.logger.debug(
                                     title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                             title = re.sub(r'\[.*\] ', '', post.title)
                             package = self.parse_download_method(self, series_url, title, language_id)
@@ -284,7 +285,7 @@ def periodical_task(self):
                                 episode = package[4]
                                 send_package(self, title, download_link, language_id, season, episode, site)
                     else:
-                        self.log_debug(
+                        internal.logger.debug(
                             "%s - Englische Releases deaktiviert" % title)
 
                 else:
@@ -304,22 +305,22 @@ def periodical_task(self):
                             if mm:
                                 mmm = re.search(reject, title.lower())
                                 if mmm:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
                                 if self.feedcrawler.get("surround"):
                                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                        self.log_debug(
+                                        internal.logger.debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
                                 try:
                                     storage = self.db.retrieve_all(title)
                                 except Exception as e:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return self.device
+                                    return
                                 if 'added' in storage:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
                                 package = self.parse_download_method(self, series_url, title, language_id)
@@ -339,7 +340,7 @@ def periodical_task(self):
                                     episode = package[4]
                                     send_package(self, title, download_link, language_id, season, episode, site)
                         else:
-                            self.log_debug(
+                            internal.logger.debug(
                                 "%s - Englische Releases deaktiviert" % title)
 
                     else:
@@ -356,23 +357,23 @@ def periodical_task(self):
                                     continue
                                 mm = re.search(reject, title.lower())
                                 if mm:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
                                     continue
                                 if self.feedcrawler.get("surround"):
                                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                        self.log_debug(
+                                        internal.logger.debug(
                                             title + " - Release ignoriert (kein Mehrkanalton)")
                                         continue
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 try:
                                     storage = self.db.retrieve_all(title)
                                 except Exception as e:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return self.device
+                                    return
                                 if 'added' in storage:
-                                    self.log_debug(
+                                    internal.logger.debug(
                                         title + " - Release ignoriert (bereits gefunden)")
                                     continue
                                 package = self.parse_download_method(self, series_url, title, language_id)
@@ -392,7 +393,7 @@ def periodical_task(self):
                                     episode = package[4]
                                     send_package(self, title, download_link, language_id, season, episode, site)
                             else:
-                                self.log_debug(
+                                internal.logger.debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
     if current_set and sha:
@@ -407,4 +408,4 @@ def periodical_task(self):
         self.cdc.delete(self._INTERNAL_NAME + "Headers-" + self.filename)
         self.cdc.store(self._INTERNAL_NAME + "Headers-" + self.filename, response.headers['date'])
 
-    return self.device
+    return

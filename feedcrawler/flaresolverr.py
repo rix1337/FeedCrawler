@@ -14,20 +14,7 @@ from urllib.parse import urlencode
 
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-
-
-class DbFileMissingExpection(Exception):
-    """Exception raised for missing dbfile path.
-
-    Attributes:
-        url -- url(s) from the request that caused the error
-        message -- explanation of the error
-    """
-
-    def __init__(self, url, message="The dbfile parameter required for caching this request is missing!"):
-        self.url = url
-        self.message = message
-        super().__init__(self.message + ", url(s): " + self.url)
+from feedcrawler.db import ListDb
 
 
 def cache(func):
@@ -36,50 +23,77 @@ def cache(func):
     @functools.wraps(func)
     def cache_returned_values(*args, **kwargs):
         to_hash = ""
-        dbfile = False
         for a in args:
-            # The path to the db file which we will use for caching is always one of the arguments
-            if isinstance(a, str) and "FeedCrawler.db" in a:
-                dbfile = a
-            # ToDo potentially ignore the cloudproxy_session
             to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
         # This hash is based on all arguments of the request
         hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
 
-        if dbfile:
-            # Check if there is a cached request for this hash
-            cached = FeedDb(dbfile, 'cached_requests').retrieve(hashed)
-            if cached:
-                # Unpack and return the cached result instead of processing the request
-                return pickle.loads(codecs.decode(cached.encode(), "base64"))
-            else:
-                #
-                value = func(*args, **kwargs)
-                FeedDb(dbfile, 'cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
-                return value
-        raise DbFileMissingExpection(str(args[0]))
+        cached = FeedDb('cached_requests').retrieve(hashed)
+        if cached:
+            # Unpack and return the cached result instead of processing the request
+            return pickle.loads(codecs.decode(cached.encode(), "base64"))
+        else:
+            #
+            value = func(*args, **kwargs)
+            FeedDb('cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+            return value
 
     return cache_returned_values
 
 
-@cache
-def request(url, configfile, params=None, ajax=False, cloudproxy_session=False):
-    config = CrawlerConfig('FeedCrawler', configfile)
+def get_flaresolverr_url():
+    config = CrawlerConfig('FeedCrawler')
     flaresolverr = config.get("flaresolverr")
+    if flaresolverr:
+        return flaresolverr + "/v1"
+    return False
 
-    output = ''
-    http_code = 500
+
+def get_cloudproxy_session():
+    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
+    try:
+        return cloudproxy_sessions[0]
+    except:
+        return False
+
+
+def save_cloudproxy_session(cloudproxy_session):
+    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
+    if (cloudproxy_sessions and cloudproxy_session not in cloudproxy_sessions) or not cloudproxy_sessions:
+        ListDb('flaresolverr_sessions').store(cloudproxy_session)
+
+
+def clean_cloudproxy_sessions():
+    flaresolverr_url = get_flaresolverr_url()
+    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
+    if cloudproxy_sessions:
+        for cloudproxy_session in cloudproxy_sessions:
+            requests.post(flaresolverr_url, headers={}, data=dumps({
+                'cmd': 'sessions.destroy',
+                'session': cloudproxy_session
+            }))
+        ListDb('flaresolverr_sessions').reset()
+
+
+@cache
+def request(url, params=None, headers=None):
+    flaresolverr_url = get_flaresolverr_url()
+    cloudproxy_session = get_cloudproxy_session()
+
+    text = ''
+    status_code = 500
+    response_headers = {}
+
     method = 'post' if (params is not None) else 'get'
-
-    if ajax:
-        headers = {'X-Requested-With': 'XMLHttpRequest'}
-    else:
+    if not headers:
         headers = {}
+    if "ajax" in url.lower():
+        headers['X-Requested-With'] = 'XMLHttpRequest'
 
     try:
-        if flaresolverr:
+        if flaresolverr_url:
             if not cloudproxy_session:
-                json_session = requests.post(flaresolverr, headers=headers, data=dumps({
+                json_session = requests.post(flaresolverr_url, headers=headers, data=dumps({
                     'cmd': 'sessions.create'
                 }))
                 response_session = loads(json_session.text)
@@ -87,20 +101,21 @@ def request(url, configfile, params=None, ajax=False, cloudproxy_session=False):
 
             headers['Content-Type'] = 'application/x-www-form-urlencoded' if (method == 'post') else 'application/json'
 
-            json_response = requests.post(flaresolverr, headers=headers, data=dumps({
+            json_response = requests.post(flaresolverr_url, headers=headers, data=dumps({
                 'cmd': 'request.%s' % method,
                 'url': url,
                 'session': cloudproxy_session,
                 'postData': '%s' % urlencode(params) if (method == 'post') else ''
             }))
 
-            http_code = json_response.status_code
+            status_code = json_response.status_code
             response = loads(json_response.text)
             if 'solution' in response:
-                output = response['solution']['response']
+                text = response['solution']['response']
+                response_headers = response['solution']['headers']
 
-            if http_code == 500:
-                requests.post(flaresolverr, headers=headers, data=dumps({
+            if status_code == 500:
+                requests.post(flaresolverr_url, headers=headers, data=dumps({
                     'cmd': 'sessions.destroy',
                     'session': cloudproxy_session,
                 }))
@@ -111,9 +126,13 @@ def request(url, configfile, params=None, ajax=False, cloudproxy_session=False):
             else:
                 response = requests.get(url, timeout=30, headers=headers)
 
-            output = response.text
-            http_code = response.status_code
+            status_code = response.status_code
+            text = response.text
+            response_headers = response.headers
     except RequestException as e:
         print("Fehler im HTTP-Request", e)
 
-    return {'http_code': http_code, 'output': output, 'cloudproxy_session': cloudproxy_session}
+    if cloudproxy_session:
+        save_cloudproxy_session(cloudproxy_session)
+
+    return {'status_code': status_code, 'text': text, 'headers': response_headers}

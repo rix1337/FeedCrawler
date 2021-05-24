@@ -78,7 +78,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         fx: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
         ww: 'Nicht gesetzt!',
-        dd: 'Nicht gesetzt!',
         bl: 'Nicht gesetzt!',
         s: 'Nicht gesetzt!',
         sjbl: 'Nicht gesetzt!'
@@ -450,8 +449,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function deleteLogRow(row) {
-        $http.delete('api/log_row/' + row)
+    function deleteLogRow(title) {
+        title = btoa(title);
+        $http.delete('api/log_entry/' + title)
             .then(function () {
                 console.log('Logeintrag gelöscht!');
                 showSuccess('Logeintrag gelöscht!');

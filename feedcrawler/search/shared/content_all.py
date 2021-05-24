@@ -19,10 +19,10 @@ from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 
 
-def get_best_result(title, configfile, dbfile):
+def get_best_result(title):
     title = sanitize(title)
     try:
-        bl_results = get(title, configfile, dbfile, bl_only=True)[0]
+        bl_results = get(title, bl_only=True)[0]
     except:
         return False
     results = []
@@ -66,30 +66,30 @@ def get_best_result(title, configfile, dbfile):
     if not best_title:
         logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
-        cont = ListDb(dbfile, liste).retrieve()
+        cont = ListDb(liste).retrieve()
         if not cont:
             cont = ""
         if title not in cont:
-            ListDb(dbfile, liste).store(title)
+            ListDb(liste).store(title)
         return False
-    if not is_retail(best_title, dbfile):
+    if not is_retail(best_title, True):
         logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
-        cont = ListDb(dbfile, liste).retrieve()
+        cont = ListDb(liste).retrieve()
         if not cont:
             cont = ""
         if title not in cont:
-            ListDb(dbfile, liste).store(title)
+            ListDb(liste).store(title)
         return best_payload
     else:
         logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
         return best_payload
 
 
-def download(payload, device, configfile, dbfile):
-    config = CrawlerConfig('ContentAll', configfile)
-    db = FeedDb(dbfile, 'FeedCrawler')
-    hostnames = CrawlerConfig('Hostnames', configfile)
+def download(payload):
+    config = CrawlerConfig('ContentAll')
+    db = FeedDb('FeedCrawler')
+    hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     nk = hostnames.get('nk')
 
@@ -97,7 +97,7 @@ def download(payload, device, configfile, dbfile):
     link = payload[0]
     password = payload[1]
 
-    site = check_is_site(link, configfile)
+    site = check_is_site(link)
     if not site:
         return False
     elif "DW" in site:
@@ -106,7 +106,7 @@ def download(payload, device, configfile, dbfile):
         key = payload[1]
         password = payload[2]
     else:
-        url = get_url(link, configfile, dbfile)
+        url = get_url(link)
         if not url or "NinjaFirewall 429" in url:
             return False
         download_method = myjd_download
@@ -120,7 +120,7 @@ def download(payload, device, configfile, dbfile):
                 link = link["src"]
                 if 'https://' + by in link:
                     async_link_results.append(link)
-            async_link_results = get_urls_async(async_link_results, configfile, dbfile)
+            async_link_results = get_urls_async(async_link_results)
             links = async_link_results[0]
             url_hosters = []
             for link in links:
@@ -143,19 +143,17 @@ def download(payload, device, configfile, dbfile):
         links = {}
         if "FX" in site:
             class FX:
-                configfile = ""
-
-            FX.configfile = configfile
+                unused = ""
             download_links = fx_get_download_links(FX, url, key)
         else:
             for url_hoster in reversed(url_hosters):
                 try:
                     link_hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace(
                         "ddownload", "ddl")
-                    if check_hoster(link_hoster, configfile):
+                    if check_hoster(link_hoster):
                         link = url_hoster[0]
                         if by in link:
-                            demasked_link = get_redirected_url(link, configfile, dbfile)
+                            demasked_link = get_redirected_url(link)
                             if demasked_link:
                                 link = demasked_link
                         links[link_hoster] = link
@@ -167,7 +165,7 @@ def download(payload, device, configfile, dbfile):
                         "ddownload", "ddl")
                     link = url_hoster[0]
                     if by in link:
-                        demasked_link = get_redirected_url(link, configfile, dbfile)
+                        demasked_link = get_redirected_url(link)
                         if demasked_link:
                             link = demasked_link
                     links[link_hoster] = link
@@ -185,7 +183,7 @@ def download(payload, device, configfile, dbfile):
 
     if download_links:
         if staffel:
-            if download_method(configfile, dbfile, device, key, "FeedCrawler", download_links, password):
+            if download_method(key, "FeedCrawler", download_links, password):
                 db.store(
                     key.replace(".COMPLETE", "").replace(".Complete", ""),
                     'notdl' if config.get(
@@ -194,14 +192,14 @@ def download(payload, device, configfile, dbfile):
                 log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                         "") + ' - [' + site + ']'
                 logger.info(log_entry)
-                notify([log_entry], configfile)
+                notify([log_entry])
                 return True
         else:
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
-                if is_retail(key, dbfile):
+                if is_retail(key, True):
                     retail = True
-            if download_method(configfile, dbfile, device, key, "FeedCrawler", download_links, password):
+            if download_method(key, "FeedCrawler", download_links, password):
                 db.store(
                     key,
                     'notdl' if config.get(
@@ -211,7 +209,7 @@ def download(payload, device, configfile, dbfile):
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
                 logger.info(log_entry)
-                notify([log_entry], configfile)
+                notify([log_entry])
                 return [key]
     else:
         return False

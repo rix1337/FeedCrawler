@@ -10,6 +10,6 @@ lxml
 passlib
 pycryptodomex
 python-dateutil
-requests[socks]
+requests
 simplejson
 waitress

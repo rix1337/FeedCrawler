@@ -3,12 +3,14 @@
 # Projekt von https://github.com/rix1337
 
 import re
+
 from bs4 import BeautifulSoup
 
+from feedcrawler import internal
 from feedcrawler.url import get_url
 
 
-def get_imdb_id(key, content, filename, configfile, dbfile, log_debug):
+def get_imdb_id(key, content, filename):
     try:
         imdb_id = re.findall(
             r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
@@ -22,8 +24,9 @@ def get_imdb_id(key, content, filename, configfile, dbfile, log_debug):
         try:
             search_title = re.findall(
                 r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
+            # ToDo Refactor ?q= to data parameter
             search_url = "http://www.imdb.com/find?q=" + search_title
-            search_page = get_url(search_url, configfile, dbfile)
+            search_page = get_url(search_url)
             search_results = re.findall(
                 r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9})\/\?ref_=fn_al_tt_\d" >(.*?)<\/a>.*? \((\d{4})\)..(.{9})',
                 search_page)
@@ -47,15 +50,14 @@ def get_imdb_id(key, content, filename, configfile, dbfile, log_debug):
                         total_results = 0
                         break
             if no_series is False:
-                log_debug(
-                    "%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                internal.logger.debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
         if not imdb_id:
             return False
 
     return imdb_id
 
 
-def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, log_debug):
+def get_original_language(key, imdb_details, imdb_url):
     original_language = False
     if imdb_details and len(imdb_details) > 0:
         soup = BeautifulSoup(imdb_details, 'lxml')
@@ -64,7 +66,7 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, log_d
         except:
             pass
     elif imdb_url and len(imdb_url) > 0:
-        imdb_details = get_url(imdb_url, configfile, dbfile)
+        imdb_details = get_url(imdb_url)
         if imdb_details:
             soup = BeautifulSoup(imdb_details, 'lxml')
             try:
@@ -83,7 +85,7 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, log_d
             except:
                 pass
         elif imdb_url and len(imdb_url) > 0:
-            imdb_details = get_url(imdb_url, configfile, dbfile)
+            imdb_details = get_url(imdb_url)
             if imdb_details:
                 soup = BeautifulSoup(imdb_details, 'lxml')
                 try:
@@ -95,11 +97,10 @@ def get_original_language(key, imdb_details, imdb_url, configfile, dbfile, log_d
                     pass
 
     if not original_language:
-        log_debug("%s - Originalsprache nicht ermittelbar" % key)
+        internal.logger.debug("%s - Originalsprache nicht ermittelbar" % key)
 
     if original_language and original_language == "German":
-        log_debug(
-            "%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
+        internal.logger.debug("%s - Originalsprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % key)
         return False
     else:
         return original_language

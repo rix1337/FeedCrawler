@@ -4,9 +4,11 @@
 
 import re
 import time
+
 from rapidfuzz import fuzz
 
 import feedcrawler.myjdapi
+from feedcrawler import internal
 from feedcrawler.common import check_hoster
 from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
@@ -37,8 +39,8 @@ def ensure_string(potential_list):
         return string
 
 
-def get_device(configfile):
-    conf = CrawlerConfig('FeedCrawler', configfile)
+def get_device():
+    conf = CrawlerConfig('FeedCrawler')
     myjd_user = str(conf.get('myjd_user'))
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
@@ -54,9 +56,10 @@ def get_device(configfile):
         except feedcrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
-        if not device or not is_device(device):
+        if not internal.device or not is_device(internal.device):
             return False
-        return device
+        internal.set_device(device)
+        return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
         try:
@@ -66,9 +69,10 @@ def get_device(configfile):
         except feedcrawler.myjdapi.MYJDException as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
-        if not device or not is_device(device):
+        if not internal.device or not is_device(internal.device):
             return False
-        return device
+        internal.set_device(device)
+        return True
     else:
         return False
 
@@ -83,7 +87,8 @@ def check_device(myjd_user, myjd_pass, myjd_device):
     except feedcrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
-    return device
+    internal.set_device(device)
+    return True
 
 
 def get_if_one_device(myjd_user, myjd_pass):
@@ -102,10 +107,10 @@ def get_if_one_device(myjd_user, myjd_pass):
         return False
 
 
-def get_packages_in_downloader(configfile, device):
-    links = device.downloads.query_links()
+def get_packages_in_downloader():
+    links = internal.device.downloads.query_links()
 
-    packages = device.downloads.query_packages([{
+    packages = internal.device.downloads.query_packages([{
         "bytesLoaded": True,
         "bytesTotal": True,
         "comment": False,
@@ -124,20 +129,20 @@ def get_packages_in_downloader(configfile, device):
     }])
 
     if links and packages and len(packages) > 0:
-        packages_by_type = check_packages_types(links, packages, configfile, device)
+        packages_by_type = check_packages_types(links, packages)
         failed = packages_by_type[0]
         offline = packages_by_type[1]
         decrypted = packages_by_type[2]
-        device = packages_by_type[3]
-        return [failed, offline, decrypted, device]
+
+        return [failed, offline, decrypted]
     else:
-        return [False, False, False, device]
+        return [False, False, False]
 
 
-def get_packages_in_linkgrabber(configfile, device):
-    links = device.linkgrabber.query_links()
+def get_packages_in_linkgrabber():
+    links = internal.device.linkgrabber.query_links()
 
-    packages = device.linkgrabber.query_packages(params=[
+    packages = internal.device.linkgrabber.query_packages(params=[
         {
             "bytesLoaded": True,
             "bytesTotal": True,
@@ -156,17 +161,17 @@ def get_packages_in_linkgrabber(configfile, device):
             "startAt": 0,
         }])
     if links and packages and len(packages) > 0:
-        packages_by_type = check_packages_types(links, packages, configfile, device)
+        packages_by_type = check_packages_types(links, packages)
         failed = packages_by_type[0]
         offline = packages_by_type[1]
         decrypted = packages_by_type[2]
-        device = packages_by_type[3]
-        return [failed, offline, decrypted, device]
+
+        return [failed, offline, decrypted]
     else:
-        return [False, False, False, device]
+        return [False, False, False]
 
 
-def check_packages_types(links, packages, configfile, device):
+def check_packages_types(links, packages):
     decrypted = []
     failed = []
     offline = []
@@ -224,10 +229,10 @@ def check_packages_types(links, packages, configfile, device):
                         filename = str(link.get('name'))
                         if filename not in filenames:
                             filenames.append(filename)
-            if CrawlerConfig("FeedCrawler", configfile).get('one_mirror_policy'):
+            if CrawlerConfig("FeedCrawler").get('one_mirror_policy'):
                 if delete_linkids:
                     if package_online:
-                        device = remove_from_linkgrabber(configfile, device, delete_linkids, [])
+                        remove_from_linkgrabber(delete_linkids, [])
         for h in hosts:
             if h == 'linkcrawlerretry':
                 package_failed = True
@@ -285,24 +290,24 @@ def check_packages_types(links, packages, configfile, device):
         offline = False
     if not decrypted:
         decrypted = False
-    return [failed, offline, decrypted, device]
+    return [failed, offline, decrypted]
 
 
-def get_state(configfile, device):
+def get_state():
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                downloader_state = device.downloadcontroller.get_current_state()
-                grabber_collecting = device.linkgrabber.is_collecting()
+                downloader_state = internal.device.downloadcontroller.get_current_state()
+                grabber_collecting = internal.device.linkgrabber.is_collecting()
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                downloader_state = device.downloadcontroller.get_current_state()
-                grabber_collecting = device.linkgrabber.is_collecting()
-            return [device, downloader_state, grabber_collecting]
+                downloader_state = internal.device.downloadcontroller.get_current_state()
+                grabber_collecting = internal.device.linkgrabber.is_collecting()
+            return [True, downloader_state, grabber_collecting]
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -329,48 +334,44 @@ def cryptor_url_first(failed_package):
     return resorted_failed_package
 
 
-def get_info(configfile, device):
+def get_info():
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                downloader_state = device.downloadcontroller.get_current_state()
-                grabber_collecting = device.linkgrabber.is_collecting()
-                device.update.run_update_check()
-                update_ready = device.update.is_update_available()
+                downloader_state = internal.device.downloadcontroller.get_current_state()
+                grabber_collecting = internal.device.linkgrabber.is_collecting()
+                internal.device.update.run_update_check()
+                update_ready = internal.device.update.is_update_available()
 
-                packages_in_downloader = get_packages_in_downloader(configfile, device)
+                packages_in_downloader = get_packages_in_downloader()
                 packages_in_downloader_failed = packages_in_downloader[0]
                 packages_in_downloader_offline = packages_in_downloader[1]
                 packages_in_downloader_decrypted = packages_in_downloader[2]
-                device = packages_in_downloader[3]
 
-                packages_in_linkgrabber = get_packages_in_linkgrabber(configfile, device)
+                packages_in_linkgrabber = get_packages_in_linkgrabber()
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-                device = packages_in_linkgrabber[3]
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                downloader_state = device.downloadcontroller.get_current_state()
-                grabber_collecting = device.linkgrabber.is_collecting()
-                device.update.run_update_check()
-                update_ready = device.update.is_update_available()
+                downloader_state = internal.device.downloadcontroller.get_current_state()
+                grabber_collecting = internal.device.linkgrabber.is_collecting()
+                internal.device.update.run_update_check()
+                update_ready = internal.device.update.is_update_available()
 
-                packages_in_downloader = get_packages_in_downloader(configfile, device)
+                packages_in_downloader = get_packages_in_downloader()
                 packages_in_downloader_failed = packages_in_downloader[0]
                 packages_in_downloader_offline = packages_in_downloader[1]
                 packages_in_downloader_decrypted = packages_in_downloader[2]
-                device = packages_in_downloader[3]
 
-                packages_in_linkgrabber = get_packages_in_linkgrabber(configfile, device)
+                packages_in_linkgrabber = get_packages_in_linkgrabber()
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-                device = packages_in_linkgrabber[3]
 
             if packages_in_linkgrabber_failed:
                 packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
@@ -391,7 +392,7 @@ def get_info(configfile, device):
             else:
                 packages_offline = packages_in_linkgrabber_offline
 
-            return [device, downloader_state, grabber_collecting, update_ready,
+            return [True, downloader_state, grabber_collecting, update_ready,
                     [packages_in_downloader_decrypted, packages_in_linkgrabber_decrypted,
                      packages_offline,
                      packages_failed]]
@@ -402,19 +403,19 @@ def get_info(configfile, device):
         return False
 
 
-def move_to_downloads(configfile, device, linkids, uuid):
+def move_to_downloads(linkids, uuid):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.linkgrabber.move_to_downloadlist(linkids, uuid)
+                internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.linkgrabber.move_to_downloadlist(linkids, uuid)
-            return device
+                internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -422,21 +423,21 @@ def move_to_downloads(configfile, device, linkids, uuid):
         return False
 
 
-def remove_from_linkgrabber(configfile, device, linkids, uuid):
+def remove_from_linkgrabber(linkids, uuid):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.linkgrabber.remove_links(linkids, uuid)
-                device.downloads.remove_links(linkids, uuid)
+                internal.device.linkgrabber.remove_links(linkids, uuid)
+                internal.device.downloads.remove_links(linkids, uuid)
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.linkgrabber.remove_links(linkids, uuid)
-                device.downloads.remove_links(linkids, uuid)
-            return device
+                internal.device.linkgrabber.remove_links(linkids, uuid)
+                internal.device.downloads.remove_links(linkids, uuid)
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -444,21 +445,21 @@ def remove_from_linkgrabber(configfile, device, linkids, uuid):
         return False
 
 
-def move_to_new_package(configfile, device, linkids, package_id, new_title, new_path):
+def move_to_new_package(linkids, package_id, new_title, new_path):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
-                device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+                internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
-                device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
-            return device
+                internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -466,10 +467,10 @@ def move_to_new_package(configfile, device, linkids, package_id, new_title, new_
         return False
 
 
-def download(configfile, dbfile, device, title, subdir, old_links, password, full_path=None, autostart=False):
+def download(title, subdir, old_links, password, full_path=None, autostart=False):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
+        if not internal.device or not is_device(internal.device):
+            get_device()
 
         if isinstance(old_links, list):
             links = []
@@ -480,7 +481,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
             links = [old_links]
 
         links = str(links).replace(" ", "")
-        crawljobs = CrawlerConfig('Crawljobs', configfile)
+        crawljobs = CrawlerConfig('Crawljobs')
         usesubdir = crawljobs.get("subdir")
         priority = "DEFAULT"
 
@@ -495,7 +496,7 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
             priority = "LOWER"
 
         try:
-            device.linkgrabber.add_links(params=[
+            internal.device.linkgrabber.add_links(params=[
                 {
                     "autostart": autostart,
                     "links": links,
@@ -508,10 +509,10 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "overwritePackagizerRules": False
                 }])
         except feedcrawler.myjdapi.TokenExpiredException:
-            device = get_device(configfile)
-            if not device or not is_device(device):
+            get_device()
+            if not internal.device or not is_device(internal.device):
                 return False
-            device.linkgrabber.add_links(params=[
+            internal.device.linkgrabber.add_links(params=[
                 {
                     "autostart": autostart,
                     "links": links,
@@ -523,25 +524,25 @@ def download(configfile, dbfile, device, title, subdir, old_links, password, ful
                     "comment": "FeedCrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
-        db = FeedDb(dbfile, 'crawldog')
+        db = FeedDb('crawldog')
         if db.retrieve(title):
             db.delete(title)
             db.store(title, 'retried')
         else:
             db.store(title, 'added')
-        return device
+        return True
     except feedcrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
-def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
+def retry_decrypt(linkids, uuid, links):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                package = device.linkgrabber.query_packages(params=[
+                package = internal.device.linkgrabber.query_packages(params=[
                     {
                         "availableOfflineCount": True,
                         "availableOnlineCount": True,
@@ -560,10 +561,10 @@ def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
                         "status": True
                     }])
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                package = device.linkgrabber.query_packages(params=[
+                package = internal.device.linkgrabber.query_packages(params=[
                     {
                         "availableOfflineCount": True,
                         "availableOnlineCount": True,
@@ -583,7 +584,7 @@ def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
                     }])
             if not package:
                 try:
-                    package = device.downloads.query_packages(params=[
+                    package = internal.device.downloads.query_packages(params=[
                         {
                             "bytesLoaded": True,
                             "bytesTotal": True,
@@ -603,10 +604,10 @@ def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
                             "startAt": 0,
                         }])
                 except feedcrawler.myjdapi.TokenExpiredException:
-                    device = get_device(configfile)
-                    if not device or not is_device(device):
+                    get_device()
+                    if not internal.device or not is_device(internal.device):
                         return False
-                    package = device.downloads.query_packages(params=[
+                    package = internal.device.downloads.query_packages(params=[
                         {
                             "bytesLoaded": True,
                             "bytesTotal": True,
@@ -626,11 +627,11 @@ def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
                             "startAt": 0,
                         }])
             if package:
-                remove_from_linkgrabber(configfile, device, linkids, uuid)
+                remove_from_linkgrabber(linkids, uuid)
                 title = package[0].get('name')
                 full_path = package[0].get('saveTo')
-                download(configfile, dbfile, device, title, None, links, None, full_path)
-                return device
+                download(title, None, links, None, full_path)
+                return True
             else:
                 return False
         else:
@@ -640,19 +641,19 @@ def retry_decrypt(configfile, dbfile, device, linkids, uuid, links):
         return False
 
 
-def update_jdownloader(configfile, device):
+def update_jdownloader():
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.update.restart_and_update()
+                internal.device.update.restart_and_update()
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.update.restart_and_update()
-            return device
+                internal.device.update.restart_and_update()
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -660,19 +661,19 @@ def update_jdownloader(configfile, device):
         return False
 
 
-def jdownloader_start(configfile, device):
+def jdownloader_start():
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.downloadcontroller.start_downloads()
+                internal.device.downloadcontroller.start_downloads()
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.downloadcontroller.start_downloads()
-            return device
+                internal.device.downloadcontroller.start_downloads()
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -680,19 +681,19 @@ def jdownloader_start(configfile, device):
         return False
 
 
-def jdownloader_pause(configfile, device, bl):
+def jdownloader_pause(bl):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.downloadcontroller.pause_downloads(bl)
+                internal.device.downloadcontroller.pause_downloads(bl)
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.downloadcontroller.pause_downloads(bl)
-            return device
+                internal.device.downloadcontroller.pause_downloads(bl)
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -700,19 +701,19 @@ def jdownloader_pause(configfile, device, bl):
         return False
 
 
-def jdownloader_stop(configfile, device):
+def jdownloader_stop():
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                device.downloadcontroller.stop_downloads()
+                internal.device.downloadcontroller.stop_downloads()
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                device.downloadcontroller.stop_downloads()
-            return device
+                internal.device.downloadcontroller.stop_downloads()
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -720,30 +721,28 @@ def jdownloader_stop(configfile, device):
         return False
 
 
-def check_failed_link_exists(links, configfile, device):
-    failed = get_info(configfile, device)
+def check_failed_link_exists(links):
+    failed = get_info()
     if failed[2]:
         time.sleep(5)
-        failed = get_info(configfile, device)
+        failed = get_info()
     failed_packages = failed[4][3]
     for link in links:
         if failed_packages:
             for package in failed_packages:
                 for url in package['urls']:
                     if link == url or url in link or link in url:
-                        device = failed[0]
-                        return [device, package['linkids'], package['uuid'], package['name'], package['path']]
+                        return [failed[0], package['linkids'], package['uuid'], package['name'], package['path']]
     return False
 
 
-def myjd_download(configfile, dbfile, device, title, subdir, links, password):
-    if device:
+def myjd_download(title, subdir, links, password):
+    if internal.device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
-            exists = check_failed_link_exists(links, configfile, device)
+            exists = check_failed_link_exists(links, internal.device)
             if exists:
                 broken_title = False
-                device = exists[0]
                 old_title = exists[3]
                 old_path = exists[4]
                 try:
@@ -764,18 +763,18 @@ def myjd_download(configfile, dbfile, device, title, subdir, links, password):
                     new_title = title.replace(new_episode, combined_episodes)
                     new_path = old_path.replace(old_title, new_title)
 
-                    device = move_to_new_package(configfile, device, linkids, package_id, new_title, new_path)
-                    FeedDb(dbfile, 'crawldog').store(new_title, 'added')
-                    FeedDb(dbfile, 'crawldog').delete(old_title)
-                    return device
+                    internal.device = move_to_new_package(linkids, package_id, new_title, new_path)
+                    FeedDb('crawldog').store(new_title, 'added')
+                    FeedDb('crawldog').delete(old_title)
+                    return True
 
-        device = download(configfile, dbfile, device, title, subdir, links, password)
-        if device:
-            return device
+        internal.device = download(title, subdir, links, password)
+        if internal.device:
+            return True
     return False
 
 
-def remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids, delete_linkids,
+def remove_unfit_links(decrypted_packages, known_packages, keep_linkids, keep_uuids, delete_linkids,
                        delete_uuids, delete_packages, title):
     title = title.replace(" ", ".")
     path = ''
@@ -785,9 +784,9 @@ def remove_unfit_links(configfile, device, decrypted_packages, known_packages, k
     if keep_linkids and keep_uuids:
         for k in keep_linkids:
             delete_linkids.remove(k)
-        device = move_to_new_package(configfile, device, keep_linkids, keep_uuids, title, path)
-        device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
-        return [device, True]
+        move_to_new_package(keep_linkids, keep_uuids, title, path)
+        remove_from_linkgrabber(delete_linkids, delete_uuids)
+        return [True, True]
     elif delete_packages and len(delete_packages) < len(decrypted_packages):
         delete_linkids = []
         delete_uuids = []
@@ -797,13 +796,13 @@ def remove_unfit_links(configfile, device, decrypted_packages, known_packages, k
             delete_uuids.append(dp['uuid'])
             decrypted_packages.remove(dp)
         if delete_linkids and delete_uuids:
-            device = remove_from_linkgrabber(configfile, device, delete_linkids, delete_uuids)
+            remove_from_linkgrabber(delete_linkids, delete_uuids)
 
-    package_merge_check(device, configfile, decrypted_packages, known_packages)
-    return [device, False]
+    package_merge_check(decrypted_packages, known_packages)
+    return [True, False]
 
 
-def hoster_check(configfile, device, decrypted_packages, title, known_packages):
+def hoster_check(decrypted_packages, title, known_packages):
     if not decrypted_packages:
         return [False, False]
 
@@ -813,9 +812,8 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
     keep_linkids = []
     keep_uuids = []
 
-    merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
+    merge_first = package_merge_check(decrypted_packages, known_packages)
     if merge_first:
-        device = merge_first[0]
         decrypted_packages = merge_first[1]
 
     valid_links = False
@@ -831,7 +829,7 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
                 delete = True
                 links = split_urls(dp['urls'])
                 for link in links:
-                    if check_hoster(link, configfile):
+                    if check_hoster(link):
                         try:
                             keep_linkids.append(linkids[i])
                             valid_links = True
@@ -845,14 +843,14 @@ def hoster_check(configfile, device, decrypted_packages, title, known_packages):
                     delete_packages.append(dp)
 
     if valid_links:
-        removed = remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids,
+        removed = remove_unfit_links(decrypted_packages, known_packages, keep_linkids, keep_uuids,
                                      delete_linkids,
                                      delete_uuids, delete_packages, title)
         return [removed[0], removed[1]]
-    return [device, False]
+    return [True, False]
 
 
-def package_merge(configfile, device, decrypted_packages, title, known_packages):
+def package_merge(decrypted_packages, title, known_packages):
     if not decrypted_packages:
         return [False, False]
 
@@ -866,9 +864,8 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
     more_than_one_episode = False
     valid_links = False
 
-    merge_first = package_merge_check(device, configfile, decrypted_packages, known_packages)
+    merge_first = package_merge_check(decrypted_packages, known_packages)
     if merge_first:
-        device = merge_first[0]
         decrypted_packages = merge_first[1]
 
     if episodes:
@@ -902,7 +899,7 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                         try:
                             fname_episodes.append(str(int(fname_episode)))
                         except:
-                            return [device, False]
+                            return [True, False]
             replacer = longest_substr(fname_episodes)
 
             new_fname_episodes = []
@@ -987,14 +984,14 @@ def package_merge(configfile, device, decrypted_packages, title, known_packages)
                         delete_packages.append(dp)
 
     if more_than_one_episode or valid_links:
-        removed = remove_unfit_links(configfile, device, decrypted_packages, known_packages, keep_linkids, keep_uuids,
+        removed = remove_unfit_links(decrypted_packages, known_packages, keep_linkids, keep_uuids,
                                      delete_linkids,
                                      delete_uuids, delete_packages, title)
         return [removed[0], removed[1]]
-    return [device, False]
+    return [True, False]
 
 
-def package_merge_check(device, configfile, decrypted_packages, known_packages):
+def package_merge_check(decrypted_packages, known_packages):
     mergables = []
     if decrypted_packages:
         mergable = False
@@ -1013,10 +1010,10 @@ def package_merge_check(device, configfile, decrypted_packages, known_packages):
             title = longest_substr(m[0][0])
             uuids = m[0][1]
             linkids = m[0][2]
-            do_package_merge(configfile, device, title, uuids, linkids)
+            do_package_merge(title, uuids, linkids)
             time.sleep(3)
-            decrypted_packages = get_info(configfile, device)[4][1]
-        return [device, decrypted_packages]
+            decrypted_packages = get_info()[4][1]
+        return [True, decrypted_packages]
     else:
         return False
 
@@ -1047,19 +1044,19 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
     return mergable
 
 
-def do_package_merge(configfile, device, title, uuids, linkids):
+def do_package_merge(title, uuids, linkids):
     try:
-        if not device or not is_device(device):
-            device = get_device(configfile)
-        if device:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
             try:
-                move_to_new_package(configfile, device, linkids, uuids, title, "<jd:packagename>")
+                move_to_new_package(linkids, uuids, title, "<jd:packagename>")
             except feedcrawler.myjdapi.TokenExpiredException:
-                device = get_device(configfile)
-                if not device or not is_device(device):
+                get_device()
+                if not internal.device or not is_device(internal.device):
                     return False
-                move_to_new_package(configfile, device, linkids, uuids, title, "<jd:packagename>")
-            return device
+                move_to_new_package(linkids, uuids, title, "<jd:packagename>")
+            return True
         else:
             return False
     except feedcrawler.myjdapi.MYJDException as e:
@@ -1067,27 +1064,25 @@ def do_package_merge(configfile, device, title, uuids, linkids):
         return False
 
 
-def do_package_replace(configfile, dbfile, device, old_package, cnl_package):
+def do_package_replace(old_package, cnl_package):
     title = old_package['name']
     path = old_package['path']
     links = (ensure_string(old_package['urls']) + '\n' + ensure_string(cnl_package['urls'])).replace("\n\n", "\n")
     links = links.replace(old_package['url'] + '\n', '').replace(old_package['url'], '')
     linkids = cnl_package['linkids']
     uuid = [cnl_package['uuid']]
-    device = remove_from_linkgrabber(configfile, device, linkids, uuid)
-    if device:
-        linkids = old_package['linkids']
-        uuid = [old_package['uuid']]
-        device = remove_from_linkgrabber(configfile, device, linkids, uuid)
-        if device:
-            device = download(configfile, dbfile, device, title, "", links, "", path, False)
-            if device:
-                print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
-                return [device, title]
+    internal.device = remove_from_linkgrabber(linkids, uuid)
+
+    linkids = old_package['linkids']
+    uuid = [old_package['uuid']]
+    if remove_from_linkgrabber(linkids, uuid):
+        if download(title, "", links, "", path, False):
+            print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
+            return title
     return False
 
 
-def do_add_decrypted(configfile, dbfile, device, title, password, cnl_packages):
+def do_add_decrypted(title, password, cnl_packages):
     linkids = []
     uuids = []
     urls = ""
@@ -1098,11 +1093,8 @@ def do_add_decrypted(configfile, dbfile, device, title, password, cnl_packages):
         urls = urls + ensure_string(cnl_package['urls']).replace("\n\n", "\n")
 
     links = ensure_string(urls).replace("\n\n", "\n")
-    device = remove_from_linkgrabber(configfile, device, linkids, uuids)
-    if device:
-        if device:
-            device = download(configfile, dbfile, device, title, "FeedCrawler", links, password)
-            if device:
+    if remove_from_linkgrabber(linkids, uuids):
+        if download(title, "FeedCrawler", links, password):
                 print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
-                return [device, title]
+                return [True, title]
     return False

@@ -14,9 +14,9 @@ from feedcrawler.search.search import get, logger, rate
 from feedcrawler.url import get_url
 
 
-def get_best_result(title, configfile, dbfile):
+def get_best_result(title):
     try:
-        sj_results = get(title, configfile, dbfile, sj_only=True)[1]
+        sj_results = get(title, sj_only=True)[1]
     except:
         return False
     results = []
@@ -52,18 +52,18 @@ def get_best_result(title, configfile, dbfile):
         logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
         for liste in listen:
-            cont = ListDb(dbfile, liste).retrieve()
+            cont = ListDb(liste).retrieve()
             if not cont:
                 cont = ""
             if title not in cont:
-                ListDb(dbfile, liste).store(title)
+                ListDb(liste).store(title)
             return False
     logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
     return best_payload
 
 
-def download(payload, configfile, dbfile):
-    hostnames = CrawlerConfig('Hostnames', configfile)
+def download(payload):
+    hostnames = CrawlerConfig('Hostnames')
     sj = hostnames.get('sj')
 
     payload = decode_base64(payload).split("|")
@@ -72,25 +72,25 @@ def download(payload, configfile, dbfile):
     special = payload[2].strip().replace("None", "")
 
     series_url = 'https://' + sj + href
-    series_info = get_url(series_url, configfile, dbfile)
+    series_info = get_url(series_url)
     series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
 
     api_url = 'https://' + sj + '/api/media/' + series_id + '/releases'
-    releases = get_url(api_url, configfile, dbfile)
+    releases = get_url(api_url)
 
     unsorted_seasons = json.loads(releases)
 
     listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
     for liste in listen:
-        cont = ListDb(dbfile, liste).retrieve()
+        cont = ListDb(liste).retrieve()
         list_title = sanitize(title)
         if not cont:
             cont = ""
         if list_title not in cont:
-            ListDb(dbfile, liste).store(list_title)
+            ListDb(liste).store(list_title)
 
-    config = CrawlerConfig('ContentShows', configfile)
-    english_ok = CrawlerConfig('FeedCrawler', configfile).get("english")
+    config = CrawlerConfig('ContentShows')
+    english_ok = CrawlerConfig('FeedCrawler').get("english")
     quality = config.get('quality')
     ignore = config.get('rejectlist')
 
@@ -125,7 +125,7 @@ def download(payload, configfile, dbfile):
             if valid:
                 valid = False
                 for hoster in hosters:
-                    if hoster and check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                    if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
                         valid = True
             if valid:
                 try:
@@ -188,7 +188,7 @@ def download(payload, configfile, dbfile):
                 if valid:
                     valid = False
                     for hoster in hosters:
-                        if hoster and check_hoster(hoster, configfile) or config.get("hoster_fallback"):
+                        if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
                             valid = True
                 if valid:
                     try:
@@ -232,14 +232,14 @@ def download(payload, configfile, dbfile):
 
     notify_array = []
     for title in matches:
-        db = FeedDb(dbfile, 'FeedCrawler')
-        if add_decrypt(title, series_url, sj, dbfile):
+        db = FeedDb('FeedCrawler')
+        if add_decrypt(title, series_url, sj):
             db.store(title, 'added')
             log_entry = u'[Suche/Serie] - ' + title + ' - [SJ]'
             logger.info(log_entry)
             notify_array.append(log_entry)
 
-    notify(notify_array, configfile)
+    notify(notify_array)
 
     if not matches:
         return False

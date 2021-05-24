@@ -23,8 +23,8 @@ from feedcrawler.url import post_url
 logger = logging.getLogger('feedcrawler')
 
 
-def get(title, configfile, dbfile, bl_only=False, sj_only=False):
-    hostnames = CrawlerConfig('Hostnames', configfile)
+def get(title, bl_only=False, sj_only=False):
+    hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     dw = hostnames.get('dw')
     fx = hostnames.get('fx')
@@ -56,7 +56,7 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
 
         unrated = []
 
-        config = CrawlerConfig('ContentAll', configfile)
+        config = CrawlerConfig('ContentAll')
         quality = config.get('quality')
         ignore = config.get('ignore')
 
@@ -66,19 +66,22 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
             search_quality = ""
 
         if by:
+            # ToDo Refactor ?q= to data parameter
             by_search = 'https://' + by + '/?q=' + bl_query + search_quality
         else:
             by_search = None
         if dw:
+            # ToDo Refactor ?q= to data parameter
             dw_search = 'https://' + dw + '/?kategorie=Movies&search=' + bl_query + search_quality
         else:
             dw_search = None
         if fx:
+            # ToDo Refactor ?q= to data parameter
             fx_search = 'https://' + fx + '/?s=' + bl_query
         else:
             fx_search = None
 
-        async_results = get_urls_async([by_search, dw_search, fx_search], configfile, dbfile)
+        async_results = get_urls_async([by_search, dw_search, fx_search])
         async_results = async_results[0]
 
         by_results = []
@@ -86,15 +89,15 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
         fx_results = []
 
         for res in async_results:
-            if check_is_site(res, configfile) == 'BY':
+            if check_is_site(res) == 'BY':
                 by_results = by_search_results(res, by)
-            elif check_is_site(res, configfile) == 'DW':
+            elif check_is_site(res) == 'DW':
                 dw_results = dw_search_results(res, dw)
-            elif check_is_site(res, configfile) == 'FX':
-                fx_results = fx_search_results(fx_content_to_soup(res), configfile, dbfile)
+            elif check_is_site(res) == 'FX':
+                fx_results = fx_search_results(fx_content_to_soup(res))
 
         if nk:
-            nk_search = post_url('https://' + nk + "/search", configfile, dbfile,
+            nk_search = post_url('https://' + nk + "/search",
                                  data={'search': bl_query.replace("+", " ") + " " + quality})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
         else:
@@ -160,7 +163,8 @@ def get(title, configfile, dbfile, bl_only=False, sj_only=False):
     if not bl_only:
         if sj:
             sj_query = sanitize(title).replace(" ", "+")
-            sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query, configfile, dbfile)
+            # ToDo Refactor ?q= to data parameter
+            sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
                 sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
             except:

@@ -4,6 +4,8 @@
 
 import configparser
 
+from feedcrawler import internal
+
 
 class CrawlerConfig(object):
     _DEFAULT_CONFIG = {
@@ -16,6 +18,7 @@ class CrawlerConfig(object):
             ("port", "int", "9090"),
             ("prefix", "str", ""),
             ("interval", "int", "10"),
+            ("flaresolverr", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("closed_myjd_tab", "bool", "False"),
@@ -97,8 +100,8 @@ class CrawlerConfig(object):
     }
     __config__ = []
 
-    def __init__(self, section, configfile):
-        self._configfile = configfile
+    def __init__(self, section):
+        self._configfile = internal.configfile
         self._section = section
         self._config = configparser.RawConfigParser()
         try:

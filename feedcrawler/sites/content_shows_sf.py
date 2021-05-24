@@ -13,31 +13,24 @@ class SF:
     _INTERNAL_NAME = 'SF'
     _SITE = 'SF'
 
-    def __init__(self, configfile, dbfile, device, logging, filename):
-        self.configfile = configfile
-        self.dbfile = dbfile
-        self.device = device
-
-        self.hostnames = CrawlerConfig('Hostnames', self.configfile)
+    def __init__(self, filename):
+        self.hostnames = CrawlerConfig('Hostnames')
         self.url = self.hostnames.get('sf')
 
         self.filename = filename
         if "List_ContentAll_Seasons" in self.filename:
-            self.config = CrawlerConfig("ContentAll", self.configfile)
+            self.config = CrawlerConfig("ContentAll")
         else:
-            self.config = CrawlerConfig("ContentShows", self.configfile)
-        self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
+            self.config = CrawlerConfig("ContentShows")
+        self.feedcrawler = CrawlerConfig("FeedCrawler")
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.hosters = CrawlerConfig("Hosters", configfile).get_section()
-        self.log_info = logging.info
-        self.log_error = logging.error
-        self.log_debug = logging.debug
-        self.db = FeedDb(self.dbfile, 'FeedCrawler')
+        self.hosters = CrawlerConfig("Hosters").get_section()
+        self.db = FeedDb('FeedCrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
-        self.cdc = FeedDb(self.dbfile, 'cdc')
+        self.cdc = FeedDb('cdc')
         self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
         self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._INTERNAL_NAME + "Headers-" + self.filename))}
@@ -73,5 +66,4 @@ class SF:
         self.parse_download_method = sf_parse_download
 
     def periodical_task(self):
-        self.device = shared_shows.periodical_task(self)
-        return self.device
+        shared_shows.periodical_task(self)

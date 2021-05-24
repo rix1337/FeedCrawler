@@ -102,7 +102,7 @@
                 <td class="text-left">{{ x[2] }}</td>
                 <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
                 <td class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
-                                          ng-click="deleteLogRow(x[0])"><i
+                                          ng-click="deleteLogRow(x[3])"><i
                         class="bi bi-trash remove"></i></a></td>
             </tr>
             </tbody>
@@ -1091,30 +1091,6 @@
                     </div>
                 </div>
             </div>
-            <div class="accordion-item" ng-show="hostnames.dd !== 'Nicht gesetzt!'">
-                <h2 class="accordion-header" id="headingTwoTen">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoTen"
-                            aria-expanded="false" aria-controls="collapseTwoTen">
-                        {{ hostnames.dd }}
-                    </button>
-                </h2>
-                <div id="collapseTwoTen" class="accordion-collapse collapse" aria-labelledby="headingTwoTen"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Feeds</h5>
-                        <input ng-model="settings.dd.feeds" class="form-control" data-toggle="tooltip"
-                               title="Hier Feed-URLs eintragen (durch Kommata getrennt)."/>
-                        <h5>Hoster-Fallback</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.dd.hoster_fallback"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
-                        </label>
-                    </div>
-                </div>
-            </div>
         </div>
         <div>
             <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit">
@@ -1376,7 +1352,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!' || hostnames.dd !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
                                     <li ng-show="hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
