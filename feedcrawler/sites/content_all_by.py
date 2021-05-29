@@ -22,10 +22,8 @@ class BL:
         self.password = self.url.split('.')[0]
 
         if "List_ContentAll_Seasons" not in filename:
-            # ToDo Refactor ?q= to data parameter
             self.URL = 'https://' + self.url + "/?cat=1"
         else:
-            # ToDo Refactor ?q= to data parameter
             self.URL = 'https://' + self.url + "/?cat=2"
         self.FEED_URLS = [self.URL]
 

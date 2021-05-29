@@ -24,7 +24,6 @@ def get_imdb_id(key, content, filename):
         try:
             search_title = re.findall(
                 r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[0].replace(".", "+")
-            # ToDo Refactor ?q= to data parameter
             search_url = "http://www.imdb.com/find?q=" + search_title
             search_page = get_url(search_url)
             search_results = re.findall(

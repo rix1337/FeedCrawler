@@ -83,17 +83,14 @@ def get_search_results(self, bl_query):
         search_quality = ""
 
     if by:
-        # ToDo Refactor ?q= to data parameter
         by_search = 'https://' + by + '/?q=' + bl_query + search_quality
     else:
         by_search = None
     if dw:
-        # ToDo Refactor ?q= to data parameter
         dw_search = 'https://' + dw + '/?kategorie=Movies&search=' + bl_query + search_quality
     else:
         dw_search = None
     if fx:
-        # ToDo Refactor ?q= to data parameter
         fx_search = 'https://' + fx + '/?s=' + bl_query
     else:
         fx_search = None
@@ -376,7 +373,6 @@ def dw_mirror(self, title):
     dw = hostnames.get('dw')
 
     if dw:
-        # ToDo Refactor ?q= to data parameter
         dw_search = 'https://' + dw + '/?search=' + title
 
         dw_results = get_url(dw_search)
@@ -698,6 +694,7 @@ def ww_get_download_links(self, content, title):
 
 
 def ww_feed_enricher(self, content):
+    unused_get_feed_parameter(self)
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")
@@ -852,7 +849,6 @@ def sf_parse_download(self, series_url, title, language_id):
         else:
             lang = 'DE'
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
-        # ToDo Refactor ?q= to data parameter
         api_url = series_url + '?lang=' + lang + '&_=' + epoch
         response = get_url(api_url)
         info = json.loads(response)

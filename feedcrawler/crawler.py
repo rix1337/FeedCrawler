@@ -88,6 +88,7 @@ def crawler(global_variables):
     ombi_first_launch = True
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
+    clean_cloudproxy_sessions()
 
     arguments = docopt(__doc__, version='FeedCrawler')
     while True:
@@ -96,7 +97,6 @@ def crawler(global_variables):
                 get_device()
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
-            clean_cloudproxy_sessions()
             check_url()
             start_time = time.time()
             crawltimes.update_store("active", "True")
@@ -149,7 +149,6 @@ def crawler(global_variables):
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
-            clean_cloudproxy_sessions()
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
 
@@ -407,10 +406,8 @@ def main():
 
     internal.set_files(configpath)
 
-    # ToDo further rename actions on Feedcrawler.ini
-    # ToDo Remove tables
-    #     db = FeedDb('proxystatus')
-    #     db_status = FeedDb('normalstatus')
+    FeedDb('proxystatus').reset()
+    FeedDb('normalstatus').reset()
 
     print(u"Nutze das Verzeichnis " + configpath + u" für Einstellungen/Logs")
 

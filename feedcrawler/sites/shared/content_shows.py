@@ -139,9 +139,9 @@ def periodical_task(self):
                     response = get_url_headers(url, self.headers)
                     response = response[0]
                     if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
-                        feed = self.get_feed_method(response.text, "seasons", 'https://' + self.url, True)
+                        feed = self.get_feed_method(response["text"], "seasons", 'https://' + self.url, True)
                     else:
-                        feed = self.get_feed_method(response.text, "episodes", 'https://' + self.url, True)
+                        feed = self.get_feed_method(response["text"], "episodes", 'https://' + self.url, True)
                 else:
                     feed = False
             except:
@@ -149,7 +149,7 @@ def periodical_task(self):
                 feed = False
 
             if response:
-                if response.status_code == 304:
+                if response["status_code"] == 304:
                     internal.logger.debug(
                         self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                     return

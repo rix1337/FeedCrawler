@@ -924,23 +924,23 @@ def periodical_task(self):
     if self.url:
         for URL in self.FEED_URLS:
             urls.append(URL)
+    else:
+        internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Filme! (" + self.filename + ")")
+        return
 
     if not self.pattern:
-        internal.logger.debug(
-            "Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
+        internal.logger.debug("Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
     if self.filename == 'IMDB' and imdb == 0:
-        internal.logger.debug(
-            "IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
+        internal.logger.debug("IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
     loading_304 = False
     try:
         first_page_raw = self.get_url_headers_method(urls[0], self.headers)
-        first_page_raw = first_page_raw[0]
-        first_page_content = self.get_feed_method(self, first_page_raw.content)
-        if first_page_raw.status_code == 304:
+        first_page_content = self.get_feed_method(self, first_page_raw["text"])
+        if first_page_raw["status_code"] == 304:
             loading_304 = True
     except:
         loading_304 = True
@@ -1018,7 +1018,7 @@ def periodical_task(self):
     if not loading_304:
         try:
             header = first_page_raw.headers['Last-Modified']
-        except KeyError:
+        except:
             header = False
         if header:
             self.cdc.delete(self._SITE + "Headers-" + self.filename)

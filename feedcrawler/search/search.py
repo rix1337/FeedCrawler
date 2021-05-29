@@ -65,17 +65,14 @@ def get(title, bl_only=False, sj_only=False):
             search_quality = ""
 
         if by:
-            # ToDo Refactor ?q= to data parameter
             by_search = 'https://' + by + '/?q=' + bl_query + search_quality
         else:
             by_search = None
         if dw:
-            # ToDo Refactor ?q= to data parameter
             dw_search = 'https://' + dw + '/?kategorie=Movies&search=' + bl_query + search_quality
         else:
             dw_search = None
         if fx:
-            # ToDo Refactor ?q= to data parameter
             fx_search = 'https://' + fx + '/?s=' + bl_query
         else:
             fx_search = None
@@ -162,7 +159,6 @@ def get(title, bl_only=False, sj_only=False):
     if not bl_only:
         if sj:
             sj_query = sanitize(title).replace(" ", "+")
-            # ToDo Refactor ?q= to data parameter
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
                 sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))

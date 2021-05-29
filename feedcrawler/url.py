@@ -145,7 +145,7 @@ def check_url():
         db_status.store("WW", "Blocked")
     else:
         try:
-            ww_test = scraper.post(ww_url + "/ajax", data="p=1&t=l&q=1")
+            ww_test = request(ww_url + "/ajax", method='post', params="p=1&t=l&q=1")
             if not ww_test["text"] or ww_test["status_code"] is not (
                     200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
                 ww_blocked = True
@@ -180,14 +180,15 @@ def get_url(url):
 
 
 def get_url_headers(url, headers=False):
+    # ToDo refactor all usages (output is not .content but ["text"] etc.)
     try:
         if check_site_blocked(url):
-            return [""]
+            return ""
         response = request(url, headers=headers)
-        return [response]
+        return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return [""]
+        return ""
 
 
 def get_redirected_url(url):
@@ -202,10 +203,11 @@ def get_redirected_url(url):
 
 
 def post_url(url, data=False):
+    # ToDo refactor all usages (output is not .content but ["text"] etc.)
     try:
         if check_site_blocked(url):
             return ""
-        response = scraper.post(url, data).content
+        response = request(url, method='post', params=data)["text"]
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -213,14 +215,15 @@ def post_url(url, data=False):
 
 
 def post_url_headers(url, headers, data=False):
+    # ToDo refactor all usages (output is not .content but ["text"])
     try:
         if check_site_blocked(url):
-            return [""]
-        response = scraper.post(url, data, headers=headers)
-        return [response]
+            return ""
+        response = request(url, method='post', params=data, headers=headers)
+        return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return [""]
+        return ""
 
 
 def get_urls_async(urls):

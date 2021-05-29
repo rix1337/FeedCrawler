@@ -76,7 +76,6 @@ def imdb_show(ombi_imdb_id):
         latest_season = int(seasons[0].text)
         total_seasons = list(range(1, latest_season + 1))
         for sn in total_seasons:
-            # ToDo Refactor ?q= to data parameter
             result = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn))
             output = result[0]
 

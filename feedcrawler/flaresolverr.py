@@ -2,15 +2,15 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
-from json import dumps, loads
-
 import codecs
 import functools
 import hashlib
 import pickle
+from json import dumps, loads
+from urllib.parse import urlencode
+
 import requests
 from requests import RequestException
-from urllib.parse import urlencode
 
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
@@ -25,6 +25,9 @@ def cache(func):
         to_hash = ""
         for a in args:
             to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
+        for k in kwargs:
+            to_hash += codecs.encode(pickle.dumps(k), "base64").decode()
+            to_hash += codecs.encode(pickle.dumps(kwargs[k]), "base64").decode()
         # This hash is based on all arguments of the request
         hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
 
@@ -76,19 +79,32 @@ def clean_cloudproxy_sessions():
 
 
 @cache
-def request(url, params=None, headers=None):
+def request(url, method='get', params=None, headers=None):
     flaresolverr_url = get_flaresolverr_url()
     cloudproxy_session = get_cloudproxy_session()
+
+    if not headers:
+        headers = {}
+    else:
+        try:
+            if headers['If-Modified-Since'] == 'None':
+                del headers['If-Modified-Since']
+        except:
+            pass
+    if "ajax" in url.lower():
+        headers['X-Requested-With'] = 'XMLHttpRequest'
+
+    if params:
+        try:
+            encoded_params = urlencode(params)
+        except:
+            encoded_params = params
+    else:
+        encoded_params = params
 
     text = ''
     status_code = 500
     response_headers = {}
-
-    method = 'post' if (params is not None) else 'get'
-    if not headers:
-        headers = {}
-    if "ajax" in url.lower():
-        headers['X-Requested-With'] = 'XMLHttpRequest'
 
     try:
         if flaresolverr_url:
@@ -105,7 +121,7 @@ def request(url, params=None, headers=None):
                 'cmd': 'request.%s' % method,
                 'url': url,
                 'session': cloudproxy_session,
-                'postData': '%s' % urlencode(params) if (method == 'post') else ''
+                'postData': '%s' % encoded_params if (method == 'post') else ''
             }))
 
             status_code = json_response.status_code
@@ -122,7 +138,7 @@ def request(url, params=None, headers=None):
                 cloudproxy_session = None
         else:
             if method == 'post':
-                response = requests.post(url, params, timeout=30, headers=headers)
+                response = requests.post(url, data=params, timeout=30, headers=headers)
             else:
                 response = requests.get(url, timeout=30, headers=headers)
 
