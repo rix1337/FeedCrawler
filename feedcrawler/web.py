@@ -217,6 +217,7 @@ def app_container():
                                 "port": to_int(general_conf.get("port")),
                                 "prefix": general_conf.get("prefix"),
                                 "interval": to_int(general_conf.get("interval")),
+                                "flaresolverr": general_conf.get("flaresolverr"),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
@@ -334,6 +335,7 @@ def app_container():
                 if to_int(interval) < 5:
                     interval = '5'
                 section.save("interval", interval)
+                section.save("flaresolverr", interval)
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
