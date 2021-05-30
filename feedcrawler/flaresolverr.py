@@ -12,6 +12,7 @@ from urllib.parse import urlencode
 import requests
 from requests import RequestException
 
+from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
@@ -79,7 +80,7 @@ def clean_cloudproxy_sessions():
 
 
 @cache
-def request(url, method='get', params=None, headers=None):
+def request(url, method='get', params=None, headers=None, redirect_url=False):
     flaresolverr_url = get_flaresolverr_url()
     cloudproxy_session = get_cloudproxy_session()
 
@@ -126,11 +127,20 @@ def request(url, method='get', params=None, headers=None):
 
             status_code = json_response.status_code
             response = loads(json_response.text)
+
             if 'solution' in response:
+                if redirect_url:
+                    try:
+                        return response['solution']['url']
+                    except:
+                        internal.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
+                        return url
                 text = response['solution']['response']
                 response_headers = response['solution']['headers']
 
             if status_code == 500:
+                internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
+                                      cloudproxy_session)
                 requests.post(flaresolverr_url, headers=headers, data=dumps({
                     'cmd': 'sessions.destroy',
                     'session': cloudproxy_session,
@@ -139,6 +149,12 @@ def request(url, method='get', params=None, headers=None):
         else:
             if method == 'post':
                 response = requests.post(url, data=params, timeout=30, headers=headers)
+            elif redirect_url:
+                try:
+                    return requests.get(url, allow_redirects=False).headers._store["location"][1]
+                except:
+                    internal.logger.debug("Der Abruf der Redirect-URL war ohne FlareSolverr fehlerhaft.")
+                    return url
             else:
                 response = requests.get(url, timeout=30, headers=headers)
 

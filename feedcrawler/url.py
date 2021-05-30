@@ -5,8 +5,6 @@
 import concurrent.futures
 import datetime
 
-import requests
-
 from feedcrawler.common import check_is_site
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
@@ -195,7 +193,7 @@ def get_redirected_url(url):
     try:
         if check_site_blocked(url):
             return url
-        redirect_url = requests.get(url, allow_redirects=False).headers._store["location"][1]
+        redirect_url = request(url, redirect_url=True)
         return redirect_url
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
