@@ -530,7 +530,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler()
+        crawler(global_variables)
         p.terminate()
         sys.exit(0)
 
