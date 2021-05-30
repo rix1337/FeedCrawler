@@ -247,13 +247,24 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         internalCnl(name, password)
     };
 
+    $scope.getLists = function () {
+        getLists();
+    }
+
+    $scope.getSettings = function () {
+        getSettings();
+    }
+
+    $scope.getBlockedSites = function () {
+        getBlockedSites();
+    }
+
     function getAll() {
         getHostNames();
         getVersion();
         getMyJD();
         getLog();
         getCrawlTimes();
-        getLists();
         getSettings();
     }
 
@@ -894,7 +905,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             if (!$scope.cnl_active) {
                 getCrawlTimes();
-                getBlockedSites();
             }
             $scope.updateCrawlTimes();
         }, 5000)

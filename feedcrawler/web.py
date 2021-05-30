@@ -335,7 +335,7 @@ def app_container():
                 if to_int(interval) < 5:
                     interval = '5'
                 section.save("interval", interval)
-                section.save("flaresolverr", interval)
+                section.save("flaresolverr", to_str(data['general']['flaresolverr']))
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))

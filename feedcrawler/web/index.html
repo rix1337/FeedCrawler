@@ -49,17 +49,20 @@
 
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasBottomLists"
-                aria-controls="offcanvasBottomLists"><i class="bi bi-text-left"></i> Suchlisten
+                aria-controls="offcanvasBottomLists"
+                ng-click="getLists()"><i class="bi bi-text-left"></i> Suchlisten
         </button>
 
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasBottomSettings"
-                aria-controls="offcanvasBottomSettings"><i class="bi bi-gear"></i> Einstellungen
+                aria-controls="offcanvasBottomSettings"
+                ng-click="getSettings()"><i class="bi bi-gear"></i> Einstellungen
         </button>
 
         <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
                 data-bs-target="#offcanvasBottomHelp"
-                aria-controls="offcanvasBottomHelp"><i class="bi bi-question-diamond"></i> Hilfe
+                aria-controls="offcanvasBottomHelp"
+                ng-click="getBlockedSites()"><i class="bi bi-question-diamond"></i> Hilfe
         </button>
     </div>
 
@@ -658,11 +661,9 @@
                         <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
                                class="number form-control" data-toggle="tooltip"
                                title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
-                        <!-- # ToDo diesen Input aktivieren
                         <h5>FlareSolverr-URL</h5>
                         <input ng-model="settings.general.flaresolverr" class="form-control" data-toggle="tooltip"
-                               title="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW."/>
-                        -->
+                               title="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191. FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW."/>
                         <h5>Ein Mirror genügt</h5>
                         <label class="form-check form-switch">
                             <input class="form-check-input" type="checkbox"
