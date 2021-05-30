@@ -82,6 +82,8 @@ def clean_cloudproxy_sessions():
 def request(url, method='get', params=None, headers=None):
     flaresolverr_url = get_flaresolverr_url()
     cloudproxy_session = get_cloudproxy_session()
+    # ToDo Remove this line
+    flaresolverr_url = False
 
     if not headers:
         headers = {}

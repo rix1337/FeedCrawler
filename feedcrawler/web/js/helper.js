@@ -46,6 +46,7 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
 
         $scope.updateToDecrypt = function () {
             $timeout(function () {
+                spinHelper();
                 getToDecrypt();
                 $scope.updateToDecrypt();
             }, 60000)
