@@ -94,7 +94,7 @@ def get(title, bl_only=False, sj_only=False):
 
         if nk:
             nk_search = post_url('https://' + nk + "/search",
-                                 data={'search': bl_query.replace("+", " ") + " " + quality})
+                                 data={'search': bl_query})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
         else:
             nk_results = []

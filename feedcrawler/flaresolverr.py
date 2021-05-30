@@ -110,7 +110,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
     try:
         if flaresolverr_url:
             if not cloudproxy_session:
-                json_session = requests.post(flaresolverr_url, headers=headers, data=dumps({
+                json_session = requests.post(flaresolverr_url, data=dumps({
                     'cmd': 'sessions.create'
                 }))
                 response_session = loads(json_session.text)
@@ -118,10 +118,11 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
 
             headers['Content-Type'] = 'application/x-www-form-urlencoded' if (method == 'post') else 'application/json'
 
-            json_response = requests.post(flaresolverr_url, headers=headers, data=dumps({
+            json_response = requests.post(flaresolverr_url, data=dumps({
                 'cmd': 'request.%s' % method,
                 'url': url,
                 'session': cloudproxy_session,
+                'headers': headers,
                 'postData': '%s' % encoded_params if (method == 'post') else ''
             }))
 
@@ -141,7 +142,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
             if status_code == 500:
                 internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
                                       cloudproxy_session)
-                requests.post(flaresolverr_url, headers=headers, data=dumps({
+                requests.post(flaresolverr_url, data=dumps({
                     'cmd': 'sessions.destroy',
                     'session': cloudproxy_session,
                 }))
