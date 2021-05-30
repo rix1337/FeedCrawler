@@ -469,12 +469,13 @@ def main():
                 myjd.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
                                 arguments['--jd-device'])
 
-    if not internal.device and not arguments['--travis_ci']:
-        print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
-        time.sleep(10)
-        sys.exit(1)
-    else:
-        print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + internal.device.name)
+    if not arguments['--travis_ci']:
+        if not internal.device:
+            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
+            time.sleep(10)
+            sys.exit(1)
+        else:
+            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + internal.device.name)
 
     feedcrawler = CrawlerConfig('FeedCrawler')
     port = int(feedcrawler.get("port"))
