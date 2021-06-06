@@ -200,7 +200,6 @@ def get_redirected_url(url):
 
 
 def post_url(url, data=False):
-    # ToDo refactor all usages (output is not .content but ["text"] etc.)
     try:
         if check_site_blocked(url):
             return ""
@@ -212,7 +211,6 @@ def post_url(url, data=False):
 
 
 def post_url_headers(url, headers, data=False):
-    # ToDo refactor all usages (output is not .content but ["text"])
     try:
         if check_site_blocked(url):
             return ""

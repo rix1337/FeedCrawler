@@ -662,8 +662,8 @@ def ww_post_url_headers(url, headers=False):
         data = payload[2]
         headers["Referer"] = referer
         response = post_url_headers(url, headers, data)
-        if not response[0].text or response[0].status_code is not (200 or 304) or not '<span class="main-rls">' in \
-                                                                                      response[0].text:
+        if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
+                                                                                      response["text"]:
             print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return ""
         return response
