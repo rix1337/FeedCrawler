@@ -5,7 +5,6 @@
 import concurrent.futures
 import datetime
 
-from feedcrawler.common import check_is_site
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.flaresolverr import request
@@ -60,7 +59,7 @@ def check_url():
             sj_blocked = True
         if sj_blocked:
             db_status.store("SJ", "Blocked")
-            print(u"Der Zugriff auf SJ ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf SJ ist ohne FlareSolverr gesperrt!")
 
     if not dj:
         db_status.store("DJ", "Blocked")
@@ -72,7 +71,7 @@ def check_url():
             dj_blocked = True
         if dj_blocked:
             db_status.store("DJ", "Blocked")
-            print(u"Der Zugriff auf DJ ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf DJ ist ohne FlareSolverr gesperrt!")
 
     if not sf:
         db_status.store("SF", "Blocked")
@@ -87,7 +86,7 @@ def check_url():
             sf_blocked = True
         if sf_blocked:
             db_status.store("SF", "Blocked")
-            print(u"Der Zugriff auf SF ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf SF ist ohne FlareSolverr gesperrt!")
 
     if not by:
         db_status.store("BY", "Blocked")
@@ -99,7 +98,7 @@ def check_url():
             by_blocked = True
         if by_blocked:
             db_status.store("BY", "Blocked")
-            print(u"Der Zugriff auf BY ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf BY ist ohne FlareSolverr gesperrt!")
 
     if not dw:
         db_status.store("DW", "Blocked")
@@ -113,7 +112,7 @@ def check_url():
             dw_blocked = True
         if dw_blocked:
             db_status.store("DW", "Blocked")
-            print(u"Der Zugriff auf DW ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf DW ist ohne FlareSolverr gesperrt!")
 
     if not fx:
         db_status.store("FX", "Blocked")
@@ -125,7 +124,7 @@ def check_url():
             fx_blocked = True
         if fx_blocked:
             db_status.store("FX", "Blocked")
-            print(u"Der Zugriff auf FX ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf FX ist ohne FlareSolverr gesperrt!")
 
     if not nk:
         db_status.store("NK", "Blocked")
@@ -137,7 +136,7 @@ def check_url():
             nk_blocked = True
         if nk_blocked:
             db_status.store("NK", "Blocked")
-            print(u"Der Zugriff auf NK ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf NK ist ohne FlareSolverr gesperrt!")
 
     if not ww:
         db_status.store("WW", "Blocked")
@@ -151,25 +150,13 @@ def check_url():
             ww_blocked = True
         if ww_blocked:
             db_status.store("WW", "Blocked")
-            print(u"Der Zugriff auf WW ist mit der aktuellen IP nicht möglich!")
+            print(u"Der Zugriff auf WW ist ohne FlareSolverr gesperrt!")
 
     return
 
 
-def check_site_blocked(url):
-    db_status = FeedDb('site_status')
-    site = check_is_site(url)
-    check_against_sites = ["SJ", "DJ", "SF", "BY", "DW", "FX", "NK", "WW"]
-    for check_against in check_against_sites:
-        if site and check_against in site and db_status.retrieve(check_against):
-            return True
-    return False
-
-
 def get_url(url):
     try:
-        if check_site_blocked(url):
-            return ""
         response = request(url)["text"]
         return response
     except Exception as e:
@@ -179,8 +166,6 @@ def get_url(url):
 
 def get_url_headers(url, headers=False):
     try:
-        if check_site_blocked(url):
-            return ""
         response = request(url, headers=headers)
         return response
     except Exception as e:
@@ -190,8 +175,6 @@ def get_url_headers(url, headers=False):
 
 def get_redirected_url(url):
     try:
-        if check_site_blocked(url):
-            return url
         redirect_url = request(url, redirect_url=True)
         return redirect_url
     except Exception as e:
@@ -201,8 +184,6 @@ def get_redirected_url(url):
 
 def post_url(url, data=False):
     try:
-        if check_site_blocked(url):
-            return ""
         response = request(url, method='post', params=data)["text"]
         return response
     except Exception as e:
@@ -212,8 +193,6 @@ def post_url(url, data=False):
 
 def post_url_headers(url, headers, data=False):
     try:
-        if check_site_blocked(url):
-            return ""
         response = request(url, method='post', params=data, headers=headers)
         return response
     except Exception as e:
