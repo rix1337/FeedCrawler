@@ -4,18 +4,14 @@
 # Enthält Code von:
 # https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
 
-import logging
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
 
 import simplejson as json
 
+from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
-
-log_info = logging.info
-log_error = logging.error
-log_debug = logging.debug
 
 
 def api_request_cutter(message, n):
@@ -23,8 +19,8 @@ def api_request_cutter(message, n):
         yield message[i:i + n]
 
 
-def notify(items, configfile):
-    notifications = CrawlerConfig('Notifications', configfile)
+def notify(items):
+    notifications = CrawlerConfig('Notifications', )
     homeassistant_settings = notifications.get("homeassistant").split(',')
     pushbullet_token = notifications.get("pushbullet")
     telegram_settings = notifications.get("telegram").split(',')
@@ -63,13 +59,13 @@ def home_assistant(items, homassistant_url, homeassistant_password):
         req.add_header('Content-Type', 'application/json')
         response = urlopen(req)
     except HTTPError:
-        log_debug('FEHLER - Konnte Home Assistant API nicht erreichen')
+        internal.logger.debug('FEHLER - Konnte Home Assistant API nicht erreichen')
         return False
     res = json.load(response)
     if res['sender_name']:
-        log_debug('Home Assistant Erfolgreich versendet')
+        internal.logger.debug('Home Assistant Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Home Assistant Senden')
+        internal.logger.debug('FEHLER - Konnte nicht an Home Assistant Senden')
 
 
 def telegram(items, token, chatid):
@@ -82,13 +78,13 @@ def telegram(items, token, chatid):
         req = Request("https://api.telegram.org/bot" + token + "/sendMessage", data)
         response = urlopen(req)
     except HTTPError:
-        log_debug('FEHLER - Konnte Telegram API nicht erreichen')
+        internal.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
         return False
     res = json.load(response)
     if res['ok']:
-        log_debug('Telegram Erfolgreich versendet')
+        internal.logger.debug('Telegram Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Telegram Senden')
+        internal.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
 
 
 def pushbullet(items, token):
@@ -103,13 +99,13 @@ def pushbullet(items, token):
         req.add_header('Access-Token', token)
         response = urlopen(req)
     except HTTPError:
-        log_debug('FEHLER - Konnte Pushbullet API nicht erreichen')
+        internal.logger.debug('FEHLER - Konnte Pushbullet API nicht erreichen')
         return False
     res = json.load(response)
     if res['sender_name']:
-        log_debug('Pushbullet Erfolgreich versendet')
+        internal.logger.debug('Pushbullet Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Pushbullet Senden')
+        internal.logger.debug('FEHLER - Konnte nicht an Pushbullet Senden')
 
 
 def pushover(items, pushover_user, pushover_token):
@@ -123,10 +119,10 @@ def pushover(items, pushover_user, pushover_token):
         req = Request('https://api.pushover.net/1/messages.json', data)
         response = urlopen(req)
     except HTTPError:
-        log_debug('FEHLER - Konnte Pushover API nicht erreichen')
+        internal.logger.debug('FEHLER - Konnte Pushover API nicht erreichen')
         return False
     res = json.load(response)
     if res['status'] == 1:
-        log_debug('Pushover Erfolgreich versendet')
+        internal.logger.debug('Pushover Erfolgreich versendet')
     else:
-        log_debug('FEHLER - Konnte nicht an Pushover Senden')
+        internal.logger.debug('FEHLER - Konnte nicht an Pushover Senden')

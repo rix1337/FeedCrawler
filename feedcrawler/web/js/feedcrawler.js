@@ -78,7 +78,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         fx: 'Nicht gesetzt!',
         nk: 'Nicht gesetzt!',
         ww: 'Nicht gesetzt!',
-        dd: 'Nicht gesetzt!',
         bl: 'Nicht gesetzt!',
         s: 'Nicht gesetzt!',
         sjbl: 'Nicht gesetzt!'
@@ -119,8 +118,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.crawltimes = false;
-    $scope.blocked_proxy = false;
-    $scope.blocked_normal = false;
+    $scope.site_status = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
@@ -249,13 +247,24 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         internalCnl(name, password)
     };
 
+    $scope.getLists = function () {
+        getLists();
+    }
+
+    $scope.getSettings = function () {
+        getSettings();
+    }
+
+    $scope.getBlockedSites = function () {
+        getBlockedSites();
+    }
+
     function getAll() {
         getHostNames();
         getVersion();
         getMyJD();
         getLog();
         getCrawlTimes();
-        getLists();
         getSettings();
     }
 
@@ -340,8 +349,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getBlockedSites() {
         $http.get('api/blocked_sites/')
             .then(function (res) {
-                $scope.blocked_proxy = res.data.proxy;
-                $scope.blocked_normal = res.data.normal;
+                $scope.site_status = res.data.site_status;
                 console.log('Blockierte Seiten abgerufen!');
             }, function () {
                 console.log('Konnte blockierte Seiten nicht abrufen!');
@@ -452,8 +460,9 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function deleteLogRow(row) {
-        $http.delete('api/log_row/' + row)
+    function deleteLogRow(title) {
+        title = btoa(title);
+        $http.delete('api/log_entry/' + title)
             .then(function () {
                 console.log('Logeintrag gelöscht!');
                 showSuccess('Logeintrag gelöscht!');
@@ -896,7 +905,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             if (!$scope.cnl_active) {
                 getCrawlTimes();
-                getBlockedSites();
             }
             $scope.updateCrawlTimes();
         }, 5000)

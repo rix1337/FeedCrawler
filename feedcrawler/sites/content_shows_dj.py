@@ -13,27 +13,19 @@ class DJ:
     _INTERNAL_NAME = 'DJ'
     _SITE = 'DJ'
 
-    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
-        self.configfile = configfile
-        self.dbfile = dbfile
-        self.device = device
-
-        self.hostnames = CrawlerConfig('Hostnames', self.configfile)
+    def __init__(self, filename):
+        self.hostnames = CrawlerConfig('Hostnames')
         self.url = self.hostnames.get('dj')
 
-        self.config = CrawlerConfig("CustomDJ", self.configfile)
-        self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
-        self.hosters = CrawlerConfig("Hosters", configfile).get_section()
+        self.config = CrawlerConfig("CustomDJ")
+        self.feedcrawler = CrawlerConfig("FeedCrawler")
+        self.hosters = CrawlerConfig("Hosters").get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.log_info = logging.info
-        self.log_error = logging.error
-        self.log_debug = logging.debug
-        self.scraper = scraper
         self.filename = filename
-        self.db = FeedDb(self.dbfile, 'FeedCrawler')
+        self.db = FeedDb('FeedCrawler')
         self.quality = self.config.get("quality")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
-        self.cdc = FeedDb(self.dbfile, 'cdc')
+        self.cdc = FeedDb('cdc')
         self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
         self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._INTERNAL_NAME + "Headers-" + self.filename))}
@@ -67,5 +59,4 @@ class DJ:
         self.parse_download_method = j_parse_download
 
     def periodical_task(self):
-        self.device = shared_shows.periodical_task(self)
-        return self.device
+        shared_shows.periodical_task(self)

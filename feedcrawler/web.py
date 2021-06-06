@@ -2,17 +2,15 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
-from logging import handlers
-
 import ast
 import json
-import logging
 import os
 import re
 import sys
 import time
-from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
 from functools import wraps
+
+from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -21,6 +19,7 @@ from waitress import serve
 import feedcrawler.myjdapi
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
+from feedcrawler import internal
 from feedcrawler import version
 from feedcrawler.common import Unbuffered
 from feedcrawler.common import decode_base64
@@ -29,8 +28,8 @@ from feedcrawler.common import is_device
 from feedcrawler.common import remove_decrypt
 from feedcrawler.common import rreplace
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
+from feedcrawler.db import ListDb
 from feedcrawler.myjd import check_device
 from feedcrawler.myjd import do_add_decrypted
 from feedcrawler.myjd import do_package_replace
@@ -52,9 +51,7 @@ from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
 
-def app_container(port, local_address, docker, configfile, dbfile, log_file, _device):
-    global device
-    device = _device
+def app_container():
     global helper_active
     helper_active = False
     global already_added
@@ -67,7 +64,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
     app.config["TEMPLATES_AUTO_RELOAD"] = True
 
-    general = CrawlerConfig('FeedCrawler', configfile)
+    general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
         prefix = '/' + general.get("prefix")
     else:
@@ -96,7 +93,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def requires_auth(f):
         @wraps(f)
         def decorated(*args, **kwargs):
-            config = CrawlerConfig('FeedCrawler', configfile)
+            config = CrawlerConfig('FeedCrawler')
             if config.get("auth_user") and config.get("auth_hash"):
                 auth = request.authorization
                 if not auth or not check_auth(config, auth.username, auth.password):
@@ -143,8 +140,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         if request.method == 'GET':
             try:
                 log = []
-                if os.path.isfile(log_file):
-                    logfile = open(log_file)
+                if os.path.isfile(internal.log_file):
+                    logfile = open(internal.log_file)
                     i = 0
                     for line in reversed(logfile.readlines()):
                         if line and line != "\n":
@@ -166,30 +163,28 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 return "Failed", 400
         elif request.method == 'DELETE':
             try:
-                open(log_file, 'w').close()
+                open(internal.log_file, 'w').close()
                 return "Success", 200
             except:
                 return "Failed", 400
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/log_row/<row>", methods=['DELETE'])
+    @app.route(prefix + "/api/log_entry/<b64_entry>", methods=['DELETE'])
     @requires_auth
-    def get_delete_log_row(row):
+    def get_delete_log_entry(b64_entry):
         if request.method == 'DELETE':
             try:
-                row = to_int(row)
+                entry = decode_base64(b64_entry)
                 log = []
-                if os.path.isfile(log_file):
-                    logfile = open(log_file)
-                    i = 0
+                if os.path.isfile(internal.log_file):
+                    logfile = open(internal.log_file)
                     for line in reversed(logfile.readlines()):
                         if line and line != "\n":
-                            if i != row:
+                            if entry not in line:
                                 log.append(line)
-                        i += 1
                     log = "".join(reversed(log))
-                    with open(log_file, 'w') as file:
+                    with open(internal.log_file, 'w') as file:
                         file.write(log)
                 return "Success", 200
             except:
@@ -202,15 +197,14 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_post_settings():
         if request.method == 'GET':
             try:
-                general_conf = CrawlerConfig('FeedCrawler', configfile)
-                hosters = CrawlerConfig('Hosters', configfile)
-                alerts = CrawlerConfig('Notifications', configfile)
-                ombi = CrawlerConfig('Ombi', configfile)
-                crawljobs = CrawlerConfig('Crawljobs', configfile)
-                mb_conf = CrawlerConfig('ContentAll', configfile)
-                sj_conf = CrawlerConfig('ContentShows', configfile)
-                dj_conf = CrawlerConfig('CustomDJ', configfile)
-                dd_conf = CrawlerConfig('CustomDD', configfile)
+                general_conf = CrawlerConfig('FeedCrawler')
+                hosters = CrawlerConfig('Hosters')
+                alerts = CrawlerConfig('Notifications')
+                ombi = CrawlerConfig('Ombi')
+                crawljobs = CrawlerConfig('Crawljobs')
+                mb_conf = CrawlerConfig('ContentAll')
+                sj_conf = CrawlerConfig('ContentShows')
+                dj_conf = CrawlerConfig('CustomDJ')
                 return jsonify(
                     {
                         "settings": {
@@ -223,10 +217,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                                 "port": to_int(general_conf.get("port")),
                                 "prefix": general_conf.get("prefix"),
                                 "interval": to_int(general_conf.get("interval")),
+                                "flaresolverr": general_conf.get("flaresolverr"),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
-                                "proxy": general_conf.get("proxy"),
-                                "fallback": general_conf.get("fallback"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                                 "one_mirror_policy": general_conf.get("one_mirror_policy"),
                                 "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
@@ -293,10 +286,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                                 "ignore": dj_conf.get("rejectlist"),
                                 "regex": dj_conf.get("regex"),
                                 "hoster_fallback": dj_conf.get("hoster_fallback"),
-                            },
-                            "dd": {
-                                "feeds": dd_conf.get("feeds"),
-                                "hoster_fallback": dd_conf.get("hoster_fallback"),
                             }
                         }
                     }
@@ -307,7 +296,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
             try:
                 data = request.json
 
-                section = CrawlerConfig("FeedCrawler", configfile)
+                section = CrawlerConfig("FeedCrawler")
 
                 section.save(
                     "auth_user", to_str(data['general']['auth_user']))
@@ -346,28 +335,27 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 if to_int(interval) < 5:
                     interval = '5'
                 section.save("interval", interval)
+                section.save("flaresolverr", to_str(data['general']['flaresolverr']))
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
-                section.save("proxy", to_str(data['general']['proxy']))
-                section.save("fallback", to_str(data['general']['fallback']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
                 section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
                 section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
 
-                section = CrawlerConfig("Crawljobs", configfile)
+                section = CrawlerConfig("Crawljobs")
 
                 section.save("autostart", to_str(data['crawljobs']['autostart']))
                 section.save("subdir", to_str(data['crawljobs']['subdir']))
 
-                section = CrawlerConfig("Notifications", configfile)
+                section = CrawlerConfig("Notifications")
 
                 section.save("pushbullet", to_str(data['alerts']['pushbullet']))
                 section.save("pushover", to_str(data['alerts']['pushover']))
                 section.save("telegram", to_str(data['alerts']['telegram']))
                 section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
-                section = CrawlerConfig("Hosters", configfile)
+                section = CrawlerConfig("Hosters")
 
                 section.save("rapidgator", to_str(data['hosters']['rapidgator']))
                 section.save("turbobit", to_str(data['hosters']['turbobit']))
@@ -383,12 +371,12 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("ironfiles", to_str(data['hosters']['ironfiles']))
                 section.save("k2s", to_str(data['hosters']['k2s']))
 
-                section = CrawlerConfig("Ombi", configfile)
+                section = CrawlerConfig("Ombi")
 
                 section.save("url", to_str(data['ombi']['url']))
                 section.save("api", to_str(data['ombi']['api']))
 
-                section = CrawlerConfig("ContentAll", configfile)
+                section = CrawlerConfig("ContentAll")
                 section.save("quality", to_str(data['mb']['quality']))
                 section.save("search", to_str(data['mb']['search']))
                 section.save("ignore", to_str(data['mb']['ignore']).lower())
@@ -414,7 +402,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['mb']['retail_only']))
                 section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
-                section = CrawlerConfig("ContentShows", configfile)
+                section = CrawlerConfig("ContentShows")
 
                 section.save("quality", to_str(data['sj']['quality']))
                 section.save("rejectlist", to_str(data['sj']['ignore']).lower())
@@ -423,17 +411,13 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 section.save("retail_only", to_str(data['sj']['retail_only']))
                 section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
-                section = CrawlerConfig("CustomDJ", configfile)
+                section = CrawlerConfig("CustomDJ")
 
                 section.save("quality", to_str(data['dj']['quality']))
                 section.save("rejectlist", to_str(data['dj']['ignore']).lower())
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
-                section = CrawlerConfig("CustomDD", configfile)
-
-                section.save("feeds", to_str(data['dd']['feeds']))
-                section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
                 return "Success", 201
             except:
                 return "Failed", 400
@@ -458,7 +442,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                         "version": {
                             "ver": ver,
                             "update_ready": updateready,
-                            "docker": docker,
+                            "docker": internal.docker,
                             "helper_active": helper_active
                         }
                     }
@@ -473,7 +457,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_crawltimes():
         if request.method == 'GET':
             try:
-                crawltimes = FeedDb(dbfile, "crawltimes")
+                crawltimes = FeedDb("crawltimes")
                 return jsonify(
                     {
                         "crawltimes": {
@@ -496,7 +480,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def get_hostnames():
         if request.method == 'GET':
             try:
-                hostnames = CrawlerConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames')
                 dw = hostnames.get('dw')
                 fx = hostnames.get('fx')
                 sj = hostnames.get('sj')
@@ -505,7 +489,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 ww = hostnames.get('ww')
                 nk = hostnames.get('nk')
                 by = hostnames.get('by')
-                dd = hostnames.get('dd')
 
                 dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
@@ -515,7 +498,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                dd = dd.replace("d", "D", 2)
                 bl = ' / '.join(list(filter(None, [dw, fx, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [dw, sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
@@ -536,8 +518,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                     nk = "Nicht gesetzt!"
                 if not by:
                     by = "Nicht gesetzt!"
-                if not dd:
-                    dd = "Nicht gesetzt!"
                 if not bl:
                     bl = "Nicht gesetzt!"
                 if not s:
@@ -555,7 +535,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                             "fx": fx,
                             "nk": nk,
                             "ww": ww,
-                            "dd": dd,
                             "bl": bl,
                             "s": s,
                             "sjbl": sjbl
@@ -575,32 +554,19 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 def check(site, db):
                     return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
 
-                db_proxy = FeedDb(dbfile, 'proxystatus')
-                db_normal = FeedDb(dbfile, 'normalstatus')
+                db_status = FeedDb('site_status')
                 return jsonify(
                     {
-                        "proxy": {
-                            "SJ": check("SJ", db_proxy),
-                            "DJ": check("DJ", db_proxy),
-                            "SF": check("SF", db_proxy),
-                            "BY": check("BY", db_proxy),
-                            "DW": check("DW", db_proxy),
-                            "FX": check("FX", db_proxy),
-                            "NK": check("NK", db_proxy),
-                            "WW": check("WW", db_proxy),
-                            "DD": check("DD", db_proxy)
-                        },
-                        "normal": {
-                            "SJ": check("SJ", db_normal),
-                            "DJ": check("DJ", db_normal),
-                            "SF": check("SF", db_normal),
-                            "BY": check("BY", db_normal),
-                            "DW": check("DW", db_normal),
-                            "FX": check("FX", db_normal),
-                            "HW": check("HW", db_normal),
-                            "NK": check("NK", db_normal),
-                            "WW": check("WW", db_normal),
-                            "DD": check("DD", db_normal)
+                        "site_status": {
+                            "SJ": check("SJ", db_status),
+                            "DJ": check("DJ", db_status),
+                            "SF": check("SF", db_status),
+                            "BY": check("BY", db_status),
+                            "DW": check("DW", db_status),
+                            "FX": check("FX", db_status),
+                            "HW": check("HW", db_status),
+                            "NK": check("NK", db_status),
+                            "WW": check("WW", db_status)
                         }
                     }
                 )
@@ -614,11 +580,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def start_now():
         if request.method == 'POST':
             try:
-                FeedDb(dbfile, 'crawltimes').store("startnow", "True")
+                FeedDb('crawltimes').store("startnow", "True")
                 i = 3
                 started = False
                 while i > 0:
-                    if not FeedDb(dbfile, 'crawltimes').retrieve("startnow"):
+                    if not FeedDb('crawltimes').retrieve("startnow"):
                         started = True
                         break
                     i -= 1
@@ -637,7 +603,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def search_title(title):
         if request.method == 'GET':
             try:
-                results = search.get(title, configfile, dbfile)
+                results = search.get(title)
                 return jsonify(
                     {
                         "results": {
@@ -654,12 +620,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/download_movie/<title>", methods=['POST'])
     @requires_auth
     def download_movie(title):
-        global device
         if request.method == 'POST':
             try:
-                payload = feedcrawler.search.shared.content_all.get_best_result(title, configfile, dbfile)
+                payload = feedcrawler.search.shared.content_all.get_best_result(title)
                 if payload:
-                    matches = feedcrawler.search.shared.content_all.download(payload, device, configfile, dbfile)
+                    matches = feedcrawler.search.shared.content_all.download(payload)
                     return "Success: " + str(matches), 200
             except:
                 pass
@@ -670,12 +635,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/download_show/<title>", methods=['POST'])
     @requires_auth
     def download_show(title):
-        global device
         if request.method == 'POST':
             try:
-                payload = feedcrawler.search.shared.content_shows.get_best_result(title, configfile, dbfile)
+                payload = feedcrawler.search.shared.content_shows.get_best_result(title)
                 if payload:
-                    matches = feedcrawler.search.shared.content_shows.download(payload, configfile, dbfile)
+                    matches = feedcrawler.search.shared.content_shows.download(payload)
                     if matches:
                         return "Success: " + str(matches), 200
             except:
@@ -687,10 +651,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/download_bl/<payload>", methods=['POST'])
     @requires_auth
     def download_bl(payload):
-        global device
         if request.method == 'POST':
             try:
-                if feedcrawler.search.shared.content_all.download(payload, device, configfile, dbfile):
+                if feedcrawler.search.shared.content_all.download(payload):
                     return "Success", 200
             except:
                 pass
@@ -701,10 +664,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/download_sj/<payload>", methods=['POST'])
     @requires_auth
     def download_sj(payload):
-        global device
         if request.method == 'POST':
             try:
-                if feedcrawler.search.shared.content_shows.download(payload, configfile, dbfile):
+                if feedcrawler.search.shared.content_shows.download(payload):
                     return "Success", 200
             except:
                 pass
@@ -715,13 +677,11 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd/", methods=['GET'])
     @requires_auth
     def myjd_info():
-        global device
         if request.method == 'GET':
             try:
-                myjd = get_info(configfile, device)
-                packages_to_decrypt = get_to_decrypt(dbfile)
+                myjd = get_info()
+                packages_to_decrypt = get_to_decrypt()
                 if myjd:
-                    device = myjd[0]
                     return jsonify(
                         {
                             "downloader_state": myjd[1],
@@ -745,12 +705,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_state/", methods=['GET'])
     @requires_auth
     def myjd_state():
-        global device
         if request.method == 'GET':
             try:
-                myjd = get_state(configfile, device)
+                myjd = get_state()
                 if myjd:
-                    device = myjd[0]
                     return jsonify(
                         {
                             "downloader_state": myjd[1],
@@ -766,7 +724,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_move/<linkids>&<uuids>", methods=['POST'])
     @requires_auth
     def myjd_move(linkids, uuids):
-        global device
         if request.method == 'POST':
             try:
                 linkids_raw = ast.literal_eval(linkids)
@@ -783,8 +740,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                         uuids.append(uuid)
                 else:
                     uuids.append(uuids_raw)
-                device = move_to_downloads(configfile, device, linkids, uuids)
-                if device:
+                if move_to_downloads(linkids, uuids):
                     return "Success", 200
             except:
                 pass
@@ -795,7 +751,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_remove/<linkids>&<uuids>", methods=['POST'])
     @requires_auth
     def myjd_remove(linkids, uuids):
-        global device
         if request.method == 'POST':
             try:
                 linkids_raw = ast.literal_eval(linkids)
@@ -812,8 +767,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                         uuids.append(uuid)
                 else:
                     uuids.append(uuids_raw)
-                device = remove_from_linkgrabber(configfile, device, linkids, uuids)
-                if device:
+                if remove_from_linkgrabber(linkids, uuids):
                     return "Success", 200
             except:
                 pass
@@ -824,10 +778,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/internal_remove/<name>", methods=['POST'])
     @requires_auth
     def internal_remove(name):
-        global device
         if request.method == 'POST':
             try:
-                delete = remove_decrypt(name, dbfile)
+                delete = remove_decrypt(name)
                 if delete:
                     return "Success", 200
             except:
@@ -839,7 +792,6 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>", methods=['POST'])
     @requires_auth
     def myjd_retry(linkids, uuids, b64_links):
-        global device
         if request.method == 'POST':
             try:
                 linkids_raw = ast.literal_eval(linkids)
@@ -858,8 +810,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                     uuids.append(uuids_raw)
                 links = decode_base64(b64_links)
                 links = links.split("\n")
-                device = retry_decrypt(configfile, dbfile, device, linkids, uuids, links)
-                if device:
+                if retry_decrypt(linkids, uuids, links):
                     return "Success", 200
             except:
                 pass
@@ -870,11 +821,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_update/", methods=['POST'])
     @requires_auth
     def myjd_update():
-        global device
         if request.method == 'POST':
             try:
-                device = update_jdownloader(configfile, device)
-                if device:
+                if update_jdownloader():
                     return "Success", 200
             except:
                 pass
@@ -885,11 +834,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_start/", methods=['POST'])
     @requires_auth
     def myjd_start():
-        global device
         if request.method == 'POST':
             try:
-                device = jdownloader_start(configfile, device)
-                if device:
+                if jdownloader_start():
                     return "Success", 200
             except:
                 pass
@@ -900,12 +847,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_pause/<bl>", methods=['POST'])
     @requires_auth
     def myjd_pause(bl):
-        global device
         if request.method == 'POST':
             try:
                 bl = json.loads(bl)
-                device = jdownloader_pause(configfile, device, bl)
-                if device:
+                if jdownloader_pause(bl):
                     return "Success", 200
             except:
                 pass
@@ -916,11 +861,9 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_stop/", methods=['POST'])
     @requires_auth
     def myjd_stop():
-        global device
         if request.method == 'POST':
             try:
-                device = jdownloader_stop(configfile, device)
-                if device:
+                if jdownloader_stop():
                     return "Success", 200
             except:
                 pass
@@ -931,12 +874,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
     @requires_auth
     def myjd_cnl(uuid):
-        global device
         if request.method == 'POST':
             try:
-                failed = get_info(configfile, device)
+                failed = get_info()
                 if failed:
-                    device = failed[0]
                     decrypted_packages = failed[4][1]
                     offline_packages = failed[4][2]
                     failed_packages = failed[4][3]
@@ -972,9 +913,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 while i > 0:
                     i -= 1
                     time.sleep(5)
-                    failed = get_info(configfile, device)
-                    if failed:
-                        device = failed[0]
+                    if get_info():
                         grabber_collecting = failed[2]
                         if grabber_was_collecting or grabber_collecting:
                             grabber_was_collecting = grabber_collecting
@@ -984,13 +923,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                             if not grabber_collecting:
                                 decrypted_packages = failed[4][1]
                                 offline_packages = failed[4][2]
-                                another_device = package_merge(configfile, device, decrypted_packages, title,
-                                                               known_packages)[0]
+                                another_device = package_merge(decrypted_packages, title, known_packages)[0]
                                 if another_device:
-                                    device = another_device
-                                    info = get_info(configfile, device)
+                                    info = get_info()
                                     if info:
-                                        device = info[0]
                                         grabber_collecting = info[2]
                                         decrypted_packages = info[4][1]
                                         offline_packages = info[4][2]
@@ -1009,9 +945,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 if not cnl_package:
                     return "No Package added through Click'n'Load in time!", 504
 
-                replaced = do_package_replace(configfile, dbfile, device, old_package, cnl_package)
-                device = replaced[0]
-                if device:
+                replaced = do_package_replace(old_package, cnl_package)
+                if replaced:
                     return "Success", 200
             except:
                 pass
@@ -1022,12 +957,10 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     @app.route(prefix + "/api/internal_cnl/<name>&<password>", methods=['POST'])
     @requires_auth
     def internal_cnl(name, password):
-        global device
         if request.method == 'POST':
             try:
-                failed = get_info(configfile, device)
+                failed = get_info()
                 if failed:
-                    device = failed[0]
                     decrypted_packages = failed[4][1]
                     offline_packages = failed[4][2]
                 else:
@@ -1047,9 +980,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 while i > 0:
                     i -= 1
                     time.sleep(5)
-                    failed = get_info(configfile, device)
+                    failed = get_info()
                     if failed:
-                        device = failed[0]
                         grabber_collecting = failed[2]
                         if grabber_was_collecting or grabber_collecting:
                             grabber_was_collecting = grabber_collecting
@@ -1073,10 +1005,8 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
                 if not cnl_packages:
                     return "No Package added through Click'n'Load in time!", 504
 
-                replaced = do_add_decrypted(configfile, dbfile, device, name, password, cnl_packages)
-                device = replaced[0]
-                if device:
-                    remove_decrypt(name, dbfile)
+                if do_add_decrypted(name, password, cnl_packages):
+                    remove_decrypt(name)
                     return "Success", 200
             except:
                 pass
@@ -1090,7 +1020,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         if request.method == 'GET':
             try:
                 def get_list(liste):
-                    cont = ListDb(dbfile, liste).retrieve()
+                    cont = ListDb(liste).retrieve()
                     return "\n".join(cont) if cont else ""
 
                 return jsonify(
@@ -1120,21 +1050,21 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
         if request.method == 'POST':
             try:
                 data = request.json
-                ListDb(dbfile, "List_ContentAll_Movies").store_list(
+                ListDb("List_ContentAll_Movies").store_list(
                     data['mb']['filme'].split('\n'))
-                ListDb(dbfile, "List_ContentAll_Seasons").store_list(
+                ListDb("List_ContentAll_Seasons").store_list(
                     data['mbsj']['staffeln'].split('\n'))
-                ListDb(dbfile, "List_ContentAll_Movies_Regex").store_list(
+                ListDb("List_ContentAll_Movies_Regex").store_list(
                     data['mb']['regex'].split('\n'))
-                ListDb(dbfile, "List_ContentShows_Shows").store_list(
+                ListDb("List_ContentShows_Shows").store_list(
                     data['sj']['serien'].split('\n'))
-                ListDb(dbfile, "List_ContentShows_Shows_Regex").store_list(
+                ListDb("List_ContentShows_Shows_Regex").store_list(
                     data['sj']['regex'].split('\n'))
-                ListDb(dbfile, "List_ContentShows_Seasons_Regex").store_list(
+                ListDb("List_ContentShows_Seasons_Regex").store_list(
                     data['sj']['staffeln_regex'].split('\n'))
-                ListDb(dbfile, "List_CustomDJ_Documentaries").store_list(
+                ListDb("List_CustomDJ_Documentaries").store_list(
                     data['dj']['dokus'].split('\n'))
-                ListDb(dbfile, "List_CustomDJ_Documentaries_Regex").store_list(
+                ListDb("List_CustomDJ_Documentaries_Regex").store_list(
                     data['dj']['regex'].split('\n'))
                 return "Success", 201
             except:
@@ -1162,7 +1092,7 @@ def app_container(port, local_address, docker, configfile, dbfile, log_file, _de
     def feedcrawler_helper_sj():
         if request.method == 'GET':
             try:
-                hostnames = CrawlerConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames')
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 return """// ==UserScript==
@@ -1215,7 +1145,7 @@ if (title) {
             return "Forbidden", 403
         if request.method == 'GET':
             try:
-                hostnames = CrawlerConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames')
                 dw = hostnames.get('dw')
                 return """// ==UserScript==
 // @name            FeedCrawler Sponsors Helper (DW)
@@ -1226,7 +1156,7 @@ if (title) {
 // @match           https://""" + dw + """/*
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + local_address + """';
+var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
 var sponsorsHoster = '';
 
@@ -1281,7 +1211,7 @@ if (title) {
             return "Forbidden", 403
         if request.method == 'GET':
             try:
-                hostnames = CrawlerConfig('Hostnames', configfile)
+                hostnames = CrawlerConfig('Hostnames')
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 return """// ==UserScript==
@@ -1296,7 +1226,7 @@ if (title) {
 // @exclude         https://""" + dj + """/serie/search?q=*
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + local_address + """';
+var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
 
@@ -1390,7 +1320,7 @@ if (title) {
 // @match           *.filecrypt.co/*
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + local_address + """';
+var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
 
@@ -1471,14 +1401,13 @@ var cnlExists = setInterval(async function() {
     @app.route(prefix + "/sponsors_helper/api/to_decrypt/", methods=['GET'])
     @requires_auth
     def to_decrypt_api():
-        global device
         global helper_active
         if request.method == 'GET':
             try:
                 helper_active = True
                 decrypt_name = False
                 decrypt_url = False
-                decrypt = get_to_decrypt(dbfile)
+                decrypt = get_to_decrypt()
                 if decrypt:
                     decrypt = decrypt[0]
                     decrypt_name = decrypt["name"]
@@ -1501,7 +1430,6 @@ var cnlExists = setInterval(async function() {
     @app.route(prefix + "/sponsors_helper/to_download/<payload>", methods=['GET'])
     @requires_auth
     def to_download(payload):
-        global device
         if request.method == 'GET':
             try:
                 global already_added
@@ -1523,8 +1451,8 @@ var cnlExists = setInterval(async function() {
                     except:
                         ids = False
 
-                    FeedDb(dbfile, 'crawldog').store(name, 'added')
-                    if device:
+                    FeedDb('crawldog').store(name, 'added')
+                    if internal.device:
                         if ids:
                             try:
                                 ids = ids.replace("%20", "").split(";")
@@ -1549,8 +1477,8 @@ var cnlExists = setInterval(async function() {
                                 else:
                                     uuids.append(uuids_raw)
 
-                                remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                remove_decrypt(name, dbfile)
+                                remove_from_linkgrabber(linkids, uuids)
+                                remove_decrypt(name)
                         else:
                             is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
                             if not is_episode:
@@ -1578,12 +1506,12 @@ var cnlExists = setInterval(async function() {
                             else:
                                 season_string = "^unmatchable$"
                             try:
-                                packages = get_packages_in_linkgrabber(configfile, device)
+                                packages = get_packages_in_linkgrabber()
                             except feedcrawler.myjdapi.TokenExpiredException:
-                                device = get_device(configfile)
-                                if not device or not is_device(device):
+                                get_device()
+                                if not internal.device or not is_device(internal.device):
                                     return "Failed", 500
-                                packages = get_packages_in_linkgrabber(configfile, device)
+                                packages = get_packages_in_linkgrabber()
                             if packages:
                                 failed = packages[0]
                                 offline = packages[1]
@@ -1593,26 +1521,26 @@ var cnlExists = setInterval(async function() {
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                                 if episode:
-                                                    FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb('episode_remover').store(name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
-                                                remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                                remove_decrypt(name, dbfile)
+                                                remove_from_linkgrabber(linkids, uuids)
+                                                remove_decrypt(name)
                                                 break
                                     if offline:
                                         for package in offline:
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                                 if episode:
-                                                    FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb('episode_remover').store(name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
-                                                remove_from_linkgrabber(configfile, device, linkids, uuids)
-                                                remove_decrypt(name, dbfile)
+                                                remove_from_linkgrabber(linkids, uuids)
+                                                remove_decrypt(name)
                                                 break
                                 except:
                                     pass
-                            packages = get_to_decrypt(dbfile)
+                            packages = get_to_decrypt()
                             if packages:
                                 for package in packages:
                                     if name == package["name"].strip():
@@ -1622,9 +1550,9 @@ var cnlExists = setInterval(async function() {
                                                       "dd+51",
                                                       "dd.51")):
                                         episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                        remove_decrypt(package['name'], dbfile)
+                                        remove_decrypt(package['name'])
                                         if episode:
-                                            FeedDb(dbfile, 'episode_remover').store(name, str(int(episode[0])))
+                                            FeedDb('episode_remover').store(name, str(int(episode[0])))
                                             episode = str(episode[0])
                                             if len(episode) == 1:
                                                 episode = "0" + episode
@@ -1632,7 +1560,7 @@ var cnlExists = setInterval(async function() {
                                                                 season_string + "E" + episode + ".")
                                             break
                             time.sleep(1)
-                            remove_decrypt(name, dbfile)
+                            remove_decrypt(name)
                         try:
                             epoch = int(time.time())
                             for item in already_added:
@@ -1643,12 +1571,12 @@ var cnlExists = setInterval(async function() {
                                     else:
                                         already_added.remove(item)
 
-                            device = download(configfile, dbfile, device, name, "FeedCrawler", links, password)
-                            db = FeedDb(dbfile, 'FeedCrawler')
+                            download(name, "FeedCrawler", links, password)
+                            db = FeedDb('FeedCrawler')
                             if not db.retrieve(name):
                                 db.store(name, 'added')
                             try:
-                                notify(["[FeedCrawler Sponsors Helper erfolgreich] - " + name], configfile)
+                                notify(["[FeedCrawler Sponsors Helper erfolgreich] - " + name])
                             except:
                                 print(u"Benachrichtigung konnte nicht versendet werden!")
                             print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)
@@ -1664,33 +1592,11 @@ var cnlExists = setInterval(async function() {
         else:
             return "Failed", 405
 
-    serve(app, host='0.0.0.0', port=port, threads=10, _quiet=True)
+    serve(app, host='0.0.0.0', port=internal.port, threads=10, _quiet=True)
 
 
-def start(port, local_address, docker, configfile, dbfile, log_level, log_file, log_format, _device):
+def start():
     sys.stdout = Unbuffered(sys.stdout)
-
-    logger = logging.getLogger('feedcrawler')
-    logger.setLevel(log_level)
-
-    console = logging.StreamHandler(stream=sys.stdout)
-    formatter = logging.Formatter(log_format)
-    console.setLevel(log_level)
-
-    logfile = logging.handlers.RotatingFileHandler(log_file)
-    logfile.setFormatter(formatter)
-    logfile.setLevel(logging.INFO)
-
-    logger.addHandler(logfile)
-    logger.addHandler(console)
-
-    if log_level == 10:
-        logfile_debug = logging.handlers.RotatingFileHandler(
-            log_file.replace("FeedCrawler.log", "FeedCrawler_DEBUG.log"))
-        logfile_debug.setFormatter(formatter)
-        logfile_debug.setLevel(10)
-        logger.addHandler(logfile_debug)
-
     disable_request_warnings(InsecureRequestWarning)
 
     if version.update_check()[0]:
@@ -1698,4 +1604,4 @@ def start(port, local_address, docker, configfile, dbfile, log_level, log_file, 
         print(u'Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
 
-    app_container(port, local_address, docker, configfile, dbfile, log_file, _device)
+    app_container()

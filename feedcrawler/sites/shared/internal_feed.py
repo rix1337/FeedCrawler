@@ -5,8 +5,10 @@
 import datetime
 import json
 import re
+
 from bs4 import BeautifulSoup
 
+from feedcrawler import internal
 from feedcrawler.common import add_decrypt
 from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
@@ -43,10 +45,10 @@ def check_download_links(self, url_hosters):
     links = {}
     for url_hoster in reversed(url_hosters):
         hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
-        if check_hoster(hoster, self.configfile):
+        if check_hoster(hoster):
             link = url_hoster[0]
             if self.url in link:
-                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link)
                 if demasked_link:
                     link = demasked_link
             links[hoster] = link
@@ -55,7 +57,7 @@ def check_download_links(self, url_hosters):
             hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
             link = url_hoster[0]
             if self.url in link:
-                demasked_link = get_redirected_url(link, self.configfile, self.dbfile, self.scraper)
+                demasked_link = get_redirected_url(link)
                 if demasked_link:
                     link = demasked_link
             links[hoster] = link
@@ -63,7 +65,8 @@ def check_download_links(self, url_hosters):
 
 
 def get_search_results(self, bl_query):
-    hostnames = CrawlerConfig('Hostnames', self.configfile)
+    unused_get_feed_parameter(self)
+    hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     dw = hostnames.get('dw')
     fx = hostnames.get('fx')
@@ -71,7 +74,7 @@ def get_search_results(self, bl_query):
 
     search_results = []
 
-    config = CrawlerConfig('ContentAll', self.configfile)
+    config = CrawlerConfig('ContentAll')
     quality = config.get('quality')
 
     if "480p" not in quality:
@@ -92,8 +95,7 @@ def get_search_results(self, bl_query):
     else:
         fx_search = None
 
-    async_results = get_urls_async([by_search, dw_search, fx_search], self.configfile, self.dbfile, self.scraper)
-    scraper = async_results[1]
+    async_results = get_urls_async([by_search, dw_search, fx_search])
     async_results = async_results[0]
 
     by_results = []
@@ -101,15 +103,15 @@ def get_search_results(self, bl_query):
     fx_results = []
 
     for res in async_results:
-        if check_is_site(res, self.configfile) == 'BY':
+        if check_is_site(res) == 'BY':
             by_results = by_search_results(res, by)
-        elif check_is_site(res, self.configfile) == 'DW':
+        elif check_is_site(res) == 'DW':
             dw_results = dw_search_results(res, dw)
-        elif check_is_site(res, self.configfile) == 'FX':
-            fx_results = fx_search_results(fx_content_to_soup(res), self.configfile, self.dbfile, scraper)
+        elif check_is_site(res) == 'FX':
+            fx_results = fx_search_results(fx_content_to_soup(res))
 
     if nk:
-        nk_search = post_url('https://' + nk + "/search", self.configfile, self.dbfile,
+        nk_search = post_url('https://' + nk + "/search",
                              data={'search': bl_query.replace("+", " ") + " " + quality})
         nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
     else:
@@ -159,19 +161,18 @@ def get_search_results(self, bl_query):
     return search_results
 
 
-def add_decrypt_instead_of_download(configfile, dbfile, device, key, path, download_links, password):
-    unused_get_feed_parameter(configfile)
+def add_decrypt_instead_of_download(key, path, download_links, password):
     unused_get_feed_parameter(path)
 
-    if add_decrypt(key.strip(), download_links[0], password, dbfile):
-        return device
+    if add_decrypt(key.strip(), download_links[0], password):
+        return True
     else:
         return False
 
 
 def by_get_download_links(self, content, title):
     async_link_results = re.findall(r'href="([^"\'>]*)"', content)
-    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile, self.scraper)
+    async_link_results = get_urls_async(async_link_results)
 
     content = []
     links = async_link_results[0]
@@ -188,7 +189,8 @@ def by_get_download_links(self, content, title):
 
 
 def by_feed_enricher(self, content):
-    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('by')
+    unused_get_feed_parameter(self)
+    base_url = "https://" + CrawlerConfig('Hostnames').get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
     async_results = []
@@ -197,7 +199,7 @@ def by_feed_enricher(self, content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    async_results = get_urls_async(async_results)
     results = async_results[0]
 
     entries = []
@@ -254,7 +256,7 @@ def by_search_results(content, base_url):
 def by_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     by = self.hostnames.get('by')
-    download_link = get_url(download_link, self.configfile, self.dbfile)
+    download_link = get_url(download_link)
     soup = BeautifulSoup(download_link, 'lxml')
     links = soup.find_all("iframe")
     async_link_results = []
@@ -262,7 +264,7 @@ def by_page_download_link(self, download_link, key):
         link = link["src"]
         if 'https://' + by in link:
             async_link_results.append(link)
-    async_link_results = get_urls_async(async_link_results, self.configfile, self.dbfile)
+    async_link_results = get_urls_async(async_link_results)
     links = async_link_results[0]
     url_hosters = []
     for link in links:
@@ -280,7 +282,7 @@ def dw_get_download_links(self, content, title):
         hosters = re.findall(r'HOSTERS="(.*)"', content)[0].split("|")
         for hoster in hosters:
             hoster = hoster.lower().replace("ddownload", "ddl")
-            if check_hoster(hoster, self.configfile):
+            if check_hoster(hoster):
                 download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
         if self.hoster_fallback and not download_link:
             download_link = re.findall(r'DOWNLOADLINK="(.*)"HOSTERS="', content)[0]
@@ -290,7 +292,7 @@ def dw_get_download_links(self, content, title):
 
 
 def dw_feed_enricher(self, content):
-    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('dw')
+    base_url = "https://" + CrawlerConfig('Hostnames').get('dw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("download/"))
     href_by_id = {}
@@ -311,7 +313,7 @@ def dw_feed_enricher(self, content):
             async_results.append(post_link)
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)
+    async_results = get_urls_async(async_results)
     results = async_results[0]
 
     entries = []
@@ -368,18 +370,18 @@ def dw_search_results(content, base_url):
 
 
 def dw_mirror(self, title):
-    hostnames = CrawlerConfig('Hostnames', self.configfile)
+    hostnames = CrawlerConfig('Hostnames')
     dw = hostnames.get('dw')
 
     if dw:
         dw_search = 'https://' + dw + '/?search=' + title
 
-        dw_results = get_url(dw_search, self.configfile, self.dbfile, self.scraper)
+        dw_results = get_url(dw_search)
         dw_results = dw_search_results(dw_results, dw)
 
         for result in dw_results:
             release_url = result[1].split("|")[0]
-            release_info = get_url(release_url, self.configfile, self.dbfile)
+            release_info = get_url(release_url)
             post_hosters = BeautifulSoup(release_info, 'lxml').find("div", {"id": "download"}).findAll("img",
                                                                                                        src=re.compile(
                                                                                                            r"images/hosterimg"))
@@ -392,7 +394,7 @@ def dw_mirror(self, title):
 
             for hoster in hosters:
                 if hoster:
-                    if check_hoster(hoster, self.configfile):
+                    if check_hoster(hoster):
                         valid = True
             if not valid and not self.hoster_fallback:
                 return False
@@ -441,21 +443,21 @@ def dw_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episod
 
 
 def dw_parse_download(self, release_url, title, language_id):
-    if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
-        self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+    if not check_valid_release(title, self.retail_only, self.hevc_retail):
+        internal.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                self.log_debug(
+                internal.logger.debug(
                     "%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
-            self.log_debug(title + " - Release hat falsche Quelle")
+            internal.logger.debug(title + " - Release hat falsche Quelle")
             return False
     try:
-        release_info = get_url(release_url, self.configfile, self.dbfile)
+        release_info = get_url(release_url)
         post_hosters = BeautifulSoup(release_info, 'lxml').find("div", {"id": "download"}).findAll("img",
                                                                                                    src=re.compile(
                                                                                                        r"images/hosterimg"))
@@ -468,7 +470,7 @@ def dw_parse_download(self, release_url, title, language_id):
 
         for hoster in hosters:
             if hoster:
-                if check_hoster(hoster, self.configfile):
+                if check_hoster(hoster):
                     valid = True
         if not valid and not self.hoster_fallback:
             storage = self.db.retrieve_all(title)
@@ -477,9 +479,9 @@ def dw_parse_download(self, release_url, title, language_id):
                 if 'wrong_hoster' not in storage:
                     print(wrong_hoster)
                     self.db.store(title, 'wrong_hoster')
-                    notify([wrong_hoster], self.configfile)
+                    notify([wrong_hoster])
                 else:
-                    self.log_debug(wrong_hoster)
+                    internal.logger.debug(wrong_hoster)
                 return False
         else:
             return [title, release_url, language_id, False, False]
@@ -548,7 +550,7 @@ def fx_feed_enricher(self, feed):
     return feed
 
 
-def fx_search_results(content, configfile, dbfile, scraper):
+def fx_search_results(content):
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
@@ -561,7 +563,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
     if result_urls:
         results = []
         for url in result_urls:
-            results.append(get_url(url, configfile, dbfile, scraper))
+            results.append(get_url(url))
 
         for result in results:
             article = BeautifulSoup(str(result), 'lxml')
@@ -580,7 +582,7 @@ def fx_search_results(content, configfile, dbfile, scraper):
 
 
 def nk_feed_enricher(self, content):
-    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('nk')
+    base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
@@ -589,7 +591,7 @@ def nk_feed_enricher(self, content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results, self.configfile, self.dbfile, self.scraper)[0]
+    async_results = get_urls_async(async_results)[0]
 
     entries = []
     if async_results:
@@ -641,7 +643,7 @@ def nk_search_results(content, base_url):
 def nk_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     nk = self.hostnames.get('nk')
-    download_link = get_url(download_link, self.configfile, self.dbfile)
+    download_link = get_url(download_link)
     soup = BeautifulSoup(download_link, 'lxml')
     url_hosters = []
     hosters = soup.find_all("a", href=re.compile("/go/"))
@@ -650,7 +652,7 @@ def nk_page_download_link(self, download_link, key):
     return check_download_links(self, url_hosters)
 
 
-def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
+def ww_post_url_headers(url, headers=False):
     try:
         if not headers:
             headers = {}
@@ -659,9 +661,9 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
         referer = payload[0].replace("/ajax", payload[1])
         data = payload[2]
         headers["Referer"] = referer
-        response = post_url_headers(url, configfile, dbfile, headers, data, scraper)
-        if not response[0].text or response[0].status_code is not (200 or 304) or not '<span class="main-rls">' in \
-                                                                                      response[0].text:
+        response = post_url_headers(url, headers, data)
+        if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
+                                                                                      response["text"]:
             print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return ""
         return response
@@ -670,11 +672,11 @@ def ww_post_url_headers(url, configfile, dbfile, headers=False, scraper=False):
 
 
 def ww_get_download_links(self, content, title):
-    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('ww')
+    base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     content = content.replace("mkv|", "")
     download_links = []
     try:
-        response = get_url(content, self.configfile, self.dbfile, self.scraper)
+        response = get_url(content)
         if not response or "NinjaFirewall 429" in response:
             print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
             return False
@@ -693,7 +695,8 @@ def ww_get_download_links(self, content, title):
 
 
 def ww_feed_enricher(self, content):
-    base_url = "https://" + CrawlerConfig('Hostnames', self.configfile).get('ww')
+    unused_get_feed_parameter(self)
+    base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")
     entries = []
@@ -748,25 +751,25 @@ def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_o
 
 
 def j_parse_download(self, series_url, title, language_id):
-    if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
-        self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+    if not check_valid_release(title, self.retail_only, self.hevc_retail):
+        internal.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                self.log_debug(
+                internal.logger.debug(
                     "%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
-            self.log_debug(title + " - Release hat falsche Quelle")
+            internal.logger.debug(title + " - Release hat falsche Quelle")
             return False
     try:
-        series_info = get_url(series_url, self.configfile, self.dbfile)
+        series_info = get_url(series_url)
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
         api_url = 'https://' + self.url + '/api/media/' + series_id + '/releases'
 
-        response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+        response = get_url(api_url)
         seasons = json.loads(response)
         for season in seasons:
             season = seasons[season]
@@ -775,7 +778,7 @@ def j_parse_download(self, series_url, title, language_id):
                     valid = False
                     for hoster in item['hoster']:
                         if hoster:
-                            if check_hoster(hoster, self.configfile):
+                            if check_hoster(hoster):
                                 valid = True
                     if not valid and not self.hoster_fallback:
                         storage = self.db.retrieve_all(title)
@@ -784,9 +787,9 @@ def j_parse_download(self, series_url, title, language_id):
                             if 'wrong_hoster' not in storage:
                                 print(wrong_hoster)
                                 self.db.store(title, 'wrong_hoster')
-                                notify([wrong_hoster], self.configfile)
+                                notify([wrong_hoster])
                             else:
-                                self.log_debug(wrong_hoster)
+                                internal.logger.debug(wrong_hoster)
                             return False
                     else:
                         return [title, series_url, language_id, False, False]
@@ -828,18 +831,18 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
 
 
 def sf_parse_download(self, series_url, title, language_id):
-    if not check_valid_release(title, self.retail_only, self.hevc_retail, self.dbfile):
-        self.log_debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+    if not check_valid_release(title, self.retail_only, self.hevc_retail):
+        internal.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                self.log_debug(
+                internal.logger.debug(
                     "%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
-            self.log_debug(title + " - Release hat falsche Quelle")
+            internal.logger.debug(title + " - Release hat falsche Quelle")
             return False
     try:
         if language_id == 2:
@@ -848,7 +851,7 @@ def sf_parse_download(self, series_url, title, language_id):
             lang = 'DE'
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
         api_url = series_url + '?lang=' + lang + '&_=' + epoch
-        response = get_url(api_url, self.configfile, self.dbfile, self.scraper)
+        response = get_url(api_url)
         info = json.loads(response)
 
         is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
@@ -882,9 +885,8 @@ def sf_parse_download(self, series_url, title, language_id):
         links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
         download_link = False
         for link in links:
-            if check_hoster(link.text.replace('\n', ''), self.configfile):
-                download_link = get_redirected_url("https://" + self.url + link['href'], self.configfile,
-                                                   self.dbfile, self.scraper)
+            if check_hoster(link.text.replace('\n', '')):
+                download_link = get_redirected_url("https://" + self.url + link['href'])
                 break
         if not download_link and not self.hoster_fallback:
             storage = self.db.retrieve_all(title)
@@ -893,9 +895,9 @@ def sf_parse_download(self, series_url, title, language_id):
                 if 'wrong_hoster' not in storage:
                     print(wrong_hoster)
                     self.db.store(title, 'wrong_hoster')
-                    notify([wrong_hoster], self.configfile)
+                    notify([wrong_hoster])
                 else:
-                    self.log_debug(wrong_hoster)
+                    internal.logger.debug(wrong_hoster)
                 return False
         else:
             return [title, download_link, language_id, season, episode]

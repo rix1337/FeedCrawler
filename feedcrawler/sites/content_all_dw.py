@@ -16,12 +16,8 @@ class BL:
     _SITE = 'DW'
     SUBSTITUTE = r"[&#\s/]"
 
-    def __init__(self, configfile, dbfile, device, logging, scraper, filename):
-        self.configfile = configfile
-        self.dbfile = dbfile
-        self.device = device
-
-        self.hostnames = CrawlerConfig('Hostnames', self.configfile)
+    def __init__(self, filename):
+        self.hostnames = CrawlerConfig('Hostnames')
         self.url = self.hostnames.get('dw')
         self.password = self.url.split('.')[0]
 
@@ -31,29 +27,25 @@ class BL:
             self.URL = 'https://' + self.url + "/downloads/hauptkategorie/serien/"
         self.FEED_URLS = [self.URL]
 
-        self.config = CrawlerConfig("ContentAll", self.configfile)
-        self.feedcrawler = CrawlerConfig("FeedCrawler", self.configfile)
-        self.log_info = logging.info
-        self.log_error = logging.error
-        self.log_debug = logging.debug
-        self.scraper = scraper
+        self.config = CrawlerConfig("ContentAll")
+        self.feedcrawler = CrawlerConfig("FeedCrawler")
         self.filename = filename
         self.pattern = False
-        self.db = FeedDb(self.dbfile, 'FeedCrawler')
+        self.db = FeedDb('FeedCrawler')
         self.hevc_retail = self.config.get("hevc_retail")
         self.retail_only = self.config.get("retail_only")
-        self.hosters = CrawlerConfig("Hosters", configfile).get_section()
+        self.hosters = CrawlerConfig("Hosters").get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
         self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
 
-        search = int(CrawlerConfig("ContentAll", self.configfile).get("search"))
+        search = int(CrawlerConfig("ContentAll").get("search"))
         i = 2
         while i <= search:
             page_url = self.URL + "order/zeit/sort/D/seite/" + str(i) + "/"
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
             i += 1
-        self.cdc = FeedDb(self.dbfile, 'cdc')
+        self.cdc = FeedDb('cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
         self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
@@ -84,5 +76,4 @@ class BL:
             self.imdb = 0.0
 
     def periodical_task(self):
-        self.device = shared_blogs.periodical_task(self)
-        return self.device
+        shared_blogs.periodical_task(self)

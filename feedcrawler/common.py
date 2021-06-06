@@ -4,18 +4,16 @@
 
 import base64
 import datetime
-import logging
+import os
 import re
 import socket
+import sys
 
+from feedcrawler import internal
 from feedcrawler import myjdapi
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb
 from feedcrawler.db import FeedDb
-
-log_info = logging.info
-log_error = logging.error
-log_debug = logging.debug
+from feedcrawler.db import ListDb
 
 
 class Unbuffered(object):
@@ -34,16 +32,16 @@ class Unbuffered(object):
         return getattr(self.stream, attr)
 
 
-def add_decrypt(title, link, password, dbfile):
+def add_decrypt(title, link, password):
     try:
-        FeedDb(dbfile, 'to_decrypt').store(title, link + '|' + password)
+        FeedDb('to_decrypt').store(title, link + '|' + password)
         return True
     except:
         return False
 
 
-def check_hoster(to_check, configfile):
-    hosters = CrawlerConfig("Hosters", configfile).get_section()
+def check_hoster(to_check):
+    hosters = CrawlerConfig("Hosters").get_section()
     for hoster in hosters:
         if hosters[hoster] == "True":
             if hoster in to_check.lower() or to_check.lower() in hoster:
@@ -63,8 +61,8 @@ def check_ip():
     return ip
 
 
-def check_is_site(string, configfile):
-    hostnames = CrawlerConfig('Hostnames', configfile)
+def check_is_site(string):
+    hostnames = CrawlerConfig('Hostnames')
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
@@ -73,7 +71,6 @@ def check_is_site(string, configfile):
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
-    dd = hostnames.get('dd')
 
     if sj and sj.split('.')[0] in string:
         return "SJ"
@@ -91,13 +88,11 @@ def check_is_site(string, configfile):
         return "NK"
     elif ww and ww.split('.')[0] in string:
         return "WW"
-    elif dd and dd.split('.')[0] in string:
-        return "DD"
     else:
         return False
 
 
-def check_valid_release(title, retail_only, hevc_retail, dbfile):
+def check_valid_release(title, retail_only, hevc_retail):
     if retail_only:
         if not is_retail(title, False):
             return False
@@ -113,7 +108,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         except:
             return True
 
-    db = FeedDb(dbfile, 'FeedCrawler')
+    db = FeedDb('FeedCrawler')
     is_episode = re.findall(r'.*\.s\d{1,3}(e\d{1,3}|e\d{1,3}-.*\d{1,3})\..*', title, re.IGNORECASE)
     if is_episode:
         episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', search_title, re.IGNORECASE)
@@ -123,7 +118,7 @@ def check_valid_release(title, retail_only, hevc_retail, dbfile):
         season_results = db.retrieve_all_beginning_with(season_search_title)
         results = db.retrieve_all_beginning_with(search_title) + season_results
     else:
-        db = FeedDb(dbfile, 'FeedCrawler')
+        db = FeedDb('FeedCrawler')
         results = db.retrieve_all_beginning_with(search_title)
 
     if not results:
@@ -230,9 +225,9 @@ def fullhd_title(key):
     return key.replace("720p", "DL.1080p")
 
 
-def get_to_decrypt(dbfile):
+def get_to_decrypt():
     try:
-        to_decrypt = FeedDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        to_decrypt = FeedDb('to_decrypt').retrieve_all_titles()
         if to_decrypt:
             packages = []
             for package in to_decrypt:
@@ -264,14 +259,14 @@ def is_hevc(key):
         return False
 
 
-def is_retail(key, dbfile):
+def is_retail(key, delete):
     retailfinder = re.search(
         r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD)(|.NO.SUBS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.h264|.x265|.h265|.HEVC)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
         key)
     if retailfinder:
         # If this is False, just a retail check is desired
-        if dbfile:
-            remove(key, dbfile)
+        if delete:
+            remove(key, delete)
         return True
     else:
         return False
@@ -314,12 +309,12 @@ def readable_time(time):
     return time
 
 
-def remove(retailtitel, dbfile):
+def remove(retailtitel):
     titles = retail_sub(retailtitel)
     retail = titles[0]
     retailyear = titles[1]
     liste = "List_ContentAll_Movies"
-    cont = ListDb(dbfile, liste).retrieve()
+    cont = ListDb(liste).retrieve()
     new_cont = []
     if cont:
         for line in cont:
@@ -328,16 +323,16 @@ def remove(retailtitel, dbfile):
                               line.lower())
             if line:
                 new_cont.append(line)
-    ListDb(dbfile, liste).store_list(new_cont)
-    log_debug(retail + " durch Cutoff aus " + liste + " entfernt.")
+    ListDb(liste).store_list(new_cont)
+    internal.logger.debug(retail + " durch Cutoff aus " + liste + " entfernt.")
 
 
-def remove_decrypt(title, dbfile):
+def remove_decrypt(title):
     try:
-        all_titles = FeedDb(dbfile, 'to_decrypt').retrieve_all_titles()
+        all_titles = FeedDb('to_decrypt').retrieve_all_titles()
         for t in all_titles:
             if t[0].strip() == title.strip():
-                FeedDb(dbfile, 'to_decrypt').delete(t[0])
+                FeedDb('to_decrypt').delete(t[0])
                 return True
     except:
         pass
@@ -369,3 +364,33 @@ def sanitize(key):
                                                                                                                '').replace(
         ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
     return key
+
+
+def configpath(configpath):
+    pathfile = "FeedCrawler.conf"
+    if configpath:
+        f = open(pathfile, "w")
+        f.write(configpath)
+        f.close()
+    elif os.path.exists(pathfile):
+        f = open(pathfile, "r")
+        configpath = f.readline()
+    else:
+        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+        configpath = input("Pfad angeben:")
+        if len(configpath) > 0:
+            f = open(pathfile, "w")
+            f.write(configpath)
+            f.close()
+    if len(configpath) == 0:
+        configpath = os.path.dirname(sys.argv[0])
+        configpath = configpath.replace("\\", "/")
+        configpath = configpath[:-1] if configpath.endswith('/') else configpath
+        f = open(pathfile, "w")
+        f.write(configpath)
+        f.close()
+    configpath = configpath.replace("\\", "/")
+    configpath = configpath[:-1] if configpath.endswith('/') else configpath
+    if not os.path.exists(configpath):
+        os.makedirs(configpath)
+    return configpath

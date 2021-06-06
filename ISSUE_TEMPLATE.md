@@ -23,4 +23,4 @@ Nur Fehler des aktuellen Releases werden berücksichtigt.
 ## Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen.
 Fragen hierzu werden kommentarlos geschlossen!
 
-Spezifische, vom Anwender in der _RSScrawler.ini_ unter _[Hostnames]_ eingetragene Hostnamen, sind unkenntlich zu machen.
+Spezifische, vom Anwender in der _FeedCrawler.ini_ unter _[Hostnames]_ eingetragene Hostnamen, sind unkenntlich zu machen.

@@ -11,6 +11,15 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
 
         $scope.wnd_to_decrypt = false;
 
+        $scope.update = function () {
+            spinHelper();
+            getToDecrypt();
+        };
+
+        function spinHelper() {
+            $("#spinner-helper").fadeIn().delay(1000).fadeOut();
+        }
+
         function getToDecrypt() {
             $http.get('./api/to_decrypt/')
                 .then(function (res) {
@@ -37,6 +46,7 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
 
         $scope.updateToDecrypt = function () {
             $timeout(function () {
+                spinHelper();
                 getToDecrypt();
                 $scope.updateToDecrypt();
             }, 60000)
