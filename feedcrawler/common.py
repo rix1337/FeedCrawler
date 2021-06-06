@@ -266,7 +266,7 @@ def is_retail(key, delete):
     if retailfinder:
         # If this is False, just a retail check is desired
         if delete:
-            remove(key, delete)
+            remove(key)
         return True
     else:
         return False

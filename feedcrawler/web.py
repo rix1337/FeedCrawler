@@ -50,13 +50,13 @@ from feedcrawler.myjd import update_jdownloader
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
+helper_active = False
+already_added = False
 
 def app_container():
     global helper_active
-    helper_active = False
     global already_added
-    already_added = []
-
+    
     base_dir = '.'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)

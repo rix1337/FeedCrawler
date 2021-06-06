@@ -25,19 +25,19 @@ def get_imdb(url):
     return output
 
 
-def get_title(input):
+def get_title(input_title):
     try:
-        raw_title = re.findall(r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
+        raw_title = re.findall(r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input_title)[0]
     except:
-        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2}).*\) - IMDb"', input)[0]
+        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2}).*\) - IMDb"', input_title)[0]
     return sanitize(raw_title)
 
 
-def get_year(input):
+def get_year(input_title):
     try:
-        raw_year = re.findall(r"<title>(?:.*) \((.*(?:19|20)\d{2})\) - IMDb</title>", input)[0]
+        raw_year = re.findall(r"<title>(?:.*) \((.*(?:19|20)\d{2})\) - IMDb</title>", input_title)[0]
     except:
-        raw_year = re.findall(r'<meta name="title" content="(?:.*) \((.*(?:19|20)\d{2}).*\) - IMDb"', input)[0]
+        raw_year = re.findall(r'<meta name="title" content="(?:.*) \((.*(?:19|20)\d{2}).*\) - IMDb"', input_title)[0]
     return sanitize(raw_year)
 
 

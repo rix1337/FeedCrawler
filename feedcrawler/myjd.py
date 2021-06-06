@@ -740,7 +740,7 @@ def myjd_download(title, subdir, links, password):
     if internal.device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
-            exists = check_failed_link_exists(links, internal.device)
+            exists = check_failed_link_exists(links)
             if exists:
                 broken_title = False
                 old_title = exists[3]
