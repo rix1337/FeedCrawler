@@ -292,6 +292,7 @@ def dw_get_download_links(self, content, title):
 
 
 def dw_feed_enricher(self, content):
+    unused_get_feed_parameter(self)
     base_url = "https://" + CrawlerConfig('Hostnames').get('dw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("download/"))
@@ -582,6 +583,7 @@ def fx_search_results(content):
 
 
 def nk_feed_enricher(self, content):
+    unused_get_feed_parameter(self)
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))

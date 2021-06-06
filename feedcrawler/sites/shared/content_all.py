@@ -28,7 +28,7 @@ from feedcrawler.url import check_is_site
 from feedcrawler.url import get_url
 
 
-def get_movies_list(self, liste):
+def get_movies_list(liste):
     cont = ListDb(liste).retrieve()
     titles = []
     if cont:
@@ -53,7 +53,7 @@ def settings_hash(self, refresh):
         if self.filename == "IMDB":
             self.pattern = self.filename
         else:
-            liste = get_movies_list(self, self.filename)
+            liste = get_movies_list(self.filename)
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
     settings = str(self.settings) + str(self.pattern)
     return hashlib.sha256(settings.encode('ascii', 'ignore')).hexdigest()
@@ -504,7 +504,7 @@ def download_hevc(self, title):
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not link_grabbed:
                             link = get_url(link)
-                        imdb_id = get_imdb_id(key, link, self.filename, internal.logger.debug)
+                        imdb_id = get_imdb_id(key, link, self.filename)
                         if not imdb_id:
                             dual_found = download_dual_language(self, key, True)
                             if dual_found and ".1080p." in key:
@@ -518,8 +518,7 @@ def download_hevc(self, title):
                                 imdb_id = imdb_id.pop()
                             imdb_url = "http://www.imdb.com/title/" + imdb_id
                             imdb_details = get_url(imdb_url)
-                            if get_original_language(key, imdb_details, imdb_url,
-                                                     internal.logger.debug):
+                            if get_original_language(key, imdb_details, imdb_url):
                                 dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
                                     return
@@ -714,8 +713,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            if get_original_language(key, imdb_details, imdb_url,
-                                     internal.logger.debug):
+            if get_original_language(key, imdb_details, imdb_url):
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
                     added_items.append(dual_found)
@@ -806,8 +804,7 @@ def download_feed(self, key, content, hevc_retail):
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            imdb_id = get_imdb_id(key, content, self.filename,
-                                  internal.logger.debug)
+            imdb_id = get_imdb_id(key, content, self.filename)
             if not imdb_id:
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
@@ -823,8 +820,7 @@ def download_feed(self, key, content, hevc_retail):
                     imdb_id = imdb_id.pop()
                 imdb_url = "http://www.imdb.com/title/" + imdb_id
                 imdb_details = get_url(imdb_url)
-                if get_original_language(key, imdb_details, imdb_url,
-                                         internal.logger.debug):
+                if get_original_language(key, imdb_details, imdb_url):
                     dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
                         added_items.append(dual_found)
@@ -903,7 +899,7 @@ def periodical_task(self):
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
             return
-        liste = get_movies_list(self, self.filename)
+        liste = get_movies_list(self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
     elif self.filename == 'List_ContentAll_Movies_Regex':
@@ -911,13 +907,13 @@ def periodical_task(self):
             internal.logger.debug(
                 "Regex deaktiviert. Stoppe Suche für Filme! (" + self.filename + ")")
             return
-        liste = get_movies_list(self, self.filename)
+        liste = get_movies_list(self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
     elif self.filename == "IMDB":
         self.pattern = self.filename
     else:
-        liste = get_movies_list(self, self.filename)
+        liste = get_movies_list(self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
 
