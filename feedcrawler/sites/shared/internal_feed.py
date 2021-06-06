@@ -189,6 +189,7 @@ def by_get_download_links(self, content, title):
 
 
 def by_feed_enricher(self, content):
+    unused_get_feed_parameter(self)
     base_url = "https://" + CrawlerConfig('Hostnames').get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))

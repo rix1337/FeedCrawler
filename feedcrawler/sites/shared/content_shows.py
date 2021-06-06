@@ -137,7 +137,6 @@ def periodical_task(self):
                 url = feed_url(self)
                 if url:
                     response = get_url_headers(url, self.headers)
-                    response = response[0]
                     if self.filename == "List_ContentAll_Seasons" or self.filename == "List_ContentShows_Seasons_Regex":
                         feed = self.get_feed_method(response["text"], "seasons", 'https://' + self.url, True)
                     else:

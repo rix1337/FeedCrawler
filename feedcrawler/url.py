@@ -178,7 +178,6 @@ def get_url(url):
 
 
 def get_url_headers(url, headers=False):
-    # ToDo refactor all usages (output is not .content but ["text"] etc.)
     try:
         if check_site_blocked(url):
             return ""

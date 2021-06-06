@@ -21,7 +21,7 @@ from feedcrawler.url import get_url_headers
 
 def get_imdb(url):
     result = get_url_headers(url, headers={'Accept-Language': 'de'})
-    output = result[0].text
+    output = result["text"]
     return output
 
 
