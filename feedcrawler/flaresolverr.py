@@ -108,6 +108,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
     response_headers = {}
 
     try:
+        # ToDo only use flaresolver, if site is blocked
         if flaresolverr_url:
             if not cloudproxy_session:
                 json_session = requests.post(flaresolverr_url, data=dumps({

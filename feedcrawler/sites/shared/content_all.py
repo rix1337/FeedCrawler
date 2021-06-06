@@ -1017,7 +1017,7 @@ def periodical_task(self):
                 "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self._SITE + "-CDC!")
     if not loading_304:
         try:
-            header = first_page_raw.headers['Last-Modified']
+            header = first_page_raw['headers']['Last-Modified']
         except:
             header = False
         if header:
