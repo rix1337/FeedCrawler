@@ -188,8 +188,7 @@ def by_get_download_links(self, content, title):
     return download_links
 
 
-def by_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def by_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
@@ -291,8 +290,7 @@ def dw_get_download_links(self, content, title):
     return [download_link]
 
 
-def dw_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def dw_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('dw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("download/"))
@@ -512,8 +510,7 @@ def fx_get_download_links(self, content, title):
     return download_links
 
 
-def fx_feed_enricher(self, feed):
-    unused_get_feed_parameter(self)
+def fx_feed_enricher(feed):
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
     entries = []
@@ -582,8 +579,7 @@ def fx_search_results(content):
     return items
 
 
-def nk_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
@@ -666,7 +662,9 @@ def ww_post_url_headers(url, headers=False):
         response = post_url_headers(url, headers, data)
         if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
                                                                                       response["text"]:
-            print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            if not internal.ww_blocked:
+                print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                internal.ww_blocked = True
             return ""
         return response
     except:
@@ -680,7 +678,10 @@ def ww_get_download_links(self, content, title):
     try:
         response = get_url(content)
         if not response or "NinjaFirewall 429" in response:
-            print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            if not internal.ww_blocked:
+                print(
+                    u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                internal.ww_blocked = True
             return False
         links = BeautifulSoup(response, 'lxml').findAll("div", {"id": "download-links"})
         for link in links:
@@ -696,8 +697,7 @@ def ww_get_download_links(self, content, title):
         return False
 
 
-def ww_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")

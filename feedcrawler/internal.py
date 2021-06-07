@@ -19,6 +19,7 @@ port = False
 prefix = False
 docker = False
 logger = False
+ww_blocked = False
 
 
 def get_globals():

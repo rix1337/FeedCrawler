@@ -8,6 +8,7 @@ import re
 from bs4 import BeautifulSoup
 
 from feedcrawler import internal
+from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
@@ -24,7 +25,6 @@ from feedcrawler.sites.shared.internal_feed import dw_page_download_link
 from feedcrawler.sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.sites.shared.internal_feed import get_search_results
 from feedcrawler.sites.shared.internal_feed import nk_page_download_link
-from feedcrawler.url import check_is_site
 from feedcrawler.url import get_url
 
 
@@ -935,7 +935,7 @@ def periodical_task(self):
     loading_304 = False
     try:
         first_page_raw = self.get_url_headers_method(urls[0], self.headers)
-        first_page_content = self.get_feed_method(self, first_page_raw["text"])
+        first_page_content = self.get_feed_method(first_page_raw["text"])
         if first_page_raw["status_code"] == 304:
             loading_304 = True
     except:
@@ -975,8 +975,7 @@ def periodical_task(self):
                     if i == 0 and first_page_content:
                         parsed_url = first_page_content
                     else:
-                        parsed_url = self.get_feed_method(self,
-                                                          self.get_url_method(url))
+                        parsed_url = self.get_feed_method(self.get_url_method(url))
                     found = search_imdb(self, imdb, parsed_url)
                     if found:
                         for f in found:
@@ -989,7 +988,7 @@ def periodical_task(self):
                 if i == 0 and first_page_content:
                     parsed_url = first_page_content
                 else:
-                    parsed_url = self.get_feed_method(self, self.get_url_method(url))
+                    parsed_url = self.get_feed_method(self.get_url_method(url))
                 found = search_feed(self, parsed_url)
                 if found:
                     for f in found:
