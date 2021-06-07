@@ -51,7 +51,7 @@ from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
 helper_active = False
-already_added = False
+already_added = []
 
 def app_container():
     global helper_active
