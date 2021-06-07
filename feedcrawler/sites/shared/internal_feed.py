@@ -188,8 +188,7 @@ def by_get_download_links(self, content, title):
     return download_links
 
 
-def by_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def by_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('by')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
@@ -291,8 +290,7 @@ def dw_get_download_links(self, content, title):
     return [download_link]
 
 
-def dw_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def dw_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('dw')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", href=re.compile("download/"))
@@ -512,8 +510,7 @@ def fx_get_download_links(self, content, title):
     return download_links
 
 
-def fx_feed_enricher(self, feed):
-    unused_get_feed_parameter(self)
+def fx_feed_enricher(feed):
     feed = BeautifulSoup(feed, 'lxml')
     articles = feed.findAll("article")
     entries = []
@@ -582,8 +579,7 @@ def fx_search_results(content):
     return items
 
 
-def nk_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
@@ -701,8 +697,7 @@ def ww_get_download_links(self, content, title):
         return False
 
 
-def ww_feed_enricher(self, content):
-    unused_get_feed_parameter(self)
+def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     content = BeautifulSoup(content, 'lxml')
     posts = content.findAll("li")

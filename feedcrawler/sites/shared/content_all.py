@@ -935,7 +935,7 @@ def periodical_task(self):
     loading_304 = False
     try:
         first_page_raw = self.get_url_headers_method(urls[0], self.headers)
-        first_page_content = self.get_feed_method(self, first_page_raw["text"])
+        first_page_content = self.get_feed_method(first_page_raw["text"])
         if first_page_raw["status_code"] == 304:
             loading_304 = True
     except:
@@ -975,8 +975,7 @@ def periodical_task(self):
                     if i == 0 and first_page_content:
                         parsed_url = first_page_content
                     else:
-                        parsed_url = self.get_feed_method(self,
-                                                          self.get_url_method(url))
+                        parsed_url = self.get_feed_method(self.get_url_method(url))
                     found = search_imdb(self, imdb, parsed_url)
                     if found:
                         for f in found:
@@ -989,7 +988,7 @@ def periodical_task(self):
                 if i == 0 and first_page_content:
                     parsed_url = first_page_content
                 else:
-                    parsed_url = self.get_feed_method(self, self.get_url_method(url))
+                    parsed_url = self.get_feed_method(self.get_url_method(url))
                 found = search_feed(self, parsed_url)
                 if found:
                     for f in found:
