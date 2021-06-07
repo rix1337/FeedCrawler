@@ -13,6 +13,7 @@ import requests
 from requests import RequestException
 
 from feedcrawler import internal
+from feedcrawler.common import check_site_blocked
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
@@ -108,46 +109,52 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
     response_headers = {}
 
     try:
-        # ToDo only use flaresolver, if site is blocked
-        if flaresolverr_url:
-            if not cloudproxy_session:
-                json_session = requests.post(flaresolverr_url, data=dumps({
-                    'cmd': 'sessions.create'
-                }))
-                response_session = loads(json_session.text)
-                cloudproxy_session = response_session['session']
+        if check_site_blocked(url):
+            if flaresolverr_url:
+                internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
+                if not cloudproxy_session:
+                    json_session = requests.post(flaresolverr_url, data=dumps({
+                        'cmd': 'sessions.create'
+                    }))
+                    response_session = loads(json_session.text)
+                    cloudproxy_session = response_session['session']
 
-            headers['Content-Type'] = 'application/x-www-form-urlencoded' if (method == 'post') else 'application/json'
+                headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
+                        method == 'post') else 'application/json'
 
-            json_response = requests.post(flaresolverr_url, data=dumps({
-                'cmd': 'request.%s' % method,
-                'url': url,
-                'session': cloudproxy_session,
-                'headers': headers,
-                'postData': '%s' % encoded_params if (method == 'post') else ''
-            }))
-
-            status_code = json_response.status_code
-            response = loads(json_response.text)
-
-            if 'solution' in response:
-                if redirect_url:
-                    try:
-                        return response['solution']['url']
-                    except:
-                        internal.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
-                        return url
-                text = response['solution']['response']
-                response_headers = response['solution']['headers']
-
-            if status_code == 500:
-                internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
-                                      cloudproxy_session)
-                requests.post(flaresolverr_url, data=dumps({
-                    'cmd': 'sessions.destroy',
+                json_response = requests.post(flaresolverr_url, data=dumps({
+                    'cmd': 'request.%s' % method,
+                    'url': url,
                     'session': cloudproxy_session,
+                    'headers': headers,
+                    'postData': '%s' % encoded_params if (method == 'post') else ''
                 }))
-                cloudproxy_session = None
+
+                status_code = json_response.status_code
+                response = loads(json_response.text)
+
+                if 'solution' in response:
+                    if redirect_url:
+                        try:
+                            return response['solution']['url']
+                        except:
+                            internal.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
+                            return url
+                    text = response['solution']['response']
+                    response_headers = response['solution']['headers']
+
+                if status_code == 500:
+                    internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
+                                          cloudproxy_session)
+                    requests.post(flaresolverr_url, data=dumps({
+                        'cmd': 'sessions.destroy',
+                        'session': cloudproxy_session,
+                    }))
+                    cloudproxy_session = None
+            else:
+                internal.logger.debug(
+                    "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
+                return ""
         else:
             if method == 'post':
                 response = requests.post(url, data=params, timeout=30, headers=headers)

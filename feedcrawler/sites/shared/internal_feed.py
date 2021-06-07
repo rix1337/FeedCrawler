@@ -666,7 +666,9 @@ def ww_post_url_headers(url, headers=False):
         response = post_url_headers(url, headers, data)
         if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
                                                                                       response["text"]:
-            print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            if not internal.ww_blocked:
+                print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                internal.ww_blocked = True
             return ""
         return response
     except:
@@ -680,7 +682,10 @@ def ww_get_download_links(self, content, title):
     try:
         response = get_url(content)
         if not response or "NinjaFirewall 429" in response:
-            print(u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+            if not internal.ww_blocked:
+                print(
+                    u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                internal.ww_blocked = True
             return False
         links = BeautifulSoup(response, 'lxml').findAll("div", {"id": "download-links"})
         for link in links:

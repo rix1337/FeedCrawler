@@ -394,3 +394,13 @@ def configpath(configpath):
     if not os.path.exists(configpath):
         os.makedirs(configpath)
     return configpath
+
+
+def check_site_blocked(url):
+    db_status = FeedDb('site_status')
+    site = check_is_site(url)
+    check_against_sites = ["SJ", "DJ", "SF", "BY", "DW", "FX", "NK", "WW"]
+    for check_against in check_against_sites:
+        if site and check_against in site and db_status.retrieve(check_against):
+            return True
+    return False
