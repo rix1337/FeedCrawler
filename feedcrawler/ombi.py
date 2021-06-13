@@ -43,8 +43,7 @@ def get_year(input_title):
 
 def imdb_movie(imdb_id):
     try:
-        result = get_imdb('https://www.imdb.com/title/' + imdb_id)
-        output = result[0]
+        output = get_imdb('https://www.imdb.com/title/' + imdb_id)
         title = get_title(output)
         year = get_year(output)
         return title + " " + year
