@@ -176,8 +176,12 @@ def periodical_task(self):
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
-            internal.logger.debug(
-                "Feed ist leer - breche  Suche ab!")
+            if self._SITE == "SF" and not internal.sf_blocked:
+                print(u"SF hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                internal.sf_blocked = True
+            else:
+                internal.logger.debug(
+                    "Feed ist leer - breche  Suche ab!")
             return False
 
         for post in feed.entries:
