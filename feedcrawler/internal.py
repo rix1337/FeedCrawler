@@ -79,14 +79,15 @@ def set_logger(set_log_level):
         logfile.setFormatter(formatter)
         logfile.setLevel(logging.INFO)
 
-        logger.addHandler(logfile)
-        logger.addHandler(console)
+        if not len(logger.handlers):
+            logger.addHandler(logfile)
+            logger.addHandler(console)
 
-        if set_log_level == 10:
-            logfile_debug = logging.handlers.RotatingFileHandler(log_file_debug)
-            logfile_debug.setFormatter(formatter)
-            logfile_debug.setLevel(10)
-            logger.addHandler(logfile_debug)
+            if set_log_level == 10:
+                logfile_debug = logging.handlers.RotatingFileHandler(log_file_debug)
+                logfile_debug.setFormatter(formatter)
+                logfile_debug.setLevel(10)
+                logger.addHandler(logfile_debug)
 
 
 def set_connection_info(set_local_address, set_port, set_prefix, set_docker):
