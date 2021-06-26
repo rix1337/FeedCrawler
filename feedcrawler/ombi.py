@@ -124,8 +124,7 @@ def ombi(first_launch):
             if not bool(r.get("available")):
                 imdb_id = r.get("imdbId")
                 if not db.retrieve('movie_' + str(imdb_id)) == 'added':
-                    response = imdb_movie(imdb_id)
-                    title = response[0]
+                    title = imdb_movie(imdb_id)
                     if title:
                         best_result = feedcrawler.search.shared.content_all.get_best_result(title)
                         print(u"Film: " + title + u" durch Ombi hinzugefügt.")

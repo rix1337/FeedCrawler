@@ -127,7 +127,7 @@ def search_imdb(self, imdb, feed):
                                     quality_match = True
                     if not quality_match:
                         internal.logger.debug(
-                            "%s - Release ignoriert (falsche Aufloesung)" % post.title)
+                            "%s - Release ignoriert (falsche Auflösung)" % post.title)
                         continue
 
                 ignore = "|".join(
