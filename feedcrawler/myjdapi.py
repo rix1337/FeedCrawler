@@ -485,12 +485,11 @@ class Linkgrabber:
         resp = self.device.action("/linkgrabberv2/isCollecting")
         return resp
 
-    def rename_package(self):
-        """
-        No idea what parameters i have to pass and/or i don't know what it does.
-        If i find out i will implement it :P
-        """
-        pass
+    def rename_package(self, package_id, new_name):
+        # todo this is not working yet
+        params = package_id, new_name
+        resp = self.device.action(self.url + "/linkgrabberv2/renamePackage", params)
+        return resp
 
     def query_packages(self, params=[
         {
