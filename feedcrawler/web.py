@@ -1552,12 +1552,13 @@ var cnlExists = setInterval(async function() {
                                         episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                         remove_decrypt(package['name'])
                                         if episode:
-                                            FeedDb('episode_remover').store(name, str(int(episode[0])))
+                                            episode_to_keep = str(int(episode[0]))
                                             episode = str(episode[0])
                                             if len(episode) == 1:
                                                 episode = "0" + episode
                                             name = name.replace(season_string + ".",
                                                                 season_string + "E" + episode + ".")
+                                            FeedDb('episode_remover').store(name, episode_to_keep)
                                             break
                             time.sleep(1)
                             remove_decrypt(name)

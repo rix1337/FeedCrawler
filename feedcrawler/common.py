@@ -232,9 +232,13 @@ def get_to_decrypt():
             packages = []
             for package in to_decrypt:
                 title = package[0]
-                details = package[1].split('|')
-                url = details[0]
-                password = details[1]
+                try:
+                    details = package[1].split('|')
+                    url = details[0]
+                    password = details[1]
+                except:
+                    url = package[1]
+                    password = ""
                 packages.append({
                     'name': title,
                     'url': url,
