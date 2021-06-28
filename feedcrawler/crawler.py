@@ -233,7 +233,6 @@ def crawldog(global_variables):
                                                 db.delete(title[0])
 
                                 if packages_in_linkgrabber_decrypted:
-                                    remove = False
                                     for package in packages_in_linkgrabber_decrypted:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                             hoster_check([package], title[0], [0])
@@ -246,9 +245,31 @@ def crawldog(global_variables):
 
                                                 delete_linkids = []
                                                 keep_linkids = []
-                                                append_package_name = title[0] + " Episoden: "
+
+                                                season_string = re.findall(r'.*(s\d{1,3}).*', title[0], re.IGNORECASE)[
+                                                    0]
+                                                if season_string:
+                                                    if len(episodes) == 1:
+                                                        episode_string = str(episodes[0])
+                                                        if len(episodes[0]) == 1:
+                                                            episode_string = "0" + episode_string
+                                                        replace_string = season_string + "E" + episode_string
+                                                        append_package_name = title[0].replace(season_string,
+                                                                                               replace_string)
+                                                    else:
+                                                        episode_from_string = str(episodes[0])
+                                                        if len(episodes[0]) == 1:
+                                                            episode_from_string = "0" + episode_from_string
+                                                        episode_to_string = str(episodes[-1])
+                                                        if len(episodes[-1]) == 1:
+                                                            episode_to_string = "0" + episode_to_string
+                                                        replace_string = season_string + "E" + episode_from_string + "-E" + episode_to_string
+                                                        append_package_name = title[0].replace(season_string,
+                                                                                               replace_string)
+                                                else:
+                                                    append_package_name = title[0]
+
                                                 for episode in episodes:
-                                                    append_package_name = append_package_name + str(episode) + ","
                                                     filenames = package['filenames']
                                                     if len(filenames) > 1:
                                                         fname_episodes = []
@@ -322,14 +343,20 @@ def crawldog(global_variables):
                                                 if delete_linkids:
                                                     delete_uuids = [package['uuid']]
                                                     FeedDb('episode_remover').delete(title[0])
-                                                    remove = remove_from_linkgrabber(delete_linkids,
-                                                                                     delete_uuids)
-                                                rename_package_in_linkgrabber(package['uuid'], append_package_name[:-1])
+                                                    remove_from_linkgrabber(delete_linkids, delete_uuids)
+                                                    try:
+                                                        new_myjd_packages = get_info()[4][1]
+                                                        for new_myjd_package in new_myjd_packages:
+                                                            if new_myjd_package["name"] == title[0]:
+                                                                package = new_myjd_package
+                                                                break
+                                                    except:
+                                                        pass
+                                                rename_package_in_linkgrabber(package['uuid'], append_package_name)
                                             if autostart:
                                                 move_to_downloads(package['linkids'],
                                                                   [package['uuid']])
-                                            if remove:
-                                                db.delete(title[0])
+                                            db.delete(title[0])
 
                                 if offline_packages:
                                     for package in offline_packages:

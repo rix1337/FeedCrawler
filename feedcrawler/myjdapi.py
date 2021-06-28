@@ -486,9 +486,8 @@ class Linkgrabber:
         return resp
 
     def rename_package(self, package_id, new_name):
-        # todo this is not working yet
         params = package_id, new_name
-        resp = self.device.action(self.url + "/linkgrabberv2/renamePackage", params)
+        resp = self.device.action(self.url + "/renamePackage", params)
         return resp
 
     def query_packages(self, params=[
