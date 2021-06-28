@@ -53,10 +53,11 @@ from feedcrawler.search import search
 helper_active = False
 already_added = []
 
+
 def app_container():
     global helper_active
     global already_added
-    
+
     base_dir = '.'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)
@@ -1440,7 +1441,8 @@ var cnlExists = setInterval(async function() {
                     return "Failed", 400
                 if payload:
                     links = payload[0]
-                    name = payload[1].replace("%20", "")
+                    package_name = payload[1].replace("%20", "")
+                    name = package_name
 
                     try:
                         password = payload[2]
@@ -1451,7 +1453,7 @@ var cnlExists = setInterval(async function() {
                     except:
                         ids = False
 
-                    FeedDb('crawldog').store(name, 'added')
+                    FeedDb('crawldog').store(package_name, 'added')
                     if internal.device:
                         if ids:
                             try:
@@ -1478,11 +1480,11 @@ var cnlExists = setInterval(async function() {
                                     uuids.append(uuids_raw)
 
                                 remove_from_linkgrabber(linkids, uuids)
-                                remove_decrypt(name)
+                                remove_decrypt(package_name)
                         else:
-                            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', name)
+                            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
                             if not is_episode:
-                                re_name = rreplace(name.lower(), "-", ".*", 1)
+                                re_name = rreplace(package_name.lower(), "-", ".*", 1)
                                 re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
                                 season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
                                 if season_string:
@@ -1493,12 +1495,12 @@ var cnlExists = setInterval(async function() {
                                 web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
                                 for tag in web_tags:
                                     re_name = re_name.replace(tag, ".web.*")
-                                multigroup = re.findall(r'.*-((.*)\/(.*))', name.lower())
+                                multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
                                 if multigroup:
                                     re_name = re_name.replace(multigroup[0][0],
                                                               '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
                             else:
-                                re_name = name
+                                re_name = package_name
                                 season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
 
                             if season_string:
@@ -1520,23 +1522,25 @@ var cnlExists = setInterval(async function() {
                                         for package in failed:
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                                # ToDo refactor to new code below
                                                 if episode:
-                                                    FeedDb('episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb('episode_remover').store(package_name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
                                                 remove_from_linkgrabber(linkids, uuids)
-                                                remove_decrypt(name)
+                                                remove_decrypt(package_name)
                                                 break
                                     if offline:
                                         for package in offline:
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                                                # ToDo refactor to new code below
                                                 if episode:
-                                                    FeedDb('episode_remover').store(name, str(int(episode[0])))
+                                                    FeedDb('episode_remover').store(package_name, str(int(episode[0])))
                                                 linkids = package['linkids']
                                                 uuids = [package['uuid']]
                                                 remove_from_linkgrabber(linkids, uuids)
-                                                remove_decrypt(name)
+                                                remove_decrypt(package_name)
                                                 break
                                 except:
                                     pass
@@ -1552,26 +1556,32 @@ var cnlExists = setInterval(async function() {
                                         episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                                         remove_decrypt(package['name'])
                                         if episode:
-                                            FeedDb('episode_remover').store(name, str(int(episode[0])))
+                                            episode_to_keep = str(int(episode[0]))
                                             episode = str(episode[0])
                                             if len(episode) == 1:
                                                 episode = "0" + episode
                                             name = name.replace(season_string + ".",
                                                                 season_string + "E" + episode + ".")
+                                            episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
+                                            if episode_in_remover:
+                                                episode_to_keep = episode_in_remover + "|" + episode_to_keep
+                                                FeedDb('episode_remover').delete(package_name)
+                                                time.sleep(1)
+                                            FeedDb('episode_remover').store(package_name, episode_to_keep)
                                             break
                             time.sleep(1)
                             remove_decrypt(name)
                         try:
                             epoch = int(time.time())
                             for item in already_added:
-                                if item[0] == name:
+                                if item[0] == package_name:
                                     if int(item[1]) + 30 > epoch:
                                         print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
                                         return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt", 400
                                     else:
                                         already_added.remove(item)
 
-                            download(name, "FeedCrawler", links, password)
+                            download(package_name, "FeedCrawler", links, password)
                             db = FeedDb('FeedCrawler')
                             if not db.retrieve(name):
                                 db.store(name, 'added')

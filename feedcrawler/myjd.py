@@ -445,6 +445,26 @@ def remove_from_linkgrabber(linkids, uuid):
         return False
 
 
+def rename_package_in_linkgrabber(package_id, new_name):
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.linkgrabber.rename_package(package_id, new_name)
+            except feedcrawler.myjdapi.TokenExpiredException:
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.linkgrabber.rename_package(package_id, new_name)
+            return True
+        else:
+            return False
+    except feedcrawler.myjdapi.MYJDException as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def move_to_new_package(linkids, package_id, new_title, new_path):
     try:
         if not internal.device or not is_device(internal.device):
