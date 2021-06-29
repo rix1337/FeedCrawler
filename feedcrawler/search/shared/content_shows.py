@@ -64,6 +64,10 @@ def get_best_result(title):
     return best_payload
 
 
+def valid_release(title, release):
+    return title.lower() in release.lower()
+
+
 def download(payload):
     hostnames = CrawlerConfig('Hostnames')
     sj = hostnames.get('sj')
@@ -111,53 +115,54 @@ def download(payload):
         releases = seasons[season]
         for release in releases['items']:
             name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
-            try:
-                season = re.findall(r'.*\.(s\d{1,3}).*', name, re.IGNORECASE)[0]
-            except:
-                pass
-            hosters = release['hoster']
-            try:
-                valid = bool(release['resolution'] == quality)
-            except:
-                valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
-            if valid and special:
-                valid = bool("." + special.lower() + "." in name.lower())
-            if valid and not english_ok:
-                valid = bool(".german." in name.lower())
-            if valid:
-                valid = False
-                for hoster in hosters:
-                    if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
-                        valid = True
-            if valid:
+            if valid_release(title, name):
                 try:
-                    ep = release['episode']
-                    if ep:
-                        existing = result_episodes.get(season)
-                        if existing:
-                            valid = False
-                            for e in existing:
-                                if e == ep:
-                                    if rate(name, ignore) > rate(existing[e], ignore):
-                                        valid = True
-                                else:
-                                    valid = True
-                            if valid:
-                                existing.update({ep: name})
-                        else:
-                            existing = {ep: name}
-                        result_episodes.update({season: existing})
-                        continue
+                    season = re.findall(r'.*\.(s\d{1,3}).*', name, re.IGNORECASE)[0]
                 except:
                     pass
+                hosters = release['hoster']
+                try:
+                    valid = bool(release['resolution'] == quality)
+                except:
+                    valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
+                if valid and special:
+                    valid = bool("." + special.lower() + "." in name.lower())
+                if valid and not english_ok:
+                    valid = bool(".german." in name.lower())
+                if valid:
+                    valid = False
+                    for hoster in hosters:
+                        if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
+                            valid = True
+                if valid:
+                    try:
+                        ep = release['episode']
+                        if ep:
+                            existing = result_episodes.get(season)
+                            if existing:
+                                valid = False
+                                for e in existing:
+                                    if e == ep:
+                                        if rate(name, ignore) > rate(existing[e], ignore):
+                                            valid = True
+                                    else:
+                                        valid = True
+                                if valid:
+                                    existing.update({ep: name})
+                            else:
+                                existing = {ep: name}
+                            result_episodes.update({season: existing})
+                            continue
+                    except:
+                        pass
 
-                existing = result_seasons.get(season)
-                dont = False
-                if existing:
-                    if rate(name, ignore) < rate(existing, ignore):
-                        dont = True
-                if not dont:
-                    result_seasons.update({season: name})
+                    existing = result_seasons.get(season)
+                    dont = False
+                    if existing:
+                        if rate(name, ignore) < rate(existing, ignore):
+                            dont = True
+                    if not dont:
+                        result_seasons.update({season: name})
 
         try:
             if result_seasons[season] and result_episodes[season]:
@@ -181,41 +186,42 @@ def download(payload):
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
-                hosters = release['hoster']
-                valid = True
-                if valid and special:
-                    valid = bool("." + special.lower() + "." in name.lower())
-                if valid and not english_ok:
-                    valid = bool(".german." in name.lower())
-                if valid:
-                    valid = False
-                    for hoster in hosters:
-                        if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
-                            valid = True
-                if valid:
-                    try:
-                        ep = release['episode']
-                        if ep:
-                            existing = result_episodes.get(season)
-                            if existing:
-                                for e in existing:
-                                    if e == ep:
-                                        if rate(name, ignore) > rate(existing[e], ignore):
-                                            existing.update({ep: name})
-                            else:
-                                existing = {ep: name}
-                            result_episodes.update({season: existing})
-                            continue
-                    except:
-                        pass
+                if valid_release(title, name):
+                    hosters = release['hoster']
+                    valid = True
+                    if valid and special:
+                        valid = bool("." + special.lower() + "." in name.lower())
+                    if valid and not english_ok:
+                        valid = bool(".german." in name.lower())
+                    if valid:
+                        valid = False
+                        for hoster in hosters:
+                            if hoster and check_hoster(hoster) or config.get("hoster_fallback"):
+                                valid = True
+                    if valid:
+                        try:
+                            ep = release['episode']
+                            if ep:
+                                existing = result_episodes.get(season)
+                                if existing:
+                                    for e in existing:
+                                        if e == ep:
+                                            if rate(name, ignore) > rate(existing[e], ignore):
+                                                existing.update({ep: name})
+                                else:
+                                    existing = {ep: name}
+                                result_episodes.update({season: existing})
+                                continue
+                        except:
+                            pass
 
-                    existing = result_seasons.get(season)
-                    dont = False
-                    if existing:
-                        if rate(name, ignore) < rate(existing, ignore):
-                            dont = True
-                    if not dont:
-                        result_seasons.update({season: name})
+                        existing = result_seasons.get(season)
+                        dont = False
+                        if existing:
+                            if rate(name, ignore) < rate(existing, ignore):
+                                dont = True
+                        if not dont:
+                            result_seasons.update({season: name})
 
             try:
                 if result_seasons[season] and result_episodes[season]:
