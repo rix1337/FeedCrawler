@@ -54,8 +54,7 @@ def imdb_movie(imdb_id):
 
 def imdb_show(ombi_imdb_id):
     try:
-        result = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id)
-        output = result[0]
+        output = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id)
 
         title = get_title(output)
 
@@ -65,8 +64,7 @@ def imdb_show(ombi_imdb_id):
         seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
         if not seasons:
             episode_guide = soup.find_all("a", {"class": "np_episode_guide"})[0]["href"]
-            result = get_imdb("https://www.imdb.com/" + episode_guide)
-            output = result[0]
+            output = get_imdb("https://www.imdb.com/" + episode_guide)
 
             soup = BeautifulSoup(output, 'lxml')
             imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
@@ -75,8 +73,7 @@ def imdb_show(ombi_imdb_id):
         latest_season = int(seasons[0].text)
         total_seasons = list(range(1, latest_season + 1))
         for sn in total_seasons:
-            result = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn))
-            output = result[0]
+            output = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn))
 
             ep = []
             soup = BeautifulSoup(output, 'lxml')
@@ -141,7 +138,7 @@ def ombi(first_launch):
                         internal.logger.debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
 
     if requested_shows:
-        internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern dessen Hostname gesetzt wurde.")
+        internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern der Hostname gesetzt wurde.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         infos = None
