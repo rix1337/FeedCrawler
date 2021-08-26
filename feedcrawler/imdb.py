@@ -4,10 +4,15 @@
 
 import re
 
-from bs4 import BeautifulSoup
+from imdb import IMDb
 
 from feedcrawler import internal
 from feedcrawler.url import get_url
+
+
+def clean_imdb_id(string):
+    integer = re.findall(r'\d+', string)[0]
+    return integer
 
 
 def get_imdb_id(key, content, filename):
@@ -56,44 +61,15 @@ def get_imdb_id(key, content, filename):
     return imdb_id
 
 
-def get_original_language(key, imdb_details, imdb_url):
+def get_original_language(key, imdb_id):
     original_language = False
-    if imdb_details and len(imdb_details) > 0:
-        soup = BeautifulSoup(imdb_details, 'lxml')
-        try:
-            original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
-        except:
-            pass
-    elif imdb_url and len(imdb_url) > 0:
-        imdb_details = get_url(imdb_url)
-        if imdb_details:
-            soup = BeautifulSoup(imdb_details, 'lxml')
-            try:
-                original_language = soup.find('h4', text=re.compile(r'Language:')).parent.find("a").text
-            except:
-                pass
 
-    if not original_language:
-        if imdb_details and len(imdb_details) > 0:
-            soup = BeautifulSoup(imdb_details, 'lxml')
-            try:
-                original_language = \
-                    soup.find('h3', text=re.compile(r'Language')).next.next.next.text.strip().replace("\n", "").split(
-                        ",")[
-                        0]
-            except:
-                pass
-        elif imdb_url and len(imdb_url) > 0:
-            imdb_details = get_url(imdb_url)
-            if imdb_details:
-                soup = BeautifulSoup(imdb_details, 'lxml')
-                try:
-                    original_language = \
-                        soup.find('h3', text=re.compile(r'Language')).next.next.next.text.strip().replace("\n",
-                                                                                                          "").split(
-                            ",")[0]
-                except:
-                    pass
+    try:
+        imdb_id = clean_imdb_id(imdb_id)
+        output = IMDb().get_movie(imdb_id)
+        original_language = output.data["languages"][0]
+    except:
+        pass
 
     if not original_language:
         internal.logger.debug("%s - Originalsprache nicht ermittelbar" % key)

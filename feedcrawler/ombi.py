@@ -3,10 +3,9 @@
 # Projekt von https://github.com/rix1337
 
 import json
-import re
 
 import requests
-from bs4 import BeautifulSoup
+from imdb import IMDb
 
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
@@ -16,75 +15,40 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.url import get_url_headers
-
-
-def get_imdb(url):
-    result = get_url_headers(url, headers={'Accept-Language': 'de'})
-    output = result["text"]
-    return output
-
-
-def get_title(input_title):
-    try:
-        raw_title = re.findall(r"<title>(.*) \((?:.*(?:19|20)\d{2})\) - IMDb</title>", input_title)[0]
-    except:
-        raw_title = re.findall(r'<meta name="title" content="(.*) \((?:.*(?:19|20)\d{2}).*\) - IMDb"', input_title)[0]
-    return sanitize(raw_title)
-
-
-def get_year(input_title):
-    try:
-        raw_year = re.findall(r"<title>(?:.*) \((.*(?:19|20)\d{2})\) - IMDb</title>", input_title)[0]
-    except:
-        raw_year = re.findall(r'<meta name="title" content="(?:.*) \((.*(?:19|20)\d{2}).*\) - IMDb"', input_title)[0]
-    return sanitize(raw_year)
+from feedcrawler.imdb import clean_imdb_id
 
 
 def imdb_movie(imdb_id):
     try:
-        output = get_imdb('https://www.imdb.com/title/' + imdb_id)
-        title = get_title(output)
-        year = get_year(output)
+        imdb_id = clean_imdb_id(imdb_id)
+        output = IMDb().get_movie(imdb_id)
+        title = sanitize(output.data['localized title'])
+        year = str(output.data['year'])
         return title + " " + year
     except:
         print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False
 
 
-def imdb_show(ombi_imdb_id):
+def imdb_show(imdb_id):
     try:
-        output = get_imdb('https://www.imdb.com/title/' + ombi_imdb_id)
-
-        title = get_title(output)
-
+        imdb_id = clean_imdb_id(imdb_id)
+        ia = IMDb()
+        output = ia.get_movie(imdb_id)
+        ia.update(output, 'episodes')
+        title = sanitize(output.data['localized title'])
+        seasons = output.data['episodes']
         eps = {}
-        soup = BeautifulSoup(output, 'lxml')
-        imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
-        seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
-        if not seasons:
-            episode_guide = soup.find_all("a", {"class": "np_episode_guide"})[0]["href"]
-            output = get_imdb("https://www.imdb.com/" + episode_guide)
 
-            soup = BeautifulSoup(output, 'lxml')
-            imdb_id = soup.find_all("meta", property="pageId")[0]["content"]
-            seasons = soup.find_all("a", href=re.compile(r'.*/title/' + imdb_id + r'/episodes\?season=.*'))
-
-        latest_season = int(seasons[0].text)
-        total_seasons = list(range(1, latest_season + 1))
-        for sn in total_seasons:
-            output = get_imdb("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + str(sn))
-
+        for sn in seasons:
             ep = []
-            soup = BeautifulSoup(output, 'lxml')
-            episodes = soup.find_all("meta", itemprop="episodeNumber")
-            for e in episodes:
-                ep.append(int(e['content']))
-            eps[sn] = ep
+            for e in seasons[sn]:
+                ep.append(int(e))
+            eps[int(sn)] = ep
 
         return title, eps
     except:
-        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + ombi_imdb_id)
+        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False, False
 
 
@@ -115,7 +79,8 @@ def ombi(first_launch):
         return [0, 0]
 
     if requested_movies:
-        internal.logger.debug("Die Suchfunktion für Filme nutzt BY, DW, FX und NK, sofern deren Hostnamen gesetzt wurden.")
+        internal.logger.debug(
+            "Die Suchfunktion für Filme nutzt BY, DW, FX und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
