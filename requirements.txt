@@ -5,11 +5,12 @@
 bs4
 docopt
 flask
-rapidfuzz
+imdbpy
 lxml
 passlib
 pycryptodomex
 python-dateutil
+rapidfuzz
 requests
 simplejson
 waitress

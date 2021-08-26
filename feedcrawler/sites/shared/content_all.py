@@ -5,7 +5,7 @@
 import hashlib
 import re
 
-from bs4 import BeautifulSoup
+from imdb import IMDb
 
 from feedcrawler import internal
 from feedcrawler.common import check_is_site
@@ -14,6 +14,7 @@ from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
 from feedcrawler.common import is_retail
 from feedcrawler.db import ListDb
+from feedcrawler.imdb import clean_imdb_id
 from feedcrawler.imdb import get_imdb_id
 from feedcrawler.imdb import get_original_language
 from feedcrawler.myjd import myjd_download
@@ -59,7 +60,7 @@ def settings_hash(self, refresh):
     return hashlib.sha256(settings.encode('ascii', 'ignore')).hexdigest()
 
 
-def search_imdb(self, imdb, feed):
+def search_imdb(self, desired_rating, feed):
     added_items = []
     settings = str(self.settings)
     score = str(self.imdb)
@@ -157,126 +158,35 @@ def search_imdb(self, imdb, feed):
                         "%s - Release ignoriert (IMDB sucht nur Filme)" % post.title)
                     continue
 
-                year_in_title = re.findall(
-                    r"\.((?:19|20)\d{2})\.", post.title)
-                years_in_title = len(year_in_title)
-                if years_in_title:
-                    title_year = year_in_title[years_in_title - 1]
-                else:
-                    title_year = ""
-
+                imdb_data = False
                 if post_imdb:
-                    imdb_url = "http://www.imdb.com/title/" + post_imdb[0]
+                    imdb_id = clean_imdb_id(post_imdb[0])
+                    imdb_data = IMDb().get_movie(imdb_id)
                 else:
-                    imdb_url = ""
-                    try:
-                        search_title = \
-                            re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
-                                       post.title)[
-                                0].replace(
-                                ".", "+").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
-                                "Ae",
-                                u"Ä").replace(
-                                "Oe", u"Ö").replace("Ue", u"Ü")
-                    except:
-                        break
-                    search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
-                    search_page = get_url(search_url)
-                    search_soup = BeautifulSoup(search_page, 'lxml')
-                    try:
-                        search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
-                                                                                                  {
-                                                                                                      "class": "result_text"})
-                    except:
-                        try:
-                            search_title = \
-                                re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
-                                           post.title)[
-                                    0].replace(
-                                    ".", "+")
-                        except:
-                            break
-                        search_url = "http://www.imdb.com/find?q=" + search_title + "+" + title_year + "&s=tt&ref_=fn_al_tt_ex"
-                        search_page = get_url(search_url)
-                        search_soup = BeautifulSoup(search_page, 'lxml')
-                        try:
-                            search_results = search_soup.find("table", {"class": "findList"}).findAll("td",
-                                                                                                      {
-                                                                                                          "class": "result_text"})
-                        except:
-                            internal.logger.debug("%s - Kein passender IMDB-Eintrag gefunden" % post.title)
-                            continue
-                    found = False
-                    for result in search_results:
-                        if "TV Series" not in result.text:
-                            found = True
-                            href = result.find("a")
-                            if not title_year:
-                                title_year = re.findall(r"(\d{4})", href.next.next)[0]
-                            imdb_url = "http://www.imdb.com" + href["href"]
-                            break
-                    if not found:
+                    search_title = \
+                        re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", post.title)[
+                            0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
+                            "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
+                    ia = IMDb()
+                    results = ia.search_movie(search_title)
+                    if not results:
                         internal.logger.debug(
                             "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
-
-                imdb_details = ""
-                min_year = self.config.get("imdbyear")
-                if min_year:
-                    if title_year:
-                        if title_year < min_year:
-                            internal.logger.debug(
-                                "%s - Release ignoriert (Film zu alt)" % post.title)
-                            continue
-                    elif imdb_url:
-                        imdb_details = get_url(imdb_url)
-                        if not imdb_details:
-                            internal.logger.debug(
-                                "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
-                            continue
-                        title_year = re.findall(
-                            r"<title>(?:.*) \(((?:19|20)\d{2})\) - IMDb<\/title>", imdb_details)
-                        if not title_year:
-                            internal.logger.debug(
-                                "%s - Erscheinungsjahr nicht ermittelbar" % post.title)
-                            continue
-                        else:
-                            title_year = title_year[0]
-                        if title_year < min_year:
-                            internal.logger.debug(
-                                "%s - Release ignoriert (Film zu alt)" % post.title)
-                            continue
-                if imdb_url:
-                    if not imdb_details:
-                        imdb_details = get_url(imdb_url)
-                    if not imdb_details:
-                        internal.logger.debug(
-                            "%s - Fehler bei Aufruf der IMDB-Seite" % post.title)
-                        continue
-                    vote_count = re.findall(r'ratingCount">(.*?)<\/span>', imdb_details)
-                    if not vote_count:
-                        vote_count = re.findall(r'ratingCount.+?(\d{1,}),', imdb_details)
-                    if not vote_count:
-                        internal.logger.debug(
-                            "%s - Wertungsanzahl nicht ermittelbar" % post.title)
-                        continue
                     else:
-                        vote_count = int(vote_count[0].replace(
-                            ".", "").replace(",", ""))
-                    if vote_count < 1500:
-                        internal.logger.debug(
-                            post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes: " + str(
-                                vote_count) + ")")
-                        continue
-                    download_score = re.findall(r'ratingValue">(.*?)<\/span>', imdb_details)
-                    if not download_score:
-                        download_score = re.findall(r'ratingValue": "(.*?)"', imdb_details)
-                        if not download_score:
+                        imdb_data = IMDb().get_movie(results[0].movieID)
+
+                if imdb_data:
+                    min_year = int(self.config.get("imdbyear"))
+                    if min_year:
+                        if imdb_data.data["year"] < min_year:
                             internal.logger.debug(
-                                "%s - IMDB-Wertung nicht ermittelbar" % post.title)
+                                "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-                    download_score = float(download_score[0].replace(
-                        ",", "."))
-                    if download_score > imdb:
+                    if imdb_data.data["votes"] < 1500:
+                        internal.logger.debug(
+                            post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes)")
+                        continue
+                    if imdb_data.data["rating"] > desired_rating:
                         download_links = False
                         if self.prefer_dw_mirror and "DW" not in self._SITE:
                             download_links = dw_mirror(self, post.title)
@@ -288,8 +198,8 @@ def search_imdb(self, imdb, feed):
                             site = self._SITE
                             download_method = self.download_method
                         found = download_imdb(self,
-                                              post.title, download_links, str(download_score), imdb_url,
-                                              imdb_details, hevc_retail, site, download_method)
+                                              post.title, download_links, str(imdb_data.data["rating"]), post_imdb[0],
+                                              hevc_retail, site, download_method)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -516,9 +426,7 @@ def download_hevc(self, title):
                         else:
                             if isinstance(imdb_id, list):
                                 imdb_id = imdb_id.pop()
-                            imdb_url = "http://www.imdb.com/title/" + imdb_id
-                            imdb_details = get_url(imdb_url)
-                            if get_original_language(key, imdb_details, imdb_url):
+                            if get_original_language(key, imdb_id):
                                 dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
                                     return
@@ -691,7 +599,7 @@ def download_dual_language(self, title, hevc=False):
                         internal.logger.debug(wrong_hoster)
 
 
-def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc_retail, site, download_method):
+def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, download_method):
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
@@ -713,7 +621,7 @@ def download_imdb(self, key, download_links, score, imdb_url, imdb_details, hevc
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            if get_original_language(key, imdb_details, imdb_url):
+            if get_original_language(key, imdb_id):
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
                     added_items.append(dual_found)
@@ -818,9 +726,7 @@ def download_feed(self, key, content, hevc_retail):
             else:
                 if isinstance(imdb_id, list):
                     imdb_id = imdb_id.pop()
-                imdb_url = "http://www.imdb.com/title/" + imdb_id
-                imdb_details = get_url(imdb_url)
-                if get_original_language(key, imdb_details, imdb_url):
+                if get_original_language(key, imdb_id):
                     dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
                         added_items.append(dual_found)
@@ -893,7 +799,7 @@ def download_feed(self, key, content, hevc_retail):
 
 
 def periodical_task(self):
-    imdb = self.imdb
+    desired_rating = self.imdb
     urls = []
 
     if self.filename == 'List_ContentAll_Seasons':
@@ -928,7 +834,7 @@ def periodical_task(self):
         internal.logger.debug("Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
-    if self.filename == 'IMDB' and imdb == 0:
+    if self.filename == 'IMDB' and desired_rating == 0:
         internal.logger.debug("IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
@@ -968,7 +874,7 @@ def periodical_task(self):
 
     added_items = []
     if self.filename == "IMDB":
-        if imdb > 0:
+        if desired_rating > 0:
             i = 0
             for url in urls:
                 if not self.search_imdb_done:
@@ -976,7 +882,7 @@ def periodical_task(self):
                         parsed_url = first_page_content
                     else:
                         parsed_url = self.get_feed_method(self.get_url_method(url))
-                    found = search_imdb(self, imdb, parsed_url)
+                    found = search_imdb(self, desired_rating, parsed_url)
                     if found:
                         for f in found:
                             added_items.append(f)
