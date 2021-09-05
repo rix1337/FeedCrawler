@@ -66,7 +66,7 @@ def get_original_language(key, imdb_id):
 
     try:
         imdb_id = clean_imdb_id(imdb_id)
-        output = IMDb().get_movie(imdb_id)
+        output = IMDb('https', languages='de-DE').get_movie(imdb_id)
         original_language = output.data["languages"][0]
     except:
         pass

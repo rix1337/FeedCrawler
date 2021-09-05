@@ -21,7 +21,8 @@ from feedcrawler.imdb import clean_imdb_id
 def imdb_movie(imdb_id):
     try:
         imdb_id = clean_imdb_id(imdb_id)
-        output = IMDb().get_movie(imdb_id)
+        ia = IMDb('https', languages='de-DE')
+        output = ia.get_movie(imdb_id)
         title = sanitize(output.data['localized title'])
         year = str(output.data['year'])
         return title + " " + year
@@ -33,7 +34,7 @@ def imdb_movie(imdb_id):
 def imdb_show(imdb_id):
     try:
         imdb_id = clean_imdb_id(imdb_id)
-        ia = IMDb()
+        ia = IMDb('https', languages='de-DE')
         output = ia.get_movie(imdb_id)
         ia.update(output, 'episodes')
         title = sanitize(output.data['localized title'])
