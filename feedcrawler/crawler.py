@@ -7,7 +7,7 @@
 
 Usage:
   crawler.py [--config="<CFGPFAD>"]
-                [--travis_ci]
+                [--test_run]
                 [--docker]
                 [--port=<PORT>]
                 [--jd-user=<NUTZERNAME>]
@@ -24,7 +24,7 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
-  --travis_ci               Intern: Startparameter für die TravisCI-Prüfung
+  --test_run                Intern: Führt einen Testlauf durch
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
 
@@ -153,9 +153,9 @@ def crawler(global_variables):
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
 
-            if arguments['--travis_ci']:
-                logger.debug(u"-----------travis_ci beendet!-----------")
-                print(u"-----------travis_ci beendet!-----------")
+            if arguments['--test_run']:
+                logger.debug(u"-----------test_run beendet!-----------")
+                print(u"-----------test_run beendet!-----------")
                 return
 
             wait_chunks = wait // 10
@@ -482,14 +482,14 @@ def main():
         if hostname:
             set_hostnames[name] = hostname
 
-    if not arguments['--travis_ci'] and not set_hostnames:
+    if not arguments['--test_run'] and not set_hostnames:
         print(u'Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
         time.sleep(10)
         sys.exit(1)
 
     disable_request_warnings(InsecureRequestWarning)
 
-    if not arguments['--travis_ci']:
+    if not arguments['--test_run']:
         if not os.path.exists(internal.configfile):
             if arguments['--docker']:
                 if arguments['--jd-user'] and arguments['--jd-pass']:
@@ -513,7 +513,7 @@ def main():
                 myjd.myjd_input(arguments['--port'], arguments['--jd-user'], arguments['--jd-pass'],
                                 arguments['--jd-device'])
 
-    if not arguments['--travis_ci']:
+    if not arguments['--test_run']:
         if not internal.device:
             print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
             time.sleep(10)
@@ -550,7 +550,7 @@ def main():
     p = multiprocessing.Process(target=web_server, args=(global_variables,))
     p.start()
 
-    if not arguments['--travis_ci']:
+    if not arguments['--test_run']:
         c = multiprocessing.Process(target=crawler, args=(global_variables,))
         c.start()
 
