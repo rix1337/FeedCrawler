@@ -1,6 +1,9 @@
 name: Trigger builds
 
-on: [push]
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   job_1:
