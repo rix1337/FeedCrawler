@@ -18,5 +18,6 @@ jobs:
       - name: Compile Windows Exe
         run: |
           python feedcrawler/version.py > version.txt
-          "SET /p version= < version.txt"
-          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%version%-standalone-win64"
+          set /P VERSION=< version.txt
+          echo %VERSION%
+          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%VERSION%-standalone-win64"
