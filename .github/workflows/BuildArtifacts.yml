@@ -3,6 +3,18 @@ name: Trigger builds
 on: [push]
 
 jobs:
+  job_1:
+    name: Build Linux wheel
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          pip install wheel
+          pip install pyinstaller
+          pip install git+https://github.com/alberanid/imdbpy
+          pip install -r requirements.txt
+          python setup.py sdist bdist_wheel
+          
   job_2:
     name: Build Windows Exe
     runs-on: windows-latest
