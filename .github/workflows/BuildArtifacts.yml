@@ -23,7 +23,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifact-wheel
-          path: ./dist/feedcrawler-$version-py3-none-any.whl
+          path: ~/dist/feedcrawler-${{ version}}-py3-none-any.whl
           
   job_2:
     name: Build Windows Exe
