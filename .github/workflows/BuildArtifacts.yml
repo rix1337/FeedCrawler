@@ -1,15 +1,11 @@
 name: Trigger builds
 
-on: 
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
-  job_1:
-    name: Build Docker Image rix1337/docker-feedcrawler
-    runs-on: ubuntu-latest
+  job_2:
+    name: Build Windows Exe
+    runs-on: windows-latest
     steps:
-      - shell: bash
-        run: |
-          curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/docker-feedcrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "master"}'
+      - run: |
+          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "%localappdata%\Programs\Python\Python39\Lib\site-packages\cloudscraper\;cloudscraper" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%version%-standalone-win64"
