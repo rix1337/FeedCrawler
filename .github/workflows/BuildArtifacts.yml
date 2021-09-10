@@ -16,6 +16,7 @@ jobs:
           pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
       - name: Compile Linux wheel
+        run: |
           python setup.py sdist bdist_wheel
           
   job_2:
