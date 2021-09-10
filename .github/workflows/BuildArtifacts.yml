@@ -7,7 +7,6 @@ jobs:
     name: Build Linux wheel
     runs-on: ubuntu-latest
     steps:
-      - shell: bash
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Install requirements
