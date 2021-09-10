@@ -17,7 +17,13 @@ jobs:
           pip install -r requirements.txt
       - name: Compile Linux wheel
         run: |
+          version=$(python feedcrawler/version.py)
           python setup.py sdist bdist_wheel
+      - name: Upload Linux wheel
+        uses: actions/upload-artifact@v2
+        with:
+          name: artifact-wheel
+          path: ./dist/feedcrawler-$version-py3-none-any.whl
           
   job_2:
     name: Build Windows Exe
