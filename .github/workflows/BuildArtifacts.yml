@@ -1,0 +1,12 @@
+name: Trigger builds
+
+on: [push]
+
+jobs:
+  job_1:
+    name: Build Docker Image rix1337/docker-feedcrawler
+    runs-on: ubuntu-latest
+    steps:
+      - shell: bash
+        run: |
+          curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/docker-feedcrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "master"}'
