@@ -15,6 +15,10 @@ jobs:
           pip install pyinstaller
           pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
+      - name: Get version
+        run: |
+          python feedcrawler/version.py > version.txt
+          SET /p version= < version.txt
       - name: Compile Windows Exe
         run: |
-          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "%localappdata%\Programs\Python\Python39\Lib\site-packages\cloudscraper\;cloudscraper" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%version%-standalone-win64"
+          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%version%-standalone-win64"
