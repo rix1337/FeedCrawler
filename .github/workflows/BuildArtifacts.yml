@@ -22,7 +22,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifact-wheel
-          path: ~/dist/*.whl
+          path: ./dist/*.whl
           
   job_2:
     name: Build Windows Exe
@@ -44,4 +44,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: artifact-wheel
-          path: ~/feedcrawler-*-standalone-win64.exe
+          path: feedcrawler-*-standalone-win64.exe
