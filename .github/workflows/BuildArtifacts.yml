@@ -7,5 +7,7 @@ jobs:
     name: Build Windows Exe
     runs-on: windows-latest
     steps:
+      - run: pip install pyinstaller
+      - run: pip install -r requirements.txt
       - run: |
           pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "%localappdata%\Programs\Python\Python39\Lib\site-packages\cloudscraper\;cloudscraper" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-%version%-standalone-win64"
