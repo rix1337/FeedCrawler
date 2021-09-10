@@ -8,11 +8,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - shell: bash
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install requirements
         run: |
           pip install wheel
           pip install pyinstaller
           pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
+      - name: Compile Linux wheel
           python setup.py sdist bdist_wheel
           
   job_2:
