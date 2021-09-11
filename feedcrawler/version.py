@@ -14,7 +14,7 @@ def get_version():
 
 
 def create_version_file():
-    version_split = get_version().split(".")
+    version_split = re.sub('[^\d\.]', '', get_version().split("."))
     version_info = [
         "VSVersionInfo(",
         "  ffi=FixedFileInfo(",
