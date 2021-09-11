@@ -82,7 +82,7 @@ jobs:
           pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
       - name: Get Version
-        run: echo "::set-output name=version::v.$(python feedcrawler/version.py)"
+        run: echo "::set-output name=version::$(python feedcrawler/version.py)"
         id: version
       - name: Create Release
         uses: actions/create-release@v1
@@ -92,8 +92,8 @@ jobs:
         with:
           draft: false
           prerelease: false
-          release_name: ${{ steps.version.outputs.version }}
-          tag_name: ${{ steps.version.outputs.version }}
+          release_name: v.${{ steps.version.outputs.version }}
+          tag_name: v.${{ steps.version.outputs.version }}
           body_path: .github/Changelog.md
       - name: Upload Linux Wheel
         uses: actions/upload-release-asset@v1
