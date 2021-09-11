@@ -8,7 +8,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v2     
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
       - name: Install requirements
         run: |
           pip install wheel
@@ -30,6 +34,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      - uses: actions/cache@v2
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ env.pythonLocation }}-${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
       - name: Install requirements
         run: |
           pip install wheel
@@ -43,5 +51,5 @@ jobs:
       - name: Upload Windows Exe
         uses: actions/upload-artifact@v2
         with:
-          name: artifact-wheel
+          name: artifact-exe
           path: ./dist/*.exe
