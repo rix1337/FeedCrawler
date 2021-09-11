@@ -1,6 +1,10 @@
-name: Trigger builds
+name: Release Artifacts
 
 on: [push]
+
+# ToDo: Limit to master
+# ToDo: Prevent duplicate runs
+# ToDo: Upload to twine
 
 jobs:
   build_wheel:
@@ -75,6 +79,8 @@ jobs:
       - name: Install requirements
         run: |
           pip install twine
+          pip install git+https://github.com/alberanid/imdbpy
+          pip install -r requirements.txt
       - name: Get Version
         run: echo "::set-output name=version::v.$(python feedcrawler/version.py)"
         id: version
@@ -96,7 +102,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
+          asset_path: ./artifact-wheel/feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
           asset_name: feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
       - name: Upload Linux Wheel
         uses: actions/upload-release-asset@v1
@@ -104,7 +110,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
+          asset_path: ./artifact-exe/feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
           asset_name: feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
 
 
