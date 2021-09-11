@@ -94,6 +94,7 @@ jobs:
           prerelease: false
           release_name: ${{ steps.version.outputs.version }}
           tag_name: ${{ steps.version.outputs.version }}
+          body_path: .github/Changelog.md
       - name: Upload Linux Wheel
         uses: actions/upload-release-asset@v1
         env:
@@ -102,6 +103,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifact-wheel/feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
           asset_name: feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
+          asset_content_type: application/octet-stream
       - name: Upload Linux Wheel
         uses: actions/upload-release-asset@v1
         env:
@@ -110,6 +112,7 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./artifact-exe/feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
           asset_name: feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
+          asset_content_type: application/octet-stream
       - name: Trigger Docker Image build
         run: |
           curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/docker-feedcrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "master"}'
