@@ -63,7 +63,7 @@ jobs:
           path: ./dist/*.exe
 
   release:
-    name: Release artifacts
+    name: Release Artifacts
     runs-on: ubuntu-latest
     needs: [build_wheel, build_exe]
     steps:
