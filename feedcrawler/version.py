@@ -10,11 +10,12 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "11.0.8"
+    return "11.0.9"
 
 
 def create_version_file():
-    version_split = get_version().split(".")
+    version_clean = re.sub('[^\d\.]', '', get_version())
+    version_split = version_clean.split(".")
     version_info = [
         "VSVersionInfo(",
         "  ffi=FixedFileInfo(",
@@ -34,12 +35,12 @@ def create_version_file():
         "        u'040704b0',",
         "        [StringStruct(u'CompanyName', u'RiX'),",
         "        StringStruct(u'FileDescription', u'FeedCrawler'),",
-        "        StringStruct(u'FileVersion', u'" + get_version() + ".0'),",
+        "        StringStruct(u'FileVersion', u'" + version_clean + ".0'),",
         "        StringStruct(u'InternalName', u'FeedCrawler'),",
         "        StringStruct(u'LegalCopyright', u'Copyright © RiX'),",
         "        StringStruct(u'OriginalFilename', u'FeedCrawler.exe'),",
         "        StringStruct(u'ProductName', u'FeedCrawler'),",
-        "        StringStruct(u'ProductVersion', u'" + get_version() + ".0')])",
+        "        StringStruct(u'ProductVersion', u'" + version_clean + ".0')])",
         "      ]),",
         "    VarFileInfo([VarStruct(u'Translation', [1031, 1200])])",
         "  ]",
