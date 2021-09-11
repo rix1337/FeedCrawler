@@ -59,12 +59,13 @@ jobs:
           path: ./dist/*.exe
 
   upload:
-    name: Upload artifacts
+    name: Release artifacts
     runs-on: ubuntu-latest
     needs: [build_wheel, build_exe]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2     
+        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v2
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -74,4 +75,18 @@ jobs:
       - name: Install requirements
         run: |
           pip install twine
-          
+      - name: version
+        run: echo "::set-output name=version::v.$(./python feedcrawler/version.py)"
+        id: version
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ steps.version.outputs.version }}
+          tag_name: ${{ steps.version.outputs.version }}
+      - name: Display structure of downloaded files
+        run: ls -R
+
+
