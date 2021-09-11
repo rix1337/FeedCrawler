@@ -4,6 +4,7 @@
 
 FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
+[![Release Artifacts](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml/badge.svg?branch=master)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 [![PyPI version](https://badge.fury.io/py/feedcrawler.svg)](https://badge.fury.io/py/feedcrawler)
 [![PyPI - Downloads](https://img.shields.io/pypi/dm/feedcrawler)](https://github.com/rix1337/FeedCrawler/releases)
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
