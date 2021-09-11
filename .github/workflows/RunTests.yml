@@ -1,4 +1,4 @@
-name: RunTests
+name: Run Tests
 on: [pull_request]
 
 jobs:
