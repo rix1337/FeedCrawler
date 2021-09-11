@@ -58,7 +58,7 @@ jobs:
           name: artifact-exe
           path: ./dist/*.exe
 
-  upload:
+  release:
     name: Release artifacts
     runs-on: ubuntu-latest
     needs: [build_wheel, build_exe]
@@ -75,18 +75,36 @@ jobs:
       - name: Install requirements
         run: |
           pip install twine
-      - name: version
-        run: echo "::set-output name=version::v.$(./python feedcrawler/version.py)"
+      - name: Get Version
+        run: echo "::set-output name=version::v.$(python feedcrawler/version.py)"
         id: version
-      - name: release
+      - name: Display structure of downloaded files
+        run: ls -R
+      - name: Create Release
         uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         id: create_release
         with:
           draft: false
           prerelease: false
           release_name: ${{ steps.version.outputs.version }}
           tag_name: ${{ steps.version.outputs.version }}
-      - name: Display structure of downloaded files
-        run: ls -R
+      - name: Upload Linux Wheel
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
+          asset_name: feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
+      - name: Upload Linux Wheel
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
+          asset_name: feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
 
 
