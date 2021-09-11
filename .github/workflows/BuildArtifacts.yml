@@ -38,6 +38,8 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
+      - name: Pip dir
+        run: pip cache dir
       - name: Install requirements
         run: |
           pip install wheel
