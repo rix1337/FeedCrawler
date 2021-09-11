@@ -9,7 +9,8 @@
 ---
 
 ### Changelog:
-- **11.0.8b1** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
+- **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
+- **11.0.9** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 - **11.0.8** Integration von [IMDbPY](https://imdbpy.github.io/) um IMDb deutlich stabiler zu parsen
 - **11.0.7** Fix #523 Danke @9Mad-Max5
 - **11.0.6** Fehlerbehebung im Handling von Episodenpaketen
