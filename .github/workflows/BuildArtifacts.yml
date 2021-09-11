@@ -36,10 +36,8 @@ jobs:
         uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
-          path: ~/.cache/pip
+          path: $env:LOCALAPPDATA\pip\cache
           key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-      - name: Pip dir
-        run: pip cache dir
       - name: Install requirements
         run: |
           pip install wheel
