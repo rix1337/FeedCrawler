@@ -1,10 +1,9 @@
 name: Release Artifacts
 
-on: [push]
-
-# ToDo: Limit to master
-# ToDo: Prevent duplicate runs
-# ToDo: Upload to twine
+on: 
+  push:
+    branches:
+      - master
 
 jobs:
   build_wheel:
