@@ -9,7 +9,7 @@
 ---
 
 ### Changelog:
-- **11.0.8a** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
+- **11.0.8a1** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 - **11.0.8** Integration von [IMDbPY](https://imdbpy.github.io/) um IMDb deutlich stabiler zu parsen
 - **11.0.7** Fix #523 Danke @9Mad-Max5
 - **11.0.6** Fehlerbehebung im Handling von Episodenpaketen
