@@ -77,8 +77,7 @@ jobs:
             ${{ runner.os }}-pip-
       - name: Install requirements
         run: |
-          pip install twine
-          pip install beautifulsoup4>=4.9.3
+          pip install twine beautifulsoup4>=4.9.3
       - name: Get Version
         run: echo "::set-output name=version::$(python feedcrawler/version.py)"
         id: version
