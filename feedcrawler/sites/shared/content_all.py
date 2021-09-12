@@ -155,7 +155,7 @@ def search_imdb(self, desired_rating, feed):
                 season = re.search(r'\.S(\d{1,3})(\.|-|E)', post.title)
                 if season:
                     internal.logger.debug(
-                        "%s - Release ignoriert (IMDB sucht nur Filme)" % post.title)
+                        "%s - Release ignoriert (IMDb sucht nur Filme)" % post.title)
                     continue
 
                 imdb_data = False
@@ -171,7 +171,7 @@ def search_imdb(self, desired_rating, feed):
                     results = ia.search_movie(search_title)
                     if not results:
                         internal.logger.debug(
-                            "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
+                            "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)
                     else:
                         imdb_data = IMDb().get_movie(results[0].movieID)
                 if imdb_data:
@@ -183,7 +183,7 @@ def search_imdb(self, desired_rating, feed):
                             continue
                     if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
                         internal.logger.debug(
-                            post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes)")
+                            post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
                         continue
                     if float(str(imdb_data.data["rating"]).replace(",", ".")) > desired_rating:
                         download_links = False
@@ -650,7 +650,7 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[IMDB ' + score + '/Film' + (
+                log_entry = '[IMDb ' + score + '/Film' + (
                     '/Englisch - ' if englisch and not retail else "") + (
                                 '/Englisch/Retail' if englisch and retail else "") + (
                                 '/Retail' if not englisch and retail else "") + (
@@ -835,7 +835,7 @@ def periodical_task(self):
         return
 
     if self.filename == 'IMDB' and desired_rating == 0:
-        internal.logger.debug("IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
+        internal.logger.debug("IMDb-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
     loading_304 = False
