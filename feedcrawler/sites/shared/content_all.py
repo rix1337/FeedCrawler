@@ -174,19 +174,18 @@ def search_imdb(self, desired_rating, feed):
                             "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
                     else:
                         imdb_data = IMDb('https', languages='de-DE').get_movie(results[0].movieID)
-
                 if imdb_data:
                     min_year = int(self.config.get("imdbyear"))
                     if min_year:
-                        if imdb_data.data["year"] < min_year:
+                        if int(imdb_data.data["year"]) < min_year:
                             internal.logger.debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-                    if imdb_data.data["votes"] < 1500:
+                    if int("".join(re.findall('\d+', imdb_data.data["votes"]))) < 1500:
                         internal.logger.debug(
                             post.title + " - Release ignoriert (Weniger als 1500 IMDB-Votes)")
                         continue
-                    if imdb_data.data["rating"] > desired_rating:
+                    if float(imdb_data.data["rating"].replace(",", ".")) > desired_rating:
                         download_links = False
                         if self.prefer_dw_mirror and "DW" not in self._SITE:
                             download_links = dw_mirror(self, post.title)
@@ -198,8 +197,9 @@ def search_imdb(self, desired_rating, feed):
                             site = self._SITE
                             download_method = self.download_method
                         found = download_imdb(self,
-                                              post.title, download_links, str(imdb_data.data["rating"]), post_imdb[0],
-                                              hevc_retail, site, download_method)
+                                              post.title, download_links,
+                                              str(imdb_data.data["rating"]).replace(",", "."),
+                                              imdb_data.movieID, hevc_retail, site, download_method)
                         if found:
                             for i in found:
                                 added_items.append(i)

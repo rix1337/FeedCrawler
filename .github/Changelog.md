@@ -9,13 +9,16 @@
 ---
 
 ### Changelog:
+- **11.0.10** Fix: Exception in IMDb-Suche
+- **11.0.10** Update auf Bootstrap 5.1.1
 - **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
-- **11.0.9** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
+- **11.0.9** Automatisierter Releaseprozess
+  über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 - **11.0.8** Integration von [IMDbPY](https://imdbpy.github.io/) um IMDb deutlich stabiler zu parsen
 - **11.0.7** Fix #523 Danke @9Mad-Max5
 - **11.0.6** Fehlerbehebung im Handling von Episodenpaketen
-    - Nicht benötigte Episoden werden wieder korrekt entfernt
-    - Das hinzugefügte Paket enthält die verbliebenen Episoden im Namen
+  - Nicht benötigte Episoden werden wieder korrekt entfernt
+  - Das hinzugefügte Paket enthält die verbliebenen Episoden im Namen
 - **11.0.5** Update auf Bootstrap 5.0.2
 - **11.0.5** Fix beim Abruf von Filmtiteln durch Ombi
 - **11.0.5** Fix der doppelten Logeinträge #519 Danke @jankete
@@ -23,9 +26,9 @@
 - **11.0.3** Bugfixes #517
 - **11.0.2** Bugfixes #516
 - **11.0.1** Bugfixes #515
-- **11.0.0**  Update des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf  Version 1.0.4
-   - Verbessertes Laden neuer Releases
-   - Update des Anti-Captcha-Addons auf v.0.56 (mit verbesserter hCaptcha-Erkennung)
+- **11.0.0**  Update des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf Version 1.0.4
+  - Verbessertes Laden neuer Releases
+  - Update des Anti-Captcha-Addons auf v.0.56 (mit verbesserter hCaptcha-Erkennung)
 - **11.0.0** **Großes Refactoring**: Verwendung globaler Variablen für wesentliche Informationen (erhöht die Pflegbarkeit des Codes deutlich)
 - **11.0.0** **[FlareSolverr](https://github.com/FlareSolverr/FlareSolverr)-Integration** zur Umgehung von Cloudflare-Blockaden
   - Aufgrund der erhöhten Komplexität entfällt damit die direkte Integration von Proxys im FeedCrawler. [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) soll in Zukunft HTTP-Proxies unterstützen.
