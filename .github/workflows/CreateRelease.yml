@@ -78,8 +78,7 @@ jobs:
       - name: Install requirements
         run: |
           pip install twine
-          pip install git+https://github.com/alberanid/imdbpy
-          pip install -r requirements.txt
+          pip install beautifulsoup4>=4.9.3
       - name: Get Version
         run: echo "::set-output name=version::$(python feedcrawler/version.py)"
         id: version
