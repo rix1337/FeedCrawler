@@ -9,6 +9,7 @@
 ---
 
 ### Changelog:
+- **11.0.11** Fix: Exception in IMDb-Suche
 - **11.0.10** Fix: Exception in IMDb-Suche
 - **11.0.10** Update auf Bootstrap 5.1.1
 - **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
