@@ -101,7 +101,7 @@ def ombi(first_launch):
                                 feedcrawler.search.shared.content_all.download(best_result)
                         db.store('movie_' + str(imdb_id), 'added')
                     else:
-                        internal.logger.debug("Titel für IMDB-ID nicht abrufbar: " + imdb_id)
+                        internal.logger.debug("Titel für IMDb-ID nicht abrufbar: " + imdb_id)
 
     if requested_shows:
         internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern der Hostname gesetzt wurde.")

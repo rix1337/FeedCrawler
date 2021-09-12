@@ -54,7 +54,7 @@ def get_imdb_id(key, content, filename):
                         total_results = 0
                         break
             if no_series is False:
-                internal.logger.debug("%s - Keine passende Film-IMDB-Seite gefunden" % key)
+                internal.logger.debug("%s - Keine passende Film-IMDb-Seite gefunden" % key)
         if not imdb_id:
             return False
 
