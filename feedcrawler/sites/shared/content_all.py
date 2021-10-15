@@ -155,25 +155,25 @@ def search_imdb(self, desired_rating, feed):
                 season = re.search(r'\.S(\d{1,3})(\.|-|E)', post.title)
                 if season:
                     internal.logger.debug(
-                        "%s - Release ignoriert (IMDB sucht nur Filme)" % post.title)
+                        "%s - Release ignoriert (IMDb sucht nur Filme)" % post.title)
                     continue
 
                 imdb_data = False
                 if post_imdb:
                     imdb_id = clean_imdb_id(post_imdb[0])
-                    imdb_data = IMDb('https', languages='de-DE').get_movie(imdb_id)
+                    imdb_data = IMDb().get_movie(imdb_id)
                 else:
                     search_title = \
                         re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", post.title)[
                             0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
                             "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                    ia = IMDb('https', languages='de-DE')
+                    ia = IMDb()
                     results = ia.search_movie(search_title)
                     if not results:
                         internal.logger.debug(
-                            "%s - Keine passende Film-IMDB-Seite gefunden" % post.title)
+                            "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)
                     else:
-                        imdb_data = IMDb('https', languages='de-DE').get_movie(results[0].movieID)
+                        imdb_data = IMDb().get_movie(results[0].movieID)
                 if imdb_data:
                     min_year = int(self.config.get("imdbyear"))
                     if min_year:
@@ -182,15 +182,15 @@ def search_imdb(self, desired_rating, feed):
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                     try:
-                        if int("".join(re.findall('\d+', imdb_data.data["votes"]))) < 1500:
-                            internal.logger.debug(
-                                post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
-                            continue
+                      if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
+                          internal.logger.debug(
+                              post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
+                          continue
                     except KeyError:
                         internal.logger.debug(
                             post.title + " - Release ignoriert (Konnte keine IMDb-Votes finden)")
                         continue
-                    if float(imdb_data.data["rating"].replace(",", ".")) > desired_rating:
+                    if float(str(imdb_data.data["rating"]).replace(",", ".")) > desired_rating:
                         download_links = False
                         if self.prefer_dw_mirror and "DW" not in self._SITE:
                             download_links = dw_mirror(self, post.title)
@@ -655,7 +655,7 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[IMDB ' + score + '/Film' + (
+                log_entry = '[IMDb ' + score + '/Film' + (
                     '/Englisch - ' if englisch and not retail else "") + (
                                 '/Englisch/Retail' if englisch and retail else "") + (
                                 '/Retail' if not englisch and retail else "") + (
@@ -840,7 +840,7 @@ def periodical_task(self):
         return
 
     if self.filename == 'IMDB' and desired_rating == 0:
-        internal.logger.debug("IMDB-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
+        internal.logger.debug("IMDb-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
     loading_304 = False
