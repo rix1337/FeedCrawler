@@ -18,6 +18,8 @@
 - **11.0.12** Fix: Exception bei Hinzufügen von DW-Links über
   den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 - **11.0.11** Fix: Exception bei fehlenden IMDb-Votes
+- **11.0.11** Update auf Bootstrap Icons 1.6.0
+- **11.0.11** Update auf Bootstrap 5.1.3
 - **11.0.10** Fix: Exception in IMDb-Suche
 - **11.0.10** Update auf Bootstrap 5.1.1
 - **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
