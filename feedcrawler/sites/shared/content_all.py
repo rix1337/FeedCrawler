@@ -181,9 +181,14 @@ def search_imdb(self, desired_rating, feed):
                             internal.logger.debug(
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
-                    if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
+                    try:
+                      if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
+                          internal.logger.debug(
+                              post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
+                          continue
+                    except KeyError:
                         internal.logger.debug(
-                            post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
+                            post.title + " - Release ignoriert (Konnte keine IMDb-Votes finden)")
                         continue
                     if float(str(imdb_data.data["rating"]).replace(",", ".")) > desired_rating:
                         download_links = False
