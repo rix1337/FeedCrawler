@@ -1436,7 +1436,7 @@ var cnlExists = setInterval(async function() {
                 global already_added
 
                 try:
-                    payload = decode_base64(payload).split("|")
+                    payload = decode_base64(payload.replace("%3D", "=")).split("|")
                 except:
                     return "Failed", 400
                 if payload:

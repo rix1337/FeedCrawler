@@ -9,6 +9,15 @@
 ---
 
 ### Changelog:
+- **11.0.11** Betaversion 2.0.0
+  von [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) verfügbar
+  - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst
+  - Einfach über das `chromium`-Tag ziehen und vorher den vorhandenen `/config`-Ordner löschen
+  - Der API-Key von Anti-Captcha muss noch manuell im Addon eingegeben werden, die restliche Einrichtung funktioniert
+    bequem automatisch.
+- **11.0.12** Fix: Exception bei Hinzufügen von DW-Links über
+  den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.11** Fix: Exception bei fehlenden IMDb-Votes
 - **11.0.10** Fix: Exception in IMDb-Suche
 - **11.0.10** Update auf Bootstrap 5.1.1
 - **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
