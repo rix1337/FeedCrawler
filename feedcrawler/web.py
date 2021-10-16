@@ -1152,10 +1152,12 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (DW)
 // @author          rix1337
 // @description     Clicks the correct download button on DW sub pages to speed up Click'n'Load
-// @version         0.1.0
+// @version         0.2.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + dw + """/*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
@@ -1194,7 +1196,6 @@ if (title) {
             console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
             clearInterval(dlExists);
             window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
             window.close();
         }
     }, 100);
@@ -1219,22 +1220,25 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.3.2
+// @version         0.4.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
 // @exclude         https://""" + sj + """/serie/search?q=*
 // @exclude         https://""" + dj + """/serie/search?q=*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 var sponsorsHoster = '';
 
-$.expr[":"].contains = $.expr.createPseudo(function(arg) {
-    return function( elem ) {
-        return $(elem).text().toUpperCase().indexOf(arg.toUpperCase()) >= 0;
-    };
+$.extend($.expr[':'], {
+  'containsi': function(elem, i, match, array) {
+    return (elem.textContent || elem.innerText || '').toLowerCase()
+        .indexOf((match[3] || "").toLowerCase()) >= 0;
+  }
 });
 
 document.body.addEventListener('mousedown', function (e) {
@@ -1248,57 +1252,66 @@ document.body.addEventListener('mousedown', function (e) {
 });
 
 function Sleep(milliseconds) {
-   return new Promise(resolve => setTimeout(resolve, milliseconds));
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
-
 
 var tag = window.location.hash.replace("#", "").split('|');
 var title = tag[0];
 var password = tag[1];
-if (title) {
+if (title && title !== "login") {
     $('.wrapper').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
     $(".container").hide();
-    var checkExist = setInterval(async function() {
+    var checkExist = setInterval(function() {
+        async function clickRelease() {
         if ($("tr:contains('" + title + "')").length) {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-            console.log("[FeedCrawler Sponsors Helper] clicked Download button of " + title);
-            await Sleep(500);
-            var requiresLogin = $(".alert-warning").length;
-            if (requiresLogin) {
-                clearInterval(checkExist);
+            if (sponsorsHelper) {
+                console.log("[FeedCrawler Sponsors Helper] Clicked Download button of " + title);
+                await Sleep(500);
+                var requiresLogin = $(".alert-warning").length;
+                if (requiresLogin) {
+                    clearInterval(checkExist);
+                    window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
+                    window.close()
+                }
             }
-            if ( sponsorsHoster && $("button:contains('" + sponsorsHoster + "')").length) {
-                $("button:contains('" + sponsorsHoster + "')").click();
-            } else if ( $("button:contains('1fichier')").length) {
-                $("button:contains('1fichier')").click();
-            } else if ( $("button:contains('turbo')").length) {
-                $("button:contains('turbo')").click();
-            } else if ( $("button:contains('filer')").length) {
-                $("button:contains('filer')").click();
-            } else {
-                $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
-            }
-            console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
             clearInterval(checkExist);
-        }
+        } }
+        clickRelease();
     }, 100);
 
-    var dlExists = setInterval(async function() {
-        if ($("tr:contains('Download Part')").length) {
-            var items = $("tr:contains('Download Part')").find("a");
-            var links = [];
-            items.each(function(index){
-                links.push(items[index].href);
-            })
-            console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
-            clearInterval(dlExists);
-            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
-            window.close();
-        }
-    }, 100);
-}
+    if (sponsorsHelper) {
+        var dlExists = setInterval(async function() {
+            if ($("tr:contains('Download Part')").length) {
+                var items = $("tr:contains('Download Part')").find("a");
+                var links = [];
+                items.each(function(index){
+                    links.push(items[index].href);
+                })
+                console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
+                clearInterval(dlExists);
+                window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+                window.close();
+            } else if ( document.body.innerHTML.search("se das Captcha!") && !$('.center-recaptcha').length) {
+                if ( sponsorsHoster && $("button:containsi('" + sponsorsHoster + "')").length) {
+                    $("button:containsi('" + sponsorsHoster + "')").click();
+                } else if ( $("button:containsi('1fichier')").length) {
+                    $("button:containsi('1fichier')").click();
+                } else if ( $("button:containsi('ddownload')").length) {
+                    $("button:containsi('ddownload')").click();
+                } else if ( $("button:containsi('turbo')").length) {
+                    $("button:containsi('turbo')").click();
+                } else if ( $("button:containsi('filer')").length) {
+                    $("button:containsi('filer')").click();
+                } else {
+                    $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
+                }
+                console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
+                }
+        }, 100);
+    }
+};
 """, 200
             except:
                 return "Failed", 400
@@ -1316,10 +1329,12 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to FeedCrawler
-// @version         0.3.5
+// @version         0.5.0
 // @match           *.filecrypt.cc/*
 // @match           *.filecrypt.co/*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
@@ -1593,7 +1608,7 @@ var cnlExists = setInterval(async function() {
                             already_added.append([name, str(epoch)])
                             return "<script type='text/javascript'>" \
                                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                   "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                                   "[FeedCrawler Sponsors Helper erfolgreich] - " + name, 200
                         except:
                             print(name + u" konnte nicht hinzugefügt werden!")
             except:
