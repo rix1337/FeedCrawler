@@ -9,12 +9,18 @@
 ---
 
 ### Changelog:
-- **11.0.13** Betaversion 2.0.0
-  von [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) verfügbar
-  - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst
-  - Einfach über das `chromium`-Tag ziehen und vorher den vorhandenen `/config`-Ordner löschen
-  - Der API-Key von Anti-Captcha muss noch manuell im Addon eingegeben werden, die restliche Einrichtung funktioniert
-    bequem automatisch.
+- **11.0.15** Release der neuen Version 2.0.0
+  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+  - Der Helper basiert ab sofort auf Chromium, statt Firefox.
+  - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst.
+  - Außerdem wurden alle Scripte aktualisiert um stabiler zu laufen.
+  - Es sind folgende Anpassungen der Docker Konfiguration des Helpers sinnvoll:
+    - das `--privileged`-Flag entfernen
+    - das `--restart unless-stopped`-Flag ergänzen
+- **11.0.15** Anpassung der Startseite des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+  - Die Seite aktualisiert ab sofort zweimalig je Minute, anstatt einmalig.
+  - Wurde ein Captcha nicht gelöst, öffnet der Helper die Seite erneut, statt abzuwarten.
+- **11.0.14** Bugfixes
 - **11.0.13** Fix: Exception bei Hinzufügen von DW-Links über
   den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 - **11.0.13** Fix: Exception bei fehlenden IMDb-Votes
