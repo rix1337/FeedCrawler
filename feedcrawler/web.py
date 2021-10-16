@@ -1152,10 +1152,12 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (DW)
 // @author          rix1337
 // @description     Clicks the correct download button on DW sub pages to speed up Click'n'Load
-// @version         0.1.0
+// @version         0.2.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + dw + """/*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
@@ -1194,7 +1196,6 @@ if (title) {
             console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
             clearInterval(dlExists);
             window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
             window.close();
         }
     }, 100);
@@ -1219,13 +1220,15 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.3.2
+// @version         0.4.0
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
 // @exclude         https://""" + sj + """/serie/search?q=*
 // @exclude         https://""" + dj + """/serie/search?q=*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
@@ -1294,7 +1297,6 @@ if (title) {
             console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
             clearInterval(dlExists);
             window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            // window.close() requires dom.allow_scripts_to_close_windows in Firefox
             window.close();
         }
     }, 100);
@@ -1316,10 +1318,12 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to FeedCrawler
-// @version         0.3.5
+// @version         0.4.0
 // @match           *.filecrypt.cc/*
 // @match           *.filecrypt.co/*
+// @grant           window.close
 // ==/UserScript==
+
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
 var sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
@@ -1593,7 +1597,7 @@ var cnlExists = setInterval(async function() {
                             already_added.append([name, str(epoch)])
                             return "<script type='text/javascript'>" \
                                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                   "This requires dom.allow_scripts_to_close_windows in Firefox to close automatically", 200
+                                   "[FeedCrawler Sponsors Helper erfolgreich] - " + name, 200
                         except:
                             print(name + u" konnte nicht hinzugefügt werden!")
             except:
