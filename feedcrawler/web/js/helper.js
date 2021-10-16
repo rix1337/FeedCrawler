@@ -39,6 +39,10 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                     $scope.current_to_decrypt = $scope.to_decrypt.name
                     $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
                 }
+            } else {
+                if (! $scope.wnd_to_decrypt.length ) {
+                    $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
+                }
             }
         }
 
@@ -49,18 +53,10 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                 spinHelper();
                 getToDecrypt();
                 $scope.updateToDecrypt();
-            }, 60000)
+            }, 30000)
         };
 
         $scope.updateToDecrypt();
-
-        $scope.cleanRam = function () {
-            $timeout(function () {
-                window.close();
-            }, 3600000)
-        };
-
-        $scope.cleanRam();
     }
 )
 ;
