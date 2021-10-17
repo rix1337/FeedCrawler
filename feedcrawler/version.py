@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "11.0.15"
+    return "11.0.16"
 
 
 def create_version_file():

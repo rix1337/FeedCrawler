@@ -9,7 +9,10 @@
 ---
 
 ### Changelog:
-- **11.0.15** Release der neuen Version 2.0.0
+- **11.0.16** Verhindere, dass
+  der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
+  selben Link mehrfach öffnet
+- **11.0.15** Release der neuen Version 2.0.1
   des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
   - Der Helper basiert ab sofort auf Chromium, statt Firefox.
   - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst.
@@ -17,7 +20,8 @@
   - Es sind folgende Anpassungen der Docker Konfiguration des Helpers sinnvoll:
     - das `--privileged`-Flag entfernen
     - das `--restart unless-stopped`-Flag ergänzen
-- **11.0.15** Anpassung der Startseite des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.15** Anpassung der Startseite
+  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
   - Die Seite aktualisiert ab sofort zweimalig je Minute, anstatt einmalig.
   - Wurde ein Captcha nicht gelöst, öffnet der Helper die Seite erneut, statt abzuwarten.
 - **11.0.14** Bugfixes
