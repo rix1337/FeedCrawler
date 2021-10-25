@@ -9,6 +9,7 @@
 ---
 
 ### Changelog:
+- **11.0.17** Linkerkennung auf FX angepasst
 - **11.0.16** Verhindere, dass
   der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
   selben Link mehrfach öffnet

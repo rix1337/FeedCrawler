@@ -504,7 +504,8 @@ def fx_get_download_links(self, content, title):
         try:
             download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
         except:
-            download_links = re.findall(r'"(https://.+?filecrypt.cc.+?)"', str(content))
+            fx = CrawlerConfig('Hostnames').get('fx')
+            download_links = re.findall(re.compile('"(.+?(?:filecrypt|safe.' + fx + ').+?)"'), str(content))
     except:
         return False
     return download_links
