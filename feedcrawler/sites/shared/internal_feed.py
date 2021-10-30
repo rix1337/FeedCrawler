@@ -513,15 +513,16 @@ def fx_get_download_links(self, content, title):
 
 def fx_feed_enricher(feed):
     feed = BeautifulSoup(feed, 'lxml')
+    fx = CrawlerConfig('Hostnames').get('fx')
     articles = feed.findAll("article")
     entries = []
 
     for article in articles:
         try:
             article = BeautifulSoup(str(article), 'lxml')
-            titles = article.findAll("a", href=re.compile("filecrypt"))
+            titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 if title:
                     if "download" in title.lower():
                         try:
@@ -550,6 +551,7 @@ def fx_feed_enricher(feed):
 
 
 def fx_search_results(content):
+    fx = CrawlerConfig('Hostnames').get('fx')
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
@@ -566,11 +568,11 @@ def fx_search_results(content):
 
         for result in results:
             article = BeautifulSoup(str(result), 'lxml')
-            titles = article.find_all("a", href=re.compile("filecrypt"))
+            titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
                 link = article.find("link", rel="canonical")["href"]
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "")
-                if title:
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                if title and "-fun" in title.lower():
                     if "download" in title.lower():
                         try:
                             title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)

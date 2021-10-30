@@ -365,7 +365,7 @@ def download_hevc(self, title):
     for result in search_results:
         i += 1
 
-        key = result[0]
+        key = result[0].replace(" ", ".")
 
         if feedsearch_title in key:
             payload = result[1].split("|")
@@ -387,7 +387,7 @@ def download_hevc(self, title):
                 link = get_url(link)
                 link_grabbed = True
                 get_download_links_method = fx_get_download_links
-                download_method = myjd_download
+                download_method = add_decrypt_instead_of_download
             elif "NK" in site:
                 get_download_links_method = nk_page_download_link
                 download_method = myjd_download
@@ -502,7 +502,7 @@ def download_dual_language(self, title, hevc=False):
 
     hevc_found = False
     for result in search_results:
-        key = result[0]
+        key = result[0].replace(" ", ".")
         if feedsearch_title in key and ".dl." in key.lower() and (hevc and is_hevc(key)):
             hevc_found = True
 
@@ -510,7 +510,7 @@ def download_dual_language(self, title, hevc=False):
     for result in search_results:
         i += 1
 
-        key = result[0]
+        key = result[0].replace(" ", ".")
 
         if feedsearch_title in key:
             payload = result[1].split("|")
@@ -529,7 +529,7 @@ def download_dual_language(self, title, hevc=False):
             elif "FX" in site:
                 link = get_url(link)
                 get_download_links_method = fx_get_download_links
-                download_method = myjd_download
+                download_method = add_decrypt_instead_of_download
             elif "NK" in site:
                 get_download_links_method = nk_page_download_link
                 download_method = myjd_download
@@ -605,6 +605,7 @@ def download_dual_language(self, title, hevc=False):
 
 
 def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, download_method):
+    key = key.replace(" ", ".")
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
@@ -677,6 +678,7 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
 
 
 def download_feed(self, key, content, hevc_retail):
+    key = key.replace(" ", ".")
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:

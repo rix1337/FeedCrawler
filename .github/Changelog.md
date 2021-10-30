@@ -9,6 +9,7 @@
 ---
 
 ### Changelog:
+- **11.0.18** FX Suche (Feed und Web) wiederhergestellt
 - **11.0.18** FC-Pakete werden immer zuletzt zum Entschlüsseln angeboten
 - **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
 - **11.0.18** Verhindere Crash bei Ombi-Anfragen ohne IMDb-ID #543 Danke @postboy99
