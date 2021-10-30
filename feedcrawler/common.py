@@ -227,10 +227,18 @@ def fullhd_title(key):
 
 def get_to_decrypt():
     try:
-        to_decrypt = FeedDb('to_decrypt').retrieve_all_titles()
+        to_decrypt = FeedDb('to_decrypt').retrieve_all_titles_unordered()
         if to_decrypt:
+            easy_decrypt_exists = False
+            fx = CrawlerConfig('Hostnames').get('fx')
+            for package in to_decrypt:
+                if not "filecrypt." in package[1] and not fx in package[1]:
+                    easy_decrypt_exists = True
+
             packages = []
             for package in to_decrypt:
+                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1]):
+                    continue
                 title = package[0]
                 try:
                     details = package[1].split('|')
@@ -244,6 +252,23 @@ def get_to_decrypt():
                     'url': url,
                     'password': password
                 })
+
+            for package in to_decrypt:
+                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1]):
+                    title = package[0]
+                    try:
+                        details = package[1].split('|')
+                        url = details[0]
+                        password = details[1]
+                    except:
+                        url = package[1]
+                        password = ""
+                    packages.append({
+                        'name': title,
+                        'url': url,
+                        'password': password
+                    })
+
             return packages
         else:
             return False
