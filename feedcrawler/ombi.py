@@ -27,7 +27,10 @@ def imdb_movie(imdb_id):
         year = str(output.data['year'])
         return title + " " + year
     except:
-        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        if imdb_id is None:
+            internal.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
+        else:
+            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False
 
 
@@ -49,7 +52,10 @@ def imdb_show(imdb_id):
 
         return title, eps
     except:
-        print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+        if imdb_id is None:
+            internal.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
+        else:
+            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False, False, False
 
 
