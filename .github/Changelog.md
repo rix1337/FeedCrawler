@@ -11,6 +11,7 @@
 ### Changelog:
 - **11.0.18** FC-Pakete werden immer zuletzt zum Entschlüsseln angeboten
 - **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
+- **11.0.18** Verhindere Crash bei Ombi-Anfragen ohne IMDb-ID #543 Danke @postboy99
 - **11.0.17** Linkerkennung auf FX angepasst
 - **11.0.16** Verhindere, dass der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
   selben Link mehrfach öffnet
