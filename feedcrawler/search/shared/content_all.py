@@ -137,6 +137,7 @@ def download(payload):
             for hoster in hosters:
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         elif "FX" in site:
+            download_method = add_decrypt_instead_of_download
             key = payload[1]
             password = payload[2]
         else:

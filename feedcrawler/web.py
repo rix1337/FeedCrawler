@@ -1220,7 +1220,7 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.4.0
+// @version         0.5.1
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
@@ -1230,9 +1230,9 @@ if (title) {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + internal.local_address + """';
+const sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
-var sponsorsHoster = '';
+const sponsorsHoster = '';
 
 $.extend($.expr[':'], {
   'containsi': function(elem, i, match, array) {
@@ -1251,67 +1251,69 @@ document.body.addEventListener('mousedown', function (e) {
     }
 });
 
-function Sleep(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0];
-var password = tag[1];
+const tag = window.location.hash.replace("#", "").split('|');
+const title = tag[0];
+const password = tag[1];
 if (title && title !== "login") {
     $('.wrapper').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
     $(".container").hide();
-    var checkExist = setInterval(function() {
-        async function clickRelease() {
+    let i = 0;
+    const checkExist = setInterval(function () {
+        i++;
         if ($("tr:contains('" + title + "')").length) {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-            if (sponsorsHelper) {
-                console.log("[FeedCrawler Sponsors Helper] Clicked Download button of " + title);
-                await Sleep(500);
-                var requiresLogin = $(".alert-warning").length;
-                if (requiresLogin) {
-                    clearInterval(checkExist);
-                    window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
-                    window.close()
+            if (i > 24) {
+                if (sponsorsHelper) {
+                    const requiresLogin = $(".alert-warning").length;
+                    if (requiresLogin) {
+                        console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
+                        clearInterval(checkExist);
+                        window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
+                        window.close();
+                    }
                 }
+                console.log("hit")
+                clearInterval(checkExist);
+            } else {
+                console.log("miss")
             }
-            clearInterval(checkExist);
-        } }
-        clickRelease();
+        }
     }, 100);
 
-    if (sponsorsHelper) {
-        var dlExists = setInterval(async function() {
-            if ($("tr:contains('Download Part')").length) {
-                var items = $("tr:contains('Download Part')").find("a");
-                var links = [];
-                items.each(function(index){
-                    links.push(items[index].href);
-                })
-                console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
-                clearInterval(dlExists);
-                window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-                window.close();
-            } else if ( document.body.innerHTML.search("se das Captcha!") && !$('.center-recaptcha').length) {
-                if ( sponsorsHoster && $("button:containsi('" + sponsorsHoster + "')").length) {
-                    $("button:containsi('" + sponsorsHoster + "')").click();
-                } else if ( $("button:containsi('1fichier')").length) {
-                    $("button:containsi('1fichier')").click();
-                } else if ( $("button:containsi('ddownload')").length) {
-                    $("button:containsi('ddownload')").click();
-                } else if ( $("button:containsi('turbo')").length) {
-                    $("button:containsi('turbo')").click();
-                } else if ( $("button:containsi('filer')").length) {
-                    $("button:containsi('filer')").click();
-                } else {
-                    $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
-                }
-                console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
-                }
-        }, 100);
-    }
-};
+	let j = 0;
+	let dl = false;
+	const dlExists = setInterval(function () {
+		j++;
+		if ($("tr:contains('Download Part')").length) {
+			const items = $("tr:contains('Download Part')").find("a");
+			const links = [];
+			items.each(function (index) {
+				links.push(items[index].href);
+			});
+			console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
+			clearInterval(dlExists);
+			window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+			window.close();
+		} else if (j > 24 && !dl) {
+			if (sponsorsHoster && $("button:containsi('" + sponsorsHoster + "')").length) {
+				$("button:containsi('" + sponsorsHoster + "')").click();
+			} else if ($("button:containsi('1fichier')").length) {
+				$("button:containsi('1fichier')").click();
+			} else if ($("button:containsi('ddownload')").length) {
+				$("button:containsi('ddownload')").click();
+			} else if ($("button:containsi('turbo')").length) {
+				$("button:containsi('turbo')").click();
+			} else if ($("button:containsi('filer')").length) {
+				$("button:containsi('filer')").click();
+			} else {
+				$("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
+			}
+			console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
+			dl = true;
+		}
+	}, 100);
+}
 """, 200
             except:
                 return "Failed", 400
@@ -1329,74 +1331,101 @@ if (title && title !== "login") {
 // @name            FeedCrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to FeedCrawler
-// @version         0.5.0
+// @version         0.5.1
 // @match           *.filecrypt.cc/*
 // @match           *.filecrypt.co/*
 // @grant           window.close
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + internal.local_address + """';
+const sponsorsURL = '""" + internal.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
-var sponsorsHoster = '';
+const sponsorsHoster = '';
 
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0]
-var password = tag[1]
-var ids = tag[2]
-var urlParams = new URLSearchParams(window.location.search);
+const tag = window.location.hash.replace("#", "").split('|');
+const title = tag[0];
+const password = tag[1];
+const ids = tag[2];
+const urlParams = new URLSearchParams(window.location.search);
 
 
 function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-    var mirrorsAvailable = false;
-    try {
-        mirrorsAvailable = document.querySelector('.mirror').querySelectorAll("a");
-    } catch {}
-    var cnlAllowed = false;
+const fx = (document.getElementById("customlogo").getAttribute('src') === '/css/custom/f38ed.png');
+
+const checkFxPass = setInterval(function () {
+	if (document.getElementById("p4assw0rt")) {
+		if (fx) {
+			const pw = atob('ZnVueGQ=');
+			console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
+			document.getElementById("p4assw0rt").value = pw;
+			document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+		}
+		clearInterval(checkFxPass);
+	}
+}, 100);
+
+
+const checkSFPass = setInterval(function () {
+	if (document.getElementById("p4assw0rt") && !fx) {
+		const pw = atob('c2VyaWVuZmFucy5vcmc=');
+		console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
+		document.getElementById("p4assw0rt").value = pw;
+		document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+		clearInterval(checkSFPass);
+	}
+}, 100);
+
+
+let mirrorsAvailable = false;
+try {
+	mirrorsAvailable = document.querySelector('.mirror').querySelectorAll("a");
+} catch {
+}
+let cnlAllowed = false;
 
 if (mirrorsAvailable && sponsorsHoster) {
-    const currentURL = window.location.href;
-    var desiredMirror = "";
-    var i;
-    for (i = 0; i < mirrorsAvailable.length; i++) {
-        if (mirrorsAvailable[i].text.includes(sponsorsHoster)) {
-            var ep = "";
-            var cur_ep = urlParams.get('episode');
-            if (cur_ep) {
-                ep = "&episode=" + cur_ep;
-            }
-            desiredMirror = mirrorsAvailable[i].href + ep + window.location.hash;
-        }
-    }
+	const currentURL = window.location.href;
+	let desiredMirror = "";
+	let i;
+	for (i = 0; i < mirrorsAvailable.length; i++) {
+		if (mirrorsAvailable[i].text.includes(sponsorsHoster)) {
+			let ep = "";
+			const cur_ep = urlParams.get('episode');
+			if (cur_ep) {
+				ep = "&episode=" + cur_ep;
+			}
+			desiredMirror = mirrorsAvailable[i].href + ep + window.location.hash;
+		}
+	}
 
-    if (desiredMirror) {
-        if (!currentURL.includes(desiredMirror)) {
-            console.log("[FeedCrawler Sponsors Helper] switching to desired Mirror: " + sponsorsHoster);
-            window.location = desiredMirror;
-        } else {
-            console.log("[FeedCrawler Sponsors Helper] already at the desired Mirror: " + sponsorsHoster);
-            cnlAllowed = true;
-        }
-    } else {
-        console.log("[FeedCrawler Sponsors Helper] desired Mirror not available: " + sponsorsHoster);
-        cnlAllowed = true;
-    }
+	if (desiredMirror) {
+		if (!currentURL.toLowerCase().includes(desiredMirror.toLowerCase())) {
+			console.log("[FeedCrawler Sponsors Helper] switching to desired Mirror: " + sponsorsHoster);
+			window.location = desiredMirror;
+		} else {
+			console.log("[FeedCrawler Sponsors Helper] already at the desired Mirror: " + sponsorsHoster);
+			cnlAllowed = true;
+		}
+	} else {
+		console.log("[FeedCrawler Sponsors Helper] desired Mirror not available: " + sponsorsHoster);
+		cnlAllowed = true;
+	}
 } else {
-    cnlAllowed = true;
+	cnlAllowed = true;
 }
 
 
-var cnlExists = setInterval(async function() {
-    if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
-        clearInterval(cnlExists);
-        document.getElementById("cnl_btn").click();
-        console.log("[FeedCrawler Sponsors Helper] attempting Click'n'Load");
-        await Sleep(4000);
-        window.close();
-    }
+const cnlExists = setInterval(async function () {
+	if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
+		clearInterval(cnlExists);
+		document.getElementById("cnl_btn").click();
+		console.log("[FeedCrawler Sponsors Helper] attempting Click'n'Load");
+		await Sleep(30000);
+		window.close();
+	}
 }, 100);
 """, 200
             except:

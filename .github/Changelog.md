@@ -9,20 +9,21 @@
 ---
 
 ### Changelog:
+- **11.0.18** FX Suche (Feed und Web) wiederhergestellt
+- **11.0.18** FC-Pakete werden immer zuletzt zum Entschlüsseln angeboten
+- **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
+- **11.0.18** Verhindere Crash bei Ombi-Anfragen ohne IMDb-ID #543 Danke @postboy99
 - **11.0.17** Linkerkennung auf FX angepasst
-- **11.0.16** Verhindere, dass
-  der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
+- **11.0.16** Verhindere, dass der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
   selben Link mehrfach öffnet
-- **11.0.15** Release der neuen Version 2.0.1
-  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.15** Release der neuen Version 2.0.1 des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
   - Der Helper basiert ab sofort auf Chromium, statt Firefox.
   - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst.
   - Außerdem wurden alle Scripte aktualisiert um stabiler zu laufen.
   - Es sind folgende Anpassungen der Docker Konfiguration des Helpers sinnvoll:
     - das `--privileged`-Flag entfernen
     - das `--restart unless-stopped`-Flag ergänzen
-- **11.0.15** Anpassung der Startseite
-  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.15** Anpassung der Startseite des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
   - Die Seite aktualisiert ab sofort zweimalig je Minute, anstatt einmalig.
   - Wurde ein Captcha nicht gelöst, öffnet der Helper die Seite erneut, statt abzuwarten.
 - **11.0.14** Bugfixes

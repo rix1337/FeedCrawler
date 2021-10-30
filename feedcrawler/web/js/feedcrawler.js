@@ -885,7 +885,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
             }
             $scope.checkMyJD();
-        }, 5000)
+        }, 15000)
     };
 
     $scope.checkMyJD();
@@ -896,7 +896,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 getLog();
             }
             $scope.updateLog();
-        }, 5000)
+        }, 15000)
     };
 
     $scope.updateLog();
@@ -907,7 +907,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 getCrawlTimes();
             }
             $scope.updateCrawlTimes();
-        }, 5000)
+        }, 15000)
     };
 
     $scope.updateCrawlTimes();

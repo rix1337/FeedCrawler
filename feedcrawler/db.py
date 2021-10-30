@@ -58,6 +58,14 @@ class FeedDb(object):
             items.append([str(r[0]), str(r[1])])
         return items if items else None
 
+    def retrieve_all_titles_unordered(self):
+        res = self._conn.execute(
+            "SELECT distinct key, value FROM %s" % self._table)
+        items = []
+        for r in res:
+            items.append([str(r[0]), str(r[1])])
+        return items if items else None
+
     def store(self, key, value):
         self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %
                            (self._table, key, value))
