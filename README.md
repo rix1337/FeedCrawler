@@ -53,16 +53,19 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
 Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
 ### Bekannte Fehler
+- Werden Downloads nicht mehr automatisch gestartet, wurde vermutlich der JDownloader geupdated oder neugestartet
+  während FeedCrawler lief (#540). Bei Neustarts und Updates des JDownloaders muss zwingend auch FeedCrawler
+  neugestartet werden, um dieses Verhalten zu vermeiden.
 
-Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
--Fehlermeldungen, so muss der Container gestoppt, die `FeedCrawler.db` beliebig (bspw. zu `FeedCrawler-Temp.db`)
-umbenannt und direkt wieder zurück zu `FeedCrawler.db` umbenannt werden. Hintergrund ist, dass der FeedCrawler nicht
-während die Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround
-stellt sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
+- Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
+  -Fehlermeldungen, so muss der Container gestoppt, die `FeedCrawler.db` beliebig (bspw. zu `FeedCrawler-Temp.db`)
+  umbenannt und direkt wieder zurück zu `FeedCrawler.db` umbenannt werden. Hintergrund ist, dass der FeedCrawler nicht
+  während die Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround
+  stellt sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
 
-Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
-nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
-Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
+- Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
+  nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
+  Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
 
 ### Update
 
