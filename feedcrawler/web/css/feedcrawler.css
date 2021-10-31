@@ -14,7 +14,7 @@ body {
 }
 
 .log {
-    height: 260px;
+    height: 272px;
     overflow: auto;
     resize: none;
     color: black;
@@ -26,6 +26,10 @@ thead {
     position: sticky;
     top: 0;
     background-color: #f7f7f7;
+}
+
+table {
+    border-collapse: unset;
 }
 
 .table thead th, .table td {
