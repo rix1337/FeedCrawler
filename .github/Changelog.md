@@ -10,6 +10,7 @@
 
 ### Changelog:
 - **11.0.19** Verbesserte Erkennung von Episodenpaketen #541 Danke @jankete
+- **11.0.19** Verhindere Updates im Web Interface, um Problem #540 zu umgehen, Danke @jankete
 - **11.0.18** FX Suche (Feed und Web) wiederhergestellt
 - **11.0.18** FC-Pakete werden immer zuletzt zum Entschlüsseln angeboten
 - **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
