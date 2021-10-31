@@ -1566,7 +1566,6 @@ const cnlExists = setInterval(async function () {
                                         for package in failed:
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                                # ToDo refactor to new code below
                                                 if episode:
                                                     FeedDb('episode_remover').store(package_name, str(int(episode[0])))
                                                 linkids = package['linkids']
@@ -1578,7 +1577,6 @@ const cnlExists = setInterval(async function () {
                                         for package in offline:
                                             if re.match(re.compile(re_name), package['name'].lower()):
                                                 episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                                # ToDo refactor to new code below
                                                 if episode:
                                                     FeedDb('episode_remover').store(package_name, str(int(episode[0])))
                                                 linkids = package['linkids']
