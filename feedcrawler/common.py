@@ -111,40 +111,48 @@ def check_valid_release(title, retail_only, hevc_retail):
     results = []
 
     db = FeedDb('FeedCrawler')
-    is_episode = re.findall(r'.*\.s\d{1,3}(e\d{1,3}|e\d{1,3}(?!-|E).*\d{1,3})\..*', title, re.IGNORECASE)
-    if is_episode:
-        episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', search_title, re.IGNORECASE)
-        if episode_name:
-            search_title = search_title.replace(episode_name[0], "")
-        multiple_search_title = search_title.replace(is_episode[0], "")
-        multiple_results = db.retrieve_all_beginning_with(multiple_search_title)
-        try:
-            for result in multiple_results:
-                episodes = re.findall(r'E(\d{1,3})', result)
-                if episodes:
-                    int_episodes = []
-                    for ep in episodes:
-                        int_episodes.append(int(ep))
-                    if len(int_episodes) > 1:
-                        sorted_eps = sorted(int_episodes)
-                        min_ep = sorted_eps[0]
-                        max_ep = sorted_eps[-1]
-                        all_episodes = list(range(min_ep, max_ep + 1))
-                    else:
-                        all_episodes = list(int_episodes)
-                    episode_in_title = int(''.join(filter(str.isdigit, is_episode[0])))
-                    for ep in all_episodes:
-                        if ep == episode_in_title:
-                            results = results + [result]
-        except:
-            print("Fehler in Episodenerkennung. Bitte Issue auf Github öffnen: " + title)
+    title_with_episodes = re.findall(r'.*\.s\d{1,3}(e\d{1,3}(?!-|E|e\d{1,3}).*\d{1,3})\..*', title, re.IGNORECASE)
 
-        season_search_title = search_title.replace(is_episode[0], "") + "."
-        season_results = db.retrieve_all_beginning_with(season_search_title)
-        results = results + db.retrieve_all_beginning_with(search_title) + season_results
+    if title_with_episodes:
+        episodes_in_title = re.findall(r'E(\d{1,3})', title_with_episodes[0])
+        required_episodes = list(range(int(episodes_in_title[0]), int(episodes_in_title[-1]) + 1))
+
+        for episode_in_title in episodes_in_title:
+            episode_name = search_title.replace(title_with_episodes[0], "E" + episode_in_title)
+            episode_name = re.findall(r'.*\.s\d{1,3}e\d{1,3}(\..*)', episode_name, re.IGNORECASE)
+            if episode_name:
+                search_title = search_title.replace(episode_name[0], "")
+            multiple_search_title = search_title.replace(title_with_episodes[0], "")
+            multiple_results = db.retrieve_all_beginning_with(multiple_search_title)
+            try:
+                for result in multiple_results:
+                    episodes = re.findall(r'E(\d{1,3})', result)
+                    if episodes:
+                        int_episodes = []
+                        for ep in episodes:
+                            int_episodes.append(int(ep))
+                        if len(int_episodes) > 1:
+                            sorted_eps = sorted(int_episodes)
+                            min_ep = sorted_eps[0]
+                            max_ep = sorted_eps[-1]
+                            all_episodes = list(range(min_ep, max_ep + 1))
+                        else:
+                            all_episodes = list(int_episodes)
+                        if set(required_episodes).issubset(all_episodes):
+                            for ep in all_episodes:
+                                if ep == int(episode_in_title):
+                                    results = results + [result]
+            except:
+                print("Fehler in Episodenerkennung. Bitte Issue auf Github öffnen: " + title)
+
+            season_search_title = search_title.replace(title_with_episodes[0], "") + "."
+            season_results = db.retrieve_all_beginning_with(season_search_title)
+            results = results + db.retrieve_all_beginning_with(search_title) + season_results
     else:
         db = FeedDb('FeedCrawler')
         results = db.retrieve_all_beginning_with(search_title)
+
+    results = list(set(results))
 
     if not results:
         return True
