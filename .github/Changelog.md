@@ -9,6 +9,8 @@
 ---
 
 ### Changelog:
+- **11.0.19** Verbesserte Erkennung von Episodenpaketen #541 Danke @jankete
+- **11.0.19** Verhindere Updates im Web Interface, um Problem #540 zu umgehen, Danke @jankete
 - **11.0.18** FX Suche (Feed und Web) wiederhergestellt
 - **11.0.18** FC-Pakete werden immer zuletzt zum Entschlüsseln angeboten
 - **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
@@ -27,8 +29,7 @@
   - Die Seite aktualisiert ab sofort zweimalig je Minute, anstatt einmalig.
   - Wurde ein Captcha nicht gelöst, öffnet der Helper die Seite erneut, statt abzuwarten.
 - **11.0.14** Bugfixes
-- **11.0.13** Fix: Exception bei Hinzufügen von DW-Links über
-  den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.13** Fix: Exception bei Hinzufügen von DW-Links über den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 - **11.0.13** Fix: Exception bei fehlenden IMDb-Votes
 - **11.0.13** Update auf Bootstrap Icons 1.6.0
 - **11.0.13** Update auf Bootstrap 5.1.3
@@ -37,8 +38,7 @@
 - **11.0.10** Fix: Exception in IMDb-Suche
 - **11.0.10** Update auf Bootstrap 5.1.1
 - **11.0.9** Update auf aktuelle [IMDbPY](https://imdbpy.github.io/) um lokalisierte Titel in Ombi zu laden / Fix #526
-- **11.0.9** Automatisierter Releaseprozess
-  über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
+- **11.0.9** Automatisierter Releaseprozess über [Github Actions](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 - **11.0.8** Integration von [IMDbPY](https://imdbpy.github.io/) um IMDb deutlich stabiler zu parsen
 - **11.0.7** Fix #523 Danke @9Mad-Max5
 - **11.0.6** Fehlerbehebung im Handling von Episodenpaketen

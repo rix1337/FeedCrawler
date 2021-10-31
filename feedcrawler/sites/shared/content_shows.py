@@ -181,8 +181,7 @@ def periodical_task(self):
                 internal.sf_blocked = True
             else:
                 internal.logger.debug(
-                    "Feed ist leer - breche  Suche ab!")
-            return False
+                    "Feed ist leer - breche die Suche für diesen Feed ab!")
 
         for post in feed.entries:
             concat = post.title + post.published + \
