@@ -9,6 +9,9 @@
 ---
 
 ### Changelog:
+- **11.0.20** Verbesserte Erkennung der Release-Quelle
+- **11.0.20** [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+  v.2.0.4 mit Bugfixes erschienen
 - **11.0.19** Verbesserte Erkennung von Episodenpaketen #541 Danke @jankete
 - **11.0.19** Verhindere Updates im Web Interface, um Problem #540 zu umgehen, Danke @jankete
 - **11.0.18** FX Suche (Feed und Web) wiederhergestellt
@@ -16,9 +19,11 @@
 - **11.0.18** Lade Daten im Webinterface seltener neu (verbessert Performance)
 - **11.0.18** Verhindere Crash bei Ombi-Anfragen ohne IMDb-ID #543 Danke @postboy99
 - **11.0.17** Linkerkennung auf FX angepasst
-- **11.0.16** Verhindere, dass der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
+- **11.0.16** Verhindere, dass
+  der [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) den
   selben Link mehrfach öffnet
-- **11.0.15** Release der neuen Version 2.0.1 des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
+- **11.0.15** Release der neuen Version 2.0.1
+  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
   - Der Helper basiert ab sofort auf Chromium, statt Firefox.
   - Damit werden Captchas auf DW wieder automatisch und zuverlässig gelöst.
   - Außerdem wurden alle Scripte aktualisiert um stabiler zu laufen.
