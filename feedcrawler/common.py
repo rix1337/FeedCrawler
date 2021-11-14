@@ -262,13 +262,14 @@ def get_to_decrypt():
         if to_decrypt:
             easy_decrypt_exists = False
             fx = CrawlerConfig('Hostnames').get('fx')
+            fx = CrawlerConfig('Hostnames').get('ww')
             for package in to_decrypt:
                 if not "filecrypt." in package[1] and not fx in package[1]:
                     easy_decrypt_exists = True
 
             packages = []
             for package in to_decrypt:
-                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1]):
+                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1] or ww in package[1]):
                     continue
                 title = package[0]
                 try:
@@ -278,6 +279,9 @@ def get_to_decrypt():
                 except:
                     url = package[1]
                     password = ""
+
+                url = url.replace("https://safe." + fx, "http://safe." + fx)
+
                 packages.append({
                     'name': title,
                     'url': url,
@@ -456,11 +460,19 @@ def configpath(configpath):
     return configpath
 
 
-def check_site_blocked(url):
+def site_blocked(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    check_against_sites = ["SJ", "DJ", "SF", "BY", "FX", "NK", "WW"]
-    for check_against in check_against_sites:
-        if site and check_against == site and db_status.retrieve(check_against):
+    for check_against in internal.sites:
+        if site and check_against == site and db_status.retrieve(check_against + "_normal"):
+            return True
+    return False
+
+
+def site_blocked_with_flaresolverr(url):
+    db_status = FeedDb('site_status')
+    site = check_is_site(url)
+    for check_against in internal.sites:
+        if site and check_against == site and db_status.retrieve(check_against + "_flaresolverr"):
             return True
     return False

@@ -117,7 +117,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.crawltimes = false;
-    $scope.site_status = false;
+    $scope.blocked_sites = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
@@ -348,7 +348,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getBlockedSites() {
         $http.get('api/blocked_sites/')
             .then(function (res) {
-                $scope.site_status = res.data.site_status;
+                $scope.blocked_sites = res.data.blocked_sites;
                 console.log('Blockierte Seiten abgerufen!');
             }, function () {
                 console.log('Konnte blockierte Seiten nicht abrufen!');

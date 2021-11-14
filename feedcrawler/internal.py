@@ -9,6 +9,7 @@ from logging import handlers
 
 configpath = False
 log_level = False
+sites = False
 device = False
 configfile = False
 dbfile = False
@@ -27,6 +28,7 @@ def get_globals():
     return {
         "configpath": configpath,
         "log_level": log_level,
+        "sites": sites,
         "device": device,
         "local_address": local_address,
         "port": port,
@@ -37,6 +39,7 @@ def get_globals():
 
 def set_globals(global_variables):
     set_files(global_variables["configpath"])
+    set_sites()
     set_logger(global_variables["log_level"])
     set_device(global_variables["device"])
     set_connection_info(global_variables["local_address"], global_variables["port"], global_variables["prefix"],
@@ -54,6 +57,11 @@ def set_files(set_configpath):
     dbfile = os.path.join(configpath, "FeedCrawler.db")
     log_file = os.path.join(configpath, 'FeedCrawler.log')
     log_file_debug = os.path.join(configpath, 'FeedCrawler_DEBUG.log')
+
+
+def set_sites():
+    global sites
+    sites = ["SJ", "DJ", "SF", "BY", "FX", "NK", "WW"]
 
 
 def set_device(set_device):

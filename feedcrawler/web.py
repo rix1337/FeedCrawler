@@ -219,6 +219,7 @@ def app_container():
                                 "prefix": general_conf.get("prefix"),
                                 "interval": to_int(general_conf.get("interval")),
                                 "flaresolverr": general_conf.get("flaresolverr"),
+                                "flaresolverr_proxy": general_conf.get("flaresolverr_proxy"),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
@@ -336,6 +337,7 @@ def app_container():
                     interval = '5'
                 section.save("interval", interval)
                 section.save("flaresolverr", to_str(data['general']['flaresolverr']))
+                section.save("flaresolverr_proxy", to_str(data['general']['flaresolverr_proxy']))
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
@@ -551,15 +553,34 @@ def app_container():
                 db_status = FeedDb('site_status')
                 return jsonify(
                     {
-                        "site_status": {
-                            "SJ": check("SJ", db_status),
-                            "DJ": check("DJ", db_status),
-                            "SF": check("SF", db_status),
-                            "BY": check("BY", db_status),
-                            "FX": check("FX", db_status),
-                            "HW": check("HW", db_status),
-                            "NK": check("NK", db_status),
-                            "WW": check("WW", db_status)
+                        "blocked_sites": {
+                            "normal": {
+                                "SJ": check("SJ_normal", db_status),
+                                "DJ": check("DJ_normal", db_status),
+                                "SF": check("SF_normal", db_status),
+                                "BY": check("BY_normal", db_status),
+                                "FX": check("FX_normal", db_status),
+                                "NK": check("NK_normal", db_status),
+                                "WW": check("WW_normal", db_status)
+                            },
+                            "flaresolverr": {
+                                "SJ": check("SJ_flaresolverr", db_status),
+                                "DJ": check("DJ_flaresolverr", db_status),
+                                "SF": check("SF_flaresolverr", db_status),
+                                "BY": check("BY_flaresolverr", db_status),
+                                "FX": check("FX_flaresolverr", db_status),
+                                "NK": check("NK_flaresolverr", db_status),
+                                "WW": check("WW_flaresolverr", db_status)
+                            },
+                            "flaresolverr_proxy": {
+                                "SJ": check("SJ_flaresolverr_proxy", db_status),
+                                "DJ": check("DJ_flaresolverr_proxy", db_status),
+                                "SF": check("SF_flaresolverr_proxy", db_status),
+                                "BY": check("BY_flaresolverr_proxy", db_status),
+                                "FX": check("FX_flaresolverr_proxy", db_status),
+                                "NK": check("NK_flaresolverr_proxy", db_status),
+                                "WW": check("WW_flaresolverr_proxy", db_status)
+                            }
                         }
                     }
                 )

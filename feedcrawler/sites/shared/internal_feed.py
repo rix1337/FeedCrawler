@@ -255,6 +255,7 @@ def by_page_download_link(self, download_link, key):
                 url_hosters.append([link["href"], link.text.replace(" ", "")])
     return check_download_links(self, url_hosters)
 
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'lxml')
     return content
@@ -468,7 +469,10 @@ def ww_get_download_links(self, content, title):
 
 def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
-    content = BeautifulSoup(content, 'lxml')
+    try:
+        content = BeautifulSoup(content, 'lxml')
+    except:
+        content = BeautifulSoup(content["text"], 'lxml')
     posts = content.findAll("li")
     entries = []
     if posts:

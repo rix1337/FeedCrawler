@@ -5,6 +5,7 @@
 import concurrent.futures
 import datetime
 
+from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.flaresolverr import request
@@ -12,129 +13,60 @@ from feedcrawler.flaresolverr import request
 
 def check_url():
     hostnames = CrawlerConfig('Hostnames')
-    sj = hostnames.get('sj')
-    dj = hostnames.get('dj')
-    sf = hostnames.get('sf')
-    by = hostnames.get('by')
-    fx = hostnames.get('fx')
-    nk = hostnames.get('nk')
-    ww = hostnames.get('ww')
-
-    sj_url = 'https://' + sj
-    dj_url = 'https://' + dj
-    sf_url = 'https://' + sf
-    by_url = 'https://' + by
-    fx_url = 'https://' + fx
-    nk_url = 'https://' + nk
-    ww_url = 'https://' + ww
-
-    sj_blocked = False
-    dj_blocked = False
-    sf_blocked = False
-    by_blocked = False
-    fx_blocked = False
-    nk_blocked = False
-    ww_blocked = False
-
     db_status = FeedDb('site_status')
-    db_status.delete("SJ")
-    db_status.delete("DJ")
-    db_status.delete("SF")
-    db_status.delete("BY")
-    db_status.delete("FX")
-    db_status.delete("NK")
-    db_status.delete("WW")
+    db_status.reset()
+    db_status = FeedDb('site_status')
 
-    if not sj:
-        db_status.store("SJ", "Blocked")
-    else:
-        try:
-            if not request(sj_url)["status_code"] == 200:
-                sj_blocked = True
-        except:
-            sj_blocked = True
-        if sj_blocked:
-            db_status.store("SJ", "Blocked")
-            print(u"Der Zugriff auf SJ ist ohne FlareSolverr gesperrt!")
+    for site in internal.sites:
+        # Check if hostname is set
+        hostname = hostnames.get(site.lower())
+        if not hostname:
+            db_status.store(site + "_normal", "Blocked")
+            db_status.store(site + "_flaresolverr", "Blocked")
+            db_status.store(site + "_flaresolverr_proxy", "Blocked")
+        else:
+            check_normal = check_if_blocked(site, "https://" + hostname)
+            if check_normal:
+                db_status.store(site + "_normal", "Blocked")
+                print(u"Der Zugriff auf " + site + " ist ohne FlareSolverr gesperrt!")
+                # Since FlareSolverr is now aware this site is blocked, it will be used for subsequent requests
+                check_flaresolverr = check_if_blocked(site, "https://" + hostname)
+                if check_flaresolverr:
+                    db_status.store(site + "_flaresolverr", "Blocked")
+                    print(u"Der Zugriff auf " + site + " ist mit FlareSolverr gesperrt!")
+                    # Since FlareSolverr is now aware it's blocked, it will try to use the proxy for subsequent requests
+                    check_flaresolverr_proxy = check_if_blocked(site, "https://" + hostname)
+                    if check_flaresolverr_proxy:
+                        db_status.store(site + "_flaresolverr_proxy", "Blocked")
+                        print(u"Der Zugriff auf " + site + " ist mit FlareSolverr + Proxy gesperrt!")
+    return
 
-    if not dj:
-        db_status.store("DJ", "Blocked")
-    else:
-        try:
-            if not request(dj_url)["status_code"] == 200:
-                dj_blocked = True
-        except:
-            dj_blocked = True
-        if dj_blocked:
-            db_status.store("DJ", "Blocked")
-            print(u"Der Zugriff auf DJ ist ohne FlareSolverr gesperrt!")
 
-    if not sf:
-        db_status.store("SF", "Blocked")
-    else:
-        try:
+def check_if_blocked(site, url):
+    try:
+        # These can be checked the same way
+        if site in ["SJ", "DJ", "BY", "FX"]:
+            status = request(url, dont_cache=True)["status_code"]
+            if not status == 200 or status == 403:
+                return True
+        # Custom check required
+        elif site == "SF":
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
-            sf_test = request(sf_url + '/updates/' + delta)
+            sf_test = request(url + '/updates/' + delta, dont_cache=True)
             if not sf_test["text"] or sf_test["status_code"] is not (
                     200 or 304) or '<h3><a href="/' not in sf_test["text"]:
-                sf_blocked = True
-        except:
-            sf_blocked = True
-        if sf_blocked:
-            db_status.store("SF", "Blocked")
-            print(u"Der Zugriff auf SF ist ohne FlareSolverr gesperrt!")
-
-    if not by:
-        db_status.store("BY", "Blocked")
-    else:
-        try:
-            if request(by_url)["status_code"] == 403:
-                by_blocked = True
-        except:
-            by_blocked = True
-        if by_blocked:
-            db_status.store("BY", "Blocked")
-            print(u"Der Zugriff auf BY ist ohne FlareSolverr gesperrt!")
-
-    if not fx:
-        db_status.store("FX", "Blocked")
-    else:
-        try:
-            if request(fx_url)["status_code"] == 403:
-                fx_blocked = True
-        except:
-            fx_blocked = True
-        if fx_blocked:
-            db_status.store("FX", "Blocked")
-            print(u"Der Zugriff auf FX ist ohne FlareSolverr gesperrt!")
-
-    if not nk:
-        db_status.store("NK", "Blocked")
-    else:
-        try:
-            if request(nk_url)["status_code"] == 403:
-                nk_blocked = True
-        except:
-            nk_blocked = True
-        if nk_blocked:
-            db_status.store("NK", "Blocked")
-            print(u"Der Zugriff auf NK ist ohne FlareSolverr gesperrt!")
-
-    if not ww:
-        db_status.store("WW", "Blocked")
-    else:
-        try:
-            ww_test = request(ww_url + "/ajax", method='post', params="p=1&t=l&q=1")
+                return True
+        # Custom check required
+        elif site == "WW":
+            ww_test = request(url + "/ajax", method='post', params="p=1&t=l&q=1", dont_cache=True)
             if not ww_test["text"] or ww_test["status_code"] is not (
                     200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
-                ww_blocked = True
-        except:
-            ww_blocked = True
-        if ww_blocked:
-            db_status.store("WW", "Blocked")
-            print(u"Der Zugriff auf WW ist ohne FlareSolverr gesperrt!")
-
-    return
+                return True
+        else:
+            print(u"Keine Prüfung für " + site + " implementiert.")
+    except:
+        return True
+    return False
 
 
 def get_url(url):
