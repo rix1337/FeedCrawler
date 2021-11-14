@@ -13,7 +13,8 @@ import requests
 from requests import RequestException
 
 from feedcrawler import internal
-from feedcrawler.common import check_site_blocked
+from feedcrawler.common import site_blocked
+from feedcrawler.common import site_blocked_with_flaresolverr
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
@@ -25,11 +26,14 @@ def cache(func):
     @functools.wraps(func)
     def cache_returned_values(*args, **kwargs):
         to_hash = ""
+        dont_cache = False
         for a in args:
             to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
         for k in kwargs:
             to_hash += codecs.encode(pickle.dumps(k), "base64").decode()
             to_hash += codecs.encode(pickle.dumps(kwargs[k]), "base64").decode()
+            if k == "dont_cache" and k:
+                dont_cache = True
         # This hash is based on all arguments of the request
         hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
 
@@ -40,7 +44,8 @@ def cache(func):
         else:
             #
             value = func(*args, **kwargs)
-            FeedDb('cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+            if not dont_cache:
+                FeedDb('cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
             return value
 
     return cache_returned_values
@@ -89,7 +94,10 @@ def clean_flaresolverr_sessions():
 
 
 @cache
-def request(url, method='get', params=None, headers=None, redirect_url=False):
+def request(url, method='get', params=None, headers=None, redirect_url=False, dont_cache=False):
+    if dont_cache:
+        internal.logger.debug("Disabled request caching for request of: " + url)
+
     flaresolverr_url = get_flaresolverr_url()
     flaresolverr_session = get_flaresolverr_session()
     flaresolverr_proxy = get_flaresolverr_proxy()
@@ -118,7 +126,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
     response_headers = {}
 
     try:
-        if check_site_blocked(url):
+        if site_blocked(url):
             if flaresolverr_url:
                 internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
                 if not flaresolverr_session:
@@ -141,7 +149,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
                 if method == 'post':
                     flaresolverr_payload["postData"] = encoded_params
 
-                if flaresolverr_proxy:
+                if site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
                     flaresolverr_payload["proxy"] = {"url": flaresolverr_proxy}
 
                 json_response = requests.post(flaresolverr_url, json=flaresolverr_payload)
