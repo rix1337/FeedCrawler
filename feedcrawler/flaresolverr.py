@@ -122,13 +122,17 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
                 headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
                         method == 'post') else 'application/json'
 
-                json_response = requests.post(flaresolverr_url, json={
+                flaresolverr_payload = {
                     'cmd': 'request.%s' % method,
                     'url': url,
                     'session': cloudproxy_session,
-                    'headers': headers,
-                    'postData': '%s' % encoded_params if (method == 'post') else ''
-                })
+                    # Not available in FlareSolverr v.2.0.0 'headers': headers
+                }
+
+                if method == 'post':
+                    flaresolverr_payload["postData"] = encoded_params
+
+                json_response = requests.post(flaresolverr_url, json=flaresolverr_payload)
 
                 status_code = json_response.status_code
                 response = loads(json_response.text)
