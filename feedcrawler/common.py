@@ -464,6 +464,6 @@ def check_site_blocked(url):
     site = check_is_site(url)
     check_against_sites = ["SJ", "DJ", "SF", "BY", "FX", "NK", "WW"]
     for check_against in check_against_sites:
-        if site and check_against == site and db_status.retrieve(check_against):
+        if site and check_against == site and db_status.retrieve(check_against + "_normal"):
             return True
     return False

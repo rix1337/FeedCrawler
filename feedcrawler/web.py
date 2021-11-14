@@ -554,14 +554,14 @@ def app_container():
                 return jsonify(
                     {
                         "site_status": {
-                            "SJ": check("SJ", db_status),
-                            "DJ": check("DJ", db_status),
-                            "SF": check("SF", db_status),
-                            "BY": check("BY", db_status),
-                            "FX": check("FX", db_status),
-                            "HW": check("HW", db_status),
-                            "NK": check("NK", db_status),
-                            "WW": check("WW", db_status)
+                            "SJ": check("SJ_normal", db_status),
+                            "DJ": check("DJ_normal", db_status),
+                            "SF": check("SF_normal", db_status),
+                            "BY": check("BY_normal", db_status),
+                            "FX": check("FX_normal", db_status),
+                            "HW": check("HW_normal", db_status),
+                            "NK": check("NK_normal", db_status),
+                            "WW": check("WW_normal", db_status)
                         }
                     }
                 )
