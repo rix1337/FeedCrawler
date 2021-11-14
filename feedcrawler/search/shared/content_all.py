@@ -102,11 +102,6 @@ def download(payload):
     site = check_is_site(link)
     if not site:
         return False
-    elif "DW" in site:
-        download_method = add_decrypt_instead_of_download
-        download_links = [link]
-        key = payload[1]
-        password = payload[2]
     else:
         url = get_url(link)
         if not url or "NinjaFirewall 429" in url:

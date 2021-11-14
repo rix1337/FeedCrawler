@@ -67,7 +67,6 @@ def check_is_site(string):
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
     by = hostnames.get('by')
-    dw = hostnames.get('dw')
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
@@ -80,8 +79,6 @@ def check_is_site(string):
         return "SF"
     elif by and by.split('.')[0] in string:
         return "BY"
-    elif dw and dw.split('.')[0] in string:
-        return "DW"
     elif fx and fx.split('.')[0] in string:
         return "FX"
     elif nk and nk.split('.')[0] in string:
@@ -462,7 +459,7 @@ def configpath(configpath):
 def check_site_blocked(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    check_against_sites = ["SJ", "DJ", "SF", "BY", "DW", "FX", "NK", "WW"]
+    check_against_sites = ["SJ", "DJ", "SF", "BY", "FX", "NK", "WW"]
     for check_against in check_against_sites:
         if site and check_against == site and db_status.retrieve(check_against):
             return True

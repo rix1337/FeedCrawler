@@ -23,15 +23,13 @@ class CrawlerConfig(object):
             ("surround", "bool", ""),
             ("closed_myjd_tab", "bool", "False"),
             ("one_mirror_policy", "bool", "False"),
-            ("packages_per_myjd_page", "int", "3"),
-            ("prefer_dw_mirror", "bool", "False")
+            ("packages_per_myjd_page", "int", "3")
         ],
         'Hostnames': [
             ("sj", "str", ""),
             ("dj", "str", ""),
             ("sf", "str", ""),
             ("by", "str", ""),
-            ("dw", "str", ""),
             ("fx", "str", ""),
             ("nk", "str", ""),
             ("ww", "str", "")

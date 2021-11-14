@@ -21,8 +21,6 @@ from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
 from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
 from feedcrawler.sites.shared.internal_feed import by_page_download_link
-from feedcrawler.sites.shared.internal_feed import dw_mirror
-from feedcrawler.sites.shared.internal_feed import dw_page_download_link
 from feedcrawler.sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.sites.shared.internal_feed import get_search_results
 from feedcrawler.sites.shared.internal_feed import nk_page_download_link
@@ -47,7 +45,6 @@ def settings_hash(self, refresh):
         self.settings = []
         self.settings.append(self.feedcrawler.get("english"))
         self.settings.append(self.feedcrawler.get("surround"))
-        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -192,11 +189,6 @@ def search_imdb(self, desired_rating, feed):
                         continue
                     if float(str(imdb_data.data["rating"]).replace(",", ".")) > desired_rating:
                         download_links = False
-                        if self.prefer_dw_mirror and "DW" not in self._SITE:
-                            download_links = dw_mirror(self, post.title)
-                            if download_links:
-                                site = "DW/" + self._SITE
-                                download_method = add_decrypt_instead_of_download
                         if not download_links:
                             download_links = self.get_download_links_method(self, content, post.title)
                             site = self._SITE
@@ -309,7 +301,7 @@ def search_feed(self, feed):
                                 post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in self._SITE or "DW" not in self._SITE:
+                            if "FX" not in self._SITE:
                                 internal.logger.debug(
                                     post.title + " - Staffel noch nicht komplett")
                                 continue
@@ -380,9 +372,6 @@ def download_hevc(self, title):
             elif "BY" in site:
                 get_download_links_method = by_page_download_link
                 download_method = myjd_download
-            elif "DW" in site:
-                get_download_links_method = dw_page_download_link
-                download_method = add_decrypt_instead_of_download
             elif "FX" in site:
                 link = get_url(link)
                 link_grabbed = True
@@ -523,9 +512,6 @@ def download_dual_language(self, title, hevc=False):
             elif "BY" in site:
                 get_download_links_method = by_page_download_link
                 download_method = myjd_download
-            elif "DW" in site:
-                get_download_links_method = dw_page_download_link
-                download_method = add_decrypt_instead_of_download
             elif "FX" in site:
                 link = get_url(link)
                 get_download_links_method = fx_get_download_links
@@ -689,11 +675,6 @@ def download_feed(self, key, content, hevc_retail):
                     return
 
     download_links = False
-    if self.prefer_dw_mirror and "DW" not in self._SITE:
-        download_links = dw_mirror(self, key)
-        if download_links:
-            site = "DW/" + self._SITE
-            download_method = add_decrypt_instead_of_download
     if not download_links:
         download_links = self.get_download_links_method(self, content, key)
         site = self._SITE

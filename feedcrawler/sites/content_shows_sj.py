@@ -30,7 +30,6 @@ class SJ:
         self.hosters = CrawlerConfig("Hosters").get_section()
         self.db = FeedDb('FeedCrawler')
         self.quality = self.config.get("quality")
-        self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
         self.cdc = FeedDb('cdc')
         self.last_set = self.cdc.retrieve(self._INTERNAL_NAME + "Set-" + self.filename)
         self.last_sha = self.cdc.retrieve(self._INTERNAL_NAME + "-" + self.filename)
@@ -39,7 +38,6 @@ class SJ:
         self.settings = []
         self.settings.append(self.feedcrawler.get("english"))
         self.settings.append(self.feedcrawler.get("surround"))
-        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in self.settings_array:
             self.settings.append(self.config.get(s))

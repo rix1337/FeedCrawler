@@ -16,7 +16,6 @@ def check_url():
     dj = hostnames.get('dj')
     sf = hostnames.get('sf')
     by = hostnames.get('by')
-    dw = hostnames.get('dw')
     fx = hostnames.get('fx')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
@@ -25,7 +24,6 @@ def check_url():
     dj_url = 'https://' + dj
     sf_url = 'https://' + sf
     by_url = 'https://' + by
-    dw_url = 'https://' + dw
     fx_url = 'https://' + fx
     nk_url = 'https://' + nk
     ww_url = 'https://' + ww
@@ -34,7 +32,6 @@ def check_url():
     dj_blocked = False
     sf_blocked = False
     by_blocked = False
-    dw_blocked = False
     fx_blocked = False
     nk_blocked = False
     ww_blocked = False
@@ -44,7 +41,6 @@ def check_url():
     db_status.delete("DJ")
     db_status.delete("SF")
     db_status.delete("BY")
-    db_status.delete("DW")
     db_status.delete("FX")
     db_status.delete("NK")
     db_status.delete("WW")
@@ -99,20 +95,6 @@ def check_url():
         if by_blocked:
             db_status.store("BY", "Blocked")
             print(u"Der Zugriff auf BY ist ohne FlareSolverr gesperrt!")
-
-    if not dw:
-        db_status.store("DW", "Blocked")
-    else:
-        try:
-            dw_test = request(dw_url + "/downloads/hauptkategorie/movies/")
-            if not dw_test["text"] or dw_test["status_code"] is not (
-                    200 or 304) or '<a id="first_element" href=' not in dw_test["text"]:
-                dw_blocked = True
-        except:
-            dw_blocked = True
-        if dw_blocked:
-            db_status.store("DW", "Blocked")
-            print(u"Der Zugriff auf DW ist ohne FlareSolverr gesperrt!")
 
     if not fx:
         db_status.store("FX", "Blocked")

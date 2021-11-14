@@ -224,7 +224,6 @@ def app_container():
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                                 "one_mirror_policy": general_conf.get("one_mirror_policy"),
                                 "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
-                                "prefer_dw_mirror": general_conf.get("prefer_dw_mirror"),
                             },
                             "hosters": {
                                 "rapidgator": hosters.get("rapidgator"),
@@ -342,7 +341,6 @@ def app_container():
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
                 section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
-                section.save("prefer_dw_mirror", to_str(data['general']['prefer_dw_mirror']))
 
                 section = CrawlerConfig("Crawljobs")
 
@@ -482,7 +480,6 @@ def app_container():
         if request.method == 'GET':
             try:
                 hostnames = CrawlerConfig('Hostnames')
-                dw = hostnames.get('dw')
                 fx = hostnames.get('fx')
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
@@ -491,7 +488,6 @@ def app_container():
                 nk = hostnames.get('nk')
                 by = hostnames.get('by')
 
-                dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
@@ -499,12 +495,10 @@ def app_container():
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                bl = ' / '.join(list(filter(None, [dw, fx, ww, nk, by])))
-                s = ' / '.join(list(filter(None, [dw, sj, sf])))
+                bl = ' / '.join(list(filter(None, [fx, ww, nk, by])))
+                s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
-                if not dw:
-                    dw = "Nicht gesetzt!"
                 if not fx:
                     fx = "Nicht gesetzt!"
                 if not sj:
@@ -532,7 +526,6 @@ def app_container():
                             "dj": dj,
                             "sf": sf,
                             "by": by,
-                            "dw": dw,
                             "fx": fx,
                             "nk": nk,
                             "ww": ww,
@@ -563,7 +556,6 @@ def app_container():
                             "DJ": check("DJ", db_status),
                             "SF": check("SF", db_status),
                             "BY": check("BY", db_status),
-                            "DW": check("DW", db_status),
                             "FX": check("FX", db_status),
                             "HW": check("HW", db_status),
                             "NK": check("NK", db_status),
@@ -1133,73 +1125,6 @@ if (title) {
     }, 100);
 }
 
-""", 200
-            except:
-                return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/sponsors_helper/feedcrawler_sponsors_helper_dw.user.js", methods=['GET'])
-    @requires_auth
-    def feedcrawler_sponsors_helper_dw():
-        if not helper_active:
-            return "Forbidden", 403
-        if request.method == 'GET':
-            try:
-                hostnames = CrawlerConfig('Hostnames')
-                dw = hostnames.get('dw')
-                return """// ==UserScript==
-// @name            FeedCrawler Sponsors Helper (DW)
-// @author          rix1337
-// @description     Clicks the correct download button on DW sub pages to speed up Click'n'Load
-// @version         0.2.0
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + dw + """/*
-// @grant           window.close
-// ==/UserScript==
-
-// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-var sponsorsURL = '""" + internal.local_address + """';
-// Hier kann ein Wunschhoster eingetragen werden (exakt 'ddownload.com' oder 'rapidgator.net'):
-var sponsorsHoster = '';
-
-document.body.addEventListener('mousedown', function (e) {
-    if (e.target.tagName != "A") return;
-    var anchor = e.target;
-    if (anchor.href.search(/""" + dw + """\/download\//i) != -1) {
-        anchor.href = anchor.href + '#' + anchor.text;
-    }
-});
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0];
-var password = tag[1];
-if (title) {
-    $('.container').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
-    var checkExist = setInterval(async function() {
-        if (sponsorsHoster && $("span:contains('Download Mirror')").find('a[data-original-title="Download bei ' + sponsorsHoster + '"]').length) {
-            $("span:contains('Download Mirror')").find('a[data-original-title="Download bei ' + sponsorsHoster + '"]').click();
-        } else {
-            $("span:contains('Download Mirror 1')").click();
-        }
-        console.log("[FeedCrawler Sponsors Helper] clicked Download button to trigger reCAPTCHA");
-        clearInterval(checkExist);
-    }, 100);
-
-    var dlExists = setInterval(async function() {
-        if ($("tr:contains('Download Part')").length) {
-            var items = $("tr:contains('Download Part')").find("a");
-            var links = [];
-            items.each(function(index){
-                links.push(items[index].href);
-            })
-            console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
-            clearInterval(dlExists);
-            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            window.close();
-        }
-    }, 100);
-}
 """, 200
             except:
                 return "Failed", 400
