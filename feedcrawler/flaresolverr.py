@@ -6,7 +6,7 @@ import codecs
 import functools
 import hashlib
 import pickle
-from json import dumps, loads
+from json import loads
 from urllib.parse import urlencode
 
 import requests
@@ -73,10 +73,10 @@ def clean_cloudproxy_sessions():
     cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
     if cloudproxy_sessions:
         for cloudproxy_session in cloudproxy_sessions:
-            requests.post(flaresolverr_url, headers={}, data=dumps({
+            requests.post(flaresolverr_url, headers={}, json={
                 'cmd': 'sessions.destroy',
                 'session': cloudproxy_session
-            }))
+            })
         ListDb('flaresolverr_sessions').reset()
 
 
@@ -113,22 +113,22 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
             if flaresolverr_url:
                 internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
                 if not cloudproxy_session:
-                    json_session = requests.post(flaresolverr_url, data=dumps({
+                    json_session = requests.post(flaresolverr_url, json={
                         'cmd': 'sessions.create'
-                    }))
+                    })
                     response_session = loads(json_session.text)
                     cloudproxy_session = response_session['session']
 
                 headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
                         method == 'post') else 'application/json'
 
-                json_response = requests.post(flaresolverr_url, data=dumps({
+                json_response = requests.post(flaresolverr_url, json={
                     'cmd': 'request.%s' % method,
                     'url': url,
                     'session': cloudproxy_session,
                     'headers': headers,
                     'postData': '%s' % encoded_params if (method == 'post') else ''
-                }))
+                })
 
                 status_code = json_response.status_code
                 response = loads(json_response.text)
@@ -146,10 +146,10 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
                 if status_code == 500:
                     internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
                                           cloudproxy_session)
-                    requests.post(flaresolverr_url, data=dumps({
+                    requests.post(flaresolverr_url, json={
                         'cmd': 'sessions.destroy',
                         'session': cloudproxy_session,
-                    }))
+                    })
                     cloudproxy_session = None
             else:
                 internal.logger.debug(
