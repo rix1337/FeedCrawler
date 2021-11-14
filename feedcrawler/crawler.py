@@ -53,7 +53,7 @@ from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.flaresolverr import clean_cloudproxy_sessions
+from feedcrawler.flaresolverr import clean_flaresolverr_sessions
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 from feedcrawler.myjd import get_info
@@ -87,7 +87,7 @@ def crawler(global_variables):
     ombi_first_launch = True
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
-    clean_cloudproxy_sessions()
+    clean_flaresolverr_sessions()
 
     arguments = docopt(__doc__, version='FeedCrawler')
     while True:

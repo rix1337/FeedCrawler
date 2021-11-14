@@ -219,6 +219,7 @@ def app_container():
                                 "prefix": general_conf.get("prefix"),
                                 "interval": to_int(general_conf.get("interval")),
                                 "flaresolverr": general_conf.get("flaresolverr"),
+                                "flaresolverr_proxy": general_conf.get("flaresolverr_proxy"),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
                                 "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
@@ -336,6 +337,7 @@ def app_container():
                     interval = '5'
                 section.save("interval", interval)
                 section.save("flaresolverr", to_str(data['general']['flaresolverr']))
+                section.save("flaresolverr_proxy", to_str(data['general']['flaresolverr_proxy']))
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
                 section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))

@@ -19,6 +19,7 @@ class CrawlerConfig(object):
             ("prefix", "str", ""),
             ("interval", "int", "10"),
             ("flaresolverr", "str", ""),
+            ("flaresolverr_proxy", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("closed_myjd_tab", "bool", "False"),

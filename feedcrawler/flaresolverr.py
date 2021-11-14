@@ -54,28 +54,36 @@ def get_flaresolverr_url():
     return False
 
 
-def get_cloudproxy_session():
-    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
+def get_flaresolverr_proxy():
+    config = CrawlerConfig('FeedCrawler')
+    flaresolverr_proxy = config.get("flaresolverr_proxy")
+    if flaresolverr_proxy:
+        return flaresolverr_proxy
+    return False
+
+
+def get_flaresolverr_session():
+    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
     try:
-        return cloudproxy_sessions[0]
+        return flaresolverr_sessions[0]
     except:
         return False
 
 
-def save_cloudproxy_session(cloudproxy_session):
-    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
-    if (cloudproxy_sessions and cloudproxy_session not in cloudproxy_sessions) or not cloudproxy_sessions:
-        ListDb('flaresolverr_sessions').store(cloudproxy_session)
+def save_flaresolverr_session(flaresolverr_session):
+    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
+    if (flaresolverr_sessions and flaresolverr_session not in flaresolverr_sessions) or not flaresolverr_sessions:
+        ListDb('flaresolverr_sessions').store(flaresolverr_session)
 
 
-def clean_cloudproxy_sessions():
+def clean_flaresolverr_sessions():
     flaresolverr_url = get_flaresolverr_url()
-    cloudproxy_sessions = ListDb('flaresolverr_sessions').retrieve()
-    if cloudproxy_sessions:
-        for cloudproxy_session in cloudproxy_sessions:
+    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
+    if flaresolverr_sessions:
+        for flaresolverr_session in flaresolverr_sessions:
             requests.post(flaresolverr_url, headers={}, json={
                 'cmd': 'sessions.destroy',
-                'session': cloudproxy_session
+                'session': flaresolverr_session
             })
         ListDb('flaresolverr_sessions').reset()
 
@@ -83,7 +91,8 @@ def clean_cloudproxy_sessions():
 @cache
 def request(url, method='get', params=None, headers=None, redirect_url=False):
     flaresolverr_url = get_flaresolverr_url()
-    cloudproxy_session = get_cloudproxy_session()
+    flaresolverr_session = get_flaresolverr_session()
+    flaresolverr_proxy = get_flaresolverr_proxy()
 
     if not headers:
         headers = {}
@@ -112,12 +121,12 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
         if check_site_blocked(url):
             if flaresolverr_url:
                 internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
-                if not cloudproxy_session:
+                if not flaresolverr_session:
                     json_session = requests.post(flaresolverr_url, json={
                         'cmd': 'sessions.create'
                     })
                     response_session = loads(json_session.text)
-                    cloudproxy_session = response_session['session']
+                    flaresolverr_session = response_session['session']
 
                 headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
                         method == 'post') else 'application/json'
@@ -125,12 +134,15 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
                 flaresolverr_payload = {
                     'cmd': 'request.%s' % method,
                     'url': url,
-                    'session': cloudproxy_session,
+                    'session': flaresolverr_session,
                     # Not available in FlareSolverr v.2.0.0 'headers': headers
                 }
 
                 if method == 'post':
                     flaresolverr_payload["postData"] = encoded_params
+
+                if flaresolverr_proxy:
+                    flaresolverr_payload["proxy"] = {"url": flaresolverr_proxy}
 
                 json_response = requests.post(flaresolverr_url, json=flaresolverr_payload)
 
@@ -149,12 +161,12 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
 
                 if status_code == 500:
                     internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
-                                          cloudproxy_session)
+                                          flaresolverr_session)
                     requests.post(flaresolverr_url, json={
                         'cmd': 'sessions.destroy',
-                        'session': cloudproxy_session,
+                        'session': flaresolverr_session,
                     })
-                    cloudproxy_session = None
+                    flaresolverr_session = None
             else:
                 internal.logger.debug(
                     "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
@@ -177,7 +189,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False):
     except RequestException as e:
         print("Fehler im HTTP-Request", e)
 
-    if cloudproxy_session:
-        save_cloudproxy_session(cloudproxy_session)
+    if flaresolverr_session:
+        save_flaresolverr_session(flaresolverr_session)
 
     return {'status_code': status_code, 'text': text, 'headers': response_headers}
