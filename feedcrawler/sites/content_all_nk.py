@@ -33,7 +33,6 @@ class BL:
         self.retail_only = self.config.get("retail_only")
         self.hosters = CrawlerConfig("Hosters").get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
-        self.prefer_dw_mirror = self.feedcrawler.get("prefer_dw_mirror")
 
         search = int(CrawlerConfig("ContentAll").get("search"))
         i = 2
@@ -53,7 +52,6 @@ class BL:
         self.settings = []
         self.settings.append(self.feedcrawler.get("english"))
         self.settings.append(self.feedcrawler.get("surround"))
-        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))

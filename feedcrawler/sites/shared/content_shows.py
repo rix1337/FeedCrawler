@@ -10,7 +10,6 @@ from feedcrawler import internal
 from feedcrawler.common import add_decrypt
 from feedcrawler.db import ListDb
 from feedcrawler.notifiers import notify
-from feedcrawler.sites.shared.internal_feed import dw_mirror
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers
 
@@ -35,7 +34,6 @@ def settings_hash(self, refresh):
         self.settings = []
         self.settings.append(self.feedcrawler.get("english"))
         self.settings.append(self.feedcrawler.get("surround"))
-        self.settings.append(self.feedcrawler.get("prefer_dw_mirror"))
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
@@ -51,10 +49,6 @@ def feed_url(self):
     elif self._INTERNAL_NAME == "SF":
         delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
         url = 'https://' + self.url + '/updates/' + delta
-        return url
-    elif self._INTERNAL_NAME == "DWs":
-        url = 'https://' + self.url + "/downloads/hauptkategorie/serien/order/zeit/sort/D/seite/" + str(
-            self.day + 1) + "/"
         return url
     else:
         return False
@@ -227,11 +221,6 @@ def periodical_task(self):
                                 title = package[0]
                                 site = self._SITE
                                 download_link = False
-                                if self.prefer_dw_mirror and "DW" not in site:
-                                    download_links = dw_mirror(self, title)
-                                    if download_links:
-                                        download_link = download_links[0]
-                                        site = "DW/" + site
                                 if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
@@ -275,11 +264,6 @@ def periodical_task(self):
                                 title = package[0]
                                 site = self._SITE
                                 download_link = False
-                                if self.prefer_dw_mirror and "DW" not in site:
-                                    download_links = dw_mirror(self, title)
-                                    if download_links:
-                                        download_link = download_links[0]
-                                        site = "DW/" + site
                                 if not download_link:
                                     download_link = package[1]
                                 language_id = package[2]
@@ -330,11 +314,6 @@ def periodical_task(self):
                                     title = package[0]
                                     site = self._SITE
                                     download_link = False
-                                    if self.prefer_dw_mirror and "DW" not in site:
-                                        download_links = dw_mirror(self, title)
-                                        if download_links:
-                                            download_link = download_links[0]
-                                            site = "DW/" + site
                                     if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]
@@ -383,11 +362,6 @@ def periodical_task(self):
                                     title = package[0]
                                     site = self._SITE
                                     download_link = False
-                                    if self.prefer_dw_mirror and "DW" not in site:
-                                        download_links = dw_mirror(self, title)
-                                        if download_links:
-                                            download_link = download_links[0]
-                                            site = "DW/" + site
                                     if not download_link:
                                         download_link = package[1]
                                     language_id = package[2]

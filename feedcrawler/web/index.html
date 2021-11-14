@@ -280,11 +280,6 @@
                                         <a href="./sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
-                                        <span ng-if="( hostnames.dw && x.url.includes(hostnames.dw.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
-                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_sponsors_helper_dw.user.js"
-                                           target="_blank">FeedCrawler Sponsors Helper (DW)</a> installieren!
-                                    </span>
                                         <span ng-if="( x.url.includes('filecrypt') || ( hostnames.ww && x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) ) && helper_active && helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_sponsors_helper_fc.user.js"
@@ -423,7 +418,7 @@
                aria-label="Search"
                data-toggle="tooltip"
                ng-keypress="($event.charCode==13)? searchNow() : return"
-               title="Bequeme Suchfunktion für SJ, BY, DW, FX und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
+               title="Bequeme Suchfunktion für SJ, BY, FX und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!">
         <a href="" ng-click="searchNow()" class="btn btn-dark" type="submit"
            ng-show="search || (!results.sj && !results.bl)">
             <div id="spinner-search"
@@ -686,13 +681,6 @@
                                    data-toggle="tooltip"
                                    title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt.">
                         </label>
-                        <div ng-show="hostnames.dw !== 'Nicht gesetzt!'"><h5>DW-Mirror bevorzugen</h5>
-                            <label class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox"
-                                       ng-model="settings.general.prefer_dw_mirror"
-                                       data-toggle="tooltip"
-                                       title="Wenn aktiviert, wird versucht jedes anderswo gefundene Release stattdessen auf DW zu finden - mit dem Ziel einen durch den Sponsors Helper lösbaren Link zu erhalten.">
-                            </label></div>
                     </div>
                 </div>
             </div>
@@ -1128,7 +1116,7 @@
                 <div id="collapseOneZero" class="accordion-collapse collapse" aria-labelledby="headingOneZero"
                      data-bs-parent="#accordionHelp">
                     <div class="accordion-body">
-                        <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das SJ-, DJ- und DW-Captchas
+                        <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das SJ- und DJ-Captchas
                             vollständig
                             automatisiert löst und dem FeedCrawler entschlüsselt übergibt.
                             Für den höchsten Automatisierungsgrad sollten entsprechend nur für diese Seiten die
@@ -1309,18 +1297,9 @@
                      data-bs-parent="#accordionHelp">
                     <div class="accordion-body">
                         <div class="row">
-                            <div ng-if="hostnames.dw !== 'Nicht gesetzt!' || hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
-                                    <li ng-show="hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{
-                                        hostnames.dw
-                                        }}
-                                        (DW)
-                                        <i ng-if="site_status.DW" class="bi bi-lightbulb text-danger"
-                                           title="Seite mit Proxy gesperrt"></i>
-                                        <i ng-if="!site_status.DW" class="bi bi-lightbulb text-success"
-                                           title="Seite mit Proxy verfügbar"></i>
-                                    </li>
                                     <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
                                         hostnames.fx
                                         }}

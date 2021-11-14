@@ -65,12 +65,10 @@ from feedcrawler.myjd import retry_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.ombi import ombi
 from feedcrawler.sites.content_all_by import BL as BY
-from feedcrawler.sites.content_all_dw import BL as DW
 from feedcrawler.sites.content_all_fx import BL as FX
 from feedcrawler.sites.content_all_nk import BL as NK
 from feedcrawler.sites.content_all_ww import BL as WW
 from feedcrawler.sites.content_shows_dj import DJ
-from feedcrawler.sites.content_shows_dw import DWs
 from feedcrawler.sites.content_shows_sf import SF
 from feedcrawler.sites.content_shows_sj import SJ
 from feedcrawler.url import check_url
@@ -398,14 +396,6 @@ def crawldog(global_variables):
 
 def search_pool():
     return [
-        DWs(filename='List_ContentShows_Shows'),
-        DWs(filename='List_ContentShows_Shows_Regex'),
-        DWs(filename='List_ContentShows_Seasons_Regex'),
-        DWs(filename='List_ContentAll_Seasons'),
-        DW(filename='List_ContentAll_Movies_Regex'),
-        DW(filename='IMDB'),
-        DW(filename='List_ContentAll_Movies'),
-        DW(filename='List_ContentAll_Seasons'),
         FX(filename='List_ContentAll_Movies_Regex'),
         FX(filename='IMDB'),
         FX(filename='List_ContentAll_Movies'),
@@ -476,7 +466,7 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['dw', 'fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by']
+    list_names = ['fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by']
     for name in list_names:
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:
