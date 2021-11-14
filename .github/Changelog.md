@@ -9,7 +9,7 @@
 ---
 
 ### Changelog:
-- **11.1.2** Verbesserte Erkennung von Blockaden bspw. durch Cloudflare
+- **11.1.2** Verbesserte Erkennung von Blockaden bspw. durch Cloudflare inkl. Ergänzung im Webinterface
 - **11.1.2** Verbesserte Kompatibilität zu FlareSolverr inkl. Proxy-Integration
 - **11.1.2** WW funktioniert nun in Kombination mit FlareSolverr
 - **11.1.2** Lade FX Links als HTTP (statt HTTPs)

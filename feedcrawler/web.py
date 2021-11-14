@@ -553,15 +553,34 @@ def app_container():
                 db_status = FeedDb('site_status')
                 return jsonify(
                     {
-                        "site_status": {
-                            "SJ": check("SJ_normal", db_status),
-                            "DJ": check("DJ_normal", db_status),
-                            "SF": check("SF_normal", db_status),
-                            "BY": check("BY_normal", db_status),
-                            "FX": check("FX_normal", db_status),
-                            "HW": check("HW_normal", db_status),
-                            "NK": check("NK_normal", db_status),
-                            "WW": check("WW_normal", db_status)
+                        "blocked_sites": {
+                            "normal": {
+                                "SJ": check("SJ_normal", db_status),
+                                "DJ": check("DJ_normal", db_status),
+                                "SF": check("SF_normal", db_status),
+                                "BY": check("BY_normal", db_status),
+                                "FX": check("FX_normal", db_status),
+                                "NK": check("NK_normal", db_status),
+                                "WW": check("WW_normal", db_status)
+                            },
+                            "flaresolverr": {
+                                "SJ": check("SJ_flaresolverr", db_status),
+                                "DJ": check("DJ_flaresolverr", db_status),
+                                "SF": check("SF_flaresolverr", db_status),
+                                "BY": check("BY_flaresolverr", db_status),
+                                "FX": check("FX_flaresolverr", db_status),
+                                "NK": check("NK_flaresolverr", db_status),
+                                "WW": check("WW_flaresolverr", db_status)
+                            },
+                            "flaresolverr_proxy": {
+                                "SJ": check("SJ_flaresolverr_proxy", db_status),
+                                "DJ": check("DJ_flaresolverr_proxy", db_status),
+                                "SF": check("SF_flaresolverr_proxy", db_status),
+                                "BY": check("BY_flaresolverr_proxy", db_status),
+                                "FX": check("FX_flaresolverr_proxy", db_status),
+                                "NK": check("NK_flaresolverr_proxy", db_status),
+                                "WW": check("WW_flaresolverr_proxy", db_status)
+                            }
                         }
                     }
                 )
