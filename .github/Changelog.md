@@ -9,6 +9,7 @@
 ---
 
 ### Changelog:
+- **11.1.1** Kompatibilität mit FlareSolverr ab v.2.0.0 wieder hergestellt
 - **11.0.0** Update
   des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf
   Version 2.1.0

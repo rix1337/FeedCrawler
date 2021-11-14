@@ -25,8 +25,8 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
   sollte dennoch auf dieses aktualisiert werden!
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
   werden.
-* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) muss lokal verfügbar sein um Cloudflare-Blockaden zu
-  umgehen (optional)
+* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
+  Cloudflare-Blockaden zu umgehen (optional)
 
 ## Windows
 
@@ -34,8 +34,8 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
   Version des Feedcrawlers beigefügt.
 * Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
-* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) muss lokal verfügbar sein um Cloudflare-Blockaden zu
-  umgehen (optional)
+* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
+  Cloudflare-Blockaden zu umgehen (optional)
 
 ## Manuelle Installation
 
@@ -44,7 +44,7 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
 * [Python 3.6](https://www.python.org/downloads/) oder neuer
 * [pip](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
-* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen (optional)
+* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
 
 ### Installation
 
