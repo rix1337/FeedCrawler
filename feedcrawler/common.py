@@ -278,6 +278,9 @@ def get_to_decrypt():
                 except:
                     url = package[1]
                     password = ""
+
+                url = url.replace("https://safe." + fx, "http://safe." + fx)
+
                 packages.append({
                     'name': title,
                     'url': url,
