@@ -9,4 +9,8 @@
 ---
 
 ### Changelog:
+- **11.0.0** Update
+  des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf
+  Version 2.1.0
+  - DW entfernt
 - **11.1.0** DW entfernt
