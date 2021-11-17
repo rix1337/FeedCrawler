@@ -382,6 +382,10 @@ def periodical_task(self):
 
     if header and response:
         self.cdc.delete(self._INTERNAL_NAME + "Headers-" + self.filename)
-        self.cdc.store(self._INTERNAL_NAME + "Headers-" + self.filename, response['headers']['date'])
+        try:
+            self.cdc.store(self._INTERNAL_NAME + "Headers-" + self.filename, response['headers']['date'])
+        except:
+            internal.logger.debug("Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
+            pass
 
     return

@@ -179,10 +179,10 @@ def search_imdb(self, desired_rating, feed):
                                 "%s - Release ignoriert (Film zu alt)" % post.title)
                             continue
                     try:
-                      if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
-                          internal.logger.debug(
-                              post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
-                          continue
+                        if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
+                            internal.logger.debug(
+                                post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
+                            continue
                     except KeyError:
                         internal.logger.debug(
                             post.title + " - Release ignoriert (Konnte keine IMDb-Votes finden)")
@@ -909,6 +909,8 @@ def periodical_task(self):
             header = first_page_raw['headers']['Last-Modified']
         except:
             header = False
+            internal.logger.debug(
+                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
         if header:
             self.cdc.delete(self._SITE + "Headers-" + self.filename)
             self.cdc.store(self._SITE + "Headers-" + self.filename, header)

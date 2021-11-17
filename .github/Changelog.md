@@ -9,6 +9,8 @@
 ---
 
 ### Changelog:
+- **11.1.4** Verbesserte Hinweise, bei gesperrten Seiten
+- **11.1.4** Fix: Verhindere das Speichern von nicht verfügbaren Headern
 - **11.1.3** Fix: Übergabe von Downloadlinks für WW funktioniert wieder
 - **11.1.3** Update auf Boostrap Icons v.1.7.1
 - **11.1.2** Verbesserte Erkennung von Blockaden bspw. durch Cloudflare inkl. Ergänzung im Webinterface
