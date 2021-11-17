@@ -5,7 +5,7 @@
 import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.myjd import myjd_download
+from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
 from feedcrawler.sites.shared.internal_feed import ww_feed_enricher
 from feedcrawler.sites.shared.internal_feed import ww_get_download_links
 from feedcrawler.sites.shared.internal_feed import ww_post_url_headers
@@ -71,7 +71,7 @@ class BL:
         self.get_url_method = ww_post_url_headers
         self.get_url_headers_method = ww_post_url_headers
         self.get_download_links_method = ww_get_download_links
-        self.download_method = myjd_download
+        self.download_method = add_decrypt_instead_of_download
 
         try:
             self.imdb = float(self.config.get('imdb'))
