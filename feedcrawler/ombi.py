@@ -31,7 +31,7 @@ def imdb_movie(imdb_id):
             internal.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
         else:
             print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
-        return False, False
+        return False
 
 
 def imdb_show(imdb_id):
@@ -56,7 +56,7 @@ def imdb_show(imdb_id):
             internal.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
         else:
             print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
-        return False, False, False
+        return False
 
 
 def ombi(first_launch):
@@ -106,14 +106,11 @@ def ombi(first_launch):
                             if best_result:
                                 feedcrawler.search.shared.content_all.download(best_result)
                         db.store('movie_' + str(imdb_id), 'added')
-                    else:
-                        internal.logger.debug("Titel für IMDb-ID nicht abrufbar: " + imdb_id)
 
     if requested_shows:
         internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern der Hostname gesetzt wurde.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
-        infos = None
         child_requests = r.get("childRequests")
         for cr in child_requests:
             if bool(cr.get("approved")):
@@ -137,8 +134,7 @@ def ombi(first_launch):
                                 if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
                                     eps.append(enr)
                         if eps:
-                            if not infos:
-                                infos = imdb_show(imdb_id)
+                            infos = imdb_show(imdb_id)
                             if infos:
                                 title = infos[0]
                                 all_eps = infos[1]
