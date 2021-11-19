@@ -87,7 +87,11 @@ def crawler(global_variables):
     ombi_first_launch = True
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
-    clean_flaresolverr_sessions()
+
+    try:
+        clean_flaresolverr_sessions()
+    except:
+        pass
 
     arguments = docopt(__doc__, version='FeedCrawler')
     while True:
@@ -466,8 +470,9 @@ def main():
         return string
 
     set_hostnames = {}
-    list_names = ['fx', 'sj', 'dj', 'sf', 'ww', 'nk', 'by']
-    for name in list_names:
+    internal.set_sites()
+    for name in internal.sites:
+        name = name.lower()
         hostname = clean_up_hostname(name, hostnames.get(name))
         if hostname:
             set_hostnames[name] = hostname
