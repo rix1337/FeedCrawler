@@ -9,6 +9,8 @@
 ---
 
 ### Changelog:
+- **11.1.6** Buildprozess übergibt jetzt Release-Version direkt an den Docker-Build
+- **11.1.6** Fix: Exception, wenn FlareSolverr nicht erreichbar ist
 - **11.1.5** Breche Ombi-Suche korrekt ab, wenn keine IMDb-ID verfügbar ist
 - **11.1.5** Verbesserte Hinweise, bei gesperrten Seitenabrufen
 - **11.1.4** Fix: Verhindere das Speichern von nicht verfügbaren Headern
