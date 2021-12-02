@@ -9,6 +9,7 @@
 ---
 
 ### Changelog:
+- **11.1.7** Fix: Bug in FX-Suche
 - **11.1.6** Buildprozess übergibt jetzt Release-Version direkt an den Docker-Build
 - **11.1.6** Fix: Exception, wenn FlareSolverr nicht erreichbar ist
 - **11.1.5** Breche Ombi-Suche korrekt ab, wenn keine IMDb-ID verfügbar ist
