@@ -337,15 +337,18 @@ def fx_search_results(content):
             article = BeautifulSoup(str(result), 'lxml')
             titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
-                link = article.find("link", rel="canonical")["href"]
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
-                if title and "-fun" in title.lower():
-                    if "download" in title.lower():
-                        try:
-                            title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
-                        except:
-                            continue
-                    items.append([title, link + "|" + title])
+                try:
+                    link = article.find("link", rel="canonical")["href"]
+                    title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                    if title and "-fun" in title.lower():
+                        if "download" in title.lower():
+                            try:
+                                title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                            except:
+                                continue
+                        items.append([title, link + "|" + title])
+                except:
+                    pass
     return items
 
 
