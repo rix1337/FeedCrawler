@@ -1398,18 +1398,21 @@ const cnlExists = setInterval(async function () {
                 helper_active = True
                 decrypt_name = False
                 decrypt_url = False
+                decrypt_password = False
                 decrypt = get_to_decrypt()
                 if decrypt:
                     decrypt = decrypt[0]
                     decrypt_name = decrypt["name"]
                     decrypt_url = decrypt["url"].replace("http://", "https://") + "#" + decrypt_name + "|" + decrypt[
                         "password"]
+                    decrypt_password = decrypt["password"]
 
                 return jsonify(
                     {
                         "to_decrypt": {
                             "name": decrypt_name,
                             "url": decrypt_url,
+                            "password": decrypt_password
                         }
                     }
                 )
