@@ -9,12 +9,12 @@ import re
 from bs4 import BeautifulSoup
 
 from feedcrawler import internal
-from feedcrawler.common import add_decrypt
 from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import rreplace
 from feedcrawler.config import CrawlerConfig
+from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url

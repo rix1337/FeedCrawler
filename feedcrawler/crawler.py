@@ -47,13 +47,13 @@ from feedcrawler import internal
 from feedcrawler import myjd
 from feedcrawler import version
 from feedcrawler.common import Unbuffered
-from feedcrawler.common import add_decrypt
 from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.flaresolverr import clean_flaresolverr_sessions
+from feedcrawler.myjd import add_decrypt
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 from feedcrawler.myjd import get_info

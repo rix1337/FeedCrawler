@@ -5,17 +5,20 @@
 import re
 import time
 
+from bs4 import BeautifulSoup
 from rapidfuzz import fuzz
 
 import feedcrawler.myjdapi
 from feedcrawler import internal
 from feedcrawler.common import check_hoster
+from feedcrawler.common import check_is_site
 from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_size
 from feedcrawler.common import readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.url import get_url
 
 
 def split_urls(urls):
@@ -1152,4 +1155,22 @@ def myjd_input(port, user, password, device):
     if get_device():
         return
     else:
+        return False
+
+
+def add_decrypt(title, link, password):
+    try:
+        if check_is_site(link):
+            hostnames = CrawlerConfig('Hostnames')
+            if hostnames.get('fx') in link:
+                result = get_url(link)
+                real_link = BeautifulSoup(result, 'lxml').find("input", {"id": "url"})['value']
+                if real_link:
+                    if "https://" not in real_link:
+                        real_link = "https://" + real_link
+                    link = real_link
+
+        FeedDb('to_decrypt').store(title, link + '|' + password)
+        return True
+    except:
         return False
