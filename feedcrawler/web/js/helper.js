@@ -18,7 +18,6 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
         function getAntiGate() {
             $.get("http://127.0.0.1:9700/", function (data) {
                 $scope.antigate_available_and_active = data;
-                console.log($scope.antigate_available_and_active)
             });
         }
 
@@ -49,7 +48,7 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                             console.log(clean_url)
                             let password = $scope.to_decrypt.password
                             let payload = window.btoa(unescape(encodeURIComponent((clean_url + "|" + password))));
-                            window.open("http://127.0.0.1:9700/decrypt/" + payload);
+                            $scope.wnd_to_decrypt = window.open("http://127.0.0.1:9700/decrypt/" + payload);
                         }
                     } else {
                         $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
