@@ -135,6 +135,18 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                     })
                     response_session = loads(json_session.text)
                     flaresolverr_session = response_session['session']
+                elif site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
+                    internal.logger.debug("Proxy ist notwendig. Zerstöre die Session",
+                                          flaresolverr_session)
+                    requests.post(flaresolverr_url, json={
+                        'cmd': 'sessions.destroy',
+                        'session': flaresolverr_session,
+                    })
+                    json_session = requests.post(flaresolverr_url, json={
+                        'cmd': 'sessions.create'
+                    })
+                    response_session = loads(json_session.text)
+                    flaresolverr_session = response_session['session']
 
                 headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
                         method == 'post') else 'application/json'
@@ -143,7 +155,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                     'cmd': 'request.%s' % method,
                     'url': url,
                     'session': flaresolverr_session,
-                    # Not available in FlareSolverr v.2.0.0 'headers': headers
+                    # Not available in FlareSolverr v.2.X.X 'headers': headers
                 }
 
                 if method == 'post':

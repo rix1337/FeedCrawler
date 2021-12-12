@@ -7,8 +7,8 @@ import hashlib
 import re
 
 from feedcrawler import internal
-from feedcrawler.common import add_decrypt
 from feedcrawler.db import ListDb
+from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers

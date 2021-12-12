@@ -8,9 +8,10 @@ import re
 from rapidfuzz import fuzz
 
 from feedcrawler import internal
-from feedcrawler.common import decode_base64, sanitize, check_hoster, add_decrypt
+from feedcrawler.common import decode_base64, sanitize, check_hoster
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
+from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, rate
 from feedcrawler.url import get_url

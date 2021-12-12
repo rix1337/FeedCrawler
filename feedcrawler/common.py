@@ -32,14 +32,6 @@ class Unbuffered(object):
         return getattr(self.stream, attr)
 
 
-def add_decrypt(title, link, password):
-    try:
-        FeedDb('to_decrypt').store(title, link + '|' + password)
-        return True
-    except:
-        return False
-
-
 def check_hoster(to_check):
     hosters = CrawlerConfig("Hosters").get_section()
     for hoster in hosters:
