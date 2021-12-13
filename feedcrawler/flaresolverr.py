@@ -136,12 +136,9 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                     response_session = loads(json_session.text)
                     flaresolverr_session = response_session['session']
                 elif site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
-                    internal.logger.debug("Proxy ist notwendig. Zerstöre die Session",
+                    internal.logger.debug("Proxy ist notwendig. Zerstöre aktive Sessions",
                                           flaresolverr_session)
-                    requests.post(flaresolverr_url, json={
-                        'cmd': 'sessions.destroy',
-                        'session': flaresolverr_session,
-                    })
+                    clean_flaresolverr_sessions()
                     json_session = requests.post(flaresolverr_url, json={
                         'cmd': 'sessions.create'
                     })
@@ -182,10 +179,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                 if status_code == 500:
                     internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
                                           flaresolverr_session)
-                    requests.post(flaresolverr_url, json={
-                        'cmd': 'sessions.destroy',
-                        'session': flaresolverr_session,
-                    })
+                    clean_flaresolverr_sessions()
                     flaresolverr_session = None
             else:
                 internal.logger.debug(
