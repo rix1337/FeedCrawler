@@ -1161,8 +1161,8 @@ def myjd_input(port, user, password, device):
 def add_decrypt(title, link, password):
     try:
         if check_is_site(link):
-            hostnames = CrawlerConfig('Hostnames')
-            if hostnames.get('fx') in link:
+            fx = CrawlerConfig('Hostnames').get('fx')
+            if fx and fx in link:
                 result = get_url(link)
                 real_link = BeautifulSoup(result, 'lxml').find("input", {"id": "url"})['value']
                 if real_link:

@@ -10,6 +10,8 @@
 
 ### Changelog:
 
+- **12.0.2** Fix #557 - Danke @DKeppi
+- **12.0.2** Fehler bei IMDB-Eintrag ohne Jahreszahl behoben
 - **12.0.1** Fix beim Erzeugen neuer FlareSolverr-Sessions für den Aufruf mit Proxy
 - **12.0.0** Update des [FeedCrawler Sponsors Helpers](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf  Version 3.0.2
     - Ab sofort werden FC-Links durch den AntiGateHandler automatisch entschlüsselt

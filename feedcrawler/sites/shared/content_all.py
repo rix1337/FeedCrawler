@@ -174,9 +174,13 @@ def search_imdb(self, desired_rating, feed):
                 if imdb_data:
                     min_year = int(self.config.get("imdbyear"))
                     if min_year:
-                        if int(imdb_data.data["year"]) < min_year:
-                            internal.logger.debug(
-                                "%s - Release ignoriert (Film zu alt)" % post.title)
+                        try:
+                            if int(imdb_data.data["year"]) < min_year:
+                                internal.logger.debug(
+                                    "%s - Release ignoriert (Film zu alt)" % post.title)
+                                continue
+                        except:
+                            internal.logger.debug("%s - Release ignoriert (Alter nicht ermittelbar)" % post.title)
                             continue
                     try:
                         if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
