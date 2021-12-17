@@ -54,6 +54,10 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                         $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
                     }
                 }
+            } else {
+                if ($scope.wnd_to_decrypt.closed) {
+                    $scope.current_to_decrypt = "";
+                }
             }
         }
 
