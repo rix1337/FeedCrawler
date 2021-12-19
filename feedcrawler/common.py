@@ -256,7 +256,7 @@ def get_to_decrypt():
             fx = CrawlerConfig('Hostnames').get('fx')
             ww = CrawlerConfig('Hostnames').get('ww')
             for package in to_decrypt:
-                if not "filecrypt." in package[1] and not fx in package[1]:
+                if not "filecrypt." in package[1] and not fx in package[1] and not ww in package[1]:
                     easy_decrypt_exists = True
 
             packages = []
