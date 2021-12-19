@@ -149,7 +149,8 @@ def check_valid_release(title, retail_only, hevc_retail):
     bluray_tags = [".bd-rip.", ".br-rip.", ".bdrip.", "brrip", ".bluray-rip.", ".bluray.", ".bd-disk.", ".bd.", ".bd5.",
                    ".bd9.", ".bd25.", ".bd50."]
     web_tags = [".web.", ".web-rip.", ".webrip.", ".vod-rip.", ".webdl.", ".web-dl.", ".ddc.", ".webhd.", ".web-hd.",
-                ".amazonhd.", ".amazonuhd.", ".webuhd.", ".amazonhd.", ".amazonuhd.", ".ituneshd.", ".itunesuhd."]
+                ".amazonhd.", ".amazonuhd.", ".webuhd.", ".amazonhd.", ".amazonuhd.", ".ituneshd.", ".itunesuhd.",
+                ".hbomaxhd.", ".hbomaxuhd."]
     trash_tags = [".cam.", ".cam-rip.", ".ts.", ".telesync.", ".wp.", ".workprint.", ".tc.", ".telecine.", ".vhs-rip.",
                   ".tv-rip.", ".hdtv-rip.", ".hdtv.", ".tvrip.", ".hdtvrip.", ".sat-rip.", ".dvb-rip.", ".ds-rip.",
                   ".scr.", ".screener.", ".dvdscr.", ".dvdscreener.", ".bdscr.", ".r5.", ".dvdrip.", ".dvd."]
