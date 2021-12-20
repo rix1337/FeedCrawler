@@ -11,6 +11,11 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
 
         $scope.wnd_to_decrypt = false;
 
+        $scope.update = function () {
+            spinHelper();
+            getToDecrypt();
+        };
+
         function spinHelper() {
             $("#spinner-helper").fadeIn().delay(1000).fadeOut();
         }

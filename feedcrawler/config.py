@@ -67,7 +67,7 @@ class CrawlerConfig(object):
         'ContentAll': [
             ("quality", "str", "1080p"),
             ("search", "int", "10"),
-            ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,avc,pal,md,ac3md,mic,xxx"),
+            ("ignore", "str", "cam,subbed,xvid,dvdr,untouched,remux,mpeg2,avc,pal,md,ac3md,mic,xxx"),
             ("regex", "bool", "False"),
             ("cutoff", "bool", "True"),
             ("enforcedl", "bool", "False"),
