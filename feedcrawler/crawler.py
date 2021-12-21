@@ -66,6 +66,7 @@ from feedcrawler.notifiers import notify
 from feedcrawler.ombi import ombi
 from feedcrawler.sites.content_all_by import BL as BY
 from feedcrawler.sites.content_all_fx import BL as FX
+from feedcrawler.sites.content_all_hw import BL as HW
 from feedcrawler.sites.content_all_nk import BL as NK
 from feedcrawler.sites.content_all_ww import BL as WW
 from feedcrawler.sites.content_shows_dj import DJ
@@ -404,6 +405,10 @@ def search_pool():
         FX(filename='IMDB'),
         FX(filename='List_ContentAll_Movies'),
         FX(filename='List_ContentAll_Seasons'),
+        HW(filename='List_ContentAll_Movies_Regex'),
+        HW(filename='IMDB'),
+        HW(filename='List_ContentAll_Movies'),
+        HW(filename='List_ContentAll_Seasons'),
         SJ(filename='List_ContentShows_Shows'),
         SJ(filename='List_ContentShows_Shows_Regex'),
         SJ(filename='List_ContentShows_Seasons_Regex'),

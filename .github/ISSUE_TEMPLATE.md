@@ -4,7 +4,7 @@ Dieser Bereich dient ausschließlich der Fehlermeldung.
 
 **Ideen/Feature Requests** gehören in die [Discussions](https://github.com/rix1337/FeedCrawler/discussions/).
 
-Für **Rückfragen** und Allgemeines gibt es den [Chat auf gitter](https://gitter.im/FeedCrawler/Lobby).
+Für **Rückfragen** und Allgemeines gibt es den [Chat auf gitter](https://gitter.im/FeedCrawler/community).
 
 ## Zwingend erforderlich
 

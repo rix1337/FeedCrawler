@@ -16,7 +16,7 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
 
 ***
 
-## Docker
+### Docker
 
 * Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 * Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
@@ -28,7 +28,7 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
 * Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
   Cloudflare-Blockaden zu umgehen (optional)
 
-## Windows
+### Windows
 
 * Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
   Version des Feedcrawlers beigefügt.
@@ -37,51 +37,36 @@ FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links 
 * Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
   Cloudflare-Blockaden zu umgehen (optional)
 
-## Manuelle Installation
+### Manuelle Installation
 
-### Voraussetzungen
+#### Voraussetzungen
 
 * [Python 3.6](https://www.python.org/downloads/) oder neuer
 * [pip](https://pip.pypa.io/en/stable/installing/)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
 * [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
 
-### Installation
+#### Installation
 
 ```pip install feedcrawler```
 
 Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
-### Bekannte Fehler
-- Werden Downloads nicht mehr automatisch gestartet, wurde vermutlich der JDownloader geupdated oder neugestartet
-  während FeedCrawler lief (#540). Bei Neustarts und Updates des JDownloaders muss zwingend auch FeedCrawler
-  neugestartet werden, um dieses Verhalten zu vermeiden.
-
-- Kommt es nach einem Update oder Neustart des Containers zu einer `sqlite3.OperationalError: database is locked`
-  -Fehlermeldungen, so muss der Container gestoppt, die `FeedCrawler.db` beliebig (bspw. zu `FeedCrawler-Temp.db`)
-  umbenannt und direkt wieder zurück zu `FeedCrawler.db` umbenannt werden. Hintergrund ist, dass der FeedCrawler nicht
-  während die Datenbank verwendet wird (bspw. bei aktiver Feedsuche) gestoppt werden sollte. Der Umbenennungs-Workaround
-  stellt sicher, dass das Betriebssystem die Datei wieder freigibt (also den Lock loslässt).
-
-- Fehler im Installationsprozess per _pip_ deuten auf fehlende Compiler im System hin. Meist muss ein Zusatzpaket
-  nachinstalliert werden (Beispielsweise die [VS C++ Build Tools](https://aka.ms/vs/16/release/vs_buildtools.exe) für
-  Windows oder libffi per `apt-get install libffi-dev` für den Raspberry Pi).
-
-### Update
+#### Update
 
 ```pip install -U feedcrawler```
 
-### Starten
+#### Starten
 
 ```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
-## Hostnamen festlegen
+### Hostnamen festlegen
 
 FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche
 Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _Feedcrawler.ini_ in
 der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werden dort reine Hostnamen (ohne _https://_).
 
-### Dabei gilt
+#### Dabei gilt
 
 * Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
 * Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
@@ -89,15 +74,7 @@ der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werde
   kommen.
 * Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
 
-## Sicherheitshinweis
-
-Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername
-und Passwort festlegen.
-
-Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat,
-bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
-
-## Startparameter
+### Startparameter
 
 | Parameter | Erläuterung |
 |---|---|
@@ -109,9 +86,18 @@ bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ``` --keep-cdc``` | Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf |
 
+
+### Sicherheitshinweis
+
+Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername
+und Passwort festlegen.
+
+Es empfiehlt sich, zusätzlich einen Reverse-Proxy mit HTTPs-Zertifikat,
+bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
+
 ## Credits
 
-* [mmarquezs](https://github.com/mmarquezs/)
-* [Gutz-Pilz](https://github.com/Gutz-Pilz/)
-* [zapp-brannigan](https://github.com/zapp-brannigan/)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler)
+* [zapp-brannigan](https://github.com/zapp-brannigan/) (Idee)
+* Gutz-Pilz (Idee)
+* [mmarquezs](https://github.com/mmarquezs/) (MyJDownloader-Integration)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Lizenz für die Umsetzung)

@@ -60,6 +60,7 @@ def check_is_site(string):
     sf = hostnames.get('sf')
     by = hostnames.get('by')
     fx = hostnames.get('fx')
+    hw = hostnames.get('hw')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
 
@@ -73,6 +74,8 @@ def check_is_site(string):
         return "BY"
     elif fx and fx.split('.')[0] in string:
         return "FX"
+    elif hw and hw.split('.')[0] in string:
+        return "HW"
     elif nk and nk.split('.')[0] in string:
         return "NK"
     elif ww and ww.split('.')[0] in string:
