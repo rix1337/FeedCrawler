@@ -61,7 +61,7 @@ def check_url():
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["SJ", "DJ", "BY", "FX"]:
+        if site in ["SJ", "DJ", "BY", "FX", "HW"]:
             status = request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True
