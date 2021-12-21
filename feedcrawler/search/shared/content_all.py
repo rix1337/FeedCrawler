@@ -135,6 +135,15 @@ def download(payload):
             download_method = add_decrypt_instead_of_download
             key = payload[1]
             password = payload[2]
+        elif "HW" in site:
+            download_method = add_decrypt_instead_of_download
+            download_links = soup.findAll("a", href=re.compile('filecrypt'))
+            links_string = ""
+            for link in download_links:
+                links_string += str(link)
+            url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', links_string)
+            key = soup.find("h2", {"class": "entry-title"}).text.strip()
+            password = payload[1]
         else:
             return False
 

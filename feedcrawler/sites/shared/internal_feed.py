@@ -397,6 +397,20 @@ def hw_feed_enricher(feed):
     return feed
 
 
+def hw_search_results(content):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("(/filme/|/serien/)"))
+    results = []
+    for post in posts:
+        try:
+            title = post.text.strip()
+            link = post['href']
+            results.append([title, link])
+        except:
+            pass
+    return results
+
+
 def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')

@@ -14,6 +14,7 @@ from feedcrawler.config import CrawlerConfig
 from feedcrawler.sites.shared.internal_feed import by_search_results
 from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
 from feedcrawler.sites.shared.internal_feed import fx_search_results
+from feedcrawler.sites.shared.internal_feed import hw_search_results
 from feedcrawler.sites.shared.internal_feed import nk_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
@@ -24,6 +25,7 @@ def get(title, bl_only=False, sj_only=False):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     fx = hostnames.get('fx')
+    hw = hostnames.get('hw')
     nk = hostnames.get('nk')
     sj = hostnames.get('sj')
 
@@ -69,18 +71,25 @@ def get(title, bl_only=False, sj_only=False):
             fx_search = 'https://' + fx + '/?s=' + bl_query
         else:
             fx_search = None
+        if hw:
+            hw_search = 'https://' + hw + '/?s=' + bl_query
+        else:
+            hw_search = None
 
-        async_results = get_urls_async([by_search, fx_search])
+        async_results = get_urls_async([by_search, fx_search, hw_search])
         async_results = async_results[0]
 
         by_results = []
         fx_results = []
+        hw_results = []
 
         for res in async_results:
             if check_is_site(res) == 'BY':
                 by_results = by_search_results(res, by)
             elif check_is_site(res) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res))
+            elif check_is_site(res) == 'HW':
+                hw_results = hw_search_results(res)
 
         if nk:
             nk_search = post_url('https://' + nk + "/search",
@@ -112,6 +121,18 @@ def get(title, bl_only=False, sj_only=False):
             if "-low" not in result[0].lower():
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
+
+        password = hw.split('.')[0]
+        for result in hw_results:
+            if "480p" in quality:
+                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                    0].lower() or "2160p" in \
+                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                    0].lower() or "complete.uhd.bluray" in result[0].lower():
+                    continue
+            if "xxx" not in result[0].lower():
+                unrated.append(
+                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:

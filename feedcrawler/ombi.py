@@ -87,7 +87,7 @@ def ombi(first_launch):
 
     if requested_movies:
         internal.logger.debug(
-            "Die Suchfunktion für Filme nutzt BY, FX und NK, sofern deren Hostnamen gesetzt wurden.")
+            "Die Suchfunktion für Filme nutzt BY, FX, HW und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         if bool(r.get("approved")):
             if not bool(r.get("available")):
