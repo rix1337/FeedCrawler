@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.1.0** HW wieder in die Feed-Suche integriert
 - **12.0.5** "Neu laden" auf Helper-Seite funktioniert wieder.
 - **12.0.4** Fix beim Bereitstellen von WW-Links
 - **12.0.3** Der Helper erkennt, wenn ein Link erfolglos entschlüsselt wurde und versucht es erneut.
