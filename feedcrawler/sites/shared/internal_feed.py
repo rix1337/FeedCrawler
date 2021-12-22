@@ -411,6 +411,68 @@ def hw_search_results(content):
     return results
 
 
+# ToDo fix
+def ff_get_download_links(self, content, title):
+    try:
+        try:
+            content = BeautifulSoup(content, 'lxml')
+        except:
+            content = BeautifulSoup(str(content), 'lxml')
+        download_links = content.findAll("a", href=re.compile('filecrypt'))
+    except:
+        return False
+
+    links_string = ""
+    for link in download_links:
+        links_string += str(link)
+
+    return get_download_links(self, links_string, title)
+
+
+# ToDo fix
+def ff_feed_enricher(feed):
+    feed = BeautifulSoup(feed, 'lxml')
+    articles = feed.findAll("article")
+    entries = []
+
+    for article in articles:
+        try:
+            title = article.find("h2", {"class": "entry-title"}).text.strip()
+            media_post = article.find("strong", text="Format: ")
+            if title and media_post:
+                published = article.find("p", {"class": "blog-post-meta"}).text.split("|")[0].strip()
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [
+                        FakeFeedParserDict({
+                            "value": str(article)
+                        })]
+                }))
+        except:
+            print(u"FF hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+# ToDo fix
+def ff_search_results(content):
+    content = BeautifulSoup(content, 'lxml')
+    posts = content.findAll("a", href=re.compile("(/filme/|/serien/)"))
+    results = []
+    for post in posts:
+        try:
+            title = post.text.strip()
+            link = post['href']
+            results.append([title, link])
+        except:
+            pass
+    return results
+
+
 def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')

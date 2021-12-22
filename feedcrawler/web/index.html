@@ -1455,6 +1455,27 @@
                                            class="bi bi-lightbulb text-success"
                                            title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                                     </li>
+                                    <li ng-show="hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
+                                        hostnames.ff
+                                        }}
+                                        (FF)
+                                        <i ng-if="blocked_sites.normal.FF" class="bi bi-lightbulb text-danger"
+                                           title="Seite mit aktueller IP gesperrt"></i>
+                                        <i ng-if="!blocked_sites.normal.FF" class="bi bi-lightbulb text-success"
+                                           title="Seite mit aktueller IP verfügbar"></i>
+                                        <i ng-if="blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                                           class="bi bi-lightbulb text-danger"
+                                           title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                                           class="bi bi-lightbulb text-success"
+                                           title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
+                                        <i ng-if="blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                                           class="bi bi-lightbulb text-danger"
+                                           title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                                           class="bi bi-lightbulb text-success"
+                                           title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
+                                    </li>
                                     <li ng-show="hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{
                                         hostnames.by
                                         }}
