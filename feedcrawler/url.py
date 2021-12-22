@@ -8,6 +8,7 @@ import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.flaresolverr import get_flaresolverr_url
 from feedcrawler.flaresolverr import request
 
 
@@ -24,13 +25,19 @@ def check_url():
             db_status.store(site + "_flaresolverr", "Blocked")
             db_status.store(site + "_flaresolverr_proxy", "Blocked")
         else:
-            blocked_with_normal_ip = check_if_blocked(site, "https://" + hostname)
+            flaresolverr = get_flaresolverr_url()
+            skip_normal_ip = flaresolverr and (site == "SF" or site == "WW")
+            if skip_normal_ip:
+                blocked_with_normal_ip = True
+            else:
+                blocked_with_normal_ip = check_if_blocked(site, "https://" + hostname)
             if blocked_with_normal_ip:
-                print(u"Der Zugriff auf " + site + " ist für die aktuelle IP gesperrt!")
+                if skip_normal_ip:
+                    print(u"Der Zugriff auf " + site + " erfolgt nur mit FlareSolverr!")
+                else:
+                    print(u"Der Zugriff auf " + site + " ist für die aktuelle IP gesperrt!")
                 db_status.store(site + "_normal", "Blocked")
-
-                config = CrawlerConfig('FeedCrawler')
-                if not config.get("flaresolverr"):
+                if not flaresolverr:
                     print(
                         u"Der Zugriff auf " + site + " funktioniert vielleicht mit FlareSolverr. FlareSolverr ist derzeit nicht eingerichtet!")
                     db_status.store(site + "_flaresolverr", "Blocked")
@@ -41,10 +48,10 @@ def check_url():
                     if not blocked_with_flaresolverr:
                         print(u"Der Zugriff auf " + site + " mit FlareSolverr funktioniert!")
                     else:
-                        print(u"Der Zugriff auf " + site + " ist auch mit FlareSolverr gesperrt!")
+                        print(u"Der Zugriff auf " + site + " ist mit FlareSolverr gesperrt!")
                         db_status.store(site + "_flaresolverr", "Blocked")
 
-                        if not config.get("flaresolverr_proxy"):
+                        if not flaresolverr:
                             print(
                                 u"Der Zugriff auf " + site + " funktioniert vielleicht mit FlareSolverr + Proxy. Proxy ist derzeit nicht eingerichtet!")
                             db_status.store(site + "_flaresolverr_proxy", "Blocked")
@@ -52,7 +59,7 @@ def check_url():
                             # Since FlareSolverr is now aware it was blocked, it will try to use the proxy for subsequent requests
                             blocked_with_flaresolverr_and_proxy = check_if_blocked(site, "https://" + hostname)
                             if blocked_with_flaresolverr_and_proxy:
-                                print(u"Der Zugriff auf " + site + " ist auch mit FlareSolverr + Proxy gesperrt!")
+                                print(u"Der Zugriff auf " + site + " ist mit FlareSolverr + Proxy gesperrt!")
                                 db_status.store(site + "_flaresolverr_proxy", "Blocked")
                             else:
                                 print(u"Der Zugriff auf " + site + " mit FlareSolverr + Proxy funktioniert!")
