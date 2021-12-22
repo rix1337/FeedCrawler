@@ -10,7 +10,8 @@
 
 ### Changelog FeedCrawler:
 
-- **12.1.1** Nutze ausschließlich FlareSolverr bei SF und WW, sofern dieser eingerichtet ist.
+- **12.2.0** FF in die Feed-Suche integriert
+- **12.1.2** Nutze ausschließlich FlareSolverr bei SF, FF und WW, sofern dieser eingerichtet ist.
 - **12.1.1** HW wieder in die Web-Suche integriert
 - **12.1.0** HW wieder in die Feed-Suche integriert
 - **12.0.5** "Neu laden" auf Helper-Seite funktioniert wieder.
