@@ -33,6 +33,7 @@ class Unbuffered(object):
 
 
 def check_hoster(to_check):
+    to_check = to_check.replace("ddownload", "ddl")
     hosters = CrawlerConfig("Hosters").get_section()
     for hoster in hosters:
         if hosters[hoster] == "True":
