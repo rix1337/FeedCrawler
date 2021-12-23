@@ -2,6 +2,8 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 
+import datetime
+
 import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
@@ -33,13 +35,13 @@ class BL:
         self.hosters = CrawlerConfig("Hosters").get_section()
         self.hoster_fallback = self.config.get("hoster_fallback")
 
-        search = int(CrawlerConfig("ContentAll").get("search"))
-        i = 2
-        while i <= search:
-            page_url = self.URL + "/page/" + str(i)
+        self.day = 0
+        while self.day <= 2:
+            delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
+            page_url = 'https://' + self.url + '/updates/' + delta
             if page_url not in self.FEED_URLS:
                 self.FEED_URLS.append(page_url)
-            i += 1
+            self.day += 1
         self.cdc = FeedDb('cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
