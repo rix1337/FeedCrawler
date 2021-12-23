@@ -411,6 +411,81 @@ def hw_search_results(content):
     return results
 
 
+def ff_get_download_links(self, content, title):
+    unused_get_feed_parameter(title)
+    try:
+        try:
+            content = BeautifulSoup(content, 'lxml')
+        except:
+            content = BeautifulSoup(str(content), 'lxml')
+        links = content.findAll("div", {'class': 'row'})[1].findAll('a')
+        download_link = False
+        for link in links:
+            if check_hoster(link.text.replace('\n', '')):
+                download_link = "https://" + self.url + link['href']
+                break
+    except:
+        return False
+
+    return download_link
+
+
+def ff_feed_enricher(releases):
+    entries = []
+    if releases:
+        try:
+            base_url = CrawlerConfig('Hostnames').get('ff')
+            page = BeautifulSoup(releases, 'lxml')
+            day = page.find("li", {"class": "active"}).find("a")["href"].replace("/updates/", "").replace("#list", "")
+            movies = page.findAll("div", {"class": "sra"}, style=re.compile("order"))
+
+            for movie in movies:
+                movie_url = "https://" + base_url + movie.find("a")["href"]
+                details = BeautifulSoup(get_url(movie_url), 'lxml')
+                api_secret = re.sub(r"[\n\t\s]*", "",
+                                    str(details.find("script", text=re.compile(".*initMovie.*"))).strip()).replace(
+                    "<script>initMovie(\'", "").replace("\',\'\',\'ALL\');</script>", "")
+                epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
+                api_url = "https://" + base_url + '/api/v1/' + api_secret + '?lang=ALL&_=' + epoch
+                response = get_url(api_url)
+                info = BeautifulSoup(json.loads(response)["html"], 'lxml')
+
+                releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
+                for release in releases:
+                    title = release.text.strip()
+                    time = movie.find("span", {"class": "lsf-icon timed"}).text
+                    published = day + "|" + time
+
+                    imdb_infos = details.find("ul", {"class": "info"})
+
+                    imdb_link = str(imdb_infos.find("a")["href"])
+                    imdb_rating = str(float(imdb_infos.find("i").text.strip()))
+                    imdb_info = 'href="' + imdb_link + ' ' + imdb_rating + '/10</a>'
+
+                    release_infos = info.findAll("div", {"class": "entry"})
+                    release_info = False
+                    for check_info in release_infos:
+                        if check_info.find("span", text=title):
+                            release_info = str(check_info)
+
+                    if release_info:
+                        content = imdb_info + " " + release_info
+
+                        entries.append(FakeFeedParserDict({
+                            "title": title,
+                            "content": [FakeFeedParserDict({
+                                "value": content + " mkv"})],
+                            "published": published
+                        }))
+        except Exception as e:
+            internal.logger.debug("FF-Feed konnte nicht gelesen werden: " + str(e))
+            pass
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
 def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
     content = BeautifulSoup(content, 'lxml')
@@ -723,7 +798,7 @@ def sf_parse_download(self, series_url, title, language_id):
         download_link = False
         for link in links:
             if check_hoster(link.text.replace('\n', '')):
-                download_link = get_redirected_url("https://" + self.url + link['href'])
+                download_link = "https://" + self.url + link['href']
                 break
         if not download_link and not self.hoster_fallback:
             storage = self.db.retrieve_all(title)

@@ -484,6 +484,7 @@ def app_container():
                 hostnames = CrawlerConfig('Hostnames')
                 fx = hostnames.get('fx')
                 hw = hostnames.get('hw')
+                ff = hostnames.get('ff')
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 sf = hostnames.get('sf')
@@ -493,13 +494,14 @@ def app_container():
 
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+                ff = ff.replace("f", "F", 2)
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                bl = ' / '.join(list(filter(None, [fx, hw, ww, nk, by])))
+                bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
@@ -507,6 +509,8 @@ def app_container():
                     fx = "Nicht gesetzt!"
                 if not hw:
                     hw = "Nicht gesetzt!"
+                if not ff:
+                    ff = "Nicht gesetzt!"
                 if not sj:
                     sj = "Nicht gesetzt!"
                 if not dj:
@@ -534,6 +538,7 @@ def app_container():
                             "by": by,
                             "fx": fx,
                             "hw": hw,
+                            "ff": ff,
                             "nk": nk,
                             "ww": ww,
                             "bl": bl,
@@ -566,6 +571,7 @@ def app_container():
                                 "BY": check("BY_normal", db_status),
                                 "FX": check("FX_normal", db_status),
                                 "HW": check("HW_normal", db_status),
+                                "FF": check("FF_normal", db_status),
                                 "NK": check("NK_normal", db_status),
                                 "WW": check("WW_normal", db_status)
                             },
@@ -576,6 +582,7 @@ def app_container():
                                 "BY": check("BY_flaresolverr", db_status),
                                 "FX": check("FX_flaresolverr", db_status),
                                 "HW": check("HW_flaresolverr", db_status),
+                                "FF": check("FF_flaresolverr", db_status),
                                 "NK": check("NK_flaresolverr", db_status),
                                 "WW": check("WW_flaresolverr", db_status)
                             },
@@ -586,6 +593,7 @@ def app_container():
                                 "BY": check("BY_flaresolverr_proxy", db_status),
                                 "FX": check("FX_flaresolverr_proxy", db_status),
                                 "HW": check("HW_flaresolverr_proxy", db_status),
+                                "FF": check("FF_flaresolverr_proxy", db_status),
                                 "NK": check("NK_flaresolverr_proxy", db_status),
                                 "WW": check("WW_flaresolverr_proxy", db_status)
                             }

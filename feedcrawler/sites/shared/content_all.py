@@ -23,6 +23,7 @@ from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_downlo
 from feedcrawler.sites.shared.internal_feed import by_page_download_link
 from feedcrawler.sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.sites.shared.internal_feed import get_search_results
+from feedcrawler.sites.shared.internal_feed import hw_get_download_links
 from feedcrawler.sites.shared.internal_feed import nk_page_download_link
 from feedcrawler.url import get_url
 
@@ -381,6 +382,9 @@ def download_hevc(self, title):
                 link_grabbed = True
                 get_download_links_method = fx_get_download_links
                 download_method = add_decrypt_instead_of_download
+            elif "HW" in site:
+                get_download_links_method = hw_get_download_links
+                download_method = add_decrypt_instead_of_download
             elif "NK" in site:
                 get_download_links_method = nk_page_download_link
                 download_method = myjd_download
@@ -519,6 +523,9 @@ def download_dual_language(self, title, hevc=False):
             elif "FX" in site:
                 link = get_url(link)
                 get_download_links_method = fx_get_download_links
+                download_method = add_decrypt_instead_of_download
+            elif "HW" in site:
+                get_download_links_method = hw_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif "NK" in site:
                 get_download_links_method = nk_page_download_link

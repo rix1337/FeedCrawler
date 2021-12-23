@@ -26,7 +26,8 @@ def check_url():
             db_status.store(site + "_flaresolverr_proxy", "Blocked")
         else:
             flaresolverr = get_flaresolverr_url()
-            skip_normal_ip = flaresolverr and (site == "SF" or site == "WW")
+            skip_sites = ["WW"]
+            skip_normal_ip = flaresolverr and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True
             else:
@@ -73,7 +74,14 @@ def check_if_blocked(site, url):
             if not status == 200 or status == 403:
                 return True
         # Custom check required
-        elif site == "SF":
+        elif site in ["FF"]:
+            delta = datetime.datetime.now().strftime("%Y-%m-%d")
+            ff_test = request(url + '/updates/' + delta, dont_cache=True)
+            if not ff_test["text"] or ff_test["status_code"] is not (
+                    200 or 304) or '<div class="list blog"' not in ff_test["text"]:
+                return True
+        # Custom check required
+        elif site in ["SF"]:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
             sf_test = request(url + '/updates/' + delta, dont_cache=True)
             if not sf_test["text"] or sf_test["status_code"] is not (

@@ -65,6 +65,7 @@ from feedcrawler.myjd import retry_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.ombi import ombi
 from feedcrawler.sites.content_all_by import BL as BY
+from feedcrawler.sites.content_all_ff import BL as FF
 from feedcrawler.sites.content_all_fx import BL as FX
 from feedcrawler.sites.content_all_hw import BL as HW
 from feedcrawler.sites.content_all_nk import BL as NK
@@ -419,6 +420,10 @@ def search_pool():
         SF(filename='List_ContentShows_Shows_Regex'),
         SF(filename='List_ContentShows_Seasons_Regex'),
         SF(filename='List_ContentAll_Seasons'),
+        FF(filename='List_ContentAll_Movies_Regex'),
+        FF(filename='IMDB'),
+        FF(filename='List_ContentAll_Movies'),
+        FF(filename='List_ContentAll_Seasons'),
         WW(filename='List_ContentAll_Movies_Regex'),
         WW(filename='IMDB'),
         WW(filename='List_ContentAll_Movies'),

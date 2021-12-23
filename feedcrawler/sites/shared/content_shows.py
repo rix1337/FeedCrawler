@@ -125,7 +125,12 @@ def periodical_task(self):
     header = False
     response = False
 
-    while self.day < 8:
+    if self._SITE == "SF":
+        max_days = 2
+    else:
+        max_days = 8
+
+    while self.day < max_days:
         if self.last_set == current_set:
             try:
                 url = feed_url(self)

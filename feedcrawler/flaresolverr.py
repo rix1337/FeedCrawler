@@ -184,7 +184,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
             else:
                 internal.logger.debug(
                     "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
-                return ""
+                return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
             if method == 'post':
                 response = requests.post(url, data=params, timeout=30, headers=headers)

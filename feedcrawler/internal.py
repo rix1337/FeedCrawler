@@ -61,7 +61,7 @@ def set_files(set_configpath):
 
 def set_sites():
     global sites
-    sites = ["SJ", "DJ", "SF", "BY", "FX", "HW", "NK", "WW"]
+    sites = ["SJ", "DJ", "SF", "BY", "FX", "FF", "HW", "NK", "WW"]
 
 
 def set_device(set_device):
