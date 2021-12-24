@@ -427,7 +427,7 @@ def ff_get_download_links(self, content, title):
     except:
         return False
 
-    return download_link
+    return [download_link]
 
 
 def ff_feed_enricher(releases):

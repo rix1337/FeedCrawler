@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.1** Fix in durch FF hinzugefügten Links
 - **12.2.0** FF in die Feed-Suche integriert 🧑🏻‍🎄🎄🎅🏻 - Frohe Weihnachten!
 - **12.2.0** SF und FF durchsuchen nur die letzten beiden Tage um die Ban-Wahrscheinlichkeit zu senken.
 - **12.1.2** Nutze ausschließlich FlareSolverr bei SF, FF und WW, sofern dieser eingerichtet ist.
