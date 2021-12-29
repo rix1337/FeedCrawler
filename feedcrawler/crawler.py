@@ -177,7 +177,6 @@ def crawler(global_variables):
 
             wait_chunks = wait // 10
             start_now_triggered = False
-            wait_chunks = 1
             while wait_chunks:
                 time.sleep(10)
                 if FeedDb('crawltimes').retrieve("startnow"):
