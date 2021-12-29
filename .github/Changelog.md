@@ -10,6 +10,8 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.2** Erzwinge 6 Stunden Intervall für SF/FF-Feedsuchen
+- **12.2.2** Bugfix in FF-Feedsuche bei fehlendem IMDb-Link
 - **12.2.1** Fix in durch FF hinzugefügten Links
 - **12.2.0** FF in die Feed-Suche integriert 🧑🏻‍🎄🎄🎅🏻 - Frohe Weihnachten!
 - **12.2.0** SF und FF durchsuchen nur die letzten beiden Tage um die Ban-Wahrscheinlichkeit zu senken.

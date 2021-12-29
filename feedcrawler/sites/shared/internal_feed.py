@@ -458,10 +458,13 @@ def ff_feed_enricher(releases):
 
                     imdb_infos = details.find("ul", {"class": "info"})
 
-                    imdb_link = str(imdb_infos.find("a")["href"])
-                    imdb_rating = str(float(imdb_infos.find("i").text.strip()))
-                    imdb_info = 'href="' + imdb_link + ' ' + imdb_rating + '/10</a>'
-
+                    try:
+                        imdb_link = str(imdb_infos.find("a")["href"])
+                        imdb_rating = str(float(imdb_infos.find("i").text.strip()))
+                        imdb_info = 'href="' + imdb_link + ' ' + imdb_rating + '/10</a>'
+                    except:
+                        imdb_info = ""
+                        pass
                     release_infos = info.findAll("div", {"class": "entry"})
                     release_info = False
                     for check_info in release_infos:

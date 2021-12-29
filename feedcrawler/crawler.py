@@ -90,6 +90,8 @@ def crawler(global_variables):
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
 
+    last_f_run = False
+
     try:
         clean_flaresolverr_sessions()
     except:
@@ -106,7 +108,7 @@ def crawler(global_variables):
             start_time = time.time()
             crawltimes.update_store("active", "True")
             crawltimes.update_store("start_time", start_time * 1000)
-            logger.debug("--------Alle Suchfunktion gestartet.--------")
+            logger.debug("--------Alle Suchläufe gestartet.--------")
             ombi_string = ""
             ombi_results = ombi(ombi_first_launch)
             requested_movies = ombi_results[0]
@@ -120,15 +122,26 @@ def crawler(global_variables):
                         ombi_string = ombi_string + " und "
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
+            current_f_run = False
             for task in search_pool():
                 name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
-                logger.debug("-----------Suchfunktion (" + name + file + ") gestartet!-----------")
+                if name == "SF" or name == "FF":
+                    if last_f_run and start_time < last_f_run + 6 * 60 * 60:
+                        current_f_run = time.time()
+                        logger.debug(
+                            "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
+                        continue
+                    else:
+                        current_f_run = time.time()
+                logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 task.periodical_task()
-                logger.debug("-----------Suchfunktion (" + name + file + ") ausgeführt!-----------")
+                logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
+            if current_f_run:
+                last_f_run = current_f_run
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
@@ -138,7 +151,7 @@ def crawler(global_variables):
             wait = interval + random_range
             next_start = end_time + wait
             logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
-                         " - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                         " - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!")
             if ombi_string:
                 logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
@@ -146,7 +159,7 @@ def crawler(global_variables):
             logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             ombi_string = ""
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Alle Suchfunktion ausgeführt (Dauer: " + readable_time(
+                  u" - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!",
                   ombi_string + " - " + request_cache_string if ombi_string else request_cache_string)
             print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
@@ -164,6 +177,7 @@ def crawler(global_variables):
 
             wait_chunks = wait // 10
             start_now_triggered = False
+            wait_chunks = 1
             while wait_chunks:
                 time.sleep(10)
                 if FeedDb('crawltimes').retrieve("startnow"):
