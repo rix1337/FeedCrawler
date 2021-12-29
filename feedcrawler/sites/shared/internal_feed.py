@@ -399,13 +399,14 @@ def hw_feed_enricher(feed):
 
 def hw_search_results(content):
     content = BeautifulSoup(content, 'lxml')
-    posts = content.findAll("a", href=re.compile("(/filme/|/serien/)"))
+    posts = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
     results = []
     for post in posts:
         try:
             title = post.text.strip()
             link = post['href']
-            results.append([title, link])
+            if "#comments-title" not in link:
+                results.append([title, link])
         except:
             pass
     return results

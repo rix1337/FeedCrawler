@@ -129,7 +129,7 @@ def crawler(global_variables):
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
-                if name == "SF" or name == "FF":
+                if name in ["SF", "FF"]:
                     if last_f_run and start_time < last_f_run + 6 * 60 * 60:
                         current_f_run = time.time()
                         logger.debug(
