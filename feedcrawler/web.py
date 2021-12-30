@@ -1446,7 +1446,9 @@ const cnlExists = setInterval(async function () {
                 db_status = FeedDb('site_status')
                 if payload:
                     db_status.update_store("SF_FF", "Blocked")
-                    return "Block status saved", 200
+                    return "<script type='text/javascript'>" \
+                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                           "Block status saved", 200
                 else:
                     hostnames = CrawlerConfig('Hostnames')
                     try:
