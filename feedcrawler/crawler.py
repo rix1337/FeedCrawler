@@ -139,17 +139,18 @@ def crawler(global_variables):
                 except AttributeError:
                     file = ""
                 if name in ["SF", "FF"]:
-                    if last_f_run and start_time < float(last_f_run) + 6 * 60 * 60:
+                    if last_f_run and start_time < float(last_f_run) // 1000 + 6 * 60 * 60:
                         logger.debug(
                             "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
                         continue
                     else:
                         current_f_run = time.time()
+                        FeedDb('site_status').delete("SF_FF")
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 task.periodical_task()
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
             if current_f_run:
-                crawltimes.update_store("last_f_run", current_f_run)
+                crawltimes.update_store("last_f_run", current_f_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()

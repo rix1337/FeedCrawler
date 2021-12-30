@@ -119,6 +119,9 @@ def app_container():
     def to_bool(i):
         return True if i == "True" else False
 
+    def check(site, db):
+        return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
+
     if prefix:
         @app.route('/')
         @requires_auth
@@ -467,6 +470,7 @@ def app_container():
                             "end_time": to_float(crawltimes.retrieve("end_time")),
                             "total_time": crawltimes.retrieve("total_time"),
                             "next_start": to_float(crawltimes.retrieve("next_start")),
+                            "last_f_run": to_float(crawltimes.retrieve("last_f_run")),
                         }
                     }
                 )
@@ -557,9 +561,6 @@ def app_container():
     def get_blocked_sites():
         if request.method == 'GET':
             try:
-                def check(site, db):
-                    return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
-
                 db_status = FeedDb('site_status')
                 return jsonify(
                     {
@@ -596,6 +597,8 @@ def app_container():
                                 "FF": check("FF_flaresolverr_proxy", db_status),
                                 "NK": check("NK_flaresolverr_proxy", db_status),
                                 "WW": check("WW_flaresolverr_proxy", db_status)
+                            }, "blocked_sites": {
+                                "sf_ff": check("SF_FF", db_status)
                             }
                         }
                     }
@@ -1396,7 +1399,6 @@ const cnlExists = setInterval(async function () {
             return "Failed", 405
 
     @app.route(prefix + "/sponsors_helper/", methods=['GET'])
-    @requires_auth
     def to_decrypt():
         global helper_active
         helper_active = True
@@ -1406,7 +1408,6 @@ const cnlExists = setInterval(async function () {
             return "Failed", 405
 
     @app.route(prefix + "/sponsors_helper/api/to_decrypt/", methods=['GET'])
-    @requires_auth
     def to_decrypt_api():
         global helper_active
         if request.method == 'GET':
@@ -1437,8 +1438,36 @@ const cnlExists = setInterval(async function () {
         else:
             return "Failed", 405
 
+    @app.route(prefix + "/sponsors_helper/api/f_blocked/<payload>", methods=['GET'])
+    def f_blocked(payload):
+        if request.method == 'GET':
+            try:
+                payload = to_bool(payload)
+                db_status = FeedDb('site_status')
+                if payload:
+                    db_status.update_store("SF_FF", "Blocked")
+                    return "Block status saved", 200
+                else:
+                    hostnames = CrawlerConfig('Hostnames')
+                    try:
+                        last_f_run = float(FeedDb('crawltimes').retrieve("last_f_run"))
+                    except:
+                        last_f_run = 0
+                    return jsonify(
+                        {
+                            "blocked_sites": {
+                                "sf_ff": check("SF_FF", db_status),
+                                "sf_hostname": hostnames.get('sf'),
+                                "ff_hostname": hostnames.get('ff'),
+                                "wait_time": last_f_run + 1000 * 6 * 60 * 60,
+                            }
+                        })
+            except:
+                return "Failed", 400
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/sponsors_helper/to_download/<payload>", methods=['GET'])
-    @requires_auth
     def to_download(payload):
         if request.method == 'GET':
             try:
