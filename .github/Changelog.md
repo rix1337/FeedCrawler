@@ -32,6 +32,7 @@
 - **12.0.0** Erzeuge neue FlareSolverr-Session für den Aufruf mit Proxy
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
+- **3.2.7** Pausiere Entschlüsselung von SF/FF-Links bis zum Ablauf des 6-stündigen Mindest-Intervalls, wenn eine Blockade erkannt wurde.
 - **3.2.6** Ab sofort werden FC-Links auch von HW korrekt entschlüsselt
 - **3.2.0** Ab sofort werden FC-Links inklusive CutCaptcha durch den AntiGateHandler automatisch entschlüsselt:
     - Da FC-CAPTCHA eine deutsche IP-Adresse voraussetzen, wird die eigene IP-Adresse automatisch extern freigegeben.
