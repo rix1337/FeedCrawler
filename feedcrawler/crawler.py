@@ -14,6 +14,7 @@ Usage:
                 [--jd-pass=<PASSWORT>]
                 [--jd-device=<GERÄTENAME>]
                 [--keep-cdc]
+                [--remove-f_time]
                 [--log-level=<LOGLEVEL>]
 
 Options:
@@ -24,6 +25,7 @@ Options:
   --jd-pass=PASSWORT        Legt das Passwort für My JDownloader fest
   --jd-device=GERÄTENAME    Legt den Gerätenamen für My JDownloader fest
   --keep-cdc                Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf
+  --remove-f_time           Leere die Zeit des letzten SF/FF-Laufes vor dem ersten Suchlauf
   --test_run                Intern: Führt einen Testlauf durch
   --docker                  Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)
 """
@@ -90,14 +92,18 @@ def crawler(global_variables):
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
 
-    last_f_run = False
-
     try:
         clean_flaresolverr_sessions()
     except:
         pass
 
     arguments = docopt(__doc__, version='FeedCrawler')
+
+    if arguments['--remove-f_time']:
+        logger.debug(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
+        print(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
+        FeedDb('crawltimes').delete("last_f_run")
+
     while True:
         try:
             if not internal.device or not is_device(internal.device):
@@ -108,7 +114,8 @@ def crawler(global_variables):
             start_time = time.time()
             crawltimes.update_store("active", "True")
             crawltimes.update_store("start_time", start_time * 1000)
-            logger.debug("--------Alle Suchläufe gestartet.--------")
+            logger.debug("-----------Alle Suchläufe gestartet.-----------")
+
             ombi_string = ""
             ombi_results = ombi(ombi_first_launch)
             requested_movies = ombi_results[0]
@@ -122,7 +129,9 @@ def crawler(global_variables):
                         ombi_string = ombi_string + " und "
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
+
             current_f_run = False
+            last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
             for task in search_pool():
                 name = task._SITE
                 try:
@@ -130,18 +139,18 @@ def crawler(global_variables):
                 except AttributeError:
                     file = ""
                 if name in ["SF", "FF"]:
-                    if last_f_run and start_time < last_f_run + 6 * 60 * 60:
-                        current_f_run = time.time()
+                    if last_f_run and start_time < float(last_f_run) // 1000 + 6 * 60 * 60:
                         logger.debug(
                             "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
                         continue
                     else:
                         current_f_run = time.time()
+                        FeedDb('site_status').delete("SF_FF")
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 task.periodical_task()
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
             if current_f_run:
-                last_f_run = current_f_run
+                crawltimes.update_store("last_f_run", current_f_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()

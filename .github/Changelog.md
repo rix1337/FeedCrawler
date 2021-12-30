@@ -10,6 +10,8 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.3** Beachte das Mindest-Intervall für SF/FF-Feedsuchen auch im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) 
+- **12.2.3** Speichere das Mindest-Intervall für SF/FF-Feedsuchen in der Datenbank um dieses auch bei Neustarts des FeedCrawlers korrekt zu beachten.
 - **12.2.2** Verhindere unerwünschte Ergebnisse in HW-Websuche
 - **12.2.2** Erzwinge 6 Stunden Mindest-Intervall für SF/FF-Feedsuchen
 - **12.2.2** Bugfix in FF-Feedsuche bei fehlendem IMDb-Link
@@ -30,6 +32,7 @@
 - **12.0.0** Erzeuge neue FlareSolverr-Session für den Aufruf mit Proxy
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
+- **3.2.7** Pausiere Entschlüsselung von SF/FF-Links bis zum Ablauf des 6-stündigen Mindest-Intervalls, wenn eine Blockade erkannt wurde.
 - **3.2.6** Ab sofort werden FC-Links auch von HW korrekt entschlüsselt
 - **3.2.0** Ab sofort werden FC-Links inklusive CutCaptcha durch den AntiGateHandler automatisch entschlüsselt:
     - Da FC-CAPTCHA eine deutsche IP-Adresse voraussetzen, wird die eigene IP-Adresse automatisch extern freigegeben.

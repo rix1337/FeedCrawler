@@ -36,6 +36,9 @@
                ng-click="startNow()"></i>
             <div ng-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
         </div>
+        <div ng-if="crawltimes.last_f_run">
+            Keine SF/FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}
+        </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
 
