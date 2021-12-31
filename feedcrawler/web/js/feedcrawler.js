@@ -28,6 +28,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     $scope.results = [];
 
+    $scope.currentMillis = Date.now();
+
     $scope.currentPage = 0;
     $scope.pageSize = 10;
     $scope.resLength = 0;

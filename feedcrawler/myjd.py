@@ -18,6 +18,7 @@ from feedcrawler.common import readable_size
 from feedcrawler.common import readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 
 
@@ -1161,13 +1162,20 @@ def myjd_input(port, user, password, device):
 def add_decrypt(title, link, password):
     try:
         if check_is_site(link):
-            fx = CrawlerConfig('Hostnames').get('fx')
+            hostnames = CrawlerConfig('Hostnames')
+            fx = hostnames.get('fx')
+            ff = hostnames.get('ff')
+            sf = hostnames.get('sf')
             if fx and fx in link:
                 result = get_url(link)
                 real_link = BeautifulSoup(result, 'lxml').find("input", {"id": "url"})['value']
                 if real_link:
                     if "https://" not in real_link:
                         real_link = "https://" + real_link
+                    link = real_link
+            if (ff and ff in link) or (sf and sf in link):
+                real_link = get_redirected_url(link)
+                if real_link:
                     link = real_link
 
         FeedDb('to_decrypt').store(title, link + '|' + password)
