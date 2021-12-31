@@ -10,8 +10,9 @@
 
 ### Changelog FeedCrawler:
 
-- **12.2.5** Übergebe auch bei BY/NK die FC-Links nicht dem JDownloader
-- **12.2.4** Beachte das Mindest-Intervall für SF/FF-Feedsuchen auch im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) 
+- **12.2.5** Entschlüssele SF/FF-Links vor Weitergabe an den [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) um Sperren vorzubeugen.
+- **12.2.5** Übergebe auch bei BY/NK die FC-Links nicht dem JDownloader.
+- **12.2.4** Beachte das Mindest-Intervall für SF/FF-Feedsuchen auch im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper).
 - **12.2.3** Speichere das Mindest-Intervall für SF/FF-Feedsuchen in der Datenbank um dieses auch bei Neustarts des FeedCrawlers korrekt zu beachten.
 - **12.2.2** Verhindere unerwünschte Ergebnisse in HW-Websuche
 - **12.2.2** Erzwinge 6 Stunden Mindest-Intervall für SF/FF-Feedsuchen
