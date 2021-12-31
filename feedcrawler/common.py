@@ -261,15 +261,20 @@ def get_to_decrypt():
         to_decrypt = FeedDb('to_decrypt').retrieve_all_titles_unordered()
         if to_decrypt:
             easy_decrypt_exists = False
-            fx = CrawlerConfig('Hostnames').get('fx')
-            ww = CrawlerConfig('Hostnames').get('ww')
+            hostnames = CrawlerConfig('Hostnames')
+            fx = hostnames.get('fx')
+            ff = hostnames.get('ff')
+            sf = hostnames.get('sf')
+            ww = hostnames.get('ww')
+            hard_to_decrypt = [fx, ff, sf, ww]
+
             for package in to_decrypt:
-                if not "filecrypt." in package[1] and not fx in package[1] and not ww in package[1]:
+                if not any(package[1] in htd for htd in hard_to_decrypt):
                     easy_decrypt_exists = True
 
             packages = []
             for package in to_decrypt:
-                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1] or ww in package[1]):
+                if easy_decrypt_exists and any(package[1] in htd for htd in hard_to_decrypt):
                     continue
                 title = package[0]
                 try:
@@ -289,7 +294,7 @@ def get_to_decrypt():
                 })
 
             for package in to_decrypt:
-                if easy_decrypt_exists and ("filecrypt." in package[1] or fx in package[1]):
+                if easy_decrypt_exists and any(package[1] in htd for htd in hard_to_decrypt):
                     title = package[0]
                     try:
                         details = package[1].split('|')
