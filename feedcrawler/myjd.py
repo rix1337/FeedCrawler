@@ -1173,11 +1173,7 @@ def add_decrypt(title, link, password):
                     if "https://" not in real_link:
                         real_link = "https://" + real_link
                     link = real_link
-            if ff and ff in link:
-                real_link = get_redirected_url(link)
-                if real_link:
-                    link = real_link
-            if sf and sf in link:
+            if (ff and ff in link) or (sf and sf in link):
                 real_link = get_redirected_url(link)
                 if real_link:
                     link = real_link
