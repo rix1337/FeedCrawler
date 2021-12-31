@@ -4,12 +4,13 @@
 
 - Leert unbedingt nach jedem Update den Browser-Cache!
 
-- Punkte, die  den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)  betreffen, werden erst nach dessen Update aktiv.
+- Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)  betreffen, werden erst nach dessen Update aktiv.
 
 ---
 
 ### Changelog FeedCrawler:
 
+- **12.2.5** Übergebe auch bei BY/NK die FC-Links nicht dem JDownloader
 - **12.2.4** Beachte das Mindest-Intervall für SF/FF-Feedsuchen auch im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) 
 - **12.2.3** Speichere das Mindest-Intervall für SF/FF-Feedsuchen in der Datenbank um dieses auch bei Neustarts des FeedCrawlers korrekt zu beachten.
 - **12.2.2** Verhindere unerwünschte Ergebnisse in HW-Websuche
