@@ -37,7 +37,7 @@
             <div ng-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
         </div>
         <div ng-if="crawltimes.last_f_run">
-            Keine SF/FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}
+            Keine SF/FF-Suchläufe bis: {{ crawltimes.last_f_run + 28800000 | date:'HH:mm:ss' }}
         </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
@@ -1377,29 +1377,29 @@
                                         hostnames.ff
                                         }}
                                         (FF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
-                                            <i ng-if="blocked_sites.normal.FF"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit aktueller IP gesperrt"></i>
-                                            <i ng-if="!blocked_sites.normal.FF"
+                                        <span ng-if="crawltimes.last_f_run + 28800000 < currentMillis">
+                                            <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
-                                            <i ng-if="blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
-                                            <i ng-if="!blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
-                                               class="bi bi-check-square-fill text-success"
-                                               title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
-                                            <i ng-if="blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
-                                            <i ng-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
-                                               class="bi bi-check-square-fill text-success"
-                                               title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                                         </span>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <i ng-if="blocked_sites.normal.FF"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit aktueller IP gesperrt"></i>
+                                        <i ng-if="blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                                           class="bi bi-check-square-fill text-success"
+                                           title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
+                                        <i ng-if="blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                                           class="bi bi-check-square-fill text-success"
+                                           title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
+                                        <span ng-if="crawltimes.last_f_run + 28800000 > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.last_f_run + 28800000 | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                     <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1499,29 +1499,29 @@
                                         hostnames.sf
                                         }}
                                         (SF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
-                                            <i ng-if="blocked_sites.normal.SF"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit aktueller IP gesperrt"></i>
+                                        <span ng-if="crawltimes.last_f_run + 28800000 < currentMillis">
                                             <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
-                                            <i ng-if="blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
-                                            <i ng-if="!blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
-                                               class="bi bi-check-square-fill text-success"
-                                               title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
-                                            <i ng-if="blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
-                                               class="bi bi-exclamation-square-fill text-danger"
-                                               title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
-                                            <i ng-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
-                                               class="bi bi-check-square-fill text-success"
-                                               title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                                         </span>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <i ng-if="blocked_sites.normal.SF"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit aktueller IP gesperrt"></i>
+                                        <i ng-if="blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
+                                           class="bi bi-check-square-fill text-success"
+                                           title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
+                                        <i ng-if="blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
+                                           class="bi bi-exclamation-square-fill text-danger"
+                                           title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
+                                        <i ng-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
+                                           class="bi bi-check-square-fill text-success"
+                                           title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
+                                        <span ng-if="crawltimes.last_f_run + 28800000 > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.last_f_run + 28800000 | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                 </ul>
