@@ -12,13 +12,20 @@ from feedcrawler.flaresolverr import get_flaresolverr_url
 from feedcrawler.flaresolverr import request
 
 
-def check_url():
+def check_url(start_time):
     hostnames = CrawlerConfig('Hostnames')
     db_status = FeedDb('site_status')
     db_status.reset()
     db_status = FeedDb('site_status')
 
     for site in internal.sites:
+        if site in ["SF", "FF"]:
+            last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
+            if last_f_run and start_time < float(last_f_run) // 1000 + 8 * 60 * 60:
+                internal.logger.debug(
+                    "-----------Mindestintervall bei " + site + " (6h) nicht erreicht - überspringe Prüfung!-----------")
+                continue
+
         hostname = hostnames.get(site.lower())
         if not hostname:
             db_status.store(site + "_normal", "Blocked")
