@@ -10,7 +10,6 @@
 
 ### Changelog FeedCrawler:
 
-- **12.2.6** Erhöhe Suchintervall bei SF/FF-Feedsuchen.
 - **12.2.5** Verbesserte Icon-Darstellung der Seitenstatus (OK/Gesperrt/Wartet) im Hilfe-Bereich.
 - **12.2.5** Löse SJ/DJ und FC Links vor maskierten SF/FF und WW Links im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper).
 - **12.2.5** Demaskiere SF/FF-Links vor Weitergabe an den [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) um Sperren vorzubeugen.
