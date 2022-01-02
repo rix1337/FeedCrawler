@@ -110,8 +110,8 @@ def crawler(global_variables):
                 get_device()
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
-            check_url()
             start_time = time.time()
+            check_url(start_time)
             crawltimes.update_store("active", "True")
             crawltimes.update_store("start_time", start_time * 1000)
             logger.debug("-----------Alle Suchläufe gestartet.-----------")
@@ -139,9 +139,9 @@ def crawler(global_variables):
                 except AttributeError:
                     file = ""
                 if name in ["SF", "FF"]:
-                    if last_f_run and start_time < float(last_f_run) // 1000 + 8 * 60 * 60:
+                    if last_f_run and start_time < float(last_f_run) // 1000 + 6 * 60 * 60:
                         logger.debug(
-                            "-----------Mindestintervall bei " + name + " (8h) nicht erreicht - überspringe Suchlauf!-----------")
+                            "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
                         continue
                     else:
                         current_f_run = time.time()
