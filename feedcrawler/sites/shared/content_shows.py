@@ -125,12 +125,7 @@ def periodical_task(self):
     header = False
     response = False
 
-    if self._SITE == "SF":
-        max_days = 2
-    else:
-        max_days = 8
-
-    while self.day < max_days:
+    while self.day < self.max_days:
         if self.last_set == current_set:
             try:
                 url = feed_url(self)
@@ -390,7 +385,8 @@ def periodical_task(self):
         try:
             self.cdc.store(self._INTERNAL_NAME + "Headers-" + self.filename, response['headers']['date'])
         except:
-            internal.logger.debug("Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
+            internal.logger.debug(
+                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
             pass
 
     return
