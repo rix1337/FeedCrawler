@@ -36,8 +36,8 @@
                ng-click="startNow()"></i>
             <div ng-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
         </div>
-        <div ng-if="crawltimes.last_f_run">
-            Keine SF/FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}
+        <div ng-if="crawltimes.next_f_run">
+            Keine SF/FF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}
         </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
@@ -1092,6 +1092,28 @@
                     </div>
                 </div>
             </div>
+            <div class="accordion-item" ng-show="hostnames.f !== 'Nicht gesetzt!'">
+                <h2 class="accordion-header" id="headingTwoNine">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwoNine"
+                            aria-expanded="false" aria-controls="collapseTwoNine">
+                        {{ hostnames.f }}
+                    </button>
+                </h2>
+                <div id="collapseTwoNine" class="accordion-collapse collapse" aria-labelledby="headingTwoNine"
+                     data-bs-parent="#accordionSettings">
+                    <div class="accordion-body">
+                        <h5>Suchintervall</h5>
+                        <input required type="number" min="6" max="24" ng-model="settings.f.interval"
+                               class="number form-control" data-toggle="tooltip"
+                               title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden."/>
+                        <h5>Suchtiefe</h5>
+                        <input required type="number" min="3" max="7" ng-model="settings.f.search"
+                               class="number form-control" data-toggle="tooltip"
+                               title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Maximum sind 7 Tage."/>
+                    </div>
+                </div>
+            </div>
         </div>
         <div>
             <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit">
@@ -1303,7 +1325,7 @@
                      data-bs-parent="#accordionHelp">
                     <div class="accordion-body">
                         <div class="row">
-                            <div ng-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.hw !== 'Nicht gesetzt!' || hostnames.ww !== 'Nicht gesetzt!' || hostnames.ff !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
                                     <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1377,7 +1399,7 @@
                                         hostnames.ff
                                         }}
                                         (FF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
+                                        <span ng-if="crawltimes.next_f_run < currentMillis">
                                             <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -1397,9 +1419,9 @@
                                         <i ng-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
                                            class="bi bi-check-square-fill text-success"
                                            title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <span ng-if="crawltimes.next_f_run > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                     <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1448,7 +1470,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
                                     <li ng-show="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1499,7 +1521,7 @@
                                         hostnames.sf
                                         }}
                                         (SF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
+                                        <span ng-if="crawltimes.next_f_run < currentMillis">
                                             <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -1519,9 +1541,9 @@
                                         <i ng-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
                                            class="bi bi-check-square-fill text-success"
                                            title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <span ng-if="crawltimes.next_f_run > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                 </ul>

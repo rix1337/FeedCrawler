@@ -294,7 +294,7 @@ def app_container():
                             },
                             "f": {
                                 "interval": to_int(f_conf.get("interval")),
-                                "search": f_conf.get("search")
+                                "search": to_int(f_conf.get("search"))
                             }
                         }
                     }
@@ -429,8 +429,14 @@ def app_container():
 
                 section = CrawlerConfig("CustomF")
 
-                section.save("interval", to_str(data['f']['interval']))
-                section.save("search", to_str(data['f']['search']))
+                interval = to_str(data['f']['interval'])
+                if to_int(interval) < 6:
+                    interval = '6'
+                section.save("interval", interval)
+                search_depth = to_str(data['f']['search'])
+                if to_int(interval) > 7:
+                    search_depth = '7'
+                section.save("search", search_depth)
 
                 return "Success", 201
             except:
@@ -472,6 +478,14 @@ def app_container():
         if request.method == 'GET':
             try:
                 crawltimes = FeedDb("crawltimes")
+                next_f_run = False
+                try:
+                    last_f_run = to_float(FeedDb('crawltimes').retrieve("last_f_run"))
+                    f_interval = to_float(CrawlerConfig('CustomF').get("interval"))
+                    if last_f_run:
+                        next_f_run = last_f_run + 1000 * f_interval * 60 * 60
+                except:
+                    pass
                 return jsonify(
                     {
                         "crawltimes": {
@@ -480,7 +494,7 @@ def app_container():
                             "end_time": to_float(crawltimes.retrieve("end_time")),
                             "total_time": crawltimes.retrieve("total_time"),
                             "next_start": to_float(crawltimes.retrieve("next_start")),
-                            "last_f_run": to_float(crawltimes.retrieve("last_f_run")),
+                            "next_f_run": next_f_run
                         }
                     }
                 )
@@ -517,6 +531,7 @@ def app_container():
                 by = by.replace("b", "B", 1)
                 bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
+                f = ' / '.join(list(filter(None, [ff, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
 
                 if not fx:
@@ -541,6 +556,8 @@ def app_container():
                     bl = "Nicht gesetzt!"
                 if not s:
                     s = "Nicht gesetzt!"
+                if not f:
+                    f = "Nicht gesetzt!"
                 if not sjbl:
                     sjbl = "Nicht gesetzt!"
                 return jsonify(
@@ -557,6 +574,7 @@ def app_container():
                             "ww": ww,
                             "bl": bl,
                             "s": s,
+                            "f": f,
                             "sjbl": sjbl
                         }
                     }
@@ -1461,17 +1479,21 @@ const cnlExists = setInterval(async function () {
                            "Block status saved", 200
                 else:
                     hostnames = CrawlerConfig('Hostnames')
+                    next_f_run = False
                     try:
-                        last_f_run = float(FeedDb('crawltimes').retrieve("last_f_run"))
+                        last_f_run = to_float(FeedDb('crawltimes').retrieve("last_f_run"))
+                        f_interval = to_float(CrawlerConfig('CustomF').get("interval"))
+                        if last_f_run:
+                            next_f_run = last_f_run + 1000 * f_interval * 60 * 60
                     except:
-                        last_f_run = 0
+                        pass
                     return jsonify(
                         {
                             "blocked_sites": {
                                 "sf_ff": check("SF_FF", db_status),
                                 "sf_hostname": hostnames.get('sf'),
                                 "ff_hostname": hostnames.get('ff'),
-                                "wait_time": last_f_run + 1000 * 6 * 60 * 60,
+                                "next_f_run": next_f_run
                             }
                         })
             except:

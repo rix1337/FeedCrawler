@@ -15,20 +15,20 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
 
     $scope.wnd_to_decrypt = false;
 
-        $scope.update = function () {
-            spinHelper();
-            getToDecrypt();
-        };
+    $scope.update = function () {
+        spinHelper();
+        getToDecrypt();
+    };
 
-        function spinHelper() {
-            $("#spinner-helper").fadeIn().delay(1000).fadeOut();
-        }
+    function spinHelper() {
+        $("#spinner-helper").fadeIn().delay(1000).fadeOut();
+    }
 
-        function getAntiGate() {
-            $.get("http://127.0.0.1:9700/status", function (data) {
-                $scope.antigate_available_and_active = data;
-            });
-        }
+    function getAntiGate() {
+        $.get("http://127.0.0.1:9700/status", function (data) {
+            $scope.antigate_available_and_active = data;
+        });
+    }
 
     function getToDecrypt() {
         $http.get('./api/to_decrypt/')
@@ -46,7 +46,7 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                 $scope.f_blocked = res.data.blocked_sites.sf_ff;
                 $scope.sf_hostname = res.data.blocked_sites.sf_hostname;
                 $scope.ff_hostname = res.data.blocked_sites.ff_hostname;
-                $scope.wait_time = res.data.blocked_sites.wait_time;
+                $scope.next_f_run = res.data.blocked_sites.next_f_run;
             }, function (res) {
                 console.log('[FeedCrawler Helper] Konnte Block-Status von SF/FF nicht abrufen!');
             });
@@ -74,31 +74,31 @@ app.controller('helperCtrl', function ($scope, $http, $timeout) {
                         let password = $scope.to_decrypt.password
                         let payload = window.btoa(unescape(encodeURIComponent((clean_url + "|" + password))));
                         $scope.wnd_to_decrypt = window.open("http://127.0.0.1:9700/?payload=" + payload);
-                        }
-                    } else {
-                        $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
                     }
-                }
-            } else {
-                if ($scope.wnd_to_decrypt.closed) {
-                    $scope.current_to_decrypt = "";
+                } else {
+                    $scope.wnd_to_decrypt = window.open($scope.to_decrypt.url);
                 }
             }
+        } else {
+            if ($scope.wnd_to_decrypt.closed) {
+                $scope.current_to_decrypt = "";
+            }
         }
+    }
 
     getAntiGate();
     getFBlocked();
     getToDecrypt();
 
-        $scope.updateToDecrypt = function () {
-            $timeout(function () {
-                spinHelper();
-                getAntiGate();
-                getFBlocked();
-                getToDecrypt();
-                $scope.updateToDecrypt();
-            }, 30000)
-        };
+    $scope.updateToDecrypt = function () {
+        $timeout(function () {
+            spinHelper();
+            getAntiGate();
+            getFBlocked();
+            getToDecrypt();
+            $scope.updateToDecrypt();
+        }, 30000)
+    };
 
         $scope.updateToDecrypt();
     }
