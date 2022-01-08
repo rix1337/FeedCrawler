@@ -36,8 +36,8 @@
                ng-click="startNow()"></i>
             <div ng-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
         </div>
-        <div ng-if="crawltimes.last_f_run">
-            Keine SF/FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}
+        <div ng-if="crawltimes.next_f_run">
+            Keine SF/FF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}
         </div>
         Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
@@ -528,7 +528,8 @@
                  ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && settings.mbsj.enabled && sjbl_enabled">
                 <h2 class="accordion-header" id="headingZeroThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseZeroThree" aria-expanded="false" aria-controls="collapseZeroThree">
+                            data-bs-target="#collapseZeroThree" aria-expanded="false"
+                            aria-controls="collapseZeroThree">
                         {{ hostnames.sjbl }}
                     </button>
                 </h2>
@@ -545,7 +546,8 @@
             <div class="accordion-item" ng-show="hostnames.dj !== 'Nicht gesetzt!'">
                 <h2 class="accordion-header" id="headingZeroFour">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseZeroFour" aria-expanded="false" aria-controls="collapseZeroFour">
+                            data-bs-target="#collapseZeroFour" aria-expanded="false"
+                            aria-controls="collapseZeroFour">
                         {{ hostnames.dj }}
                     </button>
                 </h2>
@@ -580,342 +582,468 @@
         <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-        <div class="accordion" id="accordionSettings">
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwoZero">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoZero"
-                            aria-expanded="false" aria-controls="collapseTwoZero">
-                        My JDownloader
-                    </button>
-                </h2>
-                <div id="collapseTwoZero" class="accordion-collapse collapse" aria-labelledby="headingTwoZero"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Nutzername</h5>
-                        <input ng-model="settings.general.myjd_user" class="form-control" data-toggle="tooltip"
-                               title="Hier den Nutzernamen von My JDownloader angeben."/>
-                        <h5>Passwort</h5>
-                        <input ng-model="settings.general.myjd_pass" class="form-control" data-toggle="tooltip"
-                               type="password"
-                               title="Hier das Passwort von My JDownloader angeben."/>
-                        <h5>Gerätename</h5>
-                        <input ng-model="settings.general.myjd_device" class="form-control"
-                               data-toggle="tooltip"
-                               title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."/>
-                        <h5>Autostart</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.crawljobs.autostart"
+        <form name="settingsForm">
+            <div class="accordion" id="accordionSettings">
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwoZero">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoZero"
+                                aria-expanded="false" aria-controls="collapseTwoZero">
+                            My JDownloader
+                        </button>
+                    </h2>
+                    <div id="collapseTwoZero" class="accordion-collapse collapse" aria-labelledby="headingTwoZero"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Nutzername</h5>
+                            <input ng-model="settings.general.myjd_user" class="form-control" data-toggle="tooltip"
+                                   title="Hier den Nutzernamen von My JDownloader angeben."/>
+                            <h5>Passwort</h5>
+                            <input ng-model="settings.general.myjd_pass" class="form-control" data-toggle="tooltip"
+                                   type="password"
+                                   title="Hier das Passwort von My JDownloader angeben."/>
+                            <h5>Gerätename</h5>
+                            <input ng-model="settings.general.myjd_device" class="form-control"
                                    data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Downloads automatisch gestartet, sobald diese entschlüsselt vorliegen.">
-                        </label>
-                        <h5>Unterordner bei Download</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.crawljobs.subdir" data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!">
-                        </label>
-                        <h5>Bereich zuklappen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.general.closed_myjd_tab"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des FeedCrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht.">
-                        </label>
-                        <h5>Pakete pro Seite</h5>
-                        <input required type="number" min="3" max="30"
-                               ng-model="settings.general.packages_per_myjd_page"
-                               class="number form-control" data-toggle="tooltip"
-                               title="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."/>
+                                   title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."/>
+                            <h5>Autostart</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.crawljobs.autostart"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Downloads automatisch gestartet, sobald diese entschlüsselt vorliegen.">
+                            </label>
+                            <h5>Unterordner bei Download</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.crawljobs.subdir" data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!">
+                            </label>
+                            <h5>Bereich zuklappen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.general.closed_myjd_tab"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des FeedCrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht.">
+                            </label>
+                            <h5>Pakete pro Seite</h5>
+                            <input required type="number" min="3" max="30"
+                                   ng-model="settings.general.packages_per_myjd_page"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwoOne">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoOne"
-                            aria-expanded="false" aria-controls="collapseTwoOne">
-                        Allgemein
-                    </button>
-                </h2>
-                <div id="collapseTwoOne" class="accordion-collapse collapse" aria-labelledby="headingTwoOne"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Port</h5>
-                        <input required type="number" min="1024" max="65535" ng-model="settings.general.port"
-                               class="number form-control docker" data-toggle="tooltip"
-                               title="Hier den Port des Webservers wählen."/>
-                        <h5>Prefix</h5>
-                        <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
-                               title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."/>
-                        <h5>Nutzername</h5>
-                        <input ng-model="settings.general.auth_user" class="form-control" data-toggle="tooltip"
-                               title="Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!)."/>
-                        <h5>Passwort</h5>
-                        <input ng-model="settings.general.auth_hash" class="form-control" data-toggle="tooltip"
-                               type="password"
-                               title="Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!)."/>
-                        <h5>Suchintervall</h5>
-                        <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
-                               class="number form-control" data-toggle="tooltip"
-                               title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
-                        <h5>FlareSolverr-URL</h5>
-                        <input ng-model="settings.general.flaresolverr" class="form-control" data-toggle="tooltip"
-                               title="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191 - FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."/>
-                        <h5>FlareSolverr-Proxy-URL</h5>
-                        <input ng-model="settings.general.flaresolverr_proxy" class="form-control" data-toggle="tooltip"
-                               title="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."/>
-                        <h5>Ein Mirror genügt</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.general.one_mirror_policy"
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwoOne">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoOne"
+                                aria-expanded="false" aria-controls="collapseTwoOne">
+                            Allgemein
+                        </button>
+                    </h2>
+                    <div id="collapseTwoOne" class="accordion-collapse collapse" aria-labelledby="headingTwoOne"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Port</h5>
+                            <input required type="number" min="1024" max="65535" ng-model="settings.general.port"
+                                   class="number form-control docker" data-toggle="tooltip"
+                                   title="Hier den Port des Webservers wählen."/>
+                            <h5>Prefix</h5>
+                            <input ng-model="settings.general.prefix" class="form-control" data-toggle="tooltip"
+                                   title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."/>
+                            <h5>Nutzername</h5>
+                            <input ng-model="settings.general.auth_user" class="form-control" data-toggle="tooltip"
+                                   title="Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!)."/>
+                            <h5>Passwort</h5>
+                            <input ng-model="settings.general.auth_hash" class="form-control" data-toggle="tooltip"
+                                   type="password"
+                                   title="Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!)."/>
+                            <h5>Suchintervall</h5>
+                            <input required type="number" min="5" max="1440" ng-model="settings.general.interval"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."/>
+                            <h5>FlareSolverr-URL</h5>
+                            <input ng-model="settings.general.flaresolverr" class="form-control" data-toggle="tooltip"
+                                   title="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191 - FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."/>
+                            <h5>FlareSolverr-Proxy-URL</h5>
+                            <input ng-model="settings.general.flaresolverr_proxy" class="form-control"
                                    data-toggle="tooltip"
-                                   title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!">
-                        </label>
-                        <h5>Englische Releases hinzufügen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.general.english"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden auch englischsprachige Titel gesucht.">
-                        </label>
-                        <h5>Mehrkanalton erzwingen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.general.surround"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt.">
-                        </label>
+                                   title="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."/>
+                            <h5>Ein Mirror genügt</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.general.one_mirror_policy"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!">
+                            </label>
+                            <h5>Englische Releases hinzufügen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.general.english"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden auch englischsprachige Titel gesucht.">
+                            </label>
+                            <h5>Mehrkanalton erzwingen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.general.surround"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt.">
+                            </label>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwoThree">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoThree"
-                            aria-expanded="false" aria-controls="collapseTwoThree">
-                        Hoster
-                    </button>
-                </h2>
-                <div id="collapseTwoThree" class="accordion-collapse collapse" aria-labelledby="headingTwoThree"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body"
-                         data-toggle="tooltip"
-                         title="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwoThree">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoThree"
+                                aria-expanded="false" aria-controls="collapseTwoThree">
+                            Hoster
+                        </button>
+                    </h2>
+                    <div id="collapseTwoThree" class="accordion-collapse collapse" aria-labelledby="headingTwoThree"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body"
+                             data-toggle="tooltip"
+                             title="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit
                     einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar,
                     wird dieses übersprungen!">
-                        <div class="row">
-                            <div class="col-sm">
-                                <h5>Rapidgator</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.rapidgator">
+                            <div class="row">
+                                <div class="col-sm">
+                                    <h5>Rapidgator</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.rapidgator">
 
-                                </label>
-                                <h5>Turbobit</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.turbobit">
+                                    </label>
+                                    <h5>Turbobit</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.turbobit">
 
-                                </label>
-                                <h5>Uploaded</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.uploaded">
+                                    </label>
+                                    <h5>Uploaded</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.uploaded">
 
-                                </label>
-                                <h5>Zippyshare</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.zippyshare">
+                                    </label>
+                                    <h5>Zippyshare</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.zippyshare">
 
-                                </label>
-                                <h5>OBOOM</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.oboom">
+                                    </label>
+                                    <h5>OBOOM</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.oboom">
 
-                                </label>
-                            </div>
-                            <div class="col-sm">
-                                <h5>DDownload</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.ddl">
+                                    </label>
+                                </div>
+                                <div class="col-sm">
+                                    <h5>DDownload</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.ddl">
 
-                                </label>
-                                <h5>FileFactory</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.filefactory">
+                                    </label>
+                                    <h5>FileFactory</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.filefactory">
 
-                                </label>
-                                <h5>Uptobox</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.uptobox">
+                                    </label>
+                                    <h5>Uptobox</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.uptobox">
 
-                                </label>
-                                <h5>1Fichier</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.onefichier">
+                                    </label>
+                                    <h5>1Fichier</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.onefichier">
 
-                                </label>
-                                <h5>Filer</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.filer">
+                                    </label>
+                                    <h5>Filer</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.filer">
 
-                                </label>
-                            </div>
-                            <div class="col-sm">
-                                <h5>Nitroflare</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.nitroflare">
+                                    </label>
+                                </div>
+                                <div class="col-sm">
+                                    <h5>Nitroflare</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.nitroflare">
 
-                                </label>
-                                <h5>IronFiles</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.ironfiles">
+                                    </label>
+                                    <h5>IronFiles</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.ironfiles">
 
-                                </label>
-                                <h5>Keep2Share</h5>
-                                <label class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox"
-                                           ng-model="settings.hosters.k2s">
+                                    </label>
+                                    <h5>Keep2Share</h5>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox"
+                                               ng-model="settings.hosters.k2s">
 
-                                </label>
+                                    </label>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwoFour">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoFour"
-                            aria-expanded="false" aria-controls="collapseTwoFour">
-                        Benachrichtigungen
-                    </button>
-                </h2>
-                <div id="collapseTwoFour" class="accordion-collapse collapse" aria-labelledby="headingTwoFour"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Pushbullet</h5>
-                        <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip"
-                               title="Access-Token auf Pushbullet.com anlegen und hier angeben."/>
-                        <h5>Pushover</h5>
-                        <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip"
-                               title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine auf Pushover.net anlegen."/>
-                        <h5>Home Assistant</h5>
-                        <input ng-model="settings.alerts.homeassistant" class="form-control"
-                               data-toggle="tooltip"
-                               title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben."/>
-                        <h5>Telegram</h5>
-                        <input ng-model="settings.alerts.telegram" class="form-control" data-toggle="tooltip"
-                               title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt."/>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwoFour">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoFour"
+                                aria-expanded="false" aria-controls="collapseTwoFour">
+                            Benachrichtigungen
+                        </button>
+                    </h2>
+                    <div id="collapseTwoFour" class="accordion-collapse collapse" aria-labelledby="headingTwoFour"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Pushbullet</h5>
+                            <input ng-model="settings.alerts.pushbullet" class="form-control" data-toggle="tooltip"
+                                   title="Access-Token auf Pushbullet.com anlegen und hier angeben."/>
+                            <h5>Pushover</h5>
+                            <input ng-model="settings.alerts.pushover" class="form-control" data-toggle="tooltip"
+                                   title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine auf Pushover.net anlegen."/>
+                            <h5>Home Assistant</h5>
+                            <input ng-model="settings.alerts.homeassistant" class="form-control"
+                                   data-toggle="tooltip"
+                                   title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben."/>
+                            <h5>Telegram</h5>
+                            <input ng-model="settings.alerts.telegram" class="form-control" data-toggle="tooltip"
+                                   title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt."/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item">
-                <h2 class="accordion-header" id="headingTwoFive">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoFive"
-                            aria-expanded="false" aria-controls="collapseTwoFive">
-                        Ombi
-                    </button>
-                </h2>
-                <div id="collapseTwoFive" class="accordion-collapse collapse" aria-labelledby="headingTwoFive"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Ombi URL</h5>
-                        <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
-                               title="Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
-                        <h5>Ombi API-Key</h5>
-                        <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
-                               title="Pflichtangabe: Hier den API-Key von Ombi angeben."/>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="headingTwoFive">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoFive"
+                                aria-expanded="false" aria-controls="collapseTwoFive">
+                            Ombi
+                        </button>
+                    </h2>
+                    <div id="collapseTwoFive" class="accordion-collapse collapse" aria-labelledby="headingTwoFive"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Ombi URL</h5>
+                            <input ng-model="settings.ombi.url" class="form-control" data-toggle="tooltip"
+                                   title="Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
+                            <h5>Ombi API-Key</h5>
+                            <input ng-model="settings.ombi.api" class="form-control" data-toggle="tooltip"
+                                   title="Pflichtangabe: Hier den API-Key von Ombi angeben."/>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item" ng-show="hostnames.bl !== 'Nicht gesetzt!'">
-                <h2 class="accordion-header" id="headingTwoSix">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoSix"
-                            aria-expanded="false" aria-controls="collapseTwoSix">
-                        {{ hostnames.bl }}
-                    </button>
-                </h2>
-                <div id="collapseTwoSix" class="accordion-collapse collapse" aria-labelledby="headingTwoSix"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Auflösung</h5>
-                        <select ng-model="settings.mb.quality"
-                                ng-options="r.value as r.label for r in resolutions"
-                                class="form-control" data-toggle="tooltip"
-                                title="Die Release-Auflösung, nach der gesucht wird."></select>
-                        <h5>Suchtiefe</h5>
-                        <select ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search"
-                                class="form-control" data-toggle="tooltip"
-                                title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
-                        <h5>Filterliste</h5>
-                        <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip"
-                               title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
-                        <h5>Auch per RegEx suchen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.regex"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
-                        </label>
-                        <h5>Ab IMDb-Wertung hinzufügen</h5>
-                        <input required type="number" step="0.1" ng-model="settings.mb.imdb_score" min="0.0"
-                               max="10.0"
-                               class="number form-control" data-toggle="tooltip"
-                               title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren."/>
-                        <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
-                        <input id="year" type="number" min="1900" max="2100" ng-model="settings.mb.imdb_year"
-                               class="number form-control" data-toggle="tooltip"
-                               title="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."/>
-                        <h5>Zweisprachige Releases erzwingen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.force_dl"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten.">
-                        </label>
-                        <h5>Nur Retail hinzufügen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.retail_only"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt.">
-                        </label>
-                        <h5>Listeneintrag bei Retail streichen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.cutoff"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde.">
-                        </label>
-                        <h5>1080p-HEVC bevorzugen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.hevc_retail"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste.">
-                        </label>
-                        <h5>Hoster-Fallback</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mb.hoster_fallback"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
-                        </label>
-                        <div ng-show="hostnames.s === 'Nicht gesetzt!'">
+                <div class="accordion-item" ng-show="hostnames.bl !== 'Nicht gesetzt!'">
+                    <h2 class="accordion-header" id="headingTwoSix">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoSix"
+                                aria-expanded="false" aria-controls="collapseTwoSix">
+                            {{ hostnames.bl }}
+                        </button>
+                    </h2>
+                    <div id="collapseTwoSix" class="accordion-collapse collapse" aria-labelledby="headingTwoSix"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Auflösung</h5>
+                            <select ng-model="settings.mb.quality"
+                                    ng-options="r.value as r.label for r in resolutions"
+                                    class="form-control" data-toggle="tooltip"
+                                    title="Die Release-Auflösung, nach der gesucht wird."></select>
+                            <h5>Suchtiefe</h5>
+                            <select ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search"
+                                    class="form-control" data-toggle="tooltip"
+                                    title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
+                            <h5>Filterliste</h5>
+                            <input ng-model="settings.mb.ignore" class="form-control" data-toggle="tooltip"
+                                   title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
+                            <h5>Auch per RegEx suchen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.regex"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
+                            </label>
+                            <h5>Ab IMDb-Wertung hinzufügen</h5>
+                            <input required type="number" step="0.1" ng-model="settings.mb.imdb_score" min="0.0"
+                                   max="10.0"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren."/>
+                            <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
+                            <input id="year" type="number" min="1900" max="2100" ng-model="settings.mb.imdb_year"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."/>
+                            <h5>Zweisprachige Releases erzwingen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.force_dl"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten.">
+                            </label>
+                            <h5>Nur Retail hinzufügen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.retail_only"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt.">
+                            </label>
+                            <h5>Listeneintrag bei Retail streichen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.cutoff"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde.">
+                            </label>
+                            <h5>1080p-HEVC bevorzugen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.hevc_retail"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste.">
+                            </label>
+                            <h5>Hoster-Fallback</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.mb.hoster_fallback"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
+                            </label>
+                            <div ng-show="hostnames.s === 'Nicht gesetzt!'">
+                                <h5>Staffeln suchen</h5>
+                                <label class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           ng-model="settings.mbsj.enabled"
+                                           data-toggle="tooltip"
+                                           title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.">
+                                </label>
+                                <h5>Auflösung der Staffeln</h5>
+                                <select ng-model="settings.mbsj.quality"
+                                        ng-options="r.value as r.label for r in resolutions"
+                                        class="form-control" data-toggle="tooltip"
+                                        title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
+                                <h5>Staffelpakete erlauben</h5>
+                                <label class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           ng-model="settings.mbsj.packs"
+                                           data-toggle="tooltip"
+                                           title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.">
+                                </label>
+                                <h5>Quellart der Staffeln</h5>
+                                <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
+                                        class="form-control" data-toggle="tooltip"
+                                        title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                            </div>
+                            <div ng-show="hostnames.f !== 'Nicht gesetzt!' && hostnames.f === hostnames.bl">
+                                <h5>Suchintervall</h5>
+                                <input required type="number" min="6" max="24" ng-model="settings.f.interval"
+                                       class="number form-control" data-toggle="tooltip"
+                                       title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden."/>
+                                <h5>Suchtiefe</h5>
+                                <input required type="number" min="3" max="7" ng-model="settings.f.search"
+                                       class="number form-control" data-toggle="tooltip"
+                                       title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Maximum sind 7 Tage."/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item" ng-show="hostnames.s !== 'Nicht gesetzt!'">
+                    <h2 class="accordion-header" id="headingTwoSeven">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoSeven"
+                                aria-expanded="false" aria-controls="collapseTwoSeven">
+                            {{ hostnames.s }}
+                        </button>
+                    </h2>
+                    <div id="collapseTwoSeven" class="accordion-collapse collapse" aria-labelledby="headingTwoSeven"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Auflösung</h5>
+                            <select ng-model="settings.sj.quality"
+                                    ng-options="r.value as r.label for r in resolutions"
+                                    class="form-control" data-toggle="tooltip"
+                                    title="Die Release-Auflösung, nach der gesucht wird."></select>
+                            <h5>Filterliste</h5>
+                            <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip"
+                                   title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
+                            <h5>Auch per RegEx suchen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.sj.regex"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
+                            </label>
+                            <h5>Nur Retail hinzufügen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.sj.retail_only"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt.">
+                            </label>
+                            <h5>1080p-HEVC bevorzugen</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.sj.hevc_retail"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen.">
+                            </label>
+                            <h5>Hoster-Fallback</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.sj.hoster_fallback"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
+                            </label>
+                            <div ng-show="hostnames.bl === 'Nicht gesetzt!'">
+                                <h5>Staffeln suchen</h5>
+                                <label class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           ng-model="settings.mbsj.enabled"
+                                           data-toggle="tooltip"
+                                           title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.">
+                                </label>
+                                <h5>Auflösung der Staffeln</h5>
+                                <select ng-model="settings.mbsj.quality"
+                                        ng-options="r.value as r.label for r in resolutions"
+                                        class="form-control" data-toggle="tooltip"
+                                        title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
+                                <h5>Staffelpakete erlauben</h5>
+                                <label class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                           ng-model="settings.mbsj.packs"
+                                           data-toggle="tooltip"
+                                           title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.">
+                                </label>
+                                <h5>Quellart der Staffeln</h5>
+                                <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
+                                        class="form-control" data-toggle="tooltip"
+                                        title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item"
+                     ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && settings.mbsj.enabled && sjbl_enabled">
+                    <h2 class="accordion-header" id="headingTwoEight">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoEight"
+                                aria-expanded="false" aria-controls="collapseTwoEight">
+                            {{ hostnames.sjbl }}
+                        </button>
+                    </h2>
+                    <div id="collapseTwoEight" class="accordion-collapse collapse" aria-labelledby="headingTwoEight"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
                             <h5>Staffeln suchen</h5>
                             <label class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox"
@@ -942,163 +1070,78 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="accordion-item" ng-show="hostnames.s !== 'Nicht gesetzt!'">
-                <h2 class="accordion-header" id="headingTwoSeven">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoSeven"
-                            aria-expanded="false" aria-controls="collapseTwoSeven">
-                        {{ hostnames.s }}
-                    </button>
-                </h2>
-                <div id="collapseTwoSeven" class="accordion-collapse collapse" aria-labelledby="headingTwoSeven"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Auflösung</h5>
-                        <select ng-model="settings.sj.quality"
-                                ng-options="r.value as r.label for r in resolutions"
-                                class="form-control" data-toggle="tooltip"
-                                title="Die Release-Auflösung, nach der gesucht wird."></select>
-                        <h5>Filterliste</h5>
-                        <input ng-model="settings.sj.ignore" class="form-control" data-toggle="tooltip"
-                               title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
-                        <h5>Auch per RegEx suchen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.sj.regex"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
-                        </label>
-                        <h5>Nur Retail hinzufügen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.sj.retail_only"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt.">
-                        </label>
-                        <h5>1080p-HEVC bevorzugen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.sj.hevc_retail"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen.">
-                        </label>
-                        <h5>Hoster-Fallback</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.sj.hoster_fallback"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
-                        </label>
-                        <div ng-show="hostnames.bl === 'Nicht gesetzt!'">
-                            <h5>Staffeln suchen</h5>
-                            <label class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox"
-                                       ng-model="settings.mbsj.enabled"
-                                       data-toggle="tooltip"
-                                       title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.">
-                            </label>
-                            <h5>Auflösung der Staffeln</h5>
-                            <select ng-model="settings.mbsj.quality"
+                <div class="accordion-item" ng-show="hostnames.dj !== 'Nicht gesetzt!'">
+                    <h2 class="accordion-header" id="headingTwoNine">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoNine"
+                                aria-expanded="false" aria-controls="collapseTwoNine">
+                            {{ hostnames.dj }}
+                        </button>
+                    </h2>
+                    <div id="collapseTwoNine" class="accordion-collapse collapse" aria-labelledby="headingTwoNine"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Auflösung</h5>
+                            <select ng-model="settings.dj.quality"
                                     ng-options="r.value as r.label for r in resolutions"
                                     class="form-control" data-toggle="tooltip"
-                                    title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
-                            <h5>Staffelpakete erlauben</h5>
+                                    title="Die Release-Auflösung, nach der gesucht wird."></select>
+                            <h5>Filterliste</h5>
+                            <input ng-model="settings.dj.ignore" class="form-control" data-toggle="tooltip"
+                                   title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
+                            <h5>Auch per RegEx suchen</h5>
                             <label class="form-check form-switch">
                                 <input class="form-check-input" type="checkbox"
-                                       ng-model="settings.mbsj.packs"
+                                       ng-model="settings.dj.regex"
                                        data-toggle="tooltip"
-                                       title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.">
+                                       title="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
                             </label>
-                            <h5>Quellart der Staffeln</h5>
-                            <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
-                                    class="form-control" data-toggle="tooltip"
-                                    title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                            <h5>Hoster-Fallback</h5>
+                            <label class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                       ng-model="settings.dj.hoster_fallback"
+                                       data-toggle="tooltip"
+                                       title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item" ng-show="hostnames.f !== 'Nicht gesetzt!' && hostnames.f !== hostnames.bl">
+                    <h2 class="accordion-header" id="headingTwoTen">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                data-bs-target="#collapseTwoTen"
+                                aria-expanded="false" aria-controls="collapseTwoTen">
+                            {{ hostnames.f }}
+                        </button>
+                    </h2>
+                    <div id="collapseTwoTen" class="accordion-collapse collapse" aria-labelledby="headingTwoTen"
+                         data-bs-parent="#accordionSettings">
+                        <div class="accordion-body">
+                            <h5>Suchintervall</h5>
+                            <input required type="number" min="6" max="24" ng-model="settings.f.interval"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden."/>
+                            <h5>Suchtiefe</h5>
+                            <input required type="number" min="3" max="7" ng-model="settings.f.search"
+                                   class="number form-control" data-toggle="tooltip"
+                                   title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Maximum sind 7 Tage."/>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="accordion-item"
-                 ng-show="hostnames.sjbl !== 'Nicht gesetzt!' && settings.mbsj.enabled && sjbl_enabled">
-                <h2 class="accordion-header" id="headingTwoEight">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoEight"
-                            aria-expanded="false" aria-controls="collapseTwoEight">
-                        {{ hostnames.sjbl }}
-                    </button>
-                </h2>
-                <div id="collapseTwoEight" class="accordion-collapse collapse" aria-labelledby="headingTwoEight"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Staffeln suchen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mbsj.enabled"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.">
-                        </label>
-                        <h5>Auflösung der Staffeln</h5>
-                        <select ng-model="settings.mbsj.quality"
-                                ng-options="r.value as r.label for r in resolutions"
-                                class="form-control" data-toggle="tooltip"
-                                title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
-                        <h5>Staffelpakete erlauben</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.mbsj.packs"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.">
-                        </label>
-                        <h5>Quellart der Staffeln</h5>
-                        <select ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
-                                class="form-control" data-toggle="tooltip"
-                                title="Die Quellart der Staffeln, nach der gesucht wird."></select>
-                    </div>
-                </div>
+            <div ng-show="!settingsForm.$invalid">
+                <a href="" ng-click="saveSettings()" class="btn btn-dark"
+                   type="submit">
+                    <div id="spinner-settings"
+                         style="display: none;"
+                         class="spinner-border spinner-border-sm" role="status"></div>
+                    <i class="bi bi-save"></i> Speichern</a>
             </div>
-            <div class="accordion-item" ng-show="hostnames.dj !== 'Nicht gesetzt!'">
-                <h2 class="accordion-header" id="headingTwoNine">
-                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#collapseTwoNine"
-                            aria-expanded="false" aria-controls="collapseTwoNine">
-                        {{ hostnames.dj }}
-                    </button>
-                </h2>
-                <div id="collapseTwoNine" class="accordion-collapse collapse" aria-labelledby="headingTwoNine"
-                     data-bs-parent="#accordionSettings">
-                    <div class="accordion-body">
-                        <h5>Auflösung</h5>
-                        <select ng-model="settings.dj.quality"
-                                ng-options="r.value as r.label for r in resolutions"
-                                class="form-control" data-toggle="tooltip"
-                                title="Die Release-Auflösung, nach der gesucht wird."></select>
-                        <h5>Filterliste</h5>
-                        <input ng-model="settings.dj.ignore" class="form-control" data-toggle="tooltip"
-                               title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
-                        <h5>Auch per RegEx suchen</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.dj.regex"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht.">
-                        </label>
-                        <h5>Hoster-Fallback</h5>
-                        <label class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox"
-                                   ng-model="settings.dj.hoster_fallback"
-                                   data-toggle="tooltip"
-                                   title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!">
-                        </label>
-                    </div>
-                </div>
+            <div ng-show="settingsForm.$invalid" class="btn btn-danger" data-toggle="tooltip"
+                 title="Mindestens ein Feld wurde falsch befüllt und muss korrigiert werden (erkennbar am roten Rahmen darum).">
+                <i class="bi bi-x"></i> Speichern nicht möglich</a>
             </div>
-        </div>
-        <div>
-            <a href="" ng-click="saveSettings()" class="btn btn-dark" type="submit">
-                <div id="spinner-settings"
-                     style="display: none;"
-                     class="spinner-border spinner-border-sm" role="status"></div>
-                <i class="bi bi-save"></i> Speichern</a></div>
+        </form>
     </div>
 </div>
 
@@ -1303,7 +1346,7 @@
                      data-bs-parent="#accordionHelp">
                     <div class="accordion-body">
                         <div class="row">
-                            <div ng-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.hw !== 'Nicht gesetzt!' || hostnames.ww !== 'Nicht gesetzt!' || hostnames.ff !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
                                     <li ng-show="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1377,7 +1420,7 @@
                                         hostnames.ff
                                         }}
                                         (FF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
+                                        <span ng-if="crawltimes.next_f_run < currentMillis">
                                             <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -1397,9 +1440,9 @@
                                         <i ng-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
                                            class="bi bi-check-square-fill text-success"
                                            title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <span ng-if="crawltimes.next_f_run > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                     <li ng-show="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1448,7 +1491,7 @@
                                     </li>
                                 </ul>
                             </div>
-                            <div ng-if="hostnames.ww !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
+                            <div ng-if="hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
                                  class="col">
                                 <ul class="list-group">
                                     <li ng-show="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -1499,7 +1542,7 @@
                                         hostnames.sf
                                         }}
                                         (SF)
-                                        <span ng-if="crawltimes.last_f_run + 21600000 < currentMillis">
+                                        <span ng-if="crawltimes.next_f_run < currentMillis">
                                             <i ng-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -1519,9 +1562,9 @@
                                         <i ng-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
                                            class="bi bi-check-square-fill text-success"
                                            title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                                        <span ng-if="crawltimes.last_f_run + 21600000 > currentMillis">
+                                        <span ng-if="crawltimes.next_f_run > currentMillis">
                                             <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.last_f_run + 21600000 | date:'HH:mm:ss' }}"></i>
+                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
                                         </span>
                                     </li>
                                 </ul>

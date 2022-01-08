@@ -60,6 +60,7 @@ class SJ:
             self.empty_list = True
 
         self.day = 0
+        self.max_days = 8
 
         self.get_feed_method = j_releases_to_feedparser_dict
         self.parse_download_method = j_parse_download

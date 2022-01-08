@@ -22,7 +22,7 @@
     <span class="btn btn-outline-success disabled" ng-if="antigate_available_and_active === 'true'">Automatische Entschlüsselung von Filecrypt ist aktiv!</span><br
         ng-if="antigate_available_and_active === 'true'">
 
-    <span class="btn btn-outline-danger disabled" ng-if="f_blocked === true">SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{ wait_time | date:'HH:mm:ss' }}</span><br
+    <span class="btn btn-outline-danger disabled" ng-if="f_blocked === true">SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{ next_f_run | date:'HH:mm:ss' }}</span><br
         ng-if="f_blocked === true">
 
     <a class="btn btn-outline-danger" ng-if="to_decrypt.url && to_decrypt.name" ng-href="{{ to_decrypt.url }}"

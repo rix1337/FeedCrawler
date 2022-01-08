@@ -139,7 +139,8 @@ def crawler(global_variables):
                 except AttributeError:
                     file = ""
                 if name in ["SF", "FF"]:
-                    if last_f_run and start_time < float(last_f_run) // 1000 + 6 * 60 * 60:
+                    f_interval = int(CrawlerConfig('CustomF').get('interval'))
+                    if last_f_run and start_time < float(last_f_run) // 1000 + f_interval * 60 * 60:
                         logger.debug(
                             "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
                         continue

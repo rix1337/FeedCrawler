@@ -36,7 +36,7 @@ class BL:
         self.hoster_fallback = self.config.get("hoster_fallback")
 
         self.day = 0
-        while self.day <= 2:
+        while self.day <= int(CrawlerConfig('CustomF').get('interval')) - 1:
             delta = (datetime.datetime.now() - datetime.timedelta(days=self.day)).strftime("%Y-%m-%d")
             page_url = 'https://' + self.url + '/updates/' + delta
             if page_url not in self.FEED_URLS:
