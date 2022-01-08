@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.8** Interval und Suchtiefe auf SF/FF sind im Web-Interface konfigurierbar.
 - **12.2.7** Prüfe die Erreichbarkeit von SF/FF ebenfalls erst nach dem Mindest-Intervall (verhindert Bans).
 - **12.2.7** Senke Suchintervall bei SF/FF-Feedsuchen wieder auf 6 Stunden.
 - **12.2.6** Erhöhe Suchintervall bei SF/FF-Feedsuchen.

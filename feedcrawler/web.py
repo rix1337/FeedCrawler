@@ -209,6 +209,7 @@ def app_container():
                 mb_conf = CrawlerConfig('ContentAll')
                 sj_conf = CrawlerConfig('ContentShows')
                 dj_conf = CrawlerConfig('CustomDJ')
+                f_conf = CrawlerConfig('CustomF')
                 return jsonify(
                     {
                         "settings": {
@@ -290,6 +291,10 @@ def app_container():
                                 "ignore": dj_conf.get("rejectlist"),
                                 "regex": dj_conf.get("regex"),
                                 "hoster_fallback": dj_conf.get("hoster_fallback"),
+                            },
+                            "f": {
+                                "interval": to_int(f_conf.get("interval")),
+                                "search": f_conf.get("search")
                             }
                         }
                     }
@@ -421,6 +426,11 @@ def app_container():
                 section.save("rejectlist", to_str(data['dj']['ignore']).lower())
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
+
+                section = CrawlerConfig("CustomF")
+
+                section.save("interval", to_str(data['f']['interval']))
+                section.save("search", to_str(data['f']['search']))
 
                 return "Success", 201
             except:

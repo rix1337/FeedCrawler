@@ -97,6 +97,10 @@ class CrawlerConfig(object):
             ("rejectlist", "str", "XviD,Subbed"),
             ("regex", "bool", "False"),
             ("hoster_fallback", "bool", "False")
+        ],
+        'CustomF': [
+            ("interval", "int", "6"),
+            ("search", "int", "3")
         ]
     }
     __config__ = []

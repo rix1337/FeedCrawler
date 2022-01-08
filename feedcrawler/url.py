@@ -21,7 +21,8 @@ def check_url(start_time):
     for site in internal.sites:
         if site in ["SF", "FF"]:
             last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
-            if last_f_run and start_time < float(last_f_run) // 1000 + 8 * 60 * 60:
+            f_interval = int(CrawlerConfig('CustomF').get('interval'))
+            if last_f_run and start_time < float(last_f_run) // 1000 + f_interval * 60 * 60:
                 internal.logger.debug(
                     "-----------Mindestintervall bei " + site + " (6h) nicht erreicht - überspringe Prüfung!-----------")
                 continue
