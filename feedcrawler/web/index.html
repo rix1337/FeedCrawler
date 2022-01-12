@@ -948,11 +948,11 @@
                                 <h5>Suchintervall</h5>
                                 <input required type="number" min="6" max="24" ng-model="settings.f.interval"
                                        class="number form-control" data-toggle="tooltip"
-                                       title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden."/>
+                                       title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden."/>
                                 <h5>Suchtiefe</h5>
-                                <input required type="number" min="3" max="7" ng-model="settings.f.search"
+                                <input required type="number" min="1" max="7" ng-model="settings.f.search"
                                        class="number form-control" data-toggle="tooltip"
-                                       title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Maximum sind 7 Tage."/>
+                                       title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."/>
                             </div>
                         </div>
                     </div>
@@ -1118,13 +1118,14 @@
                          data-bs-parent="#accordionSettings">
                         <div class="accordion-body">
                             <h5>Suchintervall</h5>
+                            <h5>Suchintervall</h5>
                             <input required type="number" min="6" max="24" ng-model="settings.f.interval"
                                    class="number form-control" data-toggle="tooltip"
-                                   title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden."/>
+                                   title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden."/>
                             <h5>Suchtiefe</h5>
-                            <input required type="number" min="3" max="7" ng-model="settings.f.search"
+                            <input required type="number" min="1" max="7" ng-model="settings.f.search"
                                    class="number form-control" data-toggle="tooltip"
-                                   title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Maximum sind 7 Tage."/>
+                                   title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."/>
                         </div>
                     </div>
                 </div>
