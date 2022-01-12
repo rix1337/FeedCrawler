@@ -433,8 +433,9 @@ def app_container():
                 if to_int(interval) < 6:
                     interval = '6'
                 section.save("interval", interval)
+
                 search_depth = to_str(data['f']['search'])
-                if to_int(interval) > 7:
+                if to_int(search_depth) > 7:
                     search_depth = '7'
                 section.save("search", search_depth)
 
