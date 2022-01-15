@@ -14,6 +14,7 @@ from feedcrawler import myjdapi
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
+from feedcrawler.notifiers import notify
 
 
 class Unbuffered(object):
@@ -379,21 +380,44 @@ def readable_time(time):
 
 
 def remove(retailtitel):
-    titles = retail_sub(retailtitel)
-    retail = titles[0]
-    retailyear = titles[1]
-    liste = "List_ContentAll_Movies"
-    cont = ListDb(liste).retrieve()
-    new_cont = []
-    if cont:
-        for line in cont:
-            if line.lower() == retailyear.lower() or line.lower() == retail.lower():
-                line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '',
-                              line.lower())
-            if line:
-                new_cont.append(line)
-    ListDb(liste).store_list(new_cont)
-    internal.logger.debug(retail + " durch Cutoff aus " + liste + " entfernt.")
+    try:
+        titles = retail_sub(retailtitel)
+        retail = titles[0]
+        retailyear = titles[1]
+        liste = "List_ContentAll_Movies"
+        cont = ListDb(liste).retrieve()
+        new_cont = []
+        if cont:
+            for line in cont:
+                if line.lower() == retailyear.lower() or line.lower() == retail.lower():
+                    line = re.sub(r'^(' + re.escape(retailyear.lower()) + '|' + re.escape(retail.lower()) + ')', '',
+                                  line.lower())
+                if line:
+                    new_cont.append(line)
+        ListDb(liste).store_list(new_cont)
+
+        hostnames = CrawlerConfig('Hostnames')
+        fx = hostnames.get('fx')
+        hw = hostnames.get('hw')
+        ff = hostnames.get('ff')
+        ww = hostnames.get('ww')
+        nk = hostnames.get('nk')
+        by = hostnames.get('by')
+
+        fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+        hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+        ff = ff.replace("f", "F", 2)
+        ww = ww.replace("w", "W", 2)
+        nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+        by = by.replace("b", "B", 1)
+        bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
+
+        notification = '[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.'
+        print(notification)
+        internal.logger.debug(notification)
+        notify([notification])
+    except:
+        print('Fehler beim Entfernen des Eintrages für ' + retailtitel + ' aus der Liste "Filme"!')
 
 
 def remove_decrypt(title):
