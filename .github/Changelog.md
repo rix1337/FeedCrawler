@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.10** Benachrichtigung, wenn ein Titel aus der Suchliste für Filme entfernt wurde. Danke @mx-hero
 - **12.2.9** Fix #579 - Danke @jankete
 - **12.2.8** Verhindere das Speichern im Web-Interface, wenn Minima/Maxima gerissen wurden.
 - **12.2.8** Interval und Suchtiefe auf SF/FF sind im Web-Interface konfigurierbar.
