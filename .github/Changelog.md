@@ -10,6 +10,8 @@
 
 ### Changelog FeedCrawler:
 
+- **12.2.11** Löse SJ und DJ Links vor FC und maskierten SF/FF und WW Links im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper).
+- **12.2.11** Bugfix im Speichern des Passwortes
 - **12.2.10** Benachrichtigung, wenn ein Titel aus der Suchliste für Filme entfernt wurde. Danke @mx-hero
 - **12.2.9** Fix #579 - Danke @jankete
 - **12.2.8** Verhindere das Speichern im Web-Interface, wenn Minima/Maxima gerissen wurden.
