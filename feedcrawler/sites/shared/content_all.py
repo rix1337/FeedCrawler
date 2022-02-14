@@ -5,7 +5,7 @@
 import hashlib
 import re
 
-from imdb import IMDb
+from imdb import Cinemagoer as IMDb
 
 from feedcrawler import internal
 from feedcrawler.common import check_is_site

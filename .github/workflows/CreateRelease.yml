@@ -22,7 +22,6 @@ jobs:
         run: |
           pip install wheel
           pip install pyinstaller
-          pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
       - name: Compile Linux wheel
         run: |
@@ -49,7 +48,6 @@ jobs:
         run: |
           pip install wheel
           pip install pyinstaller
-          pip install git+https://github.com/alberanid/imdbpy
           pip install -r requirements.txt
       - name: Compile Windows Exe
         run: |

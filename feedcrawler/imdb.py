@@ -4,7 +4,7 @@
 
 import re
 
-from imdb import IMDb
+from imdb import Cinemagoer as IMDb
 
 from feedcrawler import internal
 from feedcrawler.url import get_url
