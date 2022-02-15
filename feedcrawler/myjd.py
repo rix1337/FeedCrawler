@@ -1169,7 +1169,7 @@ def add_decrypt(title, link, password):
             sf = hostnames.get('sf')
             if fx and fx in link:
                 result = get_url(link)
-                real_link = BeautifulSoup(result, 'lxml').find("input", {"id": "url"})['value']
+                real_link = BeautifulSoup(result, 'html5lib').find("input", {"id": "url"})['value']
                 if real_link:
                     if "https://" not in real_link:
                         real_link = "https://" + real_link

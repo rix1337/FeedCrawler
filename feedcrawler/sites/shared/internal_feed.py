@@ -179,7 +179,7 @@ def by_get_download_links(self, content, title):
     content = []
     links = async_link_results[0]
     for link in links:
-        link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+        link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
         try:
             content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
         except:
@@ -192,7 +192,7 @@ def by_get_download_links(self, content, title):
 
 def by_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('by')
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
     async_results = []
     for post in posts:
@@ -208,7 +208,7 @@ def by_feed_enricher(content):
         for result in results:
             try:
                 content = []
-                details = BeautifulSoup(result, 'lxml').findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
+                details = BeautifulSoup(result, 'html5lib').findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
                 title = details.find("small").text
                 published = details.find("th", {"align": "RIGHT"}).text
                 try:
@@ -241,7 +241,7 @@ def by_feed_enricher(content):
 
 
 def by_search_results(content, base_url):
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     posts = content.findAll("a", href=re.compile("/category/"))
     results = []
     for post in posts:
@@ -258,7 +258,7 @@ def by_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     by = self.hostnames.get('by')
     download_link = get_url(download_link)
-    soup = BeautifulSoup(download_link, 'lxml')
+    soup = BeautifulSoup(download_link, 'html5lib')
     links = soup.find_all("iframe")
     async_link_results = []
     for link in links:
@@ -270,14 +270,14 @@ def by_page_download_link(self, download_link, key):
     url_hosters = []
     for link in links:
         if link:
-            link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+            link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
             if link:
                 url_hosters.append([link["href"], link.text.replace(" ", "")])
     return check_download_links(self, url_hosters)
 
 
 def fx_content_to_soup(content):
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     return content
 
 
@@ -285,9 +285,9 @@ def fx_get_download_links(self, content, title):
     unused_get_feed_parameter(self)
     try:
         try:
-            content = BeautifulSoup(content, 'lxml')
+            content = BeautifulSoup(content, 'html5lib')
         except:
-            content = BeautifulSoup(str(content), 'lxml')
+            content = BeautifulSoup(str(content), 'html5lib')
         try:
             download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
         except:
@@ -299,14 +299,14 @@ def fx_get_download_links(self, content, title):
 
 
 def fx_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'lxml')
+    feed = BeautifulSoup(feed, 'html5lib')
     fx = CrawlerConfig('Hostnames').get('fx')
     articles = feed.findAll("article")
     entries = []
 
     for article in articles:
         try:
-            article = BeautifulSoup(str(article), 'lxml')
+            article = BeautifulSoup(str(article), 'html5lib')
             titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
@@ -354,7 +354,7 @@ def fx_search_results(content):
             results.append(get_url(url))
 
         for result in results:
-            article = BeautifulSoup(str(result), 'lxml')
+            article = BeautifulSoup(str(result), 'html5lib')
             titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
                 try:
@@ -375,9 +375,9 @@ def fx_search_results(content):
 def hw_get_download_links(self, content, title):
     try:
         try:
-            content = BeautifulSoup(content, 'lxml')
+            content = BeautifulSoup(content, 'html5lib')
         except:
-            content = BeautifulSoup(str(content), 'lxml')
+            content = BeautifulSoup(str(content), 'html5lib')
         download_links = content.findAll("a", href=re.compile('filecrypt'))
     except:
         return False
@@ -390,7 +390,7 @@ def hw_get_download_links(self, content, title):
 
 
 def hw_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'lxml')
+    feed = BeautifulSoup(feed, 'html5lib')
     articles = feed.findAll("article")
     entries = []
 
@@ -418,7 +418,7 @@ def hw_feed_enricher(feed):
 
 
 def hw_search_results(content):
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     posts = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
     results = []
     for post in posts:
@@ -436,9 +436,9 @@ def ff_get_download_links(self, content, title):
     unused_get_feed_parameter(title)
     try:
         try:
-            content = BeautifulSoup(content, 'lxml')
+            content = BeautifulSoup(content, 'html5lib')
         except:
-            content = BeautifulSoup(str(content), 'lxml')
+            content = BeautifulSoup(str(content), 'html5lib')
         links = content.findAll("div", {'class': 'row'})[1].findAll('a')
         download_link = False
         for link in links:
@@ -456,20 +456,20 @@ def ff_feed_enricher(releases):
     if releases:
         try:
             base_url = CrawlerConfig('Hostnames').get('ff')
-            page = BeautifulSoup(releases, 'lxml')
+            page = BeautifulSoup(releases, 'html5lib')
             day = page.find("li", {"class": "active"}).find("a")["href"].replace("/updates/", "").replace("#list", "")
             movies = page.findAll("div", {"class": "sra"}, style=re.compile("order"))
 
             for movie in movies:
                 movie_url = "https://" + base_url + movie.find("a")["href"]
-                details = BeautifulSoup(get_url(movie_url), 'lxml')
+                details = BeautifulSoup(get_url(movie_url), 'html5lib')
                 api_secret = re.sub(r"[\n\t\s]*", "",
                                     str(details.find("script", text=re.compile(".*initMovie.*"))).strip()).replace(
                     "<script>initMovie(\'", "").replace("\',\'\',\'ALL\');</script>", "")
                 epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
                 api_url = "https://" + base_url + '/api/v1/' + api_secret + '?lang=ALL&_=' + epoch
                 response = get_url(api_url)
-                info = BeautifulSoup(json.loads(response)["html"], 'lxml')
+                info = BeautifulSoup(json.loads(response)["html"], 'html5lib')
 
                 releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
                 for release in releases:
@@ -512,7 +512,7 @@ def ff_feed_enricher(releases):
 
 def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
     for post in posts:
@@ -527,7 +527,7 @@ def nk_feed_enricher(content):
         for result in async_results:
             try:
                 content = []
-                details = BeautifulSoup(result, 'lxml').find("div", {"class": "article"})
+                details = BeautifulSoup(result, 'html5lib').find("div", {"class": "article"})
                 title = details.find("span", {"class": "subtitle"}).text
                 published = details.find("p", {"class": "meta"}).text
                 content.append("mkv ")
@@ -556,7 +556,7 @@ def nk_feed_enricher(content):
 
 
 def nk_search_results(content, base_url):
-    content = BeautifulSoup(content, 'lxml')
+    content = BeautifulSoup(content, 'html5lib')
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     results = []
     for post in posts:
@@ -573,12 +573,67 @@ def nk_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     nk = self.hostnames.get('nk')
     download_link = get_url(download_link)
-    soup = BeautifulSoup(download_link, 'lxml')
+    soup = BeautifulSoup(download_link, 'html5lib')
     url_hosters = []
     hosters = soup.find_all("a", href=re.compile("/go/"))
     for hoster in hosters:
         url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
     return check_download_links(self, url_hosters)
+
+
+def pl_get_download_links(self, content, title):
+    unused_get_feed_parameter(self)
+    try:
+        try:
+            content = BeautifulSoup(content, 'html5lib')
+        except:
+            content = BeautifulSoup(str(content), 'html5lib')
+        try:
+            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
+        except:
+            pl = CrawlerConfig('Hostnames').get('pl')
+            download_links = re.findall(re.compile('"(.+?(?:filecrypt|safe.' + pl + ').+?)"'), str(content))
+    except:
+        return False
+    return download_links
+
+
+def pl_feed_enricher(feed):
+    feed = BeautifulSoup(feed, 'html5lib')
+    pl = CrawlerConfig('Hostnames').get('pl')
+    articles = feed.findAll("tr")
+    entries = []
+
+    for article in articles:
+        try:
+            article = BeautifulSoup(str(article), 'html5lib')
+            details = article.find("a", href=re.compile(r".*/details/.*"))
+            title = details.text.strip().replace(" ", ".")
+            published = article.find("span").get("title")
+
+            try:
+                xrel = article.find("a", href=re.compile(r".*xrel\.to.*")).get("href")
+                xrel_data = BeautifulSoup(get_url(xrel), 'html5lib')
+                imdb_link = xrel_data.find("area", title=re.compile(r".*imdb\.com.*")).get("title").strip()
+                imdb_data = '<a href="' + imdb_link + '" 9.9</a>'
+            except:
+                imdb_data = ""
+
+            entries.append(FakeFeedParserDict({
+                "title": title,
+                "published": published,
+                "content": [
+                    FakeFeedParserDict({
+                        "value": str(article) + imdb_data + " mkv"
+                    })]
+            }))
+        except:
+            print(u"PL hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
 
 
 def ww_post_url_headers(url, headers=False):
@@ -614,7 +669,7 @@ def ww_get_download_links(self, content, title):
                     u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
                 internal.ww_blocked = True
             return False
-        links = BeautifulSoup(response, 'lxml').findAll("div", {"id": "download-links"})
+        links = BeautifulSoup(response, 'html5lib').findAll("div", {"id": "download-links"})
         for link in links:
             hoster = link.text
             if 'Direct Download 100 MBit/s' not in hoster:
@@ -631,9 +686,9 @@ def ww_get_download_links(self, content, title):
 def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     try:
-        content = BeautifulSoup(content, 'lxml')
+        content = BeautifulSoup(content, 'html5lib')
     except:
-        content = BeautifulSoup(content["text"], 'lxml')
+        content = BeautifulSoup(content["text"], 'html5lib')
     posts = content.findAll("li")
     entries = []
     if posts:
@@ -735,7 +790,7 @@ def j_parse_download(self, series_url, title, language_id):
 
 
 def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
-    content = BeautifulSoup(releases, 'lxml')
+    content = BeautifulSoup(releases, 'html5lib')
     releases = content.findAll("div", {"class": "row"}, style=re.compile("order"))
     entries = []
 
@@ -816,7 +871,7 @@ def sf_parse_download(self, series_url, title, language_id):
             if multiple_episodes:
                 season_title = season_title.replace(multiple_episodes[0], '.*')
 
-        content = BeautifulSoup(info['html'], 'lxml')
+        content = BeautifulSoup(info['html'], 'html5lib')
         releases = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
         links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
         download_link = False

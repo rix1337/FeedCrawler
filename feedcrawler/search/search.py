@@ -160,7 +160,7 @@ def get(title, bl_only=False, sj_only=False):
             sj_query = sanitize(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
-                sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
+                sj_results = BeautifulSoup(sj_search, 'html5lib').findAll("a", href=re.compile("/serie"))
             except:
                 sj_results = []
         else:

@@ -54,7 +54,7 @@ def update_check():
     localversion = get_version()
     try:
         latest = urlopen('https://github.com/rix1337/FeedCrawler/releases/latest').read()
-        latest_title = BeautifulSoup(latest, 'lxml').find("title").text
+        latest_title = BeautifulSoup(latest, 'html5lib').find("title").text
         onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title).group()
         if StrictVersion(localversion) < StrictVersion(onlineversion):
             update = True

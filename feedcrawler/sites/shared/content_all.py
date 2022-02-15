@@ -162,12 +162,17 @@ def search_imdb(self, desired_rating, feed):
                     imdb_id = clean_imdb_id(post_imdb[0])
                     imdb_data = IMDb().get_movie(imdb_id)
                 else:
-                    search_title = \
-                        re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", post.title)[
-                            0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
-                            "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                    ia = IMDb()
-                    results = ia.search_movie(search_title)
+                    try:
+                        search_title = \
+                            re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
+                                       post.title)[
+                                0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue",
+                                                                                                     u"ü").replace(
+                                "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
+                        ia = IMDb()
+                        results = ia.search_movie(search_title)
+                    except:
+                        results = False
                     if not results:
                         internal.logger.debug(
                             "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)

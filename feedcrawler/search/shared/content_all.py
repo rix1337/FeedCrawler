@@ -108,7 +108,7 @@ def download(payload):
         if not url or "NinjaFirewall 429" in url:
             return False
         download_method = myjd_download
-        soup = BeautifulSoup(url, 'lxml')
+        soup = BeautifulSoup(url, 'html5lib')
 
         if "BY" in site:
             key = soup.find("small").text
@@ -123,7 +123,7 @@ def download(payload):
             url_hosters = []
             for link in links:
                 if link:
-                    link = BeautifulSoup(link, 'lxml').find("a", href=re.compile("/go\.php\?"))
+                    link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "NK" in site:

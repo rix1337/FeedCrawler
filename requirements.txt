@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-beautifulsoup4>=4.9.3
-cinemagoer>=2022.2.11
-docopt>=0.6.2
-flask>=2.0.0
-lxml>=4.6.3
-passlib>=1.7.4
-pycryptodomex>=3.10.1
-python-dateutil>=2.0.0
-rapidfuzz>=1.5.0
-requests>=2.0.0
-simplejson>=3.0.0
-waitress>=2.0.0
+beautifulsoup4==4.10.0
+cinemagoer==2022.2.11
+docopt==0.6.2
+flask==2.0.3
+html5lib==1.1
+passlib==1.7.4
+pycryptodomex==3.14.1
+python-dateutil==2.8.2
+rapidfuzz==2.0.2
+requests==2.27.1
+simplejson==3.17.6
+waitress==2.0.0
