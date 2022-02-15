@@ -30,6 +30,7 @@ class CrawlerConfig(object):
         'Hostnames': [
             ("sj", "str", ""),
             ("dj", "str", ""),
+            ("sf", "str", ""),
             ("by", "str", ""),
             ("fx", "str", ""),
             ("hw", "str", ""),

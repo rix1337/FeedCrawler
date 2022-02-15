@@ -11,7 +11,7 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "12.3.0"
+    return "12.3.1"
 
 
 def create_version_file():

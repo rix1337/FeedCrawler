@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul startet den FeedCrawler.
 
 import multiprocessing
 

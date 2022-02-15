@@ -10,6 +10,9 @@
 
 ### Changelog FeedCrawler:
 
+- **12.3.1** PL-Seitenstatus in Webinterface integriert
+- **12.3.1** Prototypischer Aufbau der notwendigen Ergebnisse der Feedsuchen dokumentiert.
+- **12.3.0** Verwende html5lib statt lxml in BeautifulSoup
 - **12.3.0** PL-Feedsuche integriert
 - **12.3.0** Modulstruktur überarbeitet und Zweck der Einzelmodule dokumentiert.
 
