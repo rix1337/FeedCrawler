@@ -3,9 +3,9 @@
 # Projekt von https://github.com/rix1337
 
 beautifulsoup4>=4.9.3
+cinemagoer>=2022.2.11
 docopt>=0.6.2
 flask>=2.0.0
-imdbpy>=2021.9.9
 lxml>=4.6.3
 passlib>=1.7.4
 pycryptodomex>=3.10.1

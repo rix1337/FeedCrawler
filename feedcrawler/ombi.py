@@ -5,7 +5,7 @@
 import json
 
 import requests
-from imdb import IMDb
+from imdb import Cinemagoer as IMDb
 
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
