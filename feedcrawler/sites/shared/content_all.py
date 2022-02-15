@@ -367,7 +367,7 @@ def download_hevc(self, title):
         if feedsearch_title in key:
             payload = result[1].split("|")
             link = payload[0]
-            password = payload[1]
+            password = payload[2]
 
             link_grabbed = False
 
@@ -512,7 +512,7 @@ def download_dual_language(self, title, hevc=False):
         if feedsearch_title in key:
             payload = result[1].split("|")
             link = payload[0]
-            password = payload[1]
+            password = payload[2]
 
             site = check_is_site(link)
             if not site:

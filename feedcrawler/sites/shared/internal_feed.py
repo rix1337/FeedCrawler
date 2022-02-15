@@ -69,6 +69,7 @@ def get_search_results(self, bl_query):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     fx = hostnames.get('fx')
+    hw = hostnames.get('hw')
     nk = hostnames.get('nk')
 
     search_results = []
@@ -89,18 +90,25 @@ def get_search_results(self, bl_query):
         fx_search = 'https://' + fx + '/?s=' + bl_query
     else:
         fx_search = None
+    if hw:
+        hw_search = 'https://' + hw + '/?s=' + bl_query
+    else:
+        hw_search = None
 
-    async_results = get_urls_async([by_search, fx_search])
+    async_results = get_urls_async([by_search, fx_search, hw_search])
     async_results = async_results[0]
 
     by_results = []
     fx_results = []
+    hw_results = []
 
     for res in async_results:
         if check_is_site(res) == 'BY':
             by_results = by_search_results(res, by)
         elif check_is_site(res) == 'FX':
             fx_results = fx_search_results(fx_content_to_soup(res))
+        elif check_is_site(res) == 'HW':
+            hw_results = hw_search_results(res)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
@@ -109,7 +117,7 @@ def get_search_results(self, bl_query):
     else:
         nk_results = []
 
-    password = by
+    password = by.split('.')[0]
     for result in by_results:
         if "480p" in quality:
             if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -120,6 +128,7 @@ def get_search_results(self, bl_query):
         if "xxx" not in result[0].lower():
             search_results.append([result[0], result[1] + "|" + password])
 
+    password = fx.split('.')[0]
     for result in fx_results:
         if "480p" in quality:
             if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -127,10 +136,20 @@ def get_search_results(self, bl_query):
                     result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                 0].lower() or "complete.uhd.bluray" in result[0].lower():
                 continue
-        if "-low" not in result[0].lower():
-            search_results.append([result[0], result[1]])
+        search_results.append([result[0], result[1] + "|" + password])
 
-        password = nk.split('.')[0].capitalize()
+    password = hw.split('.')[0]
+    for result in hw_results:
+        if "480p" in quality:
+            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
+                0].lower() or "2160p" in \
+                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
+                0].lower() or "complete.uhd.bluray" in result[0].lower():
+                continue
+        if "xxx" not in result[0].lower():
+            search_results.append([result[0], result[1] + "|" + password])
+
+    password = nk.split('.')[0].capitalize()
     for result in nk_results:
         if "480p" in quality:
             if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[

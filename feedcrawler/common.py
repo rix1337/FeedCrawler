@@ -270,8 +270,8 @@ def get_to_decrypt():
             sf = hostnames.get('sf')
             ww = hostnames.get('ww')
 
-            easy_to_decrypt = [sj, dj]
-            hard_to_decrypt = [fx, ff, sf, ww]
+            easy_to_decrypt = list(filter(None, [sj, dj]))
+            hard_to_decrypt = list(filter(None, [fx, ff, sf, ww]))
 
             packages = []
 
