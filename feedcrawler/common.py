@@ -8,6 +8,7 @@ import os
 import re
 import socket
 import sys
+from urllib.parse import urlparse
 
 from feedcrawler import internal
 from feedcrawler import myjdapi
@@ -261,54 +262,48 @@ def get_to_decrypt():
     try:
         to_decrypt = FeedDb('to_decrypt').retrieve_all_titles_unordered()
         if to_decrypt:
-            easy_decrypt_exists = False
             hostnames = CrawlerConfig('Hostnames')
+            sj = hostnames.get('sj')
+            dj = hostnames.get('dj')
             fx = hostnames.get('fx')
             ff = hostnames.get('ff')
             sf = hostnames.get('sf')
             ww = hostnames.get('ww')
+
+            easy_to_decrypt = [sj, dj]
             hard_to_decrypt = [fx, ff, sf, ww]
 
-            for package in to_decrypt:
-                if not any(package[1] in htd for htd in hard_to_decrypt):
-                    easy_decrypt_exists = True
-
             packages = []
-            for package in to_decrypt:
-                if easy_decrypt_exists and any(package[1] in htd for htd in hard_to_decrypt):
-                    continue
-                title = package[0]
+
+            def append_package(packages_to_append_to, package_to_append):
+                title = package_to_append[0]
                 try:
-                    details = package[1].split('|')
+                    details = package_to_append[1].split('|')
                     url = details[0]
                     password = details[1]
                 except:
-                    url = package[1]
+                    url = package_to_append[1]
                     password = ""
 
-                url = url.replace("https://safe." + fx, "http://safe." + fx)
-
-                packages.append({
+                packages_to_append_to.append({
                     'name': title,
                     'url': url,
                     'password': password
                 })
+                return packages_to_append_to
 
             for package in to_decrypt:
-                if easy_decrypt_exists and any(package[1] in htd for htd in hard_to_decrypt):
-                    title = package[0]
-                    try:
-                        details = package[1].split('|')
-                        url = details[0]
-                        password = details[1]
-                    except:
-                        url = package[1]
-                        password = ""
-                    packages.append({
-                        'name': title,
-                        'url': url,
-                        'password': password
-                    })
+                if any(urlparse(package[1]).netloc in td for td in easy_to_decrypt):
+                    packages = append_package(packages, package)
+
+            for package in to_decrypt:
+                if not any(urlparse(package[1]).netloc in td for td in easy_to_decrypt) and not any(
+                        urlparse(package[1]).netloc in td for td in hard_to_decrypt):
+                    packages = append_package(packages, package)
+
+            for package in to_decrypt:
+                if any(urlparse(package[1]).netloc in td for td in hard_to_decrypt):
+                    packages = append_package(packages, package)
 
             return packages
         else:
