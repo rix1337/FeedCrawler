@@ -583,24 +583,34 @@ def nk_page_download_link(self, download_link, key):
 
 def pl_get_download_links(self, content, title):
     unused_get_feed_parameter(self)
+    pl = CrawlerConfig('Hostnames').get('pl')
     try:
-        try:
-            content = BeautifulSoup(content, 'html5lib')
-        except:
-            content = BeautifulSoup(str(content), 'html5lib')
-        try:
-            download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
-        except:
-            pl = CrawlerConfig('Hostnames').get('pl')
-            download_links = re.findall(re.compile('"(.+?(?:filecrypt|safe.' + pl + ').+?)"'), str(content))
+        content = BeautifulSoup(content, 'html5lib')
+        download_page = "https://" + pl + content.find("a", href=re.compile(r".*/details/.*")).get("href")
+        soup = BeautifulSoup(get_url(download_page), 'html5lib')
+        secret = soup.find("select", {"id": "hosterSelect"}).parent.find("button").get("onclick")
+        cnl_id = re.findall(r"'(.*?)'", secret)[0]
+
+        if check_hoster("ddl"):
+            hoster = "ddl"
+        elif check_hoster("rapidgator"):
+            hoster = "rg"
+        else:
+            hoster = "ddl"
+
+        decrypter = "https://" + pl + "/cnl/" + cnl_id + "?h=" + hoster
+        download_payload = json.loads(get_url(decrypter))
+        download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
     except:
-        return False
+        print(u"PL hat den Link-Abruf angepasst. Download-Link für " + title + " konnte nicht entschlüsselt werden.")
+        download_links = []
+        pass
+
     return download_links
 
 
 def pl_feed_enricher(feed):
     feed = BeautifulSoup(feed, 'html5lib')
-    pl = CrawlerConfig('Hostnames').get('pl')
     articles = feed.findAll("tr")
     entries = []
 

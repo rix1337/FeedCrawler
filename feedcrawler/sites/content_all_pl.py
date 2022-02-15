@@ -6,7 +6,7 @@
 import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.myjd import myjd_download
 from feedcrawler.sites.shared.internal_feed import pl_feed_enricher
 from feedcrawler.sites.shared.internal_feed import pl_get_download_links
 from feedcrawler.url import get_url
@@ -21,9 +21,10 @@ class BL:
         self.hostnames = CrawlerConfig('Hostnames')
         self.url = self.hostnames.get('pl')
         self.password = self.url.split('-')[0]
-
-        # ToDo make this work for shows /series
-        self.URL = 'https://' + self.url + "/category/movies"
+        if filename == "List_ContentAll_Seasons":
+            self.URL = 'https://' + self.url + "/category/series"
+        else:
+            self.URL = 'https://' + self.url + "/category/movies"
         self.FEED_URLS = [self.URL]
         self.config = CrawlerConfig("ContentAll")
         self.feedcrawler = CrawlerConfig("FeedCrawler")
@@ -64,7 +65,7 @@ class BL:
         self.get_url_method = get_url
         self.get_url_headers_method = get_url_headers
         self.get_download_links_method = pl_get_download_links
-        self.download_method = add_decrypt_instead_of_download
+        self.download_method = myjd_download
 
         try:
             self.imdb = float(self.config.get('imdb'))
