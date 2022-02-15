@@ -2,6 +2,77 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 # Dieses Modul abstrahiert die Feeds aller integrierten Seiten mit Helfer-Funktionen zu einer standardisierten Struktur.
+#
+#
+# Für die self.get_feed_method von "content_all"-Modulen muss der resultierende FakeFeed wie folgt aufgebaut sein:
+#
+# feed = {
+#     'entries': [
+#         {
+#             'title': 'Release.1.Title-Group',
+#             'published': '15.02.2022 / 15:31 Uhr',
+#             'content': [
+#                 {
+#                     'value': """HTML-Inhalt der entweder direkt Download-Links (inklusive Hoster-Bezeichnung)
+#                                 enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
+#                                 sind.
+#                                 Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
+#                                 zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feedsuche den Link
+#                                 erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
+#                                 Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
+#                 }
+#             ]
+#         },
+#         {
+#             'title': 'Release.2.Title-Group',
+#             'published': '01.01.2000 / 00:10 Uhr',
+#             'content': [
+#                 {
+#                     'value': """HTML-Inhalt der entweder direkt Download-Links (inklusive Hoster-Bezeichnung)
+#                                     enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
+#                                     sind.
+#                                     Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
+#                                     zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feedsuche den Link
+#                                     erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
+#                                     Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
+#                 }
+#             ]
+#         }
+#     ]
+# }
+#
+# Die self.get_download_links_method von "content_all"-Modulen muss folgende Parameter als Liste zurückgeben:
+# download_links = Liste von Strings, Download-Links zum Release
+#
+# Hauptaufgabe der self.get_download_links_method ist demnach, die "download_links" aus dem "value" des Feed-"entries"
+# eines Releases (nach Hoster-Auswahl in den Einstellungen) zu finden.
+#
+#
+# Für die self.get_feed_method von "content_shows"-Modulen muss der resultierende FakeFeed wie folgt aufgebaut sein:
+#
+# feed = {
+#     'entries': [
+#         {
+#             'title': 'Release.1.Title-Group',
+#             'series_url': 'https://link.zu/website_mit_download_links_des_ersten_releases',
+#             'published': '2000-01-30T00:00:00.999Z'},
+#         {
+#             'title': 'Release.2.Title-Group',
+#             'series_url': 'https://link.zu/website_mit_download_links_des_zweiten_releases',
+#             'published': '2000-01-30T00:10:00.999Z'}
+#     ]
+# }
+#
+# Die self.parse_download_method von "content_shows"-Modulen muss folgende Parameter als Liste zurückgeben:
+# title, download_link, language_id, season, episode
+# title = String, Der Titel des Releases
+# download_link = String, Ein Download-Link zum Release
+# language_id = Integer, Die Sprach-ID des Releases (1=Deutsch, 2=Englisch, 0=Sonstige) - Im Zweifel 1
+# season = Integer, Die Staffel des Releases - False, wenn unbekannt
+# episode = Integer, Die Episode des Releases - False, wenn unbekannt
+#
+# Hauptaufgabe der self.parse_download_method ist demnach, die "series_url" aus dem Feed zu durchsuchen und den
+# ersten passenden Download-Link (nach Hoster-Auswahl in den Einstellungen) zu finden.
 
 import datetime
 import json
