@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul durchsucht die Feeds aller Seiten des Typs content_all auf Basis einer standardisierten Struktur.
 
 import hashlib
 import re
@@ -161,12 +162,17 @@ def search_imdb(self, desired_rating, feed):
                     imdb_id = clean_imdb_id(post_imdb[0])
                     imdb_data = IMDb().get_movie(imdb_id)
                 else:
-                    search_title = \
-                        re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", post.title)[
-                            0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue", u"ü").replace(
-                            "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                    ia = IMDb()
-                    results = ia.search_movie(search_title)
+                    try:
+                        search_title = \
+                            re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
+                                       post.title)[
+                                0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue",
+                                                                                                     u"ü").replace(
+                                "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
+                        ia = IMDb()
+                        results = ia.search_movie(search_title)
+                    except:
+                        results = False
                     if not results:
                         internal.logger.debug(
                             "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)
@@ -367,7 +373,7 @@ def download_hevc(self, title):
         if feedsearch_title in key:
             payload = result[1].split("|")
             link = payload[0]
-            password = payload[1]
+            password = payload[2]
 
             link_grabbed = False
 
@@ -512,7 +518,7 @@ def download_dual_language(self, title, hevc=False):
         if feedsearch_title in key:
             payload = result[1].split("|")
             link = payload[0]
-            password = payload[1]
+            password = payload[2]
 
             site = check_is_site(link)
             if not site:

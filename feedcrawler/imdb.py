@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt allen anderen Modulen den Abruf von IMDb-Daten bereit.
 
 import re
 

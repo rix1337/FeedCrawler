@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt die Web-Suche für alle integrierten Hostnamen bereit.
 
 import re
 
@@ -98,7 +99,7 @@ def get(title, bl_only=False, sj_only=False):
         else:
             nk_results = []
 
-        password = by
+        password = by.split('.')[0]
         for result in by_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
@@ -118,9 +119,7 @@ def get(title, bl_only=False, sj_only=False):
                         result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                     0].lower() or "complete.uhd.bluray" in result[0].lower():
                     continue
-            if "-low" not in result[0].lower():
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
+            unrated.append([rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (FX)"])
 
         password = hw.split('.')[0]
         for result in hw_results:
@@ -161,7 +160,7 @@ def get(title, bl_only=False, sj_only=False):
             sj_query = sanitize(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
-                sj_results = BeautifulSoup(sj_search, 'lxml').findAll("a", href=re.compile("/serie"))
+                sj_results = BeautifulSoup(sj_search, 'html5lib').findAll("a", href=re.compile("/serie"))
             except:
                 sj_results = []
         else:

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt Funktionen zur Verfügung, die in vielen Modulen benötigt werden.
 
 import base64
 import datetime
@@ -66,6 +67,7 @@ def check_is_site(string):
     hw = hostnames.get('hw')
     ff = hostnames.get('ff')
     nk = hostnames.get('nk')
+    pl = hostnames.get('pl')
     ww = hostnames.get('ww')
 
     if sj and sj.split('.')[0] in string:
@@ -84,6 +86,8 @@ def check_is_site(string):
         return "FF"
     elif nk and nk.split('.')[0] in string:
         return "NK"
+    elif pl and pl.split('.')[0] in string:
+        return "PL"
     elif ww and ww.split('.')[0] in string:
         return "WW"
     else:
@@ -270,8 +274,8 @@ def get_to_decrypt():
             sf = hostnames.get('sf')
             ww = hostnames.get('ww')
 
-            easy_to_decrypt = [sj, dj]
-            hard_to_decrypt = [fx, ff, sf, ww]
+            easy_to_decrypt = list(filter(None, [sj, dj]))
+            hard_to_decrypt = list(filter(None, [fx, ff, sf, ww]))
 
             packages = []
 

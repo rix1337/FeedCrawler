@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul integriert die API von Ombi in die Feedsuche des FeedCrawlers.
 
 import json
 

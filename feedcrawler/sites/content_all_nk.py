@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf NK bereit.
 
 import feedcrawler.sites.shared.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig

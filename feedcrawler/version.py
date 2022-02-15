@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt notwendige Funktionen zur aktuellen Version und Update-Prüfung des FeedCrawlers bereit.
 
 import re
 from distutils.version import StrictVersion
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "12.2.11"
+    return "12.3.0"
 
 
 def create_version_file():
@@ -53,7 +54,7 @@ def update_check():
     localversion = get_version()
     try:
         latest = urlopen('https://github.com/rix1337/FeedCrawler/releases/latest').read()
-        latest_title = BeautifulSoup(latest, 'lxml').find("title").text
+        latest_title = BeautifulSoup(latest, 'html5lib').find("title").text
         onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title).group()
         if StrictVersion(localversion) < StrictVersion(onlineversion):
             update = True

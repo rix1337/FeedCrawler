@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt die Konfiguration für den FeedCrawler bereit.
 
 import configparser
 
@@ -29,12 +30,12 @@ class CrawlerConfig(object):
         'Hostnames': [
             ("sj", "str", ""),
             ("dj", "str", ""),
-            ("sf", "str", ""),
             ("by", "str", ""),
             ("fx", "str", ""),
             ("hw", "str", ""),
             ("ff", "str", ""),
             ("nk", "str", ""),
+            ("pl", "str", ""),
             ("ww", "str", "")
         ],
         'Crawljobs': [
