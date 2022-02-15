@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt alle globalen Parameter für die verschiedenen parallel laufenden Threads bereit.
 
 import logging
 import os

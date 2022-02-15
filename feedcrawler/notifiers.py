@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Enthält Code von:
-# https://github.com/Gutz-Pilz/pyLoad-stuff/blob/master/SJ.py
+# Dieses Modul stellt verschiedene Möglichkeiten zum Versand von Benachrichtigungen bereit.
 
 from urllib.error import HTTPError
 from urllib.parse import urlencode

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf DJ bereit.
 
 import feedcrawler.sites.shared.content_shows as shared_shows
 from feedcrawler.config import CrawlerConfig

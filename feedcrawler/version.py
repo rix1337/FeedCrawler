@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt notwendige Funktionen zur aktuellen Version und Update-Prüfung des FeedCrawlers bereit.
 
 import re
 from distutils.version import StrictVersion
@@ -10,7 +11,7 @@ from bs4 import BeautifulSoup
 
 
 def get_version():
-    return "12.2.11"
+    return "12.3.0"
 
 
 def create_version_file():

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul sorgt durch Caching dafür, dass der selbe Request nur einmal pro Suchlauf an den Server geht.
+# Dieses Modul integriert weiterhin, wo immer notwendig, den FlareSolverr, um Cloudflare-Blockaden zu umgehen.
 
 import codecs
 import functools

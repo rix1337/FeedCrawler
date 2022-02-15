@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt alle Funktionen der MyJDAPI in der vom FeedCrawler benötigten Form bereit.
 
 import re
 import time

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt den Webserver und sämtliche APIs des FeedCrawlers bereit.
 
 import ast
 import json
@@ -1686,3 +1687,8 @@ def start():
               ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
 
     app_container()
+
+
+def web_server(global_variables):
+    internal.set_globals(global_variables)
+    start()

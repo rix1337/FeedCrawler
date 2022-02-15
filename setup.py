@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul baut die aktuelle Version des FeedCrawlers.
 
 import setuptools
 
@@ -37,7 +38,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'feedcrawler = feedcrawler.crawler:main',
+            'feedcrawler = feedcrawler.main:main',
         ],
     },
 )

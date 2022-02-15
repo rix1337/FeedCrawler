@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt alle Funktionen für die Prüfung und Interaktion mit URLs zur Verfügung.
 
 import concurrent.futures
 import datetime
@@ -8,8 +9,8 @@ import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.flaresolverr import get_flaresolverr_url
-from feedcrawler.flaresolverr import request
+from feedcrawler.request_handler import get_flaresolverr_url
+from feedcrawler.request_handler import request
 
 
 def check_url(start_time):
@@ -77,7 +78,7 @@ def check_url(start_time):
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["SJ", "DJ", "BY", "FX", "HW"]:
+        if site in ["SJ", "DJ", "BY", "FX", "HW", "PL"]:
             status = request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True

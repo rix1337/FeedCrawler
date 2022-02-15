@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul abstrahiert die Feeds aller integrierten Seiten mit Helfer-Funktionen zu einer standardisierten Struktur.
 
 import datetime
 import json

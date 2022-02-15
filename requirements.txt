@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-
 beautifulsoup4>=4.9.3
 cinemagoer>=2022.2.11
 docopt>=0.6.2

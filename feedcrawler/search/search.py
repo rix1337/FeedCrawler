@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
+# Dieses Modul stellt die Web-Suche für alle integrierten Hostnamen bereit.
 
 import re
 
