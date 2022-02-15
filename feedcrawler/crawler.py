@@ -8,7 +8,6 @@ import sys
 import time
 import traceback
 
-from docopt import docopt
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
@@ -24,6 +23,7 @@ from feedcrawler.sites.content_all_ff import BL as FF
 from feedcrawler.sites.content_all_fx import BL as FX
 from feedcrawler.sites.content_all_hw import BL as HW
 from feedcrawler.sites.content_all_nk import BL as NK
+from feedcrawler.sites.content_all_pl import BL as PL
 from feedcrawler.sites.content_all_ww import BL as WW
 from feedcrawler.sites.content_shows_dj import DJ
 from feedcrawler.sites.content_shows_sf import SF
@@ -37,6 +37,10 @@ def search_pool():
         FX(filename='List_ContentAll_Movies'),
         FX(filename='List_ContentAll_Movies_Regex'),
         FX(filename='List_ContentAll_Seasons'),
+        PL(filename='IMDB'),
+        PL(filename='List_ContentAll_Movies'),
+        PL(filename='List_ContentAll_Movies_Regex'),
+        PL(filename='List_ContentAll_Seasons'),
         HW(filename='IMDB'),
         HW(filename='List_ContentAll_Movies'),
         HW(filename='List_ContentAll_Movies_Regex'),
@@ -70,7 +74,7 @@ def search_pool():
     ]
 
 
-def crawler(global_variables):
+def crawler(global_variables, remove_f_time, test_run):
     internal.set_globals(global_variables)
 
     sys.stdout = Unbuffered(sys.stdout)
@@ -86,9 +90,7 @@ def crawler(global_variables):
     except:
         pass
 
-    arguments = docopt(__doc__, version='FeedCrawler')
-
-    if arguments['--remove-f_time']:
+    if remove_f_time:
         logger.debug(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
         print(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
         FeedDb('crawltimes').delete("last_f_run")
@@ -169,7 +171,7 @@ def crawler(global_variables):
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
 
-            if arguments['--test_run']:
+            if test_run:
                 logger.debug(u"-----------test_run beendet!-----------")
                 print(u"-----------test_run beendet!-----------")
                 return

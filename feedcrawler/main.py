@@ -3,8 +3,8 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul initialisiert die globalen Parameter und starte alle parallel laufenden Threads des FeedCrawlers.
 
-"""FeedCrawler.
-
+"""
+FeedCrawler.
 Usage:
   main.py [--config="<CFGPFAD>"]
                 [--test_run]
@@ -85,11 +85,11 @@ def main():
     hostnames = CrawlerConfig('Hostnames')
 
     def clean_up_hostname(host, string):
-        if '/' in string:
+        if string and '/' in string:
             string = string.replace('https://', '').replace('http://', '')
             string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
             hostnames.save(host, string)
-        if re.match(r'.*[A-Z].*', string):
+        if string and re.match(r'.*[A-Z].*', string):
             hostnames.save(host, string.lower())
         if string:
             print(u'Hostname für ' + host.upper() + ": " + string)
@@ -174,7 +174,8 @@ def main():
     p.start()
 
     if not arguments['--test_run']:
-        c = multiprocessing.Process(target=crawler, args=(global_variables,))
+        c = multiprocessing.Process(target=crawler,
+                                    args=(global_variables, arguments['--remove-f_time'], False,))
         c.start()
 
         w = multiprocessing.Process(target=crawldog, args=(global_variables,))
@@ -198,7 +199,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(global_variables)
+        crawler(global_variables, arguments['--remove-f_time'], True)
         p.terminate()
         sys.exit(0)
 
