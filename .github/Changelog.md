@@ -10,6 +10,8 @@
 
 ### Changelog FeedCrawler:
 
+- **12.3.2** Bugfix in Passwortweitergabe der HEVC/DL-Suche
+- **12.3.2** Bugfix im Zerstören von Flaresolverr-Sessions
 - **12.3.1** PL-Seitenstatus in Webinterface integriert
 - **12.3.1** Prototypischer Aufbau der notwendigen Ergebnisse der Feedsuchen dokumentiert.
 - **12.3.0** Verwende html5lib statt lxml in BeautifulSoup

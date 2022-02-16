@@ -41,7 +41,7 @@
 #     ]
 # }
 #
-# Die self.get_download_links_method von "content_all"-Modulen muss folgende Parameter als Liste zurückgeben:
+# Die self.get_download_links_method von "content_all"-Modulen muss folgende Parameter zurückgeben:
 # download_links = Liste von Strings, Download-Links zum Release
 #
 # Hauptaufgabe der self.get_download_links_method ist demnach, die "download_links" aus dem "value" des Feed-"entries"
@@ -437,7 +437,7 @@ def fx_search_results(content):
                                 title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
                             except:
                                 continue
-                        items.append([title, link + "|" + title])
+                        items.append([title, link])
                 except:
                     pass
     return items
