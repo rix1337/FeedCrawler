@@ -70,6 +70,8 @@ def check_is_site(string):
     pl = hostnames.get('pl')
     ww = hostnames.get('ww')
 
+    string = string.lower()
+
     if sj and sj.split('.')[0] in string:
         return "SJ"
     elif dj and dj.split('.')[0] in string:

@@ -533,7 +533,7 @@ def app_container():
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, pl, nk, by])))
+                bl = ' / '.join(list(filter(None, [fx, pl, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 f = ' / '.join(list(filter(None, [ff, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
