@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul durchsucht die Web-Suchen vieler Seiten des Typs content_all auf Basis einer standardisierten Struktur.
 
+import json
 import re
 
 from bs4 import BeautifulSoup
@@ -95,6 +96,7 @@ def download(payload):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     nk = hostnames.get('nk')
+    pl = CrawlerConfig('Hostnames').get('pl')
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -134,8 +136,7 @@ def download(payload):
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         elif "FX" in site:
             download_method = add_decrypt_instead_of_download
-            key = payload[1]
-            password = payload[2]
+            key = payload[2]
         elif "HW" in site:
             download_method = add_decrypt_instead_of_download
             download_links = soup.findAll("a", href=re.compile('filecrypt'))
@@ -145,6 +146,9 @@ def download(payload):
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', links_string)
             key = soup.find("h2", {"class": "entry-title"}).text.strip()
             password = payload[1]
+        elif "PL" in site:
+            download_method = myjd_download
+            key = soup.find("h5", {"class": "card-title"}).text.strip()
         else:
             return False
 
@@ -154,6 +158,26 @@ def download(payload):
                 unused = ""
 
             download_links = fx_get_download_links(FX, url, key)
+        elif "PL" in site:
+            try:
+                secret = soup.find("select", {"id": "hosterSelect"}).parent.find("button").get("onclick")
+                cnl_id = re.findall(r"'(.*?)'", secret)[0]
+
+                if check_hoster("ddl"):
+                    hoster = "ddl"
+                elif check_hoster("rapidgator"):
+                    hoster = "rg"
+                else:
+                    hoster = "ddl"
+
+                decrypter = "https://" + pl + "/cnl/" + cnl_id + "?h=" + hoster
+                download_payload = json.loads(get_url(decrypter))
+                download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
+            except:
+                print(
+                    u"PL hat den Link-Abruf angepasst. Download-Link für " + key + " konnte nicht entschlüsselt werden.")
+                download_links = []
+                pass
         else:
             for url_hoster in reversed(url_hosters):
                 try:

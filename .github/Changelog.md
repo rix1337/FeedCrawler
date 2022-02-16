@@ -10,6 +10,8 @@
 
 ### Changelog FeedCrawler:
 
+- **12.3.3** PL-Websuche integriert
+- **12.3.3** Bugfix in FX-Websuche
 - **12.3.2** Bugfix in Passwortweitergabe der HEVC/DL-Suche
 - **12.3.2** Bugfix im Zerstören von Flaresolverr-Sessions
 - **12.3.1** PL-Seitenstatus in Webinterface integriert
