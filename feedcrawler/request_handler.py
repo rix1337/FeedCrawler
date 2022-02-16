@@ -179,8 +179,8 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                     response_headers = response['solution']['headers']
 
                 if status_code == 500:
-                    internal.logger.debug("Der Request für", url, "ist fehlgeschlagen. Zerstöre die Session",
-                                          flaresolverr_session)
+                    internal.logger.debug("Der Request für " + url + " ist fehlgeschlagen. Zerstöre die Session" +
+                                          str(flaresolverr_session))
                     clean_flaresolverr_sessions()
                     flaresolverr_session = None
             else:
