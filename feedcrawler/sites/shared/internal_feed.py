@@ -674,27 +674,31 @@ def nk_page_download_link(self, download_link, key):
 def pl_get_download_links(self, content, title):
     unused_get_feed_parameter(self)
     pl = CrawlerConfig('Hostnames').get('pl')
+    content = BeautifulSoup(content, 'html5lib')
     try:
-        content = BeautifulSoup(content, 'html5lib')
-        download_page = "https://" + pl + content.find("a", href=re.compile(r".*/details/.*")).get("href")
-        soup = BeautifulSoup(get_url(download_page), 'html5lib')
-        secret = soup.find("select", {"id": "hosterSelect"}).parent.find("button").get("onclick")
-        cnl_id = re.findall(r"'(.*?)'", secret)[0]
+        link = "https://" + pl + content.find("a", href=re.compile(r".*/details/.*")).get("href")
+    except:
+        print(u"PL hat die Linkstruktur angepasst. " + title + " konnte nicht verarbeitet werden.")
+        return []
 
-        if check_hoster("ddl"):
-            hoster = "ddl"
-        elif check_hoster("rapidgator"):
-            hoster = "rg"
-        else:
-            hoster = "ddl"
+    release_id = link.replace("https://" + pl + "/details/", "")
 
-        decrypter = "https://" + pl + "/cnl/" + cnl_id + "?h=" + hoster
+    if check_hoster("ddl"):
+        hoster = "ddl"
+    elif check_hoster("rapidgator"):
+        hoster = "rg"
+    else:
+        hoster = "ddl"
+
+    try:
+        decrypter = "https://" + pl + "/cnl/" + release_id + "?h=" + hoster
         download_payload = json.loads(get_url(decrypter))
         download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
     except:
-        print(u"PL hat den Link-Abruf angepasst. Download-Link für " + title + " konnte nicht entschlüsselt werden.")
+        print(u"Download-Link für " + title + " auf PL konnte nicht automatisch entschlüsselt werden.")
         download_links = []
-        pass
+    if not download_links:
+        download_links = [link]
 
     return download_links
 

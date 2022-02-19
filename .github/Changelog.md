@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.3.4** Erkenne, wenn manuelle Entschlüsselung von PL-Links notwendig ist
 - **12.3.3** PL-Websuche integriert
 - **12.3.3** Bugfix in FX-Websuche
 - **12.3.2** Bugfix in Passwortweitergabe der HEVC/DL-Suche
@@ -23,6 +24,7 @@
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
 
+- **4.0.3** Entschlüssele PL-Links automatisch per Click'n'Load oder DLC, wenn der FeedCrawler daran gescheitert ist.
 - **4.0.2** Der AntiGateHandler entschlüsselt nun die DLC-Datei, sofern der Click'n'Load-Button fehlt.
 - **4.0.1** Der lokale HTTP-Proxy läuft ab sofort dauerhaft.
   - Die Zugangsdaten werden weiterhin bei jedem Start zufallsgeneriert.
