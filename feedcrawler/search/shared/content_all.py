@@ -159,7 +159,11 @@ def download(payload):
 
             download_links = fx_get_download_links(FX, url, key)
         elif "PL" in site:
-            release_id = link.replace("https://" + pl + "/details/", "")
+            try:
+                release_id = link.replace("https://" + pl + "/details/", "")
+            except:
+                print(u"PL hat die Linkstruktur angepasst. " + key + " konnte nicht verarbeitet werden.")
+                return False
 
             if check_hoster("ddl"):
                 hoster = "ddl"

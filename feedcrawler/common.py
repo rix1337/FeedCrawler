@@ -271,12 +271,13 @@ def get_to_decrypt():
             hostnames = CrawlerConfig('Hostnames')
             sj = hostnames.get('sj')
             dj = hostnames.get('dj')
+            pl = hostnames.get('pl')
             fx = hostnames.get('fx')
             ff = hostnames.get('ff')
             sf = hostnames.get('sf')
             ww = hostnames.get('ww')
 
-            easy_to_decrypt = list(filter(None, [sj, dj]))
+            easy_to_decrypt = list(filter(None, [sj, dj, pl]))
             hard_to_decrypt = list(filter(None, [fx, ff, sf, ww]))
 
             packages = []
