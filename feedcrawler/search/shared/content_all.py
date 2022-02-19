@@ -160,24 +160,28 @@ def download(payload):
             download_links = fx_get_download_links(FX, url, key)
         elif "PL" in site:
             try:
-                secret = soup.find("select", {"id": "hosterSelect"}).parent.find("button").get("onclick")
-                cnl_id = re.findall(r"'(.*?)'", secret)[0]
+                release_id = link.replace("https://" + pl + "/details/", "")
+            except:
+                print(u"PL hat die Linkstruktur angepasst. " + key + " konnte nicht verarbeitet werden.")
+                return False
 
-                if check_hoster("ddl"):
-                    hoster = "ddl"
-                elif check_hoster("rapidgator"):
-                    hoster = "rg"
-                else:
-                    hoster = "ddl"
+            if check_hoster("ddl"):
+                hoster = "ddl"
+            elif check_hoster("rapidgator"):
+                hoster = "rg"
+            else:
+                hoster = "ddl"
 
-                decrypter = "https://" + pl + "/cnl/" + cnl_id + "?h=" + hoster
+            try:
+                decrypter = "https://" + pl + "/cnl/" + release_id + "?h=" + hoster
                 download_payload = json.loads(get_url(decrypter))
                 download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
             except:
-                print(
-                    u"PL hat den Link-Abruf angepasst. Download-Link für " + key + " konnte nicht entschlüsselt werden.")
+                print(u"Download-Link für " + key + " auf PL konnte nicht automatisch entschlüsselt werden.")
                 download_links = []
-                pass
+            if not download_links:
+                download_method = add_decrypt_instead_of_download
+                download_links = [link]
         else:
             for url_hoster in reversed(url_hosters):
                 try:
