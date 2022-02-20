@@ -58,6 +58,9 @@ def check_ip():
 
 
 def check_is_site(string):
+    if not string:
+        return False
+
     hostnames = CrawlerConfig('Hostnames')
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
