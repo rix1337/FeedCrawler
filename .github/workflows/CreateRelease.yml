@@ -2,6 +2,8 @@ name: Release Artifacts
 
 on: 
   push:
+    paths-ignore:
+      - '.github/workflows/**'
     branches:
       - master
 
