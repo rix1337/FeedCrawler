@@ -10,6 +10,7 @@
 
 ### Changelog FeedCrawler:
 
+- **12.3.5** Bugfix in ContentAll-Suche
 - **12.3.4** Erkenne, wenn manuelle Entschlüsselung von PL-Links notwendig ist
 - **12.3.3** PL-Websuche integriert
 - **12.3.3** Bugfix in FX-Websuche

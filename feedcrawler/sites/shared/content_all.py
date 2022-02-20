@@ -59,6 +59,13 @@ def settings_hash(self, refresh):
     return hashlib.sha256(settings.encode('ascii', 'ignore')).hexdigest()
 
 
+def check_fallback_required(download_links):
+    if download_links and len(download_links) == 1 and download_links[0] and check_is_site(download_links[0]) == "PL":
+        return True
+    else:
+        return False
+
+
 def search_imdb(self, desired_rating, feed):
     added_items = []
     settings = str(self.settings)
@@ -204,7 +211,7 @@ def search_imdb(self, desired_rating, feed):
                             site = self._SITE
                             download_method = self.download_method
                             download_links = self.get_download_links_method(self, content, post.title)
-                            if download_links and len(download_links) == 1 and check_is_site(download_links[0]) == "PL":
+                            if check_fallback_required(download_links):
                                 download_method = add_decrypt_instead_of_download
                         found = download_imdb(self,
                                               post.title, download_links,
@@ -401,7 +408,7 @@ def download_hevc(self, title):
 
             if is_hevc(key) and "1080p" in key:
                 download_links = get_download_links_method(self, link, key)
-                if download_links and len(download_links) == 1 and check_is_site(download_links[0]) == "PL":
+                if check_fallback_required(download_links):
                     download_method = add_decrypt_instead_of_download
                 if download_links:
                     storage = self.db.retrieve_all(key)
@@ -557,7 +564,7 @@ def download_dual_language(self, title, hevc=False):
                 path_suffix = ""
 
             download_links = get_download_links_method(self, link, key)
-            if download_links and len(download_links) == 1 and check_is_site(download_links[0]) == "PL":
+            if check_fallback_required(download_links):
                 download_method = add_decrypt_instead_of_download
             if download_links:
                 storage = self.db.retrieve_all(key)
@@ -702,7 +709,7 @@ def download_feed(self, key, content, hevc_retail):
         site = self._SITE
         download_method = self.download_method
         download_links = self.get_download_links_method(self, content, key)
-        if download_links and len(download_links) == 1 and check_is_site(download_links[0]) == "PL":
+        if check_fallback_required(download_links):
             download_method = add_decrypt_instead_of_download
     if download_links:
         storage = self.db.retrieve_all(key)
