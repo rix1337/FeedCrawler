@@ -215,8 +215,8 @@ def crawldog(global_variables):
                                                 add_decrypt(package['name'], package['url'], "")
                                                 remove_from_linkgrabber(package['linkids'],
                                                                         [package['uuid']])
-                                                notify_list.append("[Click'n'Load notwendig] - " + title[0])
-                                                print(u"[Click'n'Load notwendig] - " + title[0])
+                                                notify_list.append("[CAPTCHA zu lösen] - " + title[0])
+                                                print(u"[CAPTCHA zu lösen] - " + title[0])
                                                 db.delete(title[0])
                     else:
                         if not grabber_collecting:

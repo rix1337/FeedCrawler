@@ -33,7 +33,6 @@ from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
 from feedcrawler.myjd import check_device
 from feedcrawler.myjd import do_add_decrypted
-from feedcrawler.myjd import do_package_replace
 from feedcrawler.myjd import download
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
@@ -44,7 +43,6 @@ from feedcrawler.myjd import jdownloader_pause
 from feedcrawler.myjd import jdownloader_start
 from feedcrawler.myjd import jdownloader_stop
 from feedcrawler.myjd import move_to_downloads
-from feedcrawler.myjd import package_merge
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import retry_decrypt
 from feedcrawler.myjd import update_jdownloader
@@ -941,100 +939,18 @@ def app_container():
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/myjd_cnl/<uuid>", methods=['POST'])
-    @requires_auth
-    def myjd_cnl(uuid):
-        if request.method == 'POST':
-            try:
-                failed = get_info()
-                if failed:
-                    decrypted_packages = failed[4][1]
-                    offline_packages = failed[4][2]
-                    failed_packages = failed[4][3]
-                else:
-                    failed_packages = False
-                    decrypted_packages = False
-                if not failed_packages:
-                    return "Failed", 500
-
-                title = False
-                old_package = False
-                if failed_packages:
-                    for op in failed_packages:
-                        if str(op['uuid']) == str(uuid):
-                            title = op['name']
-                            old_package = op
-                            break
-
-                if not old_package or not title:
-                    return "Failed", 500
-
-                known_packages = []
-                if decrypted_packages:
-                    for dp in decrypted_packages:
-                        known_packages.append(dp['uuid'])
-                if offline_packages:
-                    for op in offline_packages:
-                        known_packages.append(op['uuid'])
-
-                cnl_package = False
-                grabber_was_collecting = False
-                i = 12
-                while i > 0:
-                    i -= 1
-                    time.sleep(5)
-                    if get_info():
-                        grabber_collecting = failed[2]
-                        if grabber_was_collecting or grabber_collecting:
-                            grabber_was_collecting = grabber_collecting
-                            i -= 1
-                            time.sleep(5)
-                        else:
-                            if not grabber_collecting:
-                                decrypted_packages = failed[4][1]
-                                offline_packages = failed[4][2]
-                                another_device = package_merge(decrypted_packages, title, known_packages)[0]
-                                if another_device:
-                                    info = get_info()
-                                    if info:
-                                        grabber_collecting = info[2]
-                                        decrypted_packages = info[4][1]
-                                        offline_packages = info[4][2]
-
-                                if not grabber_collecting and decrypted_packages:
-                                    for dp in decrypted_packages:
-                                        if dp['uuid'] not in known_packages:
-                                            cnl_package = dp
-                                            i = 0
-                                if not grabber_collecting and offline_packages:
-                                    for op in offline_packages:
-                                        if op['uuid'] not in known_packages:
-                                            cnl_package = op
-                                            i = 0
-
-                if not cnl_package:
-                    return "No Package added through Click'n'Load in time!", 504
-
-                replaced = do_package_replace(old_package, cnl_package)
-                if replaced:
-                    return "Success", 200
-            except:
-                pass
-            return "Failed", 400
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/api/internal_cnl/<name>&<password>", methods=['POST'])
     @requires_auth
     def internal_cnl(name, password):
         if request.method == 'POST':
             try:
-                failed = get_info()
-                if failed:
-                    decrypted_packages = failed[4][1]
-                    offline_packages = failed[4][2]
+                packages = get_info()
+                if packages:
+                    decrypted_packages = packages[4][1]
+                    offline_packages = packages[4][2]
                 else:
                     decrypted_packages = False
+                    offline_packages = False
 
                 known_packages = []
                 if decrypted_packages:
@@ -1050,17 +966,17 @@ def app_container():
                 while i > 0:
                     i -= 1
                     time.sleep(5)
-                    failed = get_info()
-                    if failed:
-                        grabber_collecting = failed[2]
+                    packages = get_info()
+                    if packages:
+                        grabber_collecting = packages[2]
                         if grabber_was_collecting or grabber_collecting:
                             grabber_was_collecting = grabber_collecting
                             i -= 1
                             time.sleep(5)
                         else:
                             if not grabber_collecting:
-                                decrypted_packages = failed[4][1]
-                                offline_packages = failed[4][2]
+                                decrypted_packages = packages[4][1]
+                                offline_packages = packages[4][2]
                                 if not grabber_collecting and decrypted_packages:
                                     for dp in decrypted_packages:
                                         if dp['uuid'] not in known_packages:
@@ -1328,14 +1244,21 @@ if (title && title !== "login") {
         if not helper_active:
             return "Forbidden", 403
         if request.method == 'GET':
+            hostnames = CrawlerConfig('Hostnames')
+            fx = hostnames.get('fx')
+            sf = hostnames.get('sf')
             try:
                 return """// ==UserScript==
 // @name            FeedCrawler Sponsors Helper (FC)
 // @author          rix1337
 // @description     Forwards Click'n'Load to FeedCrawler
-// @version         0.5.1
+// @version         0.7.4
 // @match           *.filecrypt.cc/*
 // @match           *.filecrypt.co/*
+// @match           *.filecrypt.to/*
+// @exclude         http://filecrypt.cc/helper.html*
+// @exclude         http://filecrypt.co/helper.html*
+// @exclude         http://filecrypt.to/helper.html*
 // @grant           window.close
 // ==/UserScript==
 
@@ -1355,31 +1278,49 @@ function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-const fx = (document.getElementById("customlogo").getAttribute('src') === '/css/custom/f38ed.png');
+let pw = "";
 
-const checkFxPass = setInterval(function () {
+
+let fx = false
+try {
+    fx = (document.getElementById("customlogo").getAttribute('src') === '/css/custom/f38ed.png')
+} catch {
+}
+
+const checkPass = setInterval(function () {
 	if (document.getElementById("p4assw0rt")) {
-		if (fx) {
-			const pw = atob('ZnVueGQ=');
-			console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
+		if (password) {
+			pw = password;
+		} else if (fx) {
+			pw = '""" + fx.split('.')[0] + """';
+		} else {
+			pw = '""" + sf + """';
+		}
+	} else {
+		pw = "";
+	}
+	clearInterval(checkPass);
+}, 100);
+
+const enterPass = setInterval(function () {
+	if (pw) {
+		console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
+		try {
 			document.getElementById("p4assw0rt").value = pw;
 			document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+		} catch (e) {
+			console.log("[FeedCrawler Sponsors Helper] Password set Error: " + e);
 		}
-		clearInterval(checkFxPass);
+		clearInterval(enterPass);
 	}
 }, 100);
 
-
-const checkSFPass = setInterval(function () {
-	if (document.getElementById("p4assw0rt") && !fx) {
-		const pw = atob('c2VyaWVuZmFucy5vcmc=');
-		console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
-		document.getElementById("p4assw0rt").value = pw;
-		document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
-		clearInterval(checkSFPass);
+const checkAd = setInterval(function () {
+	if (document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)') !== null) {
+		document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)').style.display = 'none';
+		clearInterval(checkAd);
 	}
 }, 100);
-
 
 let mirrorsAvailable = false;
 try {
@@ -1425,7 +1366,7 @@ const cnlExists = setInterval(async function () {
 		clearInterval(cnlExists);
 		document.getElementById("cnl_btn").click();
 		console.log("[FeedCrawler Sponsors Helper] attempting Click'n'Load");
-		await Sleep(30000);
+		await Sleep(10000);
 		window.close();
 	}
 }, 100);
@@ -1595,34 +1536,31 @@ const cnlExists = setInterval(async function () {
                                 if not internal.device or not is_device(internal.device):
                                     return "Failed", 500
                                 packages = get_packages_in_linkgrabber()
+
                             if packages:
                                 failed = packages[0]
                                 offline = packages[1]
+
+                                def check_if_broken(check_packages):
+                                    if check_packages:
+                                        for check_package in check_packages:
+                                            if re.match(re.compile(re_name), check_package['name'].lower()):
+                                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
+                                                                     check_package['name'])
+                                                if episode:
+                                                    FeedDb('episode_remover').store(package_name, str(int(episode[0])))
+                                                linkids = check_package['linkids']
+                                                uuids = [check_package['uuid']]
+                                                remove_from_linkgrabber(linkids, uuids)
+                                                remove_decrypt(package_name)
+                                                return True
+
                                 try:
-                                    if failed:
-                                        for package in failed:
-                                            if re.match(re.compile(re_name), package['name'].lower()):
-                                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                                if episode:
-                                                    FeedDb('episode_remover').store(package_name, str(int(episode[0])))
-                                                linkids = package['linkids']
-                                                uuids = [package['uuid']]
-                                                remove_from_linkgrabber(linkids, uuids)
-                                                remove_decrypt(package_name)
-                                                break
-                                    if offline:
-                                        for package in offline:
-                                            if re.match(re.compile(re_name), package['name'].lower()):
-                                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                                if episode:
-                                                    FeedDb('episode_remover').store(package_name, str(int(episode[0])))
-                                                linkids = package['linkids']
-                                                uuids = [package['uuid']]
-                                                remove_from_linkgrabber(linkids, uuids)
-                                                remove_decrypt(package_name)
-                                                break
+                                    check_if_broken(failed)
+                                    check_if_broken(offline)
                                 except:
                                     pass
+
                             packages = get_to_decrypt()
                             if packages:
                                 for package in packages:
