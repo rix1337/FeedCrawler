@@ -774,39 +774,12 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function myJDcnl(uuid) {
-        showInfoLong("Warte auf Click'n'Load...");
-        $scope.cnl_active = true;
-        countDown(60);
-        $http.post('api/myjd_cnl/' + uuid)
-            .then(function () {
-                $scope.cnl_active = false;
-                if ($scope.myjd_failed) {
-                    for (let failed_package of $scope.myjd_failed) {
-                        let existing_uuid = failed_package['uuid'];
-                        if (uuid === existing_uuid) {
-                            let index = $scope.myjd_failed.indexOf(failed_package);
-                            $scope.myjd_failed.splice(index, 1)
-                        }
-                    }
-                }
-                $(".alert-info").slideUp(500);
-                $scope.time = 0;
-            }).catch(function () {
-            showDanger("Click'n'Load nicht durchgeführt!");
-            $scope.cnl_active = false;
-            $(".alert-info").slideUp(500);
-            $scope.time = 0;
-        });
-    }
-
     function internalCnl(name, password) {
         showInfoLong("Warte auf Click'n'Load...");
         $scope.cnl_active = true;
         countDown(60);
         $http.post('api/internal_cnl/' + name + "&" + password)
             .then(function () {
-                $scope.cnl_active = false;
                 if ($scope.to_decrypt) {
                     for (let failed_package of $scope.to_decrypt) {
                         let existing_name = failed_package['name'];
@@ -818,6 +791,8 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 }
                 $(".alert-info").slideUp(500);
                 $scope.time = 0;
+                getMyJD();
+                $scope.cnl_active = false;
             }).catch(function () {
             showDanger("Click'n'Load nicht durchgeführt!");
             $scope.cnl_active = false;
@@ -875,6 +850,24 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.updateTime();
+
+    $scope.showSponsorsHelp = function () {
+        let offcanvas = new bootstrap.Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
+        offcanvas.show();
+        new bootstrap.Collapse(document.getElementById('collapseOneZero'), {
+            toggle: true
+        })
+        sessionStorage.setItem('fromNav', '')
+        window.location.href = "#collapseOneZero";
+    }
+
+    $scope.showCaptchasHelp = function () {
+        new bootstrap.Collapse(document.getElementById('collapseOneOne'), {
+            toggle: true
+        })
+        sessionStorage.setItem('fromNav', '')
+        window.location.href = "#collapseOneZero";
+    }
 
     $scope.checkMyJD = function () {
         $timeout(function () {

@@ -89,7 +89,7 @@ def send_package(self, title, link, language_id, season, episode, site):
             self.db.store(title, 'added')
             log_entry = link_placeholder + title + ' - [' + site + ']'
             internal.logger.info(log_entry)
-            notify(["[Click'n'Load notwendig] - " + log_entry])
+            notify(["[CAPTCHA zu lösen] - " + log_entry])
             return log_entry
 
 

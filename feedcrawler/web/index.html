@@ -70,12 +70,12 @@
     </div>
 
     <div>
-        <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+        <a ng-show="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
            title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
            class="btn btn-outline-danger" data-toggle="tooltip"><i id="heart" class="bi bi-emoji-frown"></i> Kein
             aktiver
             Sponsor</a>
-        <a ng-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+        <a ng-show="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
            title="Vielen Dank für die aktive Github Sponsorship!"
            class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="bi bi-heart"></i> Aktiver
             Sponsor</a>
@@ -224,39 +224,12 @@
 
                         <div class="myjd-failed">
                             <div class="card bg-danger" title="Fehler im Linksammler" ng-if="x.type=='failed'">
-                                <div class="card-header">
-                                    <strong ng-bind="x.name"></strong>
-                                </div>
-                                <ul class="list-group list-group-flush">
-                                    <li class="list-group-item" ng-if="x.url">
-                                        <a ng-if="!myjd_grabbing" ng-href="{{x.url}}" ng-click="myJDcnl(x.uuid)"
-                                           class="cnl-button btn btn-secondary" ng-show="!cnl_active" type="submit"
-                                           target="_blank"
-                                           title="Click'n'Load innerhalb einer Minute auslösen!"
-                                           data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                        <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
-                                        <span class="cnl-spinner" ng-show="cnl_active"
-                                              title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
-                                              data-toggle="tooltip">
-                                <span class="spinner-border spinner-border-sm" role="status"></span> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
-                                    </li>
-                                    <li class="list-group-item cnl-blockers" ng-show="!cnl_active" ng-if="x.urls">
-                            <textarea ng-model="x.urls" class="urls drop form-control" data-toggle="tooltip"
-                                      title="Automatische Entschlüsselung fehlgeschlagen. Bitte die Click'n'Load-Automatik nutzen. Alternativ hier entschlüsselte Links eintragen und 'Erneut hinzufügen' drücken!"></textarea>
-                                        <a href="" class="btn btn-outline-info" ng-show="!cnl_active"
-                                           title="Erneut hinzufügen"
-                                           data-toggle="tooltip"
-                                           ng-click="myJDretry(x.linkids, x.uuid, x.urls)"><i
-                                                class="bi bi-arrow-counterclockwise"></i>
-                                            Erneut
-                                            hinzufügen</a>
-                                        <a href="" class="btn btn-outline-danger" ng-show="!cnl_active"
-                                           title="Löschen"
-                                           data-toggle="tooltip"
-                                           ng-click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
-                                            Löschen</a>
-                                    </li>
-                                </ul>
+                                <span>Entschlüsselung im JDownloader fehlgeschlagen. Paket wird in Kürze aus dem JDownloader zurück in den FeedCrawler überführt...</span>
+                                <a href="" class="btn btn-outline-danger" ng-show="!cnl_active"
+                                   title="Löschen"
+                                   data-toggle="tooltip"
+                                   ng-click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
+                                    Löschen</a>
                             </div>
                         </div>
 
@@ -294,21 +267,30 @@
                                            target="_blank"
                                            title="Click'n'Load innerhalb einer Minute auslösen!"
                                            data-toggle="tooltip">Click'n'Load-Automatik</a>
-                                        <span ng-if="hostnames.sj && x.url.includes(hostnames.sj.toLowerCase())">Bitte zuerst
+                                        <span ng-if="!myjd_grabbing">Setzt voraus, dass Port 9666 des JDownloaders durch diese Browsersitzung erreichbar ist.</span>
+                                        <span ng-if="hostnames.sj && x.url.includes(hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
-                                        <span ng-if="hostnames.dj && x.url.includes(hostnames.dj.toLowerCase())">Bitte zuerst
+                                        <span ng-if="hostnames.dj && x.url.includes(hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
-                                        <span ng-if="myjd_grabbing">Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
+                                        <span ng-if="!helper_active"><br>
+                                        <mark>Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
+                                                href="https://github.com/users/rix1337/sponsorship" target="_blank"
+                                                title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
+                                                data-toggle="tooltip">Sponsor werden</a> und den <a
+                                                href="#" ng-click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</mark>
+                                    </span>
+                                        <span ng-if="myjd_grabbing"><br>Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
                                         <span class="cnl-spinner" ng-show="cnl_active"
                                               title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"
-                                              data-toggle="tooltip">
-                                <span class="spinner-border spinner-border-sm" role="status"></span> Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</span>
+                                              data-toggle="tooltip"><br>
+                                        <span class="spinner-border spinner-border-sm" role="status"></span> <strong>Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!</strong>
+                                    </span>
                                     </li>
                                     <li class="list-group-item cnl-blockers" ng-show="!cnl_active">
                                         <a href="" class="btn btn-outline-danger" ng-show="!cnl_active"
@@ -1165,25 +1147,18 @@
                 <div id="collapseOneZero" class="accordion-collapse collapse" aria-labelledby="headingOneZero"
                      data-bs-parent="#accordionHelp">
                     <div class="accordion-body">
-                        <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das SJ- und DJ-Captchas
-                            vollständig
-                            automatisiert löst und dem FeedCrawler entschlüsselt übergibt.
-                            Für den höchsten Automatisierungsgrad sollten entsprechend nur für diese Seiten die
-                            Hostnamen
-                            hinterlegt werden.</p>
-                        <p>Captchas von FC lassen sich manuell per Webinterface/VNC lösen.
-                            Das Entschlüsseln und die Übergabe der Links übernimmt der FeedCrawler Sponsors Helper dann
-                            ebenfalls
-                            vollautomatisch.</p>
+                        <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
+                            vollautomatisch löst, und dem FeedCrawler entschlüsselt übergibt.</p>
                         <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
                                                                      target="_blank">Sponsoren</a> zur Verfügung (daher
                             der
                             Name).<br>
-                            Die Freischaltung erfolgt manuell für aktive Sponsoren im dafür eingerichteten Github-Repo.
+                            Die Freischaltung erfolgt automatisch für aktive Sponsoren im dafür eingerichteten
+                            Github-Repo.
                         </p>
                         <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account
                             beim
-                            unter <a href="#headingOneZero">Captchas</a> beworbenen Captcha-Solver.</p>
+                            unter <a href="#" ng-click="showCaptchasHelp()">CAPTCHAs</a> beworbenen Captcha-Solver.</p>
                         <span>
                     <a ng-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
                        title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
@@ -1192,6 +1167,10 @@
                        title="Vielen Dank für die aktive Github Sponsorship!"
                        class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="bi bi-heart"></i> Aktiver
                         Sponsor</a>
+                    <br>
+                    <a href="https://github.com/rix1337/FeedCrawler/wiki"
+                       class="btn btn-outline-success"
+                       target="_blank">Weitere Hinweise gibt es im Wiki.</a>
                 </span>
                     </div>
                 </div>
@@ -1201,7 +1180,7 @@
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
                             data-bs-target="#collapseOneOne"
                             aria-expanded="false" aria-controls="collapseOneOne">
-                        Captchas
+                        CAPTCHAs
                     </button>
                 </h2>
                 <div id="collapseOneOne" class="accordion-collapse collapse" aria-labelledby="headingOneOne"
