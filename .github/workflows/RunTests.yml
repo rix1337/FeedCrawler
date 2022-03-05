@@ -19,6 +19,5 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-      - run: pip install git+https://github.com/alberanid/imdbpy
       - run: pip install -r requirements.txt
       - run: python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
