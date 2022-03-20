@@ -8,6 +8,7 @@ on:
       - master
 
 # ToDo add build step for nodejs / vue frontend
+# npm run build
 jobs:
   build_wheel:
     name: Build Linux wheel
