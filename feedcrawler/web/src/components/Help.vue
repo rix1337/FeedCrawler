@@ -2,7 +2,37 @@
 export default {
   // ToDo replace with actual data calls
   data() {
-    return {}
+    return {
+      hostnames: {
+        bl: "TestHostnamen",
+        mb: "TestName",
+        s: "TestName",
+        sjbl: "TestNamen",
+        dj: "TestName",
+      },
+      blocked_sites: {
+        normal: {
+          bl: false,
+          mb: false
+        },
+        flaresolverr: {
+          bl: false,
+          mb: false
+        },
+        flaresolverr_proxy: {
+          bl: false,
+          mb: false
+        }
+      },
+      settings:{
+        general: {
+          flaresolverr: false,
+        },
+      },
+      crawltimes: {
+        next_f_run: "123000",
+      }
+    }
   }, methods: {
     // ToDo replace with actual functions
     showCaptchasHelp() {
@@ -49,7 +79,7 @@ export default {
                        href="https://github.com/users/rix1337/sponsorship"
                        target="_blank"
                        title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"><i
-                        id="heart" class="bi bi-emoji-frown"></i> Kein aktiver Sponsor</a>
+                        id="no-heart" class="bi bi-emoji-frown"></i> Kein aktiver Sponsor</a>
                     <a v-if="helper_active" class="btn btn-outline-success" data-toggle="tooltip"
                        href="https://github.com/users/rix1337/sponsorship"
                        target="_blank" title="Vielen Dank für die aktive Github Sponsorship!"><i id="heart"
@@ -333,7 +363,7 @@ export default {
                       <span v-if="crawltimes.next_f_run > currentMillis">
                       <!-- ToDo refactor removed AngularJS filters to vue -->
                       <i class="bi bi-clock-fill text-warning"
-                         :title="Keine FF-Suchläufe bis: {{ crawltimes.next_f_run }}"></i></span>
+                         :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>
                     </li>
                     <li v-if="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
                         hostnames.nk
@@ -456,7 +486,7 @@ export default {
                       <span v-if="crawltimes.next_f_run > currentMillis">
                         <!-- ToDo refactor removed AngularJS filters to vue -->
                         <i class="bi bi-clock-fill text-warning"
-                           :title="Keine SF-Suchläufe bis: {{ crawltimes.next_f_run }}"></i></span>
+                           :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>
                     </li>
                   </ul>
                 </div>

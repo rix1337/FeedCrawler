@@ -7,7 +7,10 @@ import Head from './components/_Head.vue'
 import Log from './components/_Log.vue'
 import MyJD from './components/_MyJD.vue'
 import Search from './components/Search.vue'
-import Lists from './components/Lists.vue'</script>
+import Lists from './components/Lists.vue'
+import Settings from './components/Settings.vue'
+import Help from './components/Help.vue'
+import Notifications from './components/Notifications.vue'</script>
 
 <template>
   <main class="text-center">
@@ -19,13 +22,11 @@ import Lists from './components/Lists.vue'</script>
     <!--- Offcanvas Items -->
     <Search/>
     <Lists/>
-
-    <!-- Disabled for now
-
     <Settings/>
     <Help/>
+
+    <!-- UI Notifications -->
     <Notifications/>
-     -->
 
   </main>
 </template>

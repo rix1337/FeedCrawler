@@ -2,7 +2,85 @@
 export default {
   // ToDo replace with actual data calls
   data() {
-    return {}
+    return {
+      hostnames: {
+        mb: "Testname MB",
+        sj: "Testname SJ",
+        bl: "Testnamen BL",
+      },
+      settings: {
+        general: {
+          myjd_user: '',
+          myjd_pass: '',
+          myjd_device: '',
+          closed_myjd_tab: false,
+          packages_per_myjd_page: 10,
+          port: 9090,
+        },
+        mb: {
+          quality: '1080p',
+          search: 3,
+          regex: false,
+          imdb_score: 5,
+          imdb_year: 2020,
+          force_dl: false,
+          retail_only: false,
+          cutoff: false,
+          hevc_retail: false,
+          hoster_fallback: false,
+        },
+        f: {
+          interval: 6,
+          search: 3,
+        },
+        sj: {
+          quality: '1080p',
+          regex: false,
+          retail_only: false,
+          hevc_retail: false,
+          hoster_fallback: false,
+        },
+        mbsj: {
+          enabled: false,
+          quality: '1080p',
+          packs: false,
+          source: '',
+        },
+        dj: {
+          quality: '1080p',
+          regex: false,
+          hoster_fallback: false,
+        },
+        hosters: {
+          rapidgator: true,
+          turbobit: true,
+          uploaded: true,
+          zippyshare: true,
+          oboom: true,
+          ddl: true,
+          filefactory: true,
+          uptobox: true,
+          onefichier: true,
+          filer: true,
+          nitroflare: true,
+          ironfiles: true,
+          k2s: true,
+        },
+        alerts: {
+          pushbullet: "",
+          pushover: "",
+          telegram: "",
+        },
+        ombi: {
+          url: "",
+          api: ""
+        },
+        crawljobs: {
+          autostart: false,
+          subdir: false,
+        }
+      }
+    }
   }, methods: {
     // ToDo replace with actual functions
     saveSettings() {
@@ -620,7 +698,7 @@ export default {
             </div>
           </div>
         </div>
-        <div v-if="!settingsForm.$invalid">
+        <div>
           <a class="btn btn-dark" href="" type="submit"
              @click="saveSettings()">
             <div id="spinner-settings"
@@ -628,7 +706,8 @@ export default {
                  role="status" style="display: none;"></div>
             <i class="bi bi-save"></i> Speichern</a>
         </div>
-        <div v-if="settingsForm.$invalid" class="btn btn-danger" data-toggle="tooltip"
+        <!-- ToDo validity check with v-if not working -->
+        <div class="btn btn-danger" data-toggle="tooltip"
              title="Mindestens ein Feld wurde falsch befüllt und muss korrigiert werden (erkennbar am roten Rahmen darum).">
           <i class="bi bi-x"></i> Speichern nicht möglich
         </div>
