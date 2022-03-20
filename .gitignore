@@ -34,3 +34,6 @@ venv
 .idea
 .eggs
 
+# Vue
+feedcrawler/web/node_modules
+feedcrawler/web/dist
