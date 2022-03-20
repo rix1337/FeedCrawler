@@ -3,6 +3,11 @@ export default {
   // ToDo replace with actual data calls
   data() {
     return {}
+  }, methods: {
+    // ToDo replace with actual functions
+    manualCollapse() {
+      console.log("manualCollapse()");
+    }
   }
 }
 </script>
@@ -207,6 +212,7 @@ export default {
             </div>
 
             <div v-if="resLengthMyJD>3" class="btn-group">
+              <!-- ToDo refactor ng-disable to vue variant -->
               <button :disable="currentPageMyJD == 0" class="btn btn-outline-info"
                       @click="currentPageMyJD=currentPageMyJD-1">
                 <i class="bi bi-chevron-left"></i>

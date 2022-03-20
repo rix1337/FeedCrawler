@@ -5,7 +5,11 @@ export default {
     return {
       search: "Testsuchtitel"
     }
-
+  }, methods: {
+    // ToDo replace with actual functions
+    searchNow() {
+      console.log("searchNow()");
+    }
   }
 }
 </script>
@@ -23,7 +27,7 @@ export default {
              data-toggle="tooltip"
              placeholder="Filme und Serien suchen"
              title="Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!"
-             v-on:keyup.enter="searchNow()">
+             @:keyup.enter="searchNow()">
       <a v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" href="" type="submit"
          @click="searchNow()">
         <div v-if="searching"
@@ -44,12 +48,13 @@ export default {
               class="bi bi-download"></i> <span v-text="y.title"></span></a>
         </p>
         <div v-if="resLength>10" class="btn-group">
+          <!-- ToDo refactor ng-disable to vue variant -->
           <button :disable="currentPage == 0" class="btn btn-outline-info"
                   @click="currentPage=currentPage-1">
             <i class="bi bi-chevron-left"></i>
           </button>
           <button :disable="true" class="btn btn-outline-info">
-            {{ currentPage + 1 }} / {{ numberOfPages() }}
+            {{ currentPage + 1 }} / {{ numberOfPages }}
           </button>
           <button :disable="currentPage >= resLength/pageSize - 1" class="btn btn-outline-info"
                   @click="currentPage=currentPage+1">

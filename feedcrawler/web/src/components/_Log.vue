@@ -21,6 +21,17 @@ export default {
         "Test10",
       ]
     }
+  }, methods: {
+    // ToDo replace with actual functions
+    longerLog() {
+      console.log("longerLog()");
+    },
+    shorterLog() {
+      console.log("shorterLog()");
+    },
+    deleteLog() {
+      console.log("deleteLog()");
+    }
   }
 }
 </script>

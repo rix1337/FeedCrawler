@@ -2,7 +2,11 @@
 export default {
   // ToDo replace with actual data calls
   data() {
-    return {
+    return {}
+  }, methods: {
+    // ToDo replace with actual functions
+    showCaptchasHelp() {
+      console.log("showCaptchasHelp()");
     }
   }
 }
@@ -327,9 +331,9 @@ export default {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                       <span v-if="crawltimes.next_f_run > currentMillis">
-                                            <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine FF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
-                                        </span>
+                      <!-- ToDo refactor removed AngularJS filters to vue -->
+                      <i class="bi bi-clock-fill text-warning"
+                         :title="Keine FF-Suchläufe bis: {{ crawltimes.next_f_run }}"></i></span>
                     </li>
                     <li v-if="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
                         hostnames.nk
@@ -450,9 +454,9 @@ export default {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                       <span v-if="crawltimes.next_f_run > currentMillis">
-                                            <i class="bi bi-clock-fill text-warning"
-                                               ng-attr-title="Keine SF-Suchläufe bis: {{ crawltimes.next_f_run | date:'HH:mm:ss' }}"></i>
-                                        </span>
+                        <!-- ToDo refactor removed AngularJS filters to vue -->
+                        <i class="bi bi-clock-fill text-warning"
+                           :title="Keine SF-Suchläufe bis: {{ crawltimes.next_f_run }}"></i></span>
                     </li>
                   </ul>
                 </div>

@@ -3,6 +3,11 @@ export default {
   // ToDo replace with actual data calls
   data() {
     return {}
+  }, methods: {
+    // ToDo replace with actual functions
+    saveSettings() {
+      console.log("saveSettings()");
+    }
   }
 }
 </script>
@@ -29,40 +34,40 @@ export default {
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body">
                 <h5>Nutzername</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.myjd_user"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.myjd_user"
                        title="Hier den Nutzernamen von My JDownloader angeben."/>
                 <h5>Passwort</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.myjd_pass"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.myjd_pass"
                        title="Hier das Passwort von My JDownloader angeben."
                        type="password"/>
                 <h5>Gerätename</h5>
                 <input class="form-control" data-toggle="tooltip"
-                       ng-model="settings.general.myjd_device"
+                       v-model="settings.general.myjd_device"
                        title="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."/>
                 <h5>Autostart</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.crawljobs.autostart"
+                         v-model="settings.crawljobs.autostart"
                          title="Wenn aktiviert, werden Downloads automatisch gestartet, sobald diese entschlüsselt vorliegen."
                          type="checkbox">
                 </label>
                 <h5>Unterordner bei Download</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.crawljobs.subdir"
+                         v-model="settings.crawljobs.subdir"
                          title="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!"
                          type="checkbox">
                 </label>
                 <h5>Bereich zuklappen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.general.closed_myjd_tab"
+                         v-model="settings.general.closed_myjd_tab"
                          title="Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des FeedCrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht."
                          type="checkbox">
                 </label>
                 <h5>Pakete pro Seite</h5>
                 <input class="number form-control" data-toggle="tooltip" max="30" min="3"
-                       ng-model="settings.general.packages_per_myjd_page"
+                       v-model="settings.general.packages_per_myjd_page"
                        required
                        title="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."
                        type="number"/>
@@ -82,50 +87,50 @@ export default {
               <div class="accordion-body">
                 <h5>Port</h5>
                 <input class="number form-control docker" data-toggle="tooltip" max="65535" min="1024"
-                       ng-model="settings.general.port"
+                       v-model="settings.general.port"
                        required title="Hier den Port des Webservers wählen."
                        type="number"/>
                 <h5>Prefix</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.prefix"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.prefix"
                        title="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."/>
                 <h5>Nutzername</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.auth_user"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.auth_user"
                        title="Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!)."/>
                 <h5>Passwort</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.auth_hash"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.auth_hash"
                        title="Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!)."
                        type="password"/>
                 <h5>Suchintervall</h5>
                 <input class="number form-control" data-toggle="tooltip" max="1440" min="5"
-                       ng-model="settings.general.interval"
+                       v-model="settings.general.interval"
                        required
                        title="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."
                        type="number"/>
                 <h5>FlareSolverr-URL</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.general.flaresolverr"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.general.flaresolverr"
                        title="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191 - FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."/>
                 <h5>FlareSolverr-Proxy-URL</h5>
                 <input class="form-control" data-toggle="tooltip"
-                       ng-model="settings.general.flaresolverr_proxy"
+                       v-model="settings.general.flaresolverr_proxy"
                        title="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."/>
                 <h5>Ein Mirror genügt</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.general.one_mirror_policy"
+                         v-model="settings.general.one_mirror_policy"
                          title="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"
                          type="checkbox">
                 </label>
                 <h5>Englische Releases hinzufügen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.general.english"
+                         v-model="settings.general.english"
                          title="Wenn aktiviert, werden auch englischsprachige Titel gesucht."
                          type="checkbox">
                 </label>
                 <h5>Mehrkanalton erzwingen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.general.surround"
+                         v-model="settings.general.surround"
                          title="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt."
                          type="checkbox">
                 </label>
@@ -151,31 +156,31 @@ export default {
                   <div class="col-sm">
                     <h5>Rapidgator</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.rapidgator"
+                      <input class="form-check-input" v-model="settings.hosters.rapidgator"
                              type="checkbox">
 
                     </label>
                     <h5>Turbobit</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.turbobit"
+                      <input class="form-check-input" v-model="settings.hosters.turbobit"
                              type="checkbox">
 
                     </label>
                     <h5>Uploaded</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.uploaded"
+                      <input class="form-check-input" v-model="settings.hosters.uploaded"
                              type="checkbox">
 
                     </label>
                     <h5>Zippyshare</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.zippyshare"
+                      <input class="form-check-input" v-model="settings.hosters.zippyshare"
                              type="checkbox">
 
                     </label>
                     <h5>OBOOM</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.oboom"
+                      <input class="form-check-input" v-model="settings.hosters.oboom"
                              type="checkbox">
 
                     </label>
@@ -183,31 +188,31 @@ export default {
                   <div class="col-sm">
                     <h5>DDownload</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.ddl"
+                      <input class="form-check-input" v-model="settings.hosters.ddl"
                              type="checkbox">
 
                     </label>
                     <h5>FileFactory</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.filefactory"
+                      <input class="form-check-input" v-model="settings.hosters.filefactory"
                              type="checkbox">
 
                     </label>
                     <h5>Uptobox</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.uptobox"
+                      <input class="form-check-input" v-model="settings.hosters.uptobox"
                              type="checkbox">
 
                     </label>
                     <h5>1Fichier</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.onefichier"
+                      <input class="form-check-input" v-model="settings.hosters.onefichier"
                              type="checkbox">
 
                     </label>
                     <h5>Filer</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.filer"
+                      <input class="form-check-input" v-model="settings.hosters.filer"
                              type="checkbox">
 
                     </label>
@@ -215,19 +220,19 @@ export default {
                   <div class="col-sm">
                     <h5>Nitroflare</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.nitroflare"
+                      <input class="form-check-input" v-model="settings.hosters.nitroflare"
                              type="checkbox">
 
                     </label>
                     <h5>IronFiles</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.ironfiles"
+                      <input class="form-check-input" v-model="settings.hosters.ironfiles"
                              type="checkbox">
 
                     </label>
                     <h5>Keep2Share</h5>
                     <label class="form-check form-switch">
-                      <input class="form-check-input" ng-model="settings.hosters.k2s"
+                      <input class="form-check-input" v-model="settings.hosters.k2s"
                              type="checkbox">
 
                     </label>
@@ -248,17 +253,17 @@ export default {
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body">
                 <h5>Pushbullet</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.alerts.pushbullet"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.alerts.pushbullet"
                        title="Access-Token auf Pushbullet.com anlegen und hier angeben."/>
                 <h5>Pushover</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.alerts.pushover"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.alerts.pushover"
                        title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine auf Pushover.net anlegen."/>
                 <h5>Home Assistant</h5>
                 <input class="form-control" data-toggle="tooltip"
-                       ng-model="settings.alerts.homeassistant"
+                       v-model="settings.alerts.homeassistant"
                        title="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben."/>
                 <h5>Telegram</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.alerts.telegram"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.alerts.telegram"
                        title="Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt."/>
               </div>
             </div>
@@ -275,10 +280,10 @@ export default {
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body">
                 <h5>Ombi URL</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.ombi.url"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.ombi.url"
                        title="Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."/>
                 <h5>Ombi API-Key</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.ombi.api"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.ombi.api"
                        title="Pflichtangabe: Hier den API-Key von Ombi angeben."/>
               </div>
             </div>
@@ -297,66 +302,74 @@ export default {
                 <h5>Auflösung</h5>
                 <select class="form-control"
                         data-toggle="tooltip"
-                        ng-model="settings.mb.quality" ng-options="r.value as r.label for r in resolutions"
-                        title="Die Release-Auflösung, nach der gesucht wird."></select>
+                        v-model="settings.mb.quality"
+                        title="Die Release-Auflösung, nach der gesucht wird.">
+                  <option v-for="option in resolutions" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
                 <h5>Suchtiefe</h5>
                 <select class="form-control" data-toggle="tooltip"
-                        ng-model="settings.mb.search" ng-options="s.value as s.label for s in mb_search"
-                        title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"></select>
+                        v-model="settings.mb.search"
+                        title="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!">
+                  <option v-for="option in mb_search" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
                 <h5>Filterliste</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.mb.ignore"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.mb.ignore"
                        title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.regex"
+                         v-model="settings.mb.regex"
                          title="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                          type="checkbox">
                 </label>
                 <h5>Ab IMDb-Wertung hinzufügen</h5>
                 <input class="number form-control" data-toggle="tooltip" max="10.0" min="0.0"
-                       ng-model="settings.mb.imdb_score"
+                       v-model="settings.mb.imdb_score"
                        required
                        step="0.1"
                        title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren."
                        type="number"/>
                 <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
                 <input id="year" class="number form-control" data-toggle="tooltip" max="2100" min="1900"
-                       ng-model="settings.mb.imdb_year"
+                       v-model="settings.mb.imdb_year"
                        title="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."
                        type="number"/>
                 <h5>Zweisprachige Releases erzwingen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.force_dl"
+                         v-model="settings.mb.force_dl"
                          title="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."
                          type="checkbox">
                 </label>
                 <h5>Nur Retail hinzufügen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.retail_only"
+                         v-model="settings.mb.retail_only"
                          title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."
                          type="checkbox">
                 </label>
                 <h5>Listeneintrag bei Retail streichen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.cutoff"
+                         v-model="settings.mb.cutoff"
                          title="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."
                          type="checkbox">
                 </label>
                 <h5>1080p-HEVC bevorzugen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.hevc_retail"
+                         v-model="settings.mb.hevc_retail"
                          title="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste."
                          type="checkbox">
                 </label>
                 <h5>Hoster-Fallback</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mb.hoster_fallback"
+                         v-model="settings.mb.hoster_fallback"
                          title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                          type="checkbox">
                 </label>
@@ -364,36 +377,44 @@ export default {
                   <h5>Staffeln suchen</h5>
                   <label class="form-check form-switch">
                     <input class="form-check-input" data-toggle="tooltip"
-                           ng-model="settings.mbsj.enabled"
+                           v-model="settings.mbsj.enabled"
                            title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                            type="checkbox">
                   </label>
                   <h5>Auflösung der Staffeln</h5>
                   <select class="form-control"
                           data-toggle="tooltip"
-                          ng-model="settings.mbsj.quality" ng-options="r.value as r.label for r in resolutions"
-                          title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
+                          v-model="settings.mbsj.quality"
+                          title="Die Release-Auflösung der Staffeln, nach der gesucht wird.">
+                    <option v-for="option in resolutions" v-bind:value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
                   <h5>Staffelpakete erlauben</h5>
                   <label class="form-check form-switch">
                     <input class="form-check-input" data-toggle="tooltip"
-                           ng-model="settings.mbsj.packs"
+                           v-model="settings.mbsj.packs"
                            title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                            type="checkbox">
                   </label>
                   <h5>Quellart der Staffeln</h5>
                   <select class="form-control" data-toggle="tooltip"
-                          ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
-                          title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                          v-model="settings.mbsj.source"
+                          title="Die Quellart der Staffeln, nach der gesucht wird.">
+                    <option v-for="option in sources" v-bind:value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
                 </div>
                 <div v-if="hostnames.f !== 'Nicht gesetzt!' && hostnames.f === hostnames.bl">
                   <h5>Suchintervall</h5>
                   <input class="number form-control" data-toggle="tooltip" max="24" min="6"
-                         ng-model="settings.f.interval"
+                         v-model="settings.f.interval"
                          required
                          title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden."
                          type="number"/>
                   <h5>Suchtiefe</h5>
-                  <input class="number form-control" data-toggle="tooltip" max="7" min="1" ng-model="settings.f.search"
+                  <input class="number form-control" data-toggle="tooltip" max="7" min="1" v-model="settings.f.search"
                          required
                          title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."
                          type="number"/>
@@ -415,36 +436,40 @@ export default {
                 <h5>Auflösung</h5>
                 <select class="form-control"
                         data-toggle="tooltip"
-                        ng-model="settings.sj.quality" ng-options="r.value as r.label for r in resolutions"
-                        title="Die Release-Auflösung, nach der gesucht wird."></select>
+                        v-model="settings.sj.quality"
+                        title="Die Release-Auflösung, nach der gesucht wird.">
+                  <option v-for="option in resolutions" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
                 <h5>Filterliste</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.sj.ignore"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.sj.ignore"
                        title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.sj.regex"
+                         v-model="settings.sj.regex"
                          title="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                          type="checkbox">
                 </label>
                 <h5>Nur Retail hinzufügen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.sj.retail_only"
+                         v-model="settings.sj.retail_only"
                          title="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."
                          type="checkbox">
                 </label>
                 <h5>1080p-HEVC bevorzugen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.sj.hevc_retail"
+                         v-model="settings.sj.hevc_retail"
                          title="Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen."
                          type="checkbox">
                 </label>
                 <h5>Hoster-Fallback</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.sj.hoster_fallback"
+                         v-model="settings.sj.hoster_fallback"
                          title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                          type="checkbox">
                 </label>
@@ -452,26 +477,34 @@ export default {
                   <h5>Staffeln suchen</h5>
                   <label class="form-check form-switch">
                     <input class="form-check-input" data-toggle="tooltip"
-                           ng-model="settings.mbsj.enabled"
+                           v-model="settings.mbsj.enabled"
                            title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                            type="checkbox">
                   </label>
                   <h5>Auflösung der Staffeln</h5>
                   <select class="form-control"
                           data-toggle="tooltip"
-                          ng-model="settings.mbsj.quality" ng-options="r.value as r.label for r in resolutions"
-                          title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
+                          v-model="settings.mbsj.quality"
+                          title="Die Release-Auflösung der Staffeln, nach der gesucht wird.">
+                    <option v-for="option in resolutions" v-bind:value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
                   <h5>Staffelpakete erlauben</h5>
                   <label class="form-check form-switch">
                     <input class="form-check-input" data-toggle="tooltip"
-                           ng-model="settings.mbsj.packs"
+                           v-model="settings.mbsj.packs"
                            title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                            type="checkbox">
                   </label>
                   <h5>Quellart der Staffeln</h5>
                   <select class="form-control" data-toggle="tooltip"
-                          ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
-                          title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                          v-model="settings.mbsj.source"
+                          title="Die Quellart der Staffeln, nach der gesucht wird.">
+                    <option v-for="option in sources" v-bind:value="option.value">
+                      {{ option.label }}
+                    </option>
+                  </select>
                 </div>
               </div>
             </div>
@@ -491,26 +524,34 @@ export default {
                 <h5>Staffeln suchen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mbsj.enabled"
+                         v-model="settings.mbsj.enabled"
                          title="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                          type="checkbox">
                 </label>
                 <h5>Auflösung der Staffeln</h5>
                 <select class="form-control"
                         data-toggle="tooltip"
-                        ng-model="settings.mbsj.quality" ng-options="r.value as r.label for r in resolutions"
-                        title="Die Release-Auflösung der Staffeln, nach der gesucht wird."></select>
+                        v-model="settings.mbsj.quality"
+                        title="Die Release-Auflösung der Staffeln, nach der gesucht wird.">
+                  <option v-for="option in resolutions" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
                 <h5>Staffelpakete erlauben</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.mbsj.packs"
+                         v-model="settings.mbsj.packs"
                          title="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                          type="checkbox">
                 </label>
                 <h5>Quellart der Staffeln</h5>
                 <select class="form-control" data-toggle="tooltip"
-                        ng-model="settings.mbsj.source" ng-options="s.value as s.label for s in sources"
-                        title="Die Quellart der Staffeln, nach der gesucht wird."></select>
+                        v-model="settings.mbsj.source"
+                        title="Die Quellart der Staffeln, nach der gesucht wird.">
+                  <option v-for="option in sources" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
               </div>
             </div>
           </div>
@@ -528,22 +569,26 @@ export default {
                 <h5>Auflösung</h5>
                 <select class="form-control"
                         data-toggle="tooltip"
-                        ng-model="settings.dj.quality" ng-options="r.value as r.label for r in resolutions"
-                        title="Die Release-Auflösung, nach der gesucht wird."></select>
+                        v-model="settings.dj.quality"
+                        title="Die Release-Auflösung, nach der gesucht wird.">
+                  <option v-for="option in resolutions" v-bind:value="option.value">
+                    {{ option.label }}
+                  </option>
+                </select>
                 <h5>Filterliste</h5>
-                <input class="form-control" data-toggle="tooltip" ng-model="settings.dj.ignore"
+                <input class="form-control" data-toggle="tooltip" v-model="settings.dj.ignore"
                        title="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.dj.regex"
+                         v-model="settings.dj.regex"
                          title="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                          type="checkbox">
                 </label>
                 <h5>Hoster-Fallback</h5>
                 <label class="form-check form-switch">
                   <input class="form-check-input" data-toggle="tooltip"
-                         ng-model="settings.dj.hoster_fallback"
+                         v-model="settings.dj.hoster_fallback"
                          title="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                          type="checkbox">
                 </label>
@@ -562,12 +607,12 @@ export default {
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body">
                 <h5>Suchintervall</h5>
-                <input class="number form-control" data-toggle="tooltip" max="24" min="6" ng-model="settings.f.interval"
+                <input class="number form-control" data-toggle="tooltip" max="24" min="6" v-model="settings.f.interval"
                        required
                        title="Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden."
                        type="number"/>
                 <h5>Suchtiefe</h5>
-                <input class="number form-control" data-toggle="tooltip" max="7" min="1" ng-model="settings.f.search"
+                <input class="number form-control" data-toggle="tooltip" max="7" min="1" v-model="settings.f.search"
                        required
                        title="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."
                        type="number"/>

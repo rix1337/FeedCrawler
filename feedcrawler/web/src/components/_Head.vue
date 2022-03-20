@@ -73,19 +73,19 @@ export default {
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomLists"
               aria-controls="offcanvasBottomLists"
-              v-on:click="getLists()"><i class="bi bi-text-left"></i> Suchlisten
+              @click="getLists()"><i class="bi bi-text-left"></i> Suchlisten
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomSettings"
               aria-controls="offcanvasBottomSettings"
-              v-on:click="getSettings()"><i class="bi bi-gear"></i> Einstellungen
+              @click="getSettings()"><i class="bi bi-gear"></i> Einstellungen
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomHelp"
               aria-controls="offcanvasBottomHelp"
-              v-on:click="getBlockedSites()"><i class="bi bi-question-diamond"></i> Hilfe
+              @click="getBlockedSites()"><i class="bi bi-question-diamond"></i> Hilfe
       </button>
     </div>
 

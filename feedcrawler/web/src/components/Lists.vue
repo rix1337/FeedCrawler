@@ -31,6 +31,11 @@ export default {
       },
       sjbl_enabled: true,
     }
+  }, methods: {
+    // ToDo replace with actual functions
+    saveLists() {
+      console.log("saveLists()");
+    }
   }
 }
 </script>
