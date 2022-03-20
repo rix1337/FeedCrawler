@@ -6,28 +6,25 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import Head from './components/_Head.vue'
 import Log from './components/_Log.vue'
 import MyJD from './components/_MyJD.vue'
+import Notifications from './components/_Notifications.vue'
 import Search from './components/Search.vue'
 import Lists from './components/Lists.vue'
 import Settings from './components/Settings.vue'
-import Help from './components/Help.vue'
-import Notifications from './components/Notifications.vue'</script>
+import Help from './components/Help.vue'</script>
 
 <template>
   <main class="text-center">
-    <!--- Visible Items -->
+    <!--- Main Items -->
     <Head/>
     <Log/>
     <MyJD/>
+    <Notifications/>
 
     <!--- Offcanvas Items -->
     <Search/>
     <Lists/>
     <Settings/>
     <Help/>
-
-    <!-- UI Notifications -->
-    <Notifications/>
-
   </main>
 </template>
 
