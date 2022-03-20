@@ -13,6 +13,20 @@ export default {
         next_f_run: "345000",
       }
     }
+  }, methods: {
+    // ToDo replace with actual functions
+    startNow() {
+      console.log("startNow()");
+    },
+    getLists() {
+      console.log("getLists()");
+    },
+    getSettings() {
+      console.log("getSettings()");
+    },
+    getBlockedSites() {
+      console.log("getBlockedSites()");
+    }
   }
 }
 </script>
@@ -32,7 +46,8 @@ export default {
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
         Suchlauf gestartet: {{ crawltimes.start_time }} (Dauer: {{
-        (now - crawltimes.start_time) / 1000 }})
+          (now - crawltimes.start_time) / 1000
+        }})
       </div>
       <div v-if="!crawltimes.active">
         Start des nächsten Suchlaufs: {{ crawltimes.next_start }}

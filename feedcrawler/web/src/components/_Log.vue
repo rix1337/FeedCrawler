@@ -9,16 +9,16 @@ export default {
       numberOfPagesLog: 2,
       pageSizeLog: 5,
       log: [
-          "Test",
-          "Test2",
-          "Test3",
-          "Test4",
-          "Test5",
-          "Test6",
-          "Test7",
-          "Test8",
-          "Test9",
-          "Test10",
+        "Test",
+        "Test2",
+        "Test3",
+        "Test4",
+        "Test5",
+        "Test6",
+        "Test7",
+        "Test8",
+        "Test9",
+        "Test10",
       ]
     }
   }
@@ -29,13 +29,13 @@ export default {
   <div id="log" class="container app col">
     <h3><i class="bi bi-clock-history"></i> Log</h3>
     <div class="card log">
-      <table class="table" v-if="log.length > 0">
+      <table v-if="log.length > 0" class="table">
         <thead>
         <tr>
-          <th scope="col" class="text-left d-none d-lg-block">Zeitstempel</th>
-          <th scope="col" class="text-left">Release</th>
-          <th scope="col" class="text-left">Kategorie</th>
-          <th scope="col" class="text-left d-none d-lg-block">Seite</th>
+          <th class="text-left d-none d-lg-block" scope="col">Zeitstempel</th>
+          <th class="text-left" scope="col">Release</th>
+          <th class="text-left" scope="col">Kategorie</th>
+          <th class="text-left d-none d-lg-block" scope="col">Seite</th>
         </tr>
         </thead>
         <tbody id="logbody">
@@ -44,38 +44,38 @@ export default {
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
           <td class="text-left" title="{{ x[3] }}">
             {{ x[3] }}
-            <a href='' v-if="!longlog && x[3].length > 65" @click="longerLog()"
-               title="Titel vollständig anzeigen">...</a>
-            <a href='' v-if="longlog && x[3].length > 65" @click="shorterLog()" title="Titel kürzen"><i
+            <a v-if="!longlog && x[3].length > 65" href='' title="Titel vollständig anzeigen"
+               @click="longerLog()">...</a>
+            <a v-if="longlog && x[3].length > 65" href='' title="Titel kürzen" @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></a>
           </td>
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
-          <td class="text-right"><a href="" title="Logeintrag löschen" data-toggle="tooltip"
+          <td class="text-right"><a data-toggle="tooltip" href="" title="Logeintrag löschen"
                                     @click="deleteLogRow(x[3])"><i
               class="bi bi-trash remove"></i></a></td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="btn-group" v-if="resLengthLog>5">
+    <div v-if="resLengthLog>5" class="btn-group">
       <!-- ToDo refactor ng-disable to vue variant -->
-      <button class="btn btn-outline-info" :disable="currentPageLog === 0"
+      <button :disable="currentPageLog === 0" class="btn btn-outline-info"
               @click="currentPageLog=currentPageLog-1">
         <i class="bi bi-chevron-left"></i>
       </button>
       <button class="btn btn-outline-info disabled">
-        {{currentPageLog + 1}} / {{numberOfPagesLog}}
+        {{ currentPageLog + 1 }} / {{ numberOfPagesLog }}
       </button>
-      <button class="btn btn-outline-info" :disable="currentPageLog >= resLengthLog/pageSizeLog - 1"
+      <button :disable="currentPageLog >= resLengthLog/pageSizeLog - 1" class="btn btn-outline-info"
               @click="currentPageLog=currentPageLog+1">
         <i class="bi bi-chevron-right"></i>
       </button>
     </div>
     <div>
-      <a href="" @click="deleteLog()" class="btn btn-dark">
-        <div id="spinner-log" style="display: none;"
-             class="spinner-border spinner-border-sm" role="status"></div>
+      <a class="btn btn-dark" href="" @click="deleteLog()">
+        <div id="spinner-log" class="spinner-border spinner-border-sm"
+             role="status" style="display: none;"></div>
         <i class="bi bi-trash"></i> Leeren</a>
     </div>
   </div>
