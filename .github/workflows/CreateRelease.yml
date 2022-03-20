@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2     
+        uses: actions/checkout@v2
       - uses: actions/cache@v2
         with:
           path: ~/.cache/pip
@@ -27,6 +27,15 @@ jobs:
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: Install dependencies
+        run: npm ci
+        working-directory: feedcrawler/web
+      - run: npm run build --if-present
+        working-directory: feedcrawler/web
       - name: Compile Linux wheel
         run: |
           python setup.py sdist bdist_wheel
@@ -35,7 +44,7 @@ jobs:
         with:
           name: artifact-wheel
           path: ./dist/*
-          
+
   build_exe:
     name: Build Windows Exe
     runs-on: windows-latest
@@ -53,6 +62,15 @@ jobs:
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
+      - name: Use Node.js 16.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+      - name: Install dependencies
+        run: npm ci
+        working-directory: feedcrawler/web
+      - run: npm run build --if-present
+        working-directory: feedcrawler/web
       - name: Compile Windows Exe
         run: |
           $version = python feedcrawler/version.py
