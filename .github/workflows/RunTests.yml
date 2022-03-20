@@ -2,11 +2,11 @@ name: Run Tests
 on: [pull_request]
 
 jobs:
-  build:
+  build-python:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9]
+        python-version: [ 3.6, 3.7, 3.8, 3.9 ]
     name: Python ${{ matrix.python-version }}
     steps:
       - uses: actions/checkout@v2
@@ -21,3 +21,19 @@ jobs:
           key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
       - run: pip install -r requirements.txt
       - run: python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
+  build-vuejs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm ci
+        working-directory: feedcrawler/web
+      - run: npm run build --if-present
+        working-directory: feedcrawler/web
