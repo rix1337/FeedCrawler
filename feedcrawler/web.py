@@ -130,7 +130,7 @@ def app_container():
     @app.route(prefix + '/<path:path>')
     @requires_auth
     def send_html(path):
-        return send_from_directory(os.path.join(base_dir, 'web'), path)
+        return send_from_directory(os.path.join(base_dir, 'web/dist'), path)
 
     @app.route(prefix + '/')
     @requires_auth

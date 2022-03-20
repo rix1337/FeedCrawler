@@ -7,6 +7,7 @@ on:
     branches:
       - master
 
+# ToDo add build step for nodejs / vue frontend
 jobs:
   build_wheel:
     name: Build Linux wheel
