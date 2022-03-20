@@ -2,7 +2,7 @@
 
 <img src="./feedcrawler/web/img/favicon.ico" data-canonical-src="./feedcrawler/web/img/favicon.ico" width="64" height="64" />
 
-FeedCrawler (ehemals RSScrawler) automatisiert bequem das Hinzufügen von Links für den JDownloader.
+FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 [![Release Artifacts](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml/badge.svg?branch=master)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 [![PyPI version](https://badge.fury.io/py/feedcrawler.svg)](https://badge.fury.io/py/feedcrawler)

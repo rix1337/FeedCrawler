@@ -10,19 +10,13 @@
 
 ### Changelog FeedCrawler:
 
-- **12.4.0** Verbesserungen in der "Click'n'Load-Automatik" (Funktion für manuelles CAPTCHA-Lösen)
-- **12.4.0** Verbesserungen im FC-Script für "Sponsors-Helper Click'n'Load"
-- **12.3.5** Bugfix in ContentAll-Suche
-- **12.3.4** Erkenne, wenn manuelle Entschlüsselung von PL-Links notwendig ist
-- **12.3.3** PL-Websuche integriert
-- **12.3.3** Bugfix in FX-Websuche
-- **12.3.2** Bugfix in Passwortweitergabe der HEVC/DL-Suche
-- **12.3.2** Bugfix im Zerstören von Flaresolverr-Sessions
-- **12.3.1** PL-Seitenstatus in Webinterface integriert
-- **12.3.1** Prototypischer Aufbau der notwendigen Ergebnisse der Feedsuchen dokumentiert.
-- **12.3.0** Verwende html5lib statt lxml in BeautifulSoup
-- **12.3.0** PL-Feedsuche integriert
-- **12.3.0** Modulstruktur überarbeitet und Zweck der Einzelmodule dokumentiert.
+- **13.0.0** Migration des AngularJS Frontends zu [Vue.js 3](https://vuejs.org/)
+  - AngularJS ist seit Ende 2021 [End-of-Life](https://docs.angularjs.org/misc/version-support-status) und wird nicht mehr aktiv gepflegt. 
+  - Vue.js ist ein modernes und aktiv gepflegtes Framework für Single-Page-Applications.
+  - Der Wechsel der Frameworks war nicht zwingend notwendig, macht den FeedCrawler jedoch zukunftssicherer und das Frontend schneller.
+  - Bei Installation per Docker, PIP oder Windows Exe ist nichts weiter zu tun. Das Frontend muss jedoch vor der manuellen Installation per setup.py bereits per "npm run build" im Ordner `feedcrawler/web` kompiliert worden sein.
+  - Danke an alle [Sponsoren](https://github.com/sponsors/rix1337/)! Ohne eure Unterstützung wäre die technische Pflege des FeedCrawlers nicht möglich.
+  
 
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
