@@ -1,5 +1,6 @@
 <script>
 export default {
+  // ToDo replace with actual data calls
   data() {
     return {
       now: Date.now(),
@@ -27,6 +28,7 @@ export default {
 
     <div class="border-top"></div>
 
+    <!-- ToDo refactor removed AngularJS filters to vue -->
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
         Suchlauf gestartet: {{ crawltimes.start_time }} (Dauer: {{
@@ -36,7 +38,7 @@ export default {
         Start des nächsten Suchlaufs: {{ crawltimes.next_start }}
         <i id="start_now" class="bi bi-skip-end-fill" title="Suchlauf direkt starten" data-toggle="tooltip"
            v-if="!starting"
-           v-on:click="startNow()"></i>
+           @click="startNow()"></i>
         <div v-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
       </div>
       <div v-if="crawltimes.next_f_run">
