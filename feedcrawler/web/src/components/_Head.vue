@@ -1,35 +1,69 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      now: Date.now(),
-      version: "0.0.1",
-      crawltimes: {
-        active: true,
-        start_time: "123000",
-        next_start: "234000",
-        total_time: "90000",
-        next_f_run: "345000",
-      }
-    }
-  }, methods: {
-    // ToDo replace with actual functions
-    startNow() {
-      console.log("startNow()");
-    },
-    getLists() {
-      console.log("getLists()");
-    },
-    getSettings() {
-      console.log("getSettings()");
-    },
-    getBlockedSites() {
-      console.log("getBlockedSites()");
-    }
-  }
+<script setup>
+import axios from 'axios';
+import {onMounted, ref} from 'vue'
+
+const now = ref(Date.now())
+const version = ref("0.0.1")
+let starting = ref(false)
+let crawltimes = ref({
+  active: true,
+  start_time: "123000",
+  next_start: "234000",
+  total_time: "90000",
+  next_f_run: "345000"
+})
+
+onMounted(() => {
+  console.log(crawltimes.value)
+  getCrawlTimes();
+  updateCrawlTimes();
+})
+
+function getCrawlTimes() {
+  axios.get('api/crawltimes/')
+      .then(function (res) {
+        starting = false;
+        crawltimes.value = res.data.crawltimes;
+        console.log(crawltimes);
+        console.log('Laufzeiten abgerufen!');
+      }, function () {
+        console.log('Konnte Laufzeiten nicht abrufen!');
+        //showDanger('Konnte Laufzeiten nicht abrufen!');
+      });
+}
+
+function updateCrawlTimes() {
+  setTimeout(function () {
+    getCrawlTimes();
+    updateCrawlTimes();
+  }, 15000);
+}
+
+function getTimestamp() {
+  const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s);
+  const d = new Date();
+
+  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+// ToDo replace with actual functions
+function startNow() {
+  console.log("startNow()");
+}
+
+function getLists() {
+  console.log("getLists()");
+}
+
+function getSettings() {
+  console.log("getSettings()");
+}
+
+function getBlockedSites() {
+  console.log("getBlockedSites()");
 }
 </script>
+
 
 <template>
   <div id="head" class="container app col">
@@ -45,12 +79,12 @@ export default {
     <!-- ToDo refactor removed AngularJS filters to vue -->
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
-        Suchlauf gestartet: {{ crawltimes.start_time }} (Dauer: {{
+        Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{
           (now - crawltimes.start_time) / 1000
         }})
       </div>
       <div v-if="!crawltimes.active">
-        Start des nächsten Suchlaufs: {{ crawltimes.next_start }}
+        Start des nächsten Suchlaufs: {{ getTimestamp(crawltimes.next_start) }}
         <i id="start_now" class="bi bi-skip-end-fill" title="Suchlauf direkt starten" data-toggle="tooltip"
            v-if="!starting"
            @click="startNow()"></i>

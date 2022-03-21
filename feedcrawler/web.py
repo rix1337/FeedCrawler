@@ -62,7 +62,7 @@ def app_container():
         base_dir = os.path.join(sys._MEIPASS)
 
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
-    app.config["TEMPLATES_AUTO_RELOAD"] = False
+    app.config["TEMPLATES_AUTO_RELOAD"] = True
 
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
