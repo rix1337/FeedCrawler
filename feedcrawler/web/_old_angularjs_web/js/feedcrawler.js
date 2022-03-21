@@ -1,5 +1,3 @@
-let app = angular.module('crwlApp', []);
-
 app.filter('startFrom', function () {
     return function (input, start) {
         if (typeof input !== 'undefined') {
@@ -14,12 +12,6 @@ app.filter('startFrom', function () {
         }
     }
 });
-
-app.filter('secondsToHHmmss', function ($filter) {
-    return function (seconds) {
-        return $filter('date')(new Date(0, 0, 0).setSeconds(seconds), 'HH:mm:ss');
-    };
-})
 
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
@@ -118,7 +110,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     ];
 
-    $scope.crawltimes = false;
     $scope.blocked_sites = false;
     $scope.cnl_active = false;
     $scope.myjd_connection_error = false;
@@ -265,7 +256,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getVersion();
         getMyJD();
         getLog();
-        getCrawlTimes();
         getSettings();
     }
 
@@ -894,17 +884,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.updateLog();
-
-    $scope.updateCrawlTimes = function () {
-        $timeout(function () {
-            if (!$scope.cnl_active) {
-                getCrawlTimes();
-            }
-            $scope.updateCrawlTimes();
-        }, 15000)
-    };
-
-    $scope.updateCrawlTimes();
 
     $scope.updateChecker = function () {
         $timeout(function () {

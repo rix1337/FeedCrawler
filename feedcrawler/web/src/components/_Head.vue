@@ -3,20 +3,15 @@ import axios from 'axios';
 import {onMounted, ref} from 'vue'
 
 const now = ref(Date.now())
-const version = ref("0.0.1")
+let version = ref("0.0.1")
 let starting = ref(false)
-let crawltimes = ref({
-  active: true,
-  start_time: "123000",
-  next_start: "234000",
-  total_time: "90000",
-  next_f_run: "345000"
-})
+let crawltimes = ref({})
 
 onMounted(() => {
-  console.log(crawltimes.value)
-  getCrawlTimes();
-  updateCrawlTimes();
+  getVersion()
+  getCrawlTimes()
+  runEveryXSeconds(getCrawlTimes, 15)
+  runEveryXSeconds(getVersion, 300)
 })
 
 function getCrawlTimes() {
@@ -24,7 +19,6 @@ function getCrawlTimes() {
       .then(function (res) {
         starting = false;
         crawltimes.value = res.data.crawltimes;
-        console.log(crawltimes);
         console.log('Laufzeiten abgerufen!');
       }, function () {
         console.log('Konnte Laufzeiten nicht abrufen!');
@@ -32,18 +26,23 @@ function getCrawlTimes() {
       });
 }
 
-function updateCrawlTimes() {
+function runEveryXSeconds(toRun, seconds) {
   setTimeout(function () {
-    getCrawlTimes();
-    updateCrawlTimes();
-  }, 15000);
+    toRun();
+    runEveryXSeconds();
+  }, seconds * 1000);
+}
+
+function getVersion() {
+  // ToDo
+  console.log("Version: " + version.value);
 }
 
 function getTimestamp() {
   const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s);
   const d = new Date();
 
-  return `${pad(d.getFullYear(), 4)}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 // ToDo replace with actual functions
@@ -76,7 +75,6 @@ function getBlockedSites() {
 
     <div class="border-top"></div>
 
-    <!-- ToDo refactor removed AngularJS filters to vue -->
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
         Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{
@@ -91,9 +89,9 @@ function getBlockedSites() {
         <div v-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
       </div>
       <div v-if="crawltimes.next_f_run">
-        Keine SF/FF-Suchläufe bis: {{ crawltimes.next_f_run }}
+        Keine SF/FF-Suchläufe bis: {{ getTimestamp(crawltimes.next_f_run) }}
       </div>
-      Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
+      Dauer des letzten Suchlaufs: {{ getTimestamp(crawltimes.total_time) }}
     </div>
 
     <div class="border-top"></div>
