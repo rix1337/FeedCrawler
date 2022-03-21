@@ -244,7 +244,7 @@ export default {
             <div class="accordion-body">
               <div class="row">
                 <div
-                    v-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.pl !== 'Nicht gesetzt!' || hostnames.hw !== 'Nicht gesetzt!' || hostnames.ww !== 'Nicht gesetzt!' || hostnames.ff !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
+                    v-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.hw !== 'Nicht gesetzt!' || hostnames.ww !== 'Nicht gesetzt!' || hostnames.ff !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
                     class="col">
                   <ul class="list-group">
                     <li v-if="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -266,28 +266,6 @@ export default {
                          class="bi bi-exclamation-square-fill text-danger"
                          title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
                       <i v-if="!blocked_sites.flaresolverr_proxy.FX && ( blocked_sites.normal.FX && blocked_sites.flaresolverr.FX )"
-                         class="bi bi-check-square-fill text-success"
-                         title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                    </li>
-                    <li v-if="hostnames.pl !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.pl
-                      }}
-                      (PL)
-                      <i v-if="blocked_sites.normal.PL"
-                         class="bi bi-exclamation-square-fill text-danger"
-                         title="Seite mit aktueller IP gesperrt"></i>
-                      <i v-if="!blocked_sites.normal.PL" class="bi bi-check-square-fill text-success"
-                         title="Seite mit aktueller IP verfügbar"></i>
-                      <i v-if="blocked_sites.flaresolverr.PL && blocked_sites.normal.PL"
-                         class="bi bi-exclamation-square-fill text-danger"
-                         title="Seite mit FlareSolverr (aktuelle IP) gesperrt"></i>
-                      <i v-if="!blocked_sites.flaresolverr.PL && blocked_sites.normal.PL"
-                         class="bi bi-check-square-fill text-success"
-                         title="Seite mit FlareSolverr (aktuelle IP) verfügbar"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.PL && ( blocked_sites.normal.PL && blocked_sites.flaresolverr.PL )"
-                         class="bi bi-exclamation-square-fill text-danger"
-                         title="Seite mit FlareSolverr (Proxy) gesperrt"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.PL && ( blocked_sites.normal.PL && blocked_sites.flaresolverr.PL )"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>

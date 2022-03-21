@@ -3,7 +3,6 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul durchsucht die Web-Suchen vieler Seiten des Typs content_all auf Basis einer standardisierten Struktur.
 
-import json
 import re
 
 from bs4 import BeautifulSoup
@@ -96,7 +95,6 @@ def download(payload):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     nk = hostnames.get('nk')
-    pl = CrawlerConfig('Hostnames').get('pl')
 
     payload = decode_base64(payload).split("|")
     link = payload[0]
@@ -146,9 +144,6 @@ def download(payload):
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', links_string)
             key = soup.find("h2", {"class": "entry-title"}).text.strip()
             password = payload[1]
-        elif "PL" in site:
-            download_method = myjd_download
-            key = soup.find("h5", {"class": "card-title"}).text.strip()
         else:
             return False
 
@@ -158,30 +153,6 @@ def download(payload):
                 unused = ""
 
             download_links = fx_get_download_links(FX, url, key)
-        elif "PL" in site:
-            try:
-                release_id = link.replace("https://" + pl + "/details/", "")
-            except:
-                print(u"PL hat die Linkstruktur angepasst. " + key + " konnte nicht verarbeitet werden.")
-                return False
-
-            if check_hoster("ddl"):
-                hoster = "ddl"
-            elif check_hoster("rapidgator"):
-                hoster = "rg"
-            else:
-                hoster = "ddl"
-
-            try:
-                decrypter = "https://" + pl + "/cnl/" + release_id + "?h=" + hoster
-                download_payload = json.loads(get_url(decrypter))
-                download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
-            except:
-                print(u"Download-Link für " + key + " auf PL konnte nicht automatisch entschlüsselt werden.")
-                download_links = []
-            if not download_links:
-                download_method = add_decrypt_instead_of_download
-                download_links = [link]
         else:
             for url_hoster in reversed(url_hosters):
                 try:

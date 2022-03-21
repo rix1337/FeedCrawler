@@ -516,7 +516,6 @@ def app_container():
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 sf = hostnames.get('sf')
-                pl = hostnames.get('pl')
                 ww = hostnames.get('ww')
                 nk = hostnames.get('nk')
                 by = hostnames.get('by')
@@ -527,11 +526,10 @@ def app_container():
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
-                pl = pl.replace("p", "P", 1).replace("l", "L", 1)
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                bl = ' / '.join(list(filter(None, [fx, pl, ff, hw, ww, nk, by])))
+                bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 f = ' / '.join(list(filter(None, [ff, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
@@ -548,8 +546,6 @@ def app_container():
                     dj = "Nicht gesetzt!"
                 if not sf:
                     sf = "Nicht gesetzt!"
-                if not pl:
-                    pl = "Nicht gesetzt!"
                 if not ww:
                     ww = "Nicht gesetzt!"
                 if not nk:
@@ -575,7 +571,6 @@ def app_container():
                             "hw": hw,
                             "ff": ff,
                             "nk": nk,
-                            "pl": pl,
                             "ww": ww,
                             "bl": bl,
                             "s": s,
@@ -607,7 +602,6 @@ def app_container():
                                 "HW": check("HW_normal", db_status),
                                 "FF": check("FF_normal", db_status),
                                 "NK": check("NK_normal", db_status),
-                                "PL": check("PL_normal", db_status),
                                 "WW": check("WW_normal", db_status)
                             },
                             "flaresolverr": {
@@ -619,7 +613,6 @@ def app_container():
                                 "HW": check("HW_flaresolverr", db_status),
                                 "FF": check("FF_flaresolverr", db_status),
                                 "NK": check("NK_flaresolverr", db_status),
-                                "PL": check("PL_flaresolverr", db_status),
                                 "WW": check("WW_flaresolverr", db_status)
                             },
                             "flaresolverr_proxy": {
@@ -631,7 +624,6 @@ def app_container():
                                 "HW": check("HW_flaresolverr_proxy", db_status),
                                 "FF": check("FF_flaresolverr_proxy", db_status),
                                 "NK": check("NK_flaresolverr_proxy", db_status),
-                                "PL": check("PL_flaresolverr_proxy", db_status),
                                 "WW": check("WW_flaresolverr_proxy", db_status)
                             }
                         }

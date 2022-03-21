@@ -143,7 +143,6 @@ def get_search_results(self, bl_query):
     fx = hostnames.get('fx')
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
-    pl = hostnames.get('pl')
 
     search_results = []
 
@@ -167,18 +166,13 @@ def get_search_results(self, bl_query):
         hw_search = 'https://' + hw + '/?s=' + bl_query
     else:
         hw_search = None
-    if pl:
-        pl_search = 'https://' + pl + '/search?q=' + bl_query
-    else:
-        pl_search = None
 
-    async_results = get_urls_async([by_search, fx_search, hw_search, pl_search])
+    async_results = get_urls_async([by_search, fx_search, hw_search])
     async_results = async_results[0]
 
     by_results = []
     fx_results = []
     hw_results = []
-    pl_results = []
 
     for res in async_results:
         if check_is_site(res) == 'BY':
@@ -187,8 +181,6 @@ def get_search_results(self, bl_query):
             fx_results = fx_search_results(fx_content_to_soup(res))
         elif check_is_site(res) == 'HW':
             hw_results = hw_search_results(res)
-        elif check_is_site(res) == 'PL':
-            pl_results = pl_search_results(res)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
@@ -220,17 +212,6 @@ def get_search_results(self, bl_query):
 
     password = hw.split('.')[0]
     for result in hw_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        if "xxx" not in result[0].lower():
-            search_results.append([result[0], result[1] + "|" + password])
-
-    password = pl.split('-')[0]
-    for result in pl_results:
         if "480p" in quality:
             if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
                 0].lower() or "2160p" in \
@@ -669,92 +650,6 @@ def nk_page_download_link(self, download_link, key):
     for hoster in hosters:
         url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
     return check_download_links(self, url_hosters)
-
-
-def pl_get_download_links(self, content, title):
-    unused_get_feed_parameter(self)
-    pl = CrawlerConfig('Hostnames').get('pl')
-    content = BeautifulSoup(content, 'html5lib')
-    try:
-        link = "https://" + pl + content.find("a", href=re.compile(r".*/details/.*")).get("href")
-    except:
-        print(u"PL hat die Linkstruktur angepasst. " + title + " konnte nicht verarbeitet werden.")
-        return []
-
-    release_id = link.replace("https://" + pl + "/details/", "")
-
-    if check_hoster("ddl"):
-        hoster = "ddl"
-    elif check_hoster("rapidgator"):
-        hoster = "rg"
-    else:
-        hoster = "ddl"
-
-    try:
-        decrypter = "https://" + pl + "/cnl/" + release_id + "?h=" + hoster
-        download_payload = json.loads(get_url(decrypter))
-        download_links = list(filter(None, download_payload["urls"].replace("\r", "").split("\n")))
-    except:
-        print(u"Download-Link für " + title + " auf PL konnte nicht automatisch entschlüsselt werden.")
-        download_links = []
-    if not download_links:
-        download_links = [link]
-
-    return download_links
-
-
-def pl_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'html5lib')
-    articles = feed.findAll("tr")
-    entries = []
-
-    for article in articles:
-        try:
-            article = BeautifulSoup(str(article), 'html5lib')
-            details = article.find("a", href=re.compile(r".*/details/.*"))
-            title = details.text.strip().replace(" ", ".")
-            published = article.find("span").get("title")
-
-            try:
-                xrel = article.find("a", href=re.compile(r".*xrel\.to.*")).get("href")
-                xrel_data = BeautifulSoup(get_url(xrel), 'html5lib')
-                imdb_link = xrel_data.find("area", title=re.compile(r".*imdb\.com.*")).get("title").strip()
-                imdb_data = '<a href="' + imdb_link + '" 9.9</a>'
-            except:
-                imdb_data = ""
-
-            entries.append(FakeFeedParserDict({
-                "title": title,
-                "published": published,
-                "content": [
-                    FakeFeedParserDict({
-                        "value": str(article) + imdb_data + " mkv"
-                    })]
-            }))
-        except:
-            print(u"PL hat den Feed angepasst. Parsen teilweise nicht möglich!")
-            continue
-
-    feed = {"entries": entries}
-    feed = FakeFeedParserDict(feed)
-    return feed
-
-
-def pl_search_results(content):
-    pl = CrawlerConfig('Hostnames').get('pl')
-
-    content = BeautifulSoup(content, 'html5lib')
-    posts = content.findAll("a", href=re.compile(r".*/details/.*"),
-                            text=re.compile(r".*(x264|h264|x265|h265|hevc).*", re.IGNORECASE))
-    results = []
-    for post in posts:
-        try:
-            title = post.text.strip()
-            link = "https://" + pl + post['href']
-            results.append([title, link])
-        except:
-            pass
-    return results
 
 
 def ww_post_url_headers(url, headers=False):

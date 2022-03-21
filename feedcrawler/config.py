@@ -36,7 +36,6 @@ class CrawlerConfig(object):
             ("hw", "str", ""),
             ("ff", "str", ""),
             ("nk", "str", ""),
-            ("pl", "str", ""),
             ("ww", "str", "")
         ],
         'Crawljobs': [
