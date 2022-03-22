@@ -32,20 +32,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
-    $scope.currentPageLog = 0;
-    $scope.pageSizeLog = 5;
-    $scope.resLengthLog = 0;
-    $scope.numberOfPagesLog = function () {
-        if (typeof $scope.log !== 'undefined') {
-            $scope.resLengthLog = $scope.log.length;
-            let numPagesLog = Math.ceil($scope.resLengthLog / $scope.pageSizeLog);
-            if (($scope.currentPageLog > 0) && (($scope.currentPageLog + 1) > numPagesLog)) {
-                $scope.currentPageLog = numPagesLog - 1;
-            }
-            return numPagesLog;
-        }
-    };
-
     $scope.currentPageMyJD = 0;
     $scope.resLengthMyJD = 0;
     $scope.numberOfPagesMyJD = function () {
@@ -233,7 +219,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     function getAll() {
         getHostNames();
         getMyJD();
-        getLog();
     }
 
     function countDown(seconds) {
@@ -250,17 +235,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function manualCollapse() {
         $scope.myjd_collapse_manual = true;
-    }
-
-    function getLog() {
-        $http.get('api/log/')
-            .then(function (res) {
-                $scope.log = res.data.log;
-                console.log('Log abgerufen!');
-            }, function () {
-                console.log('Konnte Log nicht abrufen!');
-                showDanger('Konnte Log nicht abrufen!');
-            });
     }
 
     function getHostNames() {
@@ -754,16 +728,5 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.checkMyJD();
-
-    $scope.updateLog = function () {
-        $timeout(function () {
-            if (!$scope.cnl_active) {
-                getLog();
-            }
-            $scope.updateLog();
-        }, 15000)
-    };
-
-    $scope.updateLog();
 })
 ;

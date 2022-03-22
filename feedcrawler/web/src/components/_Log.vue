@@ -1,40 +1,61 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      longlog: false,
-      resLengthLog: 10,
-      currentPageLog: 0,
-      numberOfPagesLog: 2,
-      pageSizeLog: 5,
-      log: [
-        "Test",
-        "Test2",
-        "Test3",
-        "Test4",
-        "Test5",
-        "Test6",
-        "Test7",
-        "Test8",
-        "Test9",
-        "Test10",
-      ]
+<script setup>
+import axios from 'axios';
+import {computed, onMounted, ref} from 'vue'
+
+const props = defineProps({
+  prefix: String
+})
+
+onMounted(() => {
+  getLog()
+  setInterval(getLog, 5 * 1000)
+})
+
+const log = ref([])
+
+function getLog() {
+  axios.get(props.prefix + 'api/log/')
+      .then(function (res) {
+        log.value = res.data.log;
+        console.log('Log abgerufen!');
+      }, function () {
+        console.log('Konnte Log nicht abrufen!');
+        // ToDo migrate to vue
+        //showDanger('Konnte Log nicht abrufen!');
+      });
+}
+
+const longlog = ref(false)
+const resLengthLog = ref(0)
+const currentPageLog = ref(0)
+const pageSizeLog = ref(5)
+
+const numberOfPagesLog = computed(() => {
+  if (typeof log.value !== 'undefined' || log.value.length > 0) {
+    resLengthLog.value = log.value.length;
+    let numPagesLog = Math.ceil(resLengthLog.value / pageSizeLog.value)
+    if ((currentPageLog.value > 0) && ((currentPageLog.value + 1) > numPagesLog.value)) {
+      currentPageLog.value = numPagesLog - 1;
     }
-  }, methods: {
-    // ToDo replace with actual functions
-    longerLog() {
-      console.log("longerLog()");
-    },
-    shorterLog() {
-      console.log("shorterLog()");
-    },
-    deleteLog() {
-      console.log("deleteLog()");
-    }
+    return numPagesLog
+  } else {
+    return 0
   }
+})
+
+function longerLog() {
+  console.log("longerLog()");
+}
+
+function shorterLog() {
+  console.log("shorterLog()");
+}
+
+function deleteLog() {
+  console.log("deleteLog()");
 }
 </script>
+
 
 <template>
   <div id="log" class="container app col">
