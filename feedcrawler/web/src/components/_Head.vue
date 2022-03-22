@@ -15,11 +15,11 @@ onMounted(() => {
 
 const now = ref(Date.now())
 
-let version = ref("")
-let update = ref(false)
-let docker = ref(false)
-let helper_active = ref(false)
-let helper_available = ref(false)
+const version = ref("")
+const update = ref(false)
+const docker = ref(false)
+const helper_active = ref(false)
+const helper_available = ref(false)
 
 function getVersion() {
   axios.get(props.prefix + 'api/version/')
@@ -53,8 +53,8 @@ function getVersion() {
       });
 }
 
-let starting = ref(false)
-let crawltimes = ref({})
+const starting = ref(false)
+const crawltimes = ref({})
 
 function getCrawlTimes() {
   axios.get(props.prefix + 'api/crawltimes/')
@@ -96,16 +96,54 @@ function startNow() {
       });
 }
 
+// ToDo move this to Lists.vue
+const lists = ref({})
+
 function getLists() {
-  console.log("getLists()");
+  axios.post(props.prefix + 'api/lists/')
+      .then(function (res) {
+        lists.value = res.data.lists;
+        console.log('Listen abgerufen!');
+      }, function () {
+        console.log('Konnte Listen nicht abrufen!');
+        // ToDo migrate to vue
+        //showDanger('Konnte Listen nicht abrufen!');
+      });
 }
 
+const settings = ref({})
+const myjd_connection_error = ref(false)
+// ToDo hand this over from Settings.vue to _MyJD.vue
+const pageSizeMyJD = ref(3)
+
+// ToDo move this to Settings.vue
 function getSettings() {
-  console.log("getSettings()");
+  axios.post(props.prefix + 'api/settings/')
+      .then(function (res) {
+        settings.value = res.data.settings;
+        console.log('Einstellungen abgerufen!');
+        myjd_connection_error.value = !(settings.value.general.myjd_user && settings.value.general.myjd_device && settings.value.general.myjd_device);
+        pageSizeMyJD.value = settings.value.general.packages_per_myjd_page;
+      }, function () {
+        console.log('Konnte Einstellungen nicht abrufen!');
+        // ToDo migrate to vue
+        //showDanger('Konnte Einstellungen nicht abrufen!');
+      });
 }
 
+const blocked_sites = ref({})
+
+// ToDo move this to Help.vue
 function getBlockedSites() {
-  console.log("getBlockedSites()");
+  axios.post(props.prefix + 'api/blocked_sites/')
+      .then(function (res) {
+        blocked_sites.value = res.data.blocked_sites;
+        console.log('Blockierte Seiten abgerufen!');
+      }, function () {
+        console.log('Konnte blockierte Seiten nicht abrufen!');
+        // ToDo migrate to vue
+        //showDanger('Konnte blockierte Seiten nicht abrufen!');
+      });
 }
 </script>
 

@@ -47,7 +47,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.currentPageMyJD = 0;
-    $scope.pageSizeMyJD = 3;
     $scope.resLengthMyJD = 0;
     $scope.numberOfPagesMyJD = function () {
         if (typeof $scope.myjd_packages !== 'undefined') {
@@ -231,23 +230,10 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         internalCnl(name, password)
     };
 
-    $scope.getLists = function () {
-        getLists();
-    }
-
-    $scope.getSettings = function () {
-        getSettings();
-    }
-
-    $scope.getBlockedSites = function () {
-        getBlockedSites();
-    }
-
     function getAll() {
         getHostNames();
         getMyJD();
         getLog();
-        getSettings();
     }
 
     function countDown(seconds) {
@@ -277,32 +263,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function getSettings() {
-        $http.get('api/settings/')
-            .then(function (res) {
-                $scope.settings = res.data.settings;
-                console.log('Einstellungen abgerufen!');
-                let year = (new Date).getFullYear();
-                $("#year").attr("max", year);
-                $scope.myjd_connection_error = !($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device);
-                $scope.pageSizeMyJD = $scope.settings.general.packages_per_myjd_page;
-            }, function () {
-                console.log('Konnte Einstellungen nicht abrufen!');
-                showDanger('Konnte Einstellungen nicht abrufen!');
-            });
-    }
-
-    function getLists() {
-        $http.get('api/lists/')
-            .then(function (res) {
-                $scope.lists = res.data.lists;
-                console.log('Listen abgerufen!');
-            }, function () {
-                console.log('Konnte Listen nicht abrufen!');
-                showDanger('Konnte Listen nicht abrufen!');
-            });
-    }
-
     function getHostNames() {
         $http.get('api/hostnames/')
             .then(function (res) {
@@ -313,17 +273,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function () {
                 console.log('Konnte Hostnamen nicht abrufen!');
                 showDanger('Konnte Hostnamen nicht abrufen!');
-            });
-    }
-
-    function getBlockedSites() {
-        $http.get('api/blocked_sites/')
-            .then(function (res) {
-                $scope.blocked_sites = res.data.blocked_sites;
-                console.log('Blockierte Seiten abgerufen!');
-            }, function () {
-                console.log('Konnte blockierte Seiten nicht abrufen!');
-                showDanger('Konnte blockierte Seiten nicht abrufen!');
             });
     }
 
