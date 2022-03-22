@@ -164,9 +164,7 @@ function getBlockedSites() {
 
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
-        Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{
-          getDuration(crawltimes.start_time)
-        }})
+        Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{ getDuration(crawltimes.start_time) }})
       </div>
       <div v-if="!crawltimes.active">
         Start des nächsten Suchlaufs: {{ getTimestamp(crawltimes.next_start) }}
