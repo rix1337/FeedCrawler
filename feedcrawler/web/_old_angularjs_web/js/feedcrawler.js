@@ -1,18 +1,3 @@
-app.filter('startFrom', function () {
-    return function (input, start) {
-        if (typeof input !== 'undefined') {
-            if (typeof input == 'object') {
-                input = Object.values(input);
-                start = +start; //parse to int
-                return input.slice(start);
-            } else {
-                start = +start; //parse to int
-                return input.slice(start);
-            }
-        }
-    }
-});
-
 app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $(function () {
         $('[data-toggle="tooltip"]').tooltip()
@@ -101,9 +86,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_packages = [];
     $scope.time = 0;
 
-    $scope.loglength = 65;
-    $scope.longlog = false;
-
     $(window).resize(function () {
         setAccordionWidth();
     });
@@ -117,30 +99,11 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     }
 
-    $scope.longerLog = function () {
-        $scope.loglength = 999;
-        $scope.longlog = true;
-    };
-
-    $scope.shorterLog = function () {
-        $scope.loglength = 65;
-        $scope.longlog = false;
-    };
-
     $scope.init = getAll();
 
     $scope.manualCollapse = function () {
         manualCollapse();
     };
-
-    $scope.deleteLog = function () {
-        deleteLog();
-    };
-
-    $scope.deleteLogRow = function (row) {
-        deleteLogRow(row);
-    };
-
 
     $scope.searchNow = function () {
         searchNow();
@@ -304,32 +267,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
                 console.log('Konnte Download nicht starten!');
                 showDanger('Konnte Download nicht starten!');
                 $(".alert-info").slideUp(500);
-            });
-    }
-
-    function deleteLog() {
-        spinLog();
-        $http.delete('api/log/')
-            .then(function () {
-                console.log('Log geleert!');
-                showSuccess('Log geleert!');
-                getLog();
-            }, function () {
-                console.log('Konnte Log nicht leeren!');
-                showDanger('Konnte Log nicht leeren!');
-            });
-    }
-
-    function deleteLogRow(title) {
-        title = btoa(title);
-        $http.delete('api/log_entry/' + title)
-            .then(function () {
-                console.log('Logeintrag gelöscht!');
-                showSuccess('Logeintrag gelöscht!');
-                getLog();
-            }, function () {
-                console.log('Konnte Logeintrag nicht löschen!');
-                showDanger('Konnte Logeintrag nicht löschen!');
             });
     }
 
@@ -673,10 +610,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $(".alert-danger").html(message).fadeTo(5000, 500).slideUp(500, function () {
             $(".alert-danger").slideUp(500);
         });
-    }
-
-    function spinLog() {
-        $("#spinner-log").fadeIn().delay(1000).fadeOut();
     }
 
     function spinLists() {

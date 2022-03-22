@@ -27,7 +27,6 @@ function getLog() {
       });
 }
 
-const longlog = ref(false)
 const resLengthLog = ref(0)
 const currentPageLog = ref(0)
 const pageSizeLog = ref(5)
@@ -44,16 +43,55 @@ function getLogPages() {
   }
 }
 
+// ToDo https://stackoverflow.com/questions/65316893/vue-pagination-array-of-objects
+function getLogPage(page) {
+  return log.value.slice(page * pageSizeLog.value, (page + 1) * pageSizeLog.value)
+}
+
+const loglength = ref(65)
+const longlog = ref(false)
+
 function longerLog() {
-  console.log("longerLog()");
+  loglength.value = 999;
+  longlog.value = true;
 }
 
 function shorterLog() {
-  console.log("shorterLog()");
+  loglength.value = 65;
+  longlog.value = false;
 }
 
 function deleteLog() {
-  console.log("deleteLog()");
+  spinLog();
+  axios.delete(props.prefix + 'api/log/')
+      .then(function () {
+        console.log('Log geleert!');
+        // ToDo migrate to vue
+        //showSuccess('Log geleert!');
+        getLog();
+      }, function () {
+        console.log('Konnte Log nicht leeren!');
+        // ToDo migrate to vue
+        //showDanger('Konnte Log nicht leeren!');
+      });
+}
+
+function deleteLogRow(title) {
+  title = btoa(title);
+  axios.delete(props.prefix + 'api/log_entry/' + title)
+      .then(function () {
+        console.log('Logeintrag gelöscht!');
+        showSuccess('Logeintrag gelöscht!');
+        getLog();
+      }, function () {
+        console.log('Konnte Logeintrag nicht löschen!');
+        showDanger('Konnte Logeintrag nicht löschen!');
+      });
+}
+
+// ToDo migrate to vue from jQuery
+function spinLog() {
+  $("#spinner-log").fadeIn().delay(1000).fadeOut();
 }
 </script>
 
