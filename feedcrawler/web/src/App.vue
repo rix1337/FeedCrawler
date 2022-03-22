@@ -23,16 +23,16 @@ if (import.meta.env.MODE === 'development') {
 <template>
   <main class="text-center">
     <!--- Main Items -->
-    <Head :prefix=prefix/>
-    <Log/>
-    <MyJD/>
-    <Notifications/>
+    <Head :prefix=prefix></Head>
+    <Log :prefix=prefix></Log>
+    <MyJD :prefix=prefix></MyJD>
+    <Notifications :prefix=prefix></Notifications>
 
-    <!--- Offcanvas Items -->
-    <Search/>
-    <Lists/>
-    <Settings/>
-    <Help/>
+    <!--- Off canvas Items -->
+    <Search :prefix=prefix></Search>
+    <Lists :prefix=prefix></Lists>
+    <Settings :prefix=prefix></Settings>
+    <Help :prefix=prefix></Help>
   </main>
 </template>
 
