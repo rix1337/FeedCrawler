@@ -5,13 +5,6 @@ import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 
 import Head from './components/_Head.vue'
-import Log from './components/_Log.vue'
-import MyJD from './components/_MyJD.vue'
-import Notifications from './components/_Notifications.vue'
-import Search from './components/Search.vue'
-import Lists from './components/Lists.vue'
-import Settings from './components/Settings.vue'
-import Help from './components/Help.vue'
 
 let prefix = ref('')
 
@@ -24,15 +17,15 @@ if (import.meta.env.MODE === 'development') {
   <main class="text-center">
     <!--- Main Items -->
     <Head :prefix=prefix></Head>
-    <Log :prefix=prefix></Log>
+    <!-- <Log :prefix=prefix></Log>
     <MyJD :prefix=prefix></MyJD>
     <Notifications :prefix=prefix></Notifications>
 
-    <!--- Off canvas Items -->
+    Off canvas Items
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix></Lists>
     <Settings :prefix=prefix></Settings>
-    <Help :prefix=prefix></Help>
+    <Help :prefix=prefix></Help> -->
   </main>
 </template>
 

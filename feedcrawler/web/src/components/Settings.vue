@@ -1,8 +1,10 @@
 <script>
+
 export default {
   // ToDo replace with actual data calls
   data() {
     return {
+      year: (new Date).getFullYear(),
       hostnames: {
         mb: "Testname MB",
         sj: "Testname SJ",
@@ -164,6 +166,7 @@ export default {
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body">
                 <h5>Port</h5>
+                <!-- ToDo disable if we are dockerized this is detected within head.getVersion() -->
                 <input class="number form-control docker" data-toggle="tooltip" max="65535" min="1024"
                        v-model="settings.general.port"
                        required title="Hier den Port des Webservers wählen."
@@ -412,7 +415,7 @@ export default {
                        title="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6.5 nicht empfehlenswert, 0.0 zum Deaktivieren."
                        type="number"/>
                 <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
-                <input id="year" class="number form-control" data-toggle="tooltip" max="2100" min="1900"
+                <input :max="year" class="number form-control" data-toggle="tooltip" min="1900"
                        v-model="settings.mb.imdb_year"
                        title="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."
                        type="number"/>

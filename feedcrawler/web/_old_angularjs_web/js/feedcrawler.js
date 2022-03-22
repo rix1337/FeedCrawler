@@ -60,9 +60,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
-    $scope.helper_active = false;
-    $scope.helper_available = false;
-
     $scope.hostnames = {
         sj: 'Nicht gesetzt!',
         dj: 'Nicht gesetzt!',
@@ -115,7 +112,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     $scope.myjd_connection_error = false;
     $scope.myjd_collapse_manual = false;
     $scope.searching = false;
-    $scope.starting = false;
     $scope.myjd_state = false;
     $scope.myjd_packages = [];
     $scope.time = 0;
@@ -207,10 +203,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getMyJD();
     };
 
-    $scope.startNow = function () {
-        startNow();
-    };
-
     $scope.myJDmove = function (linkids, uuid) {
         myJDmove(linkids, uuid);
     };
@@ -253,7 +245,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function getAll() {
         getHostNames();
-        getVersion();
         getMyJD();
         getLog();
         getSettings();
@@ -312,18 +303,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function getCrawlTimes() {
-        $http.get('api/crawltimes/')
-            .then(function (res) {
-                $scope.starting = false;
-                $scope.crawltimes = res.data.crawltimes;
-                console.log('Laufzeiten abgerufen!');
-            }, function () {
-                console.log('Konnte Laufzeiten nicht abrufen!');
-                showDanger('Konnte Laufzeiten nicht abrufen!');
-            });
-    }
-
     function getHostNames() {
         $http.get('api/hostnames/')
             .then(function (res) {
@@ -345,39 +324,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             }, function () {
                 console.log('Konnte blockierte Seiten nicht abrufen!');
                 showDanger('Konnte blockierte Seiten nicht abrufen!');
-            });
-    }
-
-    function getVersion() {
-        $http.get('api/version/')
-            .then(function (res) {
-                $scope.version = res.data.version.ver;
-                console.log('Dies ist der FeedCrawler ' + $scope.version + ' von https://github.com/rix1337');
-                $scope.update = res.data.version.update_ready;
-                $scope.docker = res.data.version.docker;
-                if ($scope.docker) {
-                    $(".docker").prop("disabled", true);
-                }
-                $scope.helper_active = res.data.version.helper_active;
-                if ($scope.helper_active) {
-                    $.get("http://127.0.0.1:9666/", function (data) {
-                        $scope.helper_available = (data === 'JDownloader');
-                        if ($scope.helper_available) {
-                            console.log("Click'n'Load des FeedCrawler Sponsors Helper ist verfügbar!");
-                        }
-                    });
-                }
-                let year = (new Date).getFullYear();
-                $("#year").attr("max", year);
-                if ($scope.update) {
-                    scrollingTitle("FeedCrawler - Update verfügbar! - ");
-                    console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest');
-                    showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">github.com</a>.');
-                }
-                console.log('Version abgerufen!');
-            }, function () {
-                console.log('Konnte Version nicht abrufen!');
-                showDanger('Konnte Version nicht abrufen!');
             });
     }
 
@@ -670,20 +616,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function startNow() {
-        showInfoLong("Starte Suchlauf...");
-        $scope.starting = true;
-        $http.post('api/start_now/')
-            .then(function () {
-                $(".alert-info").slideUp(1500);
-            }, function () {
-                $scope.starting = false;
-                console.log('Konnte Suchlauf nicht starten!');
-                showDanger('Konnte Suchlauf nicht starten!');
-                $(".alert-info").slideUp(1500);
-            });
-    }
-
     function myJDmove(linkids, uuid) {
         showInfoLong("Starte Download...");
         $http.post('api/myjd_move/' + linkids + "&" + uuid)
@@ -884,16 +816,5 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     };
 
     $scope.updateLog();
-
-    $scope.updateChecker = function () {
-        $timeout(function () {
-            if (!$scope.cnl_active) {
-                getVersion();
-            }
-            $scope.updateChecker();
-        }, 300000)
-    };
-
-    $scope.updateChecker();
 })
 ;
