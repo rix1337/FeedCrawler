@@ -12,4 +12,4 @@ python-dateutil==2.8.2
 rapidfuzz==2.0.2
 requests==2.27.1
 simplejson==3.17.6
-waitress==2.0.0
+waitress==2.1.1

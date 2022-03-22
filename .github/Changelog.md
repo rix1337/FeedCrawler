@@ -16,6 +16,8 @@
   - Der Wechsel der Frameworks war nicht zwingend notwendig, macht den FeedCrawler jedoch zukunftssicherer und das Frontend schneller.
   - Bei Installation per Docker, PIP oder Windows Exe ist nichts weiter zu tun. Das Frontend muss jedoch vor der manuellen Installation per setup.py bereits per "npm run build" im Ordner `feedcrawler/web` kompiliert worden sein.
   - Danke an alle [Sponsoren](https://github.com/sponsors/rix1337/)! Ohne eure Unterstützung wäre die technische Pflege des FeedCrawlers nicht möglich.
+- **13.0.0** Fix CVE-2022-24761 (HTTP Request Smuggling in waitress)
+- **13.0.0** PL entfernt
   
 
 
