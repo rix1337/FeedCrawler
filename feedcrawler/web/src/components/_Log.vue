@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import {computed, onMounted, ref} from 'vue'
+import {onMounted, ref} from 'vue'
 
 const props = defineProps({
   prefix: String
@@ -12,11 +12,13 @@ onMounted(() => {
 })
 
 const log = ref([])
+const numberOfPagesLog = ref(0)
 
 function getLog() {
   axios.get(props.prefix + 'api/log/')
       .then(function (res) {
         log.value = res.data.log;
+        getLogPages()
         console.log('Log abgerufen!');
       }, function () {
         console.log('Konnte Log nicht abrufen!');
@@ -30,18 +32,17 @@ const resLengthLog = ref(0)
 const currentPageLog = ref(0)
 const pageSizeLog = ref(5)
 
-const numberOfPagesLog = computed(() => {
-  if (typeof log.value !== 'undefined' || log.value.length > 0) {
+function getLogPages() {
+  if (typeof log.value !== 'undefined' && log.value.length > 0) {
     resLengthLog.value = log.value.length;
-    let numPagesLog = Math.ceil(resLengthLog.value / pageSizeLog.value)
-    if ((currentPageLog.value > 0) && ((currentPageLog.value + 1) > numPagesLog.value)) {
-      currentPageLog.value = numPagesLog - 1;
+    numberOfPagesLog.value = Math.ceil(resLengthLog.value / pageSizeLog.value)
+    if ((currentPageLog.value > 0) && ((currentPageLog.value + 1) > numberOfPagesLog.value)) {
+      currentPageLog.value = numberOfPagesLog - 1
     }
-    return numPagesLog
   } else {
-    return 0
+    numberOfPagesLog.value = 0
   }
-})
+}
 
 function longerLog() {
   console.log("longerLog()");
