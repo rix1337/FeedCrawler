@@ -9,11 +9,9 @@ const props = defineProps({
 onMounted(() => {
   getVersion()
   getCrawlTimes()
-  setInterval(getCrawlTimes, 15 * 1000)
+  setInterval(getCrawlTimes, 5 * 1000)
   setInterval(getVersion, 300 * 1000)
 })
-
-const now = ref(Date.now())
 
 const version = ref("")
 const update = ref(false)
@@ -69,13 +67,18 @@ function getCrawlTimes() {
       });
 }
 
-function getTimestamp() {
+function getTimestamp(ms) {
   const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s);
-  const d = new Date();
+  const d = new Date(ms);
 
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
+function getDuration(ms) {
+  const now = Date.now()
+  let duration = now - ms
+  return new Date(duration).toISOString().substr(11, 8)
+}
 
 // ToDo replace with actual functions
 function startNow() {
@@ -100,7 +103,7 @@ function startNow() {
 const lists = ref({})
 
 function getLists() {
-  axios.post(props.prefix + 'api/lists/')
+  axios.get(props.prefix + 'api/lists/')
       .then(function (res) {
         lists.value = res.data.lists;
         console.log('Listen abgerufen!');
@@ -118,7 +121,7 @@ const pageSizeMyJD = ref(3)
 
 // ToDo move this to Settings.vue
 function getSettings() {
-  axios.post(props.prefix + 'api/settings/')
+  axios.get(props.prefix + 'api/settings/')
       .then(function (res) {
         settings.value = res.data.settings;
         console.log('Einstellungen abgerufen!');
@@ -135,7 +138,7 @@ const blocked_sites = ref({})
 
 // ToDo move this to Help.vue
 function getBlockedSites() {
-  axios.post(props.prefix + 'api/blocked_sites/')
+  axios.get(props.prefix + 'api/blocked_sites/')
       .then(function (res) {
         blocked_sites.value = res.data.blocked_sites;
         console.log('Blockierte Seiten abgerufen!');
@@ -162,7 +165,7 @@ function getBlockedSites() {
     <div v-if="crawltimes">
       <div v-if="crawltimes.active">
         Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{
-          (now - crawltimes.start_time) / 1000
+          getDuration(crawltimes.start_time)
         }})
       </div>
       <div v-if="!crawltimes.active">
@@ -175,7 +178,7 @@ function getBlockedSites() {
       <div v-if="crawltimes.next_f_run">
         Keine SF/FF-Suchläufe bis: {{ getTimestamp(crawltimes.next_f_run) }}
       </div>
-      Dauer des letzten Suchlaufs: {{ getTimestamp(crawltimes.total_time) }}
+      Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
     </div>
 
     <div class="border-top"></div>
