@@ -2,6 +2,10 @@
 import axios from 'axios';
 import {onMounted, ref} from 'vue'
 
+const props = defineProps({
+  prefix: String
+})
+
 const now = ref(Date.now())
 let version = ref("0.0.1")
 let starting = ref(false)
@@ -10,12 +14,12 @@ let crawltimes = ref({})
 onMounted(() => {
   getVersion()
   getCrawlTimes()
-  runEveryXSeconds(getCrawlTimes, 15)
-  runEveryXSeconds(getVersion, 300)
+  setInterval(getCrawlTimes, 15 * 1000)
+  setInterval(getVersion, 300 * 1000)
 })
 
 function getCrawlTimes() {
-  axios.get('api/crawltimes/')
+  axios.get(props.prefix + 'api/crawltimes/')
       .then(function (res) {
         starting = false;
         crawltimes.value = res.data.crawltimes;
@@ -26,12 +30,6 @@ function getCrawlTimes() {
       });
 }
 
-function runEveryXSeconds(toRun, seconds) {
-  setTimeout(function () {
-    toRun();
-    runEveryXSeconds();
-  }, seconds * 1000);
-}
 
 function getVersion() {
   // ToDo

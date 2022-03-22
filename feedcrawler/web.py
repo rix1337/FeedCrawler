@@ -12,6 +12,7 @@ import time
 from functools import wraps
 
 from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
+from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -63,6 +64,7 @@ def app_container():
 
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
     app.config["TEMPLATES_AUTO_RELOAD"] = True
+    CORS(app)
 
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
