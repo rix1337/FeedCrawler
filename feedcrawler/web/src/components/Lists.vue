@@ -4,16 +4,16 @@ export default {
   data() {
     return {
       hostnames: {
-        bl: "TestHostnamen",
-        mb: "TestName",
-        s: "TestName",
-        sjbl: "TestNamen",
-        dj: "TestName",
-      }, lists: {
-        mb: "",
-        sj: "",
-        mbsj: "",
-        dj: "",
+        sj: 'Nicht gesetzt!',
+        dj: 'Nicht gesetzt!',
+        sf: 'Nicht gesetzt!',
+        by: 'Nicht gesetzt!',
+        fx: 'Nicht gesetzt!',
+        nk: 'Nicht gesetzt!',
+        ww: 'Nicht gesetzt!',
+        bl: 'Nicht gesetzt!',
+        s: 'Nicht gesetzt!',
+        sjbl: 'Nicht gesetzt!'
       },
       settings: {
         mb: {

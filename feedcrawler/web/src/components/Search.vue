@@ -1,16 +1,36 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      search: "Testsuchtitel"
-    }
-  }, methods: {
-    // ToDo replace with actual functions
-    searchNow() {
-      console.log("searchNow()");
-    }
+<script setup>
+import axios from 'axios'
+import {ref} from 'vue'
+
+const props = defineProps({
+  prefix: String
+})
+
+const results = ref({
+  bl: [],
+  sj: []
+})
+const currentPage = ref(0)
+const pageSize = ref(10)
+const resLength = ref(0)
+
+function numberOfPages() {
+  if (typeof results.bl.value !== 'undefined') {
+    resLength.value = Object.values(results.bl.value).length;
+    return Math.ceil(resLength.value / pageSize.value);
   }
+}
+
+function getBlockedSites() {
+  axios.get(props.prefix + 'api/blocked_sites/')
+      .then(function (res) {
+        blocked_sites.value = res.data.blocked_sites
+        console.log('Blockierte Seiten abgerufen!')
+      }, function () {
+        console.log('Konnte blockierte Seiten nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte blockierte Seiten nicht abrufen!')
+      })
 }
 </script>
 

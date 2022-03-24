@@ -2,32 +2,7 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 });
 
-$scope.results = [];
 
-$scope.currentMillis = Date.now();
-
-$scope.currentPage = 0;
-$scope.pageSize = 10;
-$scope.resLength = 0;
-$scope.numberOfPages = function () {
-    if (typeof $scope.results.bl !== 'undefined') {
-        $scope.resLength = Object.values($scope.results.bl).length;
-        return Math.ceil($scope.resLength / $scope.pageSize);
-    }
-};
-
-$scope.hostnames = {
-    sj: 'Nicht gesetzt!',
-    dj: 'Nicht gesetzt!',
-    sf: 'Nicht gesetzt!',
-    by: 'Nicht gesetzt!',
-    fx: 'Nicht gesetzt!',
-    nk: 'Nicht gesetzt!',
-    ww: 'Nicht gesetzt!',
-    bl: 'Nicht gesetzt!',
-    s: 'Nicht gesetzt!',
-    sjbl: 'Nicht gesetzt!'
-};
 
 $scope.sjbl_enabled = false;
 

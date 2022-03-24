@@ -1,5 +1,6 @@
 <script setup>
-import {ref} from 'vue'
+import axios from 'axios'
+import {onMounted, ref} from 'vue'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -11,10 +12,40 @@ import MyJD from './components/_MyJD.vue'
 
 import Help from './components/Help.vue'
 
-let prefix = ref('')
+onMounted(() => {
+  getHostNames()
+})
 
+let prefix = ''
 if (import.meta.env.MODE === 'development') {
   prefix = 'http://localhost:9090/feedcrawler/'
+}
+
+const hostnames = ref({
+  sj: 'Nicht gesetzt!',
+  dj: 'Nicht gesetzt!',
+  sf: 'Nicht gesetzt!',
+  by: 'Nicht gesetzt!',
+  fx: 'Nicht gesetzt!',
+  nk: 'Nicht gesetzt!',
+  ww: 'Nicht gesetzt!',
+  bl: 'Nicht gesetzt!',
+  s: 'Nicht gesetzt!',
+  sjbl: 'Nicht gesetzt!'
+})
+const sjbl_enabled = ref(true)
+
+function getHostNames() {
+  axios.get(prefix + 'api/hostnames/')
+      .then(function (res) {
+        hostnames.value = res.data.hostnames
+        let not_set = 'Nicht gesetzt!'
+        sjbl_enabled.value = !((hostnames.bl.value === not_set && hostnames.s.value !== not_set) || (hostnames.bl.value !== not_set && hostnames.s.value === not_set))
+        console.log('Hostnamen abgerufen!')
+      }, function () {
+        console.log('Konnte Hostnamen nicht abrufen!')
+        showDanger('Konnte Hostnamen nicht abrufen!')
+      });
 }
 </script>
 
@@ -30,7 +61,7 @@ if (import.meta.env.MODE === 'development') {
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix></Lists>
     <Settings :prefix=prefix></Settings> -->
-    <Help :prefix=prefix></Help>
+    <Help :prefix=prefix :hostnames=hostnames></Help>
   </main>
 </template>
 

@@ -4,7 +4,8 @@ import {onMounted, ref} from 'vue'
 import {Collapse} from 'bootstrap'
 
 const props = defineProps({
-  prefix: String
+  prefix: String,
+  hostnames: Object
 })
 
 onMounted(() => {
@@ -19,18 +20,11 @@ const settings = {
 }
 
 // ToDo update this from Head.vue (probably needs vuex)
+const currentMillis = ref(Date.now())
 const crawltimes = {
   next_f_run: "123000"
 }
 
-// ToDo update this from Head.vue (probably needs vuex)
-const hostnames = {
-  bl: "TestHostnamen",
-  mb: "TestName",
-  s: "TestName",
-  sjbl: "TestNamen",
-  dj: "TestName",
-}
 const blocked_sites = ref({
   normal: {},
   flaresolverr: {},
