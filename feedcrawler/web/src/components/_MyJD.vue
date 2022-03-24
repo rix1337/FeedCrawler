@@ -21,6 +21,8 @@ const myjd_failed = ref([])
 const myjd_grabbing = ref(false)
 const to_decrypt = ref([])
 const update_ready = ref(false)
+
+// ToDo update this from Settings.vue (probably needs vuex)
 const settings = ref({})
 
 function getMyJD() {
