@@ -148,10 +148,163 @@ function numberOfPagesMyJD() {
   }
 }
 
-const myjd_collapse_manual = ref(false)
+function myJDstart() {
+  // ToDo migrate to vue
+  //$('#myjd_start').addClass('blinking').addClass('isDisabled')
+  axios.post(props.prefix + 'api/myjd_start/')
+      .then(function () {
+        getMyJDstate()
+        console.log('Download gestartet!')
+      }, function () {
+        console.log('Konnte Downloads nicht starten!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Downloads nicht starten!')
+      })
+}
 
-function manualCollapse() {
-  myjd_collapse_manual.value = true
+function myJDpause(pause) {
+  // ToDo migrate to vue
+  //$('#myjd_pause').addClass('blinking').addClass('isDisabled')
+  //$('#myjd_unpause').addClass('blinking').addClass('isDisabled')
+  axios.post(props.prefix + 'api/myjd_pause/' + pause)
+      .then(function () {
+        getMyJDstate()
+        if (pause) {
+          console.log('Download pausiert!')
+        } else {
+          console.log('Download fortgesetzt!')
+        }
+      }, function () {
+        console.log('Konnte Downloads nicht fortsetzen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Downloads nicht fortsetzen!')
+      })
+}
+
+function myJDstop() {
+  // ToDo migrate to vue
+  //$('#myjd_stop').addClass('blinking').addClass('isDisabled')
+  axios.post(props.prefix + 'api/myjd_stop/')
+      .then(function () {
+        getMyJDstate()
+        console.log('Download angehalten!')
+      }, function () {
+        console.log('Konnte Downloads nicht anhalten!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Downloads nicht anhalten!')
+      })
+}
+
+function getMyJDstate() {
+  axios.get(props.prefix + 'api/myjd_state/')
+      .then(function (res) {
+        myjd_state.value = res.data.downloader_state
+        myjd_grabbing.value = res.data.grabber_collecting
+        update_ready.value = res.data.update_ready
+        // ToDo migrate to vue
+        //$('#myjd_start').removeClass('blinking').removeClass('isDisabled')
+        //$('#myjd_pause').removeClass('blinking').removeClass('isDisabled')
+        //$('#myjd_unpause').removeClass('blinking').removeClass('isDisabled')
+        //$('#myjd_stop').removeClass('blinking').removeClass('isDisabled')
+        //$('#myjd_update').removeClass('blinking').removeClass('isDisabled')
+        console.log('JDownloader Status abgerufen!')
+      }, function () {
+        console.log('Konnte JDownloader nicht erreichen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte JDownloader nicht erreichen!')
+      })
+}
+
+function myJDmove(linkids, uuid) {
+  // ToDo migrate to vue
+  //showInfoLong("Starte Download...")
+  axios.post(props.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
+      .then(function () {
+        getMyJD()
+        // ToDo migrate to vue
+        //$(".alert-info").slideUp(1500)
+      }, function () {
+        console.log('Konnte Download nicht starten!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht starten!')
+        //$(".alert-info").slideUp(1500)
+      })
+}
+
+function myJDremove(linkids, uuid) {
+  // ToDo migrate to vue
+  //showInfoLong("Lösche Download...")
+  axios.post(props.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
+      .then(function () {
+        if (myjd_failed.value) {
+          for (let failed_package of myjd_failed.value) {
+            let existing_uuid = failed_package['uuid']
+            if (uuid === existing_uuid) {
+              let index = myjd_failed.value.indexOf(failed_package)
+              myjd_failed.value.splice(index, 1)
+            }
+          }
+        }
+        getMyJD()
+        // ToDo migrate to vue
+        //$(".alert-info").slideUp(1500)
+      }, function () {
+        console.log('Konnte Download nicht löschen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht löschen!')
+        //$(".alert-info").slideUp(1500)
+      })
+}
+
+function internalRemove(name) {
+  // ToDo migrate to vue
+  //showInfoLong("Lösche Download...")
+  axios.post(props.prefix + 'api/internal_remove/' + name)
+      .then(function () {
+        if (to_decrypt.value) {
+          for (let failed_package of to_decrypt.value) {
+            let existing_name = failed_package['name']
+            if (name === existing_name) {
+              let index = to_decrypt.value.indexOf(failed_package)
+              to_decrypt.value.splice(index, 1)
+            }
+          }
+        }
+        getMyJD()
+        // ToDo migrate to vue
+        //$(".alert-info").slideUp(1500)
+      }, function () {
+        console.log('Konnte Download nicht löschen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht löschen!')
+        //$(".alert-info").slideUp(1500)
+      })
+}
+
+function myJDretry(linkids, uuid, links) {
+  // ToDo migrate to vue
+  //showInfoLong("Füge Download erneut hinzu...")
+  links = btoa(links)
+  axios.post(props.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
+      .then(function () {
+        if (myjd_failed.value) {
+          for (let failed_package of myjd_failed.value) {
+            let existing_uuid = failed_package['uuid']
+            if (uuid === existing_uuid) {
+              let index = myjd_failed.value.indexOf(failed_package)
+              myjd_failed.value.splice(index, 1)
+            }
+          }
+        }
+        getMyJD()
+        // ToDo migrate to vue
+        //$(".alert-info").slideUp(1500)
+      }, function () {
+        console.log('Konnte Download nicht erneut hinzufügen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht erneut hinzufügen!')
+        //$(".alert-info").slideUp(1500)
+      })
 }
 
 const cnl_active = ref(false)
@@ -187,6 +340,21 @@ function internalCnl(name, password) {
     cnl_active.value = false
     time.value = 0
   })
+}
+
+function countDown(seconds) {
+  if (seconds > 0) {
+    setTimeout(() => {
+      seconds -= 1
+      countDown(seconds)
+    }, 1000)
+  }
+}
+
+const myjd_collapse_manual = ref(false)
+
+function manualCollapse() {
+  myjd_collapse_manual.value = true
 }
 </script>
 

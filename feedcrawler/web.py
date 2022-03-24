@@ -46,7 +46,6 @@ from feedcrawler.myjd import jdownloader_stop
 from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import retry_decrypt
-from feedcrawler.myjd import update_jdownloader
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
@@ -873,19 +872,6 @@ def app_container():
                 links = decode_base64(b64_links)
                 links = links.split("\n")
                 if retry_decrypt(linkids, uuids, links):
-                    return "Success", 200
-            except:
-                pass
-            return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/api/myjd_update/", methods=['POST'])
-    @requires_auth
-    def myjd_update():
-        if request.method == 'POST':
-            try:
-                if update_jdownloader():
                     return "Success", 200
             except:
                 pass
