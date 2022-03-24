@@ -14,6 +14,9 @@ import Help from './components/Help.vue'
 
 onMounted(() => {
   getHostNames()
+  getCrawlTimes()
+  setInterval(updateTime, 1000)
+  setInterval(getCrawlTimes, 5 * 1000)
 })
 
 let prefix = ''
@@ -44,15 +47,38 @@ function getHostNames() {
         console.log('Hostnamen abgerufen!')
       }, function () {
         console.log('Konnte Hostnamen nicht abrufen!')
-        showDanger('Konnte Hostnamen nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Hostnamen nicht abrufen!')
       });
+}
+
+const starting = ref(false)
+const crawltimes = ref({})
+
+function getCrawlTimes() {
+  axios.get(props.prefix + 'api/crawltimes/')
+      .then(function (res) {
+        starting.value = false
+        crawltimes.value = res.data.crawltimes
+        console.log('Laufzeiten abgerufen!')
+      }, function () {
+        console.log('Konnte Laufzeiten nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Laufzeiten nicht abrufen!')
+      })
+}
+
+const now = ref(new Date.now())
+
+function updateTime() {
+  now.value = Date.now()
 }
 </script>
 
 <template>
   <main class="text-center">
     <!--- Main Items -->
-    <Head :prefix=prefix></Head>
+    <Head :prefix=prefix :crawltimes=crawltimes :starting=starting :now=now></Head>
     <Log :prefix=prefix></Log>
     <MyJD :prefix=prefix></MyJD>
     <!-- <Notifications :prefix=prefix></Notifications>
@@ -61,7 +87,7 @@ function getHostNames() {
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix></Lists>
     <Settings :prefix=prefix></Settings> -->
-    <Help :prefix=prefix :hostnames=hostnames></Help>
+    <Help :prefix=prefix :hostnames=hostnames :crawltimes=crawltimes :now=now></Help>
   </main>
 </template>
 

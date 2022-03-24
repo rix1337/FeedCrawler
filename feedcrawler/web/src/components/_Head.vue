@@ -3,13 +3,14 @@ import axios from 'axios'
 import {onMounted, ref} from 'vue'
 
 const props = defineProps({
-  prefix: String
+  prefix: String,
+  crawltimes: Object,
+  starting: Boolean,
+  now: Number
 })
 
 onMounted(() => {
   getVersion()
-  getCrawlTimes()
-  setInterval(getCrawlTimes, 5 * 1000)
   setInterval(getVersion, 300 * 1000)
 })
 
@@ -57,22 +58,6 @@ function scrollingTitle(titleText) {
   }, 200)
 }
 
-const starting = ref(false)
-const crawltimes = ref({})
-
-function getCrawlTimes() {
-  axios.get(props.prefix + 'api/crawltimes/')
-      .then(function (res) {
-        starting.value = false
-        crawltimes.value = res.data.crawltimes
-        console.log('Laufzeiten abgerufen!')
-      }, function () {
-        console.log('Konnte Laufzeiten nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Laufzeiten nicht abrufen!')
-      })
-}
-
 function getTimestamp(ms) {
   const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s)
   const d = new Date(ms)
@@ -81,8 +66,7 @@ function getTimestamp(ms) {
 }
 
 function getDuration(ms) {
-  const now = Date.now()
-  let duration = now - ms
+  let duration = now.value - ms
   return new Date(duration).toISOString().substr(11, 8)
 }
 

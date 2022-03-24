@@ -5,24 +5,20 @@ import {Collapse} from 'bootstrap'
 
 const props = defineProps({
   prefix: String,
-  hostnames: Object
+  hostnames: Object,
+  crawltimes: Object,
+  now: Number
 })
 
 onMounted(() => {
   getBlockedSites()
 })
 
-// ToDo update this from Settings.vue (probably needs vuex)
+// ToDo update this from App.vue
 const settings = {
   general: {
     flaresolverr: false
   }
-}
-
-// ToDo update this from Head.vue (probably needs vuex)
-const currentMillis = ref(Date.now())
-const crawltimes = {
-  next_f_run: "123000"
 }
 
 const blocked_sites = ref({
@@ -329,7 +325,7 @@ function showCaptchasHelp() {
                         hostnames.ff
                       }}
                       (FF)
-                      <span v-if="crawltimes.next_f_run < currentMillis">
+                      <span v-if="crawltimes.next_f_run < now">
                                             <i v-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -349,7 +345,7 @@ function showCaptchasHelp() {
                       <i v-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                      <span v-if="crawltimes.next_f_run > currentMillis">
+                      <span v-if="crawltimes.next_f_run > now">
                       <!-- ToDo refactor removed AngularJS filters to vue -->
                       <i class="bi bi-clock-fill text-warning"
                          :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>
@@ -452,7 +448,7 @@ function showCaptchasHelp() {
                         hostnames.sf
                       }}
                       (SF)
-                      <span v-if="crawltimes.next_f_run < currentMillis">
+                      <span v-if="crawltimes.next_f_run < now">
                                             <i v-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -472,7 +468,7 @@ function showCaptchasHelp() {
                       <i v-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                      <span v-if="crawltimes.next_f_run > currentMillis">
+                      <span v-if="crawltimes.next_f_run > now">
                         <!-- ToDo refactor removed AngularJS filters to vue -->
                         <i class="bi bi-clock-fill text-warning"
                            :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>

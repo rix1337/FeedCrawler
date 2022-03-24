@@ -22,7 +22,7 @@ const myjd_grabbing = ref(false)
 const to_decrypt = ref([])
 const update_ready = ref(false)
 
-// ToDo update this from Settings.vue (probably needs vuex)
+// ToDo update this from App.vue
 const settings = ref({})
 
 function getMyJD() {
