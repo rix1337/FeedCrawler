@@ -89,9 +89,9 @@ function deleteLogRow(title) {
       })
 }
 
-// ToDo migrate to vue from jQuery
 function spinLog() {
-  $("#spinner-log").fadeIn().delay(1000).fadeOut()
+  // ToDo migrate to vue from jQuery
+  //$("#spinner-log").fadeIn().delay(1000).fadeOut()
 }
 </script>
 

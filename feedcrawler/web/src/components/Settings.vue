@@ -1,96 +1,69 @@
-<script>
+<script setup>
+import {ref} from 'vue'
+import axios from "axios";
 
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      year: (new Date).getFullYear(),
-      hostnames: {
-        mb: "Testname MB",
-        sj: "Testname SJ",
-        bl: "Testnamen BL",
-      },
-      settings: {
-        general: {
-          myjd_user: '',
-          myjd_pass: '',
-          myjd_device: '',
-          closed_myjd_tab: false,
-          packages_per_myjd_page: 10,
-          port: 9090,
-        },
-        mb: {
-          quality: '1080p',
-          search: 3,
-          regex: false,
-          imdb_score: 5,
-          imdb_year: 2020,
-          force_dl: false,
-          retail_only: false,
-          cutoff: false,
-          hevc_retail: false,
-          hoster_fallback: false,
-        },
-        f: {
-          interval: 6,
-          search: 3,
-        },
-        sj: {
-          quality: '1080p',
-          regex: false,
-          retail_only: false,
-          hevc_retail: false,
-          hoster_fallback: false,
-        },
-        mbsj: {
-          enabled: false,
-          quality: '1080p',
-          packs: false,
-          source: '',
-        },
-        dj: {
-          quality: '1080p',
-          regex: false,
-          hoster_fallback: false,
-        },
-        hosters: {
-          rapidgator: true,
-          turbobit: true,
-          uploaded: true,
-          zippyshare: true,
-          oboom: true,
-          ddl: true,
-          filefactory: true,
-          uptobox: true,
-          onefichier: true,
-          filer: true,
-          nitroflare: true,
-          ironfiles: true,
-          k2s: true,
-        },
-        alerts: {
-          pushbullet: "",
-          pushover: "",
-          telegram: "",
-        },
-        ombi: {
-          url: "",
-          api: ""
-        },
-        crawljobs: {
-          autostart: false,
-          subdir: false,
-        }
-      }
-    }
-  }, methods: {
-    // ToDo replace with actual functions
-    saveSettings() {
-      console.log("saveSettings()");
-    }
+const props = defineProps({
+  prefix: String,
+  hostnames: Object,
+  settings: Object,
+  sjbl_enabled: Boolean,
+  getSettings: Function
+})
+
+const mb_search = [
+  {value: '1', label: '1 Seite'},
+  {value: '3', label: '3 Seiten'},
+  {value: '5', label: '5 Seiten'},
+  {value: '10', label: '10 Seiten'},
+  {value: '15', label: '15 Seiten'},
+  {value: '30', label: '30 Seiten'}
+]
+
+const resolutions = [
+  {value: '480p', label: '480p (SD)'},
+  {value: '720p', label: '720p (HD)'},
+  {value: '1080p', label: '1080p (Full-HD)'},
+  {value: '2160p', label: '2160p (4K)'}
+]
+
+const sources = [
+  {value: 'hdtv|hdtvrip|tvrip', label: 'HDTV'},
+  {value: 'web|web-dl|webrip|webhd|netflix*|amazon*|itunes*', label: 'WEB'},
+  {value: 'hdtv|hdtvrip|tvrip|web|web-dl|webrip|webhd|netflix*|amazon*|itunes*', label: 'HDTV/WEB'},
+  {value: 'bluray|bd|bdrip', label: 'BluRay'},
+  {value: 'web|web-dl|webrip|webhd|netflix*|amazon*|itunes*|bluray|bd|bdrip', label: 'Web/BluRay'},
+  {
+    value: 'hdtv|hdtvrip|tvrip|web|web-dl|webrip|webhd|netflix*|amazon*|itunes*|bluray|bd|bdrip',
+    label: 'HDTV/WEB/BluRay'
+  },
+  {
+    value: 'web.*-(tvs|4sj|tvr)|web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip',
+    label: 'BluRay/WebRetail (TVS/4SJ/TvR)'
   }
+]
+
+function saveSettings() {
+  spinSettings();
+  axios.post(props.prefix + 'api/settings/', settings.value)
+      .then(function () {
+        console.log('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
+        showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!');
+        getSettings();
+      }, function () {
+        getSettings();
+        console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
+        showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
+      });
 }
+
+function spinSettings() {
+  // ToDo migrate to vue from jQuery
+  //$("#spinner-settings").fadeIn().delay(1000).fadeOut();
+}
+
+const year = ref((new Date).getFullYear())
 </script>
+
 
 <template>
   <div id="offcanvasBottomSettings" aria-labelledby="offcanvasBottomSettingsLabel" class="offcanvas offcanvas-bottom"

@@ -25,7 +25,8 @@ function saveLists() {
 }
 
 function spinLists() {
-  $("#spinner-lists").fadeIn().delay(1000).fadeOut();
+  // ToDo migrate to vue from jQuery
+  //$("#spinner-lists").fadeIn().delay(1000).fadeOut();
 }
 </script>
 

@@ -117,10 +117,10 @@ function getSettings() {
     <Head :prefix=prefix :crawltimes=crawltimes :starting=starting :now=now></Head>
     <Log :prefix=prefix></Log>
     <MyJD :prefix=prefix></MyJD>
-    <!-- <Notifications :prefix=prefix></Notifications>
+    <!-- <Notifications :prefix=prefix></Notifications> -->
 
-    Off canvas Items
-    <Settings :prefix=prefix></Settings> -->
+    <!-- Off canvas Items -->
+    <Settings :prefix=prefix :hostnames=hostnames :settings=settings :sjbl_enabled=sjbl_enabled :getSettings=getSettings></Settings>
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix :hostnames=hostnames :lists=lists :settings=settings :getLists=getLists></Lists>
     <Help :prefix=prefix :hostnames=hostnames :crawltimes=crawltimes :now=now></Help>
