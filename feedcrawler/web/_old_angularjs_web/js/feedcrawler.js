@@ -36,19 +36,6 @@ $scope.sources = [
     }
 ];
 
-function setLists() {
-    spinLists();
-    $http.post('api/lists/', $scope.lists, 'application/json')
-        .then(function () {
-            console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
-            showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
-            getLists();
-        }, function () {
-            console.log('Konnte Listen nicht speichern!');
-            showDanger('Konnte Listen nicht speichern!');
-        });
-}
-
 function setSettings() {
     spinSettings();
     $http.post('api/settings/', $scope.settings, 'application/json')
@@ -85,20 +72,7 @@ function showDanger(message) {
     });
 }
 
-function spinLists() {
-    $("#spinner-lists").fadeIn().delay(1000).fadeOut();
-}
-
 function spinSettings() {
     $("#spinner-settings").fadeIn().delay(1000).fadeOut();
 }
 
-$scope.showSponsorsHelp = function () {
-    let offcanvas = new bootstrap.Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
-    offcanvas.show();
-    new bootstrap.Collapse(document.getElementById('collapseOneZero'), {
-        toggle: true
-    })
-    sessionStorage.setItem('fromNav', '')
-    window.location.href = "#collapseOneZero";
-}

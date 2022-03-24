@@ -1,6 +1,7 @@
 <script setup>
 import axios from 'axios'
 import {onMounted, ref} from 'vue'
+import {Collapse, Offcanvas} from 'bootstrap'
 
 const props = defineProps({
   prefix: String
@@ -357,6 +358,16 @@ const myjd_collapse_manual = ref(false)
 
 function manualCollapse() {
   myjd_collapse_manual.value = true
+}
+
+function showSponsorsHelp() {
+  let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
+  offcanvas.show();
+  new Collapse(document.getElementById('collapseOneZero'), {
+    toggle: true
+  })
+  sessionStorage.setItem('fromNav', '')
+  window.location.href = "#collapseOneZero";
 }
 </script>
 

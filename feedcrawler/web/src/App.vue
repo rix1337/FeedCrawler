@@ -11,11 +11,14 @@ import Log from './components/_Log.vue'
 import MyJD from './components/_MyJD.vue'
 
 import Search from './components/Search.vue'
+import Lists from './components/Lists.vue'
 import Help from './components/Help.vue'
 
 onMounted(() => {
   getHostNames()
   getCrawlTimes()
+  getLists()
+  getSettings()
   setInterval(updateTime, 1000)
   setInterval(getCrawlTimes, 5 * 1000)
 })
@@ -74,6 +77,38 @@ const now = ref(Date.now())
 function updateTime() {
   now.value = Date.now()
 }
+
+const lists = ref({})
+
+function getLists() {
+  axios.get(prefix + 'api/lists/')
+      .then(function (res) {
+        lists.value = res.data.lists
+        console.log('Listen abgerufen!')
+      }, function () {
+        console.log('Konnte Listen nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Listen nicht abrufen!')
+      })
+}
+
+const settings = ref({})
+const myjd_connection_error = ref(false)
+const pageSizeMyJD = ref(3)
+
+function getSettings() {
+  axios.get(prefix + 'api/settings/')
+      .then(function (res) {
+        settings.value = res.data.settings
+        console.log('Einstellungen abgerufen!')
+        myjd_connection_error.value = !(settings.value.general.myjd_user && settings.value.general.myjd_device && settings.value.general.myjd_device)
+        pageSizeMyJD.value = settings.value.general.packages_per_myjd_page
+      }, function () {
+        console.log('Konnte Einstellungen nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Einstellungen nicht abrufen!')
+      })
+}
 </script>
 
 <template>
@@ -85,9 +120,9 @@ function updateTime() {
     <!-- <Notifications :prefix=prefix></Notifications>
 
     Off canvas Items
-    <Lists :prefix=prefix></Lists>
     <Settings :prefix=prefix></Settings> -->
     <Search :prefix=prefix></Search>
+    <Lists :prefix=prefix :hostnames=hostnames :lists=lists :settings=settings :getLists=getLists></Lists>
     <Help :prefix=prefix :hostnames=hostnames :crawltimes=crawltimes :now=now></Help>
   </main>
 </template>

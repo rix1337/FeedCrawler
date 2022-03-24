@@ -1,44 +1,34 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      hostnames: {
-        sj: 'Nicht gesetzt!',
-        dj: 'Nicht gesetzt!',
-        sf: 'Nicht gesetzt!',
-        by: 'Nicht gesetzt!',
-        fx: 'Nicht gesetzt!',
-        nk: 'Nicht gesetzt!',
-        ww: 'Nicht gesetzt!',
-        bl: 'Nicht gesetzt!',
-        s: 'Nicht gesetzt!',
-        sjbl: 'Nicht gesetzt!'
-      },
-      settings: {
-        mb: {
-          regex: true,
-        },
-        sj: {
-          regex: true,
-        },
-        dj: {
-          regex: true,
-        },
-        mbsj: {
-          enabled: true,
-        }
-      },
-      sjbl_enabled: true,
-    }
-  }, methods: {
-    // ToDo replace with actual functions
-    saveLists() {
-      console.log("saveLists()");
-    }
-  }
+<script setup>
+
+import axios from "axios";
+
+const props = defineProps({
+  prefix: String,
+  hostnames: Object,
+  lists: Object,
+  settings: Object,
+  getLists: Function
+})
+
+
+function saveLists() {
+  spinLists();
+  axios.post(props.prefix + 'api/lists/', lists.value)
+      .then(function () {
+        console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
+        showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.');
+        getLists();
+      }, function () {
+        console.log('Konnte Listen nicht speichern!');
+        showDanger('Konnte Listen nicht speichern!');
+      });
+}
+
+function spinLists() {
+  $("#spinner-lists").fadeIn().delay(1000).fadeOut();
 }
 </script>
+
 
 <template>
   <div id="offcanvasBottomLists" aria-labelledby="offcanvasBottomListsLabel" class="offcanvas offcanvas-bottom"

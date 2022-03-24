@@ -87,41 +87,6 @@ function startNow() {
         //(".alert-info").slideUp(1500)
       })
 }
-
-// ToDo move this to Lists.vue
-const lists = ref({})
-
-function getLists() {
-  axios.get(props.prefix + 'api/lists/')
-      .then(function (res) {
-        lists.value = res.data.lists
-        console.log('Listen abgerufen!')
-      }, function () {
-        console.log('Konnte Listen nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Listen nicht abrufen!')
-      })
-}
-
-const settings = ref({})
-const myjd_connection_error = ref(false)
-// ToDo hand this over from Settings.vue to _MyJD.vue
-const pageSizeMyJD = ref(3)
-
-// ToDo move this to Settings.vue
-function getSettings() {
-  axios.get(props.prefix + 'api/settings/')
-      .then(function (res) {
-        settings.value = res.data.settings
-        console.log('Einstellungen abgerufen!')
-        myjd_connection_error.value = !(settings.value.general.myjd_user && settings.value.general.myjd_device && settings.value.general.myjd_device)
-        pageSizeMyJD.value = settings.value.general.packages_per_myjd_page
-      }, function () {
-        console.log('Konnte Einstellungen nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Einstellungen nicht abrufen!')
-      })
-}
 </script>
 
 
