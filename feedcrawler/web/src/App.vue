@@ -3,10 +3,13 @@ import {ref} from 'vue'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
+import "bootstrap"
 
 import Head from './components/_Head.vue'
 import Log from './components/_Log.vue'
 import MyJD from './components/_MyJD.vue'
+
+import Help from './components/Help.vue'
 
 let prefix = ref('')
 
@@ -26,8 +29,8 @@ if (import.meta.env.MODE === 'development') {
     Off canvas Items
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix></Lists>
-    <Settings :prefix=prefix></Settings>
-    <Help :prefix=prefix></Help> -->
+    <Settings :prefix=prefix></Settings> -->
+    <Help :prefix=prefix></Help>
   </main>
 </template>
 

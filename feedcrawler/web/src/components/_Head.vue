@@ -23,7 +23,7 @@ function getVersion() {
   axios.get(props.prefix + 'api/version/')
       .then(function (res) {
         version.value = res.data.version.ver
-        console.log('Dies ist der FeedCrawler ' + version + ' von https://github.com/rix1337')
+        console.log('Dies ist der FeedCrawler ' + version.value + ' von https://github.com/rix1337')
         update.value = res.data.version.update_ready
         docker.value = res.data.version.docker
         helper_active.value = res.data.version.helper_active
@@ -86,7 +86,6 @@ function getDuration(ms) {
   return new Date(duration).toISOString().substr(11, 8)
 }
 
-// ToDo replace with actual functions
 function startNow() {
   // ToDo migrate to vue
   //showInfoLong("Starte Suchlauf...")
@@ -137,21 +136,6 @@ function getSettings() {
         console.log('Konnte Einstellungen nicht abrufen!')
         // ToDo migrate to vue
         //showDanger('Konnte Einstellungen nicht abrufen!')
-      })
-}
-
-const blocked_sites = ref({})
-
-// ToDo move this to Help.vue
-function getBlockedSites() {
-  axios.get(props.prefix + 'api/blocked_sites/')
-      .then(function (res) {
-        blocked_sites.value = res.data.blocked_sites
-        console.log('Blockierte Seiten abgerufen!')
-      }, function () {
-        console.log('Konnte blockierte Seiten nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte blockierte Seiten nicht abrufen!')
       })
 }
 </script>
@@ -207,8 +191,7 @@ function getBlockedSites() {
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomHelp"
-              aria-controls="offcanvasBottomHelp"
-              @click="getBlockedSites()"><i class="bi bi-question-diamond"></i> Hilfe
+              aria-controls="offcanvasBottomHelp"><i class="bi bi-question-diamond"></i> Hilfe
       </button>
     </div>
 

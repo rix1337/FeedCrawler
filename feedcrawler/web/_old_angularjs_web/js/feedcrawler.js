@@ -204,11 +204,3 @@ $scope.showSponsorsHelp = function () {
     window.location.href = "#collapseOneZero";
 }
 
-$scope.showCaptchasHelp = function () {
-    new bootstrap.Collapse(document.getElementById('collapseOneOne'), {
-        toggle: true
-    })
-    sessionStorage.setItem('fromNav', '')
-    window.location.href = "#collapseOneZero";
-}
-

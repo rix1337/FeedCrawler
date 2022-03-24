@@ -1,46 +1,63 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {
-      hostnames: {
-        bl: "TestHostnamen",
-        mb: "TestName",
-        s: "TestName",
-        sjbl: "TestNamen",
-        dj: "TestName",
-      },
-      blocked_sites: {
-        normal: {
-          bl: false,
-          mb: false
-        },
-        flaresolverr: {
-          bl: false,
-          mb: false
-        },
-        flaresolverr_proxy: {
-          bl: false,
-          mb: false
-        }
-      },
-      settings:{
-        general: {
-          flaresolverr: false,
-        },
-      },
-      crawltimes: {
-        next_f_run: "123000",
-      }
-    }
-  }, methods: {
-    // ToDo replace with actual functions
-    showCaptchasHelp() {
-      console.log("showCaptchasHelp()");
-    }
+<script setup>
+import axios from 'axios'
+import {onMounted, ref} from 'vue'
+import {Collapse} from 'bootstrap'
+
+const props = defineProps({
+  prefix: String
+})
+
+onMounted(() => {
+  getBlockedSites()
+})
+
+// ToDo update this from Settings.vue (probably needs vuex)
+const settings = {
+  general: {
+    flaresolverr: false
   }
 }
+
+// ToDo update this from Head.vue (probably needs vuex)
+const crawltimes = {
+  next_f_run: "123000"
+}
+
+// ToDo update this from Head.vue (probably needs vuex)
+const hostnames = {
+  bl: "TestHostnamen",
+  mb: "TestName",
+  s: "TestName",
+  sjbl: "TestNamen",
+  dj: "TestName",
+}
+const blocked_sites = ref({
+  normal: {},
+  flaresolverr: {},
+  flaresolverr_proxy: {}
+})
+
+function getBlockedSites() {
+  axios.get(props.prefix + 'api/blocked_sites/')
+      .then(function (res) {
+        blocked_sites.value = res.data.blocked_sites
+        console.log('Blockierte Seiten abgerufen!')
+      }, function () {
+        console.log('Konnte blockierte Seiten nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte blockierte Seiten nicht abrufen!')
+      })
+}
+
+function showCaptchasHelp() {
+  new Collapse(document.getElementById('collapseOneOne'), {
+    toggle: true
+  })
+  sessionStorage.setItem('fromNav', '')
+  window.location.href = "#collapseOneZero";
+}
 </script>
+
 
 <template>
   <div id="offcanvasBottomHelp" aria-labelledby="offcanvasBottomHelpLabel" class="offcanvas offcanvas-bottom"
