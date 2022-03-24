@@ -82,20 +82,10 @@ function showCaptchasHelp() {
                 beim
                 unter <a href="#" @click="showCaptchasHelp()">CAPTCHAs</a> beworbenen Captcha-Solver.</p>
               <span>
-                    <a v-if="!helper_active" class="btn btn-outline-danger" data-toggle="tooltip"
-                       href="https://github.com/users/rix1337/sponsorship"
-                       target="_blank"
-                       title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"><i
-                        id="no-heart" class="bi bi-emoji-frown"></i> Kein aktiver Sponsor</a>
-                    <a v-if="helper_active" class="btn btn-outline-success" data-toggle="tooltip"
-                       href="https://github.com/users/rix1337/sponsorship"
-                       target="_blank" title="Vielen Dank für die aktive Github Sponsorship!"><i id="heart"
-                                                                                                 class="bi bi-heart"></i> Aktiver
-                        Sponsor</a>
-                    <br>
-                    <a class="btn btn-outline-success"
-                       href="https://github.com/rix1337/FeedCrawler/wiki"
-                       target="_blank">Weitere Hinweise gibt es im Wiki.</a>
+              <br>
+              <a class="btn btn-outline-success"
+                 href="https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper"
+                 target="_blank">Weitere Hinweise gibt es im Wiki.</a>
                 </span>
             </div>
           </div>

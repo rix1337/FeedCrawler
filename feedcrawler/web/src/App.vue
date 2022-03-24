@@ -43,7 +43,7 @@ function getHostNames() {
       .then(function (res) {
         hostnames.value = res.data.hostnames
         let not_set = 'Nicht gesetzt!'
-        sjbl_enabled.value = !((hostnames.bl.value === not_set && hostnames.s.value !== not_set) || (hostnames.bl.value !== not_set && hostnames.s.value === not_set))
+        sjbl_enabled.value = !((hostnames.value.bl === not_set && hostnames.value.s !== not_set) || (hostnames.value.bl !== not_set && hostnames.value.s === not_set))
         console.log('Hostnamen abgerufen!')
       }, function () {
         console.log('Konnte Hostnamen nicht abrufen!')
@@ -56,7 +56,7 @@ const starting = ref(false)
 const crawltimes = ref({})
 
 function getCrawlTimes() {
-  axios.get(props.prefix + 'api/crawltimes/')
+  axios.get(prefix + 'api/crawltimes/')
       .then(function (res) {
         starting.value = false
         crawltimes.value = res.data.crawltimes
@@ -68,7 +68,7 @@ function getCrawlTimes() {
       })
 }
 
-const now = ref(new Date.now())
+const now = ref(Date.now())
 
 function updateTime() {
   now.value = Date.now()
