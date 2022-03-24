@@ -6,10 +6,8 @@ const props = defineProps({
   prefix: String
 })
 
-const results = ref({
-  bl: [],
-  sj: []
-})
+const results = ref(false)
+
 const currentPage = ref(0)
 const pageSize = ref(10)
 const resLength = ref(0)
@@ -31,10 +29,7 @@ function searchNow() {
   let title = search.value
   searching.value = true
   if (!title) {
-    results.value = {
-      bl: [],
-      sj: []
-    }
+    results.value = false
     resLength.value = 0
     searching.value = false
   } else {

@@ -10,6 +10,7 @@ import Head from './components/_Head.vue'
 import Log from './components/_Log.vue'
 import MyJD from './components/_MyJD.vue'
 
+import Search from './components/Search.vue'
 import Help from './components/Help.vue'
 
 onMounted(() => {
@@ -84,9 +85,9 @@ function updateTime() {
     <!-- <Notifications :prefix=prefix></Notifications>
 
     Off canvas Items
-    <Search :prefix=prefix></Search>
     <Lists :prefix=prefix></Lists>
     <Settings :prefix=prefix></Settings> -->
+    <Search :prefix=prefix></Search>
     <Help :prefix=prefix :hostnames=hostnames :crawltimes=crawltimes :now=now></Help>
   </main>
 </template>
