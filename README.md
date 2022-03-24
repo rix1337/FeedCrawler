@@ -16,6 +16,40 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ***
 
+## Installation
+
+### Voraussetzungen
+
+* [Python 3.7](https://www.python.org/downloads/) oder neuer
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
+* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
+
+### Lokaler Build
+Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
+
+1. Frontend-Pfad aufrufen: `cd feedcrawler/web`
+2. Dependencies installieren: `npm ci`
+3. [Vue.js 3](https://vuejs.org/) Frontend kompilieren: `npm run build`
+4. Zurück in das Hauptverzeichnis wechseln: `cd ../..`
+5. FeedCrawler auf Basis der _setup.py_ installieren: `pip install .`
+
+### [pip](https://pip.pypa.io/en/stable/installation/)
+
+#### Installieren
+
+```pip install feedcrawler```
+
+Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
+
+#### Update
+
+```pip install -U feedcrawler```
+
+#### Starten
+
+```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
+
+
 ### Docker
 
 * Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
@@ -36,37 +70,6 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
 * Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
   Cloudflare-Blockaden zu umgehen (optional)
-
-### Manueller Build
-
-1. Frontend-Pfad aufrufen: `cd feedcrawler/web`
-2. Dependencies installieren: `npm ci`
-3. [Vue.js 3](https://vuejs.org/) Frontend kompilieren: `npm run build`
-4. Hauptverzeichnis aufrufen: `cd ../..`
-5. FeedCrawler auf Basis der _setup.py_ installieren: `pip install .`
-
-### Manuelle Installation
-
-#### Voraussetzungen
-
-* [Python 3.7](https://www.python.org/downloads/) oder neuer
-* [pip](https://pip.pypa.io/en/stable/installing/)
-* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
-* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
-
-#### Installieren
-
-```pip install feedcrawler```
-
-Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
-
-#### Update
-
-```pip install -U feedcrawler```
-
-#### Starten
-
-```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
 ### Hostnamen festlegen
 
