@@ -2,8 +2,6 @@ $(function () {
     $('[data-toggle="tooltip"]').tooltip()
 });
 
-
-
 $scope.sjbl_enabled = false;
 
 $scope.mb_search = [
@@ -38,22 +36,6 @@ $scope.sources = [
     }
 ];
 
-$scope.blocked_sites = false;
-$scope.searching = false;
-
-function getHostNames() {
-    $http.get('api/hostnames/')
-        .then(function (res) {
-            $scope.hostnames = res.data.hostnames;
-            not_set = 'Nicht gesetzt!'
-            $scope.sjbl_enabled = !(($scope.hostnames.bl === not_set && $scope.hostnames.s !== not_set) || ($scope.hostnames.bl !== not_set && $scope.hostnames.s === not_set));
-            console.log('Hostnamen abgerufen!');
-        }, function () {
-            console.log('Konnte Hostnamen nicht abrufen!');
-            showDanger('Konnte Hostnamen nicht abrufen!');
-        });
-}
-
 function setLists() {
     spinLists();
     $http.post('api/lists/', $scope.lists, 'application/json')
@@ -79,64 +61,6 @@ function setSettings() {
             console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
             showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.');
         });
-}
-
-function downloadBL(payload) {
-    showInfoLong("Starte Download...");
-    $http.post('api/download_bl/' + payload)
-        .then(function () {
-            console.log('Download gestartet!');
-            showSuccess('Download gestartet!');
-            getLists();
-            $(".alert-info").slideUp(500);
-        }, function () {
-            console.log('Konnte Download nicht starten!');
-            showDanger('Konnte Download nicht starten!');
-            $(".alert-info").slideUp(500);
-        });
-}
-
-function downloadSJ(payload) {
-    showInfoLong("Starte Download...");
-    $http.post('api/download_sj/' + payload)
-        .then(function () {
-            console.log('Download gestartet!');
-            showSuccess('Download gestartet!');
-            getLists();
-            $(".alert-info").slideUp(500);
-        }, function () {
-            console.log('Konnte Download nicht starten!');
-            showDanger('Konnte Download nicht starten!');
-            $(".alert-info").slideUp(500);
-        });
-}
-
-function searchNow() {
-    $("#spinner-search").fadeIn();
-    $scope.currentPage = 0;
-    let title = $scope.search;
-    $scope.searching = true;
-    if (!title) {
-        $scope.results = [];
-        $scope.resLength = 0;
-        $scope.searching = false;
-    } else {
-        $http.get('api/search/' + title)
-            .then(function (res) {
-                $scope.results = res.data.results;
-                $scope.resLength = Object.values($scope.results.bl).length;
-                $scope.search = "";
-                console.log('Nach ' + title + ' gesucht!');
-                getLog();
-                getLists();
-                $("#spinner-search").fadeOut();
-                $scope.searching = false;
-            }, function () {
-                console.log('Konnte ' + title + ' nicht suchen!');
-                showDanger('Konnte  ' + title + ' nicht suchen!');
-                $("#spinner-search").fadeOut();
-            });
-    }
 }
 
 function showSuccess(message) {
@@ -178,4 +102,3 @@ $scope.showSponsorsHelp = function () {
     sessionStorage.setItem('fromNav', '')
     window.location.href = "#collapseOneZero";
 }
-

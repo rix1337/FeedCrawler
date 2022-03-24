@@ -16,20 +16,77 @@ const resLength = ref(0)
 
 function numberOfPages() {
   if (typeof results.bl.value !== 'undefined') {
-    resLength.value = Object.values(results.bl.value).length;
-    return Math.ceil(resLength.value / pageSize.value);
+    resLength.value = Object.values(results.bl.value).length
+    return Math.ceil(resLength.value / pageSize.value)
   }
 }
 
-function getBlockedSites() {
-  axios.get(props.prefix + 'api/blocked_sites/')
-      .then(function (res) {
-        blocked_sites.value = res.data.blocked_sites
-        console.log('Blockierte Seiten abgerufen!')
-      }, function () {
-        console.log('Konnte blockierte Seiten nicht abrufen!')
+const search = ref('')
+const searching = ref(false)
+
+function searchNow() {
+  // ToDo migrate to vue
+  //$("#spinner-search").fadeIn()
+  currentPage.value = 0
+  let title = search.value
+  searching.value = true
+  if (!title) {
+    results.value = {
+      bl: [],
+      sj: []
+    }
+    resLength.value = 0
+    searching.value = false
+  } else {
+    axios.get(props.prefix + 'api/search/' + title)
+        .then(function (res) {
+          results.value = res.data.results
+          resLength.value = Object.values(results.value.bl).length
+          search.value = ""
+          console.log('Nach ' + title + ' gesucht!')
+          // ToDo migrate to vue
+          //$("#spinner-search").fadeOut()
+          searching.value = false
+        }, function () {
+          console.log('Konnte ' + title + ' nicht suchen!')
+          // ToDo migrate to vue
+          //showDanger('Konnte  ' + title + ' nicht suchen!')
+          //$("#spinner-search").fadeOut()
+        })
+  }
+}
+
+function downloadBL(payload) {
+  // ToDo migrate to vue
+  //showInfoLong("Starte Download...")
+  axios.post(props.prefix + 'api/download_bl/' + payload)
+      .then(function () {
+        console.log('Download gestartet!')
         // ToDo migrate to vue
-        //showDanger('Konnte blockierte Seiten nicht abrufen!')
+        //showSuccess('Download gestartet!')
+        //$(".alert-info").slideUp(500)
+      }, function () {
+        console.log('Konnte Download nicht starten!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht starten!')
+        //$(".alert-info").slideUp(500)
+      })
+}
+
+function downloadSJ(payload) {
+  // ToDo migrate to vue
+  //showInfoLong("Starte Download...")
+  axios.post(props.prefix + 'api/download_sj/' + payload)
+      .then(function () {
+        console.log('Download gestartet!')
+        // ToDo migrate to vue
+        //showSuccess('Download gestartet!')
+        //$(".alert-info").slideUp(500)
+      }, function () {
+        console.log('Konnte Download nicht starten!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Download nicht starten!')
+        //$(".alert-info").slideUp(500)
       })
 }
 </script>
