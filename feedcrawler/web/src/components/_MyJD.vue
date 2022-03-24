@@ -64,7 +64,7 @@ function getMyJD() {
         }
         myjd_grabbing.value = res.data.grabber_collecting
         if (myjd_grabbing.value) {
-          if (!myjd_collapse_manual.value && !settings.general.closed_myjd_tab.value) {
+          if (!myjd_collapse_manual.value && (typeof settings.general !== 'undefined' && !settings.general.closed_myjd_tab.value)) {
             // ToDo migrate to vue
             //$("#collapseOne").addClass('show')
             //$("#myjd_collapse").removeClass('collapsed')
