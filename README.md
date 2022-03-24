@@ -107,5 +107,5 @@ bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 
 * [zapp-brannigan](https://github.com/zapp-brannigan/) (Idee)
 * Gutz-Pilz (Idee)
-* [mmarquezs](https://github.com/mmarquezs/) (MyJDownloader-Integration)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Lizenz für die Umsetzung)
+* [mmarquezs](https://github.com/mmarquezs/) (MyJDownloader-API für Python)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Lizenz für die IDE)
