@@ -37,6 +37,14 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 * Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
   Cloudflare-Blockaden zu umgehen (optional)
 
+### Manueller Build
+
+1. Frontend-Pfad aufrufen: `cd feedcrawler/web`
+2. Dependencies installieren: `npm ci`
+3. [Vue.js 3](https://vuejs.org/) Frontend kompilieren: `npm run build`
+4. Hauptverzeichnis aufrufen: `cd ../..`
+5. FeedCrawler auf Basis der _setup.py_ installieren: `pip install .`
+
 ### Manuelle Installation
 
 #### Voraussetzungen
@@ -46,7 +54,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
 * [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
 
-#### Installation
+#### Installieren
 
 ```pip install feedcrawler```
 
