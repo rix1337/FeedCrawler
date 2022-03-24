@@ -6,6 +6,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 
 import Head from './components/_Head.vue'
 import Log from './components/_Log.vue'
+import MyJD from './components/_MyJD.vue'
 
 let prefix = ref('')
 
@@ -19,8 +20,8 @@ if (import.meta.env.MODE === 'development') {
     <!--- Main Items -->
     <Head :prefix=prefix></Head>
     <Log :prefix=prefix></Log>
-    <!-- <MyJD :prefix=prefix></MyJD>
-    <Notifications :prefix=prefix></Notifications>
+    <MyJD :prefix=prefix></MyJD>
+    <!-- <Notifications :prefix=prefix></Notifications>
 
     Off canvas Items
     <Search :prefix=prefix></Search>

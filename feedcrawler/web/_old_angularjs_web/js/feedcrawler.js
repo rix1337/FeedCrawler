@@ -17,19 +17,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         }
     };
 
-    $scope.currentPageMyJD = 0;
-    $scope.resLengthMyJD = 0;
-    $scope.numberOfPagesMyJD = function () {
-        if (typeof $scope.myjd_packages !== 'undefined') {
-            $scope.resLengthMyJD = $scope.myjd_packages.length;
-            let numPagesMyJD = Math.ceil($scope.resLengthMyJD / $scope.pageSizeMyJD);
-            if (($scope.currentPageMyJD > 0) && (($scope.currentPageMyJD + 1) > numPagesMyJD)) {
-                $scope.currentPageMyJD = numPagesMyJD - 1;
-            }
-            return numPagesMyJD;
-        }
-    };
-
     $scope.hostnames = {
         sj: 'Nicht gesetzt!',
         dj: 'Nicht gesetzt!',
@@ -78,13 +65,7 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     ];
 
     $scope.blocked_sites = false;
-    $scope.cnl_active = false;
-    $scope.myjd_connection_error = false;
-    $scope.myjd_collapse_manual = false;
     $scope.searching = false;
-    $scope.myjd_state = false;
-    $scope.myjd_packages = [];
-    $scope.time = 0;
 
     $(window).resize(function () {
         setAccordionWidth();
@@ -100,10 +81,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
     }
 
     $scope.init = getAll();
-
-    $scope.manualCollapse = function () {
-        manualCollapse();
-    };
 
     $scope.searchNow = function () {
         searchNow();
@@ -146,11 +123,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         getMyJDstate();
     };
 
-
-    $scope.getMyJD = function () {
-        getMyJD();
-    };
-
     $scope.myJDmove = function (linkids, uuid) {
         myJDmove(linkids, uuid);
     };
@@ -181,7 +153,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
 
     function getAll() {
         getHostNames();
-        getMyJD();
     }
 
     function countDown(seconds) {
@@ -194,10 +165,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         $timeout(function () {
             countDown(seconds)
         }, 1000);
-    }
-
-    function manualCollapse() {
-        $scope.myjd_collapse_manual = true;
     }
 
     function getHostNames() {
@@ -369,113 +336,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function getMyJD() {
-        $http.get('api/myjd/')
-            .then(function (res) {
-                $scope.myjd_connection_error = false;
-                $scope.myjd_state = res.data.downloader_state;
-                $scope.myjd_downloads = res.data.packages.downloader;
-                $scope.myjd_decrypted = res.data.packages.linkgrabber_decrypted;
-                $scope.myjd_offline = res.data.packages.linkgrabber_offline;
-                $scope.myjd_failed = res.data.packages.linkgrabber_failed;
-                $scope.to_decrypt = res.data.packages.to_decrypt;
-
-                let uuids = [];
-                if ($scope.myjd_failed) {
-                    for (let existing_package of $scope.myjd_failed) {
-                        let uuid = existing_package['uuid'];
-                        uuids.push(uuid)
-                    }
-                    const failed_packages = Object.entries(res.data.packages.linkgrabber_failed);
-                    for (let failed_package of failed_packages) {
-                        let uuid = failed_package[1]['uuid'];
-                        if (!uuids.includes(uuid)) {
-                            $scope.myjd_failed.push(failed_package[1])
-                        }
-                    }
-                }
-                let names = [];
-                if ($scope.to_decrypt) {
-                    for (let existing_package of $scope.to_decrypt) {
-                        let name = existing_package['name'];
-                        names.push(name)
-                    }
-                    const to_decrypt = Object.entries(res.data.packages.to_decrypt);
-                    for (let failed_package of to_decrypt) {
-                        let name = failed_package[1]['name'];
-                        if (!names.includes(name)) {
-                            $scope.to_decrypt.push(failed_package[1])
-                        }
-                    }
-                }
-                $scope.myjd_grabbing = res.data.grabber_collecting;
-                if ($scope.myjd_grabbing) {
-                    if (!$scope.myjd_collapse_manual && !$scope.settings.general.closed_myjd_tab) {
-                        $("#collapseOne").addClass('show');
-                        $("#myjd_collapse").removeClass('collapsed');
-                    }
-                }
-                $scope.update_ready = res.data.update_ready;
-
-                $scope.myjd_packages = [];
-                if ($scope.myjd_failed) {
-                    for (let p of $scope.myjd_failed) {
-                        p.type = "failed";
-                        $scope.myjd_packages.push(p);
-                    }
-                }
-                if ($scope.to_decrypt) {
-                    let first = true;
-                    for (let p of $scope.to_decrypt) {
-                        p.type = "to_decrypt";
-                        p.first = first;
-                        first = false;
-                        $scope.myjd_packages.push(p);
-                    }
-                }
-                if ($scope.myjd_offline) {
-                    for (let p of $scope.myjd_offline) {
-                        p.type = "offline";
-                        $scope.myjd_packages.push(p);
-                    }
-                }
-                if ($scope.myjd_decrypted) {
-                    for (let p of $scope.myjd_decrypted) {
-                        p.type = "decrypted";
-                        $scope.myjd_packages.push(p);
-                    }
-                }
-                if ($scope.myjd_downloads) {
-                    for (let p of $scope.myjd_downloads) {
-                        p.type = "online";
-                        $scope.myjd_packages.push(p);
-                    }
-                }
-
-                if ($scope.myjd_packages.length === 0 || (typeof $scope.settings !== 'undefined' && $scope.settings.general.closed_myjd_tab)) {
-                    if (!$scope.myjd_collapse_manual) {
-                        $("#myjd_collapse").addClass('collapsed');
-                        $("#collapseOne").removeClass('show');
-                    }
-                } else {
-                    if (!$scope.myjd_collapse_manual && (typeof $scope.settings !== 'undefined' && !$scope.settings.general.closed_myjd_tab)) {
-                        $("#collapseOne").addClass('show');
-                        $("#myjd_collapse").removeClass('collapsed');
-                    }
-                }
-
-                console.log('JDownloader abgerufen!');
-            }, function () {
-                $scope.myjd_grabbing = null;
-                $scope.myjd_downloads = null;
-                $scope.myjd_decrypted = null;
-                $scope.myjd_failed = null;
-                $scope.myjd_connection_error = true;
-                console.log('Konnte JDownloader nicht erreichen!');
-                showDanger('Konnte JDownloader nicht erreichen!');
-            });
-    }
-
     function myJDmove(linkids, uuid) {
         showInfoLong("Starte Download...");
         $http.post('api/myjd_move/' + linkids + "&" + uuid)
@@ -556,40 +416,6 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
             });
     }
 
-    function internalCnl(name, password) {
-        showInfoLong("Warte auf Click'n'Load...");
-        $scope.cnl_active = true;
-        countDown(60);
-        $http.post('api/internal_cnl/' + name + "&" + password)
-            .then(function () {
-                if ($scope.to_decrypt) {
-                    for (let failed_package of $scope.to_decrypt) {
-                        let existing_name = failed_package['name'];
-                        if (name === existing_name) {
-                            let index = $scope.to_decrypt.indexOf(failed_package);
-                            $scope.to_decrypt.splice(index, 1)
-                        }
-                    }
-                }
-                $(".alert-info").slideUp(500);
-                $scope.time = 0;
-                getMyJD();
-                $scope.cnl_active = false;
-            }).catch(function () {
-            showDanger("Click'n'Load nicht durchgeführt!");
-            $scope.cnl_active = false;
-            $(".alert-info").slideUp(500);
-            $scope.time = 0;
-        });
-    }
-
-    function scrollingTitle(titleText) {
-        document.title = titleText;
-        setTimeout(function () {
-            scrollingTitle(titleText.substr(1) + titleText.substr(0, 1));
-        }, 200);
-    }
-
     function showSuccess(message) {
         $(".alert-success").html(message).fadeTo(3000, 500).slideUp(500, function () {
             $(".alert-success").slideUp(500);
@@ -646,20 +472,5 @@ app.controller('crwlCtrl', function ($scope, $http, $timeout) {
         sessionStorage.setItem('fromNav', '')
         window.location.href = "#collapseOneZero";
     }
-
-    $scope.checkMyJD = function () {
-        $timeout(function () {
-            if (!$scope.cnl_active) {
-                if (typeof $scope.settings !== 'undefined') {
-                    if ($scope.settings.general.myjd_user && $scope.settings.general.myjd_device && $scope.settings.general.myjd_device) {
-                        getMyJD();
-                    }
-                }
-            }
-            $scope.checkMyJD();
-        }, 15000)
-    };
-
-    $scope.checkMyJD();
 })
 ;

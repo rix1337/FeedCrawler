@@ -1,16 +1,195 @@
-<script>
-export default {
-  // ToDo replace with actual data calls
-  data() {
-    return {}
-  }, methods: {
-    // ToDo replace with actual functions
-    manualCollapse() {
-      console.log("manualCollapse()");
+<script setup>
+import axios from 'axios'
+import {onMounted, ref} from 'vue'
+
+const props = defineProps({
+  prefix: String
+})
+
+onMounted(() => {
+  getMyJD()
+  setInterval(getMyJD, 5 * 1000)
+})
+
+const myjd_connection_error = ref(false)
+const myjd_state = ref(false)
+const myjd_packages = ref([])
+const myjd_downloads = ref([])
+const myjd_decrypted = ref([])
+const myjd_offline = ref([])
+const myjd_failed = ref([])
+const myjd_grabbing = ref(false)
+const to_decrypt = ref([])
+const update_ready = ref(false)
+const settings = ref({})
+
+function getMyJD() {
+  axios.get(props.prefix + 'api/myjd/')
+      .then(function (res) {
+        myjd_connection_error.value = false
+        myjd_state.value = res.data.downloader_state
+        myjd_downloads.value = res.data.packages.downloader
+        myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
+        myjd_offline.value = res.data.packages.linkgrabber_offline
+        myjd_failed.value = res.data.packages.linkgrabber_failed
+        to_decrypt.value = res.data.packages.to_decrypt
+
+        let uuids = []
+        if (myjd_failed.value) {
+          for (let existing_package of myjd_failed.value) {
+            let uuid = existing_package['uuid']
+            uuids.push(uuid)
+          }
+          const failed_packages = Object.entries(res.data.packages.linkgrabber_failed)
+          for (let failed_package of failed_packages) {
+            let uuid = failed_package[1]['uuid']
+            if (!uuids.includes(uuid)) {
+              myjd_failed.value.push(failed_package[1])
+            }
+          }
+        }
+        let names = []
+        if (to_decrypt.value) {
+          for (let existing_package of to_decrypt.value) {
+            let name = existing_package['name']
+            names.push(name)
+          }
+          to_decrypt.value = Object.entries(res.data.packages.to_decrypt)
+          for (let failed_package of to_decrypt.value) {
+            let name = failed_package[1]['name']
+            if (!names.includes(name)) {
+              to_decrypt.value.push(failed_package[1])
+            }
+          }
+        }
+        myjd_grabbing.value = res.data.grabber_collecting
+        if (myjd_grabbing.value) {
+          if (!myjd_collapse_manual.value && !settings.general.closed_myjd_tab.value) {
+            // ToDo migrate to vue
+            //$("#collapseOne").addClass('show')
+            //$("#myjd_collapse").removeClass('collapsed')
+          }
+        }
+        update_ready.value = res.data.update_ready
+
+        myjd_packages.value = []
+        if (myjd_failed.value) {
+          for (let p of myjd_failed.value) {
+            p.type = "failed"
+            myjd_packages.value.push(p)
+          }
+        }
+        if (to_decrypt.value) {
+          let first = true
+          for (let p of to_decrypt.value) {
+            p.type = "to_decrypt"
+            p.first = first
+            first = false
+            myjd_packages.value.push(p)
+          }
+        }
+        if (myjd_offline.value) {
+          for (let p of myjd_offline.value) {
+            p.type = "offline"
+            myjd_packages.value.push(p)
+          }
+        }
+        if (myjd_decrypted.value) {
+          for (let p of myjd_decrypted.value) {
+            p.type = "decrypted"
+            myjd_packages.value.push(p)
+          }
+        }
+        if (myjd_downloads.value) {
+          for (let p of myjd_downloads.value) {
+            p.type = "online"
+            myjd_packages.value.push(p)
+          }
+        }
+
+        if (myjd_packages.value.length === 0 || (typeof settings.general !== 'undefined' && typeof settings.general.closed_myjd_tab.value !== 'undefined')) {
+          if (!myjd_collapse_manual.value) {
+            // ToDo migrate to vue
+            //$("#myjd_collapse").addClass('collapsed')
+            //$("#collapseOne").removeClass('show')
+          }
+        } else {
+          if (!myjd_collapse_manual.value && (typeof settings.general !== 'undefined' && typeof settings.general.closed_myjd_tab.value !== 'undefined')) {
+            // ToDo migrate to vue
+            //$("#collapseOne").addClass('show')
+            //$("#myjd_collapse").removeClass('collapsed')
+          }
+        }
+
+        console.log('JDownloader abgerufen!')
+      }, function () {
+        myjd_grabbing.value = null
+        myjd_downloads.value = null
+        myjd_decrypted.value = null
+        myjd_failed.value = null
+        myjd_connection_error.value = true
+        console.log('Konnte JDownloader nicht erreichen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte JDownloader nicht erreichen!')
+      })
+}
+
+const currentPageMyJD = ref(0)
+const resLengthMyJD = ref(0)
+
+function numberOfPagesMyJD() {
+  if (typeof myjd_packages.value !== 'undefined') {
+    resLengthMyJD.value = myjd_packages.value.length
+    let numPagesMyJD = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
+    if ((currentPageMyJD.value > 0) && ((currentPageMyJD.value + 1) > numPagesMyJD)) {
+      currentPageMyJD.value = numPagesMyJD - 1
     }
+    return numPagesMyJD
   }
 }
+
+const myjd_collapse_manual = ref(false)
+
+function manualCollapse() {
+  myjd_collapse_manual.value = true
+}
+
+const cnl_active = ref(false)
+const time = ref(0)
+
+function internalCnl(name, password) {
+  // ToDo migrate to vue
+  //showInfoLong("Warte auf Click'n'Load...")
+  cnl_active.value = true
+  countDown(60)
+  axios.post(props.prefix + 'api/internal_cnl/' + name + "&" + password)
+      .then(function () {
+        if (to_decrypt.value) {
+          for (let failed_package of to_decrypt.value) {
+            let existing_name = failed_package['name']
+            if (name === existing_name) {
+              let index = to_decrypt.value.indexOf(failed_package)
+              to_decrypt.value.splice(index, 1)
+            }
+          }
+        }
+        // ToDo migrate to vue
+        //$(".alert-info").slideUp(500)
+        getMyJD()
+
+        cnl_active.value = false
+        time.value = 0
+      }).catch(function () {
+    // ToDo migrate to vue
+    //showDanger("Click'n'Load nicht durchgeführt!")
+    // ToDo migrate to vue
+    //$(".alert-info").slideUp(500)
+    cnl_active.value = false
+    time.value = 0
+  })
+}
 </script>
+
 
 <template>
   <div id="myjd" class="container app col">
@@ -28,7 +207,7 @@ export default {
         <div id="collapseOne" aria-labelledby="headingOne" class="accordion-collapse collapse"
              data-bs-parent="#accordionMyJD">
           <div class="accordion-body">
-            <!-- ToDo refactor removed AngularJS filters to vue -->
+            <!-- ToDo refactor removed AngularJS pagination filters to vue -->
             <div v-for="x in myjd_packages" class="myjd-items">
               <div class="myjd-downloads">
                 <div v-if="x.type=='online'" class="card bg-success" title="In der Downloadliste">

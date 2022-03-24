@@ -1,5 +1,5 @@
 <script setup>
-import axios from 'axios';
+import axios from 'axios'
 import {onMounted, ref} from 'vue'
 
 const props = defineProps({
@@ -17,14 +17,14 @@ const numberOfPagesLog = ref(0)
 function getLog() {
   axios.get(props.prefix + 'api/log/')
       .then(function (res) {
-        log.value = res.data.log;
+        log.value = res.data.log
         getLogPages()
-        console.log('Log abgerufen!');
+        console.log('Log abgerufen!')
       }, function () {
-        console.log('Konnte Log nicht abrufen!');
+        console.log('Konnte Log nicht abrufen!')
         // ToDo migrate to vue
-        //showDanger('Konnte Log nicht abrufen!');
-      });
+        //showDanger('Konnte Log nicht abrufen!')
+      })
 }
 
 const resLengthLog = ref(0)
@@ -33,7 +33,7 @@ const pageSizeLog = ref(5)
 
 function getLogPages() {
   if (typeof log.value !== 'undefined' && log.value.length > 0) {
-    resLengthLog.value = log.value.length;
+    resLengthLog.value = log.value.length
     numberOfPagesLog.value = Math.ceil(resLengthLog.value / pageSizeLog.value)
     if ((currentPageLog.value > 0) && ((currentPageLog.value + 1) > numberOfPagesLog.value)) {
       currentPageLog.value = numberOfPagesLog - 1
@@ -52,46 +52,46 @@ const loglength = ref(65)
 const longlog = ref(false)
 
 function longerLog() {
-  loglength.value = 999;
-  longlog.value = true;
+  loglength.value = 999
+  longlog.value = true
 }
 
 function shorterLog() {
-  loglength.value = 65;
-  longlog.value = false;
+  loglength.value = 65
+  longlog.value = false
 }
 
 function deleteLog() {
-  spinLog();
+  spinLog()
   axios.delete(props.prefix + 'api/log/')
       .then(function () {
-        console.log('Log geleert!');
+        console.log('Log geleert!')
         // ToDo migrate to vue
-        //showSuccess('Log geleert!');
-        getLog();
+        //showSuccess('Log geleert!')
+        getLog()
       }, function () {
-        console.log('Konnte Log nicht leeren!');
+        console.log('Konnte Log nicht leeren!')
         // ToDo migrate to vue
-        //showDanger('Konnte Log nicht leeren!');
-      });
+        //showDanger('Konnte Log nicht leeren!')
+      })
 }
 
 function deleteLogRow(title) {
-  title = btoa(title);
+  title = btoa(title)
   axios.delete(props.prefix + 'api/log_entry/' + title)
       .then(function () {
-        console.log('Logeintrag gelöscht!');
-        showSuccess('Logeintrag gelöscht!');
-        getLog();
+        console.log('Logeintrag gelöscht!')
+        showSuccess('Logeintrag gelöscht!')
+        getLog()
       }, function () {
-        console.log('Konnte Logeintrag nicht löschen!');
-        showDanger('Konnte Logeintrag nicht löschen!');
-      });
+        console.log('Konnte Logeintrag nicht löschen!')
+        showDanger('Konnte Logeintrag nicht löschen!')
+      })
 }
 
 // ToDo migrate to vue from jQuery
 function spinLog() {
-  $("#spinner-log").fadeIn().delay(1000).fadeOut();
+  $("#spinner-log").fadeIn().delay(1000).fadeOut()
 }
 </script>
 
@@ -111,7 +111,7 @@ function spinLog() {
         </thead>
         <tbody id="logbody">
         <tr v-for="x in log">
-          <!-- ToDo refactor removed AngularJS filters to vue -->
+          <!-- ToDo refactor removed AngularJS pagination filters to vue -->
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
           <td class="text-left" title="{{ x[3] }}">
             {{ x[3] }}
@@ -146,7 +146,7 @@ function spinLog() {
     <div>
       <a class="btn btn-dark" href="" @click="deleteLog()">
         <div id="spinner-log" class="spinner-border spinner-border-sm"
-             role="status" style="display: none;"></div>
+             role="status" style="display: none"></div>
         <i class="bi bi-trash"></i> Leeren</a>
     </div>
   </div>
