@@ -12,6 +12,7 @@ import MyJD from './components/_MyJD.vue'
 
 import Search from './components/Search.vue'
 import Lists from './components/Lists.vue'
+import Settings from './components/Settings.vue'
 import Help from './components/Help.vue'
 
 onMounted(() => {
@@ -92,7 +93,78 @@ function getLists() {
       })
 }
 
-const settings = ref({})
+const settings = ref({
+  general: {
+    myjd_user: '',
+    myjd_pass: '',
+    myjd_device: '',
+    closed_myjd_tab: false,
+    packages_per_myjd_page: 10,
+    port: 9090,
+  },
+  mb: {
+    quality: '1080p',
+    search: 3,
+    regex: false,
+    imdb_score: 5,
+    imdb_year: 2020,
+    force_dl: false,
+    retail_only: false,
+    cutoff: false,
+    hevc_retail: false,
+    hoster_fallback: false,
+  },
+  f: {
+    interval: 6,
+    search: 3,
+  },
+  sj: {
+    quality: '1080p',
+    regex: false,
+    retail_only: false,
+    hevc_retail: false,
+    hoster_fallback: false,
+  },
+  mbsj: {
+    enabled: false,
+    quality: '1080p',
+    packs: false,
+    source: '',
+  },
+  dj: {
+    quality: '1080p',
+    regex: false,
+    hoster_fallback: false,
+  },
+  hosters: {
+    rapidgator: true,
+    turbobit: true,
+    uploaded: true,
+    zippyshare: true,
+    oboom: true,
+    ddl: true,
+    filefactory: true,
+    uptobox: true,
+    onefichier: true,
+    filer: true,
+    nitroflare: true,
+    ironfiles: true,
+    k2s: true,
+  },
+  alerts: {
+    pushbullet: "",
+    pushover: "",
+    telegram: "",
+  },
+  ombi: {
+    url: "",
+    api: ""
+  },
+  crawljobs: {
+    autostart: false,
+    subdir: false,
+  }
+})
 const myjd_connection_error = ref(false)
 const pageSizeMyJD = ref(3)
 
@@ -120,7 +192,8 @@ function getSettings() {
     <!-- <Notifications :prefix=prefix></Notifications> -->
 
     <!-- Off canvas Items -->
-    <Settings :prefix=prefix :hostnames=hostnames :settings=settings :sjbl_enabled=sjbl_enabled :getSettings=getSettings></Settings>
+    <Settings :prefix=prefix :hostnames=hostnames :settings=settings :sjbl_enabled=sjbl_enabled
+              :getSettings=getSettings></Settings>
     <Search :prefix=prefix></Search>
     <Lists :prefix=prefix :hostnames=hostnames :lists=lists :settings=settings :getLists=getLists></Lists>
     <Help :prefix=prefix :hostnames=hostnames :crawltimes=crawltimes :now=now></Help>
