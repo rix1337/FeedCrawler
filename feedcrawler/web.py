@@ -1118,7 +1118,7 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.5.1
+// @version         0.5.2
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
@@ -1162,16 +1162,13 @@ if (title && title !== "login") {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
             if (i > 24) {
-                if (sponsorsHelper) {
-                    const requiresLogin = $(".alert-warning").length;
-                    if (requiresLogin) {
-                        console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
-                        clearInterval(checkExist);
-                        window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
-                        window.close();
-                    }
+                const requiresLogin = $(".alert-warning").length;
+                if (requiresLogin) {
+                    console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
+                    clearInterval(checkExist);
+                    window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
+                    window.close();
                 }
-                console.log("hit")
                 clearInterval(checkExist);
             } else {
                 console.log("miss")
