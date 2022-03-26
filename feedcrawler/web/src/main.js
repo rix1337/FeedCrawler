@@ -163,6 +163,9 @@ const store = createStore({
                     //showDanger('Konnte Einstellungen nicht abrufen!')
                 })
         },
+        setMyJDConnectionError(state, myjd_connection_error) {
+            state.misc.myjd_connection_error = myjd_connection_error
+        },
         setNow(state, now) {
             state.misc.now = now
         },

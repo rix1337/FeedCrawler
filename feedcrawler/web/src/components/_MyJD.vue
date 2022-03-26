@@ -24,7 +24,7 @@ const update_ready = ref(false)
 function getMyJD() {
   axios.get(store.state.prefix + 'api/myjd/')
       .then(function (res) {
-        store.state.misc.myjd_connection_error.value = false
+        store.commit("setMyJDConnectionError", false)
         myjd_state.value = res.data.downloader_state
         myjd_downloads.value = res.data.packages.downloader
         myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
@@ -125,7 +125,7 @@ function getMyJD() {
         myjd_downloads.value = null
         myjd_decrypted.value = null
         myjd_failed.value = null
-        store.state.misc.myjd_connection_error.value = true
+        store.commit("setMyJDConnectionError", true)
         console.log('Konnte JDownloader nicht erreichen!')
         // ToDo migrate to vue
         //showDanger('Konnte JDownloader nicht erreichen!')
