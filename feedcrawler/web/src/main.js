@@ -4,6 +4,8 @@ import axios from "axios"
 
 import App from './App.vue'
 
+// The store is created here, and then passed to the Vue instance
+// It contains the state of the application and is updated through calls to the FeedCrawler API
 const store = createStore({
     state() {
         return {

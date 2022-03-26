@@ -10,7 +10,7 @@ onMounted(() => {
   setInterval(getLog, 5 * 1000)
 })
 
-const log = ref([["1", "2", "3", "4", "5"]])
+const log = ref([])
 const numberOfPagesLog = ref(0)
 
 function getLog() {
@@ -80,11 +80,13 @@ function deleteLogRow(title) {
   axios.delete(store.state.prefix + 'api/log_entry/' + title)
       .then(function () {
         console.log('Logeintrag gelöscht!')
-        showSuccess('Logeintrag gelöscht!')
+        // ToDo migrate to vue
+        //showSuccess('Logeintrag gelöscht!')
         getLog()
       }, function () {
         console.log('Konnte Logeintrag nicht löschen!')
-        showDanger('Konnte Logeintrag nicht löschen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Logeintrag nicht löschen!')
       })
 }
 
@@ -92,6 +94,15 @@ function spinLog() {
   // ToDo migrate to vue from jQuery
   //$("#spinner-log").fadeIn().delay(1000).fadeOut()
 }
+
+function checkEntryLength(entry) {
+  if (entry !== undefined) {
+    return (entry.length > 65)
+  } else {
+    return false
+  }
+}
+
 </script>
 
 
@@ -114,16 +125,18 @@ function spinLog() {
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
           <td class="text-left" title="{{ x[3] }}">
             {{ x[3] }}
-            <a v-if="!longlog && x[3].length > 65" href='' title="Titel vollständig anzeigen"
+            <!-- ToDo for some reason x[3] is undefined here-->
+            <a v-if="!longlog && checkEntryLength(x[3])" href='' title="Titel vollständig anzeigen"
                @click="longerLog()">...</a>
-            <a v-if="longlog && x[3].length > 65" href='' title="Titel kürzen" @click="shorterLog()"><i
+            <a v-if="longlog && checkEntryLength(x[3])" href='' title="Titel kürzen" @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></a>
           </td>
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
           <td class="text-right"><a data-toggle="tooltip" href="" title="Logeintrag löschen"
-                                    @click="deleteLogRow(x[3])"><i
-              class="bi bi-trash remove"></i></a></td>
+                                    @click="deleteLogRow(x[3])">
+            <i class="bi bi-trash remove"></i></a>
+          </td>
         </tr>
         </tbody>
       </table>

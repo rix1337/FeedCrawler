@@ -42,12 +42,14 @@ function saveSettings() {
   axios.post(store.state.prefix + 'api/settings/', store.state.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart wird dringend empfohlen!')
-        showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!')
+        // ToDo migrate to vue
+        //showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!')
         store.commit("getSettings")
       }, function () {
         store.commit("getSettings")
         console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
-        showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
+        // ToDo migrate to vue
+        //showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
       })
 }
 

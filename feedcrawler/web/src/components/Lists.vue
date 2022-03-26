@@ -21,11 +21,13 @@ function saveLists() {
   axios.post(store.state.prefix + 'api/lists/', store.state.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
-        showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
+        // ToDo migrate to vue
+        //showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
         getLists()
       }, function () {
         console.log('Konnte Listen nicht speichern!')
-        showDanger('Konnte Listen nicht speichern!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Listen nicht speichern!')
       })
 }
 
