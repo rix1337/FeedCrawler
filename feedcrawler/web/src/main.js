@@ -119,7 +119,7 @@ const store = createStore({
         getCrawlTimes(state) {
             axios.get(state.prefix + 'api/crawltimes/')
                 .then(function (res) {
-                    state.starting = false
+                    state.misc.starting = false
                     state.crawltimes = res.data.crawltimes
                     console.log('Laufzeiten abgerufen!')
                 }, function () {
