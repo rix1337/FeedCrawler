@@ -1,11 +1,10 @@
 <script setup>
-import axios from 'axios'
 import {onMounted, ref} from 'vue'
+import {useStore} from 'vuex'
 import {Collapse, Offcanvas} from 'bootstrap'
+import axios from 'axios'
 
-const props = defineProps({
-  prefix: String
-})
+const store = useStore()
 
 onMounted(() => {
   getMyJD()
@@ -23,11 +22,8 @@ const myjd_grabbing = ref(false)
 const to_decrypt = ref([])
 const update_ready = ref(false)
 
-// ToDo update this from App.vue
-const settings = ref({})
-
 function getMyJD() {
-  axios.get(props.prefix + 'api/myjd/')
+  axios.get(store.state.prefix + 'api/myjd/')
       .then(function (res) {
         myjd_connection_error.value = false
         myjd_state.value = res.data.downloader_state
@@ -67,7 +63,7 @@ function getMyJD() {
         }
         myjd_grabbing.value = res.data.grabber_collecting
         if (myjd_grabbing.value) {
-          if (!myjd_collapse_manual.value && (typeof settings.general !== 'undefined' && !settings.general.closed_myjd_tab.value)) {
+          if (!myjd_collapse_manual.value && (typeof store.state.settings.general !== 'undefined' && !store.state.settings.general.closed_myjd_tab.value)) {
             // ToDo migrate to vue
             //$("#collapseOne").addClass('show')
             //$("#myjd_collapse").removeClass('collapsed')
@@ -110,14 +106,14 @@ function getMyJD() {
           }
         }
 
-        if (myjd_packages.value.length === 0 || (typeof settings.general !== 'undefined' && typeof settings.general.closed_myjd_tab.value !== 'undefined')) {
+        if (myjd_packages.value.length === 0 || (typeof store.state.settings.general !== 'undefined' && typeof store.state.settings.general.closed_myjd_tab.value !== 'undefined')) {
           if (!myjd_collapse_manual.value) {
             // ToDo migrate to vue
             //$("#myjd_collapse").addClass('collapsed')
             //$("#collapseOne").removeClass('show')
           }
         } else {
-          if (!myjd_collapse_manual.value && (typeof settings.general !== 'undefined' && typeof settings.general.closed_myjd_tab.value !== 'undefined')) {
+          if (!myjd_collapse_manual.value && (typeof store.state.settings.general !== 'undefined' && typeof store.state.settings.general.closed_myjd_tab.value !== 'undefined')) {
             // ToDo migrate to vue
             //$("#collapseOne").addClass('show')
             //$("#myjd_collapse").removeClass('collapsed')
@@ -154,7 +150,7 @@ function numberOfPagesMyJD() {
 function myJDstart() {
   // ToDo migrate to vue
   //$('#myjd_start').addClass('blinking').addClass('isDisabled')
-  axios.post(props.prefix + 'api/myjd_start/')
+  axios.post(store.state.prefix + 'api/myjd_start/')
       .then(function () {
         getMyJDstate()
         console.log('Download gestartet!')
@@ -169,7 +165,7 @@ function myJDpause(pause) {
   // ToDo migrate to vue
   //$('#myjd_pause').addClass('blinking').addClass('isDisabled')
   //$('#myjd_unpause').addClass('blinking').addClass('isDisabled')
-  axios.post(props.prefix + 'api/myjd_pause/' + pause)
+  axios.post(store.state.prefix + 'api/myjd_pause/' + pause)
       .then(function () {
         getMyJDstate()
         if (pause) {
@@ -187,7 +183,7 @@ function myJDpause(pause) {
 function myJDstop() {
   // ToDo migrate to vue
   //$('#myjd_stop').addClass('blinking').addClass('isDisabled')
-  axios.post(props.prefix + 'api/myjd_stop/')
+  axios.post(store.state.prefix + 'api/myjd_stop/')
       .then(function () {
         getMyJDstate()
         console.log('Download angehalten!')
@@ -199,7 +195,7 @@ function myJDstop() {
 }
 
 function getMyJDstate() {
-  axios.get(props.prefix + 'api/myjd_state/')
+  axios.get(store.state.prefix + 'api/myjd_state/')
       .then(function (res) {
         myjd_state.value = res.data.downloader_state
         myjd_grabbing.value = res.data.grabber_collecting
@@ -221,7 +217,7 @@ function getMyJDstate() {
 function myJDmove(linkids, uuid) {
   // ToDo migrate to vue
   //showInfoLong("Starte Download...")
-  axios.post(props.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
+  axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
         getMyJD()
         // ToDo migrate to vue
@@ -237,7 +233,7 @@ function myJDmove(linkids, uuid) {
 function myJDremove(linkids, uuid) {
   // ToDo migrate to vue
   //showInfoLong("Lösche Download...")
-  axios.post(props.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
+  axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
@@ -262,7 +258,7 @@ function myJDremove(linkids, uuid) {
 function internalRemove(name) {
   // ToDo migrate to vue
   //showInfoLong("Lösche Download...")
-  axios.post(props.prefix + 'api/internal_remove/' + name)
+  axios.post(store.state.prefix + 'api/internal_remove/' + name)
       .then(function () {
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
@@ -288,7 +284,7 @@ function myJDretry(linkids, uuid, links) {
   // ToDo migrate to vue
   //showInfoLong("Füge Download erneut hinzu...")
   links = btoa(links)
-  axios.post(props.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
+  axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
@@ -318,7 +314,7 @@ function internalCnl(name, password) {
   //showInfoLong("Warte auf Click'n'Load...")
   cnl_active.value = true
   countDown(60)
-  axios.post(props.prefix + 'api/internal_cnl/' + name + "&" + password)
+  axios.post(store.state.prefix + 'api/internal_cnl/' + name + "&" + password)
       .then(function () {
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
@@ -362,12 +358,12 @@ function manualCollapse() {
 
 function showSponsorsHelp() {
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
-  offcanvas.show();
+  offcanvas.show()
   new Collapse(document.getElementById('collapseOneZero'), {
     toggle: true
   })
   sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseOneZero";
+  window.location.href = "#collapseOneZero"
 }
 </script>
 

@@ -1,21 +1,20 @@
 <script setup>
-import axios from 'axios'
+import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import axios from 'axios'
 
-const props = defineProps({
-  prefix: String
-})
+const store = useStore()
 
 onMounted(() => {
   getLog()
   setInterval(getLog, 5 * 1000)
 })
 
-const log = ref([])
+const log = ref([["1", "2", "3", "4", "5"]])
 const numberOfPagesLog = ref(0)
 
 function getLog() {
-  axios.get(props.prefix + 'api/log/')
+  axios.get(store.state.prefix + 'api/log/')
       .then(function (res) {
         log.value = res.data.log
         getLogPages()
@@ -63,7 +62,7 @@ function shorterLog() {
 
 function deleteLog() {
   spinLog()
-  axios.delete(props.prefix + 'api/log/')
+  axios.delete(store.state.prefix + 'api/log/')
       .then(function () {
         console.log('Log geleert!')
         // ToDo migrate to vue
@@ -78,7 +77,7 @@ function deleteLog() {
 
 function deleteLogRow(title) {
   title = btoa(title)
-  axios.delete(props.prefix + 'api/log_entry/' + title)
+  axios.delete(store.state.prefix + 'api/log_entry/' + title)
       .then(function () {
         console.log('Logeintrag gelöscht!')
         showSuccess('Logeintrag gelöscht!')

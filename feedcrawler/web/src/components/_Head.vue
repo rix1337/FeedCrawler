@@ -1,13 +1,9 @@
 <script setup>
-import axios from 'axios'
+import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import axios from 'axios'
 
-const props = defineProps({
-  prefix: String,
-  crawltimes: Object,
-  starting: Boolean,
-  now: Number
-})
+const store = useStore()
 
 onMounted(() => {
   getVersion()
@@ -21,7 +17,7 @@ const helper_active = ref(false)
 const helper_available = ref(false)
 
 function getVersion() {
-  axios.get(props.prefix + 'api/version/')
+  axios.get(store.state.prefix + 'api/version/')
       .then(function (res) {
         version.value = res.data.version.ver
         console.log('Dies ist der FeedCrawler ' + version.value + ' von https://github.com/rix1337')
@@ -66,27 +62,59 @@ function getTimestamp(ms) {
 }
 
 function getDuration(ms) {
-  let duration = now.value - ms
+  let duration = store.state.now - ms
   return new Date(duration).toISOString().substr(11, 8)
 }
 
 function startNow() {
   // ToDo migrate to vue
   //showInfoLong("Starte Suchlauf...")
-  starting.value = true
-  axios.post(props.prefix + 'api/start_now/')
+  store.commit('setStarting', true)
+  axios.post(store.state.prefix + 'api/start_now/')
       .then(function () {
         // ToDo migrate to vue
         //$(".alert-info").slideUp(1500)
         console.log('Suchlauf gestartet!')
       }, function () {
-        starting.value = false
+        store.commit('setStarting', false)
         console.log('Konnte Suchlauf nicht starten!')
         // ToDo migrate to vue
         //showDanger('Konnte Suchlauf nicht starten!')
         //(".alert-info").slideUp(1500)
       })
 }
+
+// todo move to shared store mutations
+const myjd_connection_error = ref(false)
+const pageSizeMyJD = ref(3)
+
+function getSettings() {
+  axios.get(store.state.prefix + 'api/settings/')
+      .then(function (res) {
+        store.commit("setSettings", res.data.settings)
+        console.log('Einstellungen abgerufen!')
+        myjd_connection_error.value = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
+        pageSizeMyJD.value = store.state.settings.general.packages_per_myjd_page
+      }, function () {
+        console.log('Konnte Einstellungen nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Einstellungen nicht abrufen!')
+      })
+}
+
+function getLists() {
+  axios.get(prefix + 'api/lists/')
+      .then(function (res) {
+        store.commit("setLists", res.data.lists)
+        console.log('Listen abgerufen!')
+      }, function () {
+        console.log('Konnte Listen nicht abrufen!')
+        // ToDo migrate to vue
+        //showDanger('Konnte Listen nicht abrufen!')
+      })
+}
+
+console.log(store.state.crawltimes)
 </script>
 
 
@@ -101,21 +129,22 @@ function startNow() {
 
     <div class="border-top"></div>
 
-    <div v-if="crawltimes">
-      <div v-if="crawltimes.active">
-        Suchlauf gestartet: {{ getTimestamp(crawltimes.start_time) }} (Dauer: {{ getDuration(crawltimes.start_time) }})
+    <div v-if="store.state.crawltimes">
+      <div v-if="store.state.crawltimes.active">
+        Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
+        {{ getDuration(store.state.crawltimes.start_time) }})
       </div>
-      <div v-if="!crawltimes.active">
-        Start des nächsten Suchlaufs: {{ getTimestamp(crawltimes.next_start) }}
+      <div v-if="!store.state.crawltimes.active">
+        Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
         <i id="start_now" class="bi bi-skip-end-fill" title="Suchlauf direkt starten" data-toggle="tooltip"
-           v-if="!starting"
+           v-if="!store.state.starting"
            @click="startNow()"></i>
-        <div v-if="starting" class="spinner-border spinner-border-sm" role="status"></div>
+        <div v-if="store.state.starting" class="spinner-border spinner-border-sm" role="status"></div>
       </div>
-      <div v-if="crawltimes.next_f_run">
-        Keine SF/FF-Suchläufe bis: {{ getTimestamp(crawltimes.next_f_run) }}
+      <div v-if="store.state.crawltimes.next_f_run">
+        Keine SF/FF-Suchläufe bis: {{ getTimestamp(store.state.crawltimes.next_f_run) }}
       </div>
-      Dauer des letzten Suchlaufs: {{ crawltimes.total_time }}
+      Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
     </div>
 
     <div class="border-top"></div>

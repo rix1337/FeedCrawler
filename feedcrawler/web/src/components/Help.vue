@@ -1,25 +1,14 @@
 <script setup>
-import axios from 'axios'
 import {onMounted, ref} from 'vue'
+import {useStore} from 'vuex'
 import {Collapse} from 'bootstrap'
+import axios from "axios"
 
-const props = defineProps({
-  prefix: String,
-  hostnames: Object,
-  crawltimes: Object,
-  now: Number
-})
+const store = useStore()
 
 onMounted(() => {
   getBlockedSites()
 })
-
-// ToDo update this from App.vue
-const settings = {
-  general: {
-    flaresolverr: false
-  }
-}
 
 const blocked_sites = ref({
   normal: {},
@@ -28,7 +17,7 @@ const blocked_sites = ref({
 })
 
 function getBlockedSites() {
-  axios.get(props.prefix + 'api/blocked_sites/')
+  axios.get(store.state.prefix + 'api/blocked_sites/')
       .then(function (res) {
         blocked_sites.value = res.data.blocked_sites
         console.log('Blockierte Seiten abgerufen!')
@@ -44,7 +33,7 @@ function showCaptchasHelp() {
     toggle: true
   })
   sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseOneZero";
+  window.location.href = "#collapseOneZero"
 }
 </script>
 
@@ -124,7 +113,7 @@ function showCaptchasHelp() {
             </div>
           </div>
         </div>
-        <div v-if="(hostnames.bl !== 'Nicht gesetzt!') || (hostnames.s !== 'Nicht gesetzt!')"
+        <div v-if="(store.state.hostnames.bl !== 'Nicht gesetzt!') || (store.state.hostnames.s !== 'Nicht gesetzt!')"
              class="accordion-item">
           <h2 id="headingOneThree" class="accordion-header">
             <button aria-controls="collapseOneThree" aria-expanded="false" class="accordion-button collapsed"
@@ -137,7 +126,7 @@ function showCaptchasHelp() {
                data-bs-parent="#accordionHelp">
             <div id="helpText" class="accordion-body">
               <h5>Beispiele</h5>
-              <div v-if="hostnames.bl !== 'Nicht gesetzt!'">
+              <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
                 <div class="row">
                   <div class="col text-left card bg-light">
                     <i>Film.*.Titel.*</i>
@@ -172,7 +161,7 @@ function showCaptchasHelp() {
                   </div>
                 </div>
               </div>
-              <div v-if="hostnames.s !== 'Nicht gesetzt!'">
+              <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
                 <div class="row">
                   <div class="col text-left card bg-light">
                     <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
@@ -241,11 +230,11 @@ function showCaptchasHelp() {
             <div class="accordion-body">
               <div class="row">
                 <div
-                    v-if="hostnames.fx !== 'Nicht gesetzt!' || hostnames.hw !== 'Nicht gesetzt!' || hostnames.ww !== 'Nicht gesetzt!' || hostnames.ff !== 'Nicht gesetzt!' || hostnames.nk !== 'Nicht gesetzt!' || hostnames.by !== 'Nicht gesetzt!'"
+                    v-if="store.state.hostnames.fx !== 'Nicht gesetzt!' || store.state.hostnames.hw !== 'Nicht gesetzt!' || store.state.hostnames.ww !== 'Nicht gesetzt!' || store.state.hostnames.ff !== 'Nicht gesetzt!' || store.state.hostnames.nk !== 'Nicht gesetzt!' || store.state.hostnames.by !== 'Nicht gesetzt!'"
                     class="col">
                   <ul class="list-group">
-                    <li v-if="hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.fx
+                    <li v-if="store.state.hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.fx
                       }}
                       (FX)
                       <i v-if="blocked_sites.normal.FX"
@@ -266,8 +255,8 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.hw !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.hw
+                    <li v-if="store.state.hostnames.hw !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.hw
                       }}
                       (HW)
                       <i v-if="blocked_sites.normal.HW"
@@ -288,14 +277,14 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.ww
+                    <li v-if="store.state.hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.ww
                       }}
                       (WW)
-                      <i v-if="blocked_sites.normal.WW && !settings.general.flaresolverr"
+                      <i v-if="blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
                          class="bi bi-exclamation-square-fill text-danger"
                          title="Seite mit aktueller IP gesperrt"></i>
-                      <i v-if="!blocked_sites.normal.WW && !settings.general.flaresolverr"
+                      <i v-if="!blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit aktueller IP verfügbar"></i>
                       <i v-if="blocked_sites.flaresolverr.WW && blocked_sites.normal.WW"
@@ -311,11 +300,11 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.ff
+                    <li v-if="store.state.hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.ff
                       }}
                       (FF)
-                      <span v-if="crawltimes.next_f_run < now">
+                      <span v-if="store.state.crawltimes.next_f_run < store.state.now">
                                             <i v-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -335,13 +324,13 @@ function showCaptchasHelp() {
                       <i v-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                      <span v-if="crawltimes.next_f_run > now">
+                      <span v-if="store.state.crawltimes.next_f_run > store.state.now">
                       <!-- ToDo refactor removed AngularJS filters to vue -->
                       <i class="bi bi-clock-fill text-warning"
-                         :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>
+                         :title="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
                     </li>
-                    <li v-if="hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.nk
+                    <li v-if="store.state.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.nk
                       }}
                       (NK)
                       <i v-if="blocked_sites.normal.NK"
@@ -362,8 +351,8 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.by
+                    <li v-if="store.state.hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.by
                       }}
                       (BY)
                       <i v-if="blocked_sites.normal.BY"
@@ -387,11 +376,11 @@ function showCaptchasHelp() {
                   </ul>
                 </div>
                 <div
-                    v-if="hostnames.sj !== 'Nicht gesetzt!' || hostnames.dj !== 'Nicht gesetzt!' || hostnames.sf !== 'Nicht gesetzt!'"
+                    v-if="store.state.hostnames.sj !== 'Nicht gesetzt!' || store.state.hostnames.dj !== 'Nicht gesetzt!' || store.state.hostnames.sf !== 'Nicht gesetzt!'"
                     class="col">
                   <ul class="list-group">
-                    <li v-if="hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.sj
+                    <li v-if="store.state.hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.sj
                       }}
                       (SJ)
                       <i v-if="blocked_sites.normal.SJ"
@@ -412,8 +401,8 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.dj
+                    <li v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.dj
                       }}
                       (DJ)
                       <i v-if="blocked_sites.normal.DJ"
@@ -434,11 +423,11 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
                     </li>
-                    <li v-if="hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{
-                        hostnames.sf
+                    <li v-if="store.state.hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{
+                        store.state.hostnames.sf
                       }}
                       (SF)
-                      <span v-if="crawltimes.next_f_run < now">
+                      <span v-if="store.state.crawltimes.next_f_run < store.state.now">
                                             <i v-if="!blocked_sites.normal.SF"
                                                class="bi bi-check-square-fill text-success"
                                                title="Seite mit aktueller IP verfügbar"></i>
@@ -458,10 +447,10 @@ function showCaptchasHelp() {
                       <i v-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
                          class="bi bi-check-square-fill text-success"
                          title="Seite mit FlareSolverr (Proxy) verfügbar"></i>
-                      <span v-if="crawltimes.next_f_run > now">
+                      <span v-if="store.state.crawltimes.next_f_run > store.state.now">
                         <!-- ToDo refactor removed AngularJS filters to vue -->
                         <i class="bi bi-clock-fill text-warning"
-                           :title="'Keine FF-Suchläufe bis: ' + crawltimes.next_f_run"></i></span>
+                           :title="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
                     </li>
                   </ul>
                 </div>

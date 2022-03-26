@@ -1,10 +1,9 @@
 <script setup>
-import axios from 'axios'
+import {useStore} from 'vuex'
 import {ref} from 'vue'
+import axios from 'axios'
 
-const props = defineProps({
-  prefix: String
-})
+const store = useStore()
 
 const results = ref(false)
 
@@ -33,7 +32,7 @@ function searchNow() {
     resLength.value = 0
     searching.value = false
   } else {
-    axios.get(props.prefix + 'api/search/' + title)
+    axios.get(store.state.prefix + 'api/search/' + title)
         .then(function (res) {
           results.value = res.data.results
           resLength.value = Object.values(results.value.bl).length
@@ -54,7 +53,7 @@ function searchNow() {
 function downloadBL(payload) {
   // ToDo migrate to vue
   //showInfoLong("Starte Download...")
-  axios.post(props.prefix + 'api/download_bl/' + payload)
+  axios.post(store.state.prefix + 'api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
         // ToDo migrate to vue
@@ -71,7 +70,7 @@ function downloadBL(payload) {
 function downloadSJ(payload) {
   // ToDo migrate to vue
   //showInfoLong("Starte Download...")
-  axios.post(props.prefix + 'api/download_sj/' + payload)
+  axios.post(store.state.prefix + 'api/download_sj/' + payload)
       .then(function () {
         console.log('Download gestartet!')
         // ToDo migrate to vue
