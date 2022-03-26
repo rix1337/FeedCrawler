@@ -7,7 +7,7 @@ const store = useStore()
 function getLists() {
   axios.get(store.state.prefix + 'api/lists/')
       .then(function (res) {
-        store.commit('setLists', res.data.lists)
+        store.commit('getLists', res.data.lists)
         console.log('Listen abgerufen!')
       }, function () {
         console.log('Konnte Listen nicht abrufen!')
@@ -104,8 +104,9 @@ function spinLists() {
             </div>
           </div>
         </div>
-        <div v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && sjbl_enabled"
-             class="accordion-item">
+        <div
+            v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
+            class="accordion-item">
           <h2 id="headingZeroThree" class="accordion-header">
             <button aria-controls="collapseZeroThree" aria-expanded="false" class="accordion-button collapsed"
                     data-bs-target="#collapseZeroThree" data-bs-toggle="collapse"

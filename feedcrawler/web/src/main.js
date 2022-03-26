@@ -1,5 +1,7 @@
 import {createApp} from 'vue'
 import {createStore} from 'vuex'
+import axios from "axios"
+
 import App from './App.vue'
 
 const store = createStore({
@@ -7,8 +9,6 @@ const store = createStore({
         return {
             prefix: '',
             crawltimes: {},
-            starting: false,
-            now: Date.now(),
             hostnames: {
                 sj: 'Nicht gesetzt!',
                 dj: 'Nicht gesetzt!',
@@ -21,7 +21,18 @@ const store = createStore({
                 s: 'Nicht gesetzt!',
                 sjbl: 'Nicht gesetzt!'
             },
-            lists: {sj: [], dj: [], sf: [], by: [], fx: [], nk: [], ww: [], bl: [], s: [], sjbl: []},
+            lists: {
+                sj: [],
+                dj: [],
+                sf: [],
+                by: [],
+                fx: [],
+                nk: [],
+                ww: [],
+                bl: [],
+                s: [],
+                sjbl: []
+            },
             settings: {
                 general: {
                     myjd_user: '',
@@ -94,32 +105,76 @@ const store = createStore({
                     subdir: false,
                 }
             },
-            sjbl_enabled: true,
+            misc: {
+                myjd_connection_error: false,
+                now: Date.now(),
+                pageSizeMyJD: 3,
+                sjbl_enabled: true,
+                starting: false,
+            },
         }
     }, mutations: {
+        getCrawlTimes(state) {
+            axios.get(state.prefix + 'api/crawltimes/')
+                .then(function (res) {
+                    state.starting = false
+                    state.crawltimes = res.data.crawltimes
+                    console.log('Laufzeiten abgerufen!')
+                }, function () {
+                    console.log('Konnte Laufzeiten nicht abrufen!')
+                    // ToDo migrate to vue
+                    //showDanger('Konnte Laufzeiten nicht abrufen!')
+                })
+        },
+        getHostNames(state) {
+            axios.get(state.prefix + 'api/hostnames/')
+                .then(function (res) {
+                    state.hostnames = res.data.hostnames
+                    let not_set = 'Nicht gesetzt!'
+                    state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
+                    console.log('Hostnamen abgerufen!')
+                }, function () {
+                    console.log('Konnte Hostnamen nicht abrufen!')
+                    // ToDo migrate to vue
+                    //showDanger('Konnte Hostnamen nicht abrufen!')
+                })
+        },
+        getLists(state) {
+            axios.get(state.prefix + 'api/lists/')
+                .then(function (res) {
+                    state.lists = res.data.lists
+                    console.log('Listen abgerufen!')
+                }, function () {
+                    console.log('Konnte Listen nicht abrufen!')
+                    // ToDo migrate to vue
+                    //showDanger('Konnte Listen nicht abrufen!')
+                })
+        },
+        getSettings(state) {
+            axios.get(store.state.prefix + 'api/settings/')
+                .then(function (res) {
+                    state.settings = res.data.settings
+                    console.log('Einstellungen abgerufen!')
+                    state.misc.myjd_connection_error.value = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
+                    state.misc.pageSizeMyJD.value = store.state.settings.general.packages_per_myjd_page
+                }, function () {
+                    console.log('Konnte Einstellungen nicht abrufen!')
+                    // ToDo migrate to vue
+                    //showDanger('Konnte Einstellungen nicht abrufen!')
+                })
+        },
+        setNow(state, now) {
+            state.misc.now = now
+        },
         setPrefix(state, prefix) {
+            console.log('Running in dev mode! Expecting FeedCrawler at ' + prefix)
             state.prefix = prefix
         },
-        setCrawlTimes(state, crawltimes) {
-            state.crawltimes = crawltimes
+        setSjBlEnabled(state, enabled) {
+            state.misc.sjbl_enabled = enabled
         },
         setStarting(state, starting) {
-            state.starting = starting
-        },
-        setNow(state) {
-            state.now = Date.now()
-        },
-        setHostNames(state, hostnames) {
-            state.hostnames = hostnames
-        },
-        setLists(state, lists) {
-            state.lists = lists
-        },
-        setSettings(state, settings) {
-            state.settings = settings
-        },
-        setSjBlEnabled(state, enabled) {
-            state.sjbl_enabled = enabled
+            state.misc.starting = starting
         }
     }
 })

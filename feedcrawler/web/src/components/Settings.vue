@@ -1,6 +1,6 @@
 <script setup>
-import {ref} from 'vue'
 import {useStore} from 'vuex'
+import {ref} from 'vue'
 import axios from "axios"
 
 const store = useStore()
@@ -43,9 +43,9 @@ function saveSettings() {
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart wird dringend empfohlen!')
         showSuccess('Einstellungen gespeichert! Neustart wird dringend empfohlen!')
-        getSettings()
+        store.commit("getSettings")
       }, function () {
-        getSettings()
+        store.commit("getSettings")
         console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
         showDanger('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
       })
@@ -57,24 +57,6 @@ function spinSettings() {
 }
 
 const year = ref((new Date).getFullYear())
-
-// todo move to shared store mutations
-const myjd_connection_error = ref(false)
-const pageSizeMyJD = ref(3)
-
-function getSettings() {
-  axios.get(store.state.prefix + 'api/settings/')
-      .then(function (res) {
-        store.commit("setSettings", res.data.settings)
-        console.log('Einstellungen abgerufen!')
-        myjd_connection_error.value = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
-        pageSizeMyJD.value = store.state.settings.general.packages_per_myjd_page
-      }, function () {
-        console.log('Konnte Einstellungen nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Einstellungen nicht abrufen!')
-      })
-}
 </script>
 
 
@@ -580,7 +562,7 @@ function getSettings() {
             </div>
           </div>
           <div
-              v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.sjbl_enabled"
+              v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
               class="accordion-item">
             <h2 id="headingTwoEight" class="accordion-header">
               <button aria-controls="collapseTwoEight" aria-expanded="false" class="accordion-button collapsed"

@@ -1,6 +1,6 @@
 <script setup>
-import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
+import {onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 
@@ -11,7 +11,6 @@ onMounted(() => {
   setInterval(getMyJD, 5 * 1000)
 })
 
-const myjd_connection_error = ref(false)
 const myjd_state = ref(false)
 const myjd_packages = ref([])
 const myjd_downloads = ref([])
@@ -25,7 +24,7 @@ const update_ready = ref(false)
 function getMyJD() {
   axios.get(store.state.prefix + 'api/myjd/')
       .then(function (res) {
-        myjd_connection_error.value = false
+        store.state.misc.myjd_connection_error.value = false
         myjd_state.value = res.data.downloader_state
         myjd_downloads.value = res.data.packages.downloader
         myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
@@ -126,7 +125,7 @@ function getMyJD() {
         myjd_downloads.value = null
         myjd_decrypted.value = null
         myjd_failed.value = null
-        myjd_connection_error.value = true
+        store.state.misc.myjd_connection_error.value = true
         console.log('Konnte JDownloader nicht erreichen!')
         // ToDo migrate to vue
         //showDanger('Konnte JDownloader nicht erreichen!')
@@ -139,7 +138,7 @@ const resLengthMyJD = ref(0)
 function numberOfPagesMyJD() {
   if (typeof myjd_packages.value !== 'undefined') {
     resLengthMyJD.value = myjd_packages.value.length
-    let numPagesMyJD = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
+    let numPagesMyJD = Math.ceil(resLengthMyJD.value / store.state.misc.pageSizeMyJD.value)
     if ((currentPageMyJD.value > 0) && ((currentPageMyJD.value + 1) > numPagesMyJD)) {
       currentPageMyJD.value = numPagesMyJD - 1
     }
@@ -576,7 +575,7 @@ function showSponsorsHelp() {
               <button :disable="true" class="btn btn-outline-info">
                 {{ currentPageMyJD + 1 }} / {{ numberOfPagesMyJD() }}
               </button>
-              <button :disable="currentPageMyJD >= resLengthMyJD/pageSizeMyJD - 1"
+              <button :disable="currentPageMyJD >= resLengthMyJD / store.state.misc.pageSizeMyJD - 1"
                       class="btn btn-outline-info"
                       @click="currentPageMyJD=currentPageMyJD+1">
                 <i class="bi bi-chevron-right"></i>
@@ -587,7 +586,8 @@ function showSponsorsHelp() {
               <p id="initial-loading">Verbinde mit My JDownloader...</p>
               <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
             </div>
-            <div v-if="myjd_connection_error" id="myjd_no_login" class="myjd_connection_state">Fehler bei
+            <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login" class="myjd_connection_state">Fehler
+              bei
               Verbindung mit My
               JDownloader!
             </div>
