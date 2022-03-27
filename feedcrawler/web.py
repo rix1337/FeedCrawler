@@ -138,6 +138,16 @@ def app_container():
     def index():
         return render_template('index.html')
 
+    # ToDo Migrate to use vue-router instead of dedicated html
+    @app.route(prefix + "/sponsors_helper/", methods=['GET'])
+    def to_decrypt():
+        global helper_active
+        helper_active = True
+        if request.method == 'GET':
+            return render_template('helper.html')
+        else:
+            return "Failed", 405
+
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
     @requires_auth
     def get_delete_log():
@@ -1350,15 +1360,6 @@ const cnlExists = setInterval(async function () {
 """, 200
             except:
                 return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/sponsors_helper/", methods=['GET'])
-    def to_decrypt():
-        global helper_active
-        helper_active = True
-        if request.method == 'GET':
-            return render_template('helper.html')
         else:
             return "Failed", 405
 
