@@ -2,12 +2,14 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-import Toast from "vue-toastification";
+import Toast, {useToast} from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
 import App from './App.vue'
+
+const toast = useToast()
 
 // The store is created here, and then passed to the Vue instance
 // It contains the state of the application and is updated through calls to the FeedCrawler API
@@ -124,8 +126,7 @@ const store = createStore({
                     state.crawltimes = res.data.crawltimes
                 }, function () {
                     console.log('Konnte Laufzeiten nicht abrufen!')
-                    // ToDo migrate to vue
-                    //showDanger('Konnte Laufzeiten nicht abrufen!')
+                    toast.error('Konnte Laufzeiten nicht abrufen!')
                 })
         },
         getHostNames(state) {
@@ -136,8 +137,7 @@ const store = createStore({
                     state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
-                    // ToDo migrate to vue
-                    //showDanger('Konnte Hostnamen nicht abrufen!')
+                    toast.error('Konnte Hostnamen nicht abrufen!')
                 })
         },
         getLists(state) {
@@ -146,8 +146,7 @@ const store = createStore({
                     state.lists = res.data.lists
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
-                    // ToDo migrate to vue
-                    //showDanger('Konnte Listen nicht abrufen!')
+                    toast.error('Konnte Listen nicht abrufen!')
                 })
         },
         getSettings(state) {
@@ -158,8 +157,7 @@ const store = createStore({
                     state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
-                    // ToDo migrate to vue
-                    //showDanger('Konnte Einstellungen nicht abrufen!')
+                    toast.error('Konnte Einstellungen nicht abrufen!')
                 })
         },
         setHelperActive(state, helper_active) {
