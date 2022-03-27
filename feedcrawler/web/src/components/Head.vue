@@ -74,6 +74,7 @@ function startNow() {
       .then(function () {
         // ToDo migrate to vue
         //$(".alert-info").slideUp(1500)
+        store.commit('setStarting', false)
         console.log('Suchlauf gestartet!')
       }, function () {
         store.commit('setStarting', false)

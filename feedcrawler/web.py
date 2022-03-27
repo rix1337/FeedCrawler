@@ -652,14 +652,14 @@ def app_container():
         if request.method == 'POST':
             try:
                 FeedDb('crawltimes').store("startnow", "True")
-                i = 3
+                i = 10
                 started = False
                 while i > 0:
                     if not FeedDb('crawltimes').retrieve("startnow"):
                         started = True
                         break
                     i -= 1
-                    time.sleep(5)
+                    time.sleep(1)
                 if started:
                     return "Success", 200
                 else:
