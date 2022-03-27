@@ -13,9 +13,11 @@
 - **13.0.0** Migration des AngularJS Frontends zu [Vue.js 3](https://vuejs.org/)
   - AngularJS ist seit Ende 2021 [End-of-Life](https://docs.angularjs.org/misc/version-support-status) und wird nicht mehr aktiv gepflegt. 
   - Vue.js ist ein modernes und aktiv gepflegtes Framework für Single-Page-Applications.
-  - Der Wechsel der Frameworks war nicht zwingend notwendig, macht den FeedCrawler jedoch zukunftssicherer und das Frontend schneller.
-  - Bei Installation per Docker, PIP oder Windows Exe ist nichts weiter zu tun. Das Frontend muss jedoch vor der manuellen Installation per setup.py bereits per "npm run build" im Ordner `feedcrawler/web` kompiliert worden sein.
+  - Vue.js setzt in Version 3 auf den pfeilschnellen `vite`-Compiler, der für `dev` und `build` wesentlich schneller als `webpack` ist.
   - Danke an alle [Sponsoren](https://github.com/sponsors/rix1337/)! Ohne eure Unterstützung wäre die technische Pflege des FeedCrawlers nicht möglich.
+  - Der Wechsel der Frameworks war nicht zwingend notwendig, macht den FeedCrawler jedoch zukunftssicherer und das Frontend spürbar schneller.
+  - Bei Installation per Docker, pip oder Windows Exe ist nichts weiter zu tun. Das Frontend muss jedoch vor der manuellen Installation per setup.py bereits per "npm run build" im Ordner `feedcrawler/web` kompiliert worden sein.
+  - Die Migration umfasst mehr als [5000 Zeilen Code](https://github.com/rix1337/FeedCrawler/pull/594/files). Nutzt daher im Fehlerfall ein aussagekräftiges [Issue](https://github.com/rix1337/FeedCrawler/issues/new), statt einer Wortmeldung im Gitter.
 - **13.0.0** Fix CVE-2022-24761 (HTTP Request Smuggling in waitress)
 - **13.0.0** PL entfernt
   

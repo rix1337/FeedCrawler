@@ -50,7 +50,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 ```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
 
-### Docker
+### Docker Image
 
 * Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 * Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
@@ -62,7 +62,7 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 * Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
   Cloudflare-Blockaden zu umgehen (optional)
 
-### Windows
+### Windows Exe
 
 * Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
   Version des FeedCrawlers beigefügt.
