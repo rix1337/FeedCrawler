@@ -1,8 +1,9 @@
 <script setup>
 import {useStore} from 'vuex'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import axios from 'axios'
+import Paginate from "vuejs-paginate-next"
 
 const store = useStore()
 const toast = useToast()
@@ -13,7 +14,7 @@ onMounted(() => {
 })
 
 const log = ref([])
-const numberOfPagesLog = ref(0)
+
 
 function getLog() {
   axios.get(store.state.prefix + 'api/log/')
@@ -27,32 +28,52 @@ function getLog() {
 }
 
 const resLengthLog = ref(0)
-const currentPageLog = ref(0)
 const pageSizeLog = ref(5)
+const currentPageLog = ref(1)
+const numberOfPagesLog = ref(0)
 
 function getLogPages() {
-  if (typeof log.value !== 'undefined' && log.value.length > 0) {
+  if (typeof log.value !== 'undefined') {
     resLengthLog.value = log.value.length
-    numberOfPagesLog.value = Math.ceil(resLengthLog.value / pageSizeLog.value)
-    if ((currentPageLog.value > 0) && ((currentPageLog.value + 1) > numberOfPagesLog.value)) {
-      currentPageLog.value = numberOfPagesLog - 1
+    if (log.value.length > 0) {
+      numberOfPagesLog.value = Math.ceil(log.value.length / pageSizeLog.value)
+    } else {
+      numberOfPagesLog.value = 0
     }
-  } else {
-    numberOfPagesLog.value = 0
   }
 }
 
-const loglength = ref(65)
-const longlog = ref(false)
+const currentLogPage = computed(() => {
+  return log.value.slice((currentPageLog.value - 1) * pageSizeLog.value, currentPageLog.value * pageSizeLog.value)
+})
+
+const maxLogItemLength = ref(65)
+const longLogItemsAllowed = ref(false)
 
 function longerLog() {
-  loglength.value = 999
-  longlog.value = true
+  maxLogItemLength.value = 999
+  longLogItemsAllowed.value = true
 }
 
 function shorterLog() {
-  loglength.value = 65
-  longlog.value = false
+  maxLogItemLength.value = 65
+  longLogItemsAllowed.value = false
+}
+
+function checkEntryLength(entry) {
+  if (entry !== undefined) {
+    return (entry.length > 65)
+  } else {
+    return false
+  }
+}
+
+function shortenEntry(entry) {
+  if (entry !== undefined && !longLogItemsAllowed.value) {
+    return entry.substring(0, maxLogItemLength.value)
+  } else {
+    return entry
+  }
 }
 
 function deleteLog() {
@@ -89,23 +110,6 @@ function spinLog() {
     spin_log.value = false
   }, 1000)
 }
-
-function checkEntryLength(entry) {
-  if (entry !== undefined) {
-    return (entry.length > 65)
-  } else {
-    return false
-  }
-}
-
-function shortenEntry(entry) {
-  if (entry !== undefined && !longlog.value) {
-    return entry.substring(0, loglength.value)
-  } else {
-    return entry
-  }
-
-}
 </script>
 
 
@@ -123,17 +127,18 @@ function shortenEntry(entry) {
         </tr>
         </thead>
         <tbody id="logbody">
-        <tr v-for="x in log">
+        <tr v-for="x in currentLogPage">
           <!-- ToDo refactor removed AngularJS pagination filters to vue -->
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
-          <td v-tooltip="'{{ x[3] }}'" class="text-left">
+          <td class="text-left">
             {{ shortenEntry(x[3]) }}
             <!-- ToDo for some reason x[3] is undefined here-->
-            <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm"
+            <button v-if="!longLogItemsAllowed && checkEntryLength(x[3])" class="btn btn-link btn-sm"
                     v-tooltip="'Titel vollständig anzeigen'"
                     @click="longerLog()">...
             </button>
-            <button v-if="longlog && checkEntryLength(x[3])" v-tooltip="'Titel kürzen'" class="btn btn-link btn-sm"
+            <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tooltip="'Titel kürzen'"
+                    class="btn btn-link btn-sm"
                     @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></button>
           </td>
@@ -148,19 +153,15 @@ function shortenEntry(entry) {
         </tbody>
       </table>
     </div>
+    <br>
     <div v-if="resLengthLog>5" class="btn-group">
-      <!-- ToDo refactor ng-disable to vue variant -->
-      <button :disable="currentPageLog === 0" class="btn btn-outline-info"
-              @click="currentPageLog=currentPageLog-1">
-        <i class="bi bi-chevron-left"></i>
-      </button>
-      <button class="btn btn-outline-info disabled">
-        {{ currentPageLog + 1 }} / {{ numberOfPagesLog }}
-      </button>
-      <button :disable="currentPageLog >= resLengthLog/pageSizeLog - 1" class="btn btn-outline-info"
-              @click="currentPageLog=currentPageLog+1">
-        <i class="bi bi-chevron-right"></i>
-      </button>
+      <paginate
+          v-model="currentPageLog"
+          :next-text="'>'"
+          :page-count="numberOfPagesLog"
+          :prev-text="'<'"
+      >
+      </paginate>
     </div>
     <div>
       <button class="btn btn-dark" @click="deleteLog()">
