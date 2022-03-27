@@ -7,8 +7,6 @@ on:
     branches:
       - master
 
-# ToDo add build step for nodejs / vue frontend
-# npm run build
 jobs:
   build_wheel:
     name: Build Linux wheel
@@ -34,7 +32,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: feedcrawler/web
-      - run: npm run build --if-present
+      - run: npm run build
         working-directory: feedcrawler/web
       - name: Compile Linux wheel
         run: |
@@ -69,7 +67,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: feedcrawler/web
-      - run: npm run build --if-present
+      - run: npm run build
         working-directory: feedcrawler/web
       - name: Compile Windows Exe
         run: |
