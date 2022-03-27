@@ -154,7 +154,7 @@ function spinLists() {
         </div>
       </div>
       <div>
-        <button class="btn btn-dark" href="" type="submit" @click="saveLists()">
+        <button class="btn btn-dark" type="submit" @click="saveLists()">
           <div v-if="spin_lists" class="spinner-border spinner-border-sm" role="status"></div>
           <i class="bi bi-save"></i> Speichern
         </button>

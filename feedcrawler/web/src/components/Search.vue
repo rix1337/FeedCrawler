@@ -95,21 +95,21 @@ function downloadSJ(payload) {
              placeholder="Filme und Serien suchen"
              title="Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!"
              @keyup.enter="searchNow()">
-      <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" href="" type="submit"
+      <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" type="submit"
               @click="searchNow()">
         <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
         <i class="bi bi-search"></i> Suchen
       </button>
-      <button v-if="!search && (results.sj || results.bl)" class="btn btn-dark" href="" type="submit"
+      <button v-if="!search && (results.sj || results.bl)" class="btn btn-dark" type="submit"
               @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren
       </button>
       <div v-if="results" class="results">
         <p v-if="!currentPage > 0" data-v-for="x in results.sj">
-          <button class="btn btn-outline-info" href="" type="submit" @click="downloadSJ(x.payload)"><i
+          <button class="btn btn-outline-info" type="submit" @click="downloadSJ(x.payload)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span></button>
         </p>
         <p data-v-for="y in results.bl | startFrom:currentPage*pageSize | limitTo:pageSize">
-          <button class="btn btn-outline-dark" href="" type="submit" @click="downloadBL(y.payload)"><i
+          <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload)"><i
               class="bi bi-download"></i> <span v-text="y.title"></span></button>
         </p>
         <div v-if="resLength>10" class="btn-group">

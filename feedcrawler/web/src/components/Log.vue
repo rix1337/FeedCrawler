@@ -132,18 +132,18 @@ function shortenEntry(entry) {
           <td class="text-left" title="{{ x[3] }}">
             {{ shortenEntry(x[3]) }}
             <!-- ToDo for some reason x[3] is undefined here-->
-            <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" href=''
+            <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm"
                     title="Titel vollständig anzeigen"
                     @click="longerLog()">...
             </button>
-            <button v-if="longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" href='' title="Titel kürzen"
+            <button v-if="longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" title="Titel kürzen"
                     @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></button>
           </td>
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
           <td class="text-right">
-            <button class="btn btn-link btn-sm" data-toggle="tooltip" href="" title="Logeintrag löschen"
+            <button class="btn btn-link btn-sm" data-toggle="tooltip" title="Logeintrag löschen"
                     @click="deleteLogRow(x[3])">
               <i class="bi bi-trash remove"></i></button>
           </td>
@@ -166,7 +166,7 @@ function shortenEntry(entry) {
       </button>
     </div>
     <div>
-      <button class="btn btn-dark" href="" @click="deleteLog()">
+      <button class="btn btn-dark" @click="deleteLog()">
         <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
         <i class="bi bi-trash"></i> Leeren
       </button>
