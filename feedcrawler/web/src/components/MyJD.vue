@@ -571,15 +571,15 @@ function showSponsorsHelp() {
             </div>
 
             <div v-if="myjd_downloads" id="myjd_state">
-              <div v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
-                <i v-tooltip="'Downloads starten'" class="bi bi-play"></i></div>
-              <div v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
-                  v-tooltip="'Downloads pausieren'" class="bi bi-pause"></i></div>
-              <div v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
-                  v-tooltip="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></div>
-              <div v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
+              <span v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
+                <i v-tooltip="'Downloads starten'" class="bi bi-play"></i></span>
+              <span v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
+                  v-tooltip="'Downloads pausieren'" class="bi bi-pause"></i></span>
+              <span v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
+                  v-tooltip="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></span>
+              <span v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
                   v-tooltip="'Downloads anhalten'"
-                  class="bi bi-stop"></i></div>
+                  class="bi bi-stop"></i></span>
             </div>
           </div>
         </div>
