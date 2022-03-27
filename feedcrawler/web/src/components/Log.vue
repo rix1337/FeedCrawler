@@ -100,6 +100,15 @@ function checkEntryLength(entry) {
     return false
   }
 }
+
+function shortenEntry(entry) {
+  if (entry !== undefined && !longlog.value) {
+    return entry.substring(0, loglength.value)
+  } else {
+    return entry
+  }
+
+}
 </script>
 
 
@@ -121,7 +130,7 @@ function checkEntryLength(entry) {
           <!-- ToDo refactor removed AngularJS pagination filters to vue -->
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
           <td class="text-left" title="{{ x[3] }}">
-            {{ x[3] }}
+            {{ shortenEntry(x[3]) }}
             <!-- ToDo for some reason x[3] is undefined here-->
             <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" href=''
                     title="Titel vollständig anzeigen"
