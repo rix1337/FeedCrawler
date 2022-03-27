@@ -4,12 +4,10 @@ import axios from 'axios'
 import router from './router'
 import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
-import App from './App.vue'
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css'
 
-const toastOptions = {
-    position: "top-center",
-    draggable: false,
-}
+import App from './App.vue'
 
 // The store is created here, and then passed to the Vue instance
 // It contains the state of the application and is updated through calls to the FeedCrawler API
@@ -184,5 +182,18 @@ const store = createStore({
 const app = createApp(App)
 app.use(store)
 app.use(router)
-app.use(Toast, toastOptions)
+app.use(Toast, {
+    position: "top-center",
+    draggable: false,
+})
+app.use(FloatingVue, {
+    themes: {
+        instantMove: true,
+        flip: true,
+        tooltip: {
+            autohide: true,
+            handleResize: true,
+        }
+    }
+})
 app.mount('#app')

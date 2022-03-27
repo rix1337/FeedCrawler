@@ -67,11 +67,12 @@ function getDuration(ms) {
 }
 
 function startNow() {
-  toast.info("Starte Suchlauf...")
+  toast.info('Starte Suchlauf...')
   store.commit('setStarting', true)
   axios.post(store.state.prefix + 'api/start_now/')
       .then(function () {
         store.commit('setStarting', false)
+        toast.success('Suchlauf gestartet!')
         console.log('Suchlauf gestartet!')
       }, function () {
         store.commit('setStarting', false)
@@ -100,7 +101,7 @@ function startNow() {
       </div>
       <div v-if="!store.state.crawltimes.active">
         Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
-        <i id="start_now" class="bi bi-skip-end-fill" title="Suchlauf direkt starten" data-toggle="tooltip"
+        <i id="start_now" v-tooltip="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
            v-if="!store.state.misc.starting"
            @click="startNow()"></i>
         <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
@@ -139,13 +140,13 @@ function startNow() {
 
     <div>
       <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!"
-         class="btn btn-outline-danger" data-toggle="tooltip"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
+         v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+         class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
         aktiver
         Sponsor</a>
       <a v-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         title="Vielen Dank für die aktive Github Sponsorship!"
-         class="btn btn-outline-success" data-toggle="tooltip"><i id="heart" class="bi bi-heart"></i> Aktiver
+         v-tooltip="'Vielen Dank für die aktive Github Sponsorship!'"
+         class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
         Sponsor</a>
     </div>
   </div>

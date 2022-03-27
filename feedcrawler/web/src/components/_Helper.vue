@@ -141,8 +141,8 @@ function spinHelper() {
           to_decrypt.name
         }}</a>
       <br>
-      <div class="btn btn-outline-dark" data-toggle="tooltip"
-           title="Helper neu laden" @click="updateToDecrypt()">
+      <div v-tooltip="'Helper neu laden'"
+           class="btn btn-outline-dark" @click="updateToDecrypt()">
         <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
         <i class="bi bi-arrow-counterclockwise"></i></div>
     </div>

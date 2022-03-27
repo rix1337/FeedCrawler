@@ -126,21 +126,21 @@ function shortenEntry(entry) {
         <tr v-for="x in log">
           <!-- ToDo refactor removed AngularJS pagination filters to vue -->
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
-          <td class="text-left" title="{{ x[3] }}">
+          <td v-tooltip="'{{ x[3] }}'" class="text-left">
             {{ shortenEntry(x[3]) }}
             <!-- ToDo for some reason x[3] is undefined here-->
             <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm"
-                    title="Titel vollständig anzeigen"
+                    v-tooltip="'Titel vollständig anzeigen'"
                     @click="longerLog()">...
             </button>
-            <button v-if="longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" title="Titel kürzen"
+            <button v-if="longlog && checkEntryLength(x[3])" v-tooltip="'Titel kürzen'" class="btn btn-link btn-sm"
                     @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></button>
           </td>
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
           <td class="text-right">
-            <button class="btn btn-link btn-sm" data-toggle="tooltip" title="Logeintrag löschen"
+            <button v-tooltip="'Logeintrag löschen'" class="btn btn-link btn-sm"
                     @click="deleteLogRow(x[3])">
               <i class="bi bi-trash remove"></i></button>
           </td>

@@ -353,7 +353,7 @@ function showSponsorsHelp() {
             <!-- ToDo refactor removed AngularJS pagination filters to vue -->
             <div v-for="x in myjd_packages" class="myjd-items">
               <div class="myjd-downloads">
-                <div v-if="x.type=='online'" class="card bg-success" title="In der Downloadliste">
+                <div v-if="x.type=='online'" v-tooltip="'In der Downloadliste'" class="card bg-success">
                   <div class="card-header">
                     <strong v-text="x.name"></strong> (<span v-text="x.links"></span>)
                   </div>
@@ -386,8 +386,8 @@ function showSponsorsHelp() {
                   </ul>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                      <button class="btn btn-outline-danger" data-toggle="tooltip"
-                              title="Löschen"
+                      <button v-tooltip="'Löschen'"
+                              class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -397,26 +397,26 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-decrypted">
-                <div v-if="x.type=='decrypted'" class="card bg-warning" title="Im Linksammler">
+                <div v-if="x.type=='decrypted'" v-tooltip="'Im Linksammler'" class="card bg-warning">
                   <div class="card-header">
                     <strong v-text="x.name"></strong> (<span v-text="x.links"></span>)
                   </div>
                   <ul class="list-group list-group-flush">
                     <li v-if="cnl_active" class="list-group-item">
-                            <span class="cnl-spinner" data-toggle="tooltip"
-                                  title="Warte auf hinzugefügte Links!">
+                            <span v-tooltip="'Warte auf hinzugefügte Links!'"
+                                  class="cnl-spinner">
                                 <span class="spinner-border spinner-border-sm" role="status"></span> Warte auf hinzugefügte Links!</span>
                     </li>
                     <li v-if="x.size" class="list-group-item"><span v-text="x.size"></span></li>
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
-                      <button class="btn btn-outline-success" data-toggle="tooltip"
-                              title="Download starten"
+                      <button v-tooltip="'Download starten'"
+                              class="btn btn-outline-success"
                               @click="myJDmove(x.linkids, x.uuid)"><i class="bi bi-play"></i>
                         Download
                         starten
                       </button>
-                      <button class="btn btn-outline-danger" data-toggle="tooltip"
-                              title="Löschen"
+                      <button v-tooltip="'Löschen'"
+                              class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -426,9 +426,9 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-failed">
-                <div v-if="x.type=='failed'" class="card bg-danger" title="Fehler im Linksammler">
+                <div v-if="x.type=='failed'" v-tooltip="'Fehler im Linksammler'" class="card bg-danger">
                   <span>Entschlüsselung im JDownloader fehlgeschlagen. Paket wird in Kürze aus dem JDownloader zurück in den FeedCrawler überführt...</span>
-                  <button v-if="!cnl_active" class="btn btn-outline-danger" data-toggle="tooltip" title="Löschen"
+                  <button v-if="!cnl_active" v-tooltip="'Löschen'" class="btn btn-outline-danger"
                           @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                     Löschen
                   </button>
@@ -436,7 +436,7 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-to-decrypt">
-                <div v-if="x.type=='to_decrypt'" class="card bg-danger" title="Fehler im Linksammler">
+                <div v-if="x.type=='to_decrypt'" v-tooltip="'Fehler im Linksammler'" class="card bg-danger">
                   <div class="card-header">
                     <strong v-text="x.name"></strong>
                   </div>
@@ -446,7 +446,7 @@ function showSponsorsHelp() {
                          :href="x.url + '#' + x.name"
                          class="cnl-button btn btn-outline-success"
                          target="_blank"
-                         title="Da der Click'n'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click'n'Load Automatik hiermit umgangen werden."
+                         v-tooltip="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                          type="submit">Sponsors Helper Click'n'Load
                       </a>
                       <span
@@ -470,8 +470,8 @@ function showSponsorsHelp() {
                       <a v-if="!myjd_grabbing && !cnl_active"
                          :href="x.url + '#' + x.name"
                          class="cnl-button btn btn-secondary"
-                         data-toggle="tooltip" target="_blank"
-                         title="Click'n'Load innerhalb einer Minute auslösen!"
+                         v-tooltip="'Click\'n\'Load innerhalb einer Minute auslösen!'"
+                         target="_blank"
                          type="submit"
                          @click="internalCnl(x.name, x.password)">Click'n'Load-Automatik
                       </a>
@@ -488,22 +488,20 @@ function showSponsorsHelp() {
                                     </span>
                       <span v-if="!helper_active"><br>
                                         <mark>Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
-                                            data-toggle="tooltip" href="https://github.com/users/rix1337/sponsorship"
+                                            v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
                                             target="_blank"
-                                            title="Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!">Sponsor werden</a> und den <a
+                                            href="https://github.com/users/rix1337/sponsorship">Sponsor werden</a> und den <a
                                             href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</mark>
                                     </span>
                       <span v-if="myjd_grabbing"><br>Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
-                      <span v-if="cnl_active" class="cnl-spinner"
-                            data-toggle="tooltip"
-                            title="Warte noch {{time}} {{time == 1 ?'Sekunde':'Sekunden'}} auf hinzugefügte Links!"><br>
+                      <span v-if="cnl_active" class="cnl-spinner"><br>
                                         <span class="spinner-border spinner-border-sm" role="status"></span> <strong>Warte noch {{
                             time
                           }} {{ time == 1 ? 'Sekunde' : 'Sekunden' }} auf hinzugefügte Links!</strong>
                                     </span>
                     </li>
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
-                      <button v-if="!cnl_active" class="btn btn-outline-danger" data-toggle="tooltip" title="Löschen"
+                      <button v-if="!cnl_active" v-tooltip="'Löschen'" class="btn btn-outline-danger"
                               @click="internalRemove(x.name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -513,21 +511,21 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-offline">
-                <div v-if="x.type=='offline'" class="card bg-danger" title="Links offline">
+                <div v-if="x.type=='offline'" v-tooltip="'Links offline'" class="card bg-danger">
                   <div class="card-header">
                     <strong v-text="x.name"></strong>
                   </div>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                      <button v-if="!cnl_active" class="btn btn-outline-info" data-toggle="tooltip"
-                              title="Erneut hinzufügen"
+                      <button v-if="!cnl_active" v-tooltip="'Erneut hinzufügen'"
+                              class="btn btn-outline-info"
                               @click="myJDretry(x.linkids, x.uuid, x.urls)"><i
                           class="bi bi-arrow-counterclockwise"></i>
                         Erneut
                         hinzufügen
                       </button>
-                      <button class="btn btn-outline-danger" data-toggle="tooltip"
-                              title="Löschen"
+                      <button v-tooltip="'Löschen'"
+                              class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -569,18 +567,18 @@ function showSponsorsHelp() {
 
             <div v-if="myjd_downloads" id="myjd_state">
               <button v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
-                <i class="bi bi-play" data-toggle="tooltip"
-                   title="Downloads starten"></i></button>
+                <i v-tooltip="'Downloads starten'"
+                   class="bi bi-play"></i></button>
               <button v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
-                  class="bi bi-pause" data-toggle="tooltip"
-                  title="Downloads pausieren"></i></button>
+                  v-tooltip="'Downloads pausieren'"
+                  class="bi bi-pause"></i></button>
               <button v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
                   class="bi bi-skip-end-fill"
-                  data-toggle="tooltip"
-                  title="Downloads fortsetzen"></i></button>
+
+                  v-tooltip="'Downloads fortsetzen'"></i></button>
               <button v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
-                  class="bi bi-stop" data-toggle="tooltip"
-                  title="Downloads anhalten"></i></button>
+                  v-tooltip="'Downloads anhalten'"
+                  class="bi bi-stop"></i></button>
             </div>
           </div>
         </div>

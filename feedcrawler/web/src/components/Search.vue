@@ -82,9 +82,9 @@ function downloadSJ(payload) {
     <div class="offcanvas-body">
       <input v-model="search" aria-label="Search"
              class="form-control mr-sm-2"
-             data-toggle="tooltip"
+
              placeholder="Filme und Serien suchen"
-             title="Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!"
+             v-tooltip="'Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
              @keyup.enter="searchNow()">
       <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" type="submit"
               @click="searchNow()">
