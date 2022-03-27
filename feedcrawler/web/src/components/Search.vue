@@ -105,12 +105,12 @@ function downloadSJ(payload) {
       </button>
       <div v-if="results" class="results">
         <p v-if="!currentPage > 0" data-v-for="x in results.sj">
-          <a class="btn btn-outline-info" href="" type="submit" @click="downloadSJ(x.payload)"><i
-              class="bi bi-download"></i> Serie: <span v-text="x.title"></span></a>
+          <button class="btn btn-outline-info" href="" type="submit" @click="downloadSJ(x.payload)"><i
+              class="bi bi-download"></i> Serie: <span v-text="x.title"></span></button>
         </p>
         <p data-v-for="y in results.bl | startFrom:currentPage*pageSize | limitTo:pageSize">
-          <a class="btn btn-outline-dark" href="" type="submit" @click="downloadBL(y.payload)"><i
-              class="bi bi-download"></i> <span v-text="y.title"></span></a>
+          <button class="btn btn-outline-dark" href="" type="submit" @click="downloadBL(y.payload)"><i
+              class="bi bi-download"></i> <span v-text="y.title"></span></button>
         </p>
         <div v-if="resLength>10" class="btn-group">
           <!-- ToDo refactor ng-disable to vue variant -->

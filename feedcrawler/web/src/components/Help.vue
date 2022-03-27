@@ -89,7 +89,7 @@ function showCaptchasHelp() {
           <div id="collapseOneOne" aria-labelledby="headingOneOne" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a class="btn btn-outline-success" href="./redirect_user/captcha" target="_blank">
+              <a :href="store.state.prefix + '/redirect_user/captcha'" class="btn btn-outline-success" target="_blank">
                 Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
               </a>
             </div>
@@ -106,7 +106,8 @@ function showCaptchasHelp() {
           <div id="collapseOneTwo" aria-labelledby="headingOneTwo" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a class="btn btn-outline-success" href="./redirect_user/multihoster" target="_blank">
+              <a :href="store.state.prefix + '/redirect_user/multihoster'" class="btn btn-outline-success"
+                 target="_blank">
                 Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
               </a>
             </div>

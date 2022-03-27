@@ -685,10 +685,11 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div>
-          <a class="btn btn-dark" href="" type="submit"
-             @click="saveSettings()">
+          <button class="btn btn-dark" href="" type="submit"
+                  @click="saveSettings()">
             <div v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></div>
-            <i class="bi bi-save"></i> Speichern</a>
+            <i class="bi bi-save"></i> Speichern
+          </button>
         </div>
         <!-- ToDo validity check with v-if not working -->
         <div class="btn btn-danger" data-toggle="tooltip"
