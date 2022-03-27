@@ -1,51 +1,64 @@
 <script setup>
 import {useStore} from 'vuex'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {useToast} from "vue-toastification";
 import axios from 'axios'
+import Paginate from "vuejs-paginate-next"
 
 const store = useStore()
 const toast = useToast()
 
 const results = ref(false)
 
-const currentPage = ref(0)
-const pageSize = ref(10)
-const resLength = ref(0)
+const resLengthResults = ref(0)
+const pageSizeResults = ref(10)
+const currentPageResults = ref(1)
+const numberOfPagesResults = ref(0)
 
-function numberOfPages() {
-  if (typeof results.bl.value !== 'undefined') {
-    resLength.value = Object.values(results.bl.value).length
-    return Math.ceil(resLength.value / pageSize.value)
+function getResultsPages() {
+  if (typeof results.value !== 'undefined') {
+    resLengthResults.value = results.value.bl.length
+    if (resLengthResults.value > 0) {
+      numberOfPagesResults.value = Math.ceil(resLengthResults.value / pageSizeResults.value)
+    } else {
+      numberOfPagesResults.value = 0
+    }
   }
 }
 
 const search = ref('')
 const searching = ref(false)
 
+// ToDo getting results still broken
 function searchNow() {
-  currentPage.value = 0
+  currentPageResults.value = 1
   let title = search.value
   searching.value = true
   if (!title) {
     results.value = false
-    resLength.value = 0
+    resLengthResults.value = 0
     searching.value = false
   } else {
     axios.get(store.state.prefix + 'api/search/' + title)
         .then(function (res) {
           results.value = res.data.results
-          resLength.value = Object.values(results.value.bl).length
+          getResultsPages()
           search.value = ""
           console.log('Nach ' + title + ' gesucht!')
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
           toast.error('Konnte  ' + title + ' nicht suchen!')
+          results.value = false
+          resLengthResults.value = 0
           searching.value = false
         })
   }
 }
+
+const currentResultsPage = computed(() => {
+  return results.value.bl.slice((currentPageResults.value - 1) * pageSizeResults.value, currentPageResults.value * pageSizeResults.value)
+})
 
 function downloadBL(payload) {
   toast.success("Starte Download...")
@@ -95,27 +108,22 @@ function downloadSJ(payload) {
               @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren
       </button>
       <div v-if="results" class="results">
-        <p v-if="!currentPage > 0" data-v-for="x in results.sj">
+        <p v-for="x in results.sj">
           <button class="btn btn-outline-info" type="submit" @click="downloadSJ(x.payload)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span></button>
         </p>
-        <p data-v-for="y in results.bl | startFrom:currentPage*pageSize | limitTo:pageSize">
+        <p v-for="y in currentResultsPage">
           <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload)"><i
               class="bi bi-download"></i> <span v-text="y.title"></span></button>
         </p>
-        <div v-if="resLength>10" class="btn-group">
-          <!-- ToDo refactor ng-disable to vue variant -->
-          <button :disable="currentPage == 0" class="btn btn-outline-info"
-                  @click="currentPage=currentPage-1">
-            <i class="bi bi-chevron-left"></i>
-          </button>
-          <button :disable="true" class="btn btn-outline-info">
-            {{ currentPage + 1 }} / {{ numberOfPages }}
-          </button>
-          <button :disable="currentPage >= resLength/pageSize - 1" class="btn btn-outline-info"
-                  @click="currentPage=currentPage+1">
-            <i class="bi bi-chevron-right"></i>
-          </button>
+        <div v-if="resLengthResults>10" class="btn-group">
+          <paginate
+              v-model="currentPageResults"
+              :next-text="'>'"
+              :page-count="numberOfPagesResults"
+              :prev-text="'<'"
+          >
+          </paginate>
         </div>
       </div>
     </div>
