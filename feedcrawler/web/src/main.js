@@ -107,6 +107,8 @@ const store = createStore({
                 }
             },
             misc: {
+                helper_active: false,
+                helper_available: false,
                 myjd_connection_error: false,
                 now: Date.now(),
                 pageSizeMyJD: 3,
@@ -159,6 +161,12 @@ const store = createStore({
                     // ToDo migrate to vue
                     //showDanger('Konnte Einstellungen nicht abrufen!')
                 })
+        },
+        setHelperActive(state, helper_active) {
+            state.misc.helper_active = helper_active
+        },
+        setHelperAvailable(state, helper_available) {
+            state.misc.helper_available = helper_available
         },
         setMyJDConnectionError(state, myjd_connection_error) {
             state.misc.myjd_connection_error = myjd_connection_error

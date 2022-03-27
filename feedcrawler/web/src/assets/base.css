@@ -118,8 +118,9 @@ td {
     white-space: nowrap;
 }
 
-#myjd_state, #myjd_grabbing, #myjd_update {
+#myjd_state, #myjd_grabbing {
     font-size: 2em;
+    color: #0d6efd;
 }
 
 .urls {

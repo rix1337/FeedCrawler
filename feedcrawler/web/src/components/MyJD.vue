@@ -364,7 +364,7 @@ function showSponsorsHelp() {
               <div class="myjd-downloads">
                 <div v-if="x.type=='online'" v-tooltip="'In der Downloadliste'" class="card bg-success">
                   <div class="card-header">
-                    <strong v-text="x.name"></strong> (<span v-text="x.links"></span>)
+                    <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                   </div>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item"><span v-text="x.done"></span> / <span
@@ -408,7 +408,7 @@ function showSponsorsHelp() {
               <div class="myjd-decrypted">
                 <div v-if="x.type=='decrypted'" v-tooltip="'Im Linksammler'" class="card bg-warning">
                   <div class="card-header">
-                    <strong v-text="x.name"></strong> (<span v-text="x.links"></span>)
+                    <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                   </div>
                   <ul class="list-group list-group-flush">
                     <li v-if="cnl_active" class="list-group-item">
@@ -447,55 +447,57 @@ function showSponsorsHelp() {
               <div class="myjd-to-decrypt">
                 <div v-if="x.type=='to_decrypt'" v-tooltip="'Fehler im Linksammler'" class="card bg-danger">
                   <div class="card-header">
-                    <strong v-text="x.name"></strong>
+                    <strong>{{ x[1].name }}</strong>
                   </div>
                   <ul class="list-group list-group-flush">
-                    <li v-if="x.url" class="list-group-item">
-                      <a v-if="helper_active && helper_available && x.first && !cnl_active"
-                         :href="x.url + '#' + x.name"
+                    <li v-if="x[1].url" class="list-group-item">
+                      <a v-if="store.state.misc.helper_active && store.state.misc.helper_available && x[1].first && !cnl_active"
+                         :href="x[1].url + '#' + x[1].name"
                          class="cnl-button btn btn-outline-success"
                          target="_blank"
                          v-tooltip="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                          type="submit">Sponsors Helper Click'n'Load
                       </a>
                       <span
-                          v-if="( hostnames.sj && x.url.includes(hostnames.sj.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
+                          v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                       <span
-                          v-if="( hostnames.dj && x.url.includes(hostnames.dj.toLowerCase().replace('www.', '')) ) && helper_active && helper_available && x.first">Bitte zuerst
+                          v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                       <span
-                          v-if="( x.url.includes('filecrypt') || ( hostnames.ww && x.url.includes(hostnames.ww.toLowerCase().replace('www.', '')) ) ) && helper_active && helper_available && x.first">Bitte zuerst
+                          v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_sponsors_helper_fc.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                       <a v-if="!myjd_grabbing && !cnl_active"
-                         :href="x.url + '#' + x.name"
+                         :href="x[1].url + '#' + x[1].name"
                          class="cnl-button btn btn-secondary"
                          v-tooltip="'Click\'n\'Load innerhalb einer Minute auslösen!'"
                          target="_blank"
                          type="submit"
-                         @click="internalCnl(x.name, x.password)">Click'n'Load-Automatik
+                         @click="internalCnl(x[1].name, x[1].password)">Click'n'Load-Automatik
                       </a>
                       <span v-if="!myjd_grabbing">Setzt voraus, dass Port 9666 des JDownloaders durch diese Browsersitzung erreichbar ist.</span>
-                      <span v-if="hostnames.sj && x.url.includes(hostnames.sj.toLowerCase())"><br>Bitte zuerst
+                      <span
+                          v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
-                      <span v-if="hostnames.dj && x.url.includes(hostnames.dj.toLowerCase())"><br>Bitte zuerst
+                      <span
+                          v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
                                         <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
-                      <span v-if="!helper_active"><br>
+                      <span v-if="!store.state.misc.helper_active"><br>
                                         <mark>Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
                                             v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
                                             target="_blank"
@@ -511,7 +513,7 @@ function showSponsorsHelp() {
                     </li>
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
                       <button v-if="!cnl_active" v-tooltip="'Löschen'" class="btn btn-outline-danger"
-                              @click="internalRemove(x.name)"><i class="bi bi-trash"></i>
+                              @click="internalRemove(x[1].name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
                     </li>
@@ -522,7 +524,7 @@ function showSponsorsHelp() {
               <div class="myjd-offline">
                 <div v-if="x.type=='offline'" v-tooltip="'Links offline'" class="card bg-danger">
                   <div class="card-header">
-                    <strong v-text="x.name"></strong>
+                    <strong>{{ x.name }}</strong>
                   </div>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
@@ -569,19 +571,15 @@ function showSponsorsHelp() {
             </div>
 
             <div v-if="myjd_downloads" id="myjd_state">
-              <button v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
-                <i v-tooltip="'Downloads starten'"
-                   class="bi bi-play"></i></button>
-              <button v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
-                  v-tooltip="'Downloads pausieren'"
-                  class="bi bi-pause"></i></button>
-              <button v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
-                  class="bi bi-skip-end-fill"
-
-                  v-tooltip="'Downloads fortsetzen'"></i></button>
-              <button v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
+              <div v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
+                <i v-tooltip="'Downloads starten'" class="bi bi-play"></i></div>
+              <div v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
+                  v-tooltip="'Downloads pausieren'" class="bi bi-pause"></i></div>
+              <div v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
+                  v-tooltip="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></div>
+              <div v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
                   v-tooltip="'Downloads anhalten'"
-                  class="bi bi-stop"></i></button>
+                  class="bi bi-stop"></i></div>
             </div>
           </div>
         </div>

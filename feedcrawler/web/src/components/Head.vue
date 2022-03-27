@@ -29,8 +29,10 @@ function getVersion() {
         if (helper_active.value) {
           axios.get("http://127.0.0.1:9666/")
               .then(function (res) {
+                store.commit('setHelperActive', true)
                 helper_available.value = (res.data === 'JDownloader')
                 if (helper_available.value) {
+                  store.commit('setHelperAvailable', true)
                   console.log("Click'n'Load des FeedCrawler Sponsors Helper ist verfügbar!")
                 }
               })

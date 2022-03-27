@@ -128,11 +128,9 @@ function spinLog() {
         </thead>
         <tbody id="logbody">
         <tr v-for="x in currentLogPage">
-          <!-- ToDo refactor removed AngularJS pagination filters to vue -->
           <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
           <td class="text-left">
             {{ shortenEntry(x[3]) }}
-            <!-- ToDo for some reason x[3] is undefined here-->
             <button v-if="!longLogItemsAllowed && checkEntryLength(x[3])" class="btn btn-link btn-sm"
                     v-tooltip="'Titel vollständig anzeigen'"
                     @click="longerLog()">...
