@@ -11,7 +11,7 @@ import sys
 import time
 from functools import wraps
 
-from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
+from flask import Flask, request, redirect, render_template, send_from_directory, jsonify, Response
 from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
@@ -61,15 +61,28 @@ def app_container():
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)
 
-    app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
-    app.config["TEMPLATES_AUTO_RELOAD"] = True
-    CORS(app)
-
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
         prefix = '/' + general.get("prefix")
     else:
         prefix = ""
+
+    app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
+    CORS(app)
+
+    # ToDo: this currently only works without prefix
+    @app.route(prefix + '/', defaults={'path': ''}, methods=['GET'])
+    @app.route(prefix + '/<path:path>')
+    def catch_all(path):
+        return render_template('index.html')
+
+    @app.route(prefix + '/assets/<path:path>')
+    def send_report(path):
+        return send_from_directory(os.path.join(base_dir, 'web/dist/assets'), path)
+
+    @app.route(prefix + '/favicon.ico', methods=['GET'])
+    def favicon():
+        return send_from_directory(os.path.join(base_dir, 'web/dist'), 'favicon.ico')
 
     def check_auth(config, username, password):
         auth_hash = config.get("auth_hash")
@@ -121,32 +134,6 @@ def app_container():
 
     def check(site, db):
         return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
-
-    if prefix:
-        @app.route('/')
-        @requires_auth
-        def index_prefix():
-            return redirect(prefix)
-
-    @app.route(prefix + '/<path:path>')
-    @requires_auth
-    def send_html(path):
-        return send_from_directory(os.path.join(base_dir, 'web/dist'), path)
-
-    @app.route(prefix + '/')
-    @requires_auth
-    def index():
-        return render_template('index.html')
-
-    # ToDo Migrate to use vue-router instead of dedicated html
-    @app.route(prefix + "/sponsors_helper/", methods=['GET'])
-    def to_decrypt():
-        global helper_active
-        helper_active = True
-        if request.method == 'GET':
-            return render_template('index.html')
-        else:
-            return "Failed", 405
 
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
     @requires_auth
