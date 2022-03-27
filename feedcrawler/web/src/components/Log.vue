@@ -71,7 +71,7 @@ function deleteLog() {
 
 function deleteLogRow(title) {
   title = btoa(title)
-  axios.delete(store.state.prefix + 'api/log_entry/' + title, {data: ''})
+  axios.delete(store.state.prefix + 'api/log_entry/' + title)
       .then(function () {
         console.log('Logeintrag gelöscht!')
         // ToDo migrate to vue
