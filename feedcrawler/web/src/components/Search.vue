@@ -22,8 +22,6 @@ const search = ref('')
 const searching = ref(false)
 
 function searchNow() {
-  // ToDo migrate to vue
-  //$("#spinner-search").fadeIn()
   currentPage.value = 0
   let title = search.value
   searching.value = true
@@ -38,14 +36,12 @@ function searchNow() {
           resLength.value = Object.values(results.value.bl).length
           search.value = ""
           console.log('Nach ' + title + ' gesucht!')
-          // ToDo migrate to vue
-          //$("#spinner-search").fadeOut()
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
           // ToDo migrate to vue
           //showDanger('Konnte  ' + title + ' nicht suchen!')
-          //$("#spinner-search").fadeOut()
+          searching.value = false
         })
   }
 }
@@ -101,9 +97,7 @@ function downloadSJ(payload) {
              @:keyup.enter="searchNow()">
       <a v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" href="" type="submit"
          @click="searchNow()">
-        <div v-if="searching"
-             id="spinner-search"
-             class="spinner-border spinner-border-sm" role="status"></div>
+        <div v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"></div>
         <i class="bi bi-search"></i> Suchen
       </a>
       <a v-if="!search && (results.sj || results.bl)" class="btn btn-dark" href="" type="submit"

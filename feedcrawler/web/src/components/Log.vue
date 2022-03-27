@@ -90,9 +90,13 @@ function deleteLogRow(title) {
       })
 }
 
+const spin_log = ref(false)
+
 function spinLog() {
-  // ToDo migrate to vue from jQuery
-  //$("#spinner-log").fadeIn().delay(1000).fadeOut()
+  spin_log.value = true
+  setTimeout(function () {
+    spin_log.value = false
+  }, 1000)
 }
 
 function checkEntryLength(entry) {
@@ -102,7 +106,6 @@ function checkEntryLength(entry) {
     return false
   }
 }
-
 </script>
 
 
@@ -157,8 +160,7 @@ function checkEntryLength(entry) {
     </div>
     <div>
       <a class="btn btn-dark" href="" @click="deleteLog()">
-        <div id="spinner-log" class="spinner-border spinner-border-sm"
-             role="status" style="display: none"></div>
+        <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
         <i class="bi bi-trash"></i> Leeren</a>
     </div>
   </div>

@@ -109,9 +109,13 @@ function getTimestamp(ms) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
+const spin_helper = ref(false)
+
 function spinHelper() {
-  // ToDo migrate to vue
-  //$("#spinner-helper").fadeIn().delay(1000).fadeOut()
+  spin_helper.value = true
+  setTimeout(function () {
+    spin_helper.value = false
+  }, 1000)
 }
 </script>
 
@@ -139,8 +143,7 @@ function spinHelper() {
       <br>
       <div class="btn btn-outline-dark" data-toggle="tooltip"
            title="Helper neu laden" @click="updateToDecrypt()">
-        <div id="spinner-helper" class="spinner-border spinner-border-sm"
-             role="status" style="display: none;"></div>
+        <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
         <i class="bi bi-arrow-counterclockwise"></i></div>
     </div>
   </main>

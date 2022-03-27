@@ -1,6 +1,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import axios from 'axios'
+import {ref} from "vue/dist/vue";
 
 const store = useStore()
 
@@ -31,9 +32,13 @@ function saveLists() {
       })
 }
 
+const spin_lists = ref(false)
+
 function spinLists() {
-  // ToDo migrate to vue from jQuery
-  //$("#spinner-lists").fadeIn().delay(1000).fadeOut()
+  spin_lists.value = true
+  setTimeout(function () {
+    spin_lists.value = false
+  }, 1000)
 }
 </script>
 
@@ -151,9 +156,7 @@ function spinLists() {
       </div>
       <div>
         <a class="btn btn-dark" href="" type="submit" @click="saveLists()">
-          <div id="spinner-lists"
-               class="spinner-border spinner-border-sm"
-               role="status" style="display: none"></div>
+          <div v-if="spin_lists" class="spinner-border spinner-border-sm" role="status"></div>
           <i class="bi bi-save"></i> Speichern</a></div>
     </div>
   </div>

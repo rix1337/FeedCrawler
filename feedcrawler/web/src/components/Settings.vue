@@ -53,9 +53,13 @@ function saveSettings() {
       })
 }
 
+const spin_settings = ref(false)
+
 function spinSettings() {
-  // ToDo migrate to vue from jQuery
-  //$("#spinner-settings").fadeIn().delay(1000).fadeOut()
+  spin_settings.value = true
+  setTimeout(function () {
+    spin_settings.value = false
+  }, 1000)
 }
 
 const year = ref((new Date).getFullYear())
@@ -683,9 +687,7 @@ const year = ref((new Date).getFullYear())
         <div>
           <a class="btn btn-dark" href="" type="submit"
              @click="saveSettings()">
-            <div id="spinner-settings"
-                 class="spinner-border spinner-border-sm"
-                 role="status" style="display: none"></div>
+            <div v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></div>
             <i class="bi bi-save"></i> Speichern</a>
         </div>
         <!-- ToDo validity check with v-if not working -->
