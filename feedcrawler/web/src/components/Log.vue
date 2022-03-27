@@ -1,9 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 onMounted(() => {
   getLog()
@@ -20,8 +22,7 @@ function getLog() {
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Log nicht abrufen!')
+        toast.error('Konnte Log nicht abrufen!')
       })
 }
 
@@ -59,28 +60,24 @@ function deleteLog() {
   axios.delete(store.state.prefix + 'api/log/')
       .then(function () {
         console.log('Log geleert!')
-        // ToDo migrate to vue
-        //showSuccess('Log geleert!')
+        toast.success('Log geleert!')
         getLog()
       }, function () {
         console.log('Konnte Log nicht leeren!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Log nicht leeren!')
+        toast.error('Konnte Log nicht leeren!')
       })
 }
 
 function deleteLogRow(title) {
-  title = btoa(title)
-  axios.delete(store.state.prefix + 'api/log_entry/' + title)
+  const title_b64 = btoa(title)
+  axios.delete(store.state.prefix + 'api/log_entry/' + title_b64)
       .then(function () {
-        console.log('Logeintrag gelöscht!')
-        // ToDo migrate to vue
-        //showSuccess('Logeintrag gelöscht!')
+        console.log('Logeintrag ' + title + ' gelöscht!')
+        toast.success('Logeintrag\n' + title + '\ngelöscht!')
         getLog()
       }, function () {
-        console.log('Konnte Logeintrag nicht löschen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Logeintrag nicht löschen!')
+        console.log('Konnte Logeintrag ' + title + ' nicht löschen!')
+        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!')
       })
 }
 

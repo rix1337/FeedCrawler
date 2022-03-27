@@ -12,6 +12,7 @@
     "bootstrap-icons": "^1.8.1",
     "vue": "^3.2.31",
     "vue-router": "^4.0.14",
+    "vue-toastification": "^2.0.0-rc.5",
     "vuex": "^4.0.2"
   },
   "devDependencies": {

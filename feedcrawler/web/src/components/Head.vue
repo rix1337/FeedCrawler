@@ -1,9 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 onMounted(() => {
   getVersion()
@@ -36,13 +38,12 @@ function getVersion() {
         if (update.value) {
           scrollingTitle("FeedCrawler - Update verfügbar! - ")
           console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-          // ToDo migrate to vue
-          //showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">github.com</a>.')
+          // ToDo might need bugfix
+          toast.info("Update steht bereit! Weitere Informationen unter <a href='https://github.com/rix1337/FeedCrawler/releases/latest' target='_blank'>github.com</a>.")
         }
       }, function () {
         console.log('Konnte Version nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Version nicht abrufen!')
+        toast.error('Konnte Version nicht abrufen!')
       })
 }
 
@@ -66,21 +67,16 @@ function getDuration(ms) {
 }
 
 function startNow() {
-  // ToDo migrate to vue
-  //showInfoLong("Starte Suchlauf...")
+  toast.info("Starte Suchlauf...")
   store.commit('setStarting', true)
   axios.post(store.state.prefix + 'api/start_now/')
       .then(function () {
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(1500)
         store.commit('setStarting', false)
         console.log('Suchlauf gestartet!')
       }, function () {
         store.commit('setStarting', false)
         console.log('Konnte Suchlauf nicht starten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Suchlauf nicht starten!')
-        //(".alert-info").slideUp(1500)
+        toast.error('Konnte Suchlauf nicht starten!')
       })
 }
 </script>

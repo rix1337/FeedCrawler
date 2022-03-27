@@ -1,9 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
 import {ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 function getLists() {
   axios.get(store.state.prefix + 'api/lists/')
@@ -11,8 +13,7 @@ function getLists() {
         store.commit('getLists', res.data.lists)
       }, function () {
         console.log('Konnte Listen nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Listen nicht abrufen!')
+        toast.error('Konnte Listen nicht abrufen!')
       })
 }
 
@@ -21,13 +22,11 @@ function saveLists() {
   axios.post(store.state.prefix + 'api/lists/', store.state.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
-        // ToDo migrate to vue
-        //showSuccess('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
+        toast.success('Listen gespeichert!\nÄnderungen werden im nächsten Suchlauf berücksichtigt.')
         getLists()
       }, function () {
         console.log('Konnte Listen nicht speichern!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Listen nicht speichern!')
+        toast.error('Konnte Listen nicht speichern!')
       })
 }
 

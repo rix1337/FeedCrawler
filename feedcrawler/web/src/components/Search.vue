@@ -1,9 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
 import {ref} from 'vue'
+import {useToast} from "vue-toastification";
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 const results = ref(false)
 
@@ -39,44 +41,33 @@ function searchNow() {
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
-          // ToDo migrate to vue
-          //showDanger('Konnte  ' + title + ' nicht suchen!')
+          toast.error('Konnte  ' + title + ' nicht suchen!')
           searching.value = false
         })
   }
 }
 
 function downloadBL(payload) {
-  // ToDo migrate to vue
-  //showInfoLong("Starte Download...")
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
-        // ToDo migrate to vue
-        //showSuccess('Download gestartet!')
-        //$(".alert-info").slideUp(500)
+        toast.success('Download gestartet!')
       }, function () {
         console.log('Konnte Download nicht starten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht starten!')
-        //$(".alert-info").slideUp(500)
+        toast.error('Konnte Download nicht starten!')
       })
 }
 
 function downloadSJ(payload) {
-  // ToDo migrate to vue
-  //showInfoLong("Starte Download...")
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/download_sj/' + payload)
       .then(function () {
         console.log('Download gestartet!')
-        // ToDo migrate to vue
-        //showSuccess('Download gestartet!')
-        //$(".alert-info").slideUp(500)
+        toast.success('Download gestartet!')
       }, function () {
         console.log('Konnte Download nicht starten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht starten!')
-        //$(".alert-info").slideUp(500)
+        toast.error('Konnte Download nicht starten!')
       })
 }
 </script>

@@ -1,10 +1,12 @@
 <script setup>
-import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
+import {onMounted, ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import {Collapse} from 'bootstrap'
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 onMounted(() => {
   getBlockedSites()
@@ -22,8 +24,7 @@ function getBlockedSites() {
         blocked_sites.value = res.data.blocked_sites
       }, function () {
         console.log('Konnte blockierte Seiten nicht abrufen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte blockierte Seiten nicht abrufen!')
+        toast.error('Konnte blockierte Seiten nicht abrufen!')
       })
 }
 

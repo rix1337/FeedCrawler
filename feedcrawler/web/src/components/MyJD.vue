@@ -1,10 +1,12 @@
 <script setup>
 import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 
 const store = useStore()
+const toast = useToast()
 
 onMounted(() => {
   getMyJD()
@@ -125,8 +127,7 @@ function getMyJD() {
         myjd_failed.value = null
         store.commit("setMyJDConnectionError", true)
         console.log('Konnte JDownloader nicht erreichen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte JDownloader nicht erreichen!')
+        toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
@@ -153,8 +154,7 @@ function myJDstart() {
         console.log('Download gestartet!')
       }, function () {
         console.log('Konnte Downloads nicht starten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Downloads nicht starten!')
+        toast.error('Konnte Downloads nicht starten!')
       })
 }
 
@@ -172,8 +172,7 @@ function myJDpause(pause) {
         }
       }, function () {
         console.log('Konnte Downloads nicht fortsetzen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Downloads nicht fortsetzen!')
+        toast.error('Konnte Downloads nicht fortsetzen!')
       })
 }
 
@@ -186,8 +185,7 @@ function myJDstop() {
         console.log('Download angehalten!')
       }, function () {
         console.log('Konnte Downloads nicht anhalten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Downloads nicht anhalten!')
+        toast.error('Konnte Downloads nicht anhalten!')
       })
 }
 
@@ -205,30 +203,23 @@ function getMyJDstate() {
         //$('#myjd_update').removeClass('blinking').removeClass('isDisabled')
       }, function () {
         console.log('Konnte JDownloader nicht erreichen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte JDownloader nicht erreichen!')
+        toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
 function myJDmove(linkids, uuid) {
-  // ToDo migrate to vue
-  //showInfoLong("Starte Download...")
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
         getMyJD()
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(1500)
       }, function () {
         console.log('Konnte Download nicht starten!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht starten!')
-        //$(".alert-info").slideUp(1500)
+        toast.error('Konnte Download nicht starten!')
       })
 }
 
 function myJDremove(linkids, uuid) {
-  // ToDo migrate to vue
-  //showInfoLong("Lösche Download...")
+  toast.success("Lösche Download...")
   axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
@@ -241,19 +232,14 @@ function myJDremove(linkids, uuid) {
           }
         }
         getMyJD()
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(1500)
       }, function () {
         console.log('Konnte Download nicht löschen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht löschen!')
-        //$(".alert-info").slideUp(1500)
+        toast.error('Konnte Download nicht löschen!')
       })
 }
 
 function internalRemove(name) {
-  // ToDo migrate to vue
-  //showInfoLong("Lösche Download...")
+  toast.success("Lösche Download...")
   axios.post(store.state.prefix + 'api/internal_remove/' + name)
       .then(function () {
         if (to_decrypt.value) {
@@ -266,19 +252,14 @@ function internalRemove(name) {
           }
         }
         getMyJD()
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(1500)
       }, function () {
         console.log('Konnte Download nicht löschen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht löschen!')
-        //$(".alert-info").slideUp(1500)
+        toast.error('Konnte Download nicht löschen!')
       })
 }
 
 function myJDretry(linkids, uuid, links) {
-  // ToDo migrate to vue
-  //showInfoLong("Füge Download erneut hinzu...")
+  toast.success("Füge Download erneut hinzu...")
   links = btoa(links)
   axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
@@ -292,13 +273,9 @@ function myJDretry(linkids, uuid, links) {
           }
         }
         getMyJD()
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(1500)
       }, function () {
         console.log('Konnte Download nicht erneut hinzufügen!')
-        // ToDo migrate to vue
-        //showDanger('Konnte Download nicht erneut hinzufügen!')
-        //$(".alert-info").slideUp(1500)
+        toast.error('Konnte Download nicht erneut hinzufügen!')
       })
 }
 
@@ -306,8 +283,7 @@ const cnl_active = ref(false)
 const time = ref(0)
 
 function internalCnl(name, password) {
-  // ToDo migrate to vue
-  //showInfoLong("Warte auf Click'n'Load...")
+  toast.success("Warte auf Click'n'Load...")
   cnl_active.value = true
   countDown(60)
   axios.post(store.state.prefix + 'api/internal_cnl/' + name + "&" + password)
@@ -321,17 +297,11 @@ function internalCnl(name, password) {
             }
           }
         }
-        // ToDo migrate to vue
-        //$(".alert-info").slideUp(500)
         getMyJD()
-
         cnl_active.value = false
         time.value = 0
       }).catch(function () {
-    // ToDo migrate to vue
-    //showDanger("Click'n'Load nicht durchgeführt!")
-    // ToDo migrate to vue
-    //$(".alert-info").slideUp(500)
+    toast.error("Click'n'Load nicht durchgeführt!")
     cnl_active.value = false
     time.value = 0
   })

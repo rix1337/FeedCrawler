@@ -2,8 +2,14 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-
+import Toast from "vue-toastification";
+import "vue-toastification/dist/index.css";
 import App from './App.vue'
+
+const toastOptions = {
+    position: "top-center",
+    draggable: false,
+}
 
 // The store is created here, and then passed to the Vue instance
 // It contains the state of the application and is updated through calls to the FeedCrawler API
@@ -148,8 +154,8 @@ const store = createStore({
             axios.get(store.state.prefix + 'api/settings/')
                 .then(function (res) {
                     state.settings = res.data.settings
-                    state.misc.myjd_connection_error.value = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
-                    state.misc.pageSizeMyJD.value = store.state.settings.general.packages_per_myjd_page
+                    state.misc.myjd_connection_error = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
+                    state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
                     // ToDo migrate to vue
@@ -175,4 +181,8 @@ const store = createStore({
     }
 })
 
-createApp(App).use(store).use(router).mount('#app')
+const app = createApp(App)
+app.use(store)
+app.use(router)
+app.use(Toast, toastOptions)
+app.mount('#app')
