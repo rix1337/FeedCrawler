@@ -122,7 +122,6 @@ const store = createStore({
                 .then(function (res) {
                     state.misc.starting = false
                     state.crawltimes = res.data.crawltimes
-                    console.log('Laufzeiten abgerufen!')
                 }, function () {
                     console.log('Konnte Laufzeiten nicht abrufen!')
                     // ToDo migrate to vue
@@ -135,7 +134,6 @@ const store = createStore({
                     state.hostnames = res.data.hostnames
                     let not_set = 'Nicht gesetzt!'
                     state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
-                    console.log('Hostnamen abgerufen!')
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
                     // ToDo migrate to vue
@@ -146,7 +144,6 @@ const store = createStore({
             axios.get(state.prefix + 'api/lists/')
                 .then(function (res) {
                     state.lists = res.data.lists
-                    console.log('Listen abgerufen!')
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
                     // ToDo migrate to vue
@@ -157,7 +154,6 @@ const store = createStore({
             axios.get(store.state.prefix + 'api/settings/')
                 .then(function (res) {
                     state.settings = res.data.settings
-                    console.log('Einstellungen abgerufen!')
                     state.misc.myjd_connection_error.value = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
                     state.misc.pageSizeMyJD.value = store.state.settings.general.packages_per_myjd_page
                 }, function () {

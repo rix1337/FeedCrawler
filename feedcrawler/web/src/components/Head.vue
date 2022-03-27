@@ -39,7 +39,6 @@ function getVersion() {
           // ToDo migrate to vue
           //showInfo('Update steht bereit! Weitere Informationen unter <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">github.com</a>.')
         }
-        console.log('Version abgerufen!')
       }, function () {
         console.log('Konnte Version nicht abrufen!')
         // ToDo migrate to vue

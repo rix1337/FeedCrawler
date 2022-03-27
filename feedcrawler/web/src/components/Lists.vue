@@ -9,7 +9,6 @@ function getLists() {
   axios.get(store.state.prefix + 'api/lists/')
       .then(function (res) {
         store.commit('getLists', res.data.lists)
-        console.log('Listen abgerufen!')
       }, function () {
         console.log('Konnte Listen nicht abrufen!')
         // ToDo migrate to vue

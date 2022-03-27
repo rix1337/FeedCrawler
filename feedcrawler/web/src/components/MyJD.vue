@@ -118,8 +118,6 @@ function getMyJD() {
             //$("#myjd_collapse").removeClass('collapsed')
           }
         }
-
-        console.log('JDownloader abgerufen!')
       }, function () {
         myjd_grabbing.value = null
         myjd_downloads.value = null
@@ -205,7 +203,6 @@ function getMyJDstate() {
         //$('#myjd_unpause').removeClass('blinking').removeClass('isDisabled')
         //$('#myjd_stop').removeClass('blinking').removeClass('isDisabled')
         //$('#myjd_update').removeClass('blinking').removeClass('isDisabled')
-        console.log('JDownloader Status abgerufen!')
       }, function () {
         console.log('Konnte JDownloader nicht erreichen!')
         // ToDo migrate to vue

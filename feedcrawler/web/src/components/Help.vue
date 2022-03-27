@@ -20,7 +20,6 @@ function getBlockedSites() {
   axios.get(store.state.prefix + 'api/blocked_sites/')
       .then(function (res) {
         blocked_sites.value = res.data.blocked_sites
-        console.log('Blockierte Seiten abgerufen!')
       }, function () {
         console.log('Konnte blockierte Seiten nicht abrufen!')
         // ToDo migrate to vue

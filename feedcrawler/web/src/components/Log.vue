@@ -18,7 +18,6 @@ function getLog() {
       .then(function (res) {
         log.value = res.data.log
         getLogPages()
-        console.log('Log abgerufen!')
       }, function () {
         console.log('Konnte Log nicht abrufen!')
         // ToDo migrate to vue
