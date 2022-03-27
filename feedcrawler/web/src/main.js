@@ -25,16 +25,10 @@ const store = createStore({
                 sjbl: 'Nicht gesetzt!'
             },
             lists: {
+                mb: [],
                 sj: [],
                 dj: [],
-                sf: [],
-                by: [],
-                fx: [],
-                nk: [],
-                ww: [],
-                bl: [],
-                s: [],
-                sjbl: []
+                mbsj: [],
             },
             settings: {
                 general: {
