@@ -67,14 +67,32 @@ def app_container():
     else:
         prefix = ""
 
+    def requires_auth(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            config = CrawlerConfig('FeedCrawler')
+            if config.get("auth_user") and config.get("auth_hash"):
+                auth = request.authorization
+                if not auth or not check_auth(config, auth.username, auth.password):
+                    return authenticate()
+            return f(*args, **kwargs)
+
+        return decorated
+
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
     CORS(app)
 
-    # ToDo: this currently only works without prefix
     @app.route(prefix + '/', defaults={'path': ''}, methods=['GET'])
     @app.route(prefix + '/<path:path>')
+    @requires_auth
     def catch_all(path):
         return render_template('index.html')
+
+    if prefix:
+        @app.route('/')
+        @requires_auth
+        def index_prefix():
+            return redirect(prefix)
 
     @app.route(prefix + '/assets/<path:path>')
     def send_report(path):
@@ -103,18 +121,6 @@ def app_container():
                 </html>
                 ''', 401,
             {'WWW-Authenticate': 'Basic realm="FeedCrawler"'})
-
-    def requires_auth(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            config = CrawlerConfig('FeedCrawler')
-            if config.get("auth_user") and config.get("auth_hash"):
-                auth = request.authorization
-                if not auth or not check_auth(config, auth.username, auth.password):
-                    return authenticate()
-            return f(*args, **kwargs)
-
-        return decorated
 
     def to_int(i):
         if isinstance(i, bytes):

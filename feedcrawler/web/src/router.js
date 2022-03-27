@@ -12,6 +12,12 @@ export default createRouter({
         {
             path: '/sponsors_helper',
             component: Helper,
+        }, {
+            path: '/:pathMatch(.*)*', // required for path prefixing
+            component: Main
+        }, {
+            path: '/:pathMatch(.*/sponsors_helper.*)*', // required for path prefixing
+            component: Helper
         }
     ]
 })
