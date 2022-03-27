@@ -144,7 +144,7 @@ def app_container():
         global helper_active
         helper_active = True
         if request.method == 'GET':
-            return render_template('helper.html')
+            return render_template('index.html')
         else:
             return "Failed", 405
 

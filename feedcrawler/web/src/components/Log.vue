@@ -41,11 +41,6 @@ function getLogPages() {
   }
 }
 
-// ToDo https://stackoverflow.com/questions/65316893/vue-pagination-array-of-objects
-function getLogPage(page) {
-  return log.value.slice(page * pageSizeLog.value, (page + 1) * pageSizeLog.value)
-}
-
 const loglength = ref(65)
 const longlog = ref(false)
 
@@ -76,7 +71,7 @@ function deleteLog() {
 
 function deleteLogRow(title) {
   title = btoa(title)
-  axios.delete(store.state.prefix + 'api/log_entry/' + title)
+  axios.delete(store.state.prefix + 'api/log_entry/' + title, {data: ''})
       .then(function () {
         console.log('Logeintrag gelöscht!')
         // ToDo migrate to vue
@@ -128,16 +123,20 @@ function checkEntryLength(entry) {
           <td class="text-left" title="{{ x[3] }}">
             {{ x[3] }}
             <!-- ToDo for some reason x[3] is undefined here-->
-            <a v-if="!longlog && checkEntryLength(x[3])" href='' title="Titel vollständig anzeigen"
-               @click="longerLog()">...</a>
-            <a v-if="longlog && checkEntryLength(x[3])" href='' title="Titel kürzen" @click="shorterLog()"><i
-                class="bi bi-x-circle"></i></a>
+            <button v-if="!longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" href=''
+                    title="Titel vollständig anzeigen"
+                    @click="longerLog()">...
+            </button>
+            <button v-if="longlog && checkEntryLength(x[3])" class="btn btn-link btn-sm" href='' title="Titel kürzen"
+                    @click="shorterLog()"><i
+                class="bi bi-x-circle"></i></button>
           </td>
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
-          <td class="text-right"><a data-toggle="tooltip" href="" title="Logeintrag löschen"
-                                    @click="deleteLogRow(x[3])">
-            <i class="bi bi-trash remove"></i></a>
+          <td class="text-right">
+            <button class="btn btn-link btn-sm" data-toggle="tooltip" href="" title="Logeintrag löschen"
+                    @click="deleteLogRow(x[3])">
+              <i class="bi bi-trash remove"></i></button>
           </td>
         </tr>
         </tbody>
@@ -158,9 +157,17 @@ function checkEntryLength(entry) {
       </button>
     </div>
     <div>
-      <a class="btn btn-dark" href="" @click="deleteLog()">
+      <button class="btn btn-dark" href="" @click="deleteLog()">
         <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
-        <i class="bi bi-trash"></i> Leeren</a>
+        <i class="bi bi-trash"></i> Leeren
+      </button>
     </div>
   </div>
 </template>
+
+<style>
+.btn-link {
+  margin-top: 0 !important;
+  padding: 0 !important;
+}
+</style>

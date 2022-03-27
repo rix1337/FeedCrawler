@@ -94,15 +94,15 @@ function downloadSJ(payload) {
              data-toggle="tooltip"
              placeholder="Filme und Serien suchen"
              title="Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: 'Serien Titel,S01' oder 'Serien Titel,S01E01'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!"
-             @:keyup.enter="searchNow()">
-      <a v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" href="" type="submit"
-         @click="searchNow()">
-        <div v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"></div>
+             @keyup.enter="searchNow()">
+      <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" href="" type="submit"
+              @click="searchNow()">
+        <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
         <i class="bi bi-search"></i> Suchen
-      </a>
-      <a v-if="!search && (results.sj || results.bl)" class="btn btn-dark" href="" type="submit"
-         @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren
-      </a>
+      </button>
+      <button v-if="!search && (results.sj || results.bl)" class="btn btn-dark" href="" type="submit"
+              @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren
+      </button>
       <div v-if="results" class="results">
         <p v-if="!currentPage > 0" data-v-for="x in results.sj">
           <a class="btn btn-outline-info" href="" type="submit" @click="downloadSJ(x.payload)"><i
