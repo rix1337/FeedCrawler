@@ -1,7 +1,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import {ref} from 'vue'
-import axios from "axios"
+import axios from 'axios'
 
 const store = useStore()
 

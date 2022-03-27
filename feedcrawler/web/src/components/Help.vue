@@ -2,7 +2,7 @@
 import {onMounted, ref} from 'vue'
 import {useStore} from 'vuex'
 import {Collapse} from 'bootstrap'
-import axios from "axios"
+import axios from 'axios'
 
 const store = useStore()
 
