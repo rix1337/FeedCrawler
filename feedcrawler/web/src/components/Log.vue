@@ -35,8 +35,8 @@ const numberOfPagesLog = ref(0)
 function getLogPages() {
   if (typeof log.value !== 'undefined') {
     resLengthLog.value = log.value.length
-    if (log.value.length > 0) {
-      numberOfPagesLog.value = Math.ceil(log.value.length / pageSizeLog.value)
+    if (resLengthLog.value > 0) {
+      numberOfPagesLog.value = Math.ceil(resLengthLog.value / pageSizeLog.value)
     } else {
       numberOfPagesLog.value = 0
     }

@@ -1,9 +1,10 @@
 <script setup>
 import {useStore} from 'vuex'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
+import Paginate from "vuejs-paginate-next"
 
 const store = useStore()
 const toast = useToast()
@@ -27,6 +28,8 @@ function getMyJD() {
   axios.get(store.state.prefix + 'api/myjd/')
       .then(function (res) {
         store.commit("setMyJDConnectionError", false)
+        pageSizeMyJD.value = store.state.misc.pageSizeMyJD
+        getMyJDPages()
         myjd_state.value = res.data.downloader_state
         myjd_downloads.value = res.data.packages.downloader
         myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
@@ -131,19 +134,26 @@ function getMyJD() {
       })
 }
 
-const currentPageMyJD = ref(0)
-const resLengthMyJD = ref(0)
 
-function numberOfPagesMyJD() {
+const resLengthMyJD = ref(0)
+const pageSizeMyJD = ref(3)
+const currentPageMyJD = ref(1)
+const numberOfPagesMyJD = ref(0)
+
+function getMyJDPages() {
   if (typeof myjd_packages.value !== 'undefined') {
     resLengthMyJD.value = myjd_packages.value.length
-    let numPagesMyJD = Math.ceil(resLengthMyJD.value / store.state.misc.pageSizeMyJD.value)
-    if ((currentPageMyJD.value > 0) && ((currentPageMyJD.value + 1) > numPagesMyJD)) {
-      currentPageMyJD.value = numPagesMyJD - 1
+    if (resLengthMyJD.value > 0) {
+      numberOfPagesMyJD.value = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
+    } else {
+      numberOfPagesMyJD.value = 0
     }
-    return numPagesMyJD
   }
 }
+
+const currentMyJDPage = computed(() => {
+  return myjd_packages.value.slice((currentPageMyJD.value - 1) * pageSizeMyJD.value, currentPageMyJD.value * pageSizeMyJD.value)
+})
 
 function myJDstart() {
   // ToDo migrate to vue
@@ -350,8 +360,7 @@ function showSponsorsHelp() {
         <div id="collapseOne" aria-labelledby="headingOne" class="accordion-collapse collapse"
              data-bs-parent="#accordionMyJD">
           <div class="accordion-body">
-            <!-- ToDo refactor removed AngularJS pagination filters to vue -->
-            <div v-for="x in myjd_packages" class="myjd-items">
+            <div v-for="x in currentMyJDPage" class="myjd-items">
               <div class="myjd-downloads">
                 <div v-if="x.type=='online'" v-tooltip="'In der Downloadliste'" class="card bg-success">
                   <div class="card-header">
@@ -536,19 +545,13 @@ function showSponsorsHelp() {
             </div>
 
             <div v-if="resLengthMyJD>3" class="btn-group">
-              <!-- ToDo refactor ng-disable to vue variant -->
-              <button :disable="currentPageMyJD == 0" class="btn btn-outline-info"
-                      @click="currentPageMyJD=currentPageMyJD-1">
-                <i class="bi bi-chevron-left"></i>
-              </button>
-              <button :disable="true" class="btn btn-outline-info">
-                {{ currentPageMyJD + 1 }} / {{ numberOfPagesMyJD() }}
-              </button>
-              <button :disable="currentPageMyJD >= resLengthMyJD / store.state.misc.pageSizeMyJD - 1"
-                      class="btn btn-outline-info"
-                      @click="currentPageMyJD=currentPageMyJD+1">
-                <i class="bi bi-chevron-right"></i>
-              </button>
+              <paginate
+                  v-model="currentPageMyJD"
+                  :next-text="'>'"
+                  :page-count="numberOfPagesMyJD"
+                  :prev-text="'<'"
+              >
+              </paginate>
             </div>
 
             <div v-if="!myjd_state" class="myjd_connection_state">
