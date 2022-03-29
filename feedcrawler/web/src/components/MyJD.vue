@@ -213,20 +213,17 @@ function getMyJDstate() {
         myjd_state.value = res.data.downloader_state
         myjd_grabbing.value = res.data.grabber_collecting
         update_ready.value = res.data.update_ready
-        // ToDo migrate to vue
-        //$('#myjd_start').removeClass('blinking').removeClass('isDisabled')
-        //$('#myjd_pause').removeClass('blinking').removeClass('isDisabled')
-        //$('#myjd_unpause').removeClass('blinking').removeClass('isDisabled')
-        //$('#myjd_stop').removeClass('blinking').removeClass('isDisabled')
-        //$('#myjd_update').removeClass('blinking').removeClass('isDisabled')
+        myjd_pausing.value = false
+        myjd_stopping.value = false
+        myjd_starting.value = false
       }, function () {
         console.log('Konnte JDownloader nicht erreichen!')
         toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
-function myJDmove(linkids, uuid) {
-  toast.success("Starte Download...")
+function myJDmove(linkids, uuid, name) {
+  toast.success("Starte Download\n" + name)
   axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
         getMyJD()
@@ -236,8 +233,8 @@ function myJDmove(linkids, uuid) {
       })
 }
 
-function myJDremove(linkids, uuid) {
-  toast.success("Lösche Download...")
+function myJDremove(linkids, uuid, name) {
+  toast.success("Lösche Download\n" + name)
   axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
@@ -257,7 +254,7 @@ function myJDremove(linkids, uuid) {
 }
 
 function internalRemove(name) {
-  toast.success("Lösche Download...")
+  toast.success("Lösche Download\n" + name)
   axios.post(store.state.prefix + 'api/internal_remove/' + name)
       .then(function () {
         if (to_decrypt.value) {
@@ -276,8 +273,8 @@ function internalRemove(name) {
       })
 }
 
-function myJDretry(linkids, uuid, links) {
-  toast.success("Füge Download erneut hinzu...")
+function myJDretry(linkids, uuid, links, name) {
+  toast.success("Füge Download\n" + name + "\nerneut hinzu...")
   links = btoa(links)
   axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
@@ -301,7 +298,7 @@ const cnl_active = ref(false)
 const time = ref(0)
 
 function internalCnl(name, password) {
-  toast.warning("Warte auf Click'n'Load...", {
+  toast.warning("Warte auf Click'n'Load für\n" + name, {
     timeout: 60000,
     closeOnClick: false,
     closeButton: false,
@@ -411,7 +408,7 @@ function showSponsorsHelp() {
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                       <button class="btn btn-outline-danger"
-                              @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
+                              @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
                     </li>
@@ -434,12 +431,12 @@ function showSponsorsHelp() {
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
                       <button v-tooltip="'Download starten'"
                               class="btn btn-outline-success"
-                              @click="myJDmove(x.linkids, x.uuid)"><i class="bi bi-play"></i>
+                              @click="myJDmove(x.linkids, x.uuid, x.name)"><i class="bi bi-play"></i>
                         Download
                         starten
                       </button>
                       <button class="btn btn-outline-danger"
-                              @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
+                              @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
                     </li>
@@ -451,7 +448,7 @@ function showSponsorsHelp() {
                 <div v-if="x.type=='failed'" class="card bg-danger">
                   <span>Entschlüsselung im JDownloader fehlgeschlagen.</span>
                   <button v-if="!cnl_active" class="btn btn-outline-danger"
-                          @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
+                          @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                     Löschen
                   </button>
                 </div>
@@ -543,13 +540,13 @@ function showSponsorsHelp() {
                     <li class="list-group-item">
                       <button v-if="!cnl_active" v-tooltip="'Erneut hinzufügen'"
                               class="btn btn-outline-info"
-                              @click="myJDretry(x.linkids, x.uuid, x.urls)"><i
+                              @click="myJDretry(x.linkids, x.uuid, x.urls, x.name)"><i
                           class="bi bi-arrow-counterclockwise"></i>
                         Erneut
                         hinzufügen
                       </button>
                       <button class="btn btn-outline-danger"
-                              @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
+                              @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
                     </li>
