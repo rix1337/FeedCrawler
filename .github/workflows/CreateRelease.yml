@@ -106,7 +106,7 @@ jobs:
         id: create_release
         with:
           draft: false
-          prerelease: false
+          prerelease: true
           release_name: v.${{ steps.version.outputs.version }}
           tag_name: v.${{ steps.version.outputs.version }}
           body_path: .github/Changelog.md

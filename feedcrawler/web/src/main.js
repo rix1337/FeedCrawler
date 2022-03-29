@@ -209,6 +209,7 @@ app.use(Toast, {
         },
         [TYPE.SUCCESS]: {
             icon: 'bi bi-check-circle-fill',
+            timeout: 3000,
         }
     }
 })

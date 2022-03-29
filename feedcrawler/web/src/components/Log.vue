@@ -96,12 +96,12 @@ function deleteLogRow(title) {
   const title_b64 = btoa(title)
   axios.delete(store.state.prefix + 'api/log_entry/' + title_b64)
       .then(function () {
-        console.log('Logeintrag ' + title + ' gelöscht!')
-        toast.success('Logeintrag\n' + title + '\ngelöscht!')
+        console.log('Log-Eintrag ' + title + ' gelöscht!')
+        toast.success('Log-Eintrag\n' + title + '\ngelöscht!')
         getLog()
       }, function () {
-        console.log('Konnte Logeintrag ' + title + ' nicht löschen!')
-        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!')
+        console.log('Konnte Log-Eintrag ' + title + ' nicht löschen!')
+        toast.error('Konnte Log-Eintrag\n' + title + '\n nicht löschen!')
       })
 }
 
@@ -146,7 +146,7 @@ function spinLog() {
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
           <td class="text-right">
-            <button v-tooltip="'Logeintrag löschen'" class="btn btn-link btn-sm"
+            <button v-tooltip="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
                     @click="deleteLogRow(x[3])">
               <i class="bi bi-trash remove"></i></button>
           </td>
