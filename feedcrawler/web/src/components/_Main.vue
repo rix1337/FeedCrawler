@@ -1,6 +1,5 @@
 <script setup>
 import {useStore} from 'vuex'
-import {onMounted} from 'vue'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
@@ -20,11 +19,6 @@ const store = useStore()
 store.commit("setNow", Date.now())
 store.commit("getCrawlTimes")
 store.commit("getHostNames")
-
-onMounted(() => {
-  setInterval(store.commit("setNow", Date.now()), 1000)
-  setInterval(store.commit("getCrawlTimes"), 5 * 1000)
-})
 </script>
 
 <template>

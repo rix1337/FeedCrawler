@@ -1,6 +1,6 @@
 <script setup>
 import {useStore} from 'vuex'
-import {onMounted, ref} from 'vue'
+import {computed, onMounted, ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import axios from 'axios'
 
@@ -10,7 +10,12 @@ const toast = useToast()
 onMounted(() => {
   getVersion()
   setInterval(getVersion, 300 * 1000)
+  setInterval(updateCrawlTimes, 5 * 1000)
 })
+
+function updateCrawlTimes() {
+  store.commit("getCrawlTimes")
+}
 
 const version = ref("")
 const update = ref(false)
@@ -69,10 +74,23 @@ function getTimestamp(ms) {
   return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
 }
 
-function getDuration(ms) {
-  let duration = store.state.misc.now - ms
-  return new Date(duration).toISOString().substr(11, 8)
+function countUp() {
+  if (store.state.crawltimes.active) {
+    setTimeout(() => {
+      store.commit("setNow", Date.now())
+      countUp()
+    }, 1000)
+  }
 }
+
+const currentDuration = computed(() => {
+  countUp()
+  let duration = store.state.misc.now - store.state.crawltimes.start_time
+  if (duration < 0) {
+    duration = 0
+  }
+  return new Date(duration).toISOString().substr(11, 8)
+})
 
 function startNow() {
   toast.info('Starte Suchlauf...', {icon: 'bi bi-info-circle'})
@@ -105,7 +123,7 @@ function startNow() {
     <div v-if="store.state.crawltimes">
       <div v-if="store.state.crawltimes.active">
         Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
-        {{ getDuration(store.state.crawltimes.start_time) }})
+        {{ currentDuration }})
       </div>
       <div v-if="!store.state.crawltimes.active">
         Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
