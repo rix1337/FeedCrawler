@@ -72,7 +72,7 @@ jobs:
       - name: Compile Windows Exe
         run: |
           $version = python feedcrawler/version.py
-          pyinstaller --onefile -y -i "feedcrawler/web/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-$version-standalone-win64"
+          pyinstaller --onefile -y -i "feedcrawler/web/dist/img/favicon.ico" --version-file "file_version_info.txt" --hidden-import "_rapidfuzz_cpp" --add-data "feedcrawler/web;web" "FeedCrawler.py" -n "feedcrawler-$version-standalone-win64"
       - name: Upload Windows Exe
         uses: actions/upload-artifact@v2
         with:
