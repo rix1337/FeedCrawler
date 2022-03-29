@@ -30,7 +30,8 @@ function getVersion() {
   axios.get(store.state.prefix + 'api/version/')
       .then(function (res) {
         version.value = res.data.version.ver
-        console.log('Dies ist der FeedCrawler ' + version.value + ' von https://github.com/rix1337')
+        console.info("%c FeedCrawler %c ".concat(version.value, " "), "color: white; background: #303030; font-weight: 700; font-size: 24px; font-family: Monospace;", "color: #303030; background: white; font-weight: 700; font-size: 24px; font-family: Monospace;");
+        console.info("%c ❤ Projekt unterstützen %c ".concat("https://github.com/sponsors/rix1337 ❤", " "), "color: white; background: #dc3545; font-weight: 700;", "color: #dc3545; background: white; font-weight: 700;")
         update.value = res.data.version.update_ready
         store.commit('setDocker', res.data.version.docker)
         helper_active.value = res.data.version.helper_active
