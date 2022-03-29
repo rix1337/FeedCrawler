@@ -44,6 +44,9 @@ function getLogPages() {
 }
 
 const currentLogPage = computed(() => {
+  if (currentPageLog.value > numberOfPagesLog.value) {
+    currentPageLog.value = numberOfPagesLog.value
+  }
   return log.value.slice((currentPageLog.value - 1) * pageSizeLog.value, currentPageLog.value * pageSizeLog.value)
 })
 

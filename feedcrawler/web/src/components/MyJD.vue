@@ -140,6 +140,7 @@ const pageSizeMyJD = ref(3)
 const currentPageMyJD = ref(1)
 const numberOfPagesMyJD = ref(0)
 
+// ToDo this is broken
 function getMyJDPages() {
   if (typeof myjd_packages.value !== 'undefined') {
     resLengthMyJD.value = myjd_packages.value.length
@@ -152,6 +153,9 @@ function getMyJDPages() {
 }
 
 const currentMyJDPage = computed(() => {
+  if (currentPageMyJD.value > numberOfPagesMyJD.value) {
+    currentPageMyJD.value = numberOfPagesMyJD.value
+  }
   return myjd_packages.value.slice((currentPageMyJD.value - 1) * pageSizeMyJD.value, currentPageMyJD.value * pageSizeMyJD.value)
 })
 

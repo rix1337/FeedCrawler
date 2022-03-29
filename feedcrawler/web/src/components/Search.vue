@@ -57,6 +57,9 @@ function searchNow() {
 }
 
 const currentResultsPage = computed(() => {
+  if (currentPageResults.value > numberOfPagesResults.value) {
+    currentPageResults.value = numberOfPagesResults.value
+  }
   return results.value.bl.slice((currentPageResults.value - 1) * pageSizeResults.value, currentPageResults.value * pageSizeResults.value)
 })
 
