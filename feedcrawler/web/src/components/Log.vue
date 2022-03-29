@@ -23,7 +23,7 @@ function getLog() {
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
-        toast.error('Konnte Log nicht abrufen!')
+        toast.error('Konnte Log nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 
@@ -81,11 +81,11 @@ function deleteLog() {
   axios.delete(store.state.prefix + 'api/log/')
       .then(function () {
         console.log('Log geleert!')
-        toast.success('Log geleert!')
+        toast.success('Log geleert!', {icon: 'bi bi-check-circle-fill'})
         getLog()
       }, function () {
         console.log('Konnte Log nicht leeren!')
-        toast.error('Konnte Log nicht leeren!')
+        toast.error('Konnte Log nicht leeren!', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 
@@ -94,11 +94,11 @@ function deleteLogRow(title) {
   axios.delete(store.state.prefix + 'api/log_entry/' + title_b64)
       .then(function () {
         console.log('Logeintrag ' + title + ' gelöscht!')
-        toast.success('Logeintrag\n' + title + '\ngelöscht!')
+        toast.success('Logeintrag\n' + title + '\ngelöscht!', {icon: 'bi bi-check-circle-fill'})
         getLog()
       }, function () {
         console.log('Konnte Logeintrag ' + title + ' nicht löschen!')
-        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!')
+        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 
@@ -164,7 +164,7 @@ function spinLog() {
     <div>
       <button class="btn btn-dark" @click="deleteLog()">
         <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
-        <i class="bi bi-trash"></i> Leeren
+        <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
       </button>
     </div>
   </div>

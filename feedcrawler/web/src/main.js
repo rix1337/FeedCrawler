@@ -109,6 +109,7 @@ const store = createStore({
                 }
             },
             misc: {
+                docker: false,
                 helper_active: false,
                 helper_available: false,
                 myjd_connection_error: false,
@@ -126,7 +127,7 @@ const store = createStore({
                     state.crawltimes = res.data.crawltimes
                 }, function () {
                     console.log('Konnte Laufzeiten nicht abrufen!')
-                    toast.error('Konnte Laufzeiten nicht abrufen!')
+                    toast.error('Konnte Laufzeiten nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
                 })
         },
         getHostNames(state) {
@@ -137,7 +138,7 @@ const store = createStore({
                     state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
-                    toast.error('Konnte Hostnamen nicht abrufen!')
+                    toast.error('Konnte Hostnamen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
                 })
         },
         getLists(state) {
@@ -146,7 +147,7 @@ const store = createStore({
                     state.lists = res.data.lists
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
-                    toast.error('Konnte Listen nicht abrufen!')
+                    toast.error('Konnte Listen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
                 })
         },
         getSettings(state) {
@@ -157,8 +158,11 @@ const store = createStore({
                     state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
-                    toast.error('Konnte Einstellungen nicht abrufen!')
+                    toast.error('Konnte Einstellungen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
                 })
+        },
+        setDocker(state, docker) {
+            state.misc.docker = docker
         },
         setHelperActive(state, helper_active) {
             state.misc.helper_active = helper_active

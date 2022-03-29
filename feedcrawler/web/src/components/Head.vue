@@ -14,9 +14,12 @@ onMounted(() => {
 
 const version = ref("")
 const update = ref(false)
-const docker = ref(false)
 const helper_active = ref(false)
 const helper_available = ref(false)
+
+function openReleaseNotes() {
+  window.open("https://github.com/rix1337/FeedCrawler/releases/latest", "_blank")
+}
 
 function getVersion() {
   axios.get(store.state.prefix + 'api/version/')
@@ -24,7 +27,7 @@ function getVersion() {
         version.value = res.data.version.ver
         console.log('Dies ist der FeedCrawler ' + version.value + ' von https://github.com/rix1337')
         update.value = res.data.version.update_ready
-        docker.value = res.data.version.docker
+        store.commit('setDocker', res.data.version.docker)
         helper_active.value = res.data.version.helper_active
         if (helper_active.value) {
           axios.get("http://127.0.0.1:9666/")
@@ -40,12 +43,15 @@ function getVersion() {
         if (update.value) {
           scrollingTitle("FeedCrawler - Update verfügbar! - ")
           console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-          // ToDo might need bugfix
-          toast.info("Update steht bereit! Weitere Informationen unter <a href='https://github.com/rix1337/FeedCrawler/releases/latest' target='_blank'>github.com</a>.")
+          toast.info("Update steht bereit! Weitere Informationen unter:\nhttps://github.com/rix1337/FeedCrawler/releases/latest", {
+            timeout: 15000,
+            icon: 'bi bi-info-circle',
+            onClick: openReleaseNotes,
+          })
         }
       }, function () {
         console.log('Konnte Version nicht abrufen!')
-        toast.error('Konnte Version nicht abrufen!')
+        toast.error('Konnte Version nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 
@@ -69,17 +75,17 @@ function getDuration(ms) {
 }
 
 function startNow() {
-  toast.info('Starte Suchlauf...')
+  toast.info('Starte Suchlauf...', {icon: 'bi bi-info-circle'})
   store.commit('setStarting', true)
   axios.post(store.state.prefix + 'api/start_now/')
       .then(function () {
         store.commit('setStarting', false)
-        toast.success('Suchlauf gestartet!')
+        toast.success('Suchlauf gestartet!', {icon: 'bi bi-check-circle-fill'})
         console.log('Suchlauf gestartet!')
       }, function () {
         store.commit('setStarting', false)
         console.log('Konnte Suchlauf nicht starten!')
-        toast.error('Konnte Suchlauf nicht starten!')
+        toast.error('Konnte Suchlauf nicht starten!', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 </script>

@@ -10,6 +10,7 @@ import "bootstrap"
 const store = useStore()
 
 onMounted(() => {
+  setContext()
   updateToDecrypt()
   setInterval(updateToDecrypt, 30 * 1000)
 })
@@ -22,6 +23,18 @@ function updateToDecrypt() {
 }
 
 const antigate_available_and_active = ref(false)
+
+let context = ref('')
+
+function setContext() {
+  // this enables the use of path prefix in production (else the sponsors_helper will only work in vue dev)
+  let get_context_from_window = window.location.pathname.split("/").slice(-1)[0]
+  if (get_context_from_window.length > 0) {
+    context.value = get_context_from_window
+  } else {
+    context.value = '.'
+  }
+}
 
 function getAntiGate() {
   axios.get("http://127.0.0.1:9700/status")
@@ -38,7 +51,7 @@ const to_decrypt = ref({
 })
 
 function getToDecrypt() {
-  axios.get(store.state.prefix + './sponsors_helper/api/to_decrypt/')
+  axios.get(store.state.prefix + context.value + '/api/to_decrypt/')
       .then(function (res) {
         to_decrypt.value = res.data.to_decrypt
         startToDecrypt()
@@ -53,7 +66,7 @@ const ff_hostname = ref('')
 const next_f_run = ref(0)
 
 function getFBlocked() {
-  axios.get(store.state.prefix + './sponsors_helper/api/f_blocked/False')
+  axios.get(store.state.prefix + context.value + '/api/f_blocked/False')
       .then(function (res) {
         f_blocked.value = res.data.blocked_sites.sf_ff
         sf_hostname.value = res.data.blocked_sites.sf_hostname
@@ -144,7 +157,7 @@ function spinHelper() {
       <div v-tooltip="'Helper neu laden'"
            class="btn btn-outline-dark" @click="updateToDecrypt()">
         <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
-        <i class="bi bi-arrow-counterclockwise"></i></div>
+        <i v-if="!spin_helper" class="bi bi-arrow-counterclockwise"></i></div>
     </div>
   </main>
 </template>

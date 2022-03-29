@@ -95,11 +95,19 @@ def app_container():
             return redirect(prefix)
 
     @app.route(prefix + '/assets/<path:path>')
-    def send_report(path):
+    def static_files(path):
         return send_from_directory(os.path.join(base_dir, 'web/dist/assets'), path)
 
     @app.route(prefix + '/favicon.ico', methods=['GET'])
-    def favicon():
+    def static_favicon():
+        return send_from_directory(os.path.join(base_dir, 'web/dist'), 'favicon.ico')
+
+    @app.route(prefix + '/sponsors_helper/assets/<path:path>')
+    def static_files_helper(path):
+        return send_from_directory(os.path.join(base_dir, 'web/dist/assets'), path)
+
+    @app.route(prefix + '/sponsors_helper/favicon.ico', methods=['GET'])
+    def static_favicon_helper():
         return send_from_directory(os.path.join(base_dir, 'web/dist'), 'favicon.ico')
 
     def check_auth(config, username, password):

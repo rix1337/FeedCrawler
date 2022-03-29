@@ -44,12 +44,12 @@ function saveSettings() {
   axios.post(store.state.prefix + 'api/settings/', store.state.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
-        toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!')
+        toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!', {icon: 'bi bi-check-circle-fill'})
         store.commit("getSettings")
       }, function () {
         store.commit("getSettings")
-        console.log('Konnte Einstellungen nicht speichern! Eventuelle Hinweise in der Konsole beachten.')
-        toast.error('Konnte Einstellungen nicht speichern!\nEventuelle Hinweise in der Konsole beachten.')
+        console.log('Konnte Einstellungen nicht speichern! Bitte die angegebenen Werte auf Richtigkeit prüfen.')
+        toast.error('Konnte Einstellungen nicht speichern!\nBitte die angegebenen Werte auf Richtigkeit prüfen.', {icon: 'bi bi-exclamation-triangle'})
       })
 }
 
@@ -141,13 +141,14 @@ const year = ref((new Date).getFullYear())
           <div id="collapseTwoOne" aria-labelledby="headingTwoOne" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
-              <h5>Port</h5>
-              <!-- ToDo disable if we are dockerized this is detected within head.getVersion() -->
-              <input v-model="store.state.settings.general.port" class="number form-control docker"
-                     v-tooltip="'Hier den Port des Webservers wählen.'"
-                     min="1024"
-                     max="65535" required
-                     type="number"/>
+              <div v-if="!store.state.misc.docker">
+                <h5>Port</h5>
+                <input v-model="store.state.settings.general.port" v-tooltip="'Hier den Port des Webservers wählen.'"
+                       class="number form-control docker"
+                       max="65535"
+                       min="1024" required
+                       type="number"/>
+              </div>
               <h5>Prefix</h5>
               <input v-model="store.state.settings.general.prefix"
                      v-tooltip="'Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies).'"
@@ -710,13 +711,8 @@ const year = ref((new Date).getFullYear())
       </div>
       <button class="btn btn-dark" type="submit" @click="saveSettings()">
         <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
-        <i class="bi bi-save"></i> Speichern
+        <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
       </button>
-      <!-- ToDo Form validity check with v-if not working
-      <div class="btn btn-danger"
-           v-tooltip="'Mindestens ein Feld wurde falsch befüllt und muss korrigiert werden (erkennbar am roten Rahmen darum).'">
-        <i class="bi bi-x"></i> Speichern nicht möglich
-      </div>-->
     </div>
   </div>
 </template>
