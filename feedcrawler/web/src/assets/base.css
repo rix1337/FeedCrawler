@@ -118,8 +118,9 @@ td {
     white-space: nowrap;
 }
 
-#myjd_state, #myjd_grabbing, #myjd_update {
+#myjd_state, #myjd_grabbing {
     font-size: 2em;
+    color: #0d6efd;
 }
 
 .urls {
@@ -191,4 +192,11 @@ p {
     to {
         opacity: 1;
     }
+}
+
+.Vue-Toastification__toast-body.toast-body {
+    font-family: var(--bs-body-font-family);
+    font-size: var(--bs-body-font-size);
+    font-weight: var(--bs-body-font-weight);
+    line-height: var(--bs-body-line-height);
 }

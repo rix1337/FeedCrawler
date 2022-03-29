@@ -70,7 +70,6 @@ def check_is_site(string):
     hw = hostnames.get('hw')
     ff = hostnames.get('ff')
     nk = hostnames.get('nk')
-    pl = hostnames.get('pl')
     ww = hostnames.get('ww')
 
     string = string.lower()
@@ -91,8 +90,6 @@ def check_is_site(string):
         return "FF"
     elif nk and nk.split('.')[0] in string:
         return "NK"
-    elif pl and pl.split('.')[0] in string:
-        return "PL"
     elif ww and ww.split('.')[0] in string:
         return "WW"
     else:
@@ -274,13 +271,12 @@ def get_to_decrypt():
             hostnames = CrawlerConfig('Hostnames')
             sj = hostnames.get('sj')
             dj = hostnames.get('dj')
-            pl = hostnames.get('pl')
             fx = hostnames.get('fx')
             ff = hostnames.get('ff')
             sf = hostnames.get('sf')
             ww = hostnames.get('ww')
 
-            easy_to_decrypt = list(filter(None, [sj, dj, pl]))
+            easy_to_decrypt = list(filter(None, [sj, dj]))
             hard_to_decrypt = list(filter(None, [fx, ff, sf, ww]))
 
             packages = []

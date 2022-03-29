@@ -60,7 +60,7 @@ def settings_hash(self, refresh):
 
 
 def check_fallback_required(download_links):
-    if download_links and len(download_links) == 1 and download_links[0] and check_is_site(download_links[0]) == "PL":
+    if download_links and len(download_links) == 1 and download_links[0]:
         return True
     else:
         return False

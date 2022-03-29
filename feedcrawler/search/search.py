@@ -17,7 +17,6 @@ from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
 from feedcrawler.sites.shared.internal_feed import fx_search_results
 from feedcrawler.sites.shared.internal_feed import hw_search_results
 from feedcrawler.sites.shared.internal_feed import nk_search_results
-from feedcrawler.sites.shared.internal_feed import pl_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
@@ -29,7 +28,6 @@ def get(title, bl_only=False, sj_only=False):
     fx = hostnames.get('fx')
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
-    pl = hostnames.get('pl')
     sj = hostnames.get('sj')
 
     specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
@@ -78,18 +76,13 @@ def get(title, bl_only=False, sj_only=False):
             hw_search = 'https://' + hw + '/?s=' + bl_query
         else:
             hw_search = None
-        if pl:
-            pl_search = 'https://' + pl + '/search?q=' + bl_query
-        else:
-            pl_search = None
 
-        async_results = get_urls_async([by_search, fx_search, hw_search, pl_search])
+        async_results = get_urls_async([by_search, fx_search, hw_search])
         async_results = async_results[0]
 
         by_results = []
         fx_results = []
         hw_results = []
-        pl_results = []
 
         for res in async_results:
             if check_is_site(res) == 'BY':
@@ -98,8 +91,6 @@ def get(title, bl_only=False, sj_only=False):
                 fx_results = fx_search_results(fx_content_to_soup(res))
             elif check_is_site(res) == 'HW':
                 hw_results = hw_search_results(res)
-            elif check_is_site(res) == 'PL':
-                pl_results = pl_search_results(res)
 
         if nk:
             nk_search = post_url('https://' + nk + "/search",
@@ -144,18 +135,6 @@ def get(title, bl_only=False, sj_only=False):
                 unrated.append(
                     [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
-        password = pl.split('-')[0]
-        for result in pl_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            if "xxx" not in result[0].lower():
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (PL)"])
-
         password = nk.split('.')[0].capitalize()
         for result in nk_results:
             if "480p" in quality:
@@ -169,12 +148,12 @@ def get(title, bl_only=False, sj_only=False):
 
         rated = sorted(unrated, reverse=True)
 
-        results = {}
+        results = []
         i = 0
 
         for result in rated:
             res = {"payload": result[1], "title": result[2]}
-            results["result" + str(i + 1000)] = res
+            results.append(res)
             i += 1
         bl_final = results
 
@@ -194,14 +173,14 @@ def get(title, bl_only=False, sj_only=False):
         else:
             append = ""
         i = 0
-        results = {}
+        results = []
         for result in sj_results:
             r_title = result.text
             r_rating = fuzz.ratio(title.lower(), r_title)
             if r_rating > 40:
                 res = {"payload": encode_base64(result['href'] + "|" + r_title + "|" + str(special)),
                        "title": r_title + append}
-                results["result" + str(i + 1000)] = res
+                results.append(res)
                 i += 1
         sj_final = results
 

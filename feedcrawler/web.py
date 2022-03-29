@@ -11,7 +11,8 @@ import sys
 import time
 from functools import wraps
 
-from flask import Flask, request, redirect, send_from_directory, render_template, jsonify, Response
+from flask import Flask, request, redirect, render_template, send_from_directory, jsonify, Response
+from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -45,7 +46,6 @@ from feedcrawler.myjd import jdownloader_stop
 from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import retry_decrypt
-from feedcrawler.myjd import update_jdownloader
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
@@ -61,14 +61,54 @@ def app_container():
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS)
 
-    app = Flask(__name__, template_folder=os.path.join(base_dir, 'web'))
-    app.config["TEMPLATES_AUTO_RELOAD"] = True
-
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
         prefix = '/' + general.get("prefix")
     else:
         prefix = ""
+
+    def requires_auth(f):
+        @wraps(f)
+        def decorated(*args, **kwargs):
+            config = CrawlerConfig('FeedCrawler')
+            if config.get("auth_user") and config.get("auth_hash"):
+                auth = request.authorization
+                if not auth or not check_auth(config, auth.username, auth.password):
+                    return authenticate()
+            return f(*args, **kwargs)
+
+        return decorated
+
+    app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
+    CORS(app)
+
+    @app.route(prefix + '/', defaults={'path': ''}, methods=['GET'])
+    @app.route(prefix + '/<path:path>')
+    @requires_auth
+    def catch_all(path):
+        return render_template('index.html')
+
+    if prefix:
+        @app.route('/')
+        @requires_auth
+        def index_prefix():
+            return redirect(prefix)
+
+    @app.route(prefix + '/assets/<path:path>')
+    def static_files(path):
+        return send_from_directory(os.path.join(base_dir, 'web/dist/assets'), path)
+
+    @app.route(prefix + '/favicon.ico', methods=['GET'])
+    def static_favicon():
+        return send_from_directory(os.path.join(base_dir, 'web/dist'), 'favicon.ico')
+
+    @app.route(prefix + '/sponsors_helper/assets/<path:path>')
+    def static_files_helper(path):
+        return send_from_directory(os.path.join(base_dir, 'web/dist/assets'), path)
+
+    @app.route(prefix + '/sponsors_helper/favicon.ico', methods=['GET'])
+    def static_favicon_helper():
+        return send_from_directory(os.path.join(base_dir, 'web/dist'), 'favicon.ico')
 
     def check_auth(config, username, password):
         auth_hash = config.get("auth_hash")
@@ -90,18 +130,6 @@ def app_container():
                 ''', 401,
             {'WWW-Authenticate': 'Basic realm="FeedCrawler"'})
 
-    def requires_auth(f):
-        @wraps(f)
-        def decorated(*args, **kwargs):
-            config = CrawlerConfig('FeedCrawler')
-            if config.get("auth_user") and config.get("auth_hash"):
-                auth = request.authorization
-                if not auth or not check_auth(config, auth.username, auth.password):
-                    return authenticate()
-            return f(*args, **kwargs)
-
-        return decorated
-
     def to_int(i):
         if isinstance(i, bytes):
             i = i.decode()
@@ -120,22 +148,6 @@ def app_container():
 
     def check(site, db):
         return to_bool(str(db.retrieve(site)).replace("Blocked", "True"))
-
-    if prefix:
-        @app.route('/')
-        @requires_auth
-        def index_prefix():
-            return redirect(prefix)
-
-    @app.route(prefix + '/<path:path>')
-    @requires_auth
-    def send_html(path):
-        return send_from_directory(os.path.join(base_dir, 'web'), path)
-
-    @app.route(prefix + '/')
-    @requires_auth
-    def index():
-        return render_template('index.html')
 
     @app.route(prefix + "/api/log/", methods=['GET', 'DELETE'])
     @requires_auth
@@ -516,7 +528,6 @@ def app_container():
                 sj = hostnames.get('sj')
                 dj = hostnames.get('dj')
                 sf = hostnames.get('sf')
-                pl = hostnames.get('pl')
                 ww = hostnames.get('ww')
                 nk = hostnames.get('nk')
                 by = hostnames.get('by')
@@ -527,11 +538,10 @@ def app_container():
                 sj = sj.replace("s", "S", 1).replace("j", "J", 1)
                 dj = dj.replace("d", "D", 1).replace("j", "J", 1)
                 sf = sf.replace("s", "S", 1).replace("f", "F", 1)
-                pl = pl.replace("p", "P", 1).replace("l", "L", 1)
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
-                bl = ' / '.join(list(filter(None, [fx, pl, ff, hw, ww, nk, by])))
+                bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 f = ' / '.join(list(filter(None, [ff, sf])))
                 sjbl = ' / '.join(list(filter(None, [s, bl])))
@@ -548,8 +558,6 @@ def app_container():
                     dj = "Nicht gesetzt!"
                 if not sf:
                     sf = "Nicht gesetzt!"
-                if not pl:
-                    pl = "Nicht gesetzt!"
                 if not ww:
                     ww = "Nicht gesetzt!"
                 if not nk:
@@ -575,7 +583,6 @@ def app_container():
                             "hw": hw,
                             "ff": ff,
                             "nk": nk,
-                            "pl": pl,
                             "ww": ww,
                             "bl": bl,
                             "s": s,
@@ -607,7 +614,6 @@ def app_container():
                                 "HW": check("HW_normal", db_status),
                                 "FF": check("FF_normal", db_status),
                                 "NK": check("NK_normal", db_status),
-                                "PL": check("PL_normal", db_status),
                                 "WW": check("WW_normal", db_status)
                             },
                             "flaresolverr": {
@@ -619,7 +625,6 @@ def app_container():
                                 "HW": check("HW_flaresolverr", db_status),
                                 "FF": check("FF_flaresolverr", db_status),
                                 "NK": check("NK_flaresolverr", db_status),
-                                "PL": check("PL_flaresolverr", db_status),
                                 "WW": check("WW_flaresolverr", db_status)
                             },
                             "flaresolverr_proxy": {
@@ -631,7 +636,6 @@ def app_container():
                                 "HW": check("HW_flaresolverr_proxy", db_status),
                                 "FF": check("FF_flaresolverr_proxy", db_status),
                                 "NK": check("NK_flaresolverr_proxy", db_status),
-                                "PL": check("PL_flaresolverr_proxy", db_status),
                                 "WW": check("WW_flaresolverr_proxy", db_status)
                             }
                         }
@@ -649,14 +653,14 @@ def app_container():
         if request.method == 'POST':
             try:
                 FeedDb('crawltimes').store("startnow", "True")
-                i = 3
+                i = 15
                 started = False
                 while i > 0:
                     if not FeedDb('crawltimes').retrieve("startnow"):
                         started = True
                         break
                     i -= 1
-                    time.sleep(5)
+                    time.sleep(1)
                 if started:
                     return "Success", 200
                 else:
@@ -879,19 +883,6 @@ def app_container():
                 links = decode_base64(b64_links)
                 links = links.split("\n")
                 if retry_decrypt(linkids, uuids, links):
-                    return "Success", 200
-            except:
-                pass
-            return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/api/myjd_update/", methods=['POST'])
-    @requires_auth
-    def myjd_update():
-        if request.method == 'POST':
-            try:
-                if update_jdownloader():
                     return "Success", 200
             except:
                 pass
@@ -1138,7 +1129,7 @@ if (title) {
 // @name            FeedCrawler Sponsors Helper (SJ/DJ)
 // @author          rix1337
 // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.5.1
+// @version         0.5.2
 // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
 // @match           https://""" + sj + """/*
 // @match           https://""" + dj + """/*
@@ -1182,16 +1173,13 @@ if (title && title !== "login") {
             $(".container").show();
             $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
             if (i > 24) {
-                if (sponsorsHelper) {
-                    const requiresLogin = $(".alert-warning").length;
-                    if (requiresLogin) {
-                        console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
-                        clearInterval(checkExist);
-                        window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
-                        window.close();
-                    }
+                const requiresLogin = $(".alert-warning").length;
+                if (requiresLogin) {
+                    console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
+                    clearInterval(checkExist);
+                    window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
+                    window.close();
                 }
-                console.log("hit")
                 clearInterval(checkExist);
             } else {
                 console.log("miss")
@@ -1373,15 +1361,6 @@ const cnlExists = setInterval(async function () {
 """, 200
             except:
                 return "Failed", 400
-        else:
-            return "Failed", 405
-
-    @app.route(prefix + "/sponsors_helper/", methods=['GET'])
-    def to_decrypt():
-        global helper_active
-        helper_active = True
-        if request.method == 'GET':
-            return render_template('helper.html')
         else:
             return "Failed", 405
 
