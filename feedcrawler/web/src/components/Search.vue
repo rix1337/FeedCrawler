@@ -29,8 +29,8 @@ function getResultsPages() {
 const search = ref('')
 const searching = ref(false)
 
-// ToDo getting results still broken
 function searchNow() {
+  results.value = false
   currentPageResults.value = 1
   let title = search.value
   searching.value = true
@@ -60,11 +60,13 @@ const currentResultsPage = computed(() => {
   if (currentPageResults.value > numberOfPagesResults.value) {
     currentPageResults.value = numberOfPagesResults.value
   }
+  console.log(results.value)
+  console.log(results.value.bl)
   return results.value.bl.slice((currentPageResults.value - 1) * pageSizeResults.value, currentPageResults.value * pageSizeResults.value)
 })
 
 function downloadBL(payload) {
-  toast.success("Starte Download...")
+  toast.info("Starte Download...")
   axios.post(store.state.prefix + 'api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
@@ -76,7 +78,7 @@ function downloadBL(payload) {
 }
 
 function downloadSJ(payload) {
-  toast.success("Starte Download...")
+  toast.info("Starte Download...")
   axios.post(store.state.prefix + 'api/download_sj/' + payload)
       .then(function () {
         console.log('Download gestartet!')
@@ -105,7 +107,7 @@ function downloadSJ(payload) {
       <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" type="submit"
               @click="searchNow()">
         <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
-        <i class="bi bi-search"></i> Suchen
+        <i v-if="!searching" class="bi bi-search"></i> Suchen
       </button>
       <button v-if="!search && (results.sj || results.bl)" class="btn btn-dark" type="submit"
               @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren

@@ -83,7 +83,6 @@ def get(title, bl_only=False, sj_only=False):
         by_results = []
         fx_results = []
         hw_results = []
-        pl_results = []
 
         for res in async_results:
             if check_is_site(res) == 'BY':
@@ -149,12 +148,12 @@ def get(title, bl_only=False, sj_only=False):
 
         rated = sorted(unrated, reverse=True)
 
-        results = {}
+        results = []
         i = 0
 
         for result in rated:
             res = {"payload": result[1], "title": result[2]}
-            results["result" + str(i + 1000)] = res
+            results.append(res)
             i += 1
         bl_final = results
 
@@ -174,14 +173,14 @@ def get(title, bl_only=False, sj_only=False):
         else:
             append = ""
         i = 0
-        results = {}
+        results = []
         for result in sj_results:
             r_title = result.text
             r_rating = fuzz.ratio(title.lower(), r_title)
             if r_rating > 40:
                 res = {"payload": encode_base64(result['href'] + "|" + r_title + "|" + str(special)),
                        "title": r_title + append}
-                results["result" + str(i + 1000)] = res
+                results.append(res)
                 i += 1
         sj_final = results
 
