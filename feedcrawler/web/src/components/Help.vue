@@ -326,7 +326,6 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
-                      <!-- ToDo refactor removed AngularJS filters to vue -->
                       <i class="bi bi-clock-fill text-warning"
                          v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
                     </li>
@@ -449,7 +448,6 @@ function showCaptchasHelp() {
                          class="bi bi-check-square-fill text-success"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
-                        <!-- ToDo refactor removed AngularJS filters to vue -->
                         <i class="bi bi-clock-fill text-warning"
                            v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
                     </li>

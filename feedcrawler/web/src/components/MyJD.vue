@@ -29,7 +29,6 @@ function getMyJD() {
       .then(function (res) {
         store.commit("setMyJDConnectionError", false)
         pageSizeMyJD.value = store.state.misc.pageSizeMyJD
-        getMyJDPages()
         myjd_state.value = res.data.downloader_state
         myjd_downloads.value = res.data.packages.downloader
         myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
@@ -123,6 +122,7 @@ function getMyJD() {
             //$("#myjd_collapse").removeClass('collapsed')
           }
         }
+        getMyJDPages()
       }, function () {
         myjd_grabbing.value = null
         myjd_downloads.value = null
@@ -138,9 +138,8 @@ function getMyJD() {
 const resLengthMyJD = ref(0)
 const pageSizeMyJD = ref(3)
 const currentPageMyJD = ref(1)
-const numberOfPagesMyJD = ref(0)
+const numberOfPagesMyJD = ref(1)
 
-// ToDo this is broken
 function getMyJDPages() {
   if (typeof myjd_packages.value !== 'undefined') {
     resLengthMyJD.value = myjd_packages.value.length
@@ -373,7 +372,7 @@ function showSponsorsHelp() {
           <div class="accordion-body">
             <div v-for="x in currentMyJDPage" class="myjd-items">
               <div class="myjd-downloads">
-                <div v-if="x.type=='online'" v-tooltip="'In der Downloadliste'" class="card bg-success">
+                <div v-if="x.type=='online'" class="card bg-success">
                   <div class="card-header">
                     <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                   </div>
@@ -406,8 +405,7 @@ function showSponsorsHelp() {
                   </ul>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                      <button v-tooltip="'Löschen'"
-                              class="btn btn-outline-danger"
+                      <button class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -417,7 +415,7 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-decrypted">
-                <div v-if="x.type=='decrypted'" v-tooltip="'Im Linksammler'" class="card bg-warning">
+                <div v-if="x.type=='decrypted'" class="card bg-warning">
                   <div class="card-header">
                     <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                   </div>
@@ -435,8 +433,7 @@ function showSponsorsHelp() {
                         Download
                         starten
                       </button>
-                      <button v-tooltip="'Löschen'"
-                              class="btn btn-outline-danger"
+                      <button class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -446,9 +443,9 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-failed">
-                <div v-if="x.type=='failed'" v-tooltip="'Fehler im Linksammler'" class="card bg-danger">
-                  <span>Entschlüsselung im JDownloader fehlgeschlagen. Paket wird in Kürze aus dem JDownloader zurück in den FeedCrawler überführt...</span>
-                  <button v-if="!cnl_active" v-tooltip="'Löschen'" class="btn btn-outline-danger"
+                <div v-if="x.type=='failed'" class="card bg-danger">
+                  <span>Entschlüsselung im JDownloader fehlgeschlagen.</span>
+                  <button v-if="!cnl_active" class="btn btn-outline-danger"
                           @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                     Löschen
                   </button>
@@ -456,7 +453,7 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-to-decrypt">
-                <div v-if="x.type=='to_decrypt'" v-tooltip="'CAPTCHA zu lösen'" class="card bg-danger">
+                <div v-if="x.type=='to_decrypt'" class="card bg-danger">
                   <div class="card-header">
                     <strong>{{ x[1].name }}</strong>
                   </div>
@@ -523,7 +520,7 @@ function showSponsorsHelp() {
                                     </span>
                     </li>
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
-                      <button v-if="!cnl_active" v-tooltip="'Löschen'" class="btn btn-outline-danger"
+                      <button v-if="!cnl_active" class="btn btn-outline-danger"
                               @click="internalRemove(x[1].name)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -533,7 +530,7 @@ function showSponsorsHelp() {
               </div>
 
               <div class="myjd-offline">
-                <div v-if="x.type=='offline'" v-tooltip="'Links offline'" class="card bg-danger">
+                <div v-if="x.type=='offline'" class="card bg-danger">
                   <div class="card-header">
                     <strong>{{ x.name }}</strong>
                   </div>
@@ -546,8 +543,7 @@ function showSponsorsHelp() {
                         Erneut
                         hinzufügen
                       </button>
-                      <button v-tooltip="'Löschen'"
-                              class="btn btn-outline-danger"
+                      <button class="btn btn-outline-danger"
                               @click="myJDremove(x.linkids, x.uuid)"><i class="bi bi-trash"></i>
                         Löschen
                       </button>
@@ -571,10 +567,8 @@ function showSponsorsHelp() {
               <p id="initial-loading">Verbinde mit My JDownloader...</p>
               <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
             </div>
-            <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login" class="myjd_connection_state">Fehler
-              bei
-              Verbindung mit My
-              JDownloader!
+            <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login" class="myjd_connection_state">
+              Fehler bei Verbindung mit My JDownloader!
             </div>
             <div v-if="myjd_state && (myjd_packages.length == 0)" id="myjd_no_packages"
                  class="myjd_connection_state">
