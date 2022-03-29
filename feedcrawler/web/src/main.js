@@ -2,7 +2,7 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-import Toast, {useToast} from "vue-toastification";
+import Toast, {TYPE, useToast} from "vue-toastification";
 import "vue-toastification/dist/index.css";
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
@@ -127,7 +127,7 @@ const store = createStore({
                     state.crawltimes = res.data.crawltimes
                 }, function () {
                     console.log('Konnte Laufzeiten nicht abrufen!')
-                    toast.error('Konnte Laufzeiten nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+                    toast.error('Konnte Laufzeiten nicht abrufen!')
                 })
         },
         getHostNames(state) {
@@ -138,7 +138,7 @@ const store = createStore({
                     state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
-                    toast.error('Konnte Hostnamen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+                    toast.error('Konnte Hostnamen nicht abrufen!')
                 })
         },
         getLists(state) {
@@ -147,7 +147,7 @@ const store = createStore({
                     state.lists = res.data.lists
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
-                    toast.error('Konnte Listen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+                    toast.error('Konnte Listen nicht abrufen!')
                 })
         },
         getSettings(state) {
@@ -158,7 +158,7 @@ const store = createStore({
                     state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
-                    toast.error('Konnte Einstellungen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+                    toast.error('Konnte Einstellungen nicht abrufen!')
                 })
         },
         setDocker(state, docker) {
@@ -195,6 +195,21 @@ app.use(router)
 app.use(Toast, {
     position: "top-center",
     draggable: false,
+    maxToasts: 3,
+    toastDefaults: {
+        [TYPE.ERROR]: {
+            icon: 'bi bi-exclamation-triangle',
+        },
+        [TYPE.WARNING]: {
+            icon: 'bi bi-exclamation-circle',
+        },
+        [TYPE.INFO]: {
+            icon: 'bi bi-info-circle',
+        },
+        [TYPE.SUCCESS]: {
+            icon: 'bi bi-check-circle-fill',
+        }
+    }
 })
 app.use(FloatingVue, {
     themes: {

@@ -48,7 +48,7 @@ function searchNow() {
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
-          toast.error('Konnte  ' + title + ' nicht suchen!', {icon: 'bi bi-exclamation-triangle'})
+          toast.error('Konnte  ' + title + ' nicht suchen!')
           results.value = false
           resLengthResults.value = 0
           searching.value = false
@@ -64,26 +64,26 @@ const currentResultsPage = computed(() => {
 })
 
 function downloadBL(payload) {
-  toast.success("Starte Download...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
-        toast.success('Download gestartet!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Download gestartet!')
       }, function () {
         console.log('Konnte Download nicht starten!')
-        toast.error('Konnte Download nicht starten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht starten!')
       })
 }
 
 function downloadSJ(payload) {
-  toast.success("Starte Download...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/download_sj/' + payload)
       .then(function () {
         console.log('Download gestartet!')
-        toast.success('Download gestartet!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Download gestartet!')
       }, function () {
         console.log('Konnte Download nicht starten!')
-        toast.error('Konnte Download nicht starten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht starten!')
       })
 }
 </script>

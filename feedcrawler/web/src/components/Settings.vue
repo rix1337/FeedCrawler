@@ -44,12 +44,12 @@ function saveSettings() {
   axios.post(store.state.prefix + 'api/settings/', store.state.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
-        toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!')
         store.commit("getSettings")
       }, function () {
         store.commit("getSettings")
         console.log('Konnte Einstellungen nicht speichern! Bitte die angegebenen Werte auf Richtigkeit prüfen.')
-        toast.error('Konnte Einstellungen nicht speichern!\nBitte die angegebenen Werte auf Richtigkeit prüfen.', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Einstellungen nicht speichern!\nBitte die angegebenen Werte auf Richtigkeit prüfen.')
       })
 }
 

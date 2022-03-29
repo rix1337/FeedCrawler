@@ -130,7 +130,7 @@ function getMyJD() {
         myjd_failed.value = null
         store.commit("setMyJDConnectionError", true)
         console.log('Konnte JDownloader nicht erreichen!')
-        toast.error('Konnte JDownloader nicht erreichen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
@@ -168,7 +168,7 @@ function myJDstart() {
         console.log('Download gestartet!')
       }, function () {
         console.log('Konnte Downloads nicht starten!')
-        toast.error('Konnte Downloads nicht starten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Downloads nicht starten!')
       })
 }
 
@@ -186,7 +186,7 @@ function myJDpause(pause) {
         }
       }, function () {
         console.log('Konnte Downloads nicht fortsetzen!')
-        toast.error('Konnte Downloads nicht fortsetzen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Downloads nicht fortsetzen!')
       })
 }
 
@@ -199,7 +199,7 @@ function myJDstop() {
         console.log('Download angehalten!')
       }, function () {
         console.log('Konnte Downloads nicht anhalten!')
-        toast.error('Konnte Downloads nicht anhalten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Downloads nicht anhalten!')
       })
 }
 
@@ -217,23 +217,23 @@ function getMyJDstate() {
         //$('#myjd_update').removeClass('blinking').removeClass('isDisabled')
       }, function () {
         console.log('Konnte JDownloader nicht erreichen!')
-        toast.error('Konnte JDownloader nicht erreichen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
 function myJDmove(linkids, uuid) {
-  toast.success("Starte Download...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Starte Download...")
   axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
         getMyJD()
       }, function () {
         console.log('Konnte Download nicht starten!')
-        toast.error('Konnte Download nicht starten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht starten!')
       })
 }
 
 function myJDremove(linkids, uuid) {
-  toast.success("Lösche Download...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Lösche Download...")
   axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
@@ -248,12 +248,12 @@ function myJDremove(linkids, uuid) {
         getMyJD()
       }, function () {
         console.log('Konnte Download nicht löschen!')
-        toast.error('Konnte Download nicht löschen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht löschen!')
       })
 }
 
 function internalRemove(name) {
-  toast.success("Lösche Download...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Lösche Download...")
   axios.post(store.state.prefix + 'api/internal_remove/' + name)
       .then(function () {
         if (to_decrypt.value) {
@@ -268,12 +268,12 @@ function internalRemove(name) {
         getMyJD()
       }, function () {
         console.log('Konnte Download nicht löschen!')
-        toast.error('Konnte Download nicht löschen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht löschen!')
       })
 }
 
 function myJDretry(linkids, uuid, links) {
-  toast.success("Füge Download erneut hinzu...", {icon: 'bi bi-check-circle-fill'})
+  toast.success("Füge Download erneut hinzu...")
   links = btoa(links)
   axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
@@ -289,7 +289,7 @@ function myJDretry(linkids, uuid, links) {
         getMyJD()
       }, function () {
         console.log('Konnte Download nicht erneut hinzufügen!')
-        toast.error('Konnte Download nicht erneut hinzufügen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Download nicht erneut hinzufügen!')
       })
 }
 
@@ -299,7 +299,6 @@ const time = ref(0)
 function internalCnl(name, password) {
   toast.warning("Warte auf Click'n'Load...", {
     timeout: 60000,
-    icon: 'bi bi-exclamation-circle',
     closeOnClick: false,
     closeButton: false,
     pauseOnFocusLoss: false,
@@ -323,7 +322,7 @@ function internalCnl(name, password) {
         cnl_active.value = false
         time.value = 0
       }).catch(function () {
-    toast.error("Click'n'Load nicht durchgeführt!", {icon: 'bi bi-exclamation-triangle'})
+    toast.error("Click'n'Load nicht durchgeführt!")
     cnl_active.value = false
     time.value = 0
   })

@@ -51,13 +51,12 @@ function getVersion() {
           console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
           toast.info("Update steht bereit! Weitere Informationen unter:\nhttps://github.com/rix1337/FeedCrawler/releases/latest", {
             timeout: 15000,
-            icon: 'bi bi-info-circle',
             onClick: openReleaseNotes,
           })
         }
       }, function () {
         console.log('Konnte Version nicht abrufen!')
-        toast.error('Konnte Version nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Version nicht abrufen!')
       })
 }
 
@@ -94,17 +93,17 @@ const currentDuration = computed(() => {
 })
 
 function startNow() {
-  toast.info('Starte Suchlauf...', {icon: 'bi bi-info-circle'})
+  toast.info('Starte Suchlauf...')
   store.commit('setStarting', true)
   axios.post(store.state.prefix + 'api/start_now/')
       .then(function () {
         store.commit('setStarting', false)
-        toast.success('Suchlauf gestartet!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Suchlauf gestartet!')
         console.log('Suchlauf gestartet!')
       }, function () {
         store.commit('setStarting', false)
         console.log('Konnte Suchlauf nicht starten!')
-        toast.error('Konnte Suchlauf nicht starten!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Suchlauf nicht starten!')
       })
 }
 </script>

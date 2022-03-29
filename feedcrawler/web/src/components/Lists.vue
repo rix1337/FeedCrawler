@@ -13,7 +13,7 @@ function getLists() {
         store.commit('getLists', res.data.lists)
       }, function () {
         console.log('Konnte Listen nicht abrufen!')
-        toast.error('Konnte Listen nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Listen nicht abrufen!')
       })
 }
 
@@ -22,11 +22,11 @@ function saveLists() {
   axios.post(store.state.prefix + 'api/lists/', store.state.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
-        toast.success('Listen gespeichert!\nÄnderungen werden im nächsten Suchlauf berücksichtigt.', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Listen gespeichert!\nÄnderungen werden im nächsten Suchlauf berücksichtigt.')
         getLists()
       }, function () {
         console.log('Konnte Listen nicht speichern!')
-        toast.error('Konnte Listen nicht speichern!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Listen nicht speichern!')
       })
 }
 

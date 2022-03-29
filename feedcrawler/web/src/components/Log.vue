@@ -23,7 +23,7 @@ function getLog() {
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
-        toast.error('Konnte Log nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Log nicht abrufen!')
       })
 }
 
@@ -84,11 +84,11 @@ function deleteLog() {
   axios.delete(store.state.prefix + 'api/log/')
       .then(function () {
         console.log('Log geleert!')
-        toast.success('Log geleert!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Log geleert!')
         getLog()
       }, function () {
         console.log('Konnte Log nicht leeren!')
-        toast.error('Konnte Log nicht leeren!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Log nicht leeren!')
       })
 }
 
@@ -97,11 +97,11 @@ function deleteLogRow(title) {
   axios.delete(store.state.prefix + 'api/log_entry/' + title_b64)
       .then(function () {
         console.log('Logeintrag ' + title + ' gelöscht!')
-        toast.success('Logeintrag\n' + title + '\ngelöscht!', {icon: 'bi bi-check-circle-fill'})
+        toast.success('Logeintrag\n' + title + '\ngelöscht!')
         getLog()
       }, function () {
         console.log('Konnte Logeintrag ' + title + ' nicht löschen!')
-        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte Logeintrag\n' + title + '\n nicht löschen!')
       })
 }
 

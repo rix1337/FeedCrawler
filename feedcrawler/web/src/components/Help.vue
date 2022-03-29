@@ -24,7 +24,7 @@ function getBlockedSites() {
         blocked_sites.value = res.data.blocked_sites
       }, function () {
         console.log('Konnte blockierte Seiten nicht abrufen!')
-        toast.error('Konnte blockierte Seiten nicht abrufen!', {icon: 'bi bi-exclamation-triangle'})
+        toast.error('Konnte blockierte Seiten nicht abrufen!')
       })
 }
 
