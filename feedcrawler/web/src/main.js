@@ -196,6 +196,7 @@ app.use(Toast, {
     position: "top-center",
     draggable: false,
     maxToasts: 3,
+    bodyClassName: ["toast-body"],
     toastDefaults: {
         [TYPE.ERROR]: {
             icon: 'bi bi-exclamation-triangle',
