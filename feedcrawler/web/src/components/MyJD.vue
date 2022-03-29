@@ -158,9 +158,10 @@ const currentMyJDPage = computed(() => {
   return myjd_packages.value.slice((currentPageMyJD.value - 1) * pageSizeMyJD.value, currentPageMyJD.value * pageSizeMyJD.value)
 })
 
+const myjd_starting = ref(false)
+
 function myJDstart() {
-  // ToDo migrate to vue
-  //$('#myjd_start').addClass('blinking').addClass('isDisabled')
+  myjd_starting.value = true
   axios.post(store.state.prefix + 'api/myjd_start/')
       .then(function () {
         getMyJDstate()
@@ -169,12 +170,13 @@ function myJDstart() {
         console.log('Konnte Downloads nicht starten!')
         toast.error('Konnte Downloads nicht starten!')
       })
+  myjd_starting.value = false
 }
 
+const myjd_pausing = ref(false)
+
 function myJDpause(pause) {
-  // ToDo migrate to vue
-  //$('#myjd_pause').addClass('blinking').addClass('isDisabled')
-  //$('#myjd_unpause').addClass('blinking').addClass('isDisabled')
+  myjd_pausing.value = true
   axios.post(store.state.prefix + 'api/myjd_pause/' + pause)
       .then(function () {
         getMyJDstate()
@@ -187,11 +189,13 @@ function myJDpause(pause) {
         console.log('Konnte Downloads nicht fortsetzen!')
         toast.error('Konnte Downloads nicht fortsetzen!')
       })
+  myjd_pausing.value = false
 }
 
+const myjd_stopping = ref(false)
+
 function myJDstop() {
-  // ToDo migrate to vue
-  //$('#myjd_stop').addClass('blinking').addClass('isDisabled')
+  myjd_stopping.value = true
   axios.post(store.state.prefix + 'api/myjd_stop/')
       .then(function () {
         getMyJDstate()
@@ -200,6 +204,7 @@ function myJDstop() {
         console.log('Konnte Downloads nicht anhalten!')
         toast.error('Konnte Downloads nicht anhalten!')
       })
+  myjd_stopping.value = false
 }
 
 function getMyJDstate() {
@@ -576,13 +581,17 @@ function showSponsorsHelp() {
             </div>
 
             <div v-if="myjd_downloads" id="myjd_state">
-              <span v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start" @click="myJDstart()">
+              <span v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start"
+                    :class="{ blinking: myjd_starting, isDisabled: myjd_starting }" @click="myJDstart()">
                 <i v-tooltip="'Downloads starten'" class="bi bi-play"></i></span>
-              <span v-if="myjd_state=='RUNNING'" id="myjd_pause" @click="myJDpause(true)"><i
+              <span v-if="myjd_state=='RUNNING'" id="myjd_pause"
+                    :class="{ blinking: myjd_pausing, isDisabled: myjd_pausing }" @click="myJDpause(true)"><i
                   v-tooltip="'Downloads pausieren'" class="bi bi-pause"></i></span>
-              <span v-if="myjd_state=='PAUSE'" id="myjd_unpause" @click="myJDpause(false)"><i
+              <span v-if="myjd_state=='PAUSE'" id="myjd_unpause"
+                    :class="{ blinking: myjd_pausing, isDisabled: myjd_pausing }" @click="myJDpause(false)"><i
                   v-tooltip="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></span>
-              <span v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop" @click="myJDstop()"><i
+              <span v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop"
+                    :class="{ blinking: myjd_stopping, isDisabled: myjd_stopping }" @click="myJDstop()"><i
                   v-tooltip="'Downloads anhalten'"
                   class="bi bi-stop"></i></span>
             </div>
