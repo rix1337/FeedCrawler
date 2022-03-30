@@ -35,6 +35,21 @@ function showCaptchasHelp() {
   sessionStorage.setItem('fromNav', '')
   window.location.href = "#collapseOneZero"
 }
+
+function openCaptchaLink() {
+  window.open('http://getcaptchasolution.com/zuoo67f5cq', '_blank')
+}
+
+function openHosterLink() {
+  window.open('http://linksnappy.com/?ref=397097', '_blank')
+}
+
+function getTimestamp(ms) {
+  const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s)
+  const d = new Date(ms)
+
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
 </script>
 
 
@@ -90,9 +105,9 @@ function showCaptchasHelp() {
           <div id="collapseOneOne" aria-labelledby="headingOneOne" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a :href="store.state.prefix + '/redirect_user/captcha'" class="btn btn-outline-success" target="_blank">
+              <button @click="openCaptchaLink" class="btn btn-outline-success">
                 Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -107,10 +122,9 @@ function showCaptchasHelp() {
           <div id="collapseOneTwo" aria-labelledby="headingOneTwo" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a :href="store.state.prefix + '/redirect_user/multihoster'" class="btn btn-outline-success"
-                 target="_blank">
+              <button @click="openHosterLink" class="btn btn-outline-success">
                 Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -327,7 +341,7 @@ function showCaptchasHelp() {
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
                       <i class="bi bi-clock-fill text-warning"
-                         v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
+                         v-tooltip="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_f_run)"></i></span>
                     </li>
                     <li v-if="store.state.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
                         store.state.hostnames.nk
@@ -449,7 +463,7 @@ function showCaptchasHelp() {
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
                         <i class="bi bi-clock-fill text-warning"
-                           v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
+                           v-tooltip="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_f_run)"></i></span>
                     </li>
                   </ul>
                 </div>

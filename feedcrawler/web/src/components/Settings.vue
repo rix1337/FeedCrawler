@@ -1,7 +1,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import {ref} from 'vue'
-import {useToast} from "vue-toastification";
+import {useToast} from "vue-toastification"
 import axios from 'axios'
 
 const store = useStore()
@@ -111,13 +111,6 @@ const year = ref((new Date).getFullYear())
                 <input v-model="store.state.settings.crawljobs.subdir" class="form-check-input"
 
                        v-tooltip="'Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!'"
-                       type="checkbox">
-              </label>
-              <h5>Bereich zuklappen</h5>
-              <label class="form-check form-switch">
-                <input v-model="store.state.settings.general.closed_myjd_tab" class="form-check-input"
-
-                       v-tooltip="'Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des FeedCrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht.'"
                        type="checkbox">
               </label>
               <h5>Pakete pro Seite</h5>

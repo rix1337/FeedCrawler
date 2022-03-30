@@ -2,8 +2,8 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-import Toast, {TYPE, useToast} from "vue-toastification";
-import "vue-toastification/dist/index.css";
+import Toast, {TYPE, useToast} from "vue-toastification"
+import "vue-toastification/dist/index.css"
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 
@@ -41,8 +41,7 @@ const store = createStore({
                     myjd_user: '',
                     myjd_pass: '',
                     myjd_device: '',
-                    closed_myjd_tab: false,
-                    packages_per_myjd_page: 10,
+                    packages_per_myjd_page: 3,
                     port: 9090,
                 },
                 mb: {

@@ -23,7 +23,6 @@ class CrawlerConfig(object):
             ("flaresolverr_proxy", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
-            ("closed_myjd_tab", "bool", "False"),
             ("one_mirror_policy", "bool", "False"),
             ("packages_per_myjd_page", "int", "3")
         ],

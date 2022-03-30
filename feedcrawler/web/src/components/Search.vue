@@ -1,7 +1,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import {computed, ref} from 'vue'
-import {useToast} from "vue-toastification";
+import {useToast} from "vue-toastification"
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
 

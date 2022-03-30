@@ -1,16 +1,19 @@
 <script setup>
 import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
+import {useRoute} from "vue-router"
 import axios from 'axios'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import "bootstrap"
 
+
+const route = useRoute()
 const store = useStore()
 
 onMounted(() => {
-  setContext()
+  getContext()
   updateToDecrypt()
   setInterval(updateToDecrypt, 30 * 1000)
 })
@@ -22,19 +25,13 @@ function updateToDecrypt() {
   getToDecrypt()
 }
 
-const antigate_available_and_active = ref(false)
+const context = ref('')
 
-let context = ref('')
-
-function setContext() {
-  // this enables the use of path prefix in production (else the sponsors_helper will only work in vue dev)
-  let get_context_from_window = window.location.pathname.split("/").slice(-1)[0]
-  if (get_context_from_window.length > 0) {
-    context.value = get_context_from_window
-  } else {
-    context.value = '.'
-  }
+function getContext() {
+  context.value = route.path.split('/').slice(-1)[0]
 }
+
+const antigate_available_and_active = ref(false)
 
 function getAntiGate() {
   axios.get("http://127.0.0.1:9700/status")

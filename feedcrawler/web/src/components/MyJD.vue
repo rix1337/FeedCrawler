@@ -1,18 +1,27 @@
 <script setup>
 import {useStore} from 'vuex'
 import {computed, onMounted, ref} from 'vue'
+import {useRoute} from "vue-router"
 import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
 
+const route = useRoute()
 const store = useStore()
 const toast = useToast()
 
 onMounted(() => {
+  getContext()
   getMyJD()
   setInterval(getMyJD, 5 * 1000)
 })
+
+const context = ref('')
+
+function getContext() {
+  context.value = route.path.split('/').slice(-1)[0]
+}
 
 const myjd_state = ref(false)
 const myjd_packages = ref([])
@@ -23,8 +32,6 @@ const myjd_failed = ref([])
 const myjd_grabbing = ref(false)
 const to_decrypt = ref([])
 const update_ready = ref(false)
-
-const show_myjd_collapse = ref(false)
 
 function getMyJD() {
   axios.get(store.state.prefix + 'api/myjd/')
@@ -67,11 +74,6 @@ function getMyJD() {
           }
         }
         myjd_grabbing.value = res.data.grabber_collecting
-        if (myjd_grabbing.value) {
-          if (!myjd_collapse_manual.value && (typeof store.state.settings.general !== 'undefined' && !store.state.settings.general.closed_myjd_tab.value)) {
-            show_myjd_collapse.value = true
-          }
-        }
         update_ready.value = res.data.update_ready
 
         myjd_packages.value = []
@@ -108,17 +110,8 @@ function getMyJD() {
             myjd_packages.value.push(p)
           }
         }
-
-        if (myjd_packages.value.length === 0 || (typeof store.state.settings.general !== 'undefined' && typeof store.state.settings.general.closed_myjd_tab.value !== 'undefined')) {
-          if (!myjd_collapse_manual.value) {
-            show_myjd_collapse.value = false
-          }
-        } else {
-          if (!myjd_collapse_manual.value && (typeof store.state.settings.general !== 'undefined' && typeof store.state.settings.general.closed_myjd_tab.value !== 'undefined')) {
-            show_myjd_collapse.value = true
-          }
-        }
         getMyJDPages()
+        openMyJDTab()
       }, function () {
         myjd_grabbing.value = null
         myjd_downloads.value = null
@@ -144,6 +137,21 @@ function getMyJDPages() {
     } else {
       numberOfPagesMyJD.value = 0
     }
+  }
+}
+
+const myjd_collapse_manual = ref(false)
+
+function manualCollapse() {
+  myjd_collapse_manual.value = true
+}
+
+function openMyJDTab() {
+  if (!myjd_collapse_manual.value && resLengthMyJD.value > 0) {
+    new Collapse(document.getElementById('collapseOne'), {
+      toggle: true
+    })
+    myjd_collapse_manual.value = true
   }
 }
 
@@ -334,12 +342,6 @@ function countDown() {
   }
 }
 
-const myjd_collapse_manual = ref(false)
-
-function manualCollapse() {
-  myjd_collapse_manual.value = true
-}
-
 function showSponsorsHelp() {
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
   offcanvas.show()
@@ -359,15 +361,13 @@ function showSponsorsHelp() {
       <div class="accordion-item myjdheader">
         <h2 id="headingOne" class="accordion-header">
           <button id="myjd_collapse" aria-controls="collapseOne" aria-expanded="false"
-                  :class="{ collapsed: !show_myjd_collapse }"
                   class="accordion-button"
                   data-bs-target="#collapseOne"
-                  data-bs-toggle="collapse" type="button" @click="manualCollapse()">
+                  data-bs-toggle="collapse" type="button" @click="manualCollapse">
             Details
           </button>
         </h2>
         <div id="collapseOne" aria-labelledby="headingOne" class="accordion-collapse collapse"
-             :class="{ show: show_myjd_collapse }"
              data-bs-parent="#accordionMyJD">
           <div class="accordion-body">
             <div v-for="x in currentMyJDPage" class="myjd-items">
@@ -469,19 +469,19 @@ function showSponsorsHelp() {
                       <span
                           v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
+                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
+                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                       <span
                           v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_sponsors_helper_fc.user.js"
+                                        <a :href="store.state.prefix +context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                       <a v-if="!myjd_grabbing && !cnl_active"
@@ -496,13 +496,13 @@ function showSponsorsHelp() {
                       <span
                           v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
+                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a href="./sponsors_helper/feedcrawler_helper_sj.user.js"
+                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
                       <span v-if="!store.state.misc.helper_active"><br>
