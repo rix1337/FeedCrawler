@@ -43,6 +43,13 @@ function openCaptchaLink() {
 function openHosterLink() {
   window.open('http://linksnappy.com/?ref=397097', '_blank')
 }
+
+function getTimestamp(ms) {
+  const pad = (n, s = 2) => (`${new Array(s).fill(0)}${n}`).slice(-s)
+  const d = new Date(ms)
+
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`
+}
 </script>
 
 
@@ -334,7 +341,7 @@ function openHosterLink() {
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
                       <i class="bi bi-clock-fill text-warning"
-                         v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
+                         v-tooltip="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_f_run)"></i></span>
                     </li>
                     <li v-if="store.state.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
                         store.state.hostnames.nk
@@ -456,7 +463,7 @@ function openHosterLink() {
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
                         <i class="bi bi-clock-fill text-warning"
-                           v-tooltip="'Keine FF-Suchläufe bis: ' + store.state.crawltimes.next_f_run"></i></span>
+                           v-tooltip="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_f_run)"></i></span>
                     </li>
                   </ul>
                 </div>
