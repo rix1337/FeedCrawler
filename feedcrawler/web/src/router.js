@@ -6,14 +6,7 @@ export default createRouter({
     history: createWebHistory(),
     routes: [
         {
-            path: '/',
-            component: Main,
-        },
-        {
-            path: '/sponsors_helper',
-            component: Helper,
-        }, {
-            path: '/:pathMatch(.*)*', // required for path prefixing
+            path: ':pathMatch(.*)*', // required for path prefixing
             component: Main
         }, {
             path: '/:pathMatch(.*/sponsors_helper.*)*', // required for path prefixing
