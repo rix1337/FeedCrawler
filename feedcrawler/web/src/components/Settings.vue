@@ -1,7 +1,7 @@
 <script setup>
 import {useStore} from 'vuex'
 import {ref} from 'vue'
-import {useToast} from "vue-toastification";
+import {useToast} from "vue-toastification"
 import axios from 'axios'
 
 const store = useStore()

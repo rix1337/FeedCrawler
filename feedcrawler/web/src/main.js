@@ -2,8 +2,8 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-import Toast, {TYPE, useToast} from "vue-toastification";
-import "vue-toastification/dist/index.css";
+import Toast, {TYPE, useToast} from "vue-toastification"
+import "vue-toastification/dist/index.css"
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css'
 

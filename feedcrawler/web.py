@@ -1049,21 +1049,6 @@ def app_container():
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/redirect_user/<target>", methods=['GET'])
-    @requires_auth
-    def redirect_user(target):
-        if request.method == 'GET':
-            try:
-                if target == "captcha":
-                    return redirect("http://getcaptchasolution.com/zuoo67f5cq", code=302)
-                elif target == "multihoster":
-                    return redirect("http://linksnappy.com/?ref=397097", code=302)
-            except:
-                pass
-            return "Failed", 400
-        else:
-            return "Failed", 405
-
     @app.route(prefix + "/sponsors_helper/feedcrawler_helper_sj.user.js", methods=['GET'])
     @requires_auth
     def feedcrawler_helper_sj():

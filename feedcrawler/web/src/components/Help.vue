@@ -35,6 +35,14 @@ function showCaptchasHelp() {
   sessionStorage.setItem('fromNav', '')
   window.location.href = "#collapseOneZero"
 }
+
+function openCaptchaLink() {
+  window.open('http://getcaptchasolution.com/zuoo67f5cq', '_blank')
+}
+
+function openHosterLink() {
+  window.open('http://linksnappy.com/?ref=397097', '_blank')
+}
 </script>
 
 
@@ -90,9 +98,9 @@ function showCaptchasHelp() {
           <div id="collapseOneOne" aria-labelledby="headingOneOne" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a :href="store.state.prefix + '/redirect_user/captcha'" class="btn btn-outline-success" target="_blank">
+              <button @click="openCaptchaLink" class="btn btn-outline-success">
                 Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
-              </a>
+              </button>
             </div>
           </div>
         </div>
@@ -107,10 +115,9 @@ function showCaptchasHelp() {
           <div id="collapseOneTwo" aria-labelledby="headingOneTwo" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
-              <a :href="store.state.prefix + '/redirect_user/multihoster'" class="btn btn-outline-success"
-                 target="_blank">
+              <button @click="openHosterLink" class="btn btn-outline-success">
                 Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
-              </a>
+              </button>
             </div>
           </div>
         </div>
