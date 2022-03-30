@@ -25,13 +25,13 @@ function updateToDecrypt() {
   getToDecrypt()
 }
 
-const antigate_available_and_active = ref(false)
-
 const context = ref('')
 
 function getContext() {
   context.value = route.path.split('/').slice(-1)[0]
 }
+
+const antigate_available_and_active = ref(false)
 
 function getAntiGate() {
   axios.get("http://127.0.0.1:9700/status")
