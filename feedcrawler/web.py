@@ -237,7 +237,6 @@ def app_container():
                                 "flaresolverr_proxy": general_conf.get("flaresolverr_proxy"),
                                 "english": general_conf.get("english"),
                                 "surround": general_conf.get("surround"),
-                                "closed_myjd_tab": general_conf.get("closed_myjd_tab"),
                                 "one_mirror_policy": general_conf.get("one_mirror_policy"),
                                 "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
                             },
@@ -359,7 +358,6 @@ def app_container():
                 section.save("flaresolverr_proxy", to_str(data['general']['flaresolverr_proxy']))
                 section.save("english", to_str(data['general']['english']))
                 section.save("surround", to_str(data['general']['surround']))
-                section.save("closed_myjd_tab", to_str(data['general']['closed_myjd_tab']))
                 section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
 

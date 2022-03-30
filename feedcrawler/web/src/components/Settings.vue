@@ -113,13 +113,6 @@ const year = ref((new Date).getFullYear())
                        v-tooltip="'Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!'"
                        type="checkbox">
               </label>
-              <h5>Bereich zuklappen</h5>
-              <label class="form-check form-switch">
-                <input v-model="store.state.settings.general.closed_myjd_tab" class="form-check-input"
-
-                       v-tooltip="'Wenn aktiviert, bleibt der MyJDownloader-Tab beim Aufruf des FeedCrawlers zunächst geschlossen, egal ob Pakete vorhanden sind, oder nicht.'"
-                       type="checkbox">
-              </label>
               <h5>Pakete pro Seite</h5>
               <input v-model="store.state.settings.general.packages_per_myjd_page" class="number form-control"
                      v-tooltip="'Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert.'"

@@ -10,7 +10,9 @@
     - Verhindere vertikales Scrollen im Log
     - Redundanzen im Vue-Router entfernt
     - FF-Zeitstempel in der Hilfe werden menschenlesbar ausgegeben.
-    - Affiliate-Links funktionieren wieder
+    - Links für Tampermonkey-Scripte korrigiert
+    - Affiliate-Links korrigiert
+    - Option zum geschlossen halten des My JDownloader Tabs aus Performancegründen entfernt
 - **13.0.0** Migration des AngularJS Frontends zu [Vue.js 3](https://vuejs.org/)
     - AngularJS ist seit Ende 2021 [End-of-Life](https://docs.angularjs.org/misc/version-support-status) und wird nicht
       mehr aktiv gepflegt.
@@ -29,6 +31,8 @@
       Wortmeldung im Gitter.
 - **13.0.0** Fix CVE-2022-24761 (HTTP Request Smuggling in waitress)
 - **13.0.0** PL entfernt
+- **13.0.0** Das offizielle [Docker-Image](https://registry.hub.docker.com/r/rix1337/docker-feedcrawler) nutzt jetzt
+  Python 3.9
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
 

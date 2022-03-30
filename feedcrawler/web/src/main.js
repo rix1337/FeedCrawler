@@ -41,8 +41,7 @@ const store = createStore({
                     myjd_user: '',
                     myjd_pass: '',
                     myjd_device: '',
-                    closed_myjd_tab: false,
-                    packages_per_myjd_page: 10,
+                    packages_per_myjd_page: 3,
                     port: 9090,
                 },
                 mb: {
