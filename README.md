@@ -49,18 +49,15 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 
 ```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
+### [Docker Image](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 
-### Docker Image
-
-* Offizielles Repo im Docker Hub: [docker-feedcrawler](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 * Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
-  sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen. Beim (Neu-)Start des
-  Containers wird automatisch die neueste Version heruntergeladen. Wird ein neues Image im Docker Hub bereitgestellt,
-  sollte dennoch auf dieses aktualisiert werden!
+  sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen.
+* Bei jedem Release wird ein getaggtes Image erstellt. Damit kann man auf der Wunschversion verbleiben oder im Falle
+  eines Bugs zu einer stabilen Version zurück kehren.
+* Um immer auf dem aktuellen Stand zu sein, einfach das mit `latest` getaggte Image nutzen.
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
   werden.
-* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
-  Cloudflare-Blockaden zu umgehen (optional)
 
 ### Windows Exe
 
@@ -68,8 +65,6 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
   Version des FeedCrawlers beigefügt.
 * Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
-* Ein [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 muss lokal verfügbar sein um
-  Cloudflare-Blockaden zu umgehen (optional)
 
 ### Hostnamen festlegen
 
