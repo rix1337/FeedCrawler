@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.2** Fehlerbehebung in der Ombi-Anbindung #600 (Danke @jankete)
 - **13.0.1** Detailverbesserungen
     - Verhindere vertikales Scrollen im Log
     - Redundanzen im Vue-Router entfernt

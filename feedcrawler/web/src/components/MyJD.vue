@@ -361,7 +361,7 @@ function showSponsorsHelp() {
       <div class="accordion-item myjdheader">
         <h2 id="headingOne" class="accordion-header">
           <button id="myjd_collapse" aria-controls="collapseOne" aria-expanded="false"
-                  class="accordion-button"
+                  class="accordion-button collapsed"
                   data-bs-target="#collapseOne"
                   data-bs-toggle="collapse" type="button" @click="manualCollapse">
             Details
