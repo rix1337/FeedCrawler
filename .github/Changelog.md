@@ -6,7 +6,8 @@
 
 ### Changelog FeedCrawler:
 
-- **13.0.4** Weitere Fehlerbehebungen in der Ombi-Anbindung
+- **13.0.4** Fehlerbehebungen in der SJ-Websuche-Anbindung
+- **13.0.4** Weitere Fehlerbehebungen in der Ombi-Anbindung (#600)
 - **13.0.3** Fehlerbehebung im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper),
     wenn ein Prefix für das Web-Interface genutzt wird.
 - **13.0.2** Fehlerbehebung in der Ombi-Anbindung #600 (Danke @jankete)

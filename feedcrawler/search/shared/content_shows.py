@@ -56,7 +56,10 @@ def get_best_result(title):
 
 
 def valid_release(title, release):
-    return title.lower() in release.lower()
+    unified_title = re.sub(r'[^a-zA-Z0-9\s\-\.]', '', title).lower().replace(" ", ".")
+    unified_release = re.sub(r'[^a-zA-Z0-9\s\-\.]', '', release).lower().replace(" ", ".")
+    valid = unified_title in unified_release
+    return valid
 
 
 def download(payload):
