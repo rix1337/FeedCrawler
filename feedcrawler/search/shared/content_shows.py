@@ -33,7 +33,7 @@ def get_best_result(title):
         score = fuzz.ratio(title, r)
         if score > best_score:
             best_score = score
-            best_match = title
+            best_match = r
             best_payload = payload
 
     try:
