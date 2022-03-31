@@ -28,22 +28,13 @@ def get_best_result(title):
         bl_results = get(title, bl_only=True)[0]
     except:
         return False
-    results = []
-    i = len(bl_results)
 
-    j = 0
-    while i > 0:
-        try:
-            q = "result" + str(j + 1000)
-            results.append(bl_results.get(q).get('title'))
-        except:
-            pass
-        i -= 1
-        j += 1
     best_score = 0
-    best_match = 0
-    for r in results:
-        r = re.sub(r'\(.*\)', '', r).strip()
+    best_match = False
+    best_payload = False
+    for r in bl_results:
+        payload = r.get('payload')
+        r = re.sub(r'\(.*\)', '', r.get('title')).strip()
         r = r.replace(".", " ")
         without_year = re.sub(
             r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*)(|.)\d{4}(|.)(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
@@ -54,19 +45,15 @@ def get_best_result(title):
         score = fuzz.ratio(title, without_year) + fuzz.ratio(title, with_year)
         if score > best_score:
             best_score = score
-            best_match = i + 1000
-        i += 1
-    best_match = 'result' + str(best_match)
-    best_result = bl_results.get(best_match)
-    if best_result:
-        best_title = best_result.get('title')
-        if not re.match(r"^" + title.replace(" ", ".") + r".*$", best_title, re.IGNORECASE):
-            best_title = False
-        best_payload = best_result.get('payload')
-    else:
-        best_title = None
-        best_payload = None
-    if not best_title:
+            best_match = title
+            best_payload = payload
+
+    try:
+        if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):
+            best_match = False
+    except:
+        best_match = False
+    if not best_match or not best_payload:
         internal.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
@@ -75,7 +62,7 @@ def get_best_result(title):
         if title not in cont:
             ListDb(liste).store(title)
         return False
-    if not is_retail(best_title, True):
+    if not is_retail(best_match, True):
         internal.logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
@@ -85,7 +72,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return best_payload
     else:
-        internal.logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+        internal.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
         return best_payload
 
 

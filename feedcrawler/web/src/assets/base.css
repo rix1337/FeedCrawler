@@ -14,7 +14,7 @@ body {
 }
 
 .log {
-    height: 290px;
+    height: 300px;
     overflow: auto;
     resize: none;
     color: black;

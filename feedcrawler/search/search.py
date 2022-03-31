@@ -43,8 +43,8 @@ def get(title, bl_only=False, sj_only=False):
     else:
         special = None
 
-    bl_final = {}
-    sj_final = {}
+    bl_final = []
+    sj_final = []
 
     if not sj_only:
         mb_query = sanitize(title).replace(" ", "+")

@@ -23,37 +23,26 @@ def get_best_result(title):
         sj_results = get(title, sj_only=True)[1]
     except:
         return False
-    results = []
-    i = len(sj_results)
 
-    j = 0
-    while i > 0:
-        try:
-            q = "result" + str(j + 1000)
-            results.append(sj_results.get(q).get('title'))
-        except:
-            pass
-        i -= 1
-        j += 1
     best_score = 0
-    best_match = 0
-    for r in results:
-        r = re.sub(r"\s\(.*\)", "", r)
+    best_match = False
+    best_payload = False
+    for r in sj_results:
+        payload = r.get('payload')
+        r = re.sub(r"\s\(.*\)", "", r.get('title')).strip()
         score = fuzz.ratio(title, r)
         if score > best_score:
             best_score = score
-            best_match = i + 1000
-        i += 1 + 1000
-    best_match = 'result' + str(best_match)
+            best_match = title
+            best_payload = payload
+
     try:
-        best_title = sj_results.get(best_match).get('title')
-        if not re.match(r"^" + title.replace(" ", ".") + r".*$", best_title, re.IGNORECASE):
-            best_title = False
-        best_payload = sj_results.get(best_match).get('payload')
+        if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):
+            best_match = False
     except:
-        best_title = False
-    if not best_title:
-        internal.logger.debug('Kein Treffer fuer die Suche nach ' + title + '! Suchliste ergänzt.')
+        best_match = False
+    if not best_match or not best_payload:
+        internal.logger.debug('Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
         for liste in listen:
             cont = ListDb(liste).retrieve()
@@ -62,7 +51,7 @@ def get_best_result(title):
             if title not in cont:
                 ListDb(liste).store(title)
             return False
-    internal.logger.debug('Bester Treffer fuer die Suche nach ' + title + ' ist ' + best_title)
+    internal.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
     return best_payload
 
 
