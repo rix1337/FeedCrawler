@@ -668,12 +668,19 @@ def app_container():
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/search/<title>", methods=['GET'])
+    @app.route(prefix + "/api/search/<title>", methods=['POST'])
     @requires_auth
     def search_title(title):
-        if request.method == 'GET':
+        if request.method == 'POST':
             try:
-                results = search.get(title)
+                data = json.loads(request.data)
+                slow_only = data['slow_only']
+                fast_only = data['fast_only']
+            except:
+                slow_only = False
+                fast_only = False
+            try:
+                results = search.get(title, slow_only=slow_only, fast_only=fast_only)
                 return jsonify(
                     {
                         "results": {

@@ -22,7 +22,12 @@ from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 
 
-def get(title, bl_only=False, sj_only=False):
+def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
+    if fast_only:
+        slow_only = False
+    if slow_only:
+        fast_only = False
+
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     fx = hostnames.get('fx')
@@ -77,6 +82,12 @@ def get(title, bl_only=False, sj_only=False):
         else:
             hw_search = None
 
+        if fast_only:
+            fx_search = None
+        if slow_only:
+            by_search = None
+            hw_search = None
+
         async_results = get_urls_async([by_search, fx_search, hw_search])
         async_results = async_results[0]
 
@@ -92,7 +103,7 @@ def get(title, bl_only=False, sj_only=False):
             elif check_is_site(res) == 'HW':
                 hw_results = hw_search_results(res)
 
-        if nk:
+        if nk and not slow_only:
             nk_search = post_url('https://' + nk + "/search",
                                  data={'search': bl_query})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
@@ -158,7 +169,7 @@ def get(title, bl_only=False, sj_only=False):
         bl_final = results
 
     if not bl_only:
-        if sj:
+        if sj and not slow_only:
             sj_query = sanitize(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
