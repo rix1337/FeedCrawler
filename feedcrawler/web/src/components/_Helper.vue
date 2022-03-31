@@ -28,7 +28,13 @@ function updateToDecrypt() {
 const context = ref('')
 
 function getContext() {
-  context.value = route.path.split('/').slice(-1)[0]
+  // this enables the use of path prefix in production (else the sponsors_helper will only work in vue dev)
+  let get_context_from_window = window.location.pathname.split("/").slice(-1)[0]
+  if (get_context_from_window.length > 0) {
+    context.value = get_context_from_window
+  } else {
+    context.value = '.'
+  }
 }
 
 const antigate_available_and_active = ref(false)
