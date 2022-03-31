@@ -28,6 +28,7 @@ function getResultsPages() {
 
 const search = ref('')
 const searching = ref(false)
+const slow_ready = ref(false)
 
 function searchNow() {
   results.value = false
@@ -39,9 +40,10 @@ function searchNow() {
     resLengthResults.value = 0
     searching.value = false
   } else {
-    axios.get(store.state.prefix + 'api/search/' + title)
+    axios.post(store.state.prefix + 'api/search/' + title, {slow_only: false, fast_only: true})
         .then(function (res) {
           results.value = res.data.results
+          slow_ready.value = false
           getResultsPages()
           search.value = ""
           console.log('Nach ' + title + ' gesucht!')
@@ -49,6 +51,25 @@ function searchNow() {
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
           toast.error('Konnte  ' + title + ' nicht suchen!')
+          results.value = false
+          resLengthResults.value = 0
+          searching.value = false
+        })
+    axios.post(store.state.prefix + 'api/search/' + title, {slow_only: true, fast_only: false})
+        .then(function (res) {
+          slow_ready.value = true
+          console.log(results.value)
+          console.log(res.data.results)
+          results.value.sj = res.data.results.sj.concat(results.value.sj)
+          results.value.bl = res.data.results.bl.concat(results.value.bl)
+          getResultsPages()
+          search.value = ""
+          console.log('Nach ' + title + ' gesucht!')
+          searching.value = false
+        }, function () {
+          console.log('Konnte ' + title + ' nicht suchen!')
+          toast.error('Konnte  ' + title + ' nicht suchen!')
+          slow_ready.value = true
           results.value = false
           resLengthResults.value = 0
           searching.value = false
@@ -115,6 +136,9 @@ function downloadSJ(payload) {
           <button class="btn btn-outline-info" type="submit" @click="downloadSJ(x.payload)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span></button>
         </p>
+        <div v-if="!slow_ready" class="btn btn-warning">
+          <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
+        </div>
         <p v-for="y in currentResultsPage">
           <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload)"><i
               class="bi bi-download"></i> <span v-text="y.title"></span></button>

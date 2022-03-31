@@ -82,7 +82,7 @@ function getTimestamp(ms) {
                 Die Freischaltung erfolgt automatisch für aktive Sponsoren im dafür eingerichteten
                 Github-Repo.
               </p>
-              <p>Benötigt wird ein Docker-Host mit mindestens 2 GB verfügbarem Arbeitsspeicher und ein Account
+              <p>Benötigt wird ein Docker-Host mit mindestens 1 GB verfügbarem Arbeitsspeicher und ein Account
                 beim
                 unter <a href="#" @click="showCaptchasHelp()">CAPTCHAs</a> beworbenen Captcha-Solver.</p>
               <span>

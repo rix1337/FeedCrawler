@@ -111,6 +111,8 @@ const store = createStore({
                 docker: false,
                 helper_active: false,
                 helper_available: false,
+                loaded_lists: false,
+                loaded_settings: false,
                 myjd_connection_error: false,
                 now: Date.now(),
                 pageSizeMyJD: 3,
@@ -144,6 +146,7 @@ const store = createStore({
             axios.get(state.prefix + 'api/lists/')
                 .then(function (res) {
                     state.lists = res.data.lists
+                    state.misc.loaded_lists = true
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
                     toast.error('Konnte Listen nicht abrufen!')
@@ -153,6 +156,7 @@ const store = createStore({
             axios.get(store.state.prefix + 'api/settings/')
                 .then(function (res) {
                     state.settings = res.data.settings
+                    state.misc.loaded_settings = true
                     state.misc.myjd_connection_error = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
                     state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
                 }, function () {

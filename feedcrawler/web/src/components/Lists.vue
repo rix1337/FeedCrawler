@@ -49,7 +49,8 @@ function spinLists() {
       <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
     </div>
     <div class="offcanvas-body">
-      <div id="accordionLists" class="accordion">
+      <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
+      <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
         <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
           <h2 id="headingZeroOne" class="accordion-header">
             <button aria-controls="collapseZeroOne" aria-expanded="false" class="accordion-button collapsed"

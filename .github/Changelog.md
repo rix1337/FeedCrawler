@@ -6,8 +6,13 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.4** Die Websuche zeigt die Ergebnisse von schnell durchsuchbaren Seiten schon an, 
+      während langsame Seiten noch laden.
+- **13.0.4** Ladehinweis für Suchlisten/Einstellungen ergänzt
+- **13.0.4** Fehlerbehebungen in der SJ-Websuche-Anbindung
+- **13.0.4** Weitere Fehlerbehebungen in der Ombi-Anbindung (#600)
 - **13.0.3** Fehlerbehebung im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper),
-    wenn ein Prefix für das Web-Interface genutzt wird.
+      wenn ein Prefix für das Web-Interface genutzt wird.
 - **13.0.2** Fehlerbehebung in der Ombi-Anbindung #600 (Danke @jankete)
 - **13.0.1** Detailverbesserungen
     - Verhindere vertikales Scrollen im Log

@@ -74,7 +74,8 @@ const year = ref((new Date).getFullYear())
       <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
     </div>
     <div class="offcanvas-body">
-      <div id="accordionSettings" class="accordion">
+      <h4 v-if="!store.state.misc.loaded_settings">Einstellungen werden geladen...</h4>
+      <div v-if="store.state.misc.loaded_settings" id="accordionSettings" class="accordion">
         <div class="accordion-item">
           <h2 id="headingTwoZero" class="accordion-header">
             <button aria-controls="collapseTwoZero" aria-expanded="false" class="accordion-button collapsed"
