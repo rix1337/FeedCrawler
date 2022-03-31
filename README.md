@@ -1,28 +1,28 @@
 # FeedCrawler
 
-<img src="./feedcrawler/web/public/favicon.ico" data-canonical-src="./feedcrawler/web/img/favicon.ico" width="64" height="64" />
+<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web/public/favicon.ico" width="64" height="64" />
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
-![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rix1337/FeedCrawler/Release%20Artifacts)
+[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rix1337/FeedCrawler/Release%20Artifacts)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 [![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/stargazers)
-![GitHub all releases](https://img.shields.io/github/downloads/rix1337/feedcrawler/total?label=github%20downloads)
+[![GitHub all releases](https://img.shields.io/github/downloads/rix1337/feedcrawler/total?label=github%20downloads)](https://github.com/rix1337/FeedCrawler/releases)
 
-![PyPI](https://img.shields.io/pypi/v/feedcrawler?label=pypi%20package)
-![PyPI - Downloads](https://img.shields.io/pypi/dm/feedcrawler?label=pypi%20downloads)
+[![PyPI](https://img.shields.io/pypi/v/feedcrawler?label=pypi%20package)](https://pypi.org/project/feedcrawler/)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/feedcrawler?label=pypi%20downloads)](https://pypi.org/project/feedcrawler/#files)
 
-![Docker Image Version (latest semver)](https://img.shields.io/docker/v/rix1337/docker-feedcrawler?label=docker%20image&sort=semver)
-![Docker Pulls](https://img.shields.io/docker/pulls/rix1337/docker-feedcrawler)
+[![Docker Image Version (latest semver)](https://img.shields.io/docker/v/rix1337/docker-feedcrawler?label=docker%20image&sort=semver)](https://hub.docker.com/r/rix1337/docker-feedcrawler/tags)
+[![Docker Pulls](https://img.shields.io/docker/pulls/rix1337/docker-feedcrawler)](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 
 [![GitHub license](https://img.shields.io/github/license/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/blob/master/LICENSE.md)
-![Python 3 Backend](https://img.shields.io/badge/backend-python%203-blue.svg)
-![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)
-![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/y/rix1337/feedcrawler)
+[![Python 3 Backend](https://img.shields.io/badge/backend-python%203-blue.svg)](https://github.com/rix1337/FeedCrawler/tree/master/feedcrawler)
+[![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)](https://github.com/rix1337/FeedCrawler/tree/master/feedcrawler/web)
+[![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/commits/master)
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/y/rix1337/feedcrawler)](https://github.com/rix1337/FeedCrawler/graphs/commit-activity)
 ![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)
 
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
-![Gitter](https://img.shields.io/gitter/room/FeedCrawler/community)
+[![Gitter](https://img.shields.io/gitter/room/FeedCrawler/community)](https://gitter.im/FeedCrawler/community)
 [![GitHub issues](https://img.shields.io/github/issues/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/issues)
 
 ***
