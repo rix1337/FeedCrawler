@@ -135,7 +135,7 @@ function getMyJDPages() {
     if (resLengthMyJD.value > 0) {
       numberOfPagesMyJD.value = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
     } else {
-      numberOfPagesMyJD.value = 0
+      numberOfPagesMyJD.value = 1
     }
   }
 }

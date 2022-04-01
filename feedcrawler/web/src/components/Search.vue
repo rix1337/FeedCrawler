@@ -21,7 +21,7 @@ function getResultsPages() {
     if (resLengthResults.value > 0) {
       numberOfPagesResults.value = Math.ceil(resLengthResults.value / pageSizeResults.value)
     } else {
-      numberOfPagesResults.value = 0
+      numberOfPagesResults.value = 1
     }
   }
 }
@@ -46,7 +46,7 @@ function searchNow() {
           slow_ready.value = false
           getResultsPages()
           search.value = ""
-          console.log('Nach ' + title + ' gesucht!')
+          console.log('Nach ' + title + ' gesucht (schnelle Seiten)!')
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
@@ -58,15 +58,15 @@ function searchNow() {
     axios.post(store.state.prefix + 'api/search/' + title, {slow_only: true, fast_only: false})
         .then(function (res) {
           slow_ready.value = true
-          if (res.data.results.sj) {
+          if (results.value) {
             results.value.sj = res.data.results.sj.concat(results.value.sj)
-          }
-          if (res.data.results.bl) {
             results.value.bl = res.data.results.bl.concat(results.value.bl)
+          } else {
+            results.value = res.data.results
           }
           getResultsPages()
           search.value = ""
-          console.log('Nach ' + title + ' gesucht!')
+          console.log('Nach ' + title + ' gesucht (langsame Seiten)!')
           searching.value = false
         }, function () {
           console.log('Konnte ' + title + ' nicht suchen!')
