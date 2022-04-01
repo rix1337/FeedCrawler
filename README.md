@@ -19,7 +19,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)](https://github.com/rix1337/FeedCrawler/tree/master/feedcrawler/web)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/commits/master)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/rix1337/feedcrawler)](https://github.com/rix1337/FeedCrawler/graphs/commit-activity)
-![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)
+[![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/pulse)
 
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
 [![Gitter](https://img.shields.io/gitter/room/FeedCrawler/community)](https://gitter.im/FeedCrawler/community)

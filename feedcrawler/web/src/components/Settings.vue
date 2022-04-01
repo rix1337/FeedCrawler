@@ -77,14 +77,14 @@ const year = ref((new Date).getFullYear())
       <h4 v-if="!store.state.misc.loaded_settings">Einstellungen werden geladen...</h4>
       <div v-if="store.state.misc.loaded_settings" id="accordionSettings" class="accordion">
         <div class="accordion-item">
-          <h2 id="headingTwoZero" class="accordion-header">
-            <button aria-controls="collapseTwoZero" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoZero"
+          <h2 id="headingSettingsMyJd" class="accordion-header">
+            <button aria-controls="collapseSettingsMyJd" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsMyJd"
                     data-bs-toggle="collapse" type="button">
               My JDownloader
             </button>
           </h2>
-          <div id="collapseTwoZero" aria-labelledby="headingTwoZero" class="accordion-collapse collapse"
+          <div id="collapseSettingsMyJd" aria-labelledby="headingSettingsMyJd" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Nutzername</h5>
@@ -125,14 +125,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingTwoOne" class="accordion-header">
-            <button aria-controls="collapseTwoOne" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoOne"
+          <h2 id="headingGeneral" class="accordion-header">
+            <button aria-controls="collapseGeneral" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseGeneral"
                     data-bs-toggle="collapse" type="button">
               Allgemein
             </button>
           </h2>
-          <div id="collapseTwoOne" aria-labelledby="headingTwoOne" class="accordion-collapse collapse"
+          <div id="collapseGeneral" aria-labelledby="headingGeneral" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <div v-if="!store.state.misc.docker">
@@ -197,14 +197,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingTwoThree" class="accordion-header">
-            <button aria-controls="collapseTwoThree" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoThree"
+          <h2 id="headingHosters" class="accordion-header">
+            <button aria-controls="collapseHosters" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHosters"
                     data-bs-toggle="collapse" type="button">
               Hoster
             </button>
           </h2>
-          <div id="collapseTwoThree" aria-labelledby="headingTwoThree" class="accordion-collapse collapse"
+          <div id="collapseHosters" aria-labelledby="headingHosters" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body"
 
@@ -299,14 +299,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingTwoFour" class="accordion-header">
-            <button aria-controls="collapseTwoFour" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoFour"
+          <h2 id="headingNotifications" class="accordion-header">
+            <button aria-controls="collapseNotifications" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseNotifications"
                     data-bs-toggle="collapse" type="button">
               Benachrichtigungen
             </button>
           </h2>
-          <div id="collapseTwoFour" aria-labelledby="headingTwoFour" class="accordion-collapse collapse"
+          <div id="collapseNotifications" aria-labelledby="headingNotifications" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Pushbullet</h5>
@@ -329,14 +329,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingTwoFive" class="accordion-header">
-            <button aria-controls="collapseTwoFive" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoFive"
+          <h2 id="headingOmbi" class="accordion-header">
+            <button aria-controls="collapseOmbi" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseOmbi"
                     data-bs-toggle="collapse" type="button">
               Ombi
             </button>
           </h2>
-          <div id="collapseTwoFive" aria-labelledby="headingTwoFive" class="accordion-collapse collapse"
+          <div id="collapseOmbi" aria-labelledby="headingOmbi" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Ombi URL</h5>
@@ -351,14 +351,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingTwoSix" class="accordion-header">
-            <button aria-controls="collapseTwoSix" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoSix"
+          <h2 id="headingSettingsBl" class="accordion-header">
+            <button aria-controls="collapseSettingsBl" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsBl"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.bl }}
             </button>
           </h2>
-          <div id="collapseTwoSix" aria-labelledby="headingTwoSix" class="accordion-collapse collapse"
+          <div id="collapseSettingsBl" aria-labelledby="headingSettingsBl" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Auflösung</h5>
@@ -495,14 +495,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingTwoSeven" class="accordion-header">
-            <button aria-controls="collapseTwoSeven" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoSeven"
+          <h2 id="headingSettingsS" class="accordion-header">
+            <button aria-controls="collapseSettingsS" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsS"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.s }}
             </button>
           </h2>
-          <div id="collapseTwoSeven" aria-labelledby="headingTwoSeven" class="accordion-collapse collapse"
+          <div id="collapseSettingsS" aria-labelledby="headingSettingsS" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Auflösung</h5>
@@ -585,14 +585,14 @@ const year = ref((new Date).getFullYear())
         <div
             v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
             class="accordion-item">
-          <h2 id="headingTwoEight" class="accordion-header">
-            <button aria-controls="collapseTwoEight" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoEight"
+          <h2 id="headingSettingsSjBl" class="accordion-header">
+            <button aria-controls="collapseSettingsSjBl" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsSjBl"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.sjbl }}
             </button>
           </h2>
-          <div id="collapseTwoEight" aria-labelledby="headingTwoEight" class="accordion-collapse collapse"
+          <div id="collapseSettingsSjBl" aria-labelledby="headingSettingsSjBl" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Staffeln suchen</h5>
@@ -630,14 +630,14 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingTwoNine" class="accordion-header">
-            <button aria-controls="collapseTwoNine" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoNine"
+          <h2 id="headingSettingsDj" class="accordion-header">
+            <button aria-controls="collapseSettingsDj" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsDj"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.dj }}
             </button>
           </h2>
-          <div id="collapseTwoNine" aria-labelledby="headingTwoNine" class="accordion-collapse collapse"
+          <div id="collapseSettingsDj" aria-labelledby="headingSettingsDj" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Auflösung</h5>
@@ -673,14 +673,14 @@ const year = ref((new Date).getFullYear())
         <div
             v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f !== store.state.hostnames.bl"
             class="accordion-item">
-          <h2 id="headingTwoTen" class="accordion-header">
-            <button aria-controls="collapseTwoTen" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseTwoTen"
+          <h2 id="headingSettingsF" class="accordion-header">
+            <button aria-controls="collapseSettingsF" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsF"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.f }}
             </button>
           </h2>
-          <div id="collapseTwoTen" aria-labelledby="headingTwoTen" class="accordion-collapse collapse"
+          <div id="collapseSettingsF" aria-labelledby="headingSettingsF" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
               <h5>Suchintervall</h5>
@@ -703,10 +703,15 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
       </div>
-      <button class="btn btn-dark" type="submit" @click="saveSettings()">
-        <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
-        <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
-      </button>
+      <div>
+        <button v-if="store.state.misc.loaded_settings" class="btn btn-dark" type="submit" @click="saveSettings()">
+          <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
+          <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
+        </button>
+        <button v-else class="btn btn-dark disabled">
+          <span class="spinner-border spinner-border-sm" role="status"></span> Speichern
+        </button>
+      </div>
     </div>
   </div>
 </template>

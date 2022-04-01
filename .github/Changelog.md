@@ -6,10 +6,14 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.5** Fehlerbehebung im Laden der Suchlisten
+- **13.0.5** RegEx-Hilfe überarbeitet
+- **13.0.5** Verbesserungen in der Websuche
+- **13.0.5** Fehlgeschlagene Downloads können jetzt zurückgesetzt werden
 - **13.0.4** Die Websuche zeigt die Ergebnisse von schnell durchsuchbaren Seiten schon an, 
       während langsame Seiten noch laden.
 - **13.0.4** Ladehinweis für Suchlisten/Einstellungen ergänzt
-- **13.0.4** Fehlerbehebungen in der SJ-Websuche-Anbindung
+- **13.0.4** Fehlerbehebungen in der SJ-Websuche
 - **13.0.4** Weitere Fehlerbehebungen in der Ombi-Anbindung (#600)
 - **13.0.3** Fehlerbehebung im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper),
       wenn ein Prefix für das Web-Interface genutzt wird.

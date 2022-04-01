@@ -659,6 +659,10 @@ class Downloads:
         resp = self.device.action(self.url + "/removeLinks", params)
         return resp
 
+    def reset_links(self, links_ids, packages_ids):
+        params = [links_ids, packages_ids]
+        resp = self.device.action(self.url + "/resetLinks", params)
+        return resp
 
 class Jddevice:
     """

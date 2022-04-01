@@ -38,7 +38,7 @@ function getLogPages() {
     if (resLengthLog.value > 0) {
       numberOfPagesLog.value = Math.ceil(resLengthLog.value / pageSizeLog.value)
     } else {
-      numberOfPagesLog.value = 0
+      numberOfPagesLog.value = 1
     }
   }
 }

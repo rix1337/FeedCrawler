@@ -428,6 +428,26 @@ def move_to_downloads(linkids, uuid):
         return False
 
 
+def reset_in_downloads(linkids, uuid):
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.downloads.reset_links(linkids, uuid)
+            except feedcrawler.myjdapi.TokenExpiredException:
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.downloads.reset_links(linkids, uuid)
+            return True
+        else:
+            return False
+    except feedcrawler.myjdapi.MYJDException as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def remove_from_linkgrabber(linkids, uuid):
     try:
         if not internal.device or not is_device(internal.device):

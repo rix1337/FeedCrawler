@@ -2,6 +2,7 @@
 import {useStore} from 'vuex'
 import {computed, onMounted, ref} from 'vue'
 import {useToast} from 'vue-toastification'
+import {Collapse, Offcanvas} from "bootstrap"
 import axios from 'axios'
 
 const store = useStore()
@@ -106,6 +107,25 @@ function startNow() {
         toast.error('Konnte Suchlauf nicht starten!')
       })
 }
+
+function getLists() {
+  getSettings()
+  store.commit("getLists")
+}
+
+function getSettings() {
+  store.commit("getSettings")
+}
+
+function showSiteStatusHelp() {
+  let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
+  offcanvas.show()
+  new Collapse(document.getElementById('collapseSiteStatus'), {
+    toggle: true
+  })
+  sessionStorage.setItem('fromNav', '')
+  window.location.href = "#collapseSiteStatus"
+}
 </script>
 
 
@@ -149,13 +169,14 @@ function startNow() {
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomLists"
               aria-controls="offcanvasBottomLists"
-              @click='store.commit("getLists")'><i class="bi bi-text-left"></i> Suchlisten
+              @click='getLists'><i class="bi bi-text-left"></i>
+        Suchlisten
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomSettings"
               aria-controls="offcanvasBottomSettings"
-              @click='store.commit("getSettings")'><i class="bi bi-gear"></i> Einstellungen
+              @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
@@ -165,6 +186,11 @@ function startNow() {
     </div>
 
     <div>
+      <button class="btn btn-outline-secondary" type="button" @click="showSiteStatusHelp">
+        <i class="bi bi-bar-chart"></i>
+        Seitenstatus
+      </button>
+
       <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
          class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein

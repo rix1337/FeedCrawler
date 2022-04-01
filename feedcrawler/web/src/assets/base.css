@@ -14,8 +14,9 @@ body {
 }
 
 .log {
-    height: 300px;
-    overflow: auto;
+    height: 272px;
+    overflow-y: hidden;
+    overflow-x: auto;
     resize: none;
     color: black;
     text-align: left;
@@ -138,6 +139,8 @@ td {
 
 .btn {
     margin-top: 0.5em;
+    margin-right: 0.1em;
+    margin-left: 0.1em;
     white-space: inherit;
     word-break: break-all;
 }

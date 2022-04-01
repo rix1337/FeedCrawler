@@ -218,9 +218,17 @@ app.use(Toast, {
 })
 app.use(FloatingVue, {
     themes: {
-        instantMove: true,
+        instantMove: false,
+        strategy: 'relative',
+        preventOverflow: true,
         flip: true,
         tooltip: {
+            delay: {
+                show: 500,
+                hide: 0,
+            },
+            triggers: ['blur', 'hover'],
+            placement: 'top',
             autohide: true,
             handleResize: true,
         }

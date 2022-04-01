@@ -135,7 +135,7 @@ function getMyJDPages() {
     if (resLengthMyJD.value > 0) {
       numberOfPagesMyJD.value = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
     } else {
-      numberOfPagesMyJD.value = 0
+      numberOfPagesMyJD.value = 1
     }
   }
 }
@@ -148,7 +148,7 @@ function manualCollapse() {
 
 function openMyJDTab() {
   if (!myjd_collapse_manual.value && resLengthMyJD.value > 0) {
-    new Collapse(document.getElementById('collapseOne'), {
+    new Collapse(document.getElementById('collapseMyJd'), {
       toggle: true
     })
     myjd_collapse_manual.value = true
@@ -257,6 +257,26 @@ function myJDremove(linkids, uuid, name) {
       })
 }
 
+function myJDreset(linkids, uuid, name) {
+  toast.success("Setze das Paket\n" + name + "\n zurück")
+  axios.post(store.state.prefix + 'api/myjd_reset/' + linkids + "&" + uuid)
+      .then(function () {
+        if (myjd_failed.value) {
+          for (let failed_package of myjd_failed.value) {
+            let existing_uuid = failed_package['uuid']
+            if (uuid === existing_uuid) {
+              let index = myjd_failed.value.indexOf(failed_package)
+              myjd_failed.value.splice(index, 1)
+            }
+          }
+        }
+        getMyJD()
+      }, function () {
+        console.log('Konnte Paket nicht zurücksetzen!')
+        toast.error('Konnte Paket nicht zurücksetzen!')
+      })
+}
+
 function internalRemove(name) {
   toast.success("Lösche Download\n" + name)
   axios.post(store.state.prefix + 'api/internal_remove/' + name)
@@ -345,11 +365,11 @@ function countDown() {
 function showSponsorsHelp() {
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
   offcanvas.show()
-  new Collapse(document.getElementById('collapseOneZero'), {
+  new Collapse(document.getElementById('collapseSponsorsHelper'), {
     toggle: true
   })
   sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseOneZero"
+  window.location.href = "#collapseSponsorsHelper"
 }
 </script>
 
@@ -359,15 +379,15 @@ function showSponsorsHelp() {
     <h3><i class="bi bi-cloud-arrow-down"></i> My JDownloader</h3>
     <div id="accordionMyJD" class="accordion">
       <div class="accordion-item myjdheader">
-        <h2 id="headingOne" class="accordion-header">
-          <button id="myjd_collapse" aria-controls="collapseOne" aria-expanded="false"
+        <h2 id="headingMyJd" class="accordion-header">
+          <button id="myjd_collapse" aria-controls="collapseMyJd" aria-expanded="false"
                   class="accordion-button collapsed"
-                  data-bs-target="#collapseOne"
+                  data-bs-target="#collapseMyJd"
                   data-bs-toggle="collapse" type="button" @click="manualCollapse">
             Details
           </button>
         </h2>
-        <div id="collapseOne" aria-labelledby="headingOne" class="accordion-collapse collapse"
+        <div id="collapseMyJd" aria-labelledby="headingMyJd" class="accordion-collapse collapse"
              data-bs-parent="#accordionMyJD">
           <div class="accordion-body">
             <div v-for="x in currentMyJDPage" class="myjd-items">
@@ -444,11 +464,27 @@ function showSponsorsHelp() {
 
               <div class="myjd-failed">
                 <div v-if="x.type=='failed'" class="card bg-danger">
-                  <span>Entschlüsselung im JDownloader fehlgeschlagen.</span>
-                  <button v-if="!cnl_active" class="btn btn-outline-danger"
-                          @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
-                    Löschen
-                  </button>
+                  <div class="card-header">
+                    <strong>{{ x.name }}</strong>
+                  </div>
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                      <span
+                          v-tooltip="'Dies tritt auf, wenn das Entpacken fehlschlägt, oder Teile des Paketes offline sind.'">
+                        Download fehlgeschlagen!
+                      </span>
+                    </li>
+                    <li class="list-group-item">
+                      <button v-if="!cnl_active" class="btn btn-outline-danger"
+                              @click="myJDreset(x.linkids, x.uuid, x.name)"><i class="bi bi-arrow-clockwise"></i>
+                        Zurücksetzen
+                      </button>
+                      <button v-if="!cnl_active" class="btn btn-outline-danger"
+                              @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
+                        Löschen
+                      </button>
+                    </li>
+                  </ul>
                 </div>
               </div>
 
