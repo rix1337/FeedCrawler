@@ -29,11 +29,11 @@ function getBlockedSites() {
 }
 
 function showCaptchasHelp() {
-  new Collapse(document.getElementById('collapseOneOne'), {
+  new Collapse(document.getElementById('collapseCaptchas'), {
     toggle: true
   })
   sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseOneZero"
+  window.location.href = "#collapseSponsorsHelper"
 }
 
 function openCaptchaLink() {
@@ -63,14 +63,14 @@ function getTimestamp(ms) {
     <div class="offcanvas-body">
       <div id="accordionHelp" class="accordion">
         <div class="accordion-item">
-          <h2 id="headingOneZero" class="accordion-header">
-            <button aria-controls="collapseOneZero" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneZero"
+          <h2 id="headingSponsorsHelper" class="accordion-header">
+            <button aria-controls="collapseSponsorsHelper" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSponsorsHelper"
                     data-bs-toggle="collapse" type="button">
               FeedCrawler Sponsors Helper
             </button>
           </h2>
-          <div id="collapseOneZero" aria-labelledby="headingOneZero" class="accordion-collapse collapse"
+          <div id="collapseSponsorsHelper" aria-labelledby="headingSponsorsHelper" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
               <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
@@ -95,14 +95,14 @@ function getTimestamp(ms) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingOneOne" class="accordion-header">
-            <button aria-controls="collapseOneOne" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneOne"
+          <h2 id="headingCaptchas" class="accordion-header">
+            <button aria-controls="collapseCaptchas" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseCaptchas"
                     data-bs-toggle="collapse" type="button">
               CAPTCHAs
             </button>
           </h2>
-          <div id="collapseOneOne" aria-labelledby="headingOneOne" class="accordion-collapse collapse"
+          <div id="collapseCaptchas" aria-labelledby="headingCaptchas" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
               <button @click="openCaptchaLink" class="btn btn-outline-success">
@@ -112,14 +112,14 @@ function getTimestamp(ms) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingOneTwo" class="accordion-header">
-            <button aria-controls="collapseOneTwo" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneTwo"
+          <h2 id="headingMultiHoster" class="accordion-header">
+            <button aria-controls="collapseMultiHoster" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseMultiHoster"
                     data-bs-toggle="collapse" type="button">
               Multihoster
             </button>
           </h2>
-          <div id="collapseOneTwo" aria-labelledby="headingOneTwo" class="accordion-collapse collapse"
+          <div id="collapseMultiHoster" aria-labelledby="headingMultiHoster" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
               <button @click="openHosterLink" class="btn btn-outline-success">
@@ -130,14 +130,14 @@ function getTimestamp(ms) {
         </div>
         <div v-if="(store.state.hostnames.bl !== 'Nicht gesetzt!') || (store.state.hostnames.s !== 'Nicht gesetzt!')"
              class="accordion-item">
-          <h2 id="headingOneThree" class="accordion-header">
-            <button aria-controls="collapseOneThree" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneThree"
+          <h2 id="headingRegEx" class="accordion-header">
+            <button aria-controls="collapseRegEx" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseRegEx"
                     data-bs-toggle="collapse" type="button">
               RegEx
             </button>
           </h2>
-          <div id="collapseOneThree" aria-labelledby="headingOneThree" class="accordion-collapse collapse"
+          <div id="collapseRegEx" aria-labelledby="headingRegEx" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div id="helpText" class="accordion-body">
               <h5>Beispiele</h5>
@@ -202,14 +202,14 @@ function getTimestamp(ms) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingOneFour" class="accordion-header">
-            <button aria-controls="collapseOneFour" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneFour"
+          <h2 id="headingSiteStatus" class="accordion-header">
+            <button aria-controls="collapseSiteStatus" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSiteStatus"
                     data-bs-toggle="collapse" type="button">
-              Seitenliste
+              Seitenstatus
             </button>
           </h2>
-          <div id="collapseOneFour" aria-labelledby="headingOneFour" class="accordion-collapse collapse"
+          <div id="collapseSiteStatus" aria-labelledby="headingSiteStatus" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
               <div class="row">
@@ -441,14 +441,14 @@ function getTimestamp(ms) {
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingOneFive" class="accordion-header">
-            <button aria-controls="collapseOneFive" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOneFive"
+          <h2 id="headingWiki" class="accordion-header">
+            <button aria-controls="collapseWiki" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseWiki"
                     data-bs-toggle="collapse" type="button">
               Wiki
             </button>
           </h2>
-          <div id="collapseOneFive" aria-labelledby="headingOneFive" class="accordion-collapse collapse"
+          <div id="collapseWiki" aria-labelledby="headingWiki" class="accordion-collapse collapse"
                data-bs-parent="#accordionHelp">
             <div class="accordion-body">
               <a class="btn btn-outline-success" href="https://github.com/rix1337/FeedCrawler/wiki"

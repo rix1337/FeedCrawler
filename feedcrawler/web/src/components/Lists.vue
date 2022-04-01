@@ -52,14 +52,14 @@ function spinLists() {
       <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
       <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
         <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingZeroOne" class="accordion-header">
-            <button aria-controls="collapseZeroOne" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseZeroOne"
+          <h2 id="headingHostnamesBl" class="accordion-header">
+            <button aria-controls="collapseHostnamesBl" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHostnamesBl"
                     data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.bl }}
             </button>
           </h2>
-          <div id="collapseZeroOne" aria-labelledby="headingZeroOne" class="accordion-collapse collapse"
+          <div id="collapseHostnamesBl" aria-labelledby="headingHostnamesBl" class="accordion-collapse collapse"
                data-bs-parent="#accordionLists">
             <div class="accordion-body">
               <h5>Filme</h5>
@@ -69,25 +69,23 @@ function spinLists() {
               <h5 v-if="store.state.settings.mb.regex">Filme/Serien (RegEx)</h5>
               <textarea v-if="store.state.settings.mb.regex" v-model="store.state.lists.mb.regex"
                         class="liste form-control"
-
                         v-tooltip="'Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
               <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'">
                 <h5>Staffeln</h5>
                 <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control"
-
                           v-tooltip="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
               </div>
             </div>
           </div>
         </div>
         <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingZeroTwo" class="accordion-header">
-            <button aria-controls="collapseZeroTwo" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseZeroTwo" data-bs-toggle="collapse" type="button">
+          <h2 id="headingHostnamesS" class="accordion-header">
+            <button aria-controls="collapseHostnamesS" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHostnamesS" data-bs-toggle="collapse" type="button">
               {{ store.state.hostnames.s }}
             </button>
           </h2>
-          <div id="collapseZeroTwo" aria-labelledby="headingZeroTwo" class="accordion-collapse collapse"
+          <div id="collapseHostnamesS" aria-labelledby="headingHostnamesS" class="accordion-collapse collapse"
                data-bs-parent="#accordionLists">
             <div class="accordion-body">
               <h5>Serien</h5>
@@ -96,7 +94,6 @@ function spinLists() {
               <h5 v-if="store.state.settings.sj.regex">Serien (RegEx)</h5>
               <textarea v-if="store.state.settings.sj.regex" v-model="store.state.lists.sj.regex"
                         class="liste form-control"
-
                         v-tooltip="'Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert.'"></textarea>
               <h5 v-if="store.state.lists.sj.staffeln_regex">Staffeln (RegEx)</h5>
               <textarea v-if="store.state.lists.sj.staffeln_regex" v-model="store.state.lists.sj.staffeln_regex"
@@ -105,7 +102,6 @@ function spinLists() {
               <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'">
                 <h5>Staffeln</h5>
                 <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control"
-
                           v-tooltip="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
               </div>
             </div>
@@ -114,14 +110,14 @@ function spinLists() {
         <div
             v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
             class="accordion-item">
-          <h2 id="headingZeroThree" class="accordion-header">
-            <button aria-controls="collapseZeroThree" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseZeroThree" data-bs-toggle="collapse"
+          <h2 id="headingHostnamesSjBl" class="accordion-header">
+            <button aria-controls="collapseHostnamesSjBl" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHostnamesSjBl" data-bs-toggle="collapse"
                     type="button">
               {{ store.state.hostnames.sjbl }}
             </button>
           </h2>
-          <div id="collapseZeroThree" aria-labelledby="headingZeroThree" class="accordion-collapse collapse"
+          <div id="collapseHostnamesSjBl" aria-labelledby="headingHostnamesSjBl" class="accordion-collapse collapse"
                data-bs-parent="#accordionLists">
             <div class="accordion-body">
               <h5>Staffeln</h5>
@@ -132,14 +128,14 @@ function spinLists() {
           </div>
         </div>
         <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
-          <h2 id="headingZeroFour" class="accordion-header">
-            <button aria-controls="collapseZeroFour" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseZeroFour" data-bs-toggle="collapse"
+          <h2 id="headingHostnamesDj" class="accordion-header">
+            <button aria-controls="collapseHostnamesDj" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHostnamesDj" data-bs-toggle="collapse"
                     type="button">
               {{ store.state.hostnames.dj }}
             </button>
           </h2>
-          <div id="collapseZeroFour" aria-labelledby="headingZeroFour" class="accordion-collapse collapse"
+          <div id="collapseHostnamesDj" aria-labelledby="headingHostnamesDj" class="accordion-collapse collapse"
                data-bs-parent="#accordionLists">
             <div class="accordion-body">
               <h5>Dokus</h5>

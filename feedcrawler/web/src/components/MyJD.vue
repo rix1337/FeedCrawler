@@ -148,7 +148,7 @@ function manualCollapse() {
 
 function openMyJDTab() {
   if (!myjd_collapse_manual.value && resLengthMyJD.value > 0) {
-    new Collapse(document.getElementById('collapseOne'), {
+    new Collapse(document.getElementById('collapseMyJd'), {
       toggle: true
     })
     myjd_collapse_manual.value = true
@@ -365,11 +365,11 @@ function countDown() {
 function showSponsorsHelp() {
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
   offcanvas.show()
-  new Collapse(document.getElementById('collapseOneZero'), {
+  new Collapse(document.getElementById('collapseSponsorsHelper'), {
     toggle: true
   })
   sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseOneZero"
+  window.location.href = "#collapseSponsorsHelper"
 }
 </script>
 
@@ -379,15 +379,15 @@ function showSponsorsHelp() {
     <h3><i class="bi bi-cloud-arrow-down"></i> My JDownloader</h3>
     <div id="accordionMyJD" class="accordion">
       <div class="accordion-item myjdheader">
-        <h2 id="headingOne" class="accordion-header">
-          <button id="myjd_collapse" aria-controls="collapseOne" aria-expanded="false"
+        <h2 id="headingMyJd" class="accordion-header">
+          <button id="myjd_collapse" aria-controls="collapseMyJd" aria-expanded="false"
                   class="accordion-button collapsed"
-                  data-bs-target="#collapseOne"
+                  data-bs-target="#collapseMyJd"
                   data-bs-toggle="collapse" type="button" @click="manualCollapse">
             Details
           </button>
         </h2>
-        <div id="collapseOne" aria-labelledby="headingOne" class="accordion-collapse collapse"
+        <div id="collapseMyJd" aria-labelledby="headingMyJd" class="accordion-collapse collapse"
              data-bs-parent="#accordionMyJD">
           <div class="accordion-body">
             <div v-for="x in currentMyJDPage" class="myjd-items">
