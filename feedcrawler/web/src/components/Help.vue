@@ -141,94 +141,63 @@ function getTimestamp(ms) {
                data-bs-parent="#accordionHelp">
             <div id="helpText" class="accordion-body">
               <h5>Beispiele</h5>
-              <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>Film.*.Titel.*</i>
-                  </div>
-                  <div class="col text-left card">Sucht nach allen Filmen die mit Film beginnen und
-                    Titel
-                    enthalten.
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>.*-GROUP</i> oder
-                    <i>-GROUP</i>
-                  </div>
-                  <div class="col text-left card">sucht nach allen Releases der GROUP.</div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>.*1080p.*-GROUP</i>
-                  </div>
-                  <div class="col text-left card">sucht nach allen Full-HD Releases der GROUP.</div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>Film.Titel.*.DL.*.720p.*.BluRay.*-Group</i>
-                  </div>
-                  <div class="col text-left card">sucht nach HD-BluRay Releases von Film Titel,
-                    zweisprachig
-                    und in
-                    720p
-                    der GROUP.
-                  </div>
-                </div>
-              </div>
-              <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</i>
-                  </div>
-                  <div class="col text-left card">sucht nach Releases der GROUP von Staffel 1 der
-                    Serien
-                    Titel
-                    in 720p
-                    auf
-                    Deutsch.
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>Serien.Titel.*</i>
-                  </div>
-                  <div class="col text-left card">sucht nach allen Releases von Serien Titel
-                    (nützlich,
-                    wenn
-                    man sonst
-                    HDTV
-                    aussortiert).
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>Serien.Titel.*.DL.*.720p.*</i>
-                  </div>
-                  <div class="col text-left card">sucht nach zweisprachigen Releases in 720p von
-                    Serien
-                    Titel.
-                  </div>
-                </div>
-                <div class="row">
-                  <div class="col text-left card bg-light">
-                    <i>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</i>
-                  </div>
-                  <div class="col text-left card">sucht nach Serie (aber nicht Diese Serie oder Andere
-                    Serie),
-                    zweisprachig
-                    und in 720p und ausschließlich
-                    nach Releases von GROUP oder ANDEREGROUP.
-                  </div>
-                </div>
-              </div>
-              <p>All diese Regeln lassen sich beliebig kombinieren.<br/>
-                Falsche Regex-Einträge können allerdings die Feed-Suche verhindern!</p>
-              <p>Daher vorher beispielsweise auf
-                <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen, ob ein Eintrag
-                matcht
-                (Beispielrelease unter Text eintragen - Expression sollte
-                etwas finden).</p>
+              <table class="table table-hover">
+                <thead>
+                <tr>
+                  <th scope="col">Ausdruck</th>
+                  <th scope="col">Bedeutung</th>
+                </tr>
+                </thead>
+                <tbody v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
+                <tr>
+                  <td>Film.*.Titel.*</td>
+                  <td>akzeptiert alle Filmen die mit <i>Film</i> beginnen und <i>Titel</i> enthalten</td>
+                </tr>
+                <tr>
+                  <td>.*-GROUP oder -GROUP</td>
+                  <td>akzeptiert alle Releases der <i>GROUP</i></td>
+                </tr>
+                <tr>
+                  <td>.*1080p.*-GROUP</td>
+                  <td>akzeptiert alle Full-HD-Releases der <i>GROUP</i></td>
+                </tr>
+                <tr>
+                  <td>Film.Titel.*.DL.*.720p.*.BluRay.*-GROUP</td>
+                  <td>akzeptiert alle zweisprachigen HD-BluRay-Releases von <i>Film Titel</i> der <i>GROUP</i></td>
+                </tr>
+                </tbody>
+                <tbody v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
+                <tr>
+                  <td>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</td>
+                  <td>akzeptiert alle deutschsprachigen HD-Releases von Staffel 1 des <i>Serien Titel</i> der
+                    <i>GROUP</i>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Serien.Titel.*</td>
+                  <td>akzeptiert alle Releases des <i>Serien Titel</i></td>
+                </tr>
+                <tr>
+                  <td>Serien.Titel.*.DL.*.720p.*</td>
+                  <td>
+                    akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>
+                  </td>
+                </tr>
+                <tr>
+                  <td>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</td>
+                  <td>
+                    akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>, aber nicht <i>Diese Serie</i>
+                    und nicht <i>Andere Serie</i> und ausschließlich von <i>GROUP</i> oder <i>ANDEREGROUP</i>
+                  </td>
+                </tr>
+                </tbody>
+              </table>
+
+              <p>All diese Regeln lassen sich beliebig kombinieren. Falsche Regex-Einträge können allerdings die
+                Feed-Suche blockieren!</p>
+              <p>Daher jeden Ausdruck auf
+                <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen.
+                Beim Eintrag eines Beispiel-Releases unter <i>Text</i> sollte <i>Expression</i> matchen!</p>
             </div>
           </div>
         </div>

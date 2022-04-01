@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.5** RegEx-Hilfe überarbeitet
 - **13.0.5** Verbesserungen in der Websuche
 - **13.0.5** Fehlgeschlagene Downloads können jetzt zurückgesetzt werden
 - **13.0.4** Die Websuche zeigt die Ergebnisse von schnell durchsuchbaren Seiten schon an, 
