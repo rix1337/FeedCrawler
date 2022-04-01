@@ -106,6 +106,15 @@ function startNow() {
         toast.error('Konnte Suchlauf nicht starten!')
       })
 }
+
+function getLists() {
+  getSettings()
+  store.commit("getLists")
+}
+
+function getSettings() {
+  store.commit("getSettings")
+}
 </script>
 
 
@@ -149,13 +158,14 @@ function startNow() {
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomLists"
               aria-controls="offcanvasBottomLists"
-              @click='store.commit("getLists")'><i class="bi bi-text-left"></i> Suchlisten
+              @click='getLists'><i class="bi bi-text-left"></i>
+        Suchlisten
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomSettings"
               aria-controls="offcanvasBottomSettings"
-              @click='store.commit("getSettings")'><i class="bi bi-gear"></i> Einstellungen
+              @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
       </button>
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"

@@ -2,6 +2,7 @@
 import {useStore} from 'vuex'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
+import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 
 const store = useStore()
@@ -38,6 +39,16 @@ function spinLists() {
     spin_lists.value = false
   }, 1000)
 }
+
+function showRegExHelp() {
+  let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
+  offcanvas.show()
+  new Collapse(document.getElementById('collapseRegEx'), {
+    toggle: true
+  })
+  sessionStorage.setItem('fromNav', '')
+  window.location.href = "#collapseRegEx"
+}
 </script>
 
 
@@ -66,7 +77,10 @@ function spinLists() {
               <textarea v-model="store.state.lists.mb.filme"
                         v-tooltip="'Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern).'"
                         class="liste form-control"></textarea>
-              <h5 v-if="store.state.settings.mb.regex">Filme/Serien (RegEx)</h5>
+              <h5 v-if="store.state.settings.mb.regex">Filme/Serien <span v-tooltip="'Hilfe zu RegEx öffnen'"
+                                                                          class="link-primary"
+                                                                          @click="showRegExHelp">(RegEx)</span>
+              </h5>
               <textarea v-if="store.state.settings.mb.regex" v-model="store.state.lists.mb.regex"
                         class="liste form-control"
                         v-tooltip="'Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
@@ -91,11 +105,15 @@ function spinLists() {
               <h5>Serien</h5>
               <textarea v-model="store.state.lists.sj.serien" v-tooltip="'Pro Zeile ein Serientitel für Episoden.'"
                         class="liste form-control"></textarea>
-              <h5 v-if="store.state.settings.sj.regex">Serien (RegEx)</h5>
+              <h5 v-if="store.state.settings.sj.regex">Serien <span v-tooltip="'Hilfe zu RegEx öffnen'"
+                                                                    class="link-primary"
+                                                                    @click="showRegExHelp">(RegEx)</span></h5>
               <textarea v-if="store.state.settings.sj.regex" v-model="store.state.lists.sj.regex"
                         class="liste form-control"
                         v-tooltip="'Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert.'"></textarea>
-              <h5 v-if="store.state.lists.sj.staffeln_regex">Staffeln (RegEx)</h5>
+              <h5 v-if="store.state.lists.sj.staffeln_regex">Staffeln <span v-tooltip="'Hilfe zu RegEx öffnen'"
+                                                                            class="link-primary"
+                                                                            @click="showRegExHelp">(RegEx)</span></h5>
               <textarea v-if="store.state.lists.sj.staffeln_regex" v-model="store.state.lists.sj.staffeln_regex"
                         v-tooltip="'Pro Zeile ein Serientitel im RegEx-Format für Staffeln - Die Filterliste wird hierbei ignoriert.'"
                         class="liste form-control"></textarea>
@@ -141,7 +159,9 @@ function spinLists() {
               <h5>Dokus</h5>
               <textarea v-model="store.state.lists.dj.dokus" v-tooltip="'Pro Zeile ein Dokutitel.'"
                         class="liste form-control"></textarea>
-              <h5 v-if="store.state.settings.dj.regex">Dokus (RegEx)</h5>
+              <h5 v-if="store.state.settings.dj.regex">Dokus <span v-tooltip="'Hilfe zu RegEx öffnen'"
+                                                                   class="link-primary"
+                                                                   @click="showRegExHelp">(RegEx)</span></h5>
               <textarea v-if="store.state.settings.dj.regex" v-model="store.state.lists.dj.regex"
                         class="liste form-control"
 
