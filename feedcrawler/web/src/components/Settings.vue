@@ -703,10 +703,15 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
       </div>
-      <button class="btn btn-dark" type="submit" @click="saveSettings()">
-        <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
-        <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
-      </button>
+      <div>
+        <button v-if="store.state.misc.loaded_settings" class="btn btn-dark" type="submit" @click="saveSettings()">
+          <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
+          <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
+        </button>
+        <button v-else class="btn btn-dark disabled">
+          <span class="spinner-border spinner-border-sm" role="status"></span> Speichern
+        </button>
+      </div>
     </div>
   </div>
 </template>

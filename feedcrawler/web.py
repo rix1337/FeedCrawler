@@ -45,6 +45,7 @@ from feedcrawler.myjd import jdownloader_start
 from feedcrawler.myjd import jdownloader_stop
 from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
+from feedcrawler.myjd import reset_in_downloads
 from feedcrawler.myjd import retry_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
@@ -845,6 +846,33 @@ def app_container():
                 else:
                     uuids.append(uuids_raw)
                 if remove_from_linkgrabber(linkids, uuids):
+                    return "Success", 200
+            except:
+                pass
+            return "Failed", 400
+        else:
+            return "Failed", 405
+
+    @app.route(prefix + "/api/myjd_reset/<linkids>&<uuids>", methods=['POST'])
+    @requires_auth
+    def myjd_reset(linkids, uuids):
+        if request.method == 'POST':
+            try:
+                linkids_raw = ast.literal_eval(linkids)
+                linkids = []
+                if isinstance(linkids_raw, (list, tuple)):
+                    for linkid in linkids_raw:
+                        linkids.append(linkid)
+                else:
+                    linkids.append(linkids_raw)
+                uuids_raw = ast.literal_eval(uuids)
+                uuids = []
+                if isinstance(uuids_raw, (list, tuple)):
+                    for uuid in uuids_raw:
+                        uuids.append(uuid)
+                else:
+                    uuids.append(uuids_raw)
+                if reset_in_downloads(linkids, uuids):
                     return "Success", 200
             except:
                 pass

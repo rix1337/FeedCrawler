@@ -58,10 +58,12 @@ function searchNow() {
     axios.post(store.state.prefix + 'api/search/' + title, {slow_only: true, fast_only: false})
         .then(function (res) {
           slow_ready.value = true
-          console.log(results.value)
-          console.log(res.data.results)
-          results.value.sj = res.data.results.sj.concat(results.value.sj)
-          results.value.bl = res.data.results.bl.concat(results.value.bl)
+          if (res.data.results.sj) {
+            results.value.sj = res.data.results.sj.concat(results.value.sj)
+          }
+          if (res.data.results.bl) {
+            results.value.bl = res.data.results.bl.concat(results.value.bl)
+          }
           getResultsPages()
           search.value = ""
           console.log('Nach ' + title + ' gesucht!')
@@ -120,16 +122,16 @@ function downloadSJ(payload) {
       <input v-model="search" aria-label="Search"
              class="form-control mr-sm-2"
 
-             placeholder="Filme und Serien suchen"
+             placeholder="Film- oder Serientitel eingeben"
              v-tooltip="'Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
              @keyup.enter="searchNow()">
-      <button v-if="search || (!results.sj && !results.bl)" class="btn btn-dark" type="submit"
+      <button v-if="search" class="btn btn-dark" type="submit"
               @click="searchNow()">
         <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
         <i v-if="!searching" class="bi bi-search"></i> Suchen
       </button>
-      <button v-if="!search && (results.sj || results.bl)" class="btn btn-dark" type="submit"
-              @click="searchNow()"><i class="bi bi-x-circle"></i> Leeren
+      <button v-else v-tooltip="'Bitte zunächst einen Suchtitel eingeben!'" class="btn btn-dark disabled">
+        <i class="bi bi-search"></i> Suchen
       </button>
       <div v-if="results" class="results">
         <p v-for="x in results.sj">
