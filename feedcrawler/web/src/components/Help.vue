@@ -387,57 +387,59 @@ function getTimestamp(ms) {
                 Daher jeden Ausdruck auf <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen.
                 Beim Eintrag eines Beispiel-Releases unter <i>Text</i> sollte <i>Expression</i> matchen!</p>
               <h5>Beispiele</h5>
-              <table class="table table-hover">
-                <thead>
-                <tr>
-                  <th scope="col">Ausdruck</th>
-                  <th scope="col">Bedeutung</th>
-                </tr>
-                </thead>
-                <tbody v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
-                <tr>
-                  <td>Film.*.Titel.*</td>
-                  <td>akzeptiert alle Filmen die mit <i>Film</i> beginnen und <i>Titel</i> enthalten</td>
-                </tr>
-                <tr>
-                  <td>.*-GROUP oder -GROUP</td>
-                  <td>akzeptiert alle Releases der <i>GROUP</i></td>
-                </tr>
-                <tr>
-                  <td>.*1080p.*-GROUP</td>
-                  <td>akzeptiert alle Full-HD-Releases der <i>GROUP</i></td>
-                </tr>
-                <tr>
-                  <td>Film.Titel.*.DL.*.720p.*.BluRay.*-GROUP</td>
-                  <td>akzeptiert alle zweisprachigen HD-BluRay-Releases von <i>Film Titel</i> der <i>GROUP</i></td>
-                </tr>
-                </tbody>
-                <tbody v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
-                <tr>
-                  <td>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</td>
-                  <td>akzeptiert alle deutschsprachigen HD-Releases von Staffel 1 des <i>Serien Titel</i> der
-                    <i>GROUP</i>
-                  </td>
-                </tr>
-                <tr>
-                  <td>Serien.Titel.*</td>
-                  <td>akzeptiert alle Releases des <i>Serien Titel</i></td>
-                </tr>
-                <tr>
-                  <td>Serien.Titel.*.DL.*.720p.*</td>
-                  <td>
-                    akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>
-                  </td>
-                </tr>
-                <tr>
-                  <td>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</td>
-                  <td>
-                    akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>, aber nicht <i>Diese Serie</i>
-                    und nicht <i>Andere Serie</i> und ausschließlich von <i>GROUP</i> oder <i>ANDEREGROUP</i>
-                  </td>
-                </tr>
-                </tbody>
-              </table>
+              <div class="table-responsive">
+                <table class="table table-hover">
+                  <thead>
+                  <tr>
+                    <th scope="col">Ausdruck</th>
+                    <th scope="col">Bedeutung</th>
+                  </tr>
+                  </thead>
+                  <tbody v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
+                  <tr>
+                    <td>Film.*.Titel.*</td>
+                    <td>akzeptiert alle Filmen die mit <i>Film</i> beginnen und <i>Titel</i> enthalten</td>
+                  </tr>
+                  <tr>
+                    <td>.*-GROUP oder -GROUP</td>
+                    <td>akzeptiert alle Releases der <i>GROUP</i></td>
+                  </tr>
+                  <tr>
+                    <td>.*1080p.*-GROUP</td>
+                    <td>akzeptiert alle Full-HD-Releases der <i>GROUP</i></td>
+                  </tr>
+                  <tr>
+                    <td>Film.Titel.*.DL.*.720p.*.BluRay.*-GROUP</td>
+                    <td>akzeptiert alle zweisprachigen HD-BluRay-Releases von <i>Film Titel</i> der <i>GROUP</i></td>
+                  </tr>
+                  </tbody>
+                  <tbody v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
+                  <tr>
+                    <td>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</td>
+                    <td>akzeptiert alle deutschsprachigen HD-Releases von Staffel 1 des <i>Serien Titel</i> der
+                      <i>GROUP</i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Serien.Titel.*</td>
+                    <td>akzeptiert alle Releases des <i>Serien Titel</i></td>
+                  </tr>
+                  <tr>
+                    <td>Serien.Titel.*.DL.*.720p.*</td>
+                    <td>
+                      akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>(?!(Diese|Andere)).*Serie.*.DL.*.720p.*-(GROUP|ANDEREGROUP)</td>
+                    <td>
+                      akzeptiert alle zweisprachigen Releases des <i>Serien Titel</i>, aber nicht <i>Diese Serie</i><br>
+                      und nicht <i>Andere Serie</i> und ausschließlich von <i>GROUP</i> oder <i>ANDEREGROUP</i>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

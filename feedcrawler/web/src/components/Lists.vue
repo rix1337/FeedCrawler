@@ -176,7 +176,7 @@ function showRegExHelp() {
           <i v-if="!spin_lists" class="bi bi-save"></i> Speichern
         </button>
         <button v-else class="btn btn-dark disabled">
-          <span class="spinner-border spinner-border-sm" role="status"></span> Speichern
+          <span class="spinner-border spinner-border-sm" role="status"></span> Lädt...
         </button>
       </div>
     </div>

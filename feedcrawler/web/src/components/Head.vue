@@ -190,13 +190,12 @@ function showSiteStatusHelp() {
         <i class="bi bi-bar-chart"></i>
         Seitenstatus
       </button>
-
       <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
          class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
         aktiver
         Sponsor</a>
-      <a v-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+      <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tooltip="'Vielen Dank für die aktive Github Sponsorship!'"
          class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
         Sponsor</a>
