@@ -7,7 +7,6 @@ import re
 import time
 
 from bs4 import BeautifulSoup
-from rapidfuzz import fuzz
 
 import feedcrawler.myjdapi
 from feedcrawler import internal
@@ -17,6 +16,7 @@ from feedcrawler.common import is_device
 from feedcrawler.common import longest_substr
 from feedcrawler.common import readable_size
 from feedcrawler.common import readable_time
+from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.url import get_redirected_url
@@ -911,8 +911,7 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
     for dp in decrypted_packages:
         if dp['uuid'] not in known_packages:
             dp_title = dp['name']
-            ratio = fuzz.partial_ratio(title, dp_title)
-            if ratio > 55:
+            if simplified_search_term_in_title(title, dp_title, no_numbers=True):
                 mergable_titles.append(dp_title)
                 mergable_uuids.append(dp['uuid'])
                 for link in dp['linkids']:

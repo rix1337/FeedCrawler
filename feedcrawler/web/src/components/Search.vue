@@ -30,9 +30,13 @@ const search = ref('')
 const searching = ref(false)
 const slow_ready = ref(false)
 
-function searchNow() {
+function clearResults() {
   results.value = false
   currentPageResults.value = 1
+}
+
+function searchNow() {
+  clearResults()
   let title = search.value
   searching.value = true
   if (!title) {
@@ -116,27 +120,31 @@ function downloadSJ(payload) {
        tabindex="-1">
     <div class="offcanvas-header">
       <h3 id="offcanvasBottomSearchLabel" class="offcanvas-title"><i class="bi bi-search"></i> Web-Suche</h3>
-      <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
+      <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"
+              @click="clearResults()"></button>
     </div>
     <div class="offcanvas-body">
       <input v-model="search" aria-label="Search"
              class="form-control mr-sm-2"
-
+             minlength="3"
              placeholder="Film- oder Serientitel eingeben"
              v-tooltip="'Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
              @keyup.enter="searchNow()">
-      <button v-if="search" class="btn btn-dark" type="submit"
+      <button v-if="search.length > 2" class="btn btn-dark" type="submit"
               @click="searchNow()">
         <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
         <i v-if="!searching" class="bi bi-search"></i> Suchen
       </button>
-      <button v-else v-tooltip="'Bitte zunächst einen Suchtitel eingeben!'" class="btn btn-dark disabled">
-        <i class="bi bi-search"></i> Suchen
-      </button>
+      <div v-else v-tooltip="'Bitte zunächst einen Suchtitel (mehr als 3 Zeichen) eingeben!'">
+        <button class="btn btn-dark disabled">
+          <i class="bi bi-search"></i> Suchen
+        </button>
+      </div>
       <div v-if="results" class="results">
         <p v-for="x in results.sj">
           <button class="btn btn-outline-info" type="submit" @click="downloadSJ(x.payload)"><i
-              class="bi bi-download"></i> Serie: <span v-text="x.title"></span></button>
+              class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
+          </button>
         </p>
         <div v-if="!slow_ready" class="btn btn-warning">
           <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...

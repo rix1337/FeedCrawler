@@ -85,6 +85,7 @@ from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import rreplace
+from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
@@ -178,7 +179,7 @@ def get_search_results(self, bl_query):
         if check_is_site(res) == 'BY':
             by_results = by_search_results(res, by)
         elif check_is_site(res) == 'FX':
-            fx_results = fx_search_results(fx_content_to_soup(res))
+            fx_results = fx_search_results(fx_content_to_soup(res), bl_query)
         elif check_is_site(res) == 'HW':
             hw_results = hw_search_results(res)
 
@@ -408,14 +409,15 @@ def fx_feed_enricher(feed):
     return feed
 
 
-def fx_search_results(content):
+def fx_search_results(content, search_term):
     fx = CrawlerConfig('Hostnames').get('fx')
     articles = content.find("main").find_all("article")
     result_urls = []
     for article in articles:
-        url = article.find("a")["href"]
-        if url:
-            result_urls.append(url)
+        if simplified_search_term_in_title(search_term, article.find("h2").text):
+            url = article.find("a")["href"]
+            if url:
+                result_urls.append(url)
 
     items = []
 

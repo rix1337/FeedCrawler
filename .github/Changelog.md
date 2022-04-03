@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.6** Dependency Rapidfuzz zugunsten eigener Implementierung entfernt.
+- **13.0.6** Detailverbesserungen im Web-Interface
 - **13.0.5** Fehlerbehebung im Laden der Suchlisten
 - **13.0.5** RegEx-Hilfe überarbeitet
 - **13.0.5** Verbesserungen in der Websuche

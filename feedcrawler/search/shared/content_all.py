@@ -6,15 +6,19 @@
 import re
 
 from bs4 import BeautifulSoup
-from rapidfuzz import fuzz
 
 from feedcrawler import internal
-from feedcrawler.common import sanitize, is_retail, decode_base64, check_is_site, check_hoster
+from feedcrawler.common import check_hoster
+from feedcrawler.common import check_is_site
+from feedcrawler.common import decode_base64
+from feedcrawler.common import is_retail
+from feedcrawler.common import sanitize
+from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
-from feedcrawler.search.search import get
+from feedcrawler.search.search import get, rate
 from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
 from feedcrawler.sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.url import get_redirected_url
@@ -32,21 +36,15 @@ def get_best_result(title):
     best_score = 0
     best_match = False
     best_payload = False
-    for r in bl_results:
-        payload = r.get('payload')
-        r = re.sub(r'\(.*\)', '', r.get('title')).strip()
-        r = r.replace(".", " ")
-        without_year = re.sub(
-            r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*)(|.)\d{4}(|.)(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
-            "", r)
-        with_year = re.sub(
-            r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)(|.3D.*|.3D.HSBS.*|.3D.HOU.*|.HSBS.*|.HOU.*).(German|GERMAN)(|.AC3|.DTS|.DTS-HD)(|.DL)(|.AC3|.DTS|.DTS-HD).(2160|1080|720)p.(UHD.|Ultra.HD.|)(HDDVD|BluRay)(|.HDR)(|.AVC|.AVC.REMUX|.x264|.x265)(|.REPACK|.RERiP|.REAL.RERiP)-.*',
-            "", r)
-        score = fuzz.ratio(title, without_year) + fuzz.ratio(title, with_year)
-        if score > best_score:
-            best_score = score
-            best_match = r
-            best_payload = payload
+    for result in bl_results:
+        payload = result.get('payload')
+        result = result.get('title')
+        if simplified_search_term_in_title(title, result):
+            score = rate(result)
+            if score > best_score:
+                best_score = score
+                best_match = result
+                best_payload = payload
 
     try:
         if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):

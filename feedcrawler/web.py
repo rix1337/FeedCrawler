@@ -674,6 +674,8 @@ def app_container():
     def search_title(title):
         if request.method == 'POST':
             try:
+                if len(title) < 3:
+                    return "Search term too short!", 400
                 data = json.loads(request.data)
                 slow_only = data['slow_only']
                 fast_only = data['fast_only']
