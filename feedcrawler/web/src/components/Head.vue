@@ -28,7 +28,7 @@ function openReleaseNotes() {
 }
 
 function getVersion() {
-  axios.get(store.state.prefix + 'api/version/')
+  axios.get('api/version/')
       .then(function (res) {
         version.value = res.data.version.ver
         console.info("%c FeedCrawler %c ".concat(version.value, " "), "color: white; background: #303030; font-weight: 700; font-size: 24px; font-family: Monospace;", "color: #303030; background: white; font-weight: 700; font-size: 24px; font-family: Monospace;");
@@ -96,7 +96,7 @@ const currentDuration = computed(() => {
 function startNow() {
   toast.info('Starte Suchlauf...')
   store.commit('setStarting', true)
-  axios.post(store.state.prefix + 'api/start_now/')
+  axios.post('api/start_now/')
       .then(function () {
         store.commit('setStarting', false)
         toast.success('Suchlauf gestartet!')

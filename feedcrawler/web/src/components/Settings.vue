@@ -41,7 +41,7 @@ const sources = [
 
 function saveSettings() {
   spinSettings()
-  axios.post(store.state.prefix + 'api/settings/', store.state.settings)
+  axios.post('api/settings/', store.state.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
         toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!')

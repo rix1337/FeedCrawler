@@ -16,7 +16,6 @@ const toast = useToast()
 const store = createStore({
     state() {
         return {
-            prefix: '',
             crawltimes: {},
             hostnames: {
                 sj: 'Nicht gesetzt!',
@@ -122,7 +121,7 @@ const store = createStore({
         }
     }, mutations: {
         getCrawlTimes(state) {
-            axios.get(state.prefix + 'api/crawltimes/')
+            axios.get('api/crawltimes/')
                 .then(function (res) {
                     state.misc.starting = false
                     state.crawltimes = res.data.crawltimes
@@ -132,7 +131,7 @@ const store = createStore({
                 })
         },
         getHostNames(state) {
-            axios.get(state.prefix + 'api/hostnames/')
+            axios.get('api/hostnames/')
                 .then(function (res) {
                     state.hostnames = res.data.hostnames
                     let not_set = 'Nicht gesetzt!'
@@ -143,7 +142,7 @@ const store = createStore({
                 })
         },
         getLists(state) {
-            axios.get(state.prefix + 'api/lists/')
+            axios.get('api/lists/')
                 .then(function (res) {
                     state.lists = res.data.lists
                     state.misc.loaded_lists = true
@@ -153,7 +152,7 @@ const store = createStore({
                 })
         },
         getSettings(state) {
-            axios.get(store.state.prefix + 'api/settings/')
+            axios.get('api/settings/')
                 .then(function (res) {
                     state.settings = res.data.settings
                     state.misc.loaded_settings = true
@@ -178,10 +177,6 @@ const store = createStore({
         },
         setNow(state, now) {
             state.misc.now = now
-        },
-        setPrefix(state, prefix) {
-            console.log('Running in dev mode! Expecting FeedCrawler at ' + prefix)
-            state.prefix = prefix
         },
         setSjBlEnabled(state, enabled) {
             state.misc.sjbl_enabled = enabled

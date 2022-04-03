@@ -12,7 +12,6 @@ import time
 from functools import wraps
 
 from flask import Flask, request, redirect, render_template, send_from_directory, jsonify, Response
-from flask_cors import CORS
 from passlib.hash import pbkdf2_sha256
 from requests.packages.urllib3 import disable_warnings as disable_request_warnings
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
@@ -81,7 +80,6 @@ def app_container():
         return decorated
 
     app = Flask(__name__, template_folder=os.path.join(base_dir, 'web/dist'))
-    CORS(app)
 
     @app.route(prefix + '/', defaults={'path': ''}, methods=['GET'])
     @app.route(prefix + '/<path:path>')

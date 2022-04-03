@@ -44,7 +44,7 @@ function searchNow() {
     resLengthResults.value = 0
     searching.value = false
   } else {
-    axios.post(store.state.prefix + 'api/search/' + title, {slow_only: false, fast_only: true})
+    axios.post('api/search/' + title, {slow_only: false, fast_only: true})
         .then(function (res) {
           results.value = res.data.results
           slow_ready.value = false
@@ -59,7 +59,7 @@ function searchNow() {
           resLengthResults.value = 0
           searching.value = false
         })
-    axios.post(store.state.prefix + 'api/search/' + title, {slow_only: true, fast_only: false})
+    axios.post('api/search/' + title, {slow_only: true, fast_only: false})
         .then(function (res) {
           slow_ready.value = true
           if (results.value) {
@@ -92,7 +92,7 @@ const currentResultsPage = computed(() => {
 
 function downloadBL(payload) {
   toast.info("Starte Download...")
-  axios.post(store.state.prefix + 'api/download_bl/' + payload)
+  axios.post('api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
         toast.success('Download gestartet!')
@@ -104,7 +104,7 @@ function downloadBL(payload) {
 
 function downloadSJ(payload) {
   toast.info("Starte Download...")
-  axios.post(store.state.prefix + 'api/download_sj/' + payload)
+  axios.post('api/download_sj/' + payload)
       .then(function () {
         console.log('Download gestartet!')
         toast.success('Download gestartet!')

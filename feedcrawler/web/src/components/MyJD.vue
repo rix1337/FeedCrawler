@@ -34,7 +34,7 @@ const to_decrypt = ref([])
 const update_ready = ref(false)
 
 function getMyJD() {
-  axios.get(store.state.prefix + 'api/myjd/')
+  axios.get('api/myjd/')
       .then(function (res) {
         store.commit("setMyJDConnectionError", false)
         pageSizeMyJD.value = store.state.misc.pageSizeMyJD
@@ -166,7 +166,7 @@ const myjd_starting = ref(false)
 
 function myJDstart() {
   myjd_starting.value = true
-  axios.post(store.state.prefix + 'api/myjd_start/')
+  axios.post('api/myjd_start/')
       .then(function () {
         getMyJDstate()
         console.log('Download gestartet!')
@@ -181,7 +181,7 @@ const myjd_pausing = ref(false)
 
 function myJDpause(pause) {
   myjd_pausing.value = true
-  axios.post(store.state.prefix + 'api/myjd_pause/' + pause)
+  axios.post('api/myjd_pause/' + pause)
       .then(function () {
         getMyJDstate()
         if (pause) {
@@ -200,7 +200,7 @@ const myjd_stopping = ref(false)
 
 function myJDstop() {
   myjd_stopping.value = true
-  axios.post(store.state.prefix + 'api/myjd_stop/')
+  axios.post('api/myjd_stop/')
       .then(function () {
         getMyJDstate()
         console.log('Download angehalten!')
@@ -212,7 +212,7 @@ function myJDstop() {
 }
 
 function getMyJDstate() {
-  axios.get(store.state.prefix + 'api/myjd_state/')
+  axios.get('api/myjd_state/')
       .then(function (res) {
         myjd_state.value = res.data.downloader_state
         myjd_grabbing.value = res.data.grabber_collecting
@@ -228,7 +228,7 @@ function getMyJDstate() {
 
 function myJDmove(linkids, uuid, name) {
   toast.success("Starte Download\n" + name)
-  axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
+  axios.post('api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
         getMyJD()
       }, function () {
@@ -239,7 +239,7 @@ function myJDmove(linkids, uuid, name) {
 
 function myJDremove(linkids, uuid, name) {
   toast.success("Lösche Download\n" + name)
-  axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
+  axios.post('api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
@@ -259,7 +259,7 @@ function myJDremove(linkids, uuid, name) {
 
 function myJDreset(linkids, uuid, name) {
   toast.success("Setze das Paket\n" + name + "\n zurück")
-  axios.post(store.state.prefix + 'api/myjd_reset/' + linkids + "&" + uuid)
+  axios.post('api/myjd_reset/' + linkids + "&" + uuid)
       .then(function () {
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
@@ -279,7 +279,7 @@ function myJDreset(linkids, uuid, name) {
 
 function internalRemove(name) {
   toast.success("Lösche Download\n" + name)
-  axios.post(store.state.prefix + 'api/internal_remove/' + name)
+  axios.post('api/internal_remove/' + name)
       .then(function () {
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
@@ -300,7 +300,7 @@ function internalRemove(name) {
 function myJDretry(linkids, uuid, links, name) {
   toast.success("Füge Download\n" + name + "\nerneut hinzu...")
   links = btoa(links)
-  axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
+  axios.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
@@ -332,7 +332,7 @@ function internalCnl(name, password) {
   cnl_active.value = true
   time.value = 60
   countDown()
-  axios.post(store.state.prefix + 'api/internal_cnl/' + name + "&" + password)
+  axios.post('api/internal_cnl/' + name + "&" + password)
       .then(function () {
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
@@ -505,13 +505,13 @@ function showSponsorsHelp() {
                       <span
                           v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                       <span
@@ -532,13 +532,13 @@ function showSponsorsHelp() {
                       <span
                           v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
                       <span v-if="!store.state.misc.helper_active"><br>

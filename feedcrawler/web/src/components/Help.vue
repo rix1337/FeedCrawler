@@ -19,7 +19,7 @@ const blocked_sites = ref({
 })
 
 function getBlockedSites() {
-  axios.get(store.state.prefix + 'api/blocked_sites/')
+  axios.get('api/blocked_sites/')
       .then(function (res) {
         blocked_sites.value = res.data.blocked_sites
       }, function () {
