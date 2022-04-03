@@ -34,7 +34,7 @@ const to_decrypt = ref([])
 const update_ready = ref(false)
 
 function getMyJD() {
-  axios.get(store.state.prefix + 'api/myjd/')
+  axios.get('api/myjd/')
       .then(function (res) {
         store.commit("setMyJDConnectionError", false)
         pageSizeMyJD.value = store.state.misc.pageSizeMyJD
@@ -166,7 +166,7 @@ const myjd_starting = ref(false)
 
 function myJDstart() {
   myjd_starting.value = true
-  axios.post(store.state.prefix + 'api/myjd_start/')
+  axios.post('api/myjd_start/')
       .then(function () {
         getMyJDstate()
         console.log('Download gestartet!')
@@ -181,7 +181,7 @@ const myjd_pausing = ref(false)
 
 function myJDpause(pause) {
   myjd_pausing.value = true
-  axios.post(store.state.prefix + 'api/myjd_pause/' + pause)
+  axios.post('api/myjd_pause/' + pause)
       .then(function () {
         getMyJDstate()
         if (pause) {
@@ -200,7 +200,7 @@ const myjd_stopping = ref(false)
 
 function myJDstop() {
   myjd_stopping.value = true
-  axios.post(store.state.prefix + 'api/myjd_stop/')
+  axios.post('api/myjd_stop/')
       .then(function () {
         getMyJDstate()
         console.log('Download angehalten!')
@@ -212,7 +212,7 @@ function myJDstop() {
 }
 
 function getMyJDstate() {
-  axios.get(store.state.prefix + 'api/myjd_state/')
+  axios.get('api/myjd_state/')
       .then(function (res) {
         myjd_state.value = res.data.downloader_state
         myjd_grabbing.value = res.data.grabber_collecting
@@ -227,20 +227,20 @@ function getMyJDstate() {
 }
 
 function myJDmove(linkids, uuid, name) {
-  toast.success("Starte Download\n" + name)
-  axios.post(store.state.prefix + 'api/myjd_move/' + linkids + "&" + uuid)
+  axios.post('api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
+        toast.success('Download\n' + name + '\ngestartet!')
         getMyJD()
       }, function () {
-        console.log('Konnte Download nicht starten!')
-        toast.error('Konnte Download nicht starten!')
+        console.log('Konnte Download\n' + name + '\nnicht starten!')
+        toast.error('Konnte Download\n' + name + '\nnicht starten!')
       })
 }
 
 function myJDremove(linkids, uuid, name) {
-  toast.success("Lösche Download\n" + name)
-  axios.post(store.state.prefix + 'api/myjd_remove/' + linkids + "&" + uuid)
+  axios.post('api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
+        toast.success('Download\n' + name + '\ngelöscht!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -252,15 +252,15 @@ function myJDremove(linkids, uuid, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download nicht löschen!')
-        toast.error('Konnte Download nicht löschen!')
+        console.log('Konnte Download\n' + name + '\nnicht löschen!')
+        toast.error('Konnte Download\n' + name + '\nnicht löschen!')
       })
 }
 
 function myJDreset(linkids, uuid, name) {
-  toast.success("Setze das Paket\n" + name + "\n zurück")
-  axios.post(store.state.prefix + 'api/myjd_reset/' + linkids + "&" + uuid)
+  axios.post('api/myjd_reset/' + linkids + "&" + uuid)
       .then(function () {
+        toast.success('Paket\n' + name + '\nzurückgesetzt!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -272,15 +272,15 @@ function myJDreset(linkids, uuid, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Paket nicht zurücksetzen!')
-        toast.error('Konnte Paket nicht zurücksetzen!')
+        console.log('Konnte Paket\n' + name + '\nnicht zurücksetzen!')
+        toast.error('Konnte Paket\n' + name + '\nnicht zurücksetzen!')
       })
 }
 
 function internalRemove(name) {
-  toast.success("Lösche Download\n" + name)
-  axios.post(store.state.prefix + 'api/internal_remove/' + name)
+  axios.post('api/internal_remove/' + name)
       .then(function () {
+        toast.success('Download\n' + name + '\ngelöscht!')
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
             let existing_name = failed_package['name']
@@ -292,16 +292,16 @@ function internalRemove(name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download nicht löschen!')
-        toast.error('Konnte Download nicht löschen!')
+        console.log('Konnte Download\n' + name + '\nnicht löschen!')
+        toast.error('Konnte Download\n' + name + '\nnicht löschen!')
       })
 }
 
 function myJDretry(linkids, uuid, links, name) {
-  toast.success("Füge Download\n" + name + "\nerneut hinzu...")
   links = btoa(links)
-  axios.post(store.state.prefix + 'api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
+  axios.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
+        toast.success('Download\n' + name + '\nerneut hinzugefügt!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -313,8 +313,8 @@ function myJDretry(linkids, uuid, links, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download nicht erneut hinzufügen!')
-        toast.error('Konnte Download nicht erneut hinzufügen!')
+        console.log('Konnte Download\n' + name + '\nnicht erneut hinzufügen!')
+        toast.error('Konnte Download\n' + name + '\nnicht erneut hinzufügen!')
       })
 }
 
@@ -332,8 +332,9 @@ function internalCnl(name, password) {
   cnl_active.value = true
   time.value = 60
   countDown()
-  axios.post(store.state.prefix + 'api/internal_cnl/' + name + "&" + password)
+  axios.post('api/internal_cnl/' + name + "&" + password)
       .then(function () {
+        toast.success("Click'n'Load für\n" + name + "\nerfolgreich!")
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
             let existing_name = failed_package['name']
@@ -347,7 +348,8 @@ function internalCnl(name, password) {
         cnl_active.value = false
         time.value = 0
       }).catch(function () {
-    toast.error("Click'n'Load nicht durchgeführt!")
+    console.log("Click'n'Load für\n" + name + "\nicht durchgeführt!")
+    toast.error("Click'n'Load für\n" + name + "\nicht durchgeführt!")
     cnl_active.value = false
     time.value = 0
   })
@@ -505,13 +507,13 @@ function showSponsorsHelp() {
                       <span
                           v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x[1].first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                       <span
@@ -532,13 +534,13 @@ function showSponsorsHelp() {
                       <span
                           v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
                       <span
                           v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix + context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
                       <span v-if="!store.state.misc.helper_active"><br>

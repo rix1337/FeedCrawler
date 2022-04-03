@@ -28,7 +28,7 @@ function openReleaseNotes() {
 }
 
 function getVersion() {
-  axios.get(store.state.prefix + 'api/version/')
+  axios.get('api/version/')
       .then(function (res) {
         version.value = res.data.version.ver
         console.info("%c FeedCrawler %c ".concat(version.value, " "), "color: white; background: #303030; font-weight: 700; font-size: 24px; font-family: Monospace;", "color: #303030; background: white; font-weight: 700; font-size: 24px; font-family: Monospace;");
@@ -96,7 +96,7 @@ const currentDuration = computed(() => {
 function startNow() {
   toast.info('Starte Suchlauf...')
   store.commit('setStarting', true)
-  axios.post(store.state.prefix + 'api/start_now/')
+  axios.post('api/start_now/')
       .then(function () {
         store.commit('setStarting', false)
         toast.success('Suchlauf gestartet!')
@@ -106,6 +106,10 @@ function startNow() {
         console.log('Konnte Suchlauf nicht starten!')
         toast.error('Konnte Suchlauf nicht starten!')
       })
+}
+
+function getBlockedSites() {
+  store.commit("getBlockedSites")
 }
 
 function getLists() {
@@ -118,6 +122,7 @@ function getSettings() {
 }
 
 function showSiteStatusHelp() {
+  getBlockedSites()
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
   offcanvas.show()
   new Collapse(document.getElementById('collapseSiteStatus'), {
@@ -181,22 +186,25 @@ function showSiteStatusHelp() {
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomHelp"
-              aria-controls="offcanvasBottomHelp"><i class="bi bi-question-diamond"></i> Hilfe
+              aria-controls="offcanvasBottomHelp"
+              @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
       </button>
     </div>
 
     <div>
-      <button class="btn btn-outline-secondary" type="button" @click="showSiteStatusHelp">
+      <button
+          :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
+          class="btn"
+          type="button" @click="showSiteStatusHelp">
         <i class="bi bi-bar-chart"></i>
         Seitenstatus
       </button>
-
       <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
          class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
         aktiver
         Sponsor</a>
-      <a v-if="helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+      <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tooltip="'Vielen Dank für die aktive Github Sponsorship!'"
          class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
         Sponsor</a>

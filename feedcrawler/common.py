@@ -506,3 +506,19 @@ def site_blocked_with_flaresolverr(url):
         if site and check_against == site and db_status.retrieve(check_against + "_flaresolverr"):
             return True
     return False
+
+
+def simplified_search_term_in_title(search_term, release_title, no_numbers=False):
+    if no_numbers:
+        match_regex = r'[^a-zA-Z\s\-\.]'
+    else:
+        match_regex = r'[^a-zA-Z0-9\s\-\.]'
+
+    def unify(string):
+        return string.lower().replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace(
+            "ü", "ue").replace("+", ".").replace(" ", ".").strip()
+
+    search_term = re.sub(match_regex, '', unify(search_term))
+    release_title = re.sub(match_regex, '', unify(release_title))
+
+    return search_term in release_title

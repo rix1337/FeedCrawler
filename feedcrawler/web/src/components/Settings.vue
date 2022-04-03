@@ -41,7 +41,7 @@ const sources = [
 
 function saveSettings() {
   spinSettings()
-  axios.post(store.state.prefix + 'api/settings/', store.state.settings)
+  axios.post('api/settings/', store.state.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
         toast.success('Einstellungen gespeichert!\nNeustart des FeedCrawlers wird dringend empfohlen!')
@@ -709,7 +709,7 @@ const year = ref((new Date).getFullYear())
           <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
         </button>
         <button v-else class="btn btn-dark disabled">
-          <span class="spinner-border spinner-border-sm" role="status"></span> Speichern
+          <span class="spinner-border spinner-border-sm" role="status"></span> Lädt...
         </button>
       </div>
     </div>

@@ -9,7 +9,7 @@ const store = useStore()
 const toast = useToast()
 
 function getLists() {
-  axios.get(store.state.prefix + 'api/lists/')
+  axios.get('api/lists/')
       .then(function (res) {
         store.commit('getLists', res.data.lists)
       }, function () {
@@ -20,7 +20,7 @@ function getLists() {
 
 function saveLists() {
   spinLists()
-  axios.post(store.state.prefix + 'api/lists/', store.state.lists)
+  axios.post('api/lists/', store.state.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
         toast.success('Listen gespeichert!\nÄnderungen werden im nächsten Suchlauf berücksichtigt.')
@@ -176,7 +176,7 @@ function showRegExHelp() {
           <i v-if="!spin_lists" class="bi bi-save"></i> Speichern
         </button>
         <button v-else class="btn btn-dark disabled">
-          <span class="spinner-border spinner-border-sm" role="status"></span> Speichern
+          <span class="spinner-border spinner-border-sm" role="status"></span> Lädt...
         </button>
       </div>
     </div>

@@ -54,7 +54,7 @@ const to_decrypt = ref({
 })
 
 function getToDecrypt() {
-  axios.get(store.state.prefix + context.value + '/api/to_decrypt/')
+  axios.get(context.value + '/api/to_decrypt/')
       .then(function (res) {
         to_decrypt.value = res.data.to_decrypt
         startToDecrypt()
@@ -69,7 +69,7 @@ const ff_hostname = ref('')
 const next_f_run = ref(0)
 
 function getFBlocked() {
-  axios.get(store.state.prefix + context.value + '/api/f_blocked/False')
+  axios.get(context.value + '/api/f_blocked/False')
       .then(function (res) {
         f_blocked.value = res.data.blocked_sites.sf_ff
         sf_hostname.value = res.data.blocked_sites.sf_hostname

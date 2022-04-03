@@ -6,10 +6,8 @@
 import json
 import re
 
-from rapidfuzz import fuzz
-
 from feedcrawler import internal
-from feedcrawler.common import decode_base64, sanitize, check_hoster
+from feedcrawler.common import decode_base64, sanitize, check_hoster, simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import add_decrypt
@@ -27,14 +25,15 @@ def get_best_result(title):
     best_score = 0
     best_match = False
     best_payload = False
-    for r in sj_results:
-        payload = r.get('payload')
-        r = re.sub(r"\s\(.*\)", "", r.get('title')).strip()
-        score = fuzz.ratio(title, r)
-        if score > best_score:
-            best_score = score
-            best_match = r
-            best_payload = payload
+    for result in sj_results:
+        payload = result.get('payload')
+        result = result.get('title')
+        if simplified_search_term_in_title(title, result):
+            score = rate(result)
+            if score > best_score:
+                best_score = score
+                best_match = result
+                best_payload = payload
 
     try:
         if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):
@@ -53,13 +52,6 @@ def get_best_result(title):
             return False
     internal.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
     return best_payload
-
-
-def valid_release(title, release):
-    unified_title = re.sub(r'[^a-zA-Z0-9\s\-\.]', '', title).lower().replace(" ", ".")
-    unified_release = re.sub(r'[^a-zA-Z0-9\s\-\.]', '', release).lower().replace(" ", ".")
-    valid = unified_title in unified_release
-    return valid
 
 
 def download(payload):
@@ -109,7 +101,7 @@ def download(payload):
         releases = seasons[season]
         for release in releases['items']:
             name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
-            if valid_release(title, name):
+            if simplified_search_term_in_title(title, name):
                 try:
                     season = re.findall(r'.*\.(s\d{1,3}).*', name, re.IGNORECASE)[0]
                 except:
@@ -180,7 +172,7 @@ def download(payload):
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
-                if valid_release(title, name):
+                if simplified_search_term_in_title(title, name):
                     hosters = release['hoster']
                     valid = True
                     if valid and special:

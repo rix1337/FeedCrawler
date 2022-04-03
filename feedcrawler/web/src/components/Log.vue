@@ -17,7 +17,7 @@ const log = ref([])
 
 
 function getLog() {
-  axios.get(store.state.prefix + 'api/log/')
+  axios.get('api/log/')
       .then(function (res) {
         log.value = res.data.log
         getLogPages()
@@ -81,7 +81,7 @@ function shortenEntry(entry) {
 
 function deleteLog() {
   spinLog()
-  axios.delete(store.state.prefix + 'api/log/')
+  axios.delete('api/log/')
       .then(function () {
         console.log('Log geleert!')
         toast.success('Log geleert!')
@@ -94,7 +94,7 @@ function deleteLog() {
 
 function deleteLogRow(title) {
   const title_b64 = btoa(title)
-  axios.delete(store.state.prefix + 'api/log_entry/' + title_b64)
+  axios.delete('api/log_entry/' + title_b64)
       .then(function () {
         console.log('Log-Eintrag ' + title + ' gelöscht!')
         toast.success('Log-Eintrag\n' + title + '\ngelöscht!')

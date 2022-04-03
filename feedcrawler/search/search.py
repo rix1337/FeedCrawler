@@ -6,11 +6,11 @@
 import re
 
 from bs4 import BeautifulSoup
-from rapidfuzz import fuzz
 
 from feedcrawler.common import check_is_site
 from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
+from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.sites.shared.internal_feed import by_search_results
 from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
@@ -99,7 +99,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
             if check_is_site(res) == 'BY':
                 by_results = by_search_results(res, by)
             elif check_is_site(res) == 'FX':
-                fx_results = fx_search_results(fx_content_to_soup(res))
+                fx_results = fx_search_results(fx_content_to_soup(res), bl_query)
             elif check_is_site(res) == 'HW':
                 hw_results = hw_search_results(res)
 
@@ -187,8 +187,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
         results = []
         for result in sj_results:
             r_title = result.text
-            r_rating = fuzz.ratio(title.lower(), r_title)
-            if r_rating > 40:
+            if simplified_search_term_in_title(title, r_title):
                 res = {"payload": encode_base64(result['href'] + "|" + r_title + "|" + str(special)),
                        "title": r_title + append}
                 results.append(res)
