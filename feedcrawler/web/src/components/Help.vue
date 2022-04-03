@@ -1,32 +1,17 @@
 <script setup>
 import {useStore} from 'vuex'
-import {onMounted, ref} from 'vue'
+import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import {Collapse} from "bootstrap"
-import axios from 'axios'
 
 const store = useStore()
 const toast = useToast()
-
-onMounted(() => {
-  getBlockedSites()
-})
 
 const blocked_sites = ref({
   normal: {},
   flaresolverr: {},
   flaresolverr_proxy: {}
 })
-
-function getBlockedSites() {
-  axios.get('api/blocked_sites/')
-      .then(function (res) {
-        blocked_sites.value = res.data.blocked_sites
-      }, function () {
-        console.log('Konnte blockierte Seiten nicht abrufen!')
-        toast.error('Konnte blockierte Seiten nicht abrufen!')
-      })
-}
 
 function showCaptchasHelp() {
   new Collapse(document.getElementById('collapseCaptchas'), {

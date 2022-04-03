@@ -108,6 +108,18 @@ function startNow() {
       })
 }
 
+const anySiteBlocked = computed(() => {
+  // ToDo get all hostnames not "Nicht gesetzt!"
+  // check if any of them is blocked normal
+  // check if any of blocked normal is blocked_flaresolverr
+  // check if any of blocked_flaresolverr is blocked_flaresolverr_proxy
+  return false
+})
+
+function getBlockedSites() {
+  store.commit("getBlockedSites")
+}
+
 function getLists() {
   getSettings()
   store.commit("getLists")
@@ -181,12 +193,15 @@ function showSiteStatusHelp() {
 
       <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
               data-bs-target="#offcanvasBottomHelp"
-              aria-controls="offcanvasBottomHelp"><i class="bi bi-question-diamond"></i> Hilfe
+              aria-controls="offcanvasBottomHelp"
+              @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
       </button>
     </div>
 
     <div>
-      <button class="btn btn-outline-secondary" type="button" @click="showSiteStatusHelp">
+      <button :class="{ 'btn-outline-success': !anySiteBlocked, 'btn-outline-danger': anySiteBlocked }"
+              class="btn"
+              type="button" @click="showSiteStatusHelp">
         <i class="bi bi-bar-chart"></i>
         Seitenstatus
       </button>

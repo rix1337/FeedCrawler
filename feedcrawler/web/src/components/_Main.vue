@@ -19,6 +19,7 @@ const store = useStore()
 store.commit("setNow", Date.now())
 store.commit("getCrawlTimes")
 store.commit("getHostNames")
+store.commit('getBlockedSites')
 </script>
 
 <template>

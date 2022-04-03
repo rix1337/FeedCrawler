@@ -17,6 +17,11 @@ const store = createStore({
     state() {
         return {
             crawltimes: {},
+            blocked_sites: {
+                normal: {},
+                flaresolverr: {},
+                flaresolverr_proxy: {}
+            },
             hostnames: {
                 sj: 'Nicht gesetzt!',
                 dj: 'Nicht gesetzt!',
@@ -120,6 +125,15 @@ const store = createStore({
             },
         }
     }, mutations: {
+        getBlockedSites(state) {
+            axios.get('api/blocked_sites/')
+                .then(function (res) {
+                    state.blocked_sites.value = res.data.blocked_sites
+                }, function () {
+                    console.log('Konnte blockierte Seiten nicht abrufen!')
+                    toast.error('Konnte blockierte Seiten nicht abrufen!')
+                })
+        },
         getCrawlTimes(state) {
             axios.get('api/crawltimes/')
                 .then(function (res) {

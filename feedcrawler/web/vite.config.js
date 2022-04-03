@@ -9,7 +9,11 @@ export default defineConfig({
     base: './',
     server: {
         proxy: {
-            '/': {
+            '/api': {
+                target: 'http://localhost:9090/feedcrawler',
+                changeOrigin: true
+            },
+            '/sponsors_helper/api': {
                 target: 'http://localhost:9090/feedcrawler',
                 changeOrigin: true
             },
