@@ -1,17 +1,10 @@
 <script setup>
 import {useStore} from 'vuex'
-import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import {Collapse} from "bootstrap"
 
 const store = useStore()
 const toast = useToast()
-
-const blocked_sites = ref({
-  normal: {},
-  flaresolverr: {},
-  flaresolverr_proxy: {}
-})
 
 function showCaptchasHelp() {
   new Collapse(document.getElementById('collapseCaptchas'), {
@@ -67,21 +60,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.fx
                       }}
                       (FX)
-                      <i v-if="blocked_sites.normal.FX"
+                      <i v-if="store.state.blocked_sites.normal.FX"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.FX" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.FX" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.FX && blocked_sites.normal.FX"
+                      <i v-if="store.state.blocked_sites.flaresolverr.FX && store.state.blocked_sites.normal.FX"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.FX && blocked_sites.normal.FX"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.FX && store.state.blocked_sites.normal.FX"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.FX && ( blocked_sites.normal.FX && blocked_sites.flaresolverr.FX )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.FX && ( store.state.blocked_sites.normal.FX && store.state.blocked_sites.flaresolverr.FX )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.FX && ( blocked_sites.normal.FX && blocked_sites.flaresolverr.FX )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.FX && ( store.state.blocked_sites.normal.FX && store.state.blocked_sites.flaresolverr.FX )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -89,21 +82,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.hw
                       }}
                       (HW)
-                      <i v-if="blocked_sites.normal.HW"
+                      <i v-if="store.state.blocked_sites.normal.HW"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.HW" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.HW" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.HW && blocked_sites.normal.HW"
+                      <i v-if="store.state.blocked_sites.flaresolverr.HW && store.state.blocked_sites.normal.HW"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.HW && blocked_sites.normal.HW"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.HW && store.state.blocked_sites.normal.HW"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.HW && ( blocked_sites.normal.HW && blocked_sites.flaresolverr.HW )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.HW && ( store.state.blocked_sites.normal.HW && store.state.blocked_sites.flaresolverr.HW )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.HW && ( blocked_sites.normal.HW && blocked_sites.flaresolverr.HW )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.HW && ( store.state.blocked_sites.normal.HW && store.state.blocked_sites.flaresolverr.HW )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -111,22 +104,22 @@ function getTimestamp(ms) {
                         store.state.hostnames.ww
                       }}
                       (WW)
-                      <i v-if="blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
+                      <i v-if="store.state.blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
+                      <i v-if="!store.state.blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
                          v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.WW && blocked_sites.normal.WW"
+                      <i v-if="store.state.blocked_sites.flaresolverr.WW && store.state.blocked_sites.normal.WW"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.WW && blocked_sites.normal.WW"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.WW && store.state.blocked_sites.normal.WW"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.WW && ( blocked_sites.normal.WW && blocked_sites.flaresolverr.WW )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.WW && ( store.state.blocked_sites.normal.WW && store.state.blocked_sites.flaresolverr.WW )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.WW && ( blocked_sites.normal.WW && blocked_sites.flaresolverr.WW )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.WW && ( store.state.blocked_sites.normal.WW && store.state.blocked_sites.flaresolverr.WW )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -135,23 +128,23 @@ function getTimestamp(ms) {
                       }}
                       (FF)
                       <span v-if="store.state.crawltimes.next_f_run < store.state.misc.now">
-                                            <i v-if="!blocked_sites.normal.SF"
+                                            <i v-if="!store.state.blocked_sites.normal.SF"
                                                v-tooltip="'Seite mit aktueller IP verfügbar'"
                                                class="bi bi-check-square-fill text-success"></i>
                                         </span>
-                      <i v-if="blocked_sites.normal.FF"
+                      <i v-if="store.state.blocked_sites.normal.FF"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                      <i v-if="store.state.blocked_sites.flaresolverr.FF && store.state.blocked_sites.normal.FF"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.FF && blocked_sites.normal.FF"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.FF && store.state.blocked_sites.normal.FF"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.FF && ( store.state.blocked_sites.normal.FF && store.state.blocked_sites.flaresolverr.FF )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.FF && ( blocked_sites.normal.FF && blocked_sites.flaresolverr.FF )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.FF && ( store.state.blocked_sites.normal.FF && store.state.blocked_sites.flaresolverr.FF )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">
@@ -162,21 +155,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.nk
                       }}
                       (NK)
-                      <i v-if="blocked_sites.normal.NK"
+                      <i v-if="store.state.blocked_sites.normal.NK"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.NK" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.NK" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.NK && blocked_sites.normal.NK"
+                      <i v-if="store.state.blocked_sites.flaresolverr.NK && store.state.blocked_sites.normal.NK"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.NK && blocked_sites.normal.NK"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.NK && store.state.blocked_sites.normal.NK"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.NK && ( blocked_sites.normal.NK && blocked_sites.flaresolverr.NK )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.NK && ( store.state.blocked_sites.normal.NK && store.state.blocked_sites.flaresolverr.NK )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.NK && ( blocked_sites.normal.NK && blocked_sites.flaresolverr.NK )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.NK && ( store.state.blocked_sites.normal.NK && store.state.blocked_sites.flaresolverr.NK )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -184,21 +177,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.by
                       }}
                       (BY)
-                      <i v-if="blocked_sites.normal.BY"
+                      <i v-if="store.state.blocked_sites.normal.BY"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.BY" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.BY" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.BY && blocked_sites.normal.BY"
+                      <i v-if="store.state.blocked_sites.flaresolverr.BY && store.state.blocked_sites.normal.BY"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.BY && blocked_sites.normal.BY"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.BY && store.state.blocked_sites.normal.BY"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.BY && ( blocked_sites.normal.BY && blocked_sites.flaresolverr.BY )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.BY && ( store.state.blocked_sites.normal.BY && store.state.blocked_sites.flaresolverr.BY )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.BY && ( blocked_sites.normal.BY && blocked_sites.flaresolverr.BY )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.BY && ( store.state.blocked_sites.normal.BY && store.state.blocked_sites.flaresolverr.BY )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -212,21 +205,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.sj
                       }}
                       (SJ)
-                      <i v-if="blocked_sites.normal.SJ"
+                      <i v-if="store.state.blocked_sites.normal.SJ"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.SJ" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.SJ" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.SJ && blocked_sites.normal.SJ"
+                      <i v-if="store.state.blocked_sites.flaresolverr.SJ && store.state.blocked_sites.normal.SJ"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.SJ && blocked_sites.normal.SJ"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.SJ && store.state.blocked_sites.normal.SJ"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.SJ && ( blocked_sites.normal.SJ && blocked_sites.flaresolverr.SJ )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.SJ && ( store.state.blocked_sites.normal.SJ && store.state.blocked_sites.flaresolverr.SJ )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.SJ && ( blocked_sites.normal.SJ && blocked_sites.flaresolverr.SJ )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.SJ && ( store.state.blocked_sites.normal.SJ && store.state.blocked_sites.flaresolverr.SJ )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -234,21 +227,21 @@ function getTimestamp(ms) {
                         store.state.hostnames.dj
                       }}
                       (DJ)
-                      <i v-if="blocked_sites.normal.DJ"
+                      <i v-if="store.state.blocked_sites.normal.DJ"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.normal.DJ" v-tooltip="'Seite mit aktueller IP verfügbar'"
+                      <i v-if="!store.state.blocked_sites.normal.DJ" v-tooltip="'Seite mit aktueller IP verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr.DJ && blocked_sites.normal.DJ"
+                      <i v-if="store.state.blocked_sites.flaresolverr.DJ && store.state.blocked_sites.normal.DJ"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.DJ && blocked_sites.normal.DJ"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.DJ && store.state.blocked_sites.normal.DJ"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.DJ && ( blocked_sites.normal.DJ && blocked_sites.flaresolverr.DJ )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.DJ && ( store.state.blocked_sites.normal.DJ && store.state.blocked_sites.flaresolverr.DJ )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.DJ && ( blocked_sites.normal.DJ && blocked_sites.flaresolverr.DJ )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.DJ && ( store.state.blocked_sites.normal.DJ && store.state.blocked_sites.flaresolverr.DJ )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                     </li>
@@ -257,23 +250,23 @@ function getTimestamp(ms) {
                       }}
                       (SF)
                       <span v-if="store.state.crawltimes.next_f_run < store.state.misc.now">
-                                            <i v-if="!blocked_sites.normal.SF"
+                                            <i v-if="!store.state.blocked_sites.normal.SF"
                                                v-tooltip="'Seite mit aktueller IP verfügbar'"
                                                class="bi bi-check-square-fill text-success"></i>
                                         </span>
-                      <i v-if="blocked_sites.normal.SF"
+                      <i v-if="store.state.blocked_sites.normal.SF"
                          v-tooltip="'Seite mit aktueller IP gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
+                      <i v-if="store.state.blocked_sites.flaresolverr.SF && store.state.blocked_sites.normal.SF"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr.SF && blocked_sites.normal.SF"
+                      <i v-if="!store.state.blocked_sites.flaresolverr.SF && store.state.blocked_sites.normal.SF"
                          v-tooltip="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
-                      <i v-if="blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
+                      <i v-if="store.state.blocked_sites.flaresolverr_proxy.SF && ( store.state.blocked_sites.normal.SF && store.state.blocked_sites.flaresolverr.SF )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) gesperrt'"
                          class="bi bi-exclamation-square-fill text-danger"></i>
-                      <i v-if="!blocked_sites.flaresolverr_proxy.SF && ( blocked_sites.normal.SF && blocked_sites.flaresolverr.SF )"
+                      <i v-if="!store.state.blocked_sites.flaresolverr_proxy.SF && ( store.state.blocked_sites.normal.SF && store.state.blocked_sites.flaresolverr.SF )"
                          v-tooltip="'Seite mit FlareSolverr (Proxy) verfügbar'"
                          class="bi bi-check-square-fill text-success"></i>
                       <span v-if="store.state.crawltimes.next_f_run > store.state.misc.now">

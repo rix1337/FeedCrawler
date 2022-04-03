@@ -118,6 +118,7 @@ const store = createStore({
                 loaded_lists: false,
                 loaded_settings: false,
                 myjd_connection_error: false,
+                no_site_blocked: true,
                 now: Date.now(),
                 pageSizeMyJD: 3,
                 sjbl_enabled: true,
@@ -128,7 +129,29 @@ const store = createStore({
         getBlockedSites(state) {
             axios.get('api/blocked_sites/')
                 .then(function (res) {
-                    state.blocked_sites.value = res.data.blocked_sites
+                    state.blocked_sites = res.data.blocked_sites
+
+                    if (state.hostnames) {
+                        let current_hostnames = []
+                        for (let hn in state.hostnames) {
+                            if (state.hostnames[hn] !== "Nicht gesetzt!") {
+                                if (!["s", "bl", "sjbl"].includes(hn)) {
+                                    current_hostnames.push(hn)
+                                }
+                            }
+                        }
+                        if (current_hostnames.length > 0) {
+                            const blocked_sites = state.blocked_sites
+                            for (let site in blocked_sites.normal) {
+                                if (current_hostnames.includes(site.toLowerCase())) {
+                                    if (blocked_sites.normal[site] && blocked_sites.flaresolverr[site] && blocked_sites.flaresolverr_proxy[site]) {
+                                        state.misc.no_site_blocked = false
+                                    }
+                                }
+                            }
+                        }
+                    }
+
                 }, function () {
                     console.log('Konnte blockierte Seiten nicht abrufen!')
                     toast.error('Konnte blockierte Seiten nicht abrufen!')
@@ -149,7 +172,7 @@ const store = createStore({
                 .then(function (res) {
                     state.hostnames = res.data.hostnames
                     let not_set = 'Nicht gesetzt!'
-                    state.misc.sjbl_enabled = !((store.state.hostnames.bl === not_set && store.state.hostnames.s !== not_set) || (store.state.hostnames.bl !== not_set && store.state.hostnames.s === not_set))
+                    state.misc.sjbl_enabled = !((state.hostnames.bl === not_set && state.hostnames.s !== not_set) || (state.hostnames.bl !== not_set && state.hostnames.s === not_set))
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
                     toast.error('Konnte Hostnamen nicht abrufen!')
@@ -170,8 +193,8 @@ const store = createStore({
                 .then(function (res) {
                     state.settings = res.data.settings
                     state.misc.loaded_settings = true
-                    state.misc.myjd_connection_error = !(store.state.settings.general.myjd_user && store.state.settings.general.myjd_device && store.state.settings.general.myjd_device)
-                    state.misc.pageSizeMyJD = store.state.settings.general.packages_per_myjd_page
+                    state.misc.myjd_connection_error = !(state.settings.general.myjd_user && state.settings.general.myjd_device && state.settings.general.myjd_device)
+                    state.misc.pageSizeMyJD = state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
                     toast.error('Konnte Einstellungen nicht abrufen!')

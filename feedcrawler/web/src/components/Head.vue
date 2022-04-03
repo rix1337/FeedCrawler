@@ -108,14 +108,6 @@ function startNow() {
       })
 }
 
-const anySiteBlocked = computed(() => {
-  // ToDo get all hostnames not "Nicht gesetzt!"
-  // check if any of them is blocked normal
-  // check if any of blocked normal is blocked_flaresolverr
-  // check if any of blocked_flaresolverr is blocked_flaresolverr_proxy
-  return false
-})
-
 function getBlockedSites() {
   store.commit("getBlockedSites")
 }
@@ -130,6 +122,7 @@ function getSettings() {
 }
 
 function showSiteStatusHelp() {
+  getBlockedSites()
   let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
   offcanvas.show()
   new Collapse(document.getElementById('collapseSiteStatus'), {
@@ -199,9 +192,10 @@ function showSiteStatusHelp() {
     </div>
 
     <div>
-      <button :class="{ 'btn-outline-success': !anySiteBlocked, 'btn-outline-danger': anySiteBlocked }"
-              class="btn"
-              type="button" @click="showSiteStatusHelp">
+      <button
+          :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
+          class="btn"
+          type="button" @click="showSiteStatusHelp">
         <i class="bi bi-bar-chart"></i>
         Seitenstatus
       </button>
