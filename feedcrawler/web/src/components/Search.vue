@@ -39,6 +39,7 @@ function searchNow() {
   clearResults()
   let title = search.value
   searching.value = true
+  slow_ready.value = false
   if (!title) {
     results.value = false
     resLengthResults.value = 0
@@ -47,7 +48,6 @@ function searchNow() {
     axios.post('api/search/' + title, {slow_only: false, fast_only: true})
         .then(function (res) {
           results.value = res.data.results
-          slow_ready.value = false
           getResultsPages()
           search.value = ""
           console.log('Nach ' + title + ' gesucht (schnelle Seiten)!')
@@ -73,9 +73,9 @@ function searchNow() {
           console.log('Nach ' + title + ' gesucht (langsame Seiten)!')
           searching.value = false
         }, function () {
+          slow_ready.value = true
           console.log('Konnte ' + title + ' nicht suchen!')
           toast.error('Konnte  ' + title + ' nicht suchen!')
-          slow_ready.value = true
           results.value = false
           resLengthResults.value = 0
           searching.value = false
@@ -102,9 +102,9 @@ function downloadBL(payload) {
       })
 }
 
-function downloadSJ(payload) {
+function downloadS(payload) {
   toast.info("Starte Download...")
-  axios.post('api/download_sj/' + payload)
+  axios.post('api/download_s/' + payload)
       .then(function () {
         console.log('Download gestartet!')
         toast.success('Download gestartet!')
@@ -128,7 +128,7 @@ function downloadSJ(payload) {
              class="form-control mr-sm-2"
              minlength="3"
              placeholder="Film- oder Serientitel eingeben"
-             v-tooltip="'Bequeme Suchfunktion für SJ, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
+             v-tooltip="'Bequeme Suchfunktion für SJ, SF, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
              @keyup.enter="searchNow()">
       <button v-if="search.length > 2" class="btn btn-dark" type="submit"
               @click="searchNow()">
@@ -141,8 +141,13 @@ function downloadSJ(payload) {
         </button>
       </div>
       <div v-if="results" class="results">
+        <p v-for="x in results.sf">
+          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload)"><i
+              class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
+          </button>
+        </p>
         <p v-for="x in results.sj">
-          <button class="btn btn-outline-info" type="submit" @click="downloadSJ(x.payload)"><i
+          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
           </button>
         </p>

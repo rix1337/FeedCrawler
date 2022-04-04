@@ -361,7 +361,7 @@ function getTimestamp(ms) {
               <p>Reguläre Ausdrücke (Regular Expressions, kurz RegEx) bilden in der Programmierung eine spezielle
                 Form von Zeichenketten, die als Filterkriterien in der Textsuche verwendet werden können.<br>
                 Die unten aufgeführten Beispiel-Regeln lassen sich beliebig erweitern und kombinieren.
-                Falsche Regex-Einträge können allerdings die Feed-Suche blockieren!<br>
+                Falsche RegEx-Einträge können allerdings die Feed-Suche blockieren!<br>
                 Daher jeden Ausdruck auf <a href="https://regexr.com/" target="_blank">RegExr.com</a> testen.
                 Beim Eintrag eines Beispiel-Releases unter <i>Text</i> sollte <i>Expression</i> matchen!</p>
               <h5>Beispiele</h5>
