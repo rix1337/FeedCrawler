@@ -8,6 +8,7 @@
 
 - **13.0.7** Integration der SF-Web-Suche
 - **13.0.7** Fehlerbehebung in der SF-Feed-Suche
+- **13.0.7** Verbesserte Erkennung von Blockaden auf SJ/DJ
 - **13.0.6** Dependency Flask-CORS zugunsten eigener Implementierung entfernt
 - **13.0.6** Dependency Rapidfuzz zugunsten eigener Implementierung entfernt
 - **13.0.6** Detailverbesserungen im Web-Interface (RegEx-Hilfe/Seitenstatus)
