@@ -78,11 +78,15 @@ def check_url(start_time):
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["SJ", "DJ", "BY", "FX", "HW"]:
+        if site in ["BY", "FX", "HW"]:
             status = request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True
         # Custom check required
+        elif site in ["SJ", "DJ"]:
+            status = request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
+            if not status == 200 or status == 403:
+                return True
         elif site in ["FF"]:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
             ff_test = request(url + '/updates/' + delta, dont_cache=True)

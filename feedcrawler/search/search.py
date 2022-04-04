@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt die Web-Suche für alle integrierten Hostnamen bereit.
 
+import json
 import re
 
 from bs4 import BeautifulSoup
@@ -34,6 +35,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
     sj = hostnames.get('sj')
+    sf = hostnames.get('sf')
 
     specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*),(s\d{1,3}e\d{1,3})$', title.lower())
@@ -48,9 +50,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
     else:
         special = None
 
-    bl_final = []
-    sj_final = []
-
+    content_all_results = []
     if not sj_only:
         mb_query = sanitize(title).replace(" ", "+")
         if special:
@@ -166,8 +166,9 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
             res = {"payload": result[1], "title": result[2]}
             results.append(res)
             i += 1
-        bl_final = results
+        content_all_results = results
 
+    content_shows_sj_results = []
     if not bl_only:
         if sj and not slow_only:
             sj_query = sanitize(title).replace(" ", "+")
@@ -192,9 +193,37 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
                        "title": r_title + append}
                 results.append(res)
                 i += 1
-        sj_final = results
+        content_shows_sj_results = results
 
-    return bl_final, sj_final
+    content_shows_sf_results = []
+    if not bl_only and not sj_only:
+        if sf and not slow_only:
+            sf_query = sanitize(title)
+            sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
+            try:
+                sf_results = json.loads(sf_search)["result"]
+            except:
+                sf_results = []
+        else:
+            sf_results = []
+
+        if special:
+            append = " (" + special + ")"
+        else:
+            append = ""
+        i = 0
+        results = []
+        for result in sf_results:
+            r_title = result["title"]
+            if simplified_search_term_in_title(title, r_title):
+                r_url = "https://" + sf + "/" + result["url_id"]
+                res = {"payload": encode_base64(r_url + "|" + r_title + "|" + str(special)),
+                       "title": r_title + append}
+                results.append(res)
+                i += 1
+        content_shows_sf_results = results
+
+    return content_all_results, content_shows_sj_results, content_shows_sf_results
 
 
 def rate(title, ignore=False):

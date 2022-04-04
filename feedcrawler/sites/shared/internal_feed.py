@@ -17,7 +17,7 @@
 #                                 enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
 #                                 sind.
 #                                 Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
-#                                 zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feedsuche den Link
+#                                 zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feed-Suche den Link
 #                                 erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
 #                                 Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
 #                 }
@@ -32,7 +32,7 @@
 #                                     enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
 #                                     sind.
 #                                     Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
-#                                     zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feedsuche den Link
+#                                     zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feed-Suche den Link
 #                                     erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
 #                                     Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
 #                 }
@@ -792,7 +792,7 @@ def j_parse_download(self, series_url, title, language_id):
                     if not valid and not self.hoster_fallback:
                         storage = self.db.retrieve_all(title)
                         if 'added' not in storage and 'notdl' not in storage:
-                            wrong_hoster = '[SJ/Hoster fehlt] - ' + title
+                            wrong_hoster = '[' + self._INTERNAL_NAME + ' / Hoster fehlt] - ' + title
                             if 'wrong_hoster' not in storage:
                                 print(wrong_hoster)
                                 self.db.store(title, 'wrong_hoster')
@@ -825,7 +825,7 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
             except:
                 continue
 
-        series_url = rreplace(base_url + '/api/v1' + a['href'], '/', '/season/', 1)
+        series_url = base_url + a['href']
         published = release.find("div", {"class": "datime"}).text
 
         entries.append(FakeFeedParserDict({
@@ -859,7 +859,15 @@ def sf_parse_download(self, series_url, title, language_id):
         else:
             lang = 'DE'
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
-        api_url = series_url + '?lang=' + lang + '&_=' + epoch
+        season_page = get_url(series_url)
+        season_details = re.findall(r"initSeason\('(.+?)\',(.+?),", season_page)[-1]
+        season_id = season_details[0]
+        season_nr = season_details[1]
+
+        sf = CrawlerConfig('Hostnames').get('sf')
+
+        api_url = 'https://' + sf + '/api/v1/' + season_id + '/season/' + season_nr + '?lang=' + lang + '&_=' + epoch
+
         response = get_url(api_url)
         info = json.loads(response)
 

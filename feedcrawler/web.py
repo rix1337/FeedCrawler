@@ -686,7 +686,8 @@ def app_container():
                     {
                         "results": {
                             "bl": results[0],
-                            "sj": results[1]
+                            "sj": results[1],
+                            "sf": results[2]
                         }
                     }
                 ), 200
@@ -739,9 +740,9 @@ def app_container():
         else:
             return "Failed", 405
 
-    @app.route(prefix + "/api/download_sj/<payload>", methods=['POST'])
+    @app.route(prefix + "/api/download_s/<payload>", methods=['POST'])
     @requires_auth
-    def download_sj(payload):
+    def download_s(payload):
         if request.method == 'POST':
             try:
                 if feedcrawler.search.shared.content_shows.download(payload):
