@@ -181,9 +181,7 @@ def main():
         w = multiprocessing.Process(target=crawldog, args=(global_variables,))
         w.start()
 
-        print(u'Drücke [Strg] + [C] zum Beenden')
-
-        def signal_handler():
+        def signal_handler(sig, frame):
             print(u'Beende FeedCrawler...')
             p.terminate()
             c.terminate()
@@ -191,7 +189,7 @@ def main():
             sys.exit(0)
 
         signal.signal(signal.SIGINT, signal_handler)
-
+        print(u'Drücke [Strg] + [C] zum Beenden')
         try:
             while True:
                 signal.pause()

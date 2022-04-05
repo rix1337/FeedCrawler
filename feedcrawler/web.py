@@ -681,7 +681,7 @@ def app_container():
                 slow_only = False
                 fast_only = False
             try:
-                results = search.get(title, slow_only=slow_only, fast_only=fast_only)
+                results = search.get(title, only_slow=slow_only, only_fast=fast_only)
                 return jsonify(
                     {
                         "results": {

@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **13.0.8** Bevorzuge SF-Web-Suche in Ombi-Anbindung
+- **13.0.8** Fehlerbehebung in den Web-Suchen
 - **13.0.7** Integration der SF-Web-Suche
 - **13.0.7** Fehlerbehebung in der SF-Feed-Suche
 - **13.0.7** Verbesserte Erkennung von Blockaden auf SJ/DJ

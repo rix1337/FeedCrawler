@@ -189,15 +189,15 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                 return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
             if method == 'post':
-                response = requests.post(url, data=params, timeout=30, headers=headers)
+                response = requests.post(url, data=params, timeout=10, headers=headers)
             elif redirect_url:
                 try:
-                    return requests.get(url, allow_redirects=False).headers._store["location"][1]
+                    return requests.get(url, allow_redirects=False, timeout=10).headers._store["location"][1]
                 except:
                     internal.logger.debug("Der Abruf der Redirect-URL war ohne FlareSolverr fehlerhaft.")
                     return url
             else:
-                response = requests.get(url, timeout=30, headers=headers)
+                response = requests.get(url, timeout=10, headers=headers)
 
             status_code = response.status_code
             text = response.text
