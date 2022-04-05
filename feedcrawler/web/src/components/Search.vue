@@ -90,8 +90,8 @@ const currentResultsPage = computed(() => {
   return results.value.bl.slice((currentPageResults.value - 1) * pageSizeResults.value, currentPageResults.value * pageSizeResults.value)
 })
 
-function downloadBL(payload) {
-  toast.info("Starte Download...")
+function downloadBL(payload, title) {
+  toast.info("Starte Download: " + title)
   axios.post('api/download_bl/' + payload)
       .then(function () {
         console.log('Download gestartet!')
@@ -102,8 +102,10 @@ function downloadBL(payload) {
       })
 }
 
-function downloadS(payload) {
-  toast.info("Starte Download...")
+function downloadS(payload, title) {
+  toast.info("Starte Download:\n" + title + "\nDieser Vorgang kann etwas dauern!", {
+    timeout: 10000
+  })
   axios.post('api/download_s/' + payload)
       .then(function () {
         console.log('Download gestartet!')
@@ -142,12 +144,12 @@ function downloadS(payload) {
       </div>
       <div v-if="results" class="results">
         <p v-for="x in results.sf">
-          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload)"><i
+          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
           </button>
         </p>
         <p v-for="x in results.sj">
-          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload)"><i
+          <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
               class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
           </button>
         </p>
@@ -155,7 +157,7 @@ function downloadS(payload) {
           <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
         </div>
         <p v-for="y in currentResultsPage">
-          <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload)"><i
+          <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload, y.title)"><i
               class="bi bi-download"></i> <span v-text="y.title"></span></button>
         </p>
         <div v-if="resLengthResults>10" class="btn-group">

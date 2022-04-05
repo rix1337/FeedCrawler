@@ -35,29 +35,24 @@ def get_best_result(title):
         internal.logger.debug('SJ-Ergebnisse werden für ' + title + ' verwendet!')
         preferred_results = sj_results
 
-    best_score = 0
+    best_difference = 999
     best_match = False
     best_payload = False
     for result in preferred_results:
         payload = result.get('payload')
         result = result.get('title')
 
-        # ToDo identify closest match according to length
         len_search_term = len(title)
         len_result = len(result)
 
+        difference = abs(len_search_term - len_result)
+
         if simplified_search_term_in_title(title, result):
-            score = rate(result)
-            if score > best_score:
-                best_score = score
+            if difference < best_difference:
+                best_difference = difference
                 best_match = result
                 best_payload = payload
 
-    try:
-        if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):
-            best_match = False
-    except:
-        best_match = False
     if not best_match or not best_payload:
         internal.logger.debug('Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
@@ -86,8 +81,9 @@ def download(payload):
     special_episode = False
     if special:
         try:
-            special_season = str(int(re.findall(r'.*S(\d{1,3})E\d{1,3}.*', special, re.IGNORECASE)[0].lower()))
-            special_episode = str(int(re.findall(r'.*S\d{1,3}E(\d{1,3}).*', special, re.IGNORECASE)[0].lower()))
+            special = special.upper()
+            special_season = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', special, re.IGNORECASE)[0].upper()
+            special_episode = str(int(re.findall(r'.*S\d{1,3}E(\d{1,3}).*', special, re.IGNORECASE)[0]))
         except:
             pass
 
@@ -204,7 +200,7 @@ def download(payload):
                 if site == "SF" and special_season and special_episode:
                     if special_season in name:
                         special_url = real_urls[name] + "?episode=" + special_episode
-                        name = name.replace(".S" + special_season + ".", "." + special + ".")
+                        name = name.replace("." + special_season + ".", "." + special + ".")
                         real_urls[name] = special_url
                         valid = True
                     else:

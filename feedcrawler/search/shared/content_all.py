@@ -33,7 +33,7 @@ def get_best_result(title):
     except:
         return False
 
-    best_score = 0
+    best_score = -999
     best_match = False
     best_payload = False
     for result in bl_results:
@@ -46,11 +46,6 @@ def get_best_result(title):
                 best_match = result
                 best_payload = payload
 
-    try:
-        if best_match and not re.match(r"^" + title.replace(" ", ".") + r".*$", best_match, re.IGNORECASE):
-            best_match = False
-    except:
-        best_match = False
     if not best_match or not best_payload:
         internal.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
