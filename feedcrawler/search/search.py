@@ -23,11 +23,11 @@ from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 
 
-def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
-    if fast_only:
-        slow_only = False
-    if slow_only:
-        fast_only = False
+def get(title, only_content_all=False, only_content_shows=False, only_fast=False, only_slow=False):
+    if only_fast:
+        only_slow = False
+    if only_slow:
+        only_fast = False
 
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
@@ -51,7 +51,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
         special = None
 
     content_all_results = []
-    if not sj_only:
+    if not only_content_shows:
         mb_query = sanitize(title).replace(" ", "+")
         if special:
             bl_query = mb_query + "+" + special
@@ -82,9 +82,9 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
         else:
             hw_search = None
 
-        if fast_only:
+        if only_fast:
             fx_search = None
-        if slow_only:
+        if only_slow:
             by_search = None
             hw_search = None
 
@@ -103,7 +103,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
             elif check_is_site(res) == 'HW':
                 hw_results = hw_search_results(res)
 
-        if nk and not slow_only:
+        if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
                                  data={'search': bl_query})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
@@ -169,8 +169,9 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
         content_all_results = results
 
     content_shows_sj_results = []
-    if not bl_only:
-        if sj and not slow_only:
+    content_shows_sf_results = []
+    if not only_content_all:
+        if sj and not only_slow:
             sj_query = sanitize(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
@@ -195,9 +196,7 @@ def get(title, bl_only=False, sj_only=False, fast_only=False, slow_only=False):
                 i += 1
         content_shows_sj_results = results
 
-    content_shows_sf_results = []
-    if not bl_only and not sj_only:
-        if sf and not slow_only:
+        if sf and not only_slow:
             sf_query = sanitize(title)
             sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
             try:

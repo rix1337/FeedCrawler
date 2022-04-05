@@ -21,16 +21,31 @@ from feedcrawler.url import get_url, get_redirected_url
 
 def get_best_result(title):
     try:
-        sj_results = get(title, sj_only=True)[1]
+        results = get(title, only_content_shows=True)
+        sj_results = results[1]
+        sf_results = results[2]
     except:
         return False
+
+    preferred_results = []
+    if sf_results:
+        internal.logger.debug('SF-Ergebnisse werden für ' + title + ' verwendet!')
+        preferred_results = sf_results
+    elif sj_results:
+        internal.logger.debug('SJ-Ergebnisse werden für ' + title + ' verwendet!')
+        preferred_results = sj_results
 
     best_score = 0
     best_match = False
     best_payload = False
-    for result in sj_results:
+    for result in preferred_results:
         payload = result.get('payload')
         result = result.get('title')
+
+        # ToDo identify closest match according to length
+        len_search_term = len(title)
+        len_result = len(result)
+
         if simplified_search_term_in_title(title, result):
             score = rate(result)
             if score > best_score:
@@ -67,11 +82,21 @@ def download(payload):
     title = payload[1]
     special = payload[2].strip().replace("None", "")
 
+    special_season = False
+    special_episode = False
+    if special:
+        try:
+            special_season = str(int(re.findall(r'.*S(\d{1,3})E\d{1,3}.*', special, re.IGNORECASE)[0].lower()))
+            special_episode = str(int(re.findall(r'.*S\d{1,3}E(\d{1,3}).*', special, re.IGNORECASE)[0].lower()))
+        except:
+            pass
+
     site = check_is_site(href)
 
     real_urls = {}
 
     if site == "SF":
+        password = sf
         series_url = False
 
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
@@ -92,7 +117,7 @@ def download(payload):
 
             name = details.find("small").text.strip()
             try:
-                resolution = re.findall(r"(\d+p)", name)[0]
+                resolution = re.findall(r"(\d+p)", name)[0].replace("480p", "SD")
             except:
                 resolution = "SD"
 
@@ -127,6 +152,7 @@ def download(payload):
             unsorted_seasons[season] = items
     else:
         site = "SJ"
+        password = sj
         series_url = 'https://' + sj + href
         series_info = get_url(series_url)
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
@@ -146,7 +172,7 @@ def download(payload):
 
     config = CrawlerConfig('ContentShows')
     english_ok = CrawlerConfig('FeedCrawler').get("english")
-    quality = config.get('quality')
+    quality = config.get('quality').replace("480p", "SD")
     ignore = config.get('rejectlist')
 
     result_seasons = {}
@@ -175,7 +201,16 @@ def download(payload):
             except:
                 valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
             if valid and special:
-                valid = bool("." + special.lower() + "." in name.lower())
+                if site == "SF" and special_season and special_episode:
+                    if special_season in name:
+                        special_url = real_urls[name] + "?episode=" + special_episode
+                        name = name.replace(".S" + special_season + ".", "." + special + ".")
+                        real_urls[name] = special_url
+                        valid = True
+                    else:
+                        valid = False
+                else:
+                    valid = bool("." + special.lower() + "." in name.lower())
             if valid and not english_ok:
                 valid = bool(".german." in name.lower())
             if valid:
@@ -299,7 +334,7 @@ def download(payload):
             url = series_url
 
         if url:
-            if add_decrypt(title, url, sj):
+            if add_decrypt(title, url, password):
                 db.store(title, 'added')
                 log_entry = u'[Suche/Serie] - ' + title + ' - ' + site
                 internal.logger.info(log_entry)

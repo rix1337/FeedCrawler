@@ -178,109 +178,22 @@ def periodical_task(self):
                 internal.logger.debug(
                     "Feed ist leer - breche die Suche für diesen Feed ab!")
 
-        for post in feed.entries:
-            concat = post.title + post.published + \
-                     str(self.settings) + str(self.pattern)
-            sha = hashlib.sha256(concat.encode(
-                'ascii', 'ignore')).hexdigest()
-            if sha == self.last_sha:
-                internal.logger.debug(
-                    "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
-                break
+        if feed:
+            for post in feed.entries:
+                concat = post.title + post.published + \
+                         str(self.settings) + str(self.pattern)
+                sha = hashlib.sha256(concat.encode(
+                    'ascii', 'ignore')).hexdigest()
+                if sha == self.last_sha:
+                    internal.logger.debug(
+                        "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
+                    break
 
-            series_url = post.series_url
-            title = post.title.replace("-", "-")
+                series_url = post.series_url
+                title = post.title.replace("-", "-")
 
-            if self.filename == 'List_ContentShows_Shows_Regex':
-                if self.config.get("regex"):
-                    if '.german.' in title.lower():
-                        language_id = 1
-                    elif self.feedcrawler.get('english'):
-                        language_id = 2
-                    else:
-                        language_id = 0
-                    if language_id:
-                        m = re.search(self.pattern, title.lower())
-                        if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                            m = re.search(self.pattern.replace(
-                                "480p", "."), title.lower())
-                            self.quality = "480p"
-                        if m:
-                            if "720p" in title.lower():
-                                self.quality = "720p"
-                            if "1080p" in title.lower():
-                                self.quality = "1080p"
-                            if "2160p" in title.lower():
-                                self.quality = "2160p"
-                            m = re.search(reject, title.lower())
-                            if m:
-                                internal.logger.debug(
-                                    title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                            title = re.sub(r'\[.*\] ', '', post.title)
-                            package = self.parse_download_method(self, series_url, title, language_id)
-                            if package:
-                                title = package[0]
-                                site = self._SITE
-                                download_link = False
-                                if not download_link:
-                                    download_link = package[1]
-                                language_id = package[2]
-                                season = package[3]
-                                episode = package[4]
-                                send_package(self, title, download_link, language_id, season, episode, site)
-                    else:
-                        internal.logger.debug(
-                            "%s - Englische Releases deaktiviert" % title)
-
-                else:
-                    continue
-            elif self.filename == 'List_ContentShows_Seasons_Regex':
-                if self.config.get("regex"):
-                    if '.german.' in title.lower():
-                        language_id = 1
-                    elif self.feedcrawler.get('english'):
-                        language_id = 2
-                    else:
-                        language_id = 0
-                    if language_id:
-                        m = re.search(self.pattern, title.lower())
-                        if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                            m = re.search(self.pattern.replace(
-                                "480p", "."), title.lower())
-                            self.quality = "480p"
-                        if m:
-                            if "720p" in title.lower():
-                                self.quality = "720p"
-                            if "1080p" in title.lower():
-                                self.quality = "1080p"
-                            if "2160p" in title.lower():
-                                self.quality = "2160p"
-                            m = re.search(reject, title.lower())
-                            if m:
-                                internal.logger.debug(
-                                    title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
-                            title = re.sub(r'\[.*\] ', '', post.title)
-                            package = self.parse_download_method(self, series_url, title, language_id)
-                            if package:
-                                title = package[0]
-                                site = self._SITE
-                                download_link = False
-                                if not download_link:
-                                    download_link = package[1]
-                                language_id = package[2]
-                                season = package[3]
-                                episode = package[4]
-                                send_package(self, title, download_link, language_id, season, episode, site)
-                    else:
-                        internal.logger.debug(
-                            "%s - Englische Releases deaktiviert" % title)
-
-                else:
-                    continue
-            else:
-                if self.config.get("quality") != '480p':
-                    m = re.search(self.pattern, title.lower())
-                    if m:
+                if self.filename == 'List_ContentShows_Shows_Regex':
+                    if self.config.get("regex"):
                         if '.german.' in title.lower():
                             language_id = 1
                         elif self.feedcrawler.get('english'):
@@ -288,28 +201,23 @@ def periodical_task(self):
                         else:
                             language_id = 0
                         if language_id:
-                            mm = re.search(self.quality, title.lower())
-                            if mm:
-                                mmm = re.search(reject, title.lower())
-                                if mmm:
+                            m = re.search(self.pattern, title.lower())
+                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
+                                m = re.search(self.pattern.replace(
+                                    "480p", "."), title.lower())
+                                self.quality = "480p"
+                            if m:
+                                if "720p" in title.lower():
+                                    self.quality = "720p"
+                                if "1080p" in title.lower():
+                                    self.quality = "1080p"
+                                if "2160p" in title.lower():
+                                    self.quality = "2160p"
+                                m = re.search(reject, title.lower())
+                                if m:
                                     internal.logger.debug(
-                                        title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
-                                    continue
-                                if self.feedcrawler.get("surround"):
-                                    if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                        internal.logger.debug(
-                                            title + " - Release ignoriert (kein Mehrkanalton)")
-                                        continue
-                                try:
-                                    storage = self.db.retrieve_all(title)
-                                except Exception as e:
-                                    internal.logger.debug(
-                                        "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return
-                                if 'added' in storage:
-                                    internal.logger.debug(
-                                        title + " - Release ignoriert (bereits gefunden)")
-                                    continue
+                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                                title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
                                     title = package[0]
@@ -326,38 +234,33 @@ def periodical_task(self):
                                 "%s - Englische Releases deaktiviert" % title)
 
                     else:
-                        m = re.search(self.pattern, title.lower())
-                        if m:
-                            if '.german.' in title.lower():
-                                language_id = 1
-                            elif self.feedcrawler.get('english'):
-                                language_id = 2
-                            else:
-                                language_id = 0
-                            if language_id:
-                                if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
-                                    continue
-                                mm = re.search(reject, title.lower())
-                                if mm:
+                        continue
+                elif self.filename == 'List_ContentShows_Seasons_Regex':
+                    if self.config.get("regex"):
+                        if '.german.' in title.lower():
+                            language_id = 1
+                        elif self.feedcrawler.get('english'):
+                            language_id = 2
+                        else:
+                            language_id = 0
+                        if language_id:
+                            m = re.search(self.pattern, title.lower())
+                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
+                                m = re.search(self.pattern.replace(
+                                    "480p", "."), title.lower())
+                                self.quality = "480p"
+                            if m:
+                                if "720p" in title.lower():
+                                    self.quality = "720p"
+                                if "1080p" in title.lower():
+                                    self.quality = "1080p"
+                                if "2160p" in title.lower():
+                                    self.quality = "2160p"
+                                m = re.search(reject, title.lower())
+                                if m:
                                     internal.logger.debug(
-                                        title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
-                                    continue
-                                if self.feedcrawler.get("surround"):
-                                    if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                        internal.logger.debug(
-                                            title + " - Release ignoriert (kein Mehrkanalton)")
-                                        continue
+                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
-                                try:
-                                    storage = self.db.retrieve_all(title)
-                                except Exception as e:
-                                    internal.logger.debug(
-                                        "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
-                                    return
-                                if 'added' in storage:
-                                    internal.logger.debug(
-                                        title + " - Release ignoriert (bereits gefunden)")
-                                    continue
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
                                     title = package[0]
@@ -369,9 +272,107 @@ def periodical_task(self):
                                     season = package[3]
                                     episode = package[4]
                                     send_package(self, title, download_link, language_id, season, episode, site)
+                        else:
+                            internal.logger.debug(
+                                "%s - Englische Releases deaktiviert" % title)
+
+                    else:
+                        continue
+                else:
+                    if self.config.get("quality") != '480p':
+                        m = re.search(self.pattern, title.lower())
+                        if m:
+                            if '.german.' in title.lower():
+                                language_id = 1
+                            elif self.feedcrawler.get('english'):
+                                language_id = 2
+                            else:
+                                language_id = 0
+                            if language_id:
+                                mm = re.search(self.quality, title.lower())
+                                if mm:
+                                    mmm = re.search(reject, title.lower())
+                                    if mmm:
+                                        internal.logger.debug(
+                                            title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                        continue
+                                    if self.feedcrawler.get("surround"):
+                                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+                                            internal.logger.debug(
+                                                title + " - Release ignoriert (kein Mehrkanalton)")
+                                            continue
+                                    try:
+                                        storage = self.db.retrieve_all(title)
+                                    except Exception as e:
+                                        internal.logger.debug(
+                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                        return
+                                    if 'added' in storage:
+                                        internal.logger.debug(
+                                            title + " - Release ignoriert (bereits gefunden)")
+                                        continue
+                                    package = self.parse_download_method(self, series_url, title, language_id)
+                                    if package:
+                                        title = package[0]
+                                        site = self._SITE
+                                        download_link = False
+                                        if not download_link:
+                                            download_link = package[1]
+                                        language_id = package[2]
+                                        season = package[3]
+                                        episode = package[4]
+                                        send_package(self, title, download_link, language_id, season, episode, site)
                             else:
                                 internal.logger.debug(
                                     "%s - Englische Releases deaktiviert" % title)
+
+                        else:
+                            m = re.search(self.pattern, title.lower())
+                            if m:
+                                if '.german.' in title.lower():
+                                    language_id = 1
+                                elif self.feedcrawler.get('english'):
+                                    language_id = 2
+                                else:
+                                    language_id = 0
+                                if language_id:
+                                    if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
+                                        continue
+                                    mm = re.search(reject, title.lower())
+                                    if mm:
+                                        internal.logger.debug(
+                                            title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                        continue
+                                    if self.feedcrawler.get("surround"):
+                                        if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
+                                            internal.logger.debug(
+                                                title + " - Release ignoriert (kein Mehrkanalton)")
+                                            continue
+                                    title = re.sub(r'\[.*\] ', '', post.title)
+                                    try:
+                                        storage = self.db.retrieve_all(title)
+                                    except Exception as e:
+                                        internal.logger.debug(
+                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                        return
+                                    if 'added' in storage:
+                                        internal.logger.debug(
+                                            title + " - Release ignoriert (bereits gefunden)")
+                                        continue
+                                    package = self.parse_download_method(self, series_url, title, language_id)
+                                    if package:
+                                        title = package[0]
+                                        site = self._SITE
+                                        download_link = False
+                                        if not download_link:
+                                            download_link = package[1]
+                                        language_id = package[2]
+                                        season = package[3]
+                                        episode = package[4]
+                                        send_package(self, title, download_link, language_id, season, episode, site)
+                                else:
+                                    internal.logger.debug(
+                                        "%s - Englische Releases deaktiviert" % title)
 
     if current_set and sha:
         new_set = settings_hash(self, True)

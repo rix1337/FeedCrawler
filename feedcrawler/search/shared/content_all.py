@@ -29,7 +29,7 @@ from feedcrawler.url import get_urls_async
 def get_best_result(title):
     title = sanitize(title)
     try:
-        bl_results = get(title, bl_only=True)[0]
+        bl_results = get(title, only_content_all=True)[0]
     except:
         return False
 
