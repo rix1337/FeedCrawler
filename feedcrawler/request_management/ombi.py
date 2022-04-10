@@ -109,7 +109,7 @@ def ombi(first_launch):
                         db.store('movie_' + str(imdb_id), 'added')
 
     if requested_shows:
-        internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern der Hostname gesetzt wurde.")
+        internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         child_requests = r.get("childRequests")

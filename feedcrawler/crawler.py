@@ -15,9 +15,10 @@ from feedcrawler import internal
 from feedcrawler.common import Unbuffered, is_device, readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.http_request_handler import clean_flaresolverr_sessions
 from feedcrawler.myjd import get_device
-from feedcrawler.ombi import ombi
-from feedcrawler.request_handler import clean_flaresolverr_sessions
+from feedcrawler.request_management.ombi import ombi
+from feedcrawler.request_management.overseerr import overseerr
 from feedcrawler.sites.content_all_by import BL as BY
 from feedcrawler.sites.content_all_ff import BL as FF
 from feedcrawler.sites.content_all_fx import BL as FX
@@ -76,7 +77,7 @@ def crawler(global_variables, remove_f_time, test_run):
     logger = internal.logger
     disable_request_warnings(InsecureRequestWarning)
 
-    ombi_first_launch = True
+    request_management_first_run = True
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
 
@@ -102,11 +103,25 @@ def crawler(global_variables, remove_f_time, test_run):
             crawltimes.update_store("start_time", start_time * 1000)
             logger.debug("-----------Alle Suchläufe gestartet.-----------")
 
+            # Connect to and run request management services
+            overseerr_string = ""
+            overseerr_results = overseerr(request_management_first_run)
+            requested_movies = overseerr_results[0]
+            requested_shows = overseerr_results[1]
+            request_management_first_run = False
+            if requested_movies or requested_shows:
+                overseerr_string = u"Die Overseerr-Suche lief für: "
+                if requested_movies:
+                    overseerr_string = overseerr_string + str(requested_movies) + " Filme"
+                    if requested_shows:
+                        overseerr_string = overseerr_string + " und "
+                if requested_shows:
+                    overseerr_string = overseerr_string + str(requested_shows) + " Serien"
             ombi_string = ""
-            ombi_results = ombi(ombi_first_launch)
+            ombi_results = ombi(request_management_first_run)
             requested_movies = ombi_results[0]
             requested_shows = ombi_results[1]
-            ombi_first_launch = False
+            request_management_first_run = False
             if requested_movies or requested_shows:
                 ombi_string = u"Die Ombi-Suche lief für: "
                 if requested_movies:
@@ -116,6 +131,7 @@ def crawler(global_variables, remove_f_time, test_run):
                 if requested_shows:
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
 
+            # Start feed search
             current_f_run = False
             last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
             for task in search_pool():
@@ -136,6 +152,8 @@ def crawler(global_variables, remove_f_time, test_run):
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 task.periodical_task()
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
+
+            # Finish feed search and log results
             if current_f_run:
                 crawltimes.update_store("last_f_run", current_f_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
@@ -149,15 +167,19 @@ def crawler(global_variables, remove_f_time, test_run):
             logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
                          " - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!")
-            if ombi_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
-            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
-            logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
-            ombi_string = ""
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
                   u" - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!",
-                  ombi_string + " - " + request_cache_string if ombi_string else request_cache_string)
+                total_time) + u")!")
+
+            if overseerr_string:
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
+            if ombi_string:
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+
+            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             crawltimes.update_store("end_time", end_time * 1000)
             crawltimes.update_store("total_time", readable_time(total_time))
@@ -166,11 +188,13 @@ def crawler(global_variables, remove_f_time, test_run):
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
 
+            # Clean exit if test run active
             if test_run:
                 logger.debug(u"-----------test_run beendet!-----------")
                 print(u"-----------test_run beendet!-----------")
                 return
 
+            # Wait until next start
             wait_chunks = wait // 10
             start_now_triggered = False
             while wait_chunks:

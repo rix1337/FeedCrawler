@@ -6,6 +6,10 @@
 
 ### Changelog FeedCrawler:
 
+- **13.1.0** Integration von [Overseerr](https://overseerr.dev/) als bessere Alternative zu [Ombi](https://ombi.io/)
+  - Ombi ist über die Jahre imperformant und unzuverlässig geworden und steht ab sofort nicht mehr im Fokus dieses Projektes.
+  - Overseerr bietet eine deutlich zuverlässigere und schnellere Basis für Medienserver-Anfragen
+  - Ein Wechsel von Ombi zu Overseerr wird empfohlen.
 - **13.0.8** Bevorzuge SF-Web-Suche in Ombi-Anbindung
 - **13.0.8** Fehlerbehebung in den Web-Suchen
 - **13.0.7** Integration der SF-Web-Suche
@@ -59,6 +63,10 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **5.0.0** Basiert ab sofort auf eigenem Basis-Image (Ubuntu 22.04 und Google Chrome 100)
+  - Die Funktionalität entspricht der Vorversion inklusive Zugriff per VNC/Web-Browser.
+  - Die Parameter `--shm-size 2g` und `--restart unless-stopped` sind nicht mehr notwendig.
+  - Mit dem `--privileged`-Parameter kann ab sofort die `--no-sandbox`-Warnung in Chrome deaktiviert werden.
 - **4.0.3** Entschlüssele PL-Links automatisch per Click'n'Load oder DLC, wenn der FeedCrawler daran gescheitert ist.
 - **4.0.2** Der AntiGateHandler entschlüsselt nun die DLC-Datei, sofern der Click'n'Load-Button fehlt.
 - **4.0.1** Der lokale HTTP-Proxy läuft ab sofort dauerhaft.
