@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul integriert die API von Ombi in die Feed-Suche des FeedCrawlers.
+# Dieses Modul integriert die API von Overseerr in die Feed-Suche des FeedCrawlers.
 
 import json
 
@@ -31,7 +31,7 @@ def imdb_movie(imdb_id):
         if imdb_id is None:
             internal.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print(u"[Overseerr] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
@@ -56,13 +56,13 @@ def imdb_show(imdb_id):
         if imdb_id is None:
             internal.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print(u"[Overseerr] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
-def ombi(first_launch):
-    db = FeedDb('Ombi')
-    config = CrawlerConfig('Ombi')
+def overseerr(first_launch):
+    db = FeedDb('Overseerr')
+    config = CrawlerConfig('Overseerr')
     url = config.get('url')
     api = config.get('api')
 
@@ -79,11 +79,11 @@ def ombi(first_launch):
         len_movies = len(requested_movies)
         len_shows = len(requested_shows)
         if first_launch:
-            internal.logger.debug("Erfolgreich mit Ombi verbunden.")
-            print(u"Erfolgreich mit Ombi verbunden.")
+            internal.logger.debug("Erfolgreich mit Overseerr verbunden.")
+            print(u"Erfolgreich mit Overseerr verbunden.")
     except:
-        internal.logger.debug("Ombi ist nicht erreichbar!")
-        print(u"Ombi ist nicht erreichbar!")
+        internal.logger.debug("Overseerr ist nicht erreichbar!")
+        print(u"Overseerr ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
@@ -97,19 +97,19 @@ def ombi(first_launch):
                     title = imdb_movie(imdb_id)
                     if title:
                         best_result = feedcrawler.search.shared.content_all.get_best_result(title)
-                        print(u"Film: " + title + u" durch Ombi hinzugefügt.")
+                        print(u"Film: " + title + u" durch Overseerr hinzugefügt.")
                         if best_result:
                             feedcrawler.search.shared.content_all.download(best_result)
                         if english:
                             title = r.get('title')
                             best_result = feedcrawler.search.shared.content_all.get_best_result(title)
-                            print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                            print(u"Film: " + title + u"durch Overseerr hinzugefügt.")
                             if best_result:
                                 feedcrawler.search.shared.content_all.download(best_result)
                         db.store('movie_' + str(imdb_id), 'added')
 
     if requested_shows:
-        internal.logger.debug("Die Suchfunktion für Serien nutzt SJ, sofern der Hostname gesetzt wurde.")
+        internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         child_requests = r.get("childRequests")
@@ -185,6 +185,6 @@ def ombi(first_launch):
                                                 e = "0" + e
                                             se = s + "E" + e
                                             db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                    print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+                                    print(u"Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
 
     return [len_movies, len_shows]
