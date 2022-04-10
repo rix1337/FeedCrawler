@@ -98,19 +98,16 @@ const year = ref((new Date).getFullYear())
                      type="password"/>
               <h5>Gerätename</h5>
               <input v-model="store.state.settings.general.myjd_device" class="form-control"
-
                      v-tooltip="'Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben.'"/>
               <h5>Autostart</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.crawljobs.autostart" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Downloads automatisch gestartet, sobald diese entschlüsselt vorliegen.'"
                        type="checkbox">
               </label>
               <h5>Unterordner bei Download</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.crawljobs.subdir" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!'"
                        type="checkbox">
               </label>
@@ -170,26 +167,22 @@ const year = ref((new Date).getFullYear())
                      class="form-control"/>
               <h5>FlareSolverr-Proxy-URL</h5>
               <input v-model="store.state.settings.general.flaresolverr_proxy" class="form-control"
-
                      v-tooltip="'Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde.'"/>
               <h5>Ein Mirror genügt</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.general.one_mirror_policy" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click\'n\'Load-Automatik - betrifft aber alle Pakete im JDownloader!'"
                        type="checkbox">
               </label>
               <h5>Englische Releases hinzufügen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.general.english" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden auch englischsprachige Titel gesucht.'"
                        type="checkbox">
               </label>
               <h5>Mehrkanalton erzwingen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.general.surround" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt.'"
                        type="checkbox">
               </label>
@@ -207,7 +200,6 @@ const year = ref((new Date).getFullYear())
           <div id="collapseHosters" aria-labelledby="headingHosters" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body"
-
                  v-tooltip="'Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar, wird dieses übersprungen!'">
               <div class="row">
                 <div class="col-sm">
@@ -215,31 +207,26 @@ const year = ref((new Date).getFullYear())
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.rapidgator" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Turbobit</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.turbobit" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Uploaded</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.uploaded" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Zippyshare</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.zippyshare" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>OBOOM</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.oboom" class="form-check-input"
                            type="checkbox">
-
                   </label>
                 </div>
                 <div class="col-sm">
@@ -247,31 +234,26 @@ const year = ref((new Date).getFullYear())
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.ddl" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>FileFactory</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.filefactory" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Uptobox</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.uptobox" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>1Fichier</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.onefichier" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Filer</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.filer" class="form-check-input"
                            type="checkbox">
-
                   </label>
                 </div>
                 <div class="col-sm">
@@ -279,19 +261,16 @@ const year = ref((new Date).getFullYear())
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.nitroflare" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>IronFiles</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.ironfiles" class="form-check-input"
                            type="checkbox">
-
                   </label>
                   <h5>Keep2Share</h5>
                   <label class="form-check form-switch">
                     <input v-model="store.state.settings.hosters.k2s" class="form-check-input"
                            type="checkbox">
-
                   </label>
                 </div>
               </div>
@@ -319,7 +298,6 @@ const year = ref((new Date).getFullYear())
                      class="form-control"/>
               <h5>Home Assistant</h5>
               <input v-model="store.state.settings.alerts.homeassistant" class="form-control"
-
                      v-tooltip="'Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben.'"/>
               <h5>Telegram</h5>
               <input v-model="store.state.settings.alerts.telegram"
@@ -329,16 +307,25 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div class="accordion-item">
-          <h2 id="headingOmbi" class="accordion-header">
-            <button aria-controls="collapseOmbi" aria-expanded="false" class="accordion-button collapsed"
-                    data-bs-target="#collapseOmbi"
+          <h2 id="headingRequestManagement" class="accordion-header">
+            <button aria-controls="collapseRequestManagement" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseRequestManagement"
                     data-bs-toggle="collapse" type="button">
-              Ombi
+              Anfrage-Verwaltung
             </button>
           </h2>
-          <div id="collapseOmbi" aria-labelledby="headingOmbi" class="accordion-collapse collapse"
+          <div id="collapseRequestManagement" aria-labelledby="headingRequestManagement"
+               class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
+              <h5>Overseerr URL</h5>
+              <input v-model="store.state.settings.overseerr.url"
+                     v-tooltip="'Pflichtangabe: Hier die URL von Overseerr angeben, bspw. http://192.168.0.1:5055.'"
+                     class="form-control"/>
+              <h5>Overseerr API-Key</h5>
+              <input v-model="store.state.settings.overseerr.api"
+                     v-tooltip="'Pflichtangabe: Hier den API-Key von Overseerr angeben.'"
+                     class="form-control"/>
               <h5>Ombi URL</h5>
               <input v-model="store.state.settings.ombi.url"
                      v-tooltip="'Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi.'"
@@ -364,7 +351,6 @@ const year = ref((new Date).getFullYear())
               <h5>Auflösung</h5>
               <select v-model="store.state.settings.mb.quality"
                       class="form-control"
-
                       v-tooltip="'Die Release-Auflösung, nach der gesucht wird.'">
                 <option v-for="option in resolutions" v-bind:value="option.value">
                   {{ option.label }}
@@ -372,7 +358,6 @@ const year = ref((new Date).getFullYear())
               </select>
               <h5>Suchtiefe</h5>
               <select v-model="store.state.settings.mb.search" class="form-control"
-
                       v-tooltip="'Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!'">
                 <option v-for="option in mb_search" v-bind:value="option.value">
                   {{ option.label }}
@@ -385,7 +370,6 @@ const year = ref((new Date).getFullYear())
               <h5>Auch per RegEx suchen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.regex" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht.'"
                        type="checkbox">
               </label>
@@ -400,42 +384,36 @@ const year = ref((new Date).getFullYear())
                      type="number"/>
               <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
               <input v-model="store.state.settings.mb.imdb_year" :max="year" class="number form-control"
-
                      min="1900"
                      v-tooltip="'Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr.'"
                      type="number"/>
               <h5>Zweisprachige Releases erzwingen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.force_dl" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten.'"
                        type="checkbox">
               </label>
               <h5>Nur Retail hinzufügen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.retail_only" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden nur Retail-Releases hinzugefügt.'"
                        type="checkbox">
               </label>
               <h5>Listeneintrag bei Retail streichen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.cutoff" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde.'"
                        type="checkbox">
               </label>
               <h5>1080p-HEVC bevorzugen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.hevc_retail" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste.'"
                        type="checkbox">
               </label>
               <h5>Hoster-Fallback</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mb.hoster_fallback" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!'"
                        type="checkbox">
               </label>
@@ -443,14 +421,12 @@ const year = ref((new Date).getFullYear())
                 <h5>Staffeln suchen</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.mbsj.enabled" class="form-check-input"
-
                          v-tooltip="'Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.'"
                          type="checkbox">
                 </label>
                 <h5>Auflösung der Staffeln</h5>
                 <select v-model="store.state.settings.mbsj.quality"
                         class="form-control"
-
                         v-tooltip="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
@@ -459,7 +435,6 @@ const year = ref((new Date).getFullYear())
                 <h5>Staffelpakete erlauben</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.mbsj.packs" class="form-check-input"
-
                          v-tooltip="'Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.'"
                          type="checkbox">
                 </label>
@@ -508,7 +483,6 @@ const year = ref((new Date).getFullYear())
               <h5>Auflösung</h5>
               <select v-model="store.state.settings.sj.quality"
                       class="form-control"
-
                       v-tooltip="'Die Release-Auflösung, nach der gesucht wird.'">
                 <option v-for="option in resolutions" v-bind:value="option.value">
                   {{ option.label }}
@@ -521,28 +495,24 @@ const year = ref((new Date).getFullYear())
               <h5>Auch per RegEx suchen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.sj.regex" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht.'"
                        type="checkbox">
               </label>
               <h5>Nur Retail hinzufügen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.sj.retail_only" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden nur Retail-Releases hinzugefügt.'"
                        type="checkbox">
               </label>
               <h5>1080p-HEVC bevorzugen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.sj.hevc_retail" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen.'"
                        type="checkbox">
               </label>
               <h5>Hoster-Fallback</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.sj.hoster_fallback" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!'"
                        type="checkbox">
               </label>
@@ -550,14 +520,12 @@ const year = ref((new Date).getFullYear())
                 <h5>Staffeln suchen</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.mbsj.enabled" class="form-check-input"
-
                          v-tooltip="'Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.'"
                          type="checkbox">
                 </label>
                 <h5>Auflösung der Staffeln</h5>
                 <select v-model="store.state.settings.mbsj.quality"
                         class="form-control"
-
                         v-tooltip="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
@@ -566,13 +534,11 @@ const year = ref((new Date).getFullYear())
                 <h5>Staffelpakete erlauben</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.mbsj.packs" class="form-check-input"
-
                          v-tooltip="'Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind.'"
                          type="checkbox">
                 </label>
                 <h5>Quellart der Staffeln</h5>
                 <select v-model="store.state.settings.mbsj.source" class="form-control"
-
                         v-tooltip="'Die Quellart der Staffeln, nach der gesucht wird.'">
                   <option v-for="option in sources" v-bind:value="option.value">
                     {{ option.label }}
@@ -598,14 +564,12 @@ const year = ref((new Date).getFullYear())
               <h5>Staffeln suchen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.mbsj.enabled" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht.'"
                        type="checkbox">
               </label>
               <h5>Auflösung der Staffeln</h5>
               <select v-model="store.state.settings.mbsj.quality"
                       class="form-control"
-
                       v-tooltip="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                 <option v-for="option in resolutions" v-bind:value="option.value">
                   {{ option.label }}
@@ -620,7 +584,6 @@ const year = ref((new Date).getFullYear())
               </label>
               <h5>Quellart der Staffeln</h5>
               <select v-model="store.state.settings.mbsj.source" class="form-control"
-
                       v-tooltip="'Die Quellart der Staffeln, nach der gesucht wird.'">
                 <option v-for="option in sources" v-bind:value="option.value">
                   {{ option.label }}
@@ -643,7 +606,6 @@ const year = ref((new Date).getFullYear())
               <h5>Auflösung</h5>
               <select v-model="store.state.settings.dj.quality"
                       class="form-control"
-
                       v-tooltip="'Die Release-Auflösung, nach der gesucht wird.'">
                 <option v-for="option in resolutions" v-bind:value="option.value">
                   {{ option.label }}
@@ -656,14 +618,12 @@ const year = ref((new Date).getFullYear())
               <h5>Auch per RegEx suchen</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.dj.regex" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht.'"
                        type="checkbox">
               </label>
               <h5>Hoster-Fallback</h5>
               <label class="form-check form-switch">
                 <input v-model="store.state.settings.dj.hoster_fallback" class="form-check-input"
-
                        v-tooltip="'Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!'"
                        type="checkbox">
               </label>

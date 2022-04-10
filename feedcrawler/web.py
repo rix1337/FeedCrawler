@@ -215,6 +215,7 @@ def app_container():
                 hosters = CrawlerConfig('Hosters')
                 alerts = CrawlerConfig('Notifications')
                 ombi = CrawlerConfig('Ombi')
+                overseerr = CrawlerConfig('Overseerr')
                 crawljobs = CrawlerConfig('Crawljobs')
                 mb_conf = CrawlerConfig('ContentAll')
                 sj_conf = CrawlerConfig('ContentShows')
@@ -263,6 +264,10 @@ def app_container():
                             "ombi": {
                                 "url": ombi.get("url"),
                                 "api": ombi.get("api"),
+                            },
+                            "overseerr": {
+                                "url": overseerr.get("url"),
+                                "api": overseerr.get("api"),
                             },
                             "crawljobs": {
                                 "autostart": crawljobs.get("autostart"),
@@ -315,7 +320,6 @@ def app_container():
                 data = request.json
 
                 section = CrawlerConfig("FeedCrawler")
-
                 section.save(
                     "auth_user", to_str(data['general']['auth_user']))
 
@@ -361,19 +365,16 @@ def app_container():
                 section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
 
                 section = CrawlerConfig("Crawljobs")
-
                 section.save("autostart", to_str(data['crawljobs']['autostart']))
                 section.save("subdir", to_str(data['crawljobs']['subdir']))
 
                 section = CrawlerConfig("Notifications")
-
                 section.save("pushbullet", to_str(data['alerts']['pushbullet']))
                 section.save("pushover", to_str(data['alerts']['pushover']))
                 section.save("telegram", to_str(data['alerts']['telegram']))
                 section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
                 section = CrawlerConfig("Hosters")
-
                 section.save("rapidgator", to_str(data['hosters']['rapidgator']))
                 section.save("turbobit", to_str(data['hosters']['turbobit']))
                 section.save("uploaded", to_str(data['hosters']['uploaded']))
@@ -389,9 +390,12 @@ def app_container():
                 section.save("k2s", to_str(data['hosters']['k2s']))
 
                 section = CrawlerConfig("Ombi")
-
                 section.save("url", to_str(data['ombi']['url']))
                 section.save("api", to_str(data['ombi']['api']))
+
+                section = CrawlerConfig("Overseerr")
+                section.save("url", to_str(data['overseerr']['url']))
+                section.save("api", to_str(data['overseerr']['api']))
 
                 section = CrawlerConfig("ContentAll")
                 section.save("quality", to_str(data['mb']['quality']))
@@ -420,7 +424,6 @@ def app_container():
                 section.save("hoster_fallback", to_str(data['mb']['hoster_fallback']))
 
                 section = CrawlerConfig("ContentShows")
-
                 section.save("quality", to_str(data['sj']['quality']))
                 section.save("rejectlist", to_str(data['sj']['ignore']).lower())
                 section.save("regex", to_str(data['sj']['regex']))
@@ -429,19 +432,16 @@ def app_container():
                 section.save("hoster_fallback", to_str(data['sj']['hoster_fallback']))
 
                 section = CrawlerConfig("CustomDJ")
-
                 section.save("quality", to_str(data['dj']['quality']))
                 section.save("rejectlist", to_str(data['dj']['ignore']).lower())
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
                 section = CrawlerConfig("CustomF")
-
                 interval = to_str(data['f']['interval'])
                 if to_int(interval) < 6:
                     interval = '6'
                 section.save("interval", interval)
-
                 search_depth = to_str(data['f']['search'])
                 if to_int(search_depth) > 7:
                     search_depth = '7'

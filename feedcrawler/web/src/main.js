@@ -106,6 +106,10 @@ const store = createStore({
                     url: "",
                     api: ""
                 },
+                overseerr: {
+                    url: "",
+                    api: ""
+                },
                 crawljobs: {
                     autostart: false,
                     subdir: false,

@@ -66,6 +66,10 @@ class CrawlerConfig(object):
             ("url", "str", ""),
             ("api", "str", "")
         ],
+        'Overseerr': [
+            ("url", "str", ""),
+            ("api", "str", "")
+        ],
         'ContentAll': [
             ("quality", "str", "1080p"),
             ("search", "int", "10"),
