@@ -10,6 +10,7 @@
   - Die neue Suche kommt ohne feedparser als Dependency aus.
   - DD-Feeds werden in den Suchlisten konfiguriert.
   - Damit wird das ddtofeedcrawler-Image vom Docker-Hub entfernt.
+- **13.2.0** Wechsel zu besserer Tooltip-Dependency [vue-tippy](https://vue-tippy.netlify.app/)
 - **13.1.0** Integration von [Overseerr](https://overseerr.dev/) als bessere Alternative zu [Ombi](https://ombi.io/)
   - Ombi ist über die Jahre imperformant und unzuverlässig geworden und steht ab sofort nicht mehr im Fokus dieses Projektes.
   - Overseerr bietet eine deutlich zuverlässigere und schnellere Basis für Medienserver-Anfragen

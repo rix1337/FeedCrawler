@@ -4,9 +4,8 @@ import axios from 'axios'
 import router from './router'
 import Toast, {TYPE, useToast} from "vue-toastification"
 import "vue-toastification/dist/index.css"
-import FloatingVue from 'floating-vue'
-import 'floating-vue/dist/style.css'
-
+import VueTippy from 'vue-tippy'
+import 'tippy.js/dist/tippy.css'
 import App from './App.vue'
 
 const toast = useToast()
@@ -27,6 +26,7 @@ const store = createStore({
                 dj: 'Nicht gesetzt!',
                 sf: 'Nicht gesetzt!',
                 by: 'Nicht gesetzt!',
+                dd: 'Nicht gesetzt!',
                 fx: 'Nicht gesetzt!',
                 nk: 'Nicht gesetzt!',
                 ww: 'Nicht gesetzt!',
@@ -256,22 +256,5 @@ app.use(Toast, {
         }
     }
 })
-app.use(FloatingVue, {
-    themes: {
-        instantMove: false,
-        strategy: 'relative',
-        preventOverflow: true,
-        flip: true,
-        tooltip: {
-            delay: {
-                show: 500,
-                hide: 0,
-            },
-            triggers: ['blur', 'hover'],
-            placement: 'top',
-            autohide: true,
-            handleResize: true,
-        }
-    }
-})
+app.use(VueTippy)
 app.mount('#app')

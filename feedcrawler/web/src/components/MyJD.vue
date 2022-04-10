@@ -443,13 +443,13 @@ function showSponsorsHelp() {
                   </div>
                   <ul class="list-group list-group-flush">
                     <li v-if="cnl_active" class="list-group-item">
-                            <span v-tooltip="'Warte auf hinzugefügte Links!'"
+                            <span v-tippy="'Warte auf hinzugefügte Links!'"
                                   class="cnl-spinner">
                                 <span class="spinner-border spinner-border-sm" role="status"></span> Warte auf hinzugefügte Links!</span>
                     </li>
                     <li v-if="x.size" class="list-group-item"><span v-text="x.size"></span></li>
                     <li v-if="!cnl_active" class="list-group-item cnl-blockers">
-                      <button v-tooltip="'Download starten'"
+                      <button v-tippy="'Download starten'"
                               class="btn btn-outline-success"
                               @click="myJDmove(x.linkids, x.uuid, x.name)"><i class="bi bi-play"></i>
                         Download
@@ -472,7 +472,7 @@ function showSponsorsHelp() {
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
                       <span
-                          v-tooltip="'Dies tritt auf, wenn das Entpacken fehlschlägt, oder Teile des Paketes offline sind.'">
+                          v-tippy="'Dies tritt auf, wenn das Entpacken fehlschlägt, oder Teile des Paketes offline sind.'">
                         Download fehlgeschlagen!
                       </span>
                     </li>
@@ -501,7 +501,7 @@ function showSponsorsHelp() {
                          :href="x[1].url + '#' + x[1].name"
                          class="cnl-button btn btn-outline-success"
                          target="_blank"
-                         v-tooltip="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
+                         v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                          type="submit">Sponsors Helper Click'n'Load
                       </a>
                       <span
@@ -525,7 +525,7 @@ function showSponsorsHelp() {
                       <a v-if="!myjd_grabbing && !cnl_active"
                          :href="x[1].url + '#' + x[1].name"
                          class="cnl-button btn btn-secondary"
-                         v-tooltip="'Click\'n\'Load innerhalb einer Minute auslösen!'"
+                         v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
                          target="_blank"
                          type="submit"
                          @click="internalCnl(x[1].name, x[1].password)">Click'n'Load-Automatik
@@ -545,7 +545,7 @@ function showSponsorsHelp() {
                                     </span>
                       <span v-if="!store.state.misc.helper_active"><br>
                                         <mark>Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
-                                            v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
                                             target="_blank"
                                             href="https://github.com/users/rix1337/sponsorship">Sponsor werden</a> und den <a
                                             href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</mark>
@@ -574,7 +574,7 @@ function showSponsorsHelp() {
                   </div>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">
-                      <button v-if="!cnl_active" v-tooltip="'Erneut hinzufügen'"
+                      <button v-if="!cnl_active" v-tippy="'Erneut hinzufügen'"
                               class="btn btn-outline-info"
                               @click="myJDretry(x.linkids, x.uuid, x.urls, x.name)"><i
                           class="bi bi-arrow-counterclockwise"></i>
@@ -616,16 +616,16 @@ function showSponsorsHelp() {
             <div v-if="myjd_downloads" id="myjd_state">
               <span v-if="myjd_state=='STOPPED_STATE' || myjd_state=='STOPPING'" id="myjd_start"
                     :class="{ blinking: myjd_starting, isDisabled: myjd_starting }" @click="myJDstart()">
-                <i v-tooltip="'Downloads starten'" class="bi bi-play"></i></span>
+                <i v-tippy="'Downloads starten'" class="bi bi-play"></i></span>
               <span v-if="myjd_state=='RUNNING'" id="myjd_pause"
                     :class="{ blinking: myjd_pausing, isDisabled: myjd_pausing }" @click="myJDpause(true)"><i
-                  v-tooltip="'Downloads pausieren'" class="bi bi-pause"></i></span>
+                  v-tippy="'Downloads pausieren'" class="bi bi-pause"></i></span>
               <span v-if="myjd_state=='PAUSE'" id="myjd_unpause"
                     :class="{ blinking: myjd_pausing, isDisabled: myjd_pausing }" @click="myJDpause(false)"><i
-                  v-tooltip="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></span>
+                  v-tippy="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i></span>
               <span v-if="myjd_state=='RUNNING' || myjd_state=='PAUSE'" id="myjd_stop"
                     :class="{ blinking: myjd_stopping, isDisabled: myjd_stopping }" @click="myJDstop()"><i
-                  v-tooltip="'Downloads anhalten'"
+                  v-tippy="'Downloads anhalten'"
                   class="bi bi-stop"></i></span>
             </div>
           </div>

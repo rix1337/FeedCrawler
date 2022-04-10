@@ -152,7 +152,7 @@ function showSiteStatusHelp() {
       </div>
       <div v-if="!store.state.crawltimes.active">
         Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
-        <i id="start_now" v-tooltip="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
+        <i id="start_now" v-tippy="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
            v-if="!store.state.misc.starting"
            @click="startNow()"></i>
         <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
@@ -200,12 +200,12 @@ function showSiteStatusHelp() {
         Seitenstatus
       </button>
       <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         v-tooltip="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+         v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
          class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
         aktiver
         Sponsor</a>
       <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         v-tooltip="'Vielen Dank für die aktive Github Sponsorship!'"
+         v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
          class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
         Sponsor</a>
     </div>

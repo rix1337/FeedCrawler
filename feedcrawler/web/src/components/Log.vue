@@ -135,10 +135,10 @@ function spinLog() {
           <td class="text-left">
             {{ shortenEntry(x[3]) }}
             <button v-if="!longLogItemsAllowed && checkEntryLength(x[3])" class="btn btn-link btn-sm"
-                    v-tooltip="'Titel vollständig anzeigen'"
+                    v-tippy="'Titel vollständig anzeigen'"
                     @click="longerLog()">...
             </button>
-            <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tooltip="'Titel kürzen'"
+            <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
                     class="btn btn-link btn-sm"
                     @click="shorterLog()"><i
                 class="bi bi-x-circle"></i></button>
@@ -146,7 +146,7 @@ function spinLog() {
           <td class="text-left">{{ x[2] }}</td>
           <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
           <td class="text-right">
-            <button v-tooltip="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
+            <button v-tippy="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
                     @click="deleteLogRow(x[3])">
               <i class="bi bi-trash remove"></i></button>
           </td>
