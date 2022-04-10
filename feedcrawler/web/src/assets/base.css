@@ -203,3 +203,14 @@ p {
     font-weight: var(--bs-body-font-weight);
     line-height: var(--bs-body-line-height);
 }
+
+.tippy-box {
+    font-family: var(--bs-body-font-family) !important;
+    font-size: var(--bs-body-font-size) !important;
+    font-weight: var(--bs-body-font-weight) !important;
+    line-height: var(--bs-body-line-height) !important;
+    color: #fff !important;
+    background-color: #1c1f23 !important;
+    border-color: #1a1e21 !important;
+    max-width: 36em !important;
+}

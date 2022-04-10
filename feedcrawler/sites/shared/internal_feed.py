@@ -921,3 +921,24 @@ def sf_parse_download(self, series_url, title, language_id):
     except:
         print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False
+
+
+def dd_rss_feed_to_feedparser_dict(raw_rss_feed):
+    rss_feed_soup = BeautifulSoup(raw_rss_feed, 'html5lib')
+    releases = rss_feed_soup.findAll("item")
+
+    entries = []
+    for release in releases:
+        title = release.find("title").text.replace(" ", ".").strip()
+        published = release.find("pubdate").text.strip()
+        links = re.findall(r'(http.*)', release.find("description").text.strip())
+
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "published": published,
+            "links": links
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
