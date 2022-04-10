@@ -38,6 +38,7 @@ const store = createStore({
                 mb: [],
                 sj: [],
                 dj: [],
+                dd: [],
                 mbsj: [],
             },
             settings: {
@@ -80,6 +81,9 @@ const store = createStore({
                 dj: {
                     quality: '1080p',
                     regex: false,
+                    hoster_fallback: false,
+                },
+                dd: {
                     hoster_fallback: false,
                 },
                 hosters: {

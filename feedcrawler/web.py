@@ -220,6 +220,7 @@ def app_container():
                 mb_conf = CrawlerConfig('ContentAll')
                 sj_conf = CrawlerConfig('ContentShows')
                 dj_conf = CrawlerConfig('CustomDJ')
+                dd_conf = CrawlerConfig('CustomDD')
                 f_conf = CrawlerConfig('CustomF')
                 return jsonify(
                     {
@@ -305,6 +306,9 @@ def app_container():
                                 "ignore": dj_conf.get("rejectlist"),
                                 "regex": dj_conf.get("regex"),
                                 "hoster_fallback": dj_conf.get("hoster_fallback"),
+                            },
+                            "dd": {
+                                "hoster_fallback": dd_conf.get("hoster_fallback"),
                             },
                             "f": {
                                 "interval": to_int(f_conf.get("interval")),
@@ -437,6 +441,9 @@ def app_container():
                 section.save("regex", to_str(data['dj']['regex']))
                 section.save("hoster_fallback", to_str(data['dj']['hoster_fallback']))
 
+                section = CrawlerConfig("CustomDD")
+                section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
+
                 section = CrawlerConfig("CustomF")
                 interval = to_str(data['f']['interval'])
                 if to_int(interval) < 6:
@@ -528,6 +535,7 @@ def app_container():
                 ww = hostnames.get('ww')
                 nk = hostnames.get('nk')
                 by = hostnames.get('by')
+                dd = hostnames.get('dd')
 
                 fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
                 hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
@@ -538,6 +546,8 @@ def app_container():
                 ww = ww.replace("w", "W", 2)
                 nk = nk.replace("n", "N", 1).replace("k", "K", 1)
                 by = by.replace("b", "B", 1)
+                dd = dd.replace("d", "D", 2).replace("l", "L", 1)
+
                 bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
                 s = ' / '.join(list(filter(None, [sj, sf])))
                 f = ' / '.join(list(filter(None, [ff, sf])))
@@ -561,6 +571,8 @@ def app_container():
                     nk = "Nicht gesetzt!"
                 if not by:
                     by = "Nicht gesetzt!"
+                if not dd:
+                    dd = "Nicht gesetzt!"
                 if not bl:
                     bl = "Nicht gesetzt!"
                 if not s:
@@ -576,6 +588,7 @@ def app_container():
                             "dj": dj,
                             "sf": sf,
                             "by": by,
+                            "dd": dd,
                             "fx": fx,
                             "hw": hw,
                             "ff": ff,
@@ -1050,6 +1063,9 @@ def app_container():
                                 "dokus": get_list('List_CustomDJ_Documentaries'),
                                 "regex": get_list('List_CustomDJ_Documentaries_Regex'),
                             },
+                            "dd": {
+                                "feeds": get_list('List_CustomDD_Feeds'),
+                            },
                             "mbsj": {
                                 "staffeln": get_list('List_ContentAll_Seasons'),
                             }
@@ -1077,6 +1093,14 @@ def app_container():
                     data['dj']['dokus'].split('\n'))
                 ListDb("List_CustomDJ_Documentaries_Regex").store_list(
                     data['dj']['regex'].split('\n'))
+
+                try:
+                    replace_dd = 'https://' + CrawlerConfig('Hostnames').get('dd') + '/rss/'
+                except:
+                    replace_dd = 'https:///rss/'
+                    pass
+                ListDb("List_CustomDD_Feeds").store_list(
+                    data['dd']['feeds'].replace(replace_dd, "").split('\n'))
                 return "Success", 201
             except:
                 return "Failed", 400

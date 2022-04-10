@@ -169,6 +169,24 @@ function showRegExHelp() {
             </div>
           </div>
         </div>
+        <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
+          <h2 id="headingHostnamesDd" class="accordion-header">
+            <button aria-controls="collapseHostnamesDd" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseHostnamesDd" data-bs-toggle="collapse"
+                    type="button">
+              {{ store.state.hostnames.dd }}
+            </button>
+          </h2>
+          <div id="collapseHostnamesDd" aria-labelledby="headingHostnamesDd" class="accordion-collapse collapse"
+               data-bs-parent="#accordionLists">
+            <div class="accordion-body">
+              <h5>Feed-IDs</h5>
+              <textarea v-model="store.state.lists.dd.feeds"
+                        v-tooltip="'Pro Zeile eine numerische RSS-Feed-ID.'"
+                        class="liste form-control"></textarea>
+            </div>
+          </div>
+        </div>
       </div>
       <div>
         <button v-if="store.state.misc.loaded_lists" class="btn btn-dark" type="submit" @click="saveLists()">

@@ -630,6 +630,27 @@ const year = ref((new Date).getFullYear())
             </div>
           </div>
         </div>
+        <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
+          <h2 id="headingSettingsDd" class="accordion-header">
+            <button aria-controls="collapseSettingsDd" aria-expanded="false" class="accordion-button collapsed"
+                    data-bs-target="#collapseSettingsDd"
+                    data-bs-toggle="collapse" type="button">
+              {{ store.state.hostnames.dd }}
+            </button>
+          </h2>
+          <div id="collapseSettingsDd" aria-labelledby="headingSettingsDd" class="accordion-collapse collapse"
+               data-bs-parent="#accordionSettings">
+            <div class="accordion-body">
+              <h5>Hoster-Fallback</h5>
+              <label class="form-check form-switch">
+                <input v-model="store.state.settings.dd.hoster_fallback"
+                       v-tooltip="'Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!'"
+                       class="form-check-input"
+                       type="checkbox">
+              </label>
+            </div>
+          </div>
+        </div>
         <div
             v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f !== store.state.hostnames.bl"
             class="accordion-item">
