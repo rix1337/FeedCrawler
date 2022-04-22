@@ -2,7 +2,6 @@
 # DDtoFeedCrawler
 # Project by https://github.com/rix1337
 
-import time
 from datetime import datetime
 
 import requests
@@ -40,13 +39,8 @@ class DD:
             feed_url = self.url + '/rss/' + feed_id
             feed = dd_rss_feed_to_feedparser_dict(requests.get(feed_url).content)
             for post in feed.entries:
-                epoch = datetime(1970, 1, 1)
-                current_epoch = int(time.time())
-                published_format = "%Y-%m-%d %H:%M:%S+00:00"
-                # ToDo change from dateutil parser to datetime.strptime
-                published_timestamp = str(parser.parse(post.published))
-                published_epoch = int((datetime.strptime(
-                    published_timestamp, published_format) - epoch).total_seconds())
+                current_epoch = datetime.utcnow().timestamp()
+                published_epoch = datetime.strptime(post.published, '%a, %d %b %Y %X %Z').timestamp()
                 if (current_epoch - 1800) > published_epoch:
                     links = []
                     for link in post.links:
