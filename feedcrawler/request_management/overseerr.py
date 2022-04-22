@@ -5,7 +5,6 @@
 
 import json
 
-# ToDo replace with builtin urlib
 import requests
 
 import feedcrawler.search.shared.content_all

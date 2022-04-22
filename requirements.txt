@@ -3,5 +3,7 @@
 # Projekt von https://github.com/rix1337
 beautifulsoup4==4.11.1
 bottle==0.12.19
+cinemagoer==2022.2.11
 html5lib==1.1
 pycryptodomex==3.14.1
+requests==2.27.1

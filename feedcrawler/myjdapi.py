@@ -35,7 +35,6 @@ import json
 import time
 from urllib.parse import quote
 
-# ToDo replace with builtin urlib
 import requests
 from Cryptodome.Cipher import AES
 
@@ -664,6 +663,7 @@ class Downloads:
         params = [links_ids, packages_ids]
         resp = self.device.action(self.url + "/resetLinks", params)
         return resp
+
 
 class Jddevice:
     """

@@ -5,8 +5,8 @@
 
 import json
 
-# ToDo replace with builtin urlib
 import requests
+from imdb import Cinemagoer as IMDb
 
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
@@ -22,7 +22,6 @@ from feedcrawler.imdb import clean_imdb_id
 def imdb_movie(imdb_id):
     try:
         imdb_id = clean_imdb_id(imdb_id)
-        # ToDo change to own IMDb-Implementation
         ia = IMDb('https', languages='de-DE')
         output = ia.get_movie(imdb_id)
         title = sanitize(output.data['localized title'])
@@ -39,7 +38,6 @@ def imdb_movie(imdb_id):
 def imdb_show(imdb_id):
     try:
         imdb_id = clean_imdb_id(imdb_id)
-        # ToDo change to own IMDb-Implementation
         ia = IMDb('https', languages='de-DE')
         output = ia.get_movie(imdb_id)
         ia.update(output, 'episodes')

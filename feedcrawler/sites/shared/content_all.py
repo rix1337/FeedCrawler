@@ -6,6 +6,8 @@
 import hashlib
 import re
 
+from imdb import Cinemagoer as IMDb
+
 from feedcrawler import internal
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
@@ -165,7 +167,6 @@ def search_imdb(self, desired_rating, feed):
                 imdb_data = False
                 if post_imdb:
                     imdb_id = clean_imdb_id(post_imdb[0])
-                    # ToDo change to own IMDb-Implementation
                     imdb_data = IMDb().get_movie(imdb_id)
                 else:
                     try:
@@ -175,7 +176,6 @@ def search_imdb(self, desired_rating, feed):
                                 0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue",
                                                                                                      u"ü").replace(
                                 "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                        # ToDo change to own IMDb-Implementation
                         ia = IMDb()
                         results = ia.search_movie(search_title)
                     except:
@@ -184,7 +184,6 @@ def search_imdb(self, desired_rating, feed):
                         internal.logger.debug(
                             "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)
                     else:
-                        # ToDo change to own IMDb-Implementation
                         imdb_data = IMDb().get_movie(results[0].movieID)
                 if imdb_data:
                     min_year = int(self.config.get("imdbyear"))

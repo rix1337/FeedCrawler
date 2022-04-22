@@ -11,7 +11,6 @@ import pickle
 from json import loads
 from urllib.parse import urlencode
 
-# ToDo replace with builtin urlib
 import requests
 from requests import RequestException
 
