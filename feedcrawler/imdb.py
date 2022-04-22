@@ -5,8 +5,6 @@
 
 import re
 
-from imdb import Cinemagoer as IMDb
-
 from feedcrawler import internal
 from feedcrawler.url import get_url
 
@@ -67,6 +65,7 @@ def get_original_language(key, imdb_id):
 
     try:
         imdb_id = clean_imdb_id(imdb_id)
+        # ToDo change to own IMDb-Implementation
         output = IMDb('https', languages='de-DE').get_movie(imdb_id)
         original_language = output.data["languages"][0]
     except:

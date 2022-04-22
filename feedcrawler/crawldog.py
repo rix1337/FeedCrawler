@@ -8,9 +8,6 @@ import sys
 import time
 import traceback
 
-from requests.packages.urllib3 import disable_warnings as disable_request_warnings
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
 from feedcrawler import internal
 from feedcrawler.common import Unbuffered, is_device, longest_substr
 from feedcrawler.config import CrawlerConfig
@@ -24,7 +21,6 @@ def crawldog(global_variables):
     internal.set_globals(global_variables)
 
     sys.stdout = Unbuffered(sys.stdout)
-    disable_request_warnings(InsecureRequestWarning)
 
     crawljobs = CrawlerConfig('Crawljobs')
     autostart = crawljobs.get("autostart")

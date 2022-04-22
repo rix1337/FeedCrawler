@@ -3,11 +3,10 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt verschiedene Möglichkeiten zum Versand von Benachrichtigungen bereit.
 
+import json
 from urllib.error import HTTPError
 from urllib.parse import urlencode
 from urllib.request import urlopen, Request
-
-import simplejson as json
 
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig

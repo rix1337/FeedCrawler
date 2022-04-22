@@ -6,6 +6,16 @@
 
 ### Changelog FeedCrawler:
 
+- **14.0.0** Das Passwort für das Web-Interface muss neu vergeben werden, sofern zuvor eines genutzt wurde.
+- **14.0.0** Entfernung der folgenden Dependencies:
+  - cinemagoer (zugunsten eines selbst gepflegten IMDb-Scrapers)
+  - docopt (zugunsten der Python-internen argparse-Library)
+  - flask (zugunsten der weniger komplexen bottle-Library)
+  - passlib (zugunsten der pbkdf2-Funktion der pycryptodomex-Library)
+  - python-dateutil (wurde nur für DD verwendet und war ersetzbar)
+  - requests (zugunsten der Python-internen urllib-Library)
+  - simplejson (zugunsten der Python-internen json-Library)
+  - waitress (zugunsten eines eigenen Multi-Threaded WSGI-Servers)
 - **13.2.0** (Re-)Integration von DD
   - Die neue Suche kommt ohne feedparser als Dependency aus.
   - DD-Feeds werden in den Suchlisten konfiguriert.

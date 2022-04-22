@@ -35,6 +35,7 @@ import json
 import time
 from urllib.parse import quote
 
+# ToDo replace with builtin urlib
 import requests
 from Cryptodome.Cipher import AES
 

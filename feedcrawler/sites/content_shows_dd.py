@@ -6,7 +6,6 @@ import time
 from datetime import datetime
 
 import requests
-from dateutil import parser
 
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
@@ -44,6 +43,7 @@ class DD:
                 epoch = datetime(1970, 1, 1)
                 current_epoch = int(time.time())
                 published_format = "%Y-%m-%d %H:%M:%S+00:00"
+                # ToDo change from dateutil parser to datetime.strptime
                 published_timestamp = str(parser.parse(post.published))
                 published_epoch = int((datetime.strptime(
                     published_timestamp, published_format) - epoch).total_seconds())
