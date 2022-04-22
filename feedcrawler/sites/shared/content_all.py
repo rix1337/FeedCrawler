@@ -819,8 +819,13 @@ def download_feed(self, key, content, hevc_retail):
 
 
 def periodical_task(self):
-    desired_rating = self.imdb
     urls = []
+    if self.url:
+        for URL in self.FEED_URLS:
+            urls.append(URL)
+    else:
+        internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Filme! (" + self.filename + ")")
+        return
 
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
@@ -843,17 +848,11 @@ def periodical_task(self):
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
 
-    if self.url:
-        for URL in self.FEED_URLS:
-            urls.append(URL)
-    else:
-        internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Filme! (" + self.filename + ")")
-        return
-
     if not self.pattern:
         internal.logger.debug("Liste ist leer. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
+    desired_rating = self.imdb
     if self.filename == 'IMDB' and desired_rating == 0:
         internal.logger.debug("IMDb-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return

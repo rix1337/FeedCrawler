@@ -95,6 +95,7 @@ def send_package(self, title, link, language_id, season, episode, site):
 
 def periodical_task(self):
     if not self.url:
+        internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Serien! (" + self.filename + ")")
         return
 
     if self.filename == 'List_ContentShows_Shows_Regex':
