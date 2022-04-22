@@ -35,12 +35,12 @@ def main():
     parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
     parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
     parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
-    parser.add_argument("--keep-cdc",
-                        help="Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf")
-    parser.add_argument("--remove-f_time", help="Leere die Zeit des letzten SF/FF-Laufes vor dem ersten Suchlauf")
-    parser.add_argument("--test_run", help="Intern: Führt einen Testlauf durch")
-    parser.add_argument("--docker",
-                        help="Intern: Sperre Pfad und Port auf Docker-Standardwerte (um falsche Einstellungen zu vermeiden)")
+    parser.add_argument("--keep-cdc", action='store_true',
+                        help="Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
+    parser.add_argument("--remove-f_time", action='store_true',
+                        help="Leere die Zeit des letzten SF/FF-Laufes vor dem ersten Suchlauf")
+    parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
+    parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
     arguments = parser.parse_args()
 
     print(u"┌──────────────────────────────────────────────┐")
