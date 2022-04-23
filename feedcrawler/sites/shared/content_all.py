@@ -6,8 +6,6 @@
 import hashlib
 import re
 
-from imdb import Cinemagoer as IMDb
-
 from feedcrawler import internal
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
@@ -15,9 +13,12 @@ from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
 from feedcrawler.common import is_retail
 from feedcrawler.db import ListDb
-from feedcrawler.imdb import clean_imdb_id
-from feedcrawler.imdb import get_imdb_id
-from feedcrawler.imdb import get_original_language
+from feedcrawler.imdb import get_imdb_id_from_content
+from feedcrawler.imdb import get_imdb_id_from_title
+from feedcrawler.imdb import original_language_not_german
+from feedcrawler.imdb import get_rating
+from feedcrawler.imdb import get_votes
+from feedcrawler.imdb import get_year
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
 from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
@@ -164,10 +165,9 @@ def search_imdb(self, desired_rating, feed):
                         "%s - Release ignoriert (IMDb sucht nur Filme)" % post.title)
                     continue
 
-                imdb_data = False
+                imdb_id = False
                 if post_imdb:
-                    imdb_id = clean_imdb_id(post_imdb[0])
-                    imdb_data = IMDb().get_movie(imdb_id)
+                    imdb_id = post_imdb[0]
                 else:
                     try:
                         search_title = \
@@ -176,47 +176,42 @@ def search_imdb(self, desired_rating, feed):
                                 0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue",
                                                                                                      u"ü").replace(
                                 "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                        ia = IMDb()
-                        results = ia.search_movie(search_title)
+                        imdb_id = get_imdb_id_from_title(search_title, self.filename)
                     except:
-                        results = False
-                    if not results:
-                        internal.logger.debug(
-                            "%s - Keine passende Film-IMDb-Seite gefunden" % post.title)
-                    else:
-                        imdb_data = IMDb().get_movie(results[0].movieID)
-                if imdb_data:
+                        pass
+                if imdb_id:
                     min_year = int(self.config.get("imdbyear"))
                     if min_year:
-                        try:
-                            if int(imdb_data.data["year"]) < min_year:
+                        year = get_year(imdb_id)
+                        if year:
+                            if year < min_year:
                                 internal.logger.debug(
                                     "%s - Release ignoriert (Film zu alt)" % post.title)
                                 continue
-                        except:
+                        else:
                             internal.logger.debug("%s - Release ignoriert (Alter nicht ermittelbar)" % post.title)
                             continue
-                    try:
-                        if int("".join(re.findall('\d+', str(imdb_data.data["votes"])))) < 1500:
+                    votes = get_votes(imdb_id)
+                    if votes:
+                        if votes < 1500:
                             internal.logger.debug(
                                 post.title + " - Release ignoriert (Weniger als 1500 IMDb-Votes)")
                             continue
-                    except KeyError:
+                    else:
                         internal.logger.debug(
                             post.title + " - Release ignoriert (Konnte keine IMDb-Votes finden)")
                         continue
-                    if float(str(imdb_data.data["rating"]).replace(",", ".")) > desired_rating:
-                        download_links = False
-                        if not download_links:
-                            site = self._SITE
-                            download_method = self.download_method
-                            download_links = self.get_download_links_method(self, content, post.title)
-                            if check_fallback_required(download_links):
-                                download_method = add_decrypt_instead_of_download
+                    rating = get_rating(imdb_id)
+                    if rating and rating > desired_rating:
+                        site = self._SITE
+                        download_method = self.download_method
+                        download_links = self.get_download_links_method(self, content, post.title)
+                        if check_fallback_required(download_links):
+                            download_method = add_decrypt_instead_of_download
                         found = download_imdb(self,
                                               post.title, download_links,
-                                              str(imdb_data.data["rating"]).replace(",", "."),
-                                              imdb_data.movieID, hevc_retail, site, download_method)
+                                              str(rating).replace(",", "."),
+                                              imdb_id, hevc_retail, site, download_method)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -433,7 +428,7 @@ def download_hevc(self, title):
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not link_grabbed:
                             link = get_url(link)
-                        imdb_id = get_imdb_id(key, link, self.filename)
+                        imdb_id = get_imdb_id_from_content(key, link, self.filename)
                         if not imdb_id:
                             dual_found = download_dual_language(self, key, True)
                             if dual_found and ".1080p." in key:
@@ -445,7 +440,7 @@ def download_hevc(self, title):
                         else:
                             if isinstance(imdb_id, list):
                                 imdb_id = imdb_id.pop()
-                            if get_original_language(key, imdb_id):
+                            if original_language_not_german(imdb_id):
                                 dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
                                     return
@@ -643,7 +638,7 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            if get_original_language(key, imdb_id):
+            if original_language_not_german(imdb_id):
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
                     added_items.append(dual_found)
@@ -732,7 +727,7 @@ def download_feed(self, key, content, hevc_retail):
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            imdb_id = get_imdb_id(key, content, self.filename)
+            imdb_id = get_imdb_id_from_content(key, content, self.filename)
             if not imdb_id:
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
@@ -746,7 +741,7 @@ def download_feed(self, key, content, hevc_retail):
             else:
                 if isinstance(imdb_id, list):
                     imdb_id = imdb_id.pop()
-                if get_original_language(key, imdb_id):
+                if original_language_not_german(imdb_id):
                     dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
                         added_items.append(dual_found)

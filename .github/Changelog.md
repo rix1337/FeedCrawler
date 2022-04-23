@@ -11,10 +11,10 @@
   - docopt (zugunsten der Python-internen argparse-Bibliothek)
   - flask (zugunsten der weniger komplexen bottle-Bibliothek)
   - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Bibliothek)
-  - python-dateutil (wurde nur für DD verwendet und war ersetzbar)
+  - python-dateutil (zugunsten einer eigenen Implementierung auf Basis der Python-internen datetime-Bibliothek)
   - requests (zugunsten einer eigenen Implementierung auf Basis der Python-internen urllib-Bibliothek)
   - simplejson (zugunsten der Python-internen json-Bibliothek)
-  - waitress (zugunsten eines eigenen Multi-Threaded WSGI-Servers)
+  - waitress (zugunsten einer eigenen Implementierung auf Basis der Python-internen wsgiref-Bibliothek)
 - **13.2.0** (Re-)Integration von DD
   - Die neue Suche kommt ohne feedparser als Dependency aus.
   - DD-Feeds werden in den Suchlisten konfiguriert.

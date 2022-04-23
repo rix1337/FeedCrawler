@@ -131,10 +131,7 @@ def request(
     try:
         with opener.open(req, timeout=timeout) as resp:
             status_code, content, resp_url = (resp.getcode(), resp.read(), resp.geturl())
-            try:
-                text = content.decode("utf-8")
-            except:
-                text = ""
+
             headers = {k.lower(): v for k, v in list(resp.info().items())}
 
             if "gzip" in headers.get("content-encoding", ""):
@@ -162,5 +159,10 @@ def request(
             if "application/json" in headers.get("content-type", "").lower() and content
             else None
         )
+
+    try:
+        text = content.decode("utf-8")
+    except:
+        text = ""
 
     return Response(req, content, text, json, status_code, resp_url, headers, cookiejar)

@@ -5,8 +5,6 @@
 
 import json
 
-from imdb import Cinemagoer as IMDb
-
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
 from feedcrawler import internal
@@ -15,17 +13,16 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http.thttp import request
-from feedcrawler.imdb import clean_imdb_id
+from feedcrawler.http_handlers.requests import request
+from feedcrawler.imdb import get_episodes
+from feedcrawler.imdb import get_localized_title
+from feedcrawler.imdb import get_year
 
 
 def imdb_movie(imdb_id):
     try:
-        imdb_id = clean_imdb_id(imdb_id)
-        ia = IMDb('https', languages='de-DE')
-        output = ia.get_movie(imdb_id)
-        title = sanitize(output.data['localized title'])
-        year = str(output.data['year'])
+        title = sanitize(get_localized_title(imdb_id))
+        year = str(get_year(imdb_id))
         return title + " " + year
     except:
         if imdb_id is None:
@@ -37,21 +34,10 @@ def imdb_movie(imdb_id):
 
 def imdb_show(imdb_id):
     try:
-        imdb_id = clean_imdb_id(imdb_id)
-        ia = IMDb('https', languages='de-DE')
-        output = ia.get_movie(imdb_id)
-        ia.update(output, 'episodes')
-        title = sanitize(output.data['localized title'])
-        seasons = output.data['episodes']
-        eps = {}
+        title = sanitize(get_localized_title(imdb_id))
+        seasons = get_episodes(imdb_id)
 
-        for sn in seasons:
-            ep = []
-            for e in seasons[sn]:
-                ep.append(int(e))
-            eps[int(sn)] = ep
-
-        return title, eps
+        return title, seasons
     except:
         if imdb_id is None:
             internal.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
@@ -119,12 +105,12 @@ def ombi(first_launch):
                     details = cr.get("seasonRequests")
                     for season in details:
                         sn = season.get("seasonNumber")
+                        s = str(sn)
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
                             if not bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
-                                s = str(sn)
                                 if len(s) == 1:
                                     s = "0" + s
                                 s = "S" + s
