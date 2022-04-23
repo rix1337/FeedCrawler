@@ -4,9 +4,10 @@
 # Dieses Modul integriert die API von Ombi in die Feed-Suche des FeedCrawlers.
 
 import json
+import logging
 
 import requests
-from imdb import Cinemagoer as IMDb
+from imdb import Cinemagoer as IMDb, IMDbDataAccessError
 
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows

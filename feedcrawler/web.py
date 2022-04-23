@@ -13,7 +13,7 @@ from functools import wraps
 from socketserver import ThreadingMixIn
 from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 
-from Cryptodome.Protocol.KDF import PBKDF2
+from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
 from bottle import Bottle, abort, redirect, request, static_file, HTTPError
 
@@ -75,6 +75,7 @@ helper_active = False
 already_added = []
 auth_user = False
 auth_hash = False
+known_hashes = {}
 
 
 def app_container():
@@ -82,10 +83,11 @@ def app_container():
     global already_added
     global auth_user
     global auth_hash
+    global known_hashes
 
-    base_dir = '.'
+    base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
-        base_dir = os.path.join(sys._MEIPASS)
+        base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
 
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):
@@ -99,7 +101,7 @@ def app_container():
     auth_user = config.get('auth_user')
     auth_hash = config.get('auth_hash')
 
-    def auth_basic(check, realm="private", text="Access denied"):
+    def auth_basic(check_func, realm="private", text="Access denied"):
         def decorator(func):
             @wraps(func)
             def wrapper(*a, **ka):
@@ -110,7 +112,7 @@ def app_container():
                 auth_hash = _config.get('auth_hash')
                 user, password = request.auth or (None, None)
                 if auth_user and auth_hash:
-                    if user is None or not check(user, password):
+                    if user is None or not check_func(user, password):
                         err = HTTPError(401, text)
                         err.add_header('WWW-Authenticate', 'Basic realm="%s"' % realm)
                         return err
@@ -123,20 +125,27 @@ def app_container():
     def is_authenticated_user(user, password):
         global auth_user
         global auth_hash
-        config = CrawlerConfig('FeedCrawler')
-        auth_user = config.get('auth_user')
-        auth_hash = config.get('auth_hash')
+        _config = CrawlerConfig('FeedCrawler')
+        auth_user = _config.get('auth_user')
+        auth_hash = _config.get('auth_hash')
         if auth_user and auth_hash:
-            if auth_hash and "pbkdf2-sha256|" not in auth_hash:
-                salt = get_random_bytes(32)
-                hash = PBKDF2(auth_hash, salt, dkLen=32)
-                auth_hash = "pbkdf2-sha256|" + salt.hex() + "|" + hash.hex()
-                config.save("auth_hash", to_str(auth_hash))
+            if auth_hash and "srcypt|" not in auth_hash:
+                salt = get_random_bytes(16).hex()
+                key = scrypt(auth_hash, salt, 16, N=2 ** 14, r=8, p=1).hex()
+                auth_hash = "srcypt|" + salt + "|" + key
+                _config.save("auth_hash", to_str(auth_hash))
             secrets = auth_hash.split("|")
-            salt = bytes.fromhex(secrets[1])
+            salt = secrets[1]
             config_hash = secrets[2]
-            sent_hash = PBKDF2(password, salt, dkLen=32).hex()
-            return user == config.get("auth_user") and config_hash == sent_hash
+            if password not in known_hashes:
+                # Remember the hash for up to three passwords
+                if len(known_hashes) > 2:
+                    known_hashes.clear()
+                sent_hash = scrypt(password, salt, 16, N=2 ** 14, r=8, p=1).hex()
+                known_hashes[password] = sent_hash
+            else:
+                sent_hash = known_hashes[password]
+            return user == _config.get("auth_user") and config_hash == sent_hash
         else:
             return True
 
@@ -144,7 +153,7 @@ def app_container():
     @app.get(prefix + '/sponsors_helper/')
     @auth_basic(is_authenticated_user)
     def catch_all():
-        return static_file('index.html', root=base_dir + "/feedcrawler/web/dist")
+        return static_file('index.html', root=base_dir + "/web/dist")
 
     if prefix:
         @app.get('/')
@@ -165,12 +174,12 @@ def app_container():
     @app.get(prefix + '/assets/<filename>')
     @app.get(prefix + '/sponsors_helper/assets/<filename>')
     def static_files(filename):
-        return static_file(filename, root=base_dir + "/feedcrawler/web/dist/assets")
+        return static_file(filename, root=base_dir + "/web/dist/assets")
 
     @app.get(prefix + '/favicon.ico')
     @app.get(prefix + '/sponsors_helper/favicon.ico')
     def static_favicon():
-        return static_file('favicon.ico', root=base_dir + "/feedcrawler/web/dist/")
+        return static_file('favicon.ico', root=base_dir + "/web/dist/")
 
     def to_int(i):
         if isinstance(i, bytes):
@@ -366,13 +375,13 @@ def app_container():
             section.save(
                 "auth_user", to_str(data['general']['auth_user']))
 
-            auth_hash = data['general']['auth_hash']
-            if auth_hash and "pbkdf2-sha256|" not in auth_hash:
-                salt = get_random_bytes(32)
-                hash = PBKDF2(auth_hash, salt, dkLen=32)
-                auth_hash = "pbkdf2-sha256|" + salt.hex() + "|" + hash.hex()
+            password_hash = data['general']['auth_hash']
+            if password_hash and "srcypt|" not in password_hash:
+                salt = get_random_bytes(16).hex()
+                key = scrypt(password_hash, salt, 16, N=2 ** 14, r=8, p=1).hex()
+                password_hash = "srcypt|" + salt + "|" + key
             section.save(
-                "auth_hash", to_str(auth_hash))
+                "auth_hash", to_str(password_hash))
 
             myjd_user = to_str(data['general']['myjd_user'])
             myjd_pass = to_str(data['general']['myjd_pass'])

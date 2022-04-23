@@ -98,7 +98,7 @@ def clean_flaresolverr_sessions():
 @cache
 def request(url, method='get', params=None, headers=None, redirect_url=False, dont_cache=False):
     if dont_cache:
-        internal.logger.debug("Disabled request caching for request of: " + url)
+        internal.logger.debug("Aufruf ohne HTTP-Cache: " + url)
 
     flaresolverr_url = get_flaresolverr_url()
     flaresolverr_session = get_flaresolverr_session()

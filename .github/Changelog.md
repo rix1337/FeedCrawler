@@ -10,7 +10,7 @@
 - **14.0.0** Entfernung der folgenden Dependencies:
   - docopt (zugunsten der Python-internen argparse-Library)
   - flask (zugunsten der weniger komplexen bottle-Library)
-  - passlib (zugunsten der pbkdf2-Funktion der pycryptodomex-Library)
+  - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Library)
   - python-dateutil (wurde nur für DD verwendet und war ersetzbar)
   - simplejson (zugunsten der Python-internen json-Library)
   - waitress (zugunsten eines eigenen Multi-Threaded WSGI-Servers)
