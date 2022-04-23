@@ -9,10 +9,8 @@ import functools
 import hashlib
 import pickle
 from json import loads
+from urllib.error import URLError
 from urllib.parse import urlencode
-
-import requests
-from requests import RequestException
 
 from feedcrawler import internal
 from feedcrawler.common import site_blocked
@@ -20,6 +18,7 @@ from feedcrawler.common import site_blocked_with_flaresolverr
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
+from feedcrawler.http.thttp import request
 
 
 def cache(func):
@@ -88,7 +87,7 @@ def clean_flaresolverr_sessions():
     flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
     if flaresolverr_sessions:
         for flaresolverr_session in flaresolverr_sessions:
-            requests.post(flaresolverr_url, headers={}, json={
+            request(flaresolverr_url, headers={}, method="POST", json={
                 'cmd': 'sessions.destroy',
                 'session': flaresolverr_session
             })
@@ -96,7 +95,7 @@ def clean_flaresolverr_sessions():
 
 
 @cache
-def request(url, method='get', params=None, headers=None, redirect_url=False, dont_cache=False):
+def cached_request(url, method='get', params=None, headers=None, redirect_url=False, dont_cache=False):
     if dont_cache:
         internal.logger.debug("Aufruf ohne HTTP-Cache: " + url)
 
@@ -132,7 +131,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
             if flaresolverr_url:
                 internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
                 if not flaresolverr_session:
-                    json_session = requests.post(flaresolverr_url, json={
+                    json_session = request(flaresolverr_url, method="POST", json={
                         'cmd': 'sessions.create'
                     })
                     response_session = loads(json_session.text)
@@ -141,7 +140,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                     internal.logger.debug("Proxy ist notwendig. Zerstöre aktive Sessions",
                                           flaresolverr_session)
                     clean_flaresolverr_sessions()
-                    json_session = requests.post(flaresolverr_url, json={
+                    json_session = request(flaresolverr_url, method="POST", json={
                         'cmd': 'sessions.create'
                     })
                     response_session = loads(json_session.text)
@@ -163,7 +162,7 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                 if site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
                     flaresolverr_payload["proxy"] = {"url": flaresolverr_proxy}
 
-                json_response = requests.post(flaresolverr_url, json=flaresolverr_payload)
+                json_response = request(flaresolverr_url, method="POST", json=flaresolverr_payload)
 
                 status_code = json_response.status_code
                 response = loads(json_response.text)
@@ -189,20 +188,20 @@ def request(url, method='get', params=None, headers=None, redirect_url=False, do
                 return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
             if method == 'post':
-                response = requests.post(url, data=params, timeout=10, headers=headers)
+                response = request(url, method="POST", data=params, timeout=10, headers=headers)
             elif redirect_url:
                 try:
-                    return requests.get(url, allow_redirects=False, timeout=10).headers._store["location"][1]
+                    return request(url, timeout=10).url
                 except:
                     internal.logger.debug("Der Abruf der Redirect-URL war ohne FlareSolverr fehlerhaft.")
                     return url
             else:
-                response = requests.get(url, timeout=10, headers=headers)
+                response = request(url, timeout=10, headers=headers)
 
             status_code = response.status_code
             text = response.text
             response_headers = response.headers
-    except RequestException as e:
+    except URLError as e:
         print("Fehler im HTTP-Request", e)
 
     if flaresolverr_session:

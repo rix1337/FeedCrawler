@@ -9,8 +9,8 @@ import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http_request_handler import get_flaresolverr_url
-from feedcrawler.http_request_handler import request
+from feedcrawler.http.handler import get_flaresolverr_url
+from feedcrawler.http.handler import cached_request
 
 
 def check_url(start_time):
@@ -79,30 +79,30 @@ def check_if_blocked(site, url):
     try:
         # These can be checked the same way
         if site in ["BY", "FX", "HW", "DD"]:
-            status = request(url, dont_cache=True)["status_code"]
+            status = cached_request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True
         # Custom check required
         elif site in ["SJ", "DJ"]:
-            status = request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
+            status = cached_request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True
         elif site in ["FF"]:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
-            ff_test = request(url + '/updates/' + delta, dont_cache=True)
+            ff_test = cached_request(url + '/updates/' + delta, dont_cache=True)
             if not ff_test["text"] or ff_test["status_code"] is not (
                     200 or 304) or '<div class="list blog"' not in ff_test["text"]:
                 return True
         # Custom check required
         elif site in ["SF"]:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
-            sf_test = request(url + '/updates/' + delta, dont_cache=True)
+            sf_test = cached_request(url + '/updates/' + delta, dont_cache=True)
             if not sf_test["text"] or sf_test["status_code"] is not (
                     200 or 304) or '<h3><a href="/' not in sf_test["text"]:
                 return True
         # Custom check required
         elif site == "WW":
-            ww_test = request(url + "/ajax", method='post', params="p=1&t=l&q=1", dont_cache=True)
+            ww_test = cached_request(url + "/ajax", method='post', params="p=1&t=l&q=1", dont_cache=True)
             if not ww_test["text"] or ww_test["status_code"] is not (
                     200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
                 return True
@@ -115,7 +115,7 @@ def check_if_blocked(site, url):
 
 def get_url(url):
     try:
-        response = request(url)["text"]
+        response = cached_request(url)["text"]
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -124,7 +124,7 @@ def get_url(url):
 
 def get_url_headers(url, headers=False):
     try:
-        response = request(url, headers=headers)
+        response = cached_request(url, headers=headers)
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -133,7 +133,7 @@ def get_url_headers(url, headers=False):
 
 def get_redirected_url(url):
     try:
-        redirect_url = request(url, redirect_url=True)
+        redirect_url = cached_request(url, redirect_url=True)
         return redirect_url
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -142,7 +142,7 @@ def get_redirected_url(url):
 
 def post_url(url, data=False):
     try:
-        response = request(url, method='post', params=data)["text"]
+        response = cached_request(url, method='post', params=data)["text"]
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))
@@ -151,7 +151,7 @@ def post_url(url, data=False):
 
 def post_url_headers(url, headers, data=False):
     try:
-        response = request(url, method='post', params=data, headers=headers)
+        response = cached_request(url, method='post', params=data, headers=headers)
         return response
     except Exception as e:
         print(u"Fehler beim Abruf von: " + url + " " + str(e))

@@ -4,10 +4,8 @@
 # Dieses Modul integriert die API von Ombi in die Feed-Suche des FeedCrawlers.
 
 import json
-import logging
 
-import requests
-from imdb import Cinemagoer as IMDb, IMDbDataAccessError
+from imdb import Cinemagoer as IMDb
 
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
@@ -17,6 +15,7 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.http.thttp import request
 from feedcrawler.imdb import clean_imdb_id
 
 
@@ -73,9 +72,9 @@ def ombi(first_launch):
     english = CrawlerConfig('FeedCrawler').get('english')
 
     try:
-        requested_movies = requests.get(url + '/api/v1/Request/movie', headers={'ApiKey': api})
+        requested_movies = request(url + '/api/v1/Request/movie', headers={'ApiKey': api})
         requested_movies = json.loads(requested_movies.text)
-        requested_shows = requests.get(url + '/api/v1/Request/tv', headers={'ApiKey': api})
+        requested_shows = request(url + '/api/v1/Request/tv', headers={'ApiKey': api})
         requested_shows = json.loads(requested_shows.text)
         len_movies = len(requested_movies)
         len_shows = len(requested_shows)

@@ -8,11 +8,12 @@
 
 - **14.0.0** Das Passwort für das Web-Interface muss neu vergeben werden, sofern zuvor eines genutzt wurde.
 - **14.0.0** Entfernung der folgenden Dependencies:
-  - docopt (zugunsten der Python-internen argparse-Library)
-  - flask (zugunsten der weniger komplexen bottle-Library)
-  - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Library)
+  - docopt (zugunsten der Python-internen argparse-Bibliothek)
+  - flask (zugunsten der weniger komplexen bottle-Bibliothek)
+  - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Bibliothek)
   - python-dateutil (wurde nur für DD verwendet und war ersetzbar)
-  - simplejson (zugunsten der Python-internen json-Library)
+  - requests (zugunsten einer eigenen Implementierung auf Basis der Python-internen urllib-Bibliothek)
+  - simplejson (zugunsten der Python-internen json-Bibliothek)
   - waitress (zugunsten eines eigenen Multi-Threaded WSGI-Servers)
 - **13.2.0** (Re-)Integration von DD
   - Die neue Suche kommt ohne feedparser als Dependency aus.

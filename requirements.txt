@@ -6,4 +6,3 @@ bottle==0.12.19
 cinemagoer==2022.2.11
 html5lib==1.1
 pycryptodomex==3.14.1
-requests==2.27.1

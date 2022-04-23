@@ -5,8 +5,6 @@
 
 import json
 
-import requests
-
 import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
 from feedcrawler import internal
@@ -14,6 +12,7 @@ from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.http.thttp import request
 
 
 def overseerr(first_launch):
@@ -28,7 +27,7 @@ def overseerr(first_launch):
     english = CrawlerConfig('FeedCrawler').get('english')
 
     try:
-        requested_titles_raw = requests.get(url + '/api/v1/request?take=999', headers={'X-Api-Key': api})
+        requested_titles_raw = request(url + '/api/v1/request?take=999', headers={'X-Api-Key': api})
         if requested_titles_raw.status_code != 200:
             internal.logger.debug("Overseerr API-Key ungültig!")
             print(u"Overseerr API-Key ungültig!")
@@ -43,7 +42,7 @@ def overseerr(first_launch):
             if item['status'] == 2:
                 internal.logger.debug("Anfrage mit ID " + str(item['id']) + " ist freigegeben.")
                 if item['type'] == 'movie':
-                    details_raw = requests.get(url + '/api/v1/movie/' + str(item['media']['tmdbId']),
+                    details_raw = request(url + '/api/v1/movie/' + str(item['media']['tmdbId']),
                                                headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
                         internal.logger.debug(
@@ -53,7 +52,7 @@ def overseerr(first_launch):
                         details = json.loads(details_raw.text)
                         requested_movies.append(details)
                 elif item['type'] == 'tv':
-                    details_raw = requests.get(url + '/api/v1/tv/' + str(item['media']['tmdbId']),
+                    details_raw = request(url + '/api/v1/tv/' + str(item['media']['tmdbId']),
                                                headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
                         internal.logger.debug(
