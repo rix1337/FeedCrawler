@@ -1,9 +1,10 @@
 <script setup>
-import {useStore} from 'vuex'
+import "@/assets/scss/app.scss";
+import { useStore } from "vuex";
 
-const store = useStore()
+const store = useStore();
 </script>
 
 <template>
-  <router-view/>
+	<router-view />
 </template>
