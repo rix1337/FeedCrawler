@@ -7,6 +7,7 @@ import ast
 import json
 import os
 import re
+import site
 import sys
 import time
 from functools import wraps
@@ -85,9 +86,12 @@ def app_container():
     global auth_hash
     global known_hashes
 
-    base_dir = './feedcrawler'
+    base_dir = '/feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
+    elif internal.docker:
+        static_location = site.getsitepackages()[0]
+        base_dir = static_location + base_dir
 
     general = CrawlerConfig('FeedCrawler')
     if general.get("prefix"):

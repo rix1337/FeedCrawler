@@ -13,11 +13,6 @@ from feedcrawler import internal
 from feedcrawler.url import get_url, get_url_headers
 
 
-def clean_id(string):
-    integer = re.findall(r'\d+', string)[0]
-    return integer
-
-
 def get_imdb_id_from_content(key, content, current_list):
     try:
         imdb_id = re.findall(
@@ -129,8 +124,10 @@ def get_rating(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-        match = re.findall(r'ratingValue":(\d+\.\d+)', request)
-        rating = float(str(match[0]).replace(",", "."))
+        soup = BeautifulSoup(request, "html5lib")
+        props = soup.find("script", text=re.compile("props"))
+        details = loads(props.string)
+        rating = details['props']['pageProps']['aboveTheFoldData']['ratingsSummary']['aggregateRating']
     except:
         pass
 
@@ -146,8 +143,10 @@ def get_votes(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-        match = re.findall(r'ratingCount":(\d+)', request)
-        votes = int(match[0])
+        soup = BeautifulSoup(request, "html5lib")
+        props = soup.find("script", text=re.compile("props"))
+        details = loads(props.string)
+        votes = details['props']['pageProps']['aboveTheFoldData']['ratingsSummary']['voteCount']
     except:
         pass
 
