@@ -2,7 +2,7 @@
 # FeedCrawler
 # Projekt von https://github.com/rix1337
 #
-# Dieses Modul ermöglicht den Verzicht auf die requests-Bibliothek
+# Dieses Modul realisiert HTTP-Requests auf Basis der Python-eigenen urllib-Bibliothek
 #
 # Enthält Code von:
 # https://github.com/sesh/thttp
