@@ -8,14 +8,11 @@ import sys
 import time
 import traceback
 
-from requests.packages.urllib3 import disable_warnings as disable_request_warnings
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-
 from feedcrawler import internal
 from feedcrawler.common import Unbuffered, is_device, readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http_request_handler import clean_flaresolverr_sessions
+from feedcrawler.http_handlers.flaresolverr import clean_flaresolverr_sessions
 from feedcrawler.myjd import get_device
 from feedcrawler.request_management.ombi import ombi
 from feedcrawler.request_management.overseerr import overseerr
@@ -77,7 +74,6 @@ def crawler(global_variables, remove_f_time, test_run):
 
     sys.stdout = Unbuffered(sys.stdout)
     logger = internal.logger
-    disable_request_warnings(InsecureRequestWarning)
 
     request_management_first_run = True
     crawltimes = FeedDb("crawltimes")

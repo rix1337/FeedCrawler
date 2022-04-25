@@ -33,10 +33,12 @@ import hashlib
 import hmac
 import json
 import time
+from urllib.error import URLError
 from urllib.parse import quote
 
-import requests
 from Cryptodome.Cipher import AES
+
+from feedcrawler.http_handlers.requests import request
 
 BS = 16
 
@@ -664,6 +666,7 @@ class Downloads:
         resp = self.device.action(self.url + "/resetLinks", params)
         return resp
 
+
 class Jddevice:
     """
     Class that represents a JDownloader device and it's functions
@@ -1063,9 +1066,9 @@ class Myjdapi:
                 ]
             query = query[0] + "&".join(query[1:])
             try:
-                encrypted_response = requests.get(api + query, timeout=3)
-            except:
-                encrypted_response = requests.get(api + query, timeout=3, verify=False)
+                encrypted_response = request(api + query, timeout=3)
+            except URLError:
+                encrypted_response = request(api + query, timeout=3, verify=False)
                 print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
@@ -1093,25 +1096,27 @@ class Myjdapi:
             else:
                 request_url = api + path
             try:
-                encrypted_response = requests.post(
+                encrypted_response = request(
                     request_url,
                     headers={
                         "Content-Type": "application/aesjson-jd; charset=utf-8"
                     },
                     data=encrypted_data,
+                    method="POST",
                     timeout=3)
-            except:
+            except URLError:
                 try:
-                    encrypted_response = requests.post(
+                    encrypted_response = request(
                         request_url,
                         headers={
                             "Content-Type": "application/aesjson-jd; charset=utf-8"
                         },
                         data=encrypted_data,
+                        method="POST",
                         timeout=3,
                         verify=False)
                     print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
-                except requests.exceptions.RequestException:
+                except URLError:
                     return None
         if encrypted_response.status_code == 403:
             raise TokenExpiredException
