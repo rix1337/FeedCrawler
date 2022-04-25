@@ -81,6 +81,8 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                     "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
                 return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
+            headers[
+                'User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"
             if method == 'post':
                 response = request(url, method="POST", data=params, timeout=10, headers=headers)
             elif redirect_url:

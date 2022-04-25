@@ -43,7 +43,7 @@ def overseerr(first_launch):
                 internal.logger.debug("Anfrage mit ID " + str(item['id']) + " ist freigegeben.")
                 if item['type'] == 'movie':
                     details_raw = request(url + '/api/v1/movie/' + str(item['media']['tmdbId']),
-                                               headers={'X-Api-Key': api})
+                                          headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
                         internal.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
@@ -53,7 +53,7 @@ def overseerr(first_launch):
                         requested_movies.append(details)
                 elif item['type'] == 'tv':
                     details_raw = request(url + '/api/v1/tv/' + str(item['media']['tmdbId']),
-                                               headers={'X-Api-Key': api})
+                                          headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
                         internal.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
@@ -98,15 +98,20 @@ def overseerr(first_launch):
         internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         item_id = r["id"]
-        if not db.retrieve('show_' + str(item_id)) == 'added':
-            title = r["name"]
-            if title:
-                payload = feedcrawler.search.shared.content_shows.get_best_result(title)
-                if payload:
-                    payload = decode_base64(payload).split("|")
-                    payload = encode_base64(payload[0] + "|" + payload[1] + "|")
-                    feedcrawler.search.shared.content_shows.download(payload)
-                    db.store('show_' + str(item_id), 'added')
-                    print(u"Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
+        seasons = r['seasons']
+        for season in seasons:
+            season = str(season['seasonNumber'])
+            if len(season) == 1:
+                season = "s0" + season
+            if not db.retrieve('show_' + str(item_id) + "_" + str(season)) == 'added':
+                title = r["name"]
+                if title:
+                    payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+                    if payload:
+                        payload = decode_base64(payload).split("|")
+                        payload = encode_base64(payload[0] + "|" + payload[1] + "|" + season)
+                        if feedcrawler.search.shared.content_shows.download(payload):
+                            db.store('show_' + str(item_id) + "_" + str(season), 'added')
+                            print(u"Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
 
     return [len_movies, len_shows]

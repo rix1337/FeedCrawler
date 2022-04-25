@@ -6,24 +6,26 @@
 
 ### Changelog FeedCrawler:
 
+- **14.0.0** Die Overseerr-Suche für Serien geht jetzt Staffelweise vor.
 - **14.0.0** Das Passwort für das Web-Interface muss neu vergeben werden, sofern zuvor eines genutzt wurde.
 - **14.0.0** Entfernung der folgenden Dependencies:
-  - docopt (zugunsten der Python-internen argparse-Bibliothek)
-  - flask (zugunsten der weniger komplexen bottle-Bibliothek)
-  - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Bibliothek)
-  - python-dateutil (zugunsten einer eigenen Implementierung auf Basis der Python-internen datetime-Bibliothek)
-  - requests (zugunsten einer eigenen Implementierung auf Basis der Python-internen urllib-Bibliothek)
-  - simplejson (zugunsten der Python-internen json-Bibliothek)
-  - waitress (zugunsten einer eigenen Implementierung auf Basis der Python-internen wsgiref-Bibliothek)
+    - docopt (zugunsten der Python-internen argparse-Bibliothek)
+    - flask (zugunsten der weniger komplexen bottle-Bibliothek)
+    - passlib (zugunsten der sichereren scrypt-Methode der pycryptodomex-Bibliothek)
+    - python-dateutil (zugunsten einer eigenen Implementierung auf Basis der Python-internen datetime-Bibliothek)
+    - requests (zugunsten einer eigenen Implementierung auf Basis der Python-internen urllib-Bibliothek)
+    - simplejson (zugunsten der Python-internen json-Bibliothek)
+    - waitress (zugunsten einer eigenen Implementierung auf Basis der Python-internen wsgiref-Bibliothek)
 - **13.2.0** (Re-)Integration von DD
-  - Die neue Suche kommt ohne feedparser als Dependency aus.
-  - DD-Feeds werden in den Suchlisten konfiguriert.
-  - Damit wird das ddtofeedcrawler-Image vom Docker-Hub entfernt.
+    - Die neue Suche kommt ohne feedparser als Dependency aus.
+    - DD-Feeds werden in den Suchlisten konfiguriert.
+    - Damit wird das ddtofeedcrawler-Image vom Docker-Hub entfernt.
 - **13.2.0** Wechsel zu besserer Tooltip-Dependency [vue-tippy](https://vue-tippy.netlify.app/)
 - **13.1.0** Integration von [Overseerr](https://overseerr.dev/) als bessere Alternative zu [Ombi](https://ombi.io/)
-  - Ombi ist über die Jahre imperformant und unzuverlässig geworden und steht ab sofort nicht mehr im Fokus dieses Projektes.
-  - Overseerr bietet eine deutlich zuverlässigere und schnellere Basis für Medienserver-Anfragen
-  - Ein Wechsel von Ombi zu Overseerr wird empfohlen.
+    - Ombi ist über die Jahre imperformant und unzuverlässig geworden und steht ab sofort nicht mehr im Fokus dieses
+      Projektes.
+    - Overseerr bietet eine deutlich zuverlässigere und schnellere Basis für Medienserver-Anfragen
+    - Ein Wechsel von Ombi zu Overseerr wird empfohlen.
 - **13.0.8** Bevorzuge SF-Web-Suche in Ombi-Anbindung
 - **13.0.8** Fehlerbehebung in den Web-Suchen
 - **13.0.7** Integration der SF-Web-Suche
@@ -36,13 +38,14 @@
 - **13.0.5** RegEx-Hilfe überarbeitet
 - **13.0.5** Verbesserungen in der Web-Suche
 - **13.0.5** Fehlgeschlagene Downloads können jetzt zurückgesetzt werden
-- **13.0.4** Die Web-Suche zeigt die Ergebnisse von schnell durchsuchbaren Seiten schon an, 
-      während langsame Seiten noch laden.
+- **13.0.4** Die Web-Suche zeigt die Ergebnisse von schnell durchsuchbaren Seiten schon an,
+  während langsame Seiten noch laden.
 - **13.0.4** Ladehinweis für Suchlisten/Einstellungen ergänzt
 - **13.0.4** Fehlerbehebungen in der SJ-Web-Suche
 - **13.0.4** Weitere Fehlerbehebungen in der Ombi-Anbindung (#600)
-- **13.0.3** Fehlerbehebung im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper),
-      wenn ein Prefix für das Web-Interface genutzt wird.
+- **13.0.3** Fehlerbehebung
+  im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper),
+  wenn ein Prefix für das Web-Interface genutzt wird.
 - **13.0.2** Fehlerbehebung in der Ombi-Anbindung #600 (Danke @jankete)
 - **13.0.1** Detailverbesserungen
     - Verhindere vertikales Scrollen im Log
@@ -78,9 +81,9 @@ Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScraw
 betreffen, werden erst nach dessen Update aktiv.
 
 - **5.0.0** Basiert ab sofort auf eigenem Basis-Image (Ubuntu 22.04 und Google Chrome 100)
-  - Die Funktionalität entspricht der Vorversion inklusive Zugriff per VNC/Web-Browser.
-  - Die Parameter `--shm-size 2g` und `--restart unless-stopped` sind nicht mehr notwendig.
-  - Mit dem `--privileged`-Parameter kann ab sofort die `--no-sandbox`-Warnung in Chrome deaktiviert werden.
+    - Die Funktionalität entspricht der Vorversion inklusive Zugriff per VNC/Web-Browser.
+    - Die Parameter `--shm-size 2g` und `--restart unless-stopped` sind nicht mehr notwendig.
+    - Mit dem `--privileged`-Parameter kann ab sofort die `--no-sandbox`-Warnung in Chrome deaktiviert werden.
 - **4.0.3** Entschlüssele PL-Links automatisch per Click'n'Load oder DLC, wenn der FeedCrawler daran gescheitert ist.
 - **4.0.2** Der AntiGateHandler entschlüsselt nun die DLC-Datei, sofern der Click'n'Load-Button fehlt.
 - **4.0.1** Der lokale HTTP-Proxy läuft ab sofort dauerhaft.

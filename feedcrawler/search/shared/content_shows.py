@@ -113,7 +113,7 @@ def download(payload):
 
             name = details.find("small").text.strip()
             try:
-                resolution = re.findall(r"(\d+p)", name)[0].replace("480p", "SD")
+                resolution = re.findall(r"(\d+p)", name, re.IGNORECASE)[0].replace("480p", "SD")
             except:
                 resolution = "SD"
 
@@ -193,9 +193,9 @@ def download(payload):
                 pass
             hosters = release['hoster']
             try:
-                valid = bool(release['resolution'] == quality)
+                valid = bool(release['resolution'].lower() == quality.lower())
             except:
-                valid = re.match(re.compile(r'.*' + quality + r'.*'), name)
+                valid = re.match(re.compile(r'.*' + quality + r'.*', re.IGNORECASE), name)
             if valid and special:
                 if site == "SF" and special_season and special_episode:
                     if special_season in name:
