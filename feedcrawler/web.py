@@ -159,6 +159,14 @@ def app_container():
     def catch_all():
         return static_file('index.html', root=base_dir + "/web/dist")
 
+    @app.get('//<url:re:.*>')
+    @auth_basic(is_authenticated_user)
+    def redirect_double_slash(url):
+        redirect_url = '/' + url
+        if prefix and prefix not in redirect_url:
+            redirect_url = prefix + redirect_url
+        return redirect(redirect_url)
+
     if prefix:
         @app.get('/')
         @auth_basic(is_authenticated_user)
