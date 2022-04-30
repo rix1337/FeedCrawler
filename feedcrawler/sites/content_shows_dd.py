@@ -43,7 +43,7 @@ class DD:
         else:
             for feed_id in self.feed_ids:
                 feed_url = self.url + '/rss/' + feed_id
-                feed = dd_rss_feed_to_feedparser_dict(get_url(feed_url).content)
+                feed = dd_rss_feed_to_feedparser_dict(get_url(feed_url))
                 for post in feed.entries:
                     current_epoch = datetime.utcnow().timestamp()
                     published_epoch = datetime.strptime(post.published, '%a, %d %b %Y %X %Z').timestamp()
