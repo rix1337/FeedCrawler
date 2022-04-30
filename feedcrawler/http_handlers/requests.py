@@ -86,6 +86,9 @@ def request(
 
     if params:
         url += "?" + urlencode(params)  # build URL from params
+
+    url = url.replace(" ", "%20")  # replace spaces with %20
+
     if json and data:
         raise Exception("Cannot provide both json and data parameters")
     if method not in ["POST", "PATCH", "PUT"] and (json or data):
