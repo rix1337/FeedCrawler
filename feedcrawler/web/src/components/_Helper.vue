@@ -1,15 +1,12 @@
 <script setup>
 import {useStore} from 'vuex'
 import {onMounted, ref} from 'vue'
-import {useRoute} from "vue-router"
 import axios from 'axios'
 
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import "bootstrap"
 
-
-const route = useRoute()
 const store = useStore()
 
 onMounted(() => {
@@ -44,7 +41,7 @@ function getAntiGate() {
       .then(function (res) {
         antigate_available_and_active.value = res.data
       }, function () {
-        console.log('[FeedCrawler Helper] Konnte AntiGate Status nicht abrufen!')
+        console.log('[FeedCrawler Sponsors Helper] Konnte AntiGate Status nicht abrufen!')
       })
 }
 
@@ -59,7 +56,7 @@ function getToDecrypt() {
         to_decrypt.value = res.data.to_decrypt
         startToDecrypt()
       }, function () {
-        console.log('[FeedCrawler Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!')
+        console.log('[FeedCrawler Sponsors Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!')
       })
 }
 
@@ -76,12 +73,42 @@ function getFBlocked() {
         ff_hostname.value = res.data.blocked_sites.ff_hostname
         next_f_run.value = res.data.blocked_sites.next_f_run
       }, function () {
-        console.log('[FeedCrawler Helper] Konnte Block-Status von SF/FF nicht abrufen!')
+        console.log('[FeedCrawler Sponsors Helper] Konnte Block-Status von SF/FF nicht abrufen!')
       })
 }
 
 const current_to_decrypt = ref('')
 const wnd_to_decrypt = ref(false)
+
+const previous_attempts = ref({})
+
+function countPreviousAttempts(url) {
+  if (previous_attempts.value[url]) {
+    previous_attempts.value[url]++
+  } else {
+    previous_attempts.value[url] = 1
+  }
+  console.log('[FeedCrawler Sponsors Helper] ' + url + ' wurde ' + previous_attempts.value[url] + ' mal versucht.')
+}
+
+function tooManyAttempts(url, name) {
+  countPreviousAttempts(url)
+  if (previous_attempts.value[url] > 3) {
+    console.log('[FeedCrawler Sponsors Helper] ' + name + ' wurde bereits 3x versucht. Lösche Paket...')
+    removeFromToDecrypt(name)
+  } else {
+    return false
+  }
+}
+
+function removeFromToDecrypt(name) {
+  axios.delete(context.value + '/api/to_decrypt/' + name)
+      .then(function (res) {
+        console.log('[FeedCrawler Sponsors Helper] ' + name + ' wurde entfernt!')
+      }, function () {
+        console.log('[FeedCrawler Sponsors Helper] Konnte ' + name + ' nicht entfernen!')
+      })
+}
 
 function startToDecrypt() {
   if (to_decrypt.value.name !== current_to_decrypt.value) {
@@ -89,25 +116,27 @@ function startToDecrypt() {
       wnd_to_decrypt.value.close()
     }
     if (to_decrypt.value.name && to_decrypt.value.url) {
-      current_to_decrypt.value = to_decrypt.value.name
-      if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
-        console.log('[FeedCrawler Helper] SF ist derzeit geblockt!')
-      } else if (f_blocked.value && ff_hostname.value && to_decrypt.value.url.includes(ff_hostname.value)) {
-        console.log('[FeedCrawler Helper] FF ist derzeit geblockt!')
-      } else if (antigate_available_and_active.value && to_decrypt.value.url.includes("filecrypt.")) {
-        if (antigate_available_and_active.value === "false") {
-          let clean_url = to_decrypt.value.url
-          console.log(clean_url)
-          if (to_decrypt.value.url.includes("#")) {
-            clean_url = to_decrypt.value.url.split('#')[0]
+      if (!tooManyAttempts(to_decrypt.value.url, to_decrypt.value.name)) {
+        current_to_decrypt.value = to_decrypt.value.name
+        if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
+          console.log('[FeedCrawler Sponsors Helper] SF ist derzeit geblockt!')
+        } else if (f_blocked.value && ff_hostname.value && to_decrypt.value.url.includes(ff_hostname.value)) {
+          console.log('[FeedCrawler Sponsors Helper] FF ist derzeit geblockt!')
+        } else if (antigate_available_and_active.value && to_decrypt.value.url.includes("filecrypt.")) {
+          if (antigate_available_and_active.value === "false") {
+            let clean_url = to_decrypt.value.url
+            console.log(clean_url)
+            if (to_decrypt.value.url.includes("#")) {
+              clean_url = to_decrypt.value.url.split('#')[0]
+            }
+            console.log(clean_url)
+            let password = to_decrypt.value.password
+            let payload = window.btoa(decodeURIComponent(encodeURIComponent((clean_url + "|" + password))))
+            wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
           }
-          console.log(clean_url)
-          let password = to_decrypt.value.password
-          let payload = window.btoa(unescape(encodeURIComponent((clean_url + "|" + password))))
-          wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
+        } else {
+          wnd_to_decrypt.value = window.open(to_decrypt.value.url)
         }
-      } else {
-        wnd_to_decrypt.value = window.open(to_decrypt.value.url)
       }
     }
   } else {
