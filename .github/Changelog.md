@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.0.1** Bugfixes (#614)
 - **14.0.0** Die Overseerr-Suche für Serien geht jetzt Staffelweise vor.
 - **14.0.0** Das Passwort für das Web-Interface muss neu vergeben werden, sofern zuvor eines genutzt wurde.
 - **14.0.0** Entfernung der folgenden Dependencies:
