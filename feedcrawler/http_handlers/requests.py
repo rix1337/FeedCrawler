@@ -38,7 +38,8 @@ import ssl
 from base64 import b64encode
 from collections import namedtuple
 from http.cookiejar import CookieJar
-from urllib.error import HTTPError
+from socket import timeout as socket_timeout
+from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import (
     Request,
@@ -129,40 +130,49 @@ def request(
     req = Request(url, data=data, headers=headers, method=method)
 
     try:
-        with opener.open(req, timeout=timeout) as resp:
-            status_code, content, resp_url = (resp.getcode(), resp.read(), resp.geturl())
+        try:
+            with opener.open(req, timeout=timeout) as resp:
+                status_code, content, resp_url = (resp.getcode(), resp.read(), resp.geturl())
 
-            headers = {k.lower(): v for k, v in list(resp.info().items())}
+                headers = {k.lower(): v for k, v in list(resp.info().items())}
+
+                if "gzip" in headers.get("content-encoding", ""):
+                    content = gzip.decompress(content)
+
+                try:
+                    json = (
+                        json_lib.loads(content)
+                        if "application/json" in headers.get("content-type", "").lower()
+                           and content
+                        else None
+                    )
+                except:
+                    json = None
+
+        except HTTPError as e:
+            status_code, content, resp_url = (e.code, e.read(), e.geturl())
+            headers = {k.lower(): v for k, v in list(e.headers.items())}
 
             if "gzip" in headers.get("content-encoding", ""):
                 content = gzip.decompress(content)
 
-            try:
-                json = (
-                    json_lib.loads(content)
-                    if "application/json" in headers.get("content-type", "").lower()
-                       and content
-                    else None
-                )
-            except:
-                json = None
+            json = (
+                json_lib.loads(content)
+                if "application/json" in headers.get("content-type", "").lower() and content
+                else None
+            )
 
-    except HTTPError as e:
-        status_code, content, resp_url = (e.code, e.read(), e.geturl())
-        headers = {k.lower(): v for k, v in list(e.headers.items())}
+        try:
+            text = content.decode("utf-8")
+        except:
+            text = ""
 
-        if "gzip" in headers.get("content-encoding", ""):
-            content = gzip.decompress(content)
-
-        json = (
-            json_lib.loads(content)
-            if "application/json" in headers.get("content-type", "").lower() and content
-            else None
-        )
-
-    try:
-        text = content.decode("utf-8")
-    except:
+    except (URLError, socket_timeout) as e:
+        print("Fehler bei Aufruf von: " + url + " (" + str(e) + ", timeout=" + str(timeout) + "s)")
+        content = b""
         text = ""
+        status_code = 503
+        json = None
+        resp_url = url
 
     return Response(req, content, text, json, status_code, resp_url, headers, cookiejar)
