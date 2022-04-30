@@ -119,7 +119,8 @@ function getMyJD() {
         myjd_failed.value = null
         store.commit("setMyJDConnectionError", true)
         console.log('Konnte JDownloader nicht erreichen!')
-        toast.error('Konnte JDownloader nicht erreichen!')
+        // ToDo: reactivate before merge
+        // toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 

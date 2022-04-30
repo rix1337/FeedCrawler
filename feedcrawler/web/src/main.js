@@ -162,7 +162,8 @@ const store = createStore({
 
                 }, function () {
                     console.log('Konnte blockierte Seiten nicht abrufen!')
-                    toast.error('Konnte blockierte Seiten nicht abrufen!')
+                    // ToDo: reactivate before merge
+                    // toast.error('Konnte blockierte Seiten nicht abrufen!')
                 })
         },
         getCrawlTimes(state) {
@@ -172,7 +173,8 @@ const store = createStore({
                     state.crawltimes = res.data.crawltimes
                 }, function () {
                     console.log('Konnte Laufzeiten nicht abrufen!')
-                    toast.error('Konnte Laufzeiten nicht abrufen!')
+                    // ToDo: reactivate before merge
+                    // toast.error('Konnte Laufzeiten nicht abrufen!')
                 })
         },
         getHostNames(state) {
@@ -183,7 +185,8 @@ const store = createStore({
                     state.misc.sjbl_enabled = !((state.hostnames.bl === not_set && state.hostnames.s !== not_set) || (state.hostnames.bl !== not_set && state.hostnames.s === not_set))
                 }, function () {
                     console.log('Konnte Hostnamen nicht abrufen!')
-                    toast.error('Konnte Hostnamen nicht abrufen!')
+                    // ToDo: reactivate before merge
+                    // toast.error('Konnte Hostnamen nicht abrufen!')
                 })
         },
         getLists(state) {
@@ -193,7 +196,8 @@ const store = createStore({
                     state.misc.loaded_lists = true
                 }, function () {
                     console.log('Konnte Listen nicht abrufen!')
-                    toast.error('Konnte Listen nicht abrufen!')
+                    // ToDo: reactivate before merge
+                    // toast.error('Konnte Listen nicht abrufen!')
                 })
         },
         getSettings(state) {
@@ -205,7 +209,8 @@ const store = createStore({
                     state.misc.pageSizeMyJD = state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
-                    toast.error('Konnte Einstellungen nicht abrufen!')
+                    // ToDo: reactivate before merge
+                    // toast.error('Konnte Einstellungen nicht abrufen!')
                 })
         },
         setDocker(state, docker) {

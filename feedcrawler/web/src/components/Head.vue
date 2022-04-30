@@ -57,7 +57,8 @@ function getVersion() {
         }
       }, function () {
         console.log('Konnte Version nicht abrufen!')
-        toast.error('Konnte Version nicht abrufen!')
+        // ToDo: reactivate before merge
+        // toast.error('Konnte Version nicht abrufen!')
       })
 }
 

@@ -23,7 +23,8 @@ function getLog() {
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
-        toast.error('Konnte Log nicht abrufen!')
+        // ToDo: reactivate before merge
+        // toast.error('Konnte Log nicht abrufen!')
       })
 }
 
