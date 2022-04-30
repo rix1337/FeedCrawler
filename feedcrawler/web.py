@@ -721,7 +721,7 @@ def app_container():
     def search_title(title):
         try:
             if len(title) < 3:
-                return "Search term too short!", 400
+                return abort(400, "Search term too short!")
             data = request.json
             slow_only = data.get('slow_only')
             fast_only = data.get('fast_only')
@@ -747,7 +747,7 @@ def app_container():
             payload = feedcrawler.search.shared.content_all.get_best_result(title)
             if payload:
                 matches = feedcrawler.search.shared.content_all.download(payload)
-                return "Success: " + str(matches), 200
+                return "Success: " + str(matches)
         except:
             pass
         return abort(400, "Failed")
@@ -760,7 +760,7 @@ def app_container():
             if payload:
                 matches = feedcrawler.search.shared.content_shows.download(payload)
                 if matches:
-                    return "Success: " + str(matches), 200
+                    return "Success: " + str(matches)
         except:
             pass
         return abort(400, "Failed")
@@ -1011,7 +1011,7 @@ def app_container():
                                         i = 0
 
             if not cnl_packages:
-                return "No Package added through Click'n'Load in time!", 504
+                return abort(504, "No Package added through Click'n'Load in time!")
 
             if do_add_decrypted(name, password, cnl_packages):
                 remove_decrypt(name)
@@ -1131,7 +1131,7 @@ var checkExist = setInterval(async function () {
 }, 100);
 }
 
-""", 200
+"""
         except:
             return abort(400, "Failed")
 
@@ -1239,7 +1239,7 @@ const dlExists = setInterval(function () {
     }
 }, 100);
 }
-""", 200
+"""
         except:
             return abort(400, "Failed")
 
@@ -1374,7 +1374,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
     window.close();
 }
 }, 100);
-""", 200
+"""
         except:
             return abort(400, "Failed")
 
@@ -1404,6 +1404,24 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         except:
             return abort(400, "Failed")
 
+    @app.delete(prefix + "/sponsors_helper/api/to_decrypt/<name>")
+    def to_download(name):
+        try:
+            if name:
+                if remove_decrypt(name):
+                    try:
+                        notify([
+                            "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"])
+                    except:
+                        print(u"Benachrichtigung konnte nicht versendet werden!")
+                    print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)
+                    return "<script type='text/javascript'>" \
+                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                           "[FeedCrawler Sponsors Helper erfolgreich] - " + name
+        except:
+            pass
+        return abort(400, "Failed")
+
     @app.get(prefix + "/sponsors_helper/api/f_blocked/<payload>")
     def f_blocked(payload):
         try:
@@ -1413,7 +1431,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                 db_status.update_store("SF_FF", "Blocked")
                 return "<script type='text/javascript'>" \
                        "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                       "Block status saved", 200
+                       "Block status saved"
             else:
                 hostnames = CrawlerConfig('Hostnames')
                 next_f_run = False
@@ -1595,7 +1613,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                         already_added.append([name, str(epoch)])
                         return "<script type='text/javascript'>" \
                                "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                               "[FeedCrawler Sponsors Helper erfolgreich] - " + name, 200
+                               "[FeedCrawler Sponsors Helper erfolgreich] - " + name
                     except:
                         print(name + u" konnte nicht hinzugefügt werden!")
         except:
