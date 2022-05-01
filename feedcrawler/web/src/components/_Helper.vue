@@ -193,7 +193,3 @@ function spinHelper() {
     </div>
   </main>
 </template>
-
-<style>
-@import '.././assets/base.css';
-</style>
