@@ -47,6 +47,7 @@ from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
 from feedcrawler.myjd import retry_decrypt
+from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
@@ -1532,7 +1533,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                             season_string = "^unmatchable$"
                         try:
                             packages = get_packages_in_linkgrabber()
-                        except feedcrawler.myjdapi.TokenExpiredException:
+                        except (TokenExpiredException, RequestTimeoutException):
                             get_device()
                             if not internal.device or not is_device(internal.device):
                                 return abort(500, "Failed")

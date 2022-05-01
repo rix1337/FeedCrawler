@@ -20,8 +20,6 @@ function updateCrawlTimes() {
 
 const version = ref("")
 const update = ref(false)
-const helper_active = ref(false)
-const helper_available = ref(false)
 
 function openReleaseNotes() {
   window.open("https://github.com/rix1337/FeedCrawler/releases/latest", "_blank")
@@ -35,13 +33,13 @@ function getVersion() {
         console.info("%c ❤ Projekt unterstützen %c ".concat("https://github.com/sponsors/rix1337 ❤", " "), "color: white; background: #dc3545; font-weight: 700;", "color: #dc3545; background: white; font-weight: 700;")
         update.value = res.data.version.update_ready
         store.commit('setDocker', res.data.version.docker)
-        helper_active.value = res.data.version.helper_active
-        if (helper_active.value) {
+        let helper_active = res.data.version.helper_active
+        if (helper_active) {
+          store.commit('setHelperActive', true)
           axios.get("http://127.0.0.1:9666/")
               .then(function (res) {
-                store.commit('setHelperActive', true)
-                helper_available.value = (res.data === 'JDownloader')
-                if (helper_available.value) {
+                let jd_cnl_available = (res.data === 'JDownloader')
+                if (jd_cnl_available) {
                   store.commit('setHelperAvailable', true)
                   console.log("Click'n'Load des FeedCrawler Sponsors Helper ist verfügbar!")
                 }
@@ -199,7 +197,7 @@ function showSiteStatusHelp() {
         <i class="bi bi-bar-chart"></i>
         Seitenstatus
       </button>
-      <a v-if="!helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
+      <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
          v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
          class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
         aktiver

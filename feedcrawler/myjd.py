@@ -19,6 +19,7 @@ from feedcrawler.common import readable_time
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 
@@ -306,7 +307,7 @@ def get_state():
             try:
                 downloader_state = internal.device.downloadcontroller.get_current_state()
                 grabber_collecting = internal.device.linkgrabber.is_collecting()
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -359,7 +360,7 @@ def get_info():
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -415,7 +416,7 @@ def move_to_downloads(linkids, uuid):
         if internal.device:
             try:
                 internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -435,7 +436,7 @@ def reset_in_downloads(linkids, uuid):
         if internal.device:
             try:
                 internal.device.downloads.reset_links(linkids, uuid)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -456,7 +457,7 @@ def remove_from_linkgrabber(linkids, uuid):
             try:
                 internal.device.linkgrabber.remove_links(linkids, uuid)
                 internal.device.downloads.remove_links(linkids, uuid)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -477,7 +478,7 @@ def rename_package_in_linkgrabber(package_id, new_name):
         if internal.device:
             try:
                 internal.device.linkgrabber.rename_package(package_id, new_name)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -498,7 +499,7 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
             try:
                 internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
                 internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -553,7 +554,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
                     "comment": "FeedCrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
-        except feedcrawler.myjdapi.TokenExpiredException:
+        except (TokenExpiredException, RequestTimeoutException):
             get_device()
             if not internal.device or not is_device(internal.device):
                 return False
@@ -605,7 +606,7 @@ def retry_decrypt(linkids, uuid, links):
                         "startAt": 0,
                         "status": True
                     }])
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -648,7 +649,7 @@ def retry_decrypt(linkids, uuid, links):
                             "packageUUIDs": uuid,
                             "startAt": 0,
                         }])
-                except feedcrawler.myjdapi.TokenExpiredException:
+                except (TokenExpiredException, RequestTimeoutException):
                     get_device()
                     if not internal.device or not is_device(internal.device):
                         return False
@@ -693,7 +694,7 @@ def jdownloader_start():
         if internal.device:
             try:
                 internal.device.downloadcontroller.start_downloads()
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -713,7 +714,7 @@ def jdownloader_pause(bl):
         if internal.device:
             try:
                 internal.device.downloadcontroller.pause_downloads(bl)
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -733,7 +734,7 @@ def jdownloader_stop():
         if internal.device:
             try:
                 internal.device.downloadcontroller.stop_downloads()
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -934,7 +935,7 @@ def do_package_merge(title, uuids, linkids):
         if internal.device:
             try:
                 move_to_new_package(linkids, uuids, title, "<jd:packagename>")
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
