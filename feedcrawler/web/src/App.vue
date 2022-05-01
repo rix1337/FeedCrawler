@@ -1,5 +1,6 @@
 <script setup>
-import {useStore} from 'vuex'
+import "@/assets/scss/app.scss"
+import {useStore} from "vuex"
 
 const store = useStore()
 </script>

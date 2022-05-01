@@ -133,86 +133,94 @@ function showSiteStatusHelp() {
 
 
 <template>
-  <div id="head" class="container app col">
-    <h1>
-      <i class="bi bi-reception-4"></i> FeedCrawler</h1>
-    <p id="headtitle">Projekt von
-      <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">RiX</a> {{ version }}
-      <span v-if="update"> (Update verfügbar!)</span>
-    </p>
+  <div class="row my-3">
+    <div class="col-md-8 offset-md-2">
+      <div class="card text-center bg-light my-3">
+        <div class="card-header">
+          <div id="head">
+            <h1>
+              <i class="bi bi-reception-4"></i> FeedCrawler</h1>
+            <p id="headtitle">Projekt von
+              <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">RiX</a> {{ version }}
+              <span v-if="update"> (Update verfügbar!)</span>
+            </p>
 
-    <div class="border-top"></div>
+            <div class="border-top"></div>
 
-    <div v-if="Object.keys(store.state.crawltimes).length !== 0">
-      <div v-if="store.state.crawltimes.active && !isNaN(store.state.crawltimes.start_time)">
-        Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
-        {{ currentDuration }})
-      </div>
-      <div v-if="!store.state.crawltimes.active && !isNaN(store.state.crawltimes.next_start)">
-        Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
-        <i id="start_now" v-tippy="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
-           v-if="!store.state.misc.starting"
-           @click="startNow()"></i>
-        <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
-      </div>
-      <div v-if="store.state.crawltimes.next_jf_run && store.state.hostnames.jf_shorthands !== ''">
-        Wartezeit ({{ store.state.hostnames.jf_shorthands }}) bis: {{
+            <div v-if="Object.keys(store.state.crawltimes).length !== 0">
+              <div v-if="store.state.crawltimes.active&& !isNaN(store.state.crawltimes.start_time)">
+                Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
+                {{ currentDuration }})
+              </div>
+              <div v-if="!store.state.crawltimes.active&& !isNaN(store.state.crawltimes.next_start)">
+                Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
+                <i id="start_now" v-tippy="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
+                   v-if="!store.state.misc.starting"
+                   @click="startNow()"></i>
+                <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
+              </div>
+              <div v-if="store.state.crawltimes.next_jf_run && store.state.hostnames.jf_shorthands !== ''">
+                Wartezeit ({{ store.state.hostnames.jf_shorthands }}) bis: {{
           getTimestamp(store.state.crawltimes.next_jf_run)
         }}
       </div>
-      <div v-if="!isNaN(store.state.crawltimes.total_time)">
-        Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
-      </div>
-    </div>
+              <div v-if="!isNaN(store.state.crawltimes.total_time)">
+              Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
+            </div></div>
     <div v-else>
       <div class="spinner-border spinner-border-sm" role="status"></div>
     </div>
 
-    <div class="border-top"></div>
+            <div class="border-top"></div>
 
-    <div>
-      <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasBottomSearch"
-              aria-controls="offcanvasBottomSearch"><i class="bi bi-search"></i> Web-Suche
-      </button>
+            <div>
+              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottomSearch"
+                      aria-controls="offcanvasBottomSearch"><i class="bi bi-search"></i> Web-Suche
+              </button>
 
-      <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasBottomLists"
-              aria-controls="offcanvasBottomLists"
-              @click='getLists'><i class="bi bi-text-left"></i>
-        Suchlisten
-      </button>
+              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottomLists"
+                      aria-controls="offcanvasBottomLists"
+                      @click='getLists'><i class="bi bi-text-left"></i>
+                Suchlisten
+              </button>
 
-      <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasBottomSettings"
-              aria-controls="offcanvasBottomSettings"
-              @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
-      </button>
+              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottomSettings"
+                      aria-controls="offcanvasBottomSettings"
+                      @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
+              </button>
 
-      <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-              data-bs-target="#offcanvasBottomHelp"
-              aria-controls="offcanvasBottomHelp"
-              @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
-      </button>
-    </div>
+              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                      data-bs-target="#offcanvasBottomHelp"
+                      aria-controls="offcanvasBottomHelp"
+                      @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
+              </button>
+            </div>
 
-    <div>
-      <button
-          :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
-          class="btn"
-          type="button" @click="showSiteStatusHelp">
-        <i class="bi bi-bar-chart"></i>
-        Seitenstatus
-      </button>
-      <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
-         class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
-        aktiver
-        Sponsor</a>
-      <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
-         v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
-         class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
-        Sponsor</a>
+            <div>
+              <button
+                  :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
+                  class="btn"
+                  type="button" @click="showSiteStatusHelp">
+                <i class="bi bi-bar-chart"></i>
+                Seitenstatus
+              </button>
+              <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship"
+                 target="_blank"
+                 v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                 class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
+                aktiver
+                Sponsor</a>
+              <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
+                 v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
+                 class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
+                Sponsor</a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
