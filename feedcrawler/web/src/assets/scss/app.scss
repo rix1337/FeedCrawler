@@ -1,4 +1,11 @@
 @import "../node_modules/bootstrap/scss/bootstrap";
+@import "vue-toastification/src/scss/_variables";
+@import "vue-toastification/src/scss/_toastContainer";
+@import "vue-toastification/src/scss/_toast";
+@import "vue-toastification/src/scss/_closeButton";
+@import "vue-toastification/src/scss/_progressBar";
+@import "vue-toastification/src/scss/_icon";
+@import "vue-toastification/src/scss/animations/_bounce";
 
 .blinking {
   animation: blink 1s linear infinite;
@@ -11,13 +18,6 @@
   to {
     opacity: 1;
   }
-}
-
-.Vue-Toastification__toast-body.toast-body {
-  font-family: var(--bs-body-font-family);
-  font-size: var(--bs-body-font-size);
-  font-weight: var(--bs-body-font-weight);
-  line-height: var(--bs-body-line-height);
 }
 
 .tippy-box {

@@ -117,62 +117,68 @@ function spinLog() {
 
 
 <template>
-  <div class="container bg-dark">
+  <div class="container">
     <div class="row my-3">
-      <div id="log" class="col md-8">
-        <h3 class="text-center">
-          <i class="bi bi-clock-history"></i> Log
-        </h3>
-          <table v-if="log.length > 0" class="table">
-            <thead>
-            <tr>
-              <th class="text-left d-none d-lg-block" scope="col">Zeitstempel</th>
-              <th class="text-left" scope="col">Release</th>
-              <th class="text-left" scope="col">Kategorie</th>
-              <th class="text-left d-none d-lg-block" scope="col">Seite</th>
-              <th/>
-            </tr>
-            </thead>
-            <tbody id="logbody">
-            <tr v-for="x in currentLogPage">
-              <td class="text-left d-none d-lg-block">{{ x[1] }}</td>
-              <td class="text-left">
-                {{ shortenEntry(x[3]) }}
-                <button v-if="!longLogItemsAllowed && checkEntryLength(x[3])" class="btn btn-link btn-sm"
-                        v-tippy="'Titel vollständig anzeigen'"
-                        @click="longerLog()">...
-                </button>
-                <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
-                        class="btn btn-link btn-sm"
-                        @click="shorterLog()"><i
-                    class="bi bi-x-circle"></i></button>
-              </td>
-              <td class="text-left">{{ x[2] }}</td>
-              <td class="text-left d-none d-lg-block">{{ x[4] }}</td>
-              <td class="text-right">
-                <button v-tippy="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
-                        @click="deleteLogRow(x[3])">
-                  <i class="bi bi-trash text-danger"></i></button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        <br>
-        <div class="text-center">
-          <div v-if="resLengthLog>5" class="btn-group">
-            <paginate
-                v-model="currentPageLog"
-                :next-text="'>'"
-                :page-count="numberOfPagesLog"
-                :prev-text="'<'"
-            >
-            </paginate>
+      <div class="col-md-10 offset-md-1">
+        <div class="card my-3">
+          <div class="card-header">
+            <h3 class="text-center">
+              <i class="bi bi-clock-history"></i> Log
+            </h3>
           </div>
-          <div>
-            <button class="btn btn-primary" @click="deleteLog()">
-              <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
-              <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
-            </button>
+          <div class="card-body">
+            <table v-if="log.length > 0" class="table">
+              <thead>
+              <tr>
+                <th class="text-left" scope="col">Zeitstempel</th>
+                <th class="text-left" scope="col">Release</th>
+                <th class="text-left" scope="col">Kategorie</th>
+                <th class="text-left" scope="col">Seite</th>
+                <th/>
+              </tr>
+              </thead>
+              <tbody id="logbody">
+              <tr v-for="x in currentLogPage">
+                <td class="text-left">{{ x[1] }}</td>
+                <td class="text-left">
+                  {{ shortenEntry(x[3]) }}
+                  <button v-if="!longLogItemsAllowed && checkEntryLength(x[3])" class="btn btn-link btn-sm"
+                          v-tippy="'Titel vollständig anzeigen'"
+                          @click="longerLog()">...
+                  </button>
+                  <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
+                          class="btn btn-link btn-sm"
+                          @click="shorterLog()"><i
+                      class="bi bi-x-circle"></i></button>
+                </td>
+                <td class="text-left">{{ x[2] }}</td>
+                <td class="text-left">{{ x[4] }}</td>
+                <td class="text-right">
+                  <button v-tippy="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
+                          @click="deleteLogRow(x[3])">
+                    <i class="bi bi-trash text-danger"></i></button>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+            <br>
+            <div class="text-center">
+              <div v-if="resLengthLog>5" class="btn-group">
+                <paginate
+                    v-model="currentPageLog"
+                    :next-text="'>'"
+                    :page-count="numberOfPagesLog"
+                    :prev-text="'<'"
+                >
+                </paginate>
+              </div>
+              <div>
+                <button class="btn btn-primary" @click="deleteLog()">
+                  <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
+                  <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>

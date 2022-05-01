@@ -167,29 +167,39 @@ function spinHelper() {
 <template>
   <main class="text-center">
     <!--- Main Items -->
-    <div class="container app col">
-      <h1>
-        <i class="bi bi-reception-4"></i> FeedCrawler Sponsors Helper</h1>
-      <span v-if="!to_decrypt.url && !to_decrypt.name" class="btn btn-outline-success disabled">Keine verschlüsselten Links vorhanden</span>
+    <div class="container">
+      <div class="row my-3">
+        <div class="col-md-6 offset-md-3">
+          <div class="card text-center my-3">
+            <div class="card-header">
+              <h1>
+                <i class="bi bi-reception-4"></i> FeedCrawler Sponsors Helper</h1>
+            </div>
+            <div class="card-body">
+              <span v-if="!to_decrypt.url && !to_decrypt.name" class="btn btn-outline-success disabled">Keine verschlüsselten Links vorhanden</span>
 
-      <span v-if="antigate_available_and_active === 'true'" class="btn btn-outline-success disabled">Automatische Entschlüsselung von Filecrypt ist aktiv!</span><br
-        v-if="antigate_available_and_active === 'true'">
+              <span v-if="antigate_available_and_active === 'true'" class="btn btn-outline-success disabled">Automatische Entschlüsselung von Filecrypt ist aktiv!</span><br
+                v-if="antigate_available_and_active === 'true'">
 
-      <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
+              <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
         SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
           getTimestamp(next_jf_run)
-        }}</span>
-      <br v-if="f_blocked === true">
+                }}</span>
+              <br v-if="f_blocked === true">
 
-      <a v-if="to_decrypt.url && to_decrypt.name" :href="to_decrypt.url" class="btn btn-outline-danger"
-         target="_blank">{{
-          to_decrypt.name
-        }}</a>
-      <br>
-      <div v-tippy="'Helper neu laden'"
-           class="btn btn-outline-dark" @click="updateToDecrypt()">
-        <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
-        <i v-if="!spin_helper" class="bi bi-arrow-counterclockwise"></i></div>
+              <a v-if="to_decrypt.url && to_decrypt.name" :href="to_decrypt.url" class="btn btn-outline-danger"
+                 target="_blank">{{
+                  to_decrypt.name
+                }}</a>
+              <br>
+              <div v-tippy="'Helper neu laden'"
+                   class="btn btn-primary" @click="updateToDecrypt()">
+                <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
+                <i v-if="!spin_helper" class="bi bi-arrow-counterclockwise"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 </template>
