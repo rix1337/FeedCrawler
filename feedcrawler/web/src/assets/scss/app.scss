@@ -20,12 +20,12 @@
   resize: none;
 }
 
-// Center Input texts
+// Center Inputs
 input {
   text-align: center;
 }
 
-// Center Select texts
+// Center Selects
 select {
   max-width: 260px;
   margin-left: auto;
@@ -36,6 +36,12 @@ select {
 // Center Toggle Switches
 .form-check {
   display: inline-block;
+}
+
+// Danger Color for Invalid Inputs
+input:invalid {
+  border-color: var(--bs-danger) !important;
+  box-shadow: 0 0 0 0.25rem var(--bs-danger) !important;
 }
 
 // Blink Animation
