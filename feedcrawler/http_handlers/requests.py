@@ -74,6 +74,7 @@ def request(
     Returns a (named)tuple with the following properties:
         - request
         - content
+        - text
         - json (dict; or None)
         - headers (dict; all lowercase keys)
             - https://stackoverflow.com/questions/5258977/are-http-headers-case-sensitive
