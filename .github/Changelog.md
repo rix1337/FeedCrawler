@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.1.1** Bugfix im Log bei nicht erfolgreichem Sponsors Helper
 - **14.1.0** Refactoring im Frontend um mehr Bootstrap Standards zu nutzen (sowie Sass)
 - **14.1.0** Erhöhte Stabilität in der Verbindung zum JDownloader
 - **14.0.4** Die Wartezeit (vormals SF/FF-Intervall) gilt jetzt auch für SJ/DJ.

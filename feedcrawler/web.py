@@ -1501,10 +1501,11 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                             "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
-                    print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)
+                    print(
+                        u"[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "[FeedCrawler Sponsors Helper erfolgreich] - " + name
+                           "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"
         except:
             pass
         return abort(400, "Failed")
