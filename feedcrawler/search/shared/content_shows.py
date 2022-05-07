@@ -108,10 +108,12 @@ def download(payload):
 
         unsorted_seasons = {}
         for release in releases:
-            season = re.findall(r"(Staffel .*)", release.text.strip())[0].replace("Staffel ", "S")
-            details = release.parent.parent.parent
-
-            name = details.find("small").text.strip()
+            try:
+                season = re.findall(r"(Staffel .*)", release.text.strip())[0].replace("Staffel ", "S")
+                details = release.parent.parent.parent
+                name = details.find("small").text.strip()
+            except:
+                continue
             try:
                 resolution = re.findall(r"(\d+p)", name, re.IGNORECASE)[0].replace("480p", "SD")
             except:

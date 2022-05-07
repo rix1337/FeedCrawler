@@ -10,6 +10,8 @@
     - Die Ban-Erkennung von SJ/DJ ist mittlerweile ähnlich streng wie bei SF/FF.
     - Die Einstellung wurde von SF/FF in die allgemeinen Einstellungen verschoben.
 - **14.0.4** Verbesserungen beim Setzen und Auslesen der Ombi/Overseerr-URL (#622)
+- **14.0.4** Bugfix in der Episodensuche per Ombi (#622)
+- **14.0.4** Bugfix in der Staffelsuche auf SF (#622)
 - **14.0.4** Bugfixes im Informationsabruf aus der IMDb (#622)
 - **14.0.3** Erhöhte Stabilität in der Verbindung zum JDownloader
     - Docker-interne IP-Adressen werden bei der Verbindung ignoriert
