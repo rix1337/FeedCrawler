@@ -143,12 +143,12 @@ function showSiteStatusHelp() {
 
     <div class="border-top"></div>
 
-    <div v-if="store.state.crawltimes">
-      <div v-if="store.state.crawltimes.active">
+    <div v-if="Object.keys(store.state.crawltimes).length !== 0">
+      <div v-if="store.state.crawltimes.active && !isNaN(store.state.crawltimes.start_time)">
         Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
         {{ currentDuration }})
       </div>
-      <div v-if="!store.state.crawltimes.active">
+      <div v-if="!store.state.crawltimes.active && !isNaN(store.state.crawltimes.next_start)">
         Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
         <i id="start_now" v-tippy="'Suchlauf direkt starten'" class="bi bi-skip-end-fill"
            v-if="!store.state.misc.starting"
@@ -160,7 +160,12 @@ function showSiteStatusHelp() {
           getTimestamp(store.state.crawltimes.next_jf_run)
         }}
       </div>
-      Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
+      <div v-if="!isNaN(store.state.crawltimes.total_time)">
+        Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
+      </div>
+    </div>
+    <div v-else>
+      <div class="spinner-border spinner-border-sm" role="status"></div>
     </div>
 
     <div class="border-top"></div>
