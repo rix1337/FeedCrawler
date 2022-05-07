@@ -34,7 +34,8 @@ const store = createStore({
                 s: 'Nicht gesetzt!',
                 sjbl: 'Nicht gesetzt!',
                 jf: 'Nicht gesetzt!',
-                jf_shorthands: ''
+                jf_shorthands: '',
+                search_shorthands: ''
             },
             lists: {
                 mb: [],

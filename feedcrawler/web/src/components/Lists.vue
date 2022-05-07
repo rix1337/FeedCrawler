@@ -190,7 +190,7 @@ function showRegExHelp() {
           </div>
         </div>
         <div>
-          <button v-if="store.state.misc.loaded_lists" class="btn btn-dark" type="submit" @click="saveLists()">
+          <button v-if="store.state.misc.loaded_lists" class="btn btn-primary mt-2" type="submit" @click="saveLists()">
             <div v-if="spin_lists" class="spinner-border spinner-border-sm" role="status"></div>
             <i v-if="!spin_lists" class="bi bi-save"></i> Speichern
           </button>

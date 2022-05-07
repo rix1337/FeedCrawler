@@ -162,19 +162,21 @@ function spinLog() {
               </tbody>
             </table>
             <br>
-            <div class="text-center">
-              <div v-if="resLengthLog>5" class="btn-group">
-                <paginate
-                    v-model="currentPageLog"
-                    :next-text="'>'"
-                    :page-count="numberOfPagesLog"
-                    :prev-text="'<'"
-                >
-                </paginate>
+            <div class="row">
+              <div class="text-center">
+                <div v-if="resLengthLog>5" class="btn-group">
+                  <paginate
+                      v-model="currentPageLog"
+                      :next-text="'>'"
+                      :page-count="numberOfPagesLog"
+                      :prev-text="'<'"
+                  >
+                  </paginate>
+                </div>
               </div>
-              <div>
-                <button class="btn btn-primary" @click="deleteLog()">
-                  <div v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></div>
+              <div class="text-center">
+                <button class="btn btn-outline-secondary" @click="deleteLog()">
+                  <span v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></span>
                   <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
                 </button>
               </div>

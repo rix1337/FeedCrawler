@@ -364,7 +364,7 @@ function getTimestamp(ms) {
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
                 <button @click="openCaptchaLink" class="btn btn-outline-success">
-                  Anti-Captcha.com (schnelles Lösen von ReCaptcha, etc. - auch im Browser)
+                  Anti-Captcha.com (schnelles Lösen von reCAPTCHA, cutcaptcha, etc. - auch im Browser)
                 </button>
               </div>
             </div>
@@ -381,7 +381,7 @@ function getTimestamp(ms) {
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
                 <button @click="openHosterLink" class="btn btn-outline-success">
-                  Linksnappy.com (50 GB kostenfreies Startguthaben für DDownload, Rapidgator, 1Fichier, etc.)
+                  Linksnappy.com (für DDownload, Rapidgator, 1Fichier, etc.)
                 </button>
               </div>
             </div>

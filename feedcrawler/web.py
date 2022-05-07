@@ -632,6 +632,23 @@ def app_container():
                 jf_shorthands.append("FF")
             jf_shorthands = '/'.join(list(filter(None, jf_shorthands)))
 
+            search_shorthands = []
+            if sj:
+                search_shorthands.append("SJ")
+            if dj:
+                search_shorthands.append("DJ")
+            if sf:
+                search_shorthands.append("SF")
+            if by:
+                search_shorthands.append("BY")
+            if fx:
+                search_shorthands.append("FX")
+            if hw:
+                search_shorthands.append("HW")
+            if nk:
+                search_shorthands.append("NK")
+            search_shorthands = '/'.join(list(filter(None, search_shorthands)))
+
             if not fx:
                 fx = "Nicht gesetzt!"
             if not hw:
@@ -680,7 +697,8 @@ def app_container():
                     "f": f,
                     "sjbl": sjbl,
                     "jf": jf,
-                    "jf_shorthands": jf_shorthands
+                    "jf_shorthands": jf_shorthands,
+                    "search_shorthands": search_shorthands
                 }
             }
         except:

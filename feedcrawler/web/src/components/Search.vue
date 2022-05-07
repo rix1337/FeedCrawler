@@ -131,19 +131,22 @@ function downloadS(payload, title) {
                class="form-control mr-sm-2"
                minlength="3"
                placeholder="Film- oder Serientitel eingeben"
-               v-tippy="'Bequeme Suchfunktion für SJ, SF, BY, FX, HW und NK. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
+               v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt.\nKomplette Serien landen auch in der Suchliste.\nAlternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'.\nDie jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert.\nBereits geladene Releases werden hier nicht ignoriert!'"
                @keyup.enter="searchNow()">
-        <button v-if="search.length > 2" class="btn btn-dark" type="submit"
+        <button v-if="search.length > 2" class="btn btn-primary mt-2" type="submit"
                 @click="searchNow()">
           <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
           <i v-if="!searching" class="bi bi-search"></i> Suchen
         </button>
         <div v-else v-tippy="'Bitte zunächst einen Suchtitel (mehr als 3 Zeichen) eingeben!'">
-          <button class="btn btn-dark disabled">
+          <button class="btn btn-danger disabled mt-2">
             <i class="bi bi-search"></i> Suchen
           </button>
         </div>
-        <div v-if="results" class="results">
+        <div v-if="results && !slow_ready" class="btn btn-warning disabled mt-2">
+          <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
+        </div>
+        <div v-if="results" class="results mt-2">
           <p v-for="x in results.sf">
             <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
                 class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
@@ -154,9 +157,6 @@ function downloadS(payload, title) {
                 class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
             </button>
           </p>
-          <div v-if="!slow_ready" class="btn btn-warning">
-            <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
-          </div>
           <p v-for="y in currentResultsPage">
             <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload, y.title)"><i
                 class="bi bi-download"></i> <span v-text="y.title"></span></button>

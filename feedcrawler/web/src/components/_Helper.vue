@@ -170,7 +170,7 @@ function spinHelper() {
     <div class="container">
       <div class="row my-3">
         <div class="col-md-6 offset-md-3">
-          <div class="card text-center my-3">
+          <div class="card text-center shadow my-3">
             <div class="card-header">
               <h1>
                 <i class="bi bi-reception-4"></i> FeedCrawler Sponsors Helper</h1>
@@ -193,7 +193,7 @@ function spinHelper() {
                 }}</a>
               <br>
               <div v-tippy="'Helper neu laden'"
-                   class="btn btn-primary" @click="updateToDecrypt()">
+                   class="btn btn-outline-primary mt-2" @click="updateToDecrypt()">
                 <div v-if="spin_helper" class="spinner-border spinner-border-sm" role="status"></div>
                 <i v-if="!spin_helper" class="bi bi-arrow-counterclockwise"></i></div>
             </div>

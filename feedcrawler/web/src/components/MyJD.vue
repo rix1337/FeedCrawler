@@ -399,7 +399,7 @@ function showSponsorsHelp() {
                      data-bs-parent="#accordionMyJD">
                   <div class="accordion-body">
                     <div v-for="x in currentMyJDPage" class="myjd-items">
-                      <div class="row">
+                      <div class="row m-2">
                         <div class="myjd-downloads">
                           <div v-if="x.type=='online'" class="card bg-success">
                             <div class="card-header">
@@ -434,7 +434,7 @@ function showSponsorsHelp() {
                             </ul>
                             <ul class="list-group list-group-flush">
                               <li class="list-group-item">
-                                <button class="btn btn-outline-danger"
+                                <button class="btn btn-outline-danger m-1"
                                         @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                                   Löschen
                                 </button>
@@ -457,12 +457,12 @@ function showSponsorsHelp() {
                               <li v-if="x.size" class="list-group-item"><span v-text="x.size"></span></li>
                               <li v-if="!cnl_active" class="list-group-item cnl-blockers">
                                 <button v-tippy="'Download starten'"
-                                        class="btn btn-outline-success"
+                                        class="btn btn-outline-success m-1"
                                         @click="myJDmove(x.linkids, x.uuid, x.name)"><i class="bi bi-play"></i>
                                   Download
                                   starten
                                 </button>
-                                <button class="btn btn-outline-danger"
+                                <button class="btn btn-outline-danger m-1"
                                         @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                                   Löschen
                                 </button>
@@ -484,12 +484,12 @@ function showSponsorsHelp() {
                       </span>
                               </li>
                               <li class="list-group-item">
-                                <button v-if="!cnl_active" class="btn btn-outline-danger"
+                                <button v-if="!cnl_active" class="btn btn-outline-danger m-1"
                                         @click="myJDreset(x.linkids, x.uuid, x.name)"><i
                                     class="bi bi-arrow-clockwise"></i>
                                   Zurücksetzen
                                 </button>
-                                <button v-if="!cnl_active" class="btn btn-outline-danger"
+                                <button v-if="!cnl_active" class="btn btn-outline-danger m-1"
                                         @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                                   Löschen
                                 </button>
@@ -505,10 +505,10 @@ function showSponsorsHelp() {
                             </div>
                             <ul class="list-group list-group-flush">
                               <li v-if="x[1].url" class="list-group-item">
-                                <div class="row">
+                                <div class="row m-1">
                                   <a v-if="store.state.misc.helper_active && store.state.misc.helper_available && x.first && !cnl_active"
                                      :href="x[1].url + '#' + x[1].name"
-                                     class="cnl-button btn btn-success"
+                                     class="cnl-button btn btn-outline-success"
                                      target="_blank"
                                      v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                                      type="submit">Sponsors Helper Click'n'Load
@@ -532,10 +532,10 @@ function showSponsorsHelp() {
                                         <a :href="store.state.prefix +context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
-                                <div class="row">
+                                <div class="row m-1">
                                   <a v-if="!myjd_grabbing && !cnl_active"
                                      :href="x[1].url + '#' + x[1].name"
-                                     class="cnl-button btn btn-primary"
+                                     class="cnl-button btn btn-outline-secondary"
                                      v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
                                      target="_blank"
                                      type="submit"
@@ -587,13 +587,13 @@ function showSponsorsHelp() {
                             <ul class="list-group list-group-flush">
                               <li class="list-group-item">
                                 <button v-if="!cnl_active" v-tippy="'Erneut hinzufügen'"
-                                        class="btn btn-outline-info"
+                                        class="btn btn-outline-info m-1"
                                         @click="myJDretry(x.linkids, x.uuid, x.urls, x.name)"><i
                                     class="bi bi-arrow-counterclockwise"></i>
                                   Erneut
                                   hinzufügen
                                 </button>
-                                <button class="btn btn-outline-danger"
+                                <button class="btn btn-outline-danger m-1"
                                         @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
                                   Löschen
                                 </button>
@@ -627,26 +627,34 @@ function showSponsorsHelp() {
                     </div>
 
                     <div v-if="myjd_downloads" id="myjd_state">
-                      <span v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"
-                            :disabled="myjd_starting"
-                            :class="{ blinking: myjd_starting }" @click="myJDstart()">
+                      <button v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"
+                              :disabled="myjd_starting"
+                              :class="{ blinking: myjd_starting }"
+                              class="btn btn-outline-primary m-1"
+                              @click="myJDstart()">
                         <i v-tippy="'Downloads starten'" class="bi bi-play"></i>
-                      </span>
-                      <span v-if="myjd_state==='RUNNING'" id="myjd_pause"
-                            :disabled="myjd_pausing"
-                            :class="{ blinking: myjd_pausing }" @click="myJDpause(true)">
+                      </button>
+                      <button v-if="myjd_state==='RUNNING'" id="myjd_pause"
+                              :disabled="myjd_pausing"
+                              :class="{ blinking: myjd_pausing }"
+                              class="btn btn-outline-primary m-1"
+                              @click="myJDpause(true)">
                         <i v-tippy="'Downloads pausieren'" class="bi bi-pause"></i>
-                      </span>
-                      <span v-if="myjd_state==='PAUSE'" id="myjd_unpause"
-                            :disabled="myjd_pausing"
-                            :class="{ blinking: myjd_pausing }" @click="myJDpause(false)">
+                      </button>
+                      <button v-if="myjd_state==='PAUSE'" id="myjd_unpause"
+                              :disabled="myjd_pausing"
+                              :class="{ blinking: myjd_pausing }"
+                              class="btn btn-outline-primary m-1"
+                              @click="myJDpause(false)">
                         <i v-tippy="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i>
-                      </span>
-                      <span v-if="myjd_state==='RUNNING' || myjd_state==='PAUSE'" id="myjd_stop"
-                            :disabled="myjd_stopping"
-                            :class="{ blinking: myjd_stopping }" @click="myJDstop()">
+                      </button>
+                      <button v-if="myjd_state==='RUNNING' || myjd_state==='PAUSE'" id="myjd_stop"
+                              :disabled="myjd_stopping"
+                              :class="{ blinking: myjd_stopping }"
+                              class="btn btn-outline-primary m-1"
+                              @click="myJDstop()">
                         <i v-tippy="'Downloads anhalten'" class="bi bi-stop"></i>
-                      </span>
+                      </button>
 
                     </div>
                   </div>

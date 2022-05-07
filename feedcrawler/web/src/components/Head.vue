@@ -136,7 +136,7 @@ function showSiteStatusHelp() {
   <div class="container">
     <div class="row my-3">
       <div class="col-md-6 offset-md-3">
-        <div class="card text-center my-3">
+        <div class="card text-center shadow my-3">
           <div class="card-header">
             <h1>
               <i class="bi bi-reception-4"></i> FeedCrawler</h1>
@@ -164,7 +164,7 @@ function showSiteStatusHelp() {
                   getTimestamp(store.state.crawltimes.next_jf_run)
                 }}
               </div>
-              <div v-if="!isNaN(store.state.crawltimes.total_time)">
+              <div v-if="typeof store.state.crawltimes.total_time === 'string'">
                 Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
               </div>
             </div>
@@ -172,52 +172,65 @@ function showSiteStatusHelp() {
               <div class="spinner-border spinner-border-sm" role="status"></div>
             </div>
 
-            <div class="border-top"></div>
+            <div class="border-top mt-2"></div>
 
-            <div>
-              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-                      data-bs-target="#offcanvasBottomSearch"
-                      aria-controls="offcanvasBottomSearch"><i class="bi bi-search"></i> Web-Suche
-              </button>
+            <div class="row justify-content-center mt-2">
+              <div class="col-md-auto p-1">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasBottomSearch"
+                        aria-controls="offcanvasBottomSearch"><i class="bi bi-search"></i> Web-Suche
+                </button>
+              </div>
 
-              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-                      data-bs-target="#offcanvasBottomLists"
-                      aria-controls="offcanvasBottomLists"
-                      @click='getLists'><i class="bi bi-text-left"></i>
-                Suchlisten
-              </button>
+              <div class="col-md-auto p-1">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasBottomLists"
+                        aria-controls="offcanvasBottomLists"
+                        @click='getLists'><i class="bi bi-text-left"></i>
+                  Suchlisten
+                </button>
+              </div>
 
-              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-                      data-bs-target="#offcanvasBottomSettings"
-                      aria-controls="offcanvasBottomSettings"
-                      @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
-              </button>
+              <div class="col-md-auto p-1">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasBottomSettings"
+                        aria-controls="offcanvasBottomSettings"
+                        @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
+                </button>
+              </div>
 
-              <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
-                      data-bs-target="#offcanvasBottomHelp"
-                      aria-controls="offcanvasBottomHelp"
-                      @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
-              </button>
+              <div class="col-md-auto p-1">
+                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                        data-bs-target="#offcanvasBottomHelp"
+                        aria-controls="offcanvasBottomHelp"
+                        @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
+                </button>
+              </div>
             </div>
 
-            <div>
-              <button
-                  :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
-                  class="btn"
-                  type="button" @click="showSiteStatusHelp">
-                <i class="bi bi-bar-chart"></i>
-                Seitenstatus
-              </button>
-              <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship"
-                 target="_blank"
-                 v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
-                 class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
-                aktiver
-                Sponsor</a>
-              <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
-                 v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
-                 class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
-                Sponsor</a>
+            <div class="row justify-content-center">
+              <div class="col-md-auto p-1">
+                <button
+                    :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
+                    class="btn"
+                    type="button" @click="showSiteStatusHelp">
+                  <i class="bi bi-bar-chart"></i>
+                  Seitenstatus
+                </button>
+              </div>
+
+              <div class="col-md-auto p-1">
+                <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship"
+                   target="_blank"
+                   v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                   class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
+                  aktiver
+                  Sponsor</a>
+                <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
+                   v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
+                   class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
+                  Sponsor</a>
+              </div>
             </div>
           </div>
         </div>
