@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.0.4** Verbesserungen im setzen der Ombi/Overseerr-URL (#622)
 - **14.0.4** Bugfixes im Informationsabruf aus der IMDb (#622)
 - **14.0.3** Erhöhte Stabilität in der Verbindung zum JDownloader
     - Docker-interne IP-Adressen werden bei der Verbindung ignoriert

@@ -19,6 +19,10 @@ def overseerr(first_launch):
     db = FeedDb('Overseerr')
     config = CrawlerConfig('Overseerr')
     url = config.get('url')
+    if url.endswith('/'):
+        url = url[:-1]
+        config.save('url', url)
+
     api = config.get('api')
 
     if not url or not api:

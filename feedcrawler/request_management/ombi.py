@@ -50,6 +50,10 @@ def ombi(first_launch):
     db = FeedDb('Ombi')
     config = CrawlerConfig('Ombi')
     url = config.get('url')
+    if url.endswith('/'):
+        url = url[:-1]
+        config.save('url', url)
+
     api = config.get('api')
 
     if not url or not api:

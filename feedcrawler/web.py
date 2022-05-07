@@ -457,12 +457,24 @@ def app_container():
             section.save("k2s", to_str(data['hosters']['k2s']))
 
             section = CrawlerConfig("Ombi")
-            section.save("url", to_str(data['ombi']['url']))
-            section.save("api", to_str(data['ombi']['api']))
+            ombi_url = to_str(data['ombi']['url'])
+            ombi_url = ombi_url[:-1] if ombi_url.endswith('/') else ombi_url
+            ombi_api = to_str(data['ombi']['api'])
+            if not ombi_url or not ombi_api:
+                ombi_url = ""
+                ombi_api = ""
+            section.save("url", ombi_url)
+            section.save("api", ombi_api)
 
             section = CrawlerConfig("Overseerr")
-            section.save("url", to_str(data['overseerr']['url']))
-            section.save("api", to_str(data['overseerr']['api']))
+            overseerr_url = to_str(data['overseerr']['url'])
+            overseerr_url = overseerr_url[:-1] if overseerr_url.endswith('/') else overseerr_url
+            overseerr_api = to_str(data['overseerr']['api'])
+            if not overseerr_url or not overseerr_api:
+                overseerr_url = ""
+                overseerr_api = ""
+            section.save("url", overseerr_url)
+            section.save("api", overseerr_api)
 
             section = CrawlerConfig("ContentAll")
             section.save("quality", to_str(data['mb']['quality']))
