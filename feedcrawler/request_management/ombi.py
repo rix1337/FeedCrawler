@@ -50,6 +50,10 @@ def ombi(first_launch):
     db = FeedDb('Ombi')
     config = CrawlerConfig('Ombi')
     url = config.get('url')
+    if url.endswith('/'):
+        url = url[:-1]
+        config.save('url', url)
+
     api = config.get('api')
 
     if not url or not api:
@@ -106,14 +110,14 @@ def ombi(first_launch):
                     for season in details:
                         sn = season.get("seasonNumber")
                         s = str(sn)
+                        if len(s) == 1:
+                            s = "0" + s
+                        s = "S" + s
                         eps = []
                         episodes = season.get("episodes")
                         for episode in episodes:
                             if not bool(episode.get("available")):
                                 enr = episode.get("episodeNumber")
-                                if len(s) == 1:
-                                    s = "0" + s
-                                s = "S" + s
                                 e = str(enr)
                                 if len(e) == 1:
                                     e = "0" + e

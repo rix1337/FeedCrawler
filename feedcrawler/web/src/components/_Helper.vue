@@ -63,7 +63,7 @@ function getToDecrypt() {
 const f_blocked = ref(false)
 const sf_hostname = ref('')
 const ff_hostname = ref('')
-const next_f_run = ref(0)
+const next_jf_run = ref(0)
 
 function getFBlocked() {
   axios.get(context.value + '/api/f_blocked/False')
@@ -71,7 +71,7 @@ function getFBlocked() {
         f_blocked.value = res.data.blocked_sites.sf_ff
         sf_hostname.value = res.data.blocked_sites.sf_hostname
         ff_hostname.value = res.data.blocked_sites.ff_hostname
-        next_f_run.value = res.data.blocked_sites.next_f_run
+        next_jf_run.value = res.data.blocked_sites.next_jf_run
       }, function () {
         console.log('[FeedCrawler Sponsors Helper] Konnte Block-Status von SF/FF nicht abrufen!')
       })
@@ -177,7 +177,7 @@ function spinHelper() {
 
       <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
         SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
-          getTimestamp(next_f_run)
+          getTimestamp(next_jf_run)
         }}</span>
       <br v-if="f_blocked === true">
 

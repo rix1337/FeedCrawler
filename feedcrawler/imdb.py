@@ -4,6 +4,7 @@
 # Dieses Modul stellt allen anderen Modulen den Abruf von IMDb-Daten bereit.
 
 import re
+import traceback
 from json import loads
 from urllib.parse import quote
 
@@ -11,6 +12,21 @@ from bs4 import BeautifulSoup
 
 from feedcrawler import internal
 from feedcrawler.url import get_url, get_url_headers
+
+
+def imdb_id_not_none(f):
+    """Decorator that checks if IMDb-Id was passed correctly."""
+
+    def check_imdb_id_not_none(imdb_id=None):
+        if not type(imdb_id) == str or not imdb_id.startswith('tt'):
+            caller = traceback.extract_stack(f=None, limit=None)[-2]
+            detailed_trace = "In " + str(caller.name) + ".py:" + str(caller.lineno) + ", Aufruf: " + str(caller.line)
+            print("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
+            internal.logger.debug("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
+            return False
+        return f(imdb_id)
+
+    return check_imdb_id_not_none
 
 
 def get_imdb_id_from_content(key, content, current_list):
@@ -47,6 +63,7 @@ def get_imdb_id_from_title(title, current_list):
     return imdb_id
 
 
+@imdb_id_not_none
 def original_language_not_german(imdb_id):
     original_language = False
 
@@ -72,6 +89,7 @@ def original_language_not_german(imdb_id):
     return original_language
 
 
+@imdb_id_not_none
 def get_episodes(imdb_id):
     episodes = False
 
@@ -102,6 +120,7 @@ def get_episodes(imdb_id):
     return episodes
 
 
+@imdb_id_not_none
 def get_localized_title(imdb_id):
     localized_title = False
 
@@ -110,7 +129,11 @@ def get_localized_title(imdb_id):
         match = re.findall(r'<title>(.*?) \(.*?</title>', request["text"])
         localized_title = match[0]
     except:
-        pass
+        try:
+            match = re.findall(r'<title>(.*?) - IMDb</title>', request["text"])
+            localized_title = match[0]
+        except:
+            pass
 
     if not localized_title:
         print(u"[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
@@ -119,6 +142,7 @@ def get_localized_title(imdb_id):
     return localized_title
 
 
+@imdb_id_not_none
 def get_rating(imdb_id):
     rating = False
 
@@ -138,6 +162,7 @@ def get_rating(imdb_id):
     return rating
 
 
+@imdb_id_not_none
 def get_votes(imdb_id):
     votes = False
 
@@ -157,6 +182,7 @@ def get_votes(imdb_id):
     return votes
 
 
+@imdb_id_not_none
 def get_year(imdb_id):
     year = False
 

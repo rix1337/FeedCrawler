@@ -20,12 +20,12 @@ def check_url(start_time):
     db_status = FeedDb('site_status')
 
     for site in internal.sites:
-        if site in ["SF", "FF"]:
-            last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
-            f_interval = int(CrawlerConfig('CustomF').get('interval'))
-            if last_f_run and start_time < float(last_f_run) // 1000 + f_interval * 60 * 60:
+        if site in ["SJ", "DJ", "SF", "FF"]:
+            last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
+            jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
+            if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
                 internal.logger.debug(
-                    "-----------Mindestintervall bei " + site + " (6h) nicht erreicht - überspringe Prüfung!-----------")
+                    "-----------Wartezeit bei " + site + " (6h) nicht verstrichen - überspringe Prüfung!-----------")
                 continue
 
         hostname = hostnames.get(site.lower())

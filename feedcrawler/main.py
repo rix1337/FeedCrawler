@@ -37,8 +37,8 @@ def main():
     parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
     parser.add_argument("--keep-cdc", action='store_true',
                         help="Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
-    parser.add_argument("--remove-f_time", action='store_true',
-                        help="Leere die Zeit des letzten SF/FF-Laufes vor dem ersten Suchlauf")
+    parser.add_argument("--remove_jf_time", action='store_true',
+                        help="Leere die Zeit des letzten SJ/DJ/SF/FF-Laufes vor dem ersten Suchlauf")
     parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
     parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
     arguments = parser.parse_args()
@@ -156,7 +156,7 @@ def main():
 
     if not arguments.test_run:
         c = multiprocessing.Process(target=crawler,
-                                    args=(global_variables, arguments.remove_f_time, False,))
+                                    args=(global_variables, arguments.remove_jf_time, False,))
         c.start()
 
         w = multiprocessing.Process(target=crawldog, args=(global_variables,))
@@ -178,7 +178,7 @@ def main():
             while True:
                 time.sleep(1)
     else:
-        crawler(global_variables, arguments.remove_f_time, True)
+        crawler(global_variables, arguments.remove_jf_time, True)
         p.terminate()
         sys.exit(0)
 

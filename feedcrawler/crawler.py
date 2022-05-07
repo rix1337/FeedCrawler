@@ -69,7 +69,7 @@ def search_pool():
     ]
 
 
-def crawler(global_variables, remove_f_time, test_run):
+def crawler(global_variables, remove_jf_time, test_run):
     internal.set_globals(global_variables)
 
     sys.stdout = Unbuffered(sys.stdout)
@@ -84,10 +84,10 @@ def crawler(global_variables, remove_f_time, test_run):
     except:
         pass
 
-    if remove_f_time:
-        logger.debug(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
-        print(u"-----------Entferne Zeitpunkt des letzten SF/FF-Suchlaufes!-----------")
-        FeedDb('crawltimes').delete("last_f_run")
+    if remove_jf_time:
+        logger.debug(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
+        print(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
+        FeedDb('crawltimes').delete("last_jf_run")
 
     while True:
         try:
@@ -130,30 +130,30 @@ def crawler(global_variables, remove_f_time, test_run):
                     ombi_string = ombi_string + str(requested_shows) + " Serien"
 
             # Start feed search
-            current_f_run = False
-            last_f_run = FeedDb('crawltimes').retrieve("last_f_run")
+            current_jf_run = False
+            last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
             for task in search_pool():
                 name = task._SITE
                 try:
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
-                if name in ["SF", "FF"]:
-                    f_interval = int(CrawlerConfig('CustomF').get('interval'))
-                    if last_f_run and start_time < float(last_f_run) // 1000 + f_interval * 60 * 60:
+                if name in ["SJ", "DJ", "SF", "FF"]:
+                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
+                    if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
                         logger.debug(
-                            "-----------Mindestintervall bei " + name + " (6h) nicht erreicht - überspringe Suchlauf!-----------")
+                            "-----------Wartezeit bei " + name + " (6h) nicht verstrichen - überspringe Suchlauf!-----------")
                         continue
                     else:
-                        current_f_run = time.time()
+                        current_jf_run = time.time()
                         FeedDb('site_status').delete("SF_FF")
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 task.periodical_task()
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
 
             # Finish feed search and log results
-            if current_f_run:
-                crawltimes.update_store("last_f_run", current_f_run * 1000)
+            if current_jf_run:
+                crawltimes.update_store("last_jf_run", current_jf_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()

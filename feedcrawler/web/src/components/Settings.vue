@@ -153,11 +153,19 @@ const year = ref((new Date).getFullYear())
                      v-tippy="'Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!).'"
                      class="form-control"
                      type="password"/>
-              <h5>Suchintervall</h5>
+              <h5>Suchintervall (Allgemein)</h5>
               <input v-model="store.state.settings.general.interval"
                      v-tippy="'Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht.'"
                      max="1440"
                      min="5"
+                     required
+                     class="number form-control"
+                     type="number"/>
+              <h5>Wartezeit ({{ store.state.hostnames.jf }})</h5>
+              <input v-model="store.state.settings.jf.wait_time"
+                     v-tippy="'Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden.'"
+                     max="24"
+                     min="6"
                      required
                      class="number form-control"
                      type="number"/>
@@ -449,14 +457,6 @@ const year = ref((new Date).getFullYear())
               </div>
               <div
                   v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.bl">
-                <h5>Suchintervall</h5>
-                <input v-model="store.state.settings.f.interval"
-                       v-tippy="'Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden.'"
-                       max="24"
-                       min="6"
-                       required
-                       class="number form-control"
-                       type="number"/>
                 <h5>Suchtiefe</h5>
                 <input v-model="store.state.settings.f.search"
                        v-tippy="'Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage.'"
@@ -664,14 +664,6 @@ const year = ref((new Date).getFullYear())
           <div id="collapseSettingsF" aria-labelledby="headingSettingsF" class="accordion-collapse collapse"
                data-bs-parent="#accordionSettings">
             <div class="accordion-body">
-              <h5>Suchintervall</h5>
-              <input v-model="store.state.settings.f.interval"
-                     v-tippy="'Das Suchintervall in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden.'"
-                     max="24"
-                     min="6"
-                     required
-                     class="number form-control"
-                     type="number"/>
               <h5>Suchtiefe</h5>
               <input v-model="store.state.settings.f.search"
                      v-tippy="'Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage.'"
