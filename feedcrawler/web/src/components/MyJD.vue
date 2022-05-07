@@ -529,7 +529,7 @@ function showSponsorsHelp() {
                                 <span
                                     v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="store.state.prefix +context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                                 <div class="row m-1">
