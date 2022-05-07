@@ -842,8 +842,15 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_info():
         try:
-            myjd = get_info()
-            packages_to_decrypt = get_to_decrypt()
+            try:
+                myjd = get_info()
+                packages_to_decrypt = get_to_decrypt()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                myjd = get_info()
+                packages_to_decrypt = get_to_decrypt()
             if myjd:
                 return {
                     "downloader_state": myjd[1],
@@ -865,7 +872,13 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_state():
         try:
-            myjd = get_state()
+            try:
+                myjd = get_state()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                myjd = get_state()
             if myjd:
                 return {
                     "downloader_state": myjd[1],
@@ -988,7 +1001,14 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_start():
         try:
-            if jdownloader_start():
+            try:
+                started = jdownloader_start()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                started = jdownloader_start()
+            if started:
                 return "Success"
         except:
             pass
@@ -999,7 +1019,14 @@ def app_container():
     def myjd_pause(bl):
         try:
             bl = json.loads(bl)
-            if jdownloader_pause(bl):
+            try:
+                paused = jdownloader_pause(bl)
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                paused = jdownloader_pause(bl)
+            if paused:
                 return "Success"
         except:
             pass
@@ -1009,7 +1036,14 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_stop():
         try:
-            if jdownloader_stop():
+            try:
+                stopped = jdownloader_stop()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                stopped = jdownloader_stop()
+            if stopped:
                 return "Success"
         except:
             pass
