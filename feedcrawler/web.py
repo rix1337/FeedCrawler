@@ -632,6 +632,23 @@ def app_container():
                 jf_shorthands.append("FF")
             jf_shorthands = '/'.join(list(filter(None, jf_shorthands)))
 
+            search_shorthands = []
+            if sj:
+                search_shorthands.append("SJ")
+            if dj:
+                search_shorthands.append("DJ")
+            if sf:
+                search_shorthands.append("SF")
+            if by:
+                search_shorthands.append("BY")
+            if fx:
+                search_shorthands.append("FX")
+            if hw:
+                search_shorthands.append("HW")
+            if nk:
+                search_shorthands.append("NK")
+            search_shorthands = '/'.join(list(filter(None, search_shorthands)))
+
             if not fx:
                 fx = "Nicht gesetzt!"
             if not hw:
@@ -680,7 +697,8 @@ def app_container():
                     "f": f,
                     "sjbl": sjbl,
                     "jf": jf,
-                    "jf_shorthands": jf_shorthands
+                    "jf_shorthands": jf_shorthands,
+                    "search_shorthands": search_shorthands
                 }
             }
         except:
@@ -824,8 +842,15 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_info():
         try:
-            myjd = get_info()
-            packages_to_decrypt = get_to_decrypt()
+            try:
+                myjd = get_info()
+                packages_to_decrypt = get_to_decrypt()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                myjd = get_info()
+                packages_to_decrypt = get_to_decrypt()
             if myjd:
                 return {
                     "downloader_state": myjd[1],
@@ -847,7 +872,13 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_state():
         try:
-            myjd = get_state()
+            try:
+                myjd = get_state()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                myjd = get_state()
             if myjd:
                 return {
                     "downloader_state": myjd[1],
@@ -970,7 +1001,14 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_start():
         try:
-            if jdownloader_start():
+            try:
+                started = jdownloader_start()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                started = jdownloader_start()
+            if started:
                 return "Success"
         except:
             pass
@@ -981,7 +1019,14 @@ def app_container():
     def myjd_pause(bl):
         try:
             bl = json.loads(bl)
-            if jdownloader_pause(bl):
+            try:
+                paused = jdownloader_pause(bl)
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                paused = jdownloader_pause(bl)
+            if paused:
                 return "Success"
         except:
             pass
@@ -991,7 +1036,14 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def myjd_stop():
         try:
-            if jdownloader_stop():
+            try:
+                stopped = jdownloader_stop()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                stopped = jdownloader_stop()
+            if stopped:
                 return "Success"
         except:
             pass

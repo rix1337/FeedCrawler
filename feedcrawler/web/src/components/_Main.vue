@@ -23,12 +23,11 @@ store.commit('getBlockedSites')
 </script>
 
 <template>
-  <main class="text-center">
+  <main>
     <!--- Main Items -->
     <Head/>
     <Log/>
     <MyJD/>
-
     <!-- Off canvas Items -->
     <Settings/>
     <Search/>
@@ -36,7 +35,3 @@ store.commit('getBlockedSites')
     <Help/>
   </main>
 </template>
-
-<style>
-@import '.././assets/base.css';
-</style>
