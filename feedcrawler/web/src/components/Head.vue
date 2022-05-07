@@ -161,14 +161,15 @@ function showSiteStatusHelp() {
               </div>
               <div v-if="store.state.crawltimes.next_jf_run && store.state.hostnames.jf_shorthands !== ''">
                 Wartezeit ({{ store.state.hostnames.jf_shorthands }}) bis: {{
-          getTimestamp(store.state.crawltimes.next_jf_run)
-        }}
+                  getTimestamp(store.state.crawltimes.next_jf_run)
+                }}
               </div>
               <div v-if="!isNaN(store.state.crawltimes.total_time)">
-              Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
-            </div></div>
-    <div v-else>
-      <div class="spinner-border spinner-border-sm" role="status"></div>
+                Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
+              </div>
+            </div>
+            <div v-else>
+              <div class="spinner-border spinner-border-sm" role="status"></div>
             </div>
 
             <div class="border-top"></div>
