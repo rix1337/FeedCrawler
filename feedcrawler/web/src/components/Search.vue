@@ -103,7 +103,7 @@ function downloadBL(payload, title) {
 }
 
 function downloadS(payload, title) {
-  toast.info("Starte Download:\n" + title + "\nDieser Vorgang kann etwas dauern!", {
+  toast.info("Starte Download: " + title + " Dieser Vorgang kann etwas dauern!", {
     timeout: 10000
   })
   axios.post('api/download_s/' + payload)
@@ -131,7 +131,7 @@ function downloadS(payload, title) {
                class="form-control mr-sm-2 bg-light"
                minlength="3"
                placeholder="Film- oder Serientitel eingeben"
-               v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt.\nKomplette Serien landen auch in der Suchliste.\nAlternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'.\nDie jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert.\nBereits geladene Releases werden hier nicht ignoriert!'"
+               v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
                @keyup.enter="searchNow()">
         <button v-if="search.length > 2" class="btn btn-primary mt-2" type="submit"
                 @click="searchNow()">

@@ -23,7 +23,7 @@ function saveLists() {
   axios.post('api/lists/', store.state.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
-        toast.success('Listen gespeichert!\nÄnderungen werden im nächsten Suchlauf berücksichtigt.')
+        toast.success('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
         getLists()
       }, function () {
         console.log('Konnte Listen nicht speichern!')

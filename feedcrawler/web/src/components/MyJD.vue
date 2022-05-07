@@ -229,18 +229,18 @@ function getMyJDstate() {
 function myJDmove(linkids, uuid, name) {
   axios.post('api/myjd_move/' + linkids + "&" + uuid)
       .then(function () {
-        toast.success('Download\n' + name + '\ngestartet!')
+        toast.success('Download ' + name + ' gestartet!')
         getMyJD()
       }, function () {
-        console.log('Konnte Download\n' + name + '\nnicht starten!')
-        toast.error('Konnte Download\n' + name + '\nnicht starten!')
+        console.log('Konnte Download ' + name + ' nicht starten!')
+        toast.error('Konnte Download ' + name + ' nicht starten!')
       })
 }
 
 function myJDremove(linkids, uuid, name) {
   axios.post('api/myjd_remove/' + linkids + "&" + uuid)
       .then(function () {
-        toast.success('Download\n' + name + '\ngelöscht!')
+        toast.success('Download ' + name + ' gelöscht!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -252,15 +252,15 @@ function myJDremove(linkids, uuid, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download\n' + name + '\nnicht löschen!')
-        toast.error('Konnte Download\n' + name + '\nnicht löschen!')
+        console.log('Konnte Download ' + name + ' nicht löschen!')
+        toast.error('Konnte Download ' + name + ' nicht löschen!')
       })
 }
 
 function myJDreset(linkids, uuid, name) {
   axios.post('api/myjd_reset/' + linkids + "&" + uuid)
       .then(function () {
-        toast.success('Paket\n' + name + '\nzurückgesetzt!')
+        toast.success('Paket ' + name + ' zurückgesetzt!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -272,15 +272,15 @@ function myJDreset(linkids, uuid, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Paket\n' + name + '\nnicht zurücksetzen!')
-        toast.error('Konnte Paket\n' + name + '\nnicht zurücksetzen!')
+        console.log('Konnte Paket ' + name + ' nicht zurücksetzen!')
+        toast.error('Konnte Paket ' + name + ' nicht zurücksetzen!')
       })
 }
 
 function internalRemove(name) {
   axios.post('api/internal_remove/' + name)
       .then(function () {
-        toast.success('Download\n' + name + '\ngelöscht!')
+        toast.success('Download ' + name + ' gelöscht!')
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
             let existing_name = failed_package['name']
@@ -292,8 +292,8 @@ function internalRemove(name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download\n' + name + '\nnicht löschen!')
-        toast.error('Konnte Download\n' + name + '\nnicht löschen!')
+        console.log('Konnte Download ' + name + ' nicht löschen!')
+        toast.error('Konnte Download ' + name + ' nicht löschen!')
       })
 }
 
@@ -301,7 +301,7 @@ function myJDretry(linkids, uuid, links, name) {
   links = btoa(links)
   axios.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
       .then(function () {
-        toast.success('Download\n' + name + '\nerneut hinzugefügt!')
+        toast.success('Download ' + name + ' erneut hinzugefügt!')
         if (myjd_failed.value) {
           for (let failed_package of myjd_failed.value) {
             let existing_uuid = failed_package['uuid']
@@ -313,8 +313,8 @@ function myJDretry(linkids, uuid, links, name) {
         }
         getMyJD()
       }, function () {
-        console.log('Konnte Download\n' + name + '\nnicht erneut hinzufügen!')
-        toast.error('Konnte Download\n' + name + '\nnicht erneut hinzufügen!')
+        console.log('Konnte Download ' + name + ' nicht erneut hinzufügen!')
+        toast.error('Konnte Download ' + name + ' nicht erneut hinzufügen!')
       })
 }
 
@@ -322,7 +322,7 @@ const cnl_active = ref(false)
 const time = ref(0)
 
 function internalCnl(name, password) {
-  toast.warning("Warte auf Click'n'Load für\n" + name, {
+  toast.warning("Warte auf Click'n'Load für " + name, {
     timeout: 60000,
     closeOnClick: false,
     closeButton: false,
@@ -334,7 +334,7 @@ function internalCnl(name, password) {
   countDown()
   axios.post('api/internal_cnl/' + name + "&" + password)
       .then(function () {
-        toast.success("Click'n'Load für\n" + name + "\nerfolgreich!")
+        toast.success("Click'n'Load für " + name + " erfolgreich!")
         if (to_decrypt.value) {
           for (let failed_package of to_decrypt.value) {
             let existing_name = failed_package['name']
@@ -348,8 +348,8 @@ function internalCnl(name, password) {
         cnl_active.value = false
         time.value = 0
       }).catch(function () {
-    console.log("Click'n'Load für\n" + name + "\nicht durchgeführt!")
-    toast.error("Click'n'Load für\n" + name + "\nicht durchgeführt!")
+    console.log("Click'n'Load für " + name + " icht durchgeführt!")
+    toast.error("Click'n'Load für " + name + " icht durchgeführt!")
     cnl_active.value = false
     time.value = 0
   })
