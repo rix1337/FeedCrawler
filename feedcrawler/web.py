@@ -282,6 +282,7 @@ def app_container():
             dj_conf = CrawlerConfig('CustomDJ')
             dd_conf = CrawlerConfig('CustomDD')
             f_conf = CrawlerConfig('CustomF')
+            jf_conf = CrawlerConfig('CustomJF')
             return {
                 "settings": {
                     "general": {
@@ -370,8 +371,10 @@ def app_container():
                         "hoster_fallback": dd_conf.get("hoster_fallback"),
                     },
                     "f": {
-                        "interval": to_int(f_conf.get("interval")),
                         "search": to_int(f_conf.get("search"))
+                    },
+                    "jf": {
+                        "wait_time": to_int(jf_conf.get("wait_time")),
                     }
                 }
             }
@@ -520,14 +523,16 @@ def app_container():
             section.save("hoster_fallback", to_str(data['dd']['hoster_fallback']))
 
             section = CrawlerConfig("CustomF")
-            interval = to_str(data['f']['interval'])
-            if to_int(interval) < 6:
-                interval = '6'
-            section.save("interval", interval)
             search_depth = to_str(data['f']['search'])
             if to_int(search_depth) > 7:
                 search_depth = '7'
             section.save("search", search_depth)
+
+            section = CrawlerConfig("CustomJF")
+            wait_time = to_str(data['jf']['wait_time'])
+            if to_int(wait_time) < 6:
+                wait_time = '6'
+            section.save("wait_time", wait_time)
 
             return "Success"
         except:
@@ -561,12 +566,12 @@ def app_container():
     def get_crawltimes():
         try:
             crawltimes = FeedDb("crawltimes")
-            next_f_run = False
+            next_jf_run = False
             try:
-                last_f_run = to_float(FeedDb('crawltimes').retrieve("last_f_run"))
-                f_interval = to_float(CrawlerConfig('CustomF').get("interval"))
-                if last_f_run:
-                    next_f_run = last_f_run + 1000 * f_interval * 60 * 60
+                last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
+                jf_wait_time = to_float(CrawlerConfig('CustomJF').get("wait_time"))
+                if last_jf_run:
+                    next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
             except:
                 pass
             return {
@@ -576,7 +581,7 @@ def app_container():
                     "end_time": to_float(crawltimes.retrieve("end_time")),
                     "total_time": crawltimes.retrieve("total_time"),
                     "next_start": to_float(crawltimes.retrieve("next_start")),
-                    "next_f_run": next_f_run
+                    "next_jf_run": next_jf_run
                 }
             }
         except:
@@ -614,6 +619,18 @@ def app_container():
             s = ' / '.join(list(filter(None, [sj, sf])))
             f = ' / '.join(list(filter(None, [ff, sf])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
+            jf = ' / '.join(list(filter(None, [sj, dj, sf, ff])))
+
+            jf_shorthands = []
+            if sj:
+                jf_shorthands.append("SJ")
+            if dj:
+                jf_shorthands.append("DJ")
+            if sf:
+                jf_shorthands.append("SF")
+            if ff:
+                jf_shorthands.append("FF")
+            jf_shorthands = '/'.join(list(filter(None, jf_shorthands)))
 
             if not fx:
                 fx = "Nicht gesetzt!"
@@ -643,6 +660,9 @@ def app_container():
                 f = "Nicht gesetzt!"
             if not sjbl:
                 sjbl = "Nicht gesetzt!"
+            if not jf:
+                jf = "Nicht gesetzt!"
+
             return {
                 "hostnames": {
                     "sj": sj,
@@ -658,7 +678,9 @@ def app_container():
                     "bl": bl,
                     "s": s,
                     "f": f,
-                    "sjbl": sjbl
+                    "sjbl": sjbl,
+                    "jf": jf,
+                    "jf_shorthands": jf_shorthands
                 }
             }
         except:
@@ -1447,12 +1469,12 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                        "Block status saved"
             else:
                 hostnames = CrawlerConfig('Hostnames')
-                next_f_run = False
+                next_jf_run = False
                 try:
-                    last_f_run = to_float(FeedDb('crawltimes').retrieve("last_f_run"))
-                    f_interval = to_float(CrawlerConfig('CustomF').get("interval"))
-                    if last_f_run:
-                        next_f_run = last_f_run + 1000 * f_interval * 60 * 60
+                    last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
+                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
+                    if last_jf_run:
+                        next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
                 except:
                     pass
                 return {
@@ -1460,7 +1482,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                         "sf_ff": check("SF_FF", db_status),
                         "sf_hostname": hostnames.get('sf'),
                         "ff_hostname": hostnames.get('ff'),
-                        "next_f_run": next_f_run
+                        "next_jf_run": next_jf_run
                     }
                 }
         except:

@@ -107,8 +107,10 @@ class CrawlerConfig(object):
             ("hoster_fallback", "bool", "False")
         ],
         'CustomF': [
-            ("interval", "int", "6"),
             ("search", "int", "3")
+        ],
+        'CustomJF': [
+            ("wait_time", "int", "6"),
         ]
     }
     __config__ = []

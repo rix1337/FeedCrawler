@@ -32,7 +32,9 @@ const store = createStore({
                 ww: 'Nicht gesetzt!',
                 bl: 'Nicht gesetzt!',
                 s: 'Nicht gesetzt!',
-                sjbl: 'Nicht gesetzt!'
+                sjbl: 'Nicht gesetzt!',
+                jf: 'Nicht gesetzt!',
+                jf_shorthands: ''
             },
             lists: {
                 mb: [],
@@ -62,8 +64,10 @@ const store = createStore({
                     hoster_fallback: false,
                 },
                 f: {
-                    interval: 6,
                     search: 3,
+                },
+                jf: {
+                    wait_time: 6,
                 },
                 sj: {
                     quality: '1080p',
