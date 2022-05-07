@@ -1,4 +1,4 @@
-@import "../node_modules/bootstrap/scss/bootstrap";
+// Vue Toastification imports for variables.scss
 @import "vue-toastification/src/scss/_variables";
 @import "vue-toastification/src/scss/_toastContainer";
 @import "vue-toastification/src/scss/_toast";
@@ -7,6 +7,38 @@
 @import "vue-toastification/src/scss/_icon";
 @import "vue-toastification/src/scss/animations/_bounce";
 
+// Custom Bootstrap Offcanvas size
+.offcanvas-bottom {
+  height: unset !important;
+  min-height: 60%;
+  max-height: 100%;
+}
+
+// Custom Textarea for lists
+.liste {
+  height: 10em !important;
+  resize: none;
+}
+
+// Center Input texts
+input {
+  text-align: center;
+}
+
+// Center Select texts
+select {
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align-last: center;
+}
+
+// Center Toggle Switches
+.form-check {
+  display: inline-block;
+}
+
+// Blink Animation
 .blinking {
   animation: blink 1s linear infinite;
 }
@@ -20,6 +52,7 @@
   }
 }
 
+// Set Vue-Toastification variables to bootstrap variables
 .tippy-box {
   font-family: var(--bs-body-font-family) !important;
   font-size: var(--bs-body-font-size) !important;

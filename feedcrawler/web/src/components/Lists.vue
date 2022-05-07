@@ -77,17 +77,17 @@ function showRegExHelp() {
                 <h5>Filme</h5>
                 <textarea v-model="store.state.lists.mb.filme"
                           v-tippy="'Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern).'"
-                          class="liste form-control"></textarea>
+                          class="liste form-control bg-light mb-4"></textarea>
                 <h5 v-if="store.state.settings.mb.regex">Filme/Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
                                                                             class="link-primary"
                                                                             @click="showRegExHelp">(RegEx)</span>
                 </h5>
                 <textarea v-if="store.state.settings.mb.regex" v-model="store.state.lists.mb.regex"
-                          class="liste form-control"
+                          class="liste form-control bg-light mb-4"
                           v-tippy="'Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
                 <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'">
                   <h5>Staffeln</h5>
-                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control"
+                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
                             v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
                 </div>
               </div>
@@ -105,22 +105,22 @@ function showRegExHelp() {
               <div class="accordion-body">
                 <h5>Serien</h5>
                 <textarea v-model="store.state.lists.sj.serien" v-tippy="'Pro Zeile ein Serientitel für Episoden.'"
-                          class="liste form-control"></textarea>
+                          class="liste form-control bg-light mb-4"></textarea>
                 <h5 v-if="store.state.settings.sj.regex">Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
                                                                       class="link-primary"
                                                                       @click="showRegExHelp">(RegEx)</span></h5>
                 <textarea v-if="store.state.settings.sj.regex" v-model="store.state.lists.sj.regex"
-                          class="liste form-control"
+                          class="liste form-control bg-light mb-4"
                           v-tippy="'Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert.'"></textarea>
                 <h5 v-if="store.state.lists.sj.staffeln_regex">Staffeln <span v-tippy="'Hilfe zu RegEx öffnen'"
                                                                               class="link-primary"
                                                                               @click="showRegExHelp">(RegEx)</span></h5>
                 <textarea v-if="store.state.lists.sj.staffeln_regex" v-model="store.state.lists.sj.staffeln_regex"
                           v-tippy="'Pro Zeile ein Serientitel im RegEx-Format für Staffeln - Die Filterliste wird hierbei ignoriert.'"
-                          class="liste form-control"></textarea>
+                          class="liste form-control bg-light mb-4"></textarea>
                 <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'">
                   <h5>Staffeln</h5>
-                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control"
+                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
                             v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
                 </div>
               </div>
@@ -140,7 +140,7 @@ function showRegExHelp() {
                  data-bs-parent="#accordionLists">
               <div class="accordion-body">
                 <h5>Staffeln</h5>
-                <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control"
+                <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
 
                           v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
               </div>
@@ -159,12 +159,12 @@ function showRegExHelp() {
               <div class="accordion-body">
                 <h5>Dokus</h5>
                 <textarea v-model="store.state.lists.dj.dokus" v-tippy="'Pro Zeile ein Dokutitel.'"
-                          class="liste form-control"></textarea>
+                          class="liste form-control bg-light mb-4"></textarea>
                 <h5 v-if="store.state.settings.dj.regex">Dokus <span v-tippy="'Hilfe zu RegEx öffnen'"
                                                                      class="link-primary"
                                                                      @click="showRegExHelp">(RegEx)</span></h5>
                 <textarea v-if="store.state.settings.dj.regex" v-model="store.state.lists.dj.regex"
-                          class="liste form-control"
+                          class="liste form-control bg-light mb-4"
 
                           v-tippy="'Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
               </div>
@@ -184,7 +184,7 @@ function showRegExHelp() {
                 <h5>Feed-IDs</h5>
                 <textarea v-model="store.state.lists.dd.feeds"
                           v-tippy="'Pro Zeile eine numerische RSS-Feed-ID.'"
-                          class="liste form-control"></textarea>
+                          class="liste form-control bg-light mb-4"></textarea>
               </div>
             </div>
           </div>

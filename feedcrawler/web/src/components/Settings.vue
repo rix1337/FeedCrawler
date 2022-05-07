@@ -91,14 +91,14 @@ const year = ref((new Date).getFullYear())
                 <h5>Nutzername</h5>
                 <input v-model="store.state.settings.general.myjd_user"
                        v-tippy="'Hier den Nutzernamen von My JDownloader angeben.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Passwort</h5>
                 <input v-model="store.state.settings.general.myjd_pass"
                        v-tippy="'Hier das Passwort von My JDownloader angeben.'"
-                       class="form-control"
+                       class="form-control bg-light mb-2"
                        type="password"/>
                 <h5>Gerätename</h5>
-                <input v-model="store.state.settings.general.myjd_device" class="form-control"
+                <input v-model="store.state.settings.general.myjd_device" class="form-control bg-light mb-2"
                        v-tippy="'Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben.'"/>
                 <h5>Autostart</h5>
                 <label class="form-check form-switch">
@@ -113,7 +113,8 @@ const year = ref((new Date).getFullYear())
                          type="checkbox">
                 </label>
                 <h5>Pakete pro Seite</h5>
-                <input v-model="store.state.settings.general.packages_per_myjd_page" class="number form-control"
+                <input v-model="store.state.settings.general.packages_per_myjd_page"
+                       class="number form-control bg-light mb-2"
                        v-tippy="'Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert.'"
                        min="3"
                        required
@@ -136,7 +137,7 @@ const year = ref((new Date).getFullYear())
                 <div v-if="!store.state.misc.docker">
                   <h5>Port</h5>
                   <input v-model="store.state.settings.general.port" v-tippy="'Hier den Port des Webservers wählen.'"
-                         class="number form-control docker"
+                         class="number form-control bg-light mb-2 docker"
                          max="65535"
                          min="1024" required
                          type="number"/>
@@ -144,15 +145,15 @@ const year = ref((new Date).getFullYear())
                 <h5>Prefix</h5>
                 <input v-model="store.state.settings.general.prefix"
                        v-tippy="'Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies).'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Nutzername</h5>
                 <input v-model="store.state.settings.general.auth_user"
                        v-tippy="'Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!).'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Passwort</h5>
                 <input v-model="store.state.settings.general.auth_hash"
                        v-tippy="'Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!).'"
-                       class="form-control"
+                       class="form-control bg-light mb-2"
                        type="password"/>
                 <h5>Suchintervall (Allgemein)</h5>
                 <input v-model="store.state.settings.general.interval"
@@ -160,7 +161,7 @@ const year = ref((new Date).getFullYear())
                        max="1440"
                        min="5"
                        required
-                       class="number form-control"
+                       class="number form-control bg-light mb-2"
                        type="number"/>
                 <h5>Wartezeit ({{ store.state.hostnames.jf }})</h5>
                 <input v-model="store.state.settings.jf.wait_time"
@@ -168,14 +169,14 @@ const year = ref((new Date).getFullYear())
                        max="24"
                        min="6"
                        required
-                       class="number form-control"
+                       class="number form-control bg-light mb-2"
                        type="number"/>
                 <h5>FlareSolverr-URL</h5>
                 <input v-model="store.state.settings.general.flaresolverr"
                        v-tippy="'Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191 - FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>FlareSolverr-Proxy-URL</h5>
-                <input v-model="store.state.settings.general.flaresolverr_proxy" class="form-control"
+                <input v-model="store.state.settings.general.flaresolverr_proxy" class="form-control bg-light mb-2"
                        v-tippy="'Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde.'"/>
                 <h5>Ein Mirror genügt</h5>
                 <label class="form-check form-switch">
@@ -209,7 +210,7 @@ const year = ref((new Date).getFullYear())
             <div id="collapseHosters" aria-labelledby="headingHosters" class="accordion-collapse collapse"
                  data-bs-parent="#accordionSettings">
               <div class="accordion-body"
-                   v-tippy="'Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende Captchabedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfürbar, wird dieses übersprungen!'">
+                   v-tippy="'Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende CAPTCHA-Bedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfügbar, wird dieses übersprungen!'">
                 <div class="row">
                   <div class="col-sm">
                     <h5>Rapidgator</h5>
@@ -300,18 +301,18 @@ const year = ref((new Date).getFullYear())
                 <h5>Pushbullet</h5>
                 <input v-model="store.state.settings.alerts.pushbullet"
                        v-tippy="'Access-Token auf Pushbullet.com anlegen und hier angeben.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Pushover</h5>
                 <input v-model="store.state.settings.alerts.pushover"
                        v-tippy="'Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine auf Pushover.net anlegen.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Home Assistant</h5>
-                <input v-model="store.state.settings.alerts.homeassistant" class="form-control"
+                <input v-model="store.state.settings.alerts.homeassistant" class="form-control bg-light mb-2"
                        v-tippy="'Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben.'"/>
                 <h5>Telegram</h5>
                 <input v-model="store.state.settings.alerts.telegram"
                        v-tippy="'Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
               </div>
             </div>
           </div>
@@ -330,19 +331,19 @@ const year = ref((new Date).getFullYear())
                 <h5>Overseerr URL</h5>
                 <input v-model="store.state.settings.overseerr.url"
                        v-tippy="'Pflichtangabe: Hier die URL von Overseerr angeben, bspw. http://192.168.0.1:5055.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Overseerr API-Key</h5>
                 <input v-model="store.state.settings.overseerr.api"
                        v-tippy="'Pflichtangabe: Hier den API-Key von Overseerr angeben.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Ombi URL</h5>
                 <input v-model="store.state.settings.ombi.url"
                        v-tippy="'Pflichtangabe: Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Ombi API-Key</h5>
                 <input v-model="store.state.settings.ombi.api"
                        v-tippy="'Pflichtangabe: Hier den API-Key von Ombi angeben.'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
               </div>
             </div>
           </div>
@@ -359,14 +360,14 @@ const year = ref((new Date).getFullYear())
               <div class="accordion-body">
                 <h5>Auflösung</h5>
                 <select v-model="store.state.settings.mb.quality"
-                        class="form-control"
+                        class="form-control bg-light mb-2"
                         v-tippy="'Die Release-Auflösung, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
                   </option>
                 </select>
                 <h5>Suchtiefe</h5>
-                <select v-model="store.state.settings.mb.search" class="form-control"
+                <select v-model="store.state.settings.mb.search" class="form-control bg-light mb-2"
                         v-tippy="'Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!'">
                   <option v-for="option in mb_search" v-bind:value="option.value">
                     {{ option.label }}
@@ -375,7 +376,7 @@ const year = ref((new Date).getFullYear())
                 <h5>Filterliste</h5>
                 <input v-model="store.state.settings.mb.ignore"
                        v-tippy="'Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt).'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.mb.regex" class="form-check-input"
@@ -389,10 +390,10 @@ const year = ref((new Date).getFullYear())
                        min="0.0"
                        required
                        step="0.1"
-                       class="number form-control"
+                       class="number form-control bg-light mb-2"
                        type="number"/>
                 <h5>IMDb hinzufügen ab Erscheinungsjahr</h5>
-                <input v-model="store.state.settings.mb.imdb_year" :max="year" class="number form-control"
+                <input v-model="store.state.settings.mb.imdb_year" :max="year" class="number form-control bg-light mb-2"
                        min="1900"
                        v-tippy="'Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr.'"
                        type="number"/>
@@ -435,7 +436,7 @@ const year = ref((new Date).getFullYear())
                   </label>
                   <h5>Auflösung der Staffeln</h5>
                   <select v-model="store.state.settings.mbsj.quality"
-                          class="form-control"
+                          class="form-control bg-light mb-2"
                           v-tippy="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                     <option v-for="option in resolutions" v-bind:value="option.value">
                       {{ option.label }}
@@ -448,7 +449,7 @@ const year = ref((new Date).getFullYear())
                            type="checkbox">
                   </label>
                   <h5>Quellart der Staffeln</h5>
-                  <select v-model="store.state.settings.mbsj.source" class="form-control"
+                  <select v-model="store.state.settings.mbsj.source" class="form-control bg-light mb-2"
                           v-tippy="'Die Quellart der Staffeln, nach der gesucht wird.'">
                     <option v-for="option in sources" v-bind:value="option.value">
                       {{ option.label }}
@@ -463,7 +464,7 @@ const year = ref((new Date).getFullYear())
                          max="7"
                          min="1"
                          required
-                         class="number form-control"
+                         class="number form-control bg-light mb-2"
                          type="number"/>
                 </div>
               </div>
@@ -482,7 +483,7 @@ const year = ref((new Date).getFullYear())
               <div class="accordion-body">
                 <h5>Auflösung</h5>
                 <select v-model="store.state.settings.sj.quality"
-                        class="form-control"
+                        class="form-control bg-light mb-2"
                         v-tippy="'Die Release-Auflösung, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
@@ -491,7 +492,7 @@ const year = ref((new Date).getFullYear())
                 <h5>Filterliste</h5>
                 <input v-model="store.state.settings.sj.ignore"
                        v-tippy="'Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt).'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.sj.regex" class="form-check-input"
@@ -525,7 +526,7 @@ const year = ref((new Date).getFullYear())
                   </label>
                   <h5>Auflösung der Staffeln</h5>
                   <select v-model="store.state.settings.mbsj.quality"
-                          class="form-control"
+                          class="form-control bg-light mb-2"
                           v-tippy="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                     <option v-for="option in resolutions" v-bind:value="option.value">
                       {{ option.label }}
@@ -538,7 +539,7 @@ const year = ref((new Date).getFullYear())
                            type="checkbox">
                   </label>
                   <h5>Quellart der Staffeln</h5>
-                  <select v-model="store.state.settings.mbsj.source" class="form-control"
+                  <select v-model="store.state.settings.mbsj.source" class="form-control bg-light mb-2"
                           v-tippy="'Die Quellart der Staffeln, nach der gesucht wird.'">
                     <option v-for="option in sources" v-bind:value="option.value">
                       {{ option.label }}
@@ -569,7 +570,7 @@ const year = ref((new Date).getFullYear())
                 </label>
                 <h5>Auflösung der Staffeln</h5>
                 <select v-model="store.state.settings.mbsj.quality"
-                        class="form-control"
+                        class="form-control bg-light mb-2"
                         v-tippy="'Die Release-Auflösung der Staffeln, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
@@ -583,7 +584,7 @@ const year = ref((new Date).getFullYear())
                          type="checkbox">
                 </label>
                 <h5>Quellart der Staffeln</h5>
-                <select v-model="store.state.settings.mbsj.source" class="form-control"
+                <select v-model="store.state.settings.mbsj.source" class="form-control bg-light mb-2"
                         v-tippy="'Die Quellart der Staffeln, nach der gesucht wird.'">
                   <option v-for="option in sources" v-bind:value="option.value">
                     {{ option.label }}
@@ -605,7 +606,7 @@ const year = ref((new Date).getFullYear())
               <div class="accordion-body">
                 <h5>Auflösung</h5>
                 <select v-model="store.state.settings.dj.quality"
-                        class="form-control"
+                        class="form-control bg-light mb-2"
                         v-tippy="'Die Release-Auflösung, nach der gesucht wird.'">
                   <option v-for="option in resolutions" v-bind:value="option.value">
                     {{ option.label }}
@@ -614,7 +615,7 @@ const year = ref((new Date).getFullYear())
                 <h5>Filterliste</h5>
                 <input v-model="store.state.settings.dj.ignore"
                        v-tippy="'Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt).'"
-                       class="form-control"/>
+                       class="form-control bg-light mb-2"/>
                 <h5>Auch per RegEx suchen</h5>
                 <label class="form-check form-switch">
                   <input v-model="store.state.settings.dj.regex" class="form-check-input"
@@ -667,7 +668,7 @@ const year = ref((new Date).getFullYear())
                 <h5>Suchtiefe</h5>
                 <input v-model="store.state.settings.f.search"
                        v-tippy="'Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage.'"
-                       class="number form-control"
+                       class="number form-control bg-light mb-2"
                        min="1"
                        required
                        max="7"
@@ -677,7 +678,8 @@ const year = ref((new Date).getFullYear())
           </div>
         </div>
         <div>
-          <button v-if="store.state.misc.loaded_settings" class="btn btn-primary mt-2" type="submit" @click="saveSettings()">
+          <button v-if="store.state.misc.loaded_settings" class="btn btn-primary mt-2" type="submit"
+                  @click="saveSettings()">
             <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
             <i v-if="!spin_settings" class="bi bi-save"></i> Speichern
           </button>

@@ -128,7 +128,7 @@ function downloadS(payload, title) {
       </div>
       <div class="offcanvas-body">
         <input v-model="search" aria-label="Search"
-               class="form-control mr-sm-2"
+               class="form-control mr-sm-2 bg-light"
                minlength="3"
                placeholder="Film- oder Serientitel eingeben"
                v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt.\nKomplette Serien landen auch in der Suchliste.\nAlternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'.\nDie jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert.\nBereits geladene Releases werden hier nicht ignoriert!'"

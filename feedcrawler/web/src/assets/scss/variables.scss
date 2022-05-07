@@ -1,8 +1,6 @@
-// https://getbootstrap.com/docs/5.1/components/offcanvas/#sass
-$offcanvas-vertical-height: 100%;
-
-// Vue-Toastification
+// Set Vue-Toastification variables to bootstrap SCSS variables
 @import "../node_modules/bootstrap/scss/bootstrap";
+
 $vt-color-default: $primary !default;
 $vt-text-color-default: #fff !default;
 $vt-color-info: $info !default;

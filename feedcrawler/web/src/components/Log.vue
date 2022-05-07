@@ -113,6 +113,8 @@ function spinLog() {
     spin_log.value = false
   }, 1000)
 }
+
+// ToDo fix table responsiveness on mobile
 </script>
 
 
@@ -187,10 +189,3 @@ function spinLog() {
     </div>
   </div>
 </template>
-
-<style>
-.btn-link {
-  margin-top: 0 !important;
-  padding: 0 !important;
-}
-</style>
