@@ -1,9 +1,10 @@
 // Set Vue-Toastification variables to bootstrap SCSS variables
-@import "../node_modules/bootstrap/scss/bootstrap";
+@import "../node_modules/bootstrap/scss/functions";
+@import "../node_modules/bootstrap/scss/variables";
 
 $vt-color-default: $primary !default;
 $vt-text-color-default: #fff !default;
-$vt-color-info: $info !default;
+$vt-color-info: $primary !default;
 $vt-text-color-info: #fff !default;
 $vt-color-success: $success !default;
 $vt-text-color-success: #fff !default;
@@ -13,3 +14,12 @@ $vt-color-error: $danger !default;
 $vt-text-color-error: #fff !default;
 $vt-font-family: $font-family-sans-serif !default;
 $vt-toast-max-width: 1200px !default;
+
+// Vue Toastification imports for variables.scss
+@import "vue-toastification/src/scss/_variables";
+@import "vue-toastification/src/scss/_toastContainer";
+@import "vue-toastification/src/scss/_toast";
+@import "vue-toastification/src/scss/_closeButton";
+@import "vue-toastification/src/scss/_progressBar";
+@import "vue-toastification/src/scss/_icon";
+@import "vue-toastification/src/scss/animations/_bounce";

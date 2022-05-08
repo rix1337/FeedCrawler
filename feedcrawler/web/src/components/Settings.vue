@@ -691,3 +691,18 @@ const year = ref((new Date).getFullYear())
     </div>
   </div>
 </template>
+
+<style>
+/* Center Selects */
+select {
+  max-width: 260px;
+  margin-left: auto;
+  margin-right: auto;
+  text-align-last: center;
+}
+
+/* Center Toggle Switches */
+.form-check {
+  display: inline-block;
+}
+</style>

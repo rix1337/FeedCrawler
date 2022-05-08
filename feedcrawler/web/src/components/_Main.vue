@@ -28,7 +28,7 @@ store.commit('getBlockedSites')
     <Head/>
     <Log/>
     <MyJD/>
-    <!-- Off canvas Items -->
+    <!-- Offcanvas Items -->
     <Settings/>
     <Search/>
     <Lists/>

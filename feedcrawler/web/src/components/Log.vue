@@ -203,3 +203,11 @@ function copyTitleToClipBoard(title) {
     </div>
   </div>
 </template>
+
+<style>
+/* No line break on long log texts */
+td {
+  white-space: nowrap;
+  font-family: var(--bs-font-monospace);
+}
+</style>

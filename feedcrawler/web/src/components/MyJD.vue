@@ -667,3 +667,19 @@ function showSponsorsHelp() {
     </div>
   </div>
 </template>
+
+<style>
+/* Blink Animation */
+.blinking {
+  animation: blink 1s linear infinite;
+}
+
+@keyframes blink {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+</style>

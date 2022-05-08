@@ -202,3 +202,11 @@ function showRegExHelp() {
     </div>
   </div>
 </template>
+
+<style>
+/* Custom Textarea for lists */
+.liste {
+  height: 10em !important;
+  resize: none;
+}
+</style>
