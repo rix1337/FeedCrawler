@@ -12,7 +12,7 @@ from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http.request_handler import request
+from feedcrawler.http_requests.request_handler import request
 
 
 def overseerr(first_launch):
