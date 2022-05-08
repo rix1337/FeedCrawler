@@ -12,8 +12,8 @@ from urllib.error import URLError
 from feedcrawler import internal
 from feedcrawler.common import site_blocked
 from feedcrawler.db import FeedDb
-from feedcrawler.http.flaresolverr_handler import get_flaresolverr_url, flaresolverr_request
-from feedcrawler.http.request_handler import request
+from feedcrawler.http_requests.flaresolverr_handler import get_flaresolverr_url, flaresolverr_request
+from feedcrawler.http_requests.request_handler import request
 
 
 def cache(func):

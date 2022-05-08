@@ -10,7 +10,7 @@ from feedcrawler import internal
 from feedcrawler.common import site_blocked_with_flaresolverr
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb
-from feedcrawler.http.request_handler import request
+from feedcrawler.http_requests.request_handler import request
 
 
 def get_flaresolverr_url():

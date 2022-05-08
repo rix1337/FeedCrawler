@@ -13,7 +13,7 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http.request_handler import request
+from feedcrawler.http_requests.request_handler import request
 from feedcrawler.imdb import get_episodes
 from feedcrawler.imdb import get_localized_title
 from feedcrawler.imdb import get_year
