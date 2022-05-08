@@ -93,16 +93,14 @@ der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werde
 
 ### Startparameter
 
-| Parameter | Erläuterung |
-|---|---|
-| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
-| ```--config="<CFGPFAD>"``` | Legt den Ablageort für Einstellungen und Logs fest |
-| ```--port=<PORT>``` | Legt den Port des Webservers fest |
-| ```--jd-user=<NUTZERNAME>``` | Legt den Nutzernamen für My JDownloader fest |
-| ```--jd-pass=<PASSWORT>``` | Legt das Passwort für My JDownloader fest |
+| Parameter                      | Erläuterung |
+|--------------------------------|---|
+| ```--log-level=<LOGLEVEL>```   | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
+| ```--config="<PFAD>"```        | Legt den Ablageort für Einstellungen und Logs fest |
+| ```--port=<PORT>```            | Legt den Port des Webservers fest |
+| ```--jd-user=<NUTZERNAME>```   | Legt den Nutzernamen für My JDownloader fest |
+| ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
-| ``` --keep-cdc``` | Leere die CDC-Tabelle (Feed ab hier bereits gecrawlt) nicht vor dem ersten Suchlauf |
-
 
 ### Sicherheitshinweis
 
