@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **14.1.2** Detailverbesserungen im Web-Interface, insbesondere der Log-Darstellung
+- **14.1.2** Überarbeitete interne Paketstruktur
 - **14.1.1** Bugfix im Log bei nicht erfolgreichem Sponsors Helper
 - **14.1.0** Refactoring im Frontend um mehr Bootstrap Standards zu nutzen (sowie Sass)
 - **14.1.0** Erhöhte Stabilität in der Verbindung zum JDownloader
@@ -21,7 +23,9 @@
     - Für alle anderen IP-Adressen wurde der Timeout erhöht
     - So kommt es zu weniger Timeouts und Verbindungsabbrüchen
 - **14.0.3** Der Sponsors-Helper-Click'n'Load funktioniert wieder.
-- **14.0.2** Lösche Paket durch [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) nach drei Fehlversuchen.
+- **14.0.2** Lösche Paket
+  durch [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) nach
+  drei Fehlversuchen.
 - **14.0.1** Bugfixes (#614)
 - **14.0.0** Die Overseerr-Suche für Serien geht jetzt Staffelweise vor.
 - **14.0.0** Das Passwort für das Web-Interface muss neu vergeben werden, sofern zuvor eines genutzt wurde.
@@ -39,7 +43,9 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
-- **5.2.0** Der Helper funktioniert jetzt in Kombination mit aktivem Benutzernamen/Passwort im FeedCrawler, siehe [Wiki](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper#passwortgesch%C3%BCtzter-feedcrawler).
+- **5.2.0** Der Helper funktioniert jetzt in Kombination mit aktivem Benutzernamen/Passwort im FeedCrawler,
+  siehe [Wiki](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper#passwortgesch%C3%BCtzter-feedcrawler)
+  .
 - **5.1.0** Das interne Webinterface nutzt ab sofort [petite-vue](https://github.com/vuejs/petite-vue).
 - **5.0.0** Basiert ab sofort auf eigenem Basis-Image (Ubuntu 22.04 und Google Chrome 100)
     - Die Funktionalität entspricht der Vorversion inklusive Zugriff per VNC/Web-Browser.

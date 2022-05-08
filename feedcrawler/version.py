@@ -7,11 +7,9 @@ import re
 from distutils.version import StrictVersion
 from urllib.request import urlopen
 
-from bs4 import BeautifulSoup
-
 
 def get_version():
-    return "14.1.1"
+    return "14.1.2"
 
 
 def create_version_file():
@@ -54,8 +52,9 @@ def update_check():
     localversion = get_version()
     try:
         latest = urlopen('https://github.com/rix1337/FeedCrawler/releases/latest').read()
-        latest_title = BeautifulSoup(latest, 'html5lib').find("title").text
-        onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title).group()
+        latest_title = latest.decode("utf-8")
+        latest_title_text = re.findall(r'<title>(.+)</title>', latest_title)[0]
+        onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title_text).group()
         if StrictVersion(localversion) < StrictVersion(onlineversion):
             update = True
         else:

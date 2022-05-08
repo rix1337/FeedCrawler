@@ -126,8 +126,6 @@ function showSiteStatusHelp() {
   new Collapse(document.getElementById('collapseSiteStatus'), {
     toggle: true
   })
-  sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseSiteStatus"
 }
 </script>
 
@@ -139,8 +137,9 @@ function showSiteStatusHelp() {
         <div class="card text-center shadow my-3">
           <div class="card-header">
             <h1>
-              <i class="bi bi-reception-4"></i> FeedCrawler</h1>
-            <p id="headtitle">Projekt von
+              <i class="bi bi-reception-4"></i> FeedCrawler
+            </h1>
+            <p>Projekt von
               <a href="https://github.com/rix1337/FeedCrawler/releases/latest" target="_blank">RiX</a> {{ version }}
               <span v-if="update"> (Update verfügbar!)</span>
             </p>
@@ -237,6 +236,4 @@ function showSiteStatusHelp() {
       </div>
     </div>
   </div>
-
-
 </template>

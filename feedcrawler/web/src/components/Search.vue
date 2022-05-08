@@ -175,3 +175,14 @@ function downloadS(payload, title) {
     </div>
   </div>
 </template>
+
+<style>
+/* Required for responsiveness of search results */
+.btn {
+  margin-top: 0.5em;
+  margin-right: 0.1em;
+  margin-left: 0.1em;
+  white-space: inherit;
+  word-break: break-all;
+}
+</style>

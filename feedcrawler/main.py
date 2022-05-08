@@ -17,7 +17,7 @@ from feedcrawler import internal
 from feedcrawler import myjd
 from feedcrawler import version
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.crawldog import crawldog
+from feedcrawler.watchdog import crawldog
 from feedcrawler.crawler import crawler
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import get_device

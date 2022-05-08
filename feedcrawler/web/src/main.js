@@ -128,6 +128,7 @@ const store = createStore({
                 docker: false,
                 helper_active: false,
                 helper_available: false,
+                loaded_log: false,
                 loaded_lists: false,
                 loaded_settings: false,
                 myjd_connection_error: false,
