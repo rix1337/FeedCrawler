@@ -7,6 +7,7 @@
 ### Changelog FeedCrawler:
 
 - **14.1.2** Detailverbesserungen im Web-Interface, insbesondere der Log-Darstellung
+- **14.1.2** Überarbeitete interne Paketstruktur
 - **14.1.1** Bugfix im Log bei nicht erfolgreichem Sponsors Helper
 - **14.1.0** Refactoring im Frontend um mehr Bootstrap Standards zu nutzen (sowie Sass)
 - **14.1.0** Erhöhte Stabilität in der Verbindung zum JDownloader

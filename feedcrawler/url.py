@@ -9,8 +9,8 @@ import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http_handlers.caching import cached_request
-from feedcrawler.http_handlers.flaresolverr import get_flaresolverr_url
+from feedcrawler.http.cache_handler import cached_request
+from feedcrawler.http.flaresolverr_handler import get_flaresolverr_url
 
 
 def check_url(start_time):

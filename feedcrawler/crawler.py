@@ -12,10 +12,10 @@ from feedcrawler import internal
 from feedcrawler.common import Unbuffered, is_device, readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.http_handlers.flaresolverr import clean_flaresolverr_sessions
+from feedcrawler.http.flaresolverr_handler import clean_flaresolverr_sessions
 from feedcrawler.myjd import get_device
-from feedcrawler.request_management.ombi import ombi
-from feedcrawler.request_management.overseerr import overseerr
+from feedcrawler.external_requests.ombi import ombi
+from feedcrawler.external_requests.overseerr import overseerr
 from feedcrawler.sites.content_all_by import BL as BY
 from feedcrawler.sites.content_all_ff import BL as FF
 from feedcrawler.sites.content_all_fx import BL as FX
