@@ -126,8 +126,6 @@ function showSiteStatusHelp() {
   new Collapse(document.getElementById('collapseSiteStatus'), {
     toggle: true
   })
-  sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseSiteStatus"
 }
 </script>
 
@@ -238,6 +236,4 @@ function showSiteStatusHelp() {
       </div>
     </div>
   </div>
-
-
 </template>
