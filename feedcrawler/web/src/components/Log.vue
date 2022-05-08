@@ -20,6 +20,7 @@ function getLog() {
   axios.get('api/log/')
       .then(function (res) {
         log.value = res.data.log
+        store.state.misc.loaded_log = true
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
@@ -133,44 +134,56 @@ function copyTitleToClipBoard(title) {
           </div>
           <div class="card-body">
             <div class="row">
-              <div class="table-responsive">
-                <table v-if="log.length > 0" class="table table-light table-bordered">
+              <h4 v-if="!store.state.misc.loaded_log" class="text-center">Log wird geladen...</h4>
+              <div v-else class="table-responsive">
+                <table class="table table-light table-bordered">
                   <thead>
                   <tr>
                     <th class="text-center" scope="col">Zeitpunkt</th>
                     <th class="text-left" scope="col">Titel</th>
-                    <th class="text-center" scope="col"><i class="bi bi-clipboard-fill"></i></th>
                     <th class="text-center" scope="col">Kategorie</th>
                     <th class="text-center" scope="col">Seite</th>
+                    <th class="text-center" scope="col"><i class="bi bi-clipboard-fill"></i></th>
                     <th class="text-center" scope="col"><i class="bi bi-trash-fill"></i></th>
                   </tr>
                   </thead>
-                  <tbody id="logbody">
+                  <tbody v-if="log.length === 0">
+                  <tr>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                  </tr>
+                  </tbody>
+                  <tbody v-else>
                   <tr v-for="x in currentLogPage">
                     <td class="text-center">{{ x[1] }}</td>
                     <td class="text-left">
-                      {{ shortenEntry(x[3]) }}<i v-if="!longLogItemsAllowed && checkEntryLength(x[3])"
-                                                 class="bi bi-three-dots text-primary"
-                                                 v-tippy="'Titel vollständig anzeigen'"
-                                                 @click="longerLog()"></i>
-                      <button v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
-                              class="btn btn-link btn-sm"
-                              @click="shorterLog()"><i
-                          class="bi bi-x-circle"></i></button>
+                      {{ shortenEntry(x[3]) }}<span class="btn btn-outline-secondary btn-sm mt-0 pt-0 pb-0"
+                                                    v-if="!longLogItemsAllowed && checkEntryLength(x[3])"
+                                                    @click="longerLog()"><i
+                        class="bi bi-three-dots"
+                        v-tippy="'Titel vollständig anzeigen'"></i></span>
+                      <span v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
+                            class="btn btn-outline-secondary btn-sm mt-0 pt-0 pb-0"
+                            @click="shorterLog()"><i
+                          class="bi bi-x-lg"></i></span>
                     </td>
+                    <td class="text-center">{{ x[2] }}</td>
+                    <td class="text-center">{{ x[4] }}</td>
                     <td class="text-center">
-                      <button class="btn btn-outline-primary btn-sm"
+                      <button class="btn btn-outline-primary btn-sm mt-0 pt-0 pb-0"
                               v-tippy="'Titel kopieren'"
                               @click="copyTitleToClipBoard(x[3])">
                         <i class="bi bi-clipboard"></i>
                       </button>
                     </td>
-                    <td class="text-center">{{ x[2] }}</td>
-                    <td class="text-center">{{ x[4] }}</td>
                     <td class="text-center">
-                      <button v-tippy="'Log-Eintrag löschen'" class="btn btn-link btn-sm"
+                      <button v-tippy="'Log-Eintrag löschen'" class="btn btn-outline-danger btn-sm mt-0 pt-0 pb-0"
                               @click="deleteLogRow(x[3])">
-                        <i class="bi bi-trash text-danger"></i></button>
+                        <i class="bi bi-trash"></i></button>
                     </td>
                   </tr>
                   </tbody>
@@ -190,8 +203,31 @@ function copyTitleToClipBoard(title) {
                   </paginate>
                 </div>
               </div>
+              <!-- Modal -->
+              <div class="modal fade" id="deleteLogModal" tabindex="-1" aria-labelledby="deleteLogModalLabel"
+                   aria-hidden="true">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="deleteLogModalLabel">Log wirklich leeren?</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                      Hierdurch werden alle Log-Zeilen gelöscht!
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
+                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteLog()">
+                        <i class="bi bi-trash"></i>
+                        Log leeren
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="text-center">
-                <button class="btn btn-outline-secondary" @click="deleteLog()">
+                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
+                        data-bs-target="#deleteLogModal">
                   <span v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></span>
                   <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
                 </button>
@@ -209,5 +245,6 @@ function copyTitleToClipBoard(title) {
 td {
   white-space: nowrap;
   font-family: var(--bs-font-monospace);
+  vertical-align: middle;
 }
 </style>
