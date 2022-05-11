@@ -87,6 +87,8 @@ from feedcrawler.common import check_valid_release
 from feedcrawler.common import rreplace
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
+from feedcrawler.imdb import get_imdb_id_from_content
+from feedcrawler.imdb import get_imdb_id_from_link
 from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_redirected_url
@@ -94,7 +96,6 @@ from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 from feedcrawler.url import post_url_headers
-from feedcrawler.imdb import get_imdb_id_from_content
 
 
 class FakeFeedParserDict(dict):
@@ -281,9 +282,11 @@ def by_feed_enricher(content):
         for result in results:
             try:
                 content = []
-                details = BeautifulSoup(result, 'html5lib').findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
+                result = BeautifulSoup(result, 'html5lib')
+                details = result.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
                 title = details.find("small").text
                 published = details.find("th", {"align": "RIGHT"}).text
+                imdb_link = ""
                 try:
                     imdb = details.find("a", href=re.compile("imdb.com"))
                     imdb_link = imdb["href"].replace("https://anonym.to/?", "")
@@ -291,8 +294,20 @@ def by_feed_enricher(content):
                     if "0.0" in imdb_score:
                         imdb_score = "9.9"
                     content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
+
                 except:
                     pass
+
+                try:
+                    imdb_id = get_imdb_id_from_link(title, imdb_link)
+                except:
+                    imdb_id = ""
+
+                try:
+                    source = result.head.find("link")["href"]
+                except:
+                    source = ""
+
                 links = details.find_all("iframe")
                 for link in links:
                     content.append('href="' + link["src"] + '"')
@@ -303,7 +318,9 @@ def by_feed_enricher(content):
                     "title": title,
                     "published": published,
                     "content": [FakeFeedParserDict({
-                        "value": content + " mkv"})]
+                        "value": content + " mkv"})],
+                    "source": source,
+                    "imdb_id": imdb_id,
                 }))
             except:
                 pass
@@ -390,7 +407,7 @@ def fx_feed_enricher(feed):
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 if title:
                     try:
-                        imdb_id = get_imdb_id_from_content(title, str(article), "FeedEnricher")
+                        imdb_id = get_imdb_id_from_content(title, str(article))
                     except:
                         imdb_id = ""
                     if "download" in title.lower():

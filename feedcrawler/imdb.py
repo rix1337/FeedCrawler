@@ -29,7 +29,7 @@ def imdb_id_not_none(f):
     return check_imdb_id_not_none
 
 
-def get_imdb_id_from_content(key, content, current_list):
+def get_imdb_id_from_content(key, content, current_list="NoList"):
     try:
         imdb_id = re.findall(
             r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
@@ -47,12 +47,29 @@ def get_imdb_id_from_content(key, content, current_list):
     return imdb_id
 
 
-def get_imdb_id_from_title(title, current_list):
-    if current_list == 'List_ContentAll_Seasons':
-        query = "s=tt&ttype=ft&ref_=fn_ft&q=%s" % quote(title)
+def get_imdb_id_from_link(key, link, current_list="NoList"):
+    try:
+        imdb_id = re.findall(r'.*?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?.*?', link)
+    except:
+        imdb_id = False
+
+    if imdb_id:
+        imdb_id = imdb_id[0]
     else:
-        query = quote(title)
-    request = get_url_headers("https://www.imdb.com/find?" + query, headers={'Accept-Language': 'de'})
+        search_title = re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", key)[
+            0].replace(".", "+")
+        imdb_id = get_imdb_id_from_title(search_title, current_list)
+
+    return imdb_id
+
+
+def get_imdb_id_from_title(title, current_list="NoList"):
+    query = quote(title)
+
+    if current_list == 'List_ContentAll_Seasons':
+        query = quote(title) + "&s=tt&ttype=tv&ref_=fn_tv"
+
+    request = get_url_headers("https://www.imdb.com/find?q=" + query, headers={'Accept-Language': 'de'})
     search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9}).*?" >(.*?)<\/a>(.*?)<\/td>',
                                 request["text"])
     if len(search_results) > 0:
