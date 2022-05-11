@@ -29,7 +29,7 @@ def get_globals():
     return {
         "configpath": configpath,
         "log_level": log_level,
-        "sites": sites,
+        "external_sites": sites,
         "device": device,
         "local_address": local_address,
         "port": port,

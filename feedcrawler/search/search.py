@@ -13,11 +13,11 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.sites.shared.internal_feed import by_search_results
-from feedcrawler.sites.shared.internal_feed import fx_content_to_soup
-from feedcrawler.sites.shared.internal_feed import fx_search_results
-from feedcrawler.sites.shared.internal_feed import hw_search_results
-from feedcrawler.sites.shared.internal_feed import nk_search_results
+from feedcrawler.external_sites.shared.internal_feed import by_search_results
+from feedcrawler.external_sites.shared.internal_feed import fx_content_to_soup
+from feedcrawler.external_sites.shared.internal_feed import fx_search_results
+from feedcrawler.external_sites.shared.internal_feed import hw_search_results
+from feedcrawler.external_sites.shared.internal_feed import nk_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url

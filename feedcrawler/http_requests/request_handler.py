@@ -160,11 +160,15 @@ def request(
             if "gzip" in headers.get("content-encoding", ""):
                 content = gzip.decompress(content)
 
-            json = (
-                json_lib.loads(content)
-                if "application/json" in headers.get("content-type", "").lower() and content
-                else None
-            )
+            try:
+                json = (
+                    json_lib.loads(content)
+                    if "application/json" in headers.get("content-type", "").lower()
+                       and content
+                    else None
+                )
+            except:
+                json = None
 
         try:
             text = content.decode("utf-8")
