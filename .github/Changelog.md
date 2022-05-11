@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.1.3** Verhindere Incomplete-Read-Fehler (#627)
 - **14.1.3** Erkenne und verhindere Verarbeitung von Ombi-Anfragen ohne IMDb-ID
 - **14.1.2** Detailverbesserungen im Web-Interface, insbesondere der Log-Darstellung
 - **14.1.2** Überarbeitete interne Paketstruktur

@@ -37,6 +37,7 @@ import json as json_lib
 import ssl
 from base64 import b64encode
 from collections import namedtuple
+from http.client import IncompleteRead
 from http.cookiejar import CookieJar
 from socket import timeout as socket_timeout
 from urllib.error import HTTPError, URLError
@@ -136,7 +137,14 @@ def request(
     try:
         try:
             with opener.open(req, timeout=timeout) as resp:
-                status_code, content, resp_url = (resp.getcode(), resp.read(), resp.geturl())
+                status_code = resp.getcode()
+
+                try:
+                    content = resp.read()
+                except IncompleteRead as er:
+                    content = er.partial
+
+                resp_url = resp.geturl()
 
                 headers = {k.lower(): v for k, v in list(resp.info().items())}
 
@@ -154,7 +162,15 @@ def request(
                     json = None
 
         except HTTPError as e:
-            status_code, content, resp_url = (e.code, e.read(), e.geturl())
+            status_code = e.code
+
+            try:
+                content = e.read()
+            except IncompleteRead as er:
+                content = er.partial
+
+            resp_url = e.geturl()
+
             headers = {k.lower(): v for k, v in list(e.headers.items())}
 
             if "gzip" in headers.get("content-encoding", ""):
