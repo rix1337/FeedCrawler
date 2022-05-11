@@ -410,6 +410,7 @@ def fx_feed_enricher(feed):
                         imdb_id = get_imdb_id_from_content(title, str(article))
                     except:
                         imdb_id = ""
+
                     if "download" in title.lower():
                         try:
                             title = str(article.find("strong", text=re.compile(r".*Release.*")).nextSibling)
@@ -498,7 +499,23 @@ def hw_feed_enricher(feed):
 
     for article in articles:
         try:
+            try:
+                source = article.header.find("a")["href"]
+            except:
+                source = ""
+
             title = article.find("h2", {"class": "entry-title"}).text.strip()
+
+            try:
+                imdb_id = get_imdb_id_from_content(title, str(article))
+            except:
+                imdb_id = ""
+
+            try:
+                size = article.find("strong", text=re.compile(r"größe", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+            except:
+                size = ""
+
             media_post = article.find("strong", text="Format: ")
             if title and media_post:
                 published = article.find("p", {"class": "blog-post-meta"}).text.split("|")[0].strip()
@@ -508,7 +525,10 @@ def hw_feed_enricher(feed):
                     "content": [
                         FakeFeedParserDict({
                             "value": str(article)
-                        })]
+                        })],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
                 }))
         except:
             print(u"HW hat den Feed angepasst. Parsen teilweise nicht möglich!")
