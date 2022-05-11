@@ -19,8 +19,8 @@ from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, rate
-from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.sites.shared.internal_feed import fx_get_download_links
+from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async

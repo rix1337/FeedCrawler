@@ -21,12 +21,12 @@ from feedcrawler.imdb import get_votes
 from feedcrawler.imdb import get_year
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
-from feedcrawler.sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.sites.shared.internal_feed import by_page_download_link
-from feedcrawler.sites.shared.internal_feed import fx_get_download_links
-from feedcrawler.sites.shared.internal_feed import get_search_results
-from feedcrawler.sites.shared.internal_feed import hw_get_download_links
-from feedcrawler.sites.shared.internal_feed import nk_page_download_link
+from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.external_sites.shared.internal_feed import by_page_download_link
+from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
+from feedcrawler.external_sites.shared.internal_feed import get_search_results
+from feedcrawler.external_sites.shared.internal_feed import hw_get_download_links
+from feedcrawler.external_sites.shared.internal_feed import nk_page_download_link
 from feedcrawler.url import get_url
 
 

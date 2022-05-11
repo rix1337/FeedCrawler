@@ -16,16 +16,16 @@ from feedcrawler.http_requests.flaresolverr_handler import clean_flaresolverr_se
 from feedcrawler.myjd import get_device
 from feedcrawler.external_tools.ombi import ombi
 from feedcrawler.external_tools.overseerr import overseerr
-from feedcrawler.sites.content_all_by import BL as BY
-from feedcrawler.sites.content_all_ff import BL as FF
-from feedcrawler.sites.content_all_fx import BL as FX
-from feedcrawler.sites.content_all_hw import BL as HW
-from feedcrawler.sites.content_all_nk import BL as NK
-from feedcrawler.sites.content_all_ww import BL as WW
-from feedcrawler.sites.content_shows_dd import DD
-from feedcrawler.sites.content_shows_dj import DJ
-from feedcrawler.sites.content_shows_sf import SF
-from feedcrawler.sites.content_shows_sj import SJ
+from feedcrawler.external_sites.content_all_by import BL as BY
+from feedcrawler.external_sites.content_all_ff import BL as FF
+from feedcrawler.external_sites.content_all_fx import BL as FX
+from feedcrawler.external_sites.content_all_hw import BL as HW
+from feedcrawler.external_sites.content_all_nk import BL as NK
+from feedcrawler.external_sites.content_all_ww import BL as WW
+from feedcrawler.external_sites.content_shows_dd import DD
+from feedcrawler.external_sites.content_shows_dj import DJ
+from feedcrawler.external_sites.content_shows_sf import SF
+from feedcrawler.external_sites.content_shows_sj import SJ
 from feedcrawler.url import check_url
 
 

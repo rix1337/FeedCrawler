@@ -20,7 +20,7 @@ def imdb_id_not_none(f):
     def check_imdb_id_not_none(imdb_id=None):
         if not type(imdb_id) == str or not imdb_id.startswith('tt'):
             caller = traceback.extract_stack(f=None, limit=None)[-2]
-            detailed_trace = "In " + str(caller.name) + ".py:" + str(caller.lineno) + ", Aufruf: " + str(caller.line)
+            detailed_trace = "In " + str(caller.name) + ":" + str(caller.lineno) + ", Aufruf: " + str(caller.line)
             print("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
             internal.logger.debug("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
             return False
