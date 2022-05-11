@@ -403,6 +403,7 @@ def fx_feed_enricher(feed):
                 source = ""
 
             titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
+            i = 0
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 if title:
@@ -410,6 +411,14 @@ def fx_feed_enricher(feed):
                         imdb_id = get_imdb_id_from_content(title, str(article))
                     except:
                         imdb_id = ""
+
+                    try:
+                        size = article.findAll("strong",
+                                               text=re.compile(
+                                                   r"(size|größe)", re.IGNORECASE))[i].next.next.text.replace("|",
+                                                                                                              "").strip()
+                    except:
+                        size = ""
 
                     if "download" in title.lower():
                         try:
@@ -428,8 +437,10 @@ def fx_feed_enricher(feed):
                                 "value": str(article) + " mkv"
                             })],
                         "source": source,
+                        "size": size,
                         "imdb_id": imdb_id
                     }))
+                    i += 1
         except:
             print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
             continue
@@ -512,7 +523,9 @@ def hw_feed_enricher(feed):
                 imdb_id = ""
 
             try:
-                size = article.find("strong", text=re.compile(r"größe", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+                size = article.find("strong",
+                                    text=re.compile(
+                                        r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
             except:
                 size = ""
 
