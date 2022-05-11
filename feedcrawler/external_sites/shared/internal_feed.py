@@ -94,6 +94,7 @@ from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 from feedcrawler.url import post_url_headers
+from feedcrawler.imdb import get_imdb_id_from_content
 
 
 class FakeFeedParserDict(dict):
@@ -379,10 +380,19 @@ def fx_feed_enricher(feed):
     for article in articles:
         try:
             article = BeautifulSoup(str(article), 'html5lib')
+            try:
+                source = article.header.find("a")["href"]
+            except:
+                source = ""
+
             titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
             for title in titles:
                 title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 if title:
+                    try:
+                        imdb_id = get_imdb_id_from_content(title, str(article), "FeedEnricher")
+                    except:
+                        imdb_id = ""
                     if "download" in title.lower():
                         try:
                             title = str(article.find("strong", text=re.compile(r".*Release.*")).nextSibling)
@@ -398,7 +408,9 @@ def fx_feed_enricher(feed):
                         "content": [
                             FakeFeedParserDict({
                                 "value": str(article) + " mkv"
-                            })]
+                            })],
+                        "source": source,
+                        "imdb_id": imdb_id
                     }))
         except:
             print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
@@ -936,7 +948,7 @@ def dd_rss_feed_to_feedparser_dict(raw_rss_feed):
         entries.append(FakeFeedParserDict({
             "title": title,
             "published": published,
-            "links": links
+            "links": links,
         }))
 
     feed = {"entries": entries}
