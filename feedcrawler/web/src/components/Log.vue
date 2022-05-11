@@ -51,7 +51,7 @@ const currentLogPage = computed(() => {
   return log.value.slice((currentPageLog.value - 1) * pageSizeLog.value, currentPageLog.value * pageSizeLog.value)
 })
 
-const maxLogItemLength = ref(60)
+const maxLogItemLength = ref(75)
 const longLogItemsAllowed = ref(false)
 
 function longerLog() {
@@ -60,13 +60,13 @@ function longerLog() {
 }
 
 function shorterLog() {
-  maxLogItemLength.value = 60
+  maxLogItemLength.value = 75
   longLogItemsAllowed.value = false
 }
 
 function checkEntryLength(entry) {
   if (entry !== undefined) {
-    return (entry.length > 60)
+    return (entry.length > 75)
   } else {
     return false
   }
@@ -125,7 +125,7 @@ function copyTitleToClipBoard(title) {
 <template>
   <div class="container">
     <div class="row my-3">
-      <div class="col-md-10 offset-md-1">
+      <div class="col-md-12">
         <div class="card my-3">
           <div class="card-header">
             <h3 class="text-center">
@@ -143,12 +143,14 @@ function copyTitleToClipBoard(title) {
                     <th class="text-left" scope="col">Titel</th>
                     <th class="text-center" scope="col">Kategorie</th>
                     <th class="text-center" scope="col">Seite</th>
-                    <th class="text-center" scope="col"><i class="bi bi-clipboard-fill"></i></th>
-                    <th class="text-center" scope="col"><i class="bi bi-trash-fill"></i></th>
+                    <th class="text-center" scope="col"><i class="bi bi-clipboard"></i></th>
+                    <th class="text-center" scope="col"><i class="bi bi-link-45deg"></i></th>
+                    <th class="text-center" scope="col"><i class="bi bi-trash3"></i></th>
                   </tr>
                   </thead>
                   <tbody v-if="log.length === 0">
                   <tr>
+                    <td></td>
                     <td></td>
                     <td></td>
                     <td></td>
@@ -181,9 +183,22 @@ function copyTitleToClipBoard(title) {
                       </button>
                     </td>
                     <td class="text-center">
+                      <a class="btn btn-sm mt-0 pt-0 pb-0"
+                         v-tippy="'Quelle öffnen'"
+                         :class="{
+                                    'disabled': (!x[5] || x[5] === '' || typeof x[5] === 'undefined'),
+                                    'btn-outline-secondary': (!x[5] || x[5] === '' || typeof x[5] === 'undefined'),
+                                    'btn-outline-primary': x[5] && x[5] !== '' && typeof x[5] !== 'undefined'
+                                 }"
+                         :href="x[5]"
+                         target="_blank">
+                        <i class="bi bi-link-45deg"></i>
+                      </a>
+                    </td>
+                    <td class="text-center">
                       <button v-tippy="'Log-Eintrag löschen'" class="btn btn-outline-danger btn-sm mt-0 pt-0 pb-0"
                               @click="deleteLogRow(x[3])">
-                        <i class="bi bi-trash"></i></button>
+                        <i class="bi bi-trash3"></i></button>
                     </td>
                   </tr>
                   </tbody>
