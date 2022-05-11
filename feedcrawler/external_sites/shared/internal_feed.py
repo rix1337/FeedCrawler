@@ -299,14 +299,19 @@ def by_feed_enricher(content):
                     pass
 
                 try:
+                    source = result.head.find("link")["href"]
+                except:
+                    source = ""
+
+                try:
                     imdb_id = get_imdb_id_from_link(title, imdb_link)
                 except:
                     imdb_id = ""
 
                 try:
-                    source = result.head.find("link")["href"]
+                    size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
                 except:
-                    source = ""
+                    size = ""
 
                 links = details.find_all("iframe")
                 for link in links:
@@ -320,6 +325,7 @@ def by_feed_enricher(content):
                     "content": [FakeFeedParserDict({
                         "value": content + " mkv"})],
                     "source": source,
+                    "size": size,
                     "imdb_id": imdb_id,
                 }))
             except:
