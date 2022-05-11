@@ -83,98 +83,108 @@ def ombi(first_launch):
         if bool(r.get("approved")):
             if not bool(r.get("available")):
                 imdb_id = r.get("imdbId")
-                if not db.retrieve('movie_' + str(imdb_id)) == 'added':
-                    title = imdb_movie(imdb_id)
-                    if title:
-                        best_result = feedcrawler.search.shared.content_all.get_best_result(title)
-                        print(u"Film: " + title + u" durch Ombi hinzugefügt.")
-                        if best_result:
-                            feedcrawler.search.shared.content_all.download(best_result)
-                        if english:
-                            title = r.get('title')
+                if imdb_id:
+                    if not db.retrieve('movie_' + str(imdb_id)) == 'added':
+                        title = imdb_movie(imdb_id)
+                        if title:
                             best_result = feedcrawler.search.shared.content_all.get_best_result(title)
-                            print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                            print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                             if best_result:
                                 feedcrawler.search.shared.content_all.download(best_result)
-                        db.store('movie_' + str(imdb_id), 'added')
+                            if english:
+                                title = r.get('title')
+                                best_result = feedcrawler.search.shared.content_all.get_best_result(title)
+                                print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                                if best_result:
+                                    feedcrawler.search.shared.content_all.download(best_result)
+                            db.store('movie_' + str(imdb_id), 'added')
+                else:
+                    print("Ein Film ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
+                    internal.logger.debug(
+                        "Ein Film ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
 
     if requested_shows:
         internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
-        child_requests = r.get("childRequests")
-        for cr in child_requests:
-            if bool(cr.get("approved")):
-                if not bool(cr.get("available")):
-                    details = cr.get("seasonRequests")
-                    for season in details:
-                        sn = season.get("seasonNumber")
-                        s = str(sn)
-                        if len(s) == 1:
-                            s = "0" + s
-                        s = "S" + s
-                        eps = []
-                        episodes = season.get("episodes")
-                        for episode in episodes:
-                            if not bool(episode.get("available")):
-                                enr = episode.get("episodeNumber")
-                                e = str(enr)
-                                if len(e) == 1:
-                                    e = "0" + e
-                                se = s + "E" + e
-                                if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
-                                    eps.append(enr)
-                        if eps:
-                            infos = imdb_show(imdb_id)
-                            if infos:
-                                title = infos[0]
-                                all_eps = infos[1]
-                                check_sn = False
-                                if all_eps:
-                                    check_sn = all_eps.get(sn)
-                                if check_sn:
-                                    sn_length = len(eps)
-                                    check_sn_length = len(check_sn)
-                                    if check_sn_length > sn_length:
-                                        for ep in eps:
-                                            e = str(ep)
-                                            if len(e) == 1:
-                                                e = "0" + e
-                                            se = s + "E" + e
+        if imdb_id:
+            child_requests = r.get("childRequests")
+            for cr in child_requests:
+                if bool(cr.get("approved")):
+                    if not bool(cr.get("available")):
+                        details = cr.get("seasonRequests")
+                        for season in details:
+                            sn = season.get("seasonNumber")
+                            s = str(sn)
+                            if len(s) == 1:
+                                s = "0" + s
+                            s = "S" + s
+                            eps = []
+                            episodes = season.get("episodes")
+                            for episode in episodes:
+                                if not bool(episode.get("available")):
+                                    enr = episode.get("episodeNumber")
+                                    e = str(enr)
+                                    if len(e) == 1:
+                                        e = "0" + e
+                                    se = s + "E" + e
+                                    if not db.retrieve('show_' + str(imdb_id) + '_' + se) == 'added':
+                                        eps.append(enr)
+                            if eps:
+                                infos = imdb_show(imdb_id)
+                                if infos:
+                                    title = infos[0]
+                                    all_eps = infos[1]
+                                    check_sn = False
+                                    if all_eps:
+                                        check_sn = all_eps.get(sn)
+                                    if check_sn:
+                                        sn_length = len(eps)
+                                        check_sn_length = len(check_sn)
+                                        if check_sn_length > sn_length:
+                                            for ep in eps:
+                                                e = str(ep)
+                                                if len(e) == 1:
+                                                    e = "0" + e
+                                                se = s + "E" + e
+                                                payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+                                                if payload:
+                                                    payload = decode_base64(payload).split("|")
+                                                    payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
+                                                    added_episode = feedcrawler.search.shared.content_shows.download(
+                                                        payload)
+                                                    if not added_episode:
+                                                        payload = decode_base64(payload).split("|")
+                                                        payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
+                                                        add_season = feedcrawler.search.shared.content_shows.download(
+                                                            payload)
+                                                        for e in eps:
+                                                            e = str(e)
+                                                            if len(e) == 1:
+                                                                e = "0" + e
+                                                            se = s + "E" + e
+                                                            db.store('show_' + str(imdb_id) + '_' + se, 'added')
+                                                        if not add_season:
+                                                            internal.logger.debug(
+                                                                u"Konnte kein Release für " + title + " " + se + "finden.")
+                                                        break
+                                                db.store('show_' + str(imdb_id) + '_' + se, 'added')
+                                        else:
                                             payload = feedcrawler.search.shared.content_shows.get_best_result(title)
                                             if payload:
                                                 payload = decode_base64(payload).split("|")
-                                                payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
-                                                added_episode = feedcrawler.search.shared.content_shows.download(
-                                                    payload)
-                                                if not added_episode:
-                                                    payload = decode_base64(payload).split("|")
-                                                    payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                                    add_season = feedcrawler.search.shared.content_shows.download(
-                                                        payload)
-                                                    for e in eps:
-                                                        e = str(e)
-                                                        if len(e) == 1:
-                                                            e = "0" + e
-                                                        se = s + "E" + e
-                                                        db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                                    if not add_season:
-                                                        internal.logger.debug(
-                                                            u"Konnte kein Release für " + title + " " + se + "finden.")
-                                                    break
-                                            db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                    else:
-                                        payload = feedcrawler.search.shared.content_shows.get_best_result(title)
-                                        if payload:
-                                            payload = decode_base64(payload).split("|")
-                                            payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                            feedcrawler.search.shared.content_shows.download(payload)
-                                        for ep in eps:
-                                            e = str(ep)
-                                            if len(e) == 1:
-                                                e = "0" + e
-                                            se = s + "E" + e
-                                            db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                    print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+                                                payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
+                                                feedcrawler.search.shared.content_shows.download(payload)
+                                            for ep in eps:
+                                                e = str(ep)
+                                                if len(e) == 1:
+                                                    e = "0" + e
+                                                se = s + "E" + e
+                                                db.store('show_' + str(imdb_id) + '_' + se, 'added')
+                                        print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+        else:
+            print("Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
+            internal.logger.debug(
+                "Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
 
     return [len_movies, len_shows]
