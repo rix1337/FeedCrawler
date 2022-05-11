@@ -286,6 +286,7 @@ def by_feed_enricher(content):
                 details = result.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
                 title = details.find("small").text
                 published = details.find("th", {"align": "RIGHT"}).text
+
                 imdb_link = ""
                 try:
                     imdb = details.find("a", href=re.compile("imdb.com"))
@@ -618,15 +619,21 @@ def ff_feed_enricher(releases):
                     time = movie.find("span", {"class": "lsf-icon timed"}).text
                     published = day + "|" + time
 
-                    imdb_infos = details.find("ul", {"class": "info"})
-
+                    imdb_link = ""
                     try:
+                        imdb_infos = details.find("ul", {"class": "info"})
                         imdb_link = str(imdb_infos.find("a")["href"])
                         imdb_rating = str(float(imdb_infos.find("i").text.strip()))
                         imdb_info = 'href="' + imdb_link + ' ' + imdb_rating + '/10</a>'
                     except:
                         imdb_info = ""
                         pass
+
+                    try:
+                        imdb_id = get_imdb_id_from_link(title, imdb_link)
+                    except:
+                        imdb_id = ""
+
                     release_infos = info.findAll("div", {"class": "entry"})
                     release_info = False
                     for check_info in release_infos:
@@ -634,13 +641,22 @@ def ff_feed_enricher(releases):
                             release_info = str(check_info)
 
                     if release_info:
+                        try:
+                            size = BeautifulSoup(release_info, 'html5lib').findAll("span")[2].text.split(":", 1)[
+                                1].strip()
+                        except:
+                            size = ""
+
                         content = imdb_info + " " + release_info
 
                         entries.append(FakeFeedParserDict({
                             "title": title,
+                            "published": published,
                             "content": [FakeFeedParserDict({
                                 "value": content + " mkv"})],
-                            "published": published
+                            "source": movie_url,
+                            "size": size,
+                            "imdb_id": imdb_id
                         }))
         except Exception as e:
             internal.logger.debug("FF-Feed konnte nicht gelesen werden: " + str(e))
