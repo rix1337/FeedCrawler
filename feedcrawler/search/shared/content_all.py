@@ -16,11 +16,11 @@ from feedcrawler.common import sanitize
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
+from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, rate
-from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
@@ -98,12 +98,11 @@ def download(payload):
                 link = link["src"]
                 if 'https://' + by in link:
                     async_link_results.append(link)
-            async_link_results = get_urls_async(async_link_results)
-            links = async_link_results[0]
+            links = get_urls_async(async_link_results)
             url_hosters = []
             for link in links:
-                if link:
-                    link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
+                if link[0]:
+                    link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "NK" in site:

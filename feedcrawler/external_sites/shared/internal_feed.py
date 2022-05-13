@@ -89,6 +89,7 @@ from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.imdb import get_imdb_id_from_content
 from feedcrawler.imdb import get_imdb_id_from_link
+from feedcrawler.imdb import get_imdb_id_from_title
 from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_redirected_url
@@ -171,19 +172,18 @@ def get_search_results(self, bl_query):
         hw_search = None
 
     async_results = get_urls_async([by_search, fx_search, hw_search])
-    async_results = async_results[0]
 
     by_results = []
     fx_results = []
     hw_results = []
 
     for res in async_results:
-        if check_is_site(res) == 'BY':
-            by_results = by_search_results(res, by)
-        elif check_is_site(res) == 'FX':
-            fx_results = fx_search_results(fx_content_to_soup(res), bl_query)
-        elif check_is_site(res) == 'HW':
-            hw_results = hw_search_results(res)
+        if check_is_site(res[1]) == 'BY':
+            by_results = by_search_results(res[0], by)
+        elif check_is_site(res[1]) == 'FX':
+            fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
+        elif check_is_site(res[1]) == 'HW':
+            hw_results = hw_search_results(res[0])
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
@@ -248,16 +248,16 @@ def add_decrypt_instead_of_download(key, path, download_links, password):
 
 def by_get_download_links(self, content, title):
     async_link_results = re.findall(r'href="([^"\'>]*)"', content)
-    async_link_results = get_urls_async(async_link_results)
+    links = get_urls_async(async_link_results)
 
     content = []
-    links = async_link_results[0]
     for link in links:
-        link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
-        try:
-            content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
-        except:
-            pass
+        if link[0]:
+            link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
+            try:
+                content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
+            except:
+                pass
 
     content = "".join(content)
     download_links = get_download_links(self, content, title)
@@ -274,15 +274,14 @@ def by_feed_enricher(content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results)
-    results = async_results[0]
+    results = get_urls_async(async_results)
 
     entries = []
     if results:
         for result in results:
             try:
                 content = []
-                result = BeautifulSoup(result, 'html5lib')
+                result = BeautifulSoup(result[0], 'html5lib')
                 details = result.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
                 title = details.find("small").text
                 published = details.find("th", {"align": "RIGHT"}).text
@@ -291,18 +290,8 @@ def by_feed_enricher(content):
                 try:
                     imdb = details.find("a", href=re.compile("imdb.com"))
                     imdb_link = imdb["href"].replace("https://anonym.to/?", "")
-                    imdb_score = imdb.text.replace(" ", "").replace("/10", "")
-                    if "0.0" in imdb_score:
-                        imdb_score = "9.9"
-                    content.append('<a href="' + imdb_link + '"' + imdb_score + '</a>')
-
                 except:
                     pass
-
-                try:
-                    source = result.head.find("link")["href"]
-                except:
-                    source = ""
 
                 try:
                     imdb_id = get_imdb_id_from_link(title, imdb_link)
@@ -313,6 +302,11 @@ def by_feed_enricher(content):
                     size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
                 except:
                     size = ""
+
+                try:
+                    source = result.head.find("link")["href"]
+                except:
+                    source = ""
 
                 links = details.find_all("iframe")
                 for link in links:
@@ -362,12 +356,12 @@ def by_page_download_link(self, download_link, key):
         link = link["src"]
         if 'https://' + by in link:
             async_link_results.append(link)
-    async_link_results = get_urls_async(async_link_results)
-    links = async_link_results[0]
+    links = get_urls_async(async_link_results)
+
     url_hosters = []
     for link in links:
-        if link:
-            link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
+        if link[0]:
+            link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
             if link:
                 url_hosters.append([link["href"], link.text.replace(" ", "")])
     return check_download_links(self, url_hosters)
@@ -422,8 +416,8 @@ def fx_feed_enricher(feed):
                     try:
                         size = article.findAll("strong",
                                                text=re.compile(
-                                                   r"(size|größe)", re.IGNORECASE))[i].next.next.text.replace("|",
-                                                                                                              "").strip()
+                                                   r"(size|größe)", re.IGNORECASE))[i]. \
+                            next.next.text.replace("|", "").strip()
                     except:
                         size = ""
 
@@ -623,10 +617,7 @@ def ff_feed_enricher(releases):
                     try:
                         imdb_infos = details.find("ul", {"class": "info"})
                         imdb_link = str(imdb_infos.find("a")["href"])
-                        imdb_rating = str(float(imdb_infos.find("i").text.strip()))
-                        imdb_info = 'href="' + imdb_link + ' ' + imdb_rating + '/10</a>'
                     except:
-                        imdb_info = ""
                         pass
 
                     try:
@@ -647,13 +638,11 @@ def ff_feed_enricher(releases):
                         except:
                             size = ""
 
-                        content = imdb_info + " " + release_info
-
                         entries.append(FakeFeedParserDict({
                             "title": title,
                             "published": published,
                             "content": [FakeFeedParserDict({
-                                "value": content + " mkv"})],
+                                "value": release_info + " mkv"})],
                             "source": movie_url,
                             "size": size,
                             "imdb_id": imdb_id
@@ -677,32 +666,46 @@ def nk_feed_enricher(content):
             async_results.append(base_url + post['href'])
         except:
             pass
-    async_results = get_urls_async(async_results)[0]
+    async_results = get_urls_async(async_results)
 
     entries = []
     if async_results:
         for result in async_results:
             try:
                 content = []
-                details = BeautifulSoup(result, 'html5lib').find("div", {"class": "article"})
+                details = BeautifulSoup(result[0], 'html5lib').find("div", {"class": "article"})
                 title = details.find("span", {"class": "subtitle"}).text
                 published = details.find("p", {"class": "meta"}).text
                 content.append("mkv ")
-                try:
-                    imdb = details.find("a", href=re.compile("imdb.com"))["href"]
-                    content.append('<a href="' + imdb + '" 9,9</a>')
-                except:
-                    pass
+
                 links = details.find_all("a", href=re.compile("/go/"))
                 for link in links:
                     content.append('href="' + base_url + link["href"] + '">' + link.text + '<')
                 content = "".join(content)
 
+                try:
+                    imdb_id = get_imdb_id_from_content(title, str(details))
+                except:
+                    imdb_id = ""
+
+                try:
+                    size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+                except:
+                    size = ""
+
+                try:
+                    source = result[1]
+                except:
+                    source = ""
+
                 entries.append(FakeFeedParserDict({
                     "title": title,
                     "published": published,
                     "content": [FakeFeedParserDict({
-                        "value": content})]
+                        "value": content})],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
                 }))
             except:
                 pass
@@ -799,13 +802,34 @@ def ww_feed_enricher(content):
                 link = post.findAll("a", href=re.compile("/download"))[1]
                 title = link.nextSibling.nextSibling.strip()
                 published = post.find("span", {"class": "main-date"}).text.replace("\n", "")
-                content = "mkv|" + base_url + link["href"]
+
+                try:
+                    imdb_id = get_imdb_id_from_title(title)
+                    if not imdb_id:
+                        imdb_id = ""
+                except:
+                    imdb_id = ""
+
+                try:
+                    size = post.find("span", {"class": "main-size"}).text.strip()
+                except:
+                    size = ""
+
+                try:
+                    source = base_url + link["href"]
+                except:
+                    source = ""
+
+                content = "mkv|" + source
 
                 entries.append(FakeFeedParserDict({
                     "title": title,
                     "published": published,
                     "content": [FakeFeedParserDict({
-                        "value": content})]
+                        "value": content})],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
                 }))
             except:
                 pass

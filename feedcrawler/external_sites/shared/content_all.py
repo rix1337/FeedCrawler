@@ -13,20 +13,20 @@ from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
 from feedcrawler.common import is_retail
 from feedcrawler.db import ListDb
-from feedcrawler.imdb import get_imdb_id_from_content
-from feedcrawler.imdb import get_imdb_id_from_title
-from feedcrawler.imdb import original_language_not_german
-from feedcrawler.imdb import get_rating
-from feedcrawler.imdb import get_votes
-from feedcrawler.imdb import get_year
-from feedcrawler.myjd import myjd_download
-from feedcrawler.notifiers import notify
 from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
 from feedcrawler.external_sites.shared.internal_feed import by_page_download_link
 from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.external_sites.shared.internal_feed import get_search_results
 from feedcrawler.external_sites.shared.internal_feed import hw_get_download_links
 from feedcrawler.external_sites.shared.internal_feed import nk_page_download_link
+from feedcrawler.imdb import get_imdb_id_from_content
+from feedcrawler.imdb import get_imdb_id_from_title
+from feedcrawler.imdb import get_rating
+from feedcrawler.imdb import get_votes
+from feedcrawler.imdb import get_year
+from feedcrawler.imdb import original_language_not_german
+from feedcrawler.myjd import myjd_download
+from feedcrawler.notifiers import notify
 from feedcrawler.url import get_url
 
 
@@ -170,13 +170,7 @@ def search_imdb(self, desired_rating, feed):
                     imdb_id = post_imdb[0]
                 else:
                     try:
-                        search_title = \
-                            re.findall(r"(.*?)(?:\.(?:(?:19|20)\d{2})|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)",
-                                       post.title)[
-                                0].replace(".", " ").replace("ae", u"ä").replace("oe", u"ö").replace("ue",
-                                                                                                     u"ü").replace(
-                                "Ae", u"Ä").replace("Oe", u"Ö").replace("Ue", u"Ü")
-                        imdb_id = get_imdb_id_from_title(search_title, self.filename)
+                        imdb_id = get_imdb_id_from_title(post.title, self.filename)
                     except:
                         pass
                 if imdb_id:

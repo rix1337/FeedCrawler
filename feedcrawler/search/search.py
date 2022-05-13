@@ -89,19 +89,18 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
             hw_search = None
 
         async_results = get_urls_async([by_search, fx_search, hw_search])
-        async_results = async_results[0]
 
         by_results = []
         fx_results = []
         hw_results = []
 
         for res in async_results:
-            if check_is_site(res) == 'BY':
-                by_results = by_search_results(res, by)
-            elif check_is_site(res) == 'FX':
-                fx_results = fx_search_results(fx_content_to_soup(res), bl_query)
-            elif check_is_site(res) == 'HW':
-                hw_results = hw_search_results(res)
+            if check_is_site(res[1]) == 'BY':
+                by_results = by_search_results(res[0], by)
+            elif check_is_site(res[1]) == 'FX':
+                fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
+            elif check_is_site(res[1]) == 'HW':
+                hw_results = hw_search_results(res[0])
 
         if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
