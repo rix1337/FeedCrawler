@@ -215,7 +215,7 @@ def app_container():
 
     @app.get(prefix + "/api/log/")
     @auth_basic(is_authenticated_user)
-    def get_delete_log():
+    def get_log():
         try:
             log = []
             if os.path.isfile(internal.log_file):
@@ -250,7 +250,7 @@ def app_container():
 
     @app.delete(prefix + "/api/log_entry/<b64_entry>")
     @auth_basic(is_authenticated_user)
-    def get_delete_log_entry(b64_entry):
+    def delete_log_entry(b64_entry):
         try:
             entry = decode_base64(b64_entry)
             log = []

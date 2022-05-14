@@ -51,7 +51,7 @@ const currentLogPage = computed(() => {
   return log.value.slice((currentPageLog.value - 1) * pageSizeLog.value, currentPageLog.value * pageSizeLog.value)
 })
 
-const maxLogItemLength = ref(75)
+const maxLogItemLength = ref(65)
 const longLogItemsAllowed = ref(false)
 
 function longerLog() {
@@ -60,13 +60,13 @@ function longerLog() {
 }
 
 function shorterLog() {
-  maxLogItemLength.value = 75
+  maxLogItemLength.value = 65
   longLogItemsAllowed.value = false
 }
 
 function checkEntryLength(entry) {
   if (entry !== undefined) {
-    return (entry.length > 75)
+    return (entry.length > 65)
   } else {
     return false
   }
@@ -114,11 +114,6 @@ function spinLog() {
     spin_log.value = false
   }, 1000)
 }
-
-function copyTitleToClipBoard(title) {
-  navigator.clipboard.writeText(title)
-  toast.success(title + ' zur Zwischenablage hinzugefügt.')
-}
 </script>
 
 
@@ -143,7 +138,7 @@ function copyTitleToClipBoard(title) {
                     <th class="text-left" scope="col">Titel</th>
                     <th class="text-center" scope="col">Kategorie</th>
                     <th class="text-center" scope="col">Seite</th>
-                    <th class="text-center" scope="col"><i class="bi bi-clipboard"></i></th>
+                    <th class="text-center" scope="col">Größe</th>
                     <th class="text-center" scope="col"><i class="bi bi-link-45deg"></i></th>
                     <th class="text-center" scope="col"><i class="bi bi-trash3"></i></th>
                   </tr>
@@ -175,22 +170,17 @@ function copyTitleToClipBoard(title) {
                     </td>
                     <td class="text-center">{{ x[2] }}</td>
                     <td class="text-center">{{ x[4] }}</td>
-                    <td class="text-center">
-                      <button class="btn btn-outline-primary btn-sm mt-0 pt-0 pb-0"
-                              v-tippy="'Titel kopieren'"
-                              @click="copyTitleToClipBoard(x[3])">
-                        <i class="bi bi-clipboard"></i>
-                      </button>
-                    </td>
+                    <td class="text-center">{{ x[5] }}<i v-if="!x[5] || x[5] === '' || typeof x[5] === 'undefined'"
+                                                         class="bi bi-question-square text-secondary disabled"></i></td>
                     <td class="text-center">
                       <a class="btn btn-sm mt-0 pt-0 pb-0"
                          v-tippy="'Quelle öffnen'"
                          :class="{
-                                    'disabled': (!x[5] || x[5] === '' || typeof x[5] === 'undefined'),
-                                    'btn-outline-secondary': (!x[5] || x[5] === '' || typeof x[5] === 'undefined'),
-                                    'btn-outline-primary': x[5] && x[5] !== '' && typeof x[5] !== 'undefined'
+                                    'disabled': (!x[6] || x[6] === '' || typeof x[6] === 'undefined'),
+                                    'btn-outline-secondary': (!x[6] || x[6] === '' || typeof x[6] === 'undefined'),
+                                    'btn-outline-primary': x[6] && x[6] !== '' && typeof x[6] !== 'undefined'
                                  }"
-                         :href="x[5]"
+                         :href="x[6]"
                          target="_blank">
                         <i class="bi bi-link-45deg"></i>
                       </a>
