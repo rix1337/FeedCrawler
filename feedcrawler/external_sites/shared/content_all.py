@@ -19,8 +19,6 @@ from feedcrawler.external_sites.shared.internal_feed import fx_get_download_link
 from feedcrawler.external_sites.shared.internal_feed import get_search_results
 from feedcrawler.external_sites.shared.internal_feed import hw_get_download_links
 from feedcrawler.external_sites.shared.internal_feed import nk_page_download_link
-from feedcrawler.imdb import get_imdb_id_from_content
-from feedcrawler.imdb import get_imdb_id_from_title
 from feedcrawler.imdb import get_rating
 from feedcrawler.imdb import get_votes
 from feedcrawler.imdb import get_year
@@ -93,13 +91,7 @@ def search_imdb(self, desired_rating, feed):
 
         if content:
             if "mkv" in content.lower():
-                post_imdb = re.findall(
-                    r'.*?(?:href=.?http(?:|s):\/\/(?:|www\.)imdb\.com\/title\/(tt[0-9]{7,9}).*?).*?(\d(?:\.|\,)\d)(?:.|.*?)<\/a>.*?',
-                    content)
-
                 hevc_retail = False
-                if post_imdb:
-                    post_imdb = post_imdb.pop()
                 storage = self.db.retrieve_all(post.title)
                 storage_replaced = self.db.retrieve_all(
                     post.title.replace(".COMPLETE", "").replace(".Complete", ""))
@@ -165,18 +157,10 @@ def search_imdb(self, desired_rating, feed):
                         "%s - Release ignoriert (IMDb sucht nur Filme)" % post.title)
                     continue
 
-                imdb_id = False
-                if post_imdb:
-                    imdb_id = post_imdb[0]
-                else:
-                    try:
-                        imdb_id = get_imdb_id_from_title(post.title, self.filename)
-                    except:
-                        pass
-                if imdb_id:
+                if post.imdb_id:
                     min_year = int(self.config.get("imdbyear"))
                     if min_year:
-                        year = get_year(imdb_id)
+                        year = get_year(post.imdb_id)
                         if year:
                             if year < min_year:
                                 internal.logger.debug(
@@ -185,7 +169,7 @@ def search_imdb(self, desired_rating, feed):
                         else:
                             internal.logger.debug("%s - Release ignoriert (Alter nicht ermittelbar)" % post.title)
                             continue
-                    votes = get_votes(imdb_id)
+                    votes = get_votes(post.imdb_id)
                     if votes:
                         if votes < 1500:
                             internal.logger.debug(
@@ -195,7 +179,7 @@ def search_imdb(self, desired_rating, feed):
                         internal.logger.debug(
                             post.title + " - Release ignoriert (Konnte keine IMDb-Votes finden)")
                         continue
-                    rating = get_rating(imdb_id)
+                    rating = get_rating(post.imdb_id)
                     if rating and rating > desired_rating:
                         site = self._SITE
                         download_method = self.download_method
@@ -205,7 +189,7 @@ def search_imdb(self, desired_rating, feed):
                         found = download_imdb(self,
                                               post.title, download_links,
                                               str(rating).replace(",", "."),
-                                              imdb_id, hevc_retail, site, download_method)
+                                              post.imdb_id, hevc_retail, site, download_method)
                         if found:
                             for i in found:
                                 added_items.append(i)
@@ -298,7 +282,7 @@ def search_feed(self, feed):
                                 internal.logger.debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, hevc_retail)
+                            found = download_feed(self, post.title, post.imdb_id, content, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
@@ -345,19 +329,19 @@ def search_feed(self, feed):
                                 internal.logger.debug(
                                     "%s - Release ignoriert (Serienepisode)" % post.title)
                                 continue
-                            found = download_feed(self, post.title, content, hevc_retail)
+                            found = download_feed(self, post.title, post.imdb_id, content, hevc_retail)
                             if found:
                                 for i in found:
                                     added_items.append(i)
                     else:
-                        found = download_feed(self, post.title, content, hevc_retail)
+                        found = download_feed(self, post.title, post.imdb_id, content, hevc_retail)
                         if found:
                             for i in found:
                                 added_items.append(i)
     return added_items
 
 
-def download_hevc(self, title):
+def download_hevc(self, title, imdb_id):
     search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = get_search_results(self, search_title)
@@ -373,8 +357,6 @@ def download_hevc(self, title):
             link = payload[0]
             password = payload[1]
 
-            link_grabbed = False
-
             site = check_is_site(link)
             if not site:
                 continue
@@ -383,7 +365,6 @@ def download_hevc(self, title):
                 download_method = myjd_download
             elif "FX" in site:
                 link = get_url(link)
-                link_grabbed = True
                 get_download_links_method = fx_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif "HW" in site:
@@ -420,9 +401,6 @@ def download_hevc(self, title):
                             return
 
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
-                        if not link_grabbed:
-                            link = get_url(link)
-                        imdb_id = get_imdb_id_from_content(key, link, self.filename)
                         if not imdb_id:
                             dual_found = download_dual_language(self, key, True)
                             if dual_found and ".1080p." in key:
@@ -432,8 +410,6 @@ def download_hevc(self, title):
                                     "%s - Kein zweisprachiges HEVC-Release gefunden." % key)
                                 self.dl_unsatisfied = True
                         else:
-                            if isinstance(imdb_id, list):
-                                imdb_id = imdb_id.pop()
                             if original_language_not_german(imdb_id):
                                 dual_found = download_dual_language(self, key, True)
                                 if dual_found and ".1080p." in key:
@@ -615,7 +591,7 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False):
-                if download_hevc(self, key):
+                if download_hevc(self, key, imdb_id):
                     internal.logger.debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
@@ -682,13 +658,13 @@ def download_imdb(self, key, download_links, score, imdb_id, hevc_retail, site, 
     return added_items
 
 
-def download_feed(self, key, content, hevc_retail):
+def download_feed(self, key, content, imdb_id, hevc_retail):
     key = key.replace(" ", ".")
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False):
-                if download_hevc(self, key):
+                if download_hevc(self, key, imdb_id):
                     internal.logger.debug(
                         "%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
                     return
@@ -721,7 +697,6 @@ def download_feed(self, key, content, hevc_retail):
                     "%s - Englische Releases deaktiviert" % key)
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
-            imdb_id = get_imdb_id_from_content(key, content, self.filename)
             if not imdb_id:
                 dual_found = download_dual_language(self, key, self.password)
                 if dual_found:
@@ -733,8 +708,6 @@ def download_feed(self, key, content, hevc_retail):
                         "%s - Kein zweisprachiges Release gefunden." % key)
                     self.dl_unsatisfied = True
             else:
-                if isinstance(imdb_id, list):
-                    imdb_id = imdb_id.pop()
                 if original_language_not_german(imdb_id):
                     dual_found = download_dual_language(self, key, self.password)
                     if dual_found:
