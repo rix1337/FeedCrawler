@@ -791,10 +791,10 @@ def ww_get_download_links(self, content, title):
 def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     try:
-        content = BeautifulSoup(content, 'html5lib')
+        response = BeautifulSoup(content, 'html5lib')
     except:
-        content = BeautifulSoup(content["text"], 'html5lib')
-    posts = content.findAll("li")
+        response = BeautifulSoup(content["text"], 'html5lib')
+    posts = response.findAll("li")
     entries = []
     if posts:
         for post in posts:
@@ -859,7 +859,10 @@ def j_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_o
         entries.append(FakeFeedParserDict({
             "title": title,
             "series_url": series_url,
-            "published": published
+            "published": published,
+            "source": series_url + "#" + title,
+            "size": "",
+            "imdb_id": ""
         }))
 
     feed = {"entries": entries}
@@ -939,7 +942,10 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
         entries.append(FakeFeedParserDict({
             "title": title,
             "series_url": series_url,
-            "published": published
+            "published": published,
+            "source": series_url,
+            "size": "",
+            "imdb_id": "",
         }))
 
     feed = {"entries": entries}
@@ -1041,10 +1047,18 @@ def dd_rss_feed_to_feedparser_dict(raw_rss_feed):
         published = release.find("pubdate").text.strip()
         links = re.findall(r'(http.*)', release.find("description").text.strip())
 
+        try:
+            source = release.find("link").next.strip()
+        except:
+            source = ""
+
         entries.append(FakeFeedParserDict({
             "title": title,
             "published": published,
             "links": links,
+            "source": source,
+            "size": "",
+            "imdb_id": "",
         }))
 
     feed = {"entries": entries}
