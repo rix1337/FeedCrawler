@@ -40,7 +40,7 @@ def home_assistant(items, homassistant_url, homeassistant_password):
     for item in items:
         data = urlencode({
             'title': 'FeedCrawler:',
-            'body': item["text"]
+            'body': item["text"].replace(" - ", "\n\n")
         }).encode("utf-8")
 
         try:
@@ -71,7 +71,7 @@ def telegram(items, token, chat_id):
                 data = urlencode({
                     'chat_id': chat_id,
                     'photo': poster_link,
-                    'caption': item["text"]
+                    'caption': item["text"].replace(" - ", "\n\n")
                 }).encode("utf-8")
 
                 try:
@@ -90,7 +90,7 @@ def telegram(items, token, chat_id):
 
         data = urlencode({
             'chat_id': chat_id,
-            'text': item["text"]
+            'text': item["text"].replace(" - ", "\n\n")
         }).encode("utf-8")
 
         try:
@@ -113,7 +113,7 @@ def pushbullet(items, token):
         data = urlencode({
             'type': 'note',
             'title': 'FeedCrawler:',
-            'body': item["text"]
+            'body': item["text"].replace(" - ", "\n\n")
         }).encode("utf-8")
 
         try:
@@ -136,7 +136,7 @@ def pushover(items, pushover_user, pushover_token):
             'user': pushover_user,
             'token': pushover_token,
             'title': 'FeedCrawler',
-            'message': item["text"]
+            'message': item["text"].replace(" - ", "\n\n")
         }).encode("utf-8")
         try:
             req = Request('https://api.pushover.net/1/messages.json', data)

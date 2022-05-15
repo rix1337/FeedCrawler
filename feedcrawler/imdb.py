@@ -99,7 +99,11 @@ def get_poster_link(imdb_id):
     request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
     soup = BeautifulSoup(request, "html5lib")
     try:
-        poster_link = soup.find('div', class_='poster').img["src"]
+        poster_set = soup.find('div', class_='ipc-poster').div.img[
+            "srcset"]  # contains links to posters in ascending resolution
+        poster_links = [x for x in poster_set.split(" ") if
+                        len(x) > 10]  # extract all poster links ignoring resolution info
+        poster_link = poster_links[-1]  # get the highest resolution poster
     except:
         poster_link = False
     return poster_link
