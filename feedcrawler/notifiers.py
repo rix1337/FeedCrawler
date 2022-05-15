@@ -83,10 +83,8 @@ def telegram(items, token, chat_id):
                 res = json.load(response)
                 if res['ok']:
                     internal.logger.debug('Telegram Erfolgreich versendet')
-                    continue
                 else:
                     internal.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
-                    continue
 
         data = urlencode({
             'chat_id': chat_id,
@@ -102,10 +100,8 @@ def telegram(items, token, chat_id):
         res = json.load(response)
         if res['ok']:
             internal.logger.debug('Telegram Erfolgreich versendet')
-            continue
         else:
             internal.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
-            continue
 
 
 def pushbullet(items, token):
