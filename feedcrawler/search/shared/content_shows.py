@@ -336,7 +336,7 @@ def download(payload):
                 db.store(title, 'added')
                 log_entry = u'[Suche/Serie] - ' + title + ' - ' + site
                 internal.logger.info(log_entry)
-                notify_array.append(log_entry)
+                notify_array.append({"text": log_entry})
 
     notify(notify_array)
 

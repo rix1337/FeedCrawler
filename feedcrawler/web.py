@@ -1497,8 +1497,8 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             if name:
                 if remove_decrypt(name):
                     try:
-                        notify([
-                            "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"])
+                        notify([{
+                            "text": "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(
@@ -1694,7 +1694,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                         if not db.retrieve(name):
                             db.store(name, 'added')
                         try:
-                            notify(["[FeedCrawler Sponsors Helper erfolgreich] - " + name])
+                            notify([{"text": "[FeedCrawler Sponsors Helper erfolgreich] - " + name}])
                         except:
                             print(u"Benachrichtigung konnte nicht versendet werden!")
                         print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)

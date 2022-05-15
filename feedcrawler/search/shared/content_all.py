@@ -179,7 +179,7 @@ def download(payload):
                 log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                         "") + ' - [' + site + ']'
                 internal.logger.info(log_entry)
-                notify([log_entry])
+                notify([{"text": log_entry}])
                 return True
         else:
             retail = False
@@ -196,7 +196,7 @@ def download(payload):
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
                 internal.logger.info(log_entry)
-                notify([log_entry])
+                notify([{"text": log_entry}])
                 return [key]
     else:
         return False

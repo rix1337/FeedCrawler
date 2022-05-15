@@ -95,6 +95,17 @@ def get_imdb_id_from_title(title, current_list="NoList"):
 
 
 @imdb_id_not_none
+def get_poster_link(imdb_id):
+    request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+    soup = BeautifulSoup(request, "html5lib")
+    try:
+        poster_link = soup.find('div', class_='poster').img["src"]
+    except:
+        poster_link = False
+    return poster_link
+
+
+@imdb_id_not_none
 def original_language_not_german(imdb_id):
     original_language = False
 

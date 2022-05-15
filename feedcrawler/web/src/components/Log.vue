@@ -171,7 +171,7 @@ function spinLog() {
                     <td class="text-center">{{ x[2] }}</td>
                     <td class="text-center">{{ x[4] }}</td>
                     <td class="text-center">{{ x[5] }}<i v-if="!x[5] || x[5] === '' || typeof x[5] === 'undefined'"
-                                                         class="bi bi-question-square text-secondary disabled"></i></td>
+                                                         class="bi bi-question-square text-secondary opacity-75"></i></td>
                     <td class="text-center">
                       <a class="btn btn-sm mt-0 pt-0 pb-0"
                          v-tippy="'Quelle öffnen'"

@@ -449,7 +449,7 @@ def download_hevc(self, title, imdb_id):
                                 log_entry = '[Film' + (
                                     '/Retail' if retail else "") + '/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                                 internal.logger.info(log_entry)
-                                notify([log_entry + ' - ' + imdb_id])
+                                notify([{"text": log_entry, "imdb_id": imdb_id}])
                                 return log_entry
                     elif self.filename == 'List_ContentAll_Movies_Regex':
                         if download_method(key, "FeedCrawler", download_links, password):
@@ -459,7 +459,7 @@ def download_hevc(self, title, imdb_id):
                             )
                             log_entry = '[Film/Serie/RegEx/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                             internal.logger.info(log_entry)
-                            notify([log_entry + ' - ' + imdb_id])
+                            notify([{"text": log_entry, "imdb_id": imdb_id}])
                             return log_entry
                     else:
                         if download_method(key, "FeedCrawler", download_links, password):
@@ -469,7 +469,7 @@ def download_hevc(self, title, imdb_id):
                             )
                             log_entry = '[Staffel/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                             internal.logger.info(log_entry)
-                            notify([log_entry + ' - ' + imdb_id])
+                            notify([{"text": log_entry, "imdb_id": imdb_id}])
                             return log_entry
                 else:
                     storage = self.db.retrieve_all(key)
@@ -478,7 +478,7 @@ def download_hevc(self, title, imdb_id):
                         if 'wrong_hoster' not in storage:
                             print(wrong_hoster)
                             self.db.store(key, 'wrong_hoster')
-                            notify([wrong_hoster])
+                            notify([{"text": wrong_hoster}])
                         else:
                             internal.logger.debug(wrong_hoster)
 
@@ -572,7 +572,7 @@ def download_dual_language(self, title, imdb_id):
                         log_entry = '[Film' + (
                             '/Retail' if retail else "") + '/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
-                        notify([log_entry + ' - ' + imdb_id])
+                        notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return log_entry
                 elif self.filename == 'List_ContentAll_Movies_Regex':
                     if download_method(key, "FeedCrawler" + path_suffix, download_links, password):
@@ -582,7 +582,7 @@ def download_dual_language(self, title, imdb_id):
                         )
                         log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
-                        notify([log_entry + ' - ' + imdb_id])
+                        notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return log_entry
                 else:
                     if download_method(key, "FeedCrawler" + path_suffix, download_links, password):
@@ -592,7 +592,7 @@ def download_dual_language(self, title, imdb_id):
                         )
                         log_entry = '[Staffel/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
-                        notify([log_entry + ' - ' + imdb_id])
+                        notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return log_entry
             else:
                 storage = self.db.retrieve_all(key)
@@ -601,7 +601,7 @@ def download_dual_language(self, title, imdb_id):
                     if 'wrong_hoster' not in storage:
                         print(wrong_hoster)
                         self.db.store(key, 'wrong_hoster')
-                        notify([wrong_hoster])
+                        notify([{"text": wrong_hoster}])
                     else:
                         internal.logger.debug(wrong_hoster)
 
@@ -666,7 +666,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
                                 '/Retail' if not englisch and retail else "") + (
                                 '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry + ' - ' + imdb_id])
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
     else:
         storage = self.db.retrieve_all(key)
@@ -675,7 +675,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
-                notify([wrong_hoster])
+                notify([{"text": wrong_hoster}])
             else:
                 internal.logger.debug(wrong_hoster)
     return added_items
@@ -763,7 +763,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                                 '/Retail' if not englisch and retail else '') + (
                                 '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry + ' - ' + imdb_id])
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
         elif self.filename == 'List_ContentAll_Seasons':
             if download_method(key, "FeedCrawler", download_links, self.password):
@@ -776,7 +776,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                 log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                   "") + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry + ' - ' + imdb_id])
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
         else:
             if download_method(key, "FeedCrawler", download_links, self.password):
@@ -787,7 +787,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                 )
                 log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry + ' - ' + imdb_id])
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
     else:
         storage = self.db.retrieve_all(key)
@@ -796,7 +796,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
-                notify([wrong_hoster])
+                notify([{"text": wrong_hoster}])
             else:
                 internal.logger.debug(wrong_hoster)
     return added_items

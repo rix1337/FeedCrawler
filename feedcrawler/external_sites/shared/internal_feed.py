@@ -907,7 +907,7 @@ def j_parse_download(self, series_url, title, language_id):
                             if 'wrong_hoster' not in storage:
                                 print(wrong_hoster)
                                 self.db.store(title, 'wrong_hoster')
-                                notify([wrong_hoster])
+                                notify([{"text": wrong_hoster}])
                             else:
                                 internal.logger.debug(wrong_hoster)
                             return False
@@ -1026,7 +1026,7 @@ def sf_parse_download(self, series_url, title, language_id):
                 if 'wrong_hoster' not in storage:
                     print(wrong_hoster)
                     self.db.store(title, 'wrong_hoster')
-                    notify([wrong_hoster])
+                    notify([{"text": wrong_hoster}])
                 else:
                     internal.logger.debug(wrong_hoster)
                 return False
