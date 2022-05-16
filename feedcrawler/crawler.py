@@ -22,7 +22,7 @@ from feedcrawler.external_sites.content_all_fx import BL as FX
 from feedcrawler.external_sites.content_all_hw import BL as HW
 from feedcrawler.external_sites.content_all_nk import BL as NK
 from feedcrawler.external_sites.content_all_ww import BL as WW
-from feedcrawler.external_sites.content_shows_dd import DD
+from feedcrawler.external_sites.content_custom_dd import DD
 from feedcrawler.external_sites.content_shows_dj import DJ
 from feedcrawler.external_sites.content_shows_sf import SF
 from feedcrawler.external_sites.content_shows_sj import SJ

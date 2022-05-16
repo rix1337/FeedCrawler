@@ -7,8 +7,9 @@ from datetime import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb, ListDb
-from feedcrawler.myjd import myjd_download
 from feedcrawler.external_sites.shared.internal_feed import dd_rss_feed_to_feedparser_dict, check_hoster
+from feedcrawler.myjd import myjd_download
+from feedcrawler.notifiers import notify
 from feedcrawler.url import get_url
 
 
@@ -62,8 +63,9 @@ class DD:
                         else:
                             if myjd_download(post.title, "FeedCrawler", links, self.url):
                                 self.db.store(post.title, 'added')
-                                log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + ']'
+                                log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' + post.size + ' - ' + post.source
                                 internal.logger.info(log_entry)
+                                notify([{"text": log_entry, 'imdb_id': post.imdb_id}])
                     else:
                         internal.logger.debug(
                             post.title + " - Releases, die weniger als 30 Minuten alt sind, werden ignoriert (da Links noch hochgeladen werden).")
