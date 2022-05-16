@@ -90,7 +90,7 @@ def download(payload):
             return False
 
         soup = BeautifulSoup(response, 'html5lib')
-
+        url_hosters = []
         if "BY" in site:
             # ToDo untested
             key = soup.find("small").text
@@ -118,8 +118,8 @@ def download(payload):
                 link = link["src"]
                 if 'https://' + by in link:
                     async_link_results.append(link)
+
             links = get_urls_async(async_link_results)
-            url_hosters = []
             for link in links:
                 if link[0]:
                     link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
@@ -138,7 +138,6 @@ def download(payload):
             except:
                 size = ""
 
-            url_hosters = []
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
@@ -147,7 +146,6 @@ def download(payload):
             # ToDo add these for each search result
             size = ""
             imdb_id = ""
-
         elif "HW" in site:
             # ToDo untested
             key = soup.find("h2", {"class": "entry-title"}).text.strip()
