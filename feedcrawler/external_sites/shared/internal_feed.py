@@ -87,9 +87,9 @@ from feedcrawler.common import check_valid_release
 from feedcrawler.common import rreplace
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.imdb import get_imdb_id_from_content
-from feedcrawler.imdb import get_imdb_id_from_link
-from feedcrawler.imdb import get_imdb_id_from_title
+from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_content
+from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_link
+from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_title
 from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifiers import notify
 from feedcrawler.url import get_redirected_url

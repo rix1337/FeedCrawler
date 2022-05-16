@@ -10,7 +10,7 @@ from urllib.request import urlopen, Request
 
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.imdb import get_poster_link
+from feedcrawler.external_sites.shared.imdb import get_poster_link
 
 
 def notify(items):
@@ -36,11 +36,26 @@ def notify(items):
             pushover(items, pushover_user, pushover_token)
 
 
+def format_notification(text):
+    components = text.split(' - ')
+    if len(components) == 5:
+        event = "<b>" + components[0].replace('[', '').replace(']', '') + "</b>"
+        title = components[1]
+        site = components[2].replace('[', '').replace(']', '')
+        size = " (" + components[3] + ")" if components[3] != '' else ''
+        source = "\n" + '<a href="' + components[4] + '">Quelle (' + site + ')</a>' if components[4] != '' else ''
+        return event + "\n" + title + size + source
+    else:
+        event = "<b>" + components[0].replace('[', '').replace(']', '') + "</b>"
+        message = " - ".join(components[1:])
+        return event + "\n" + message
+
+
 def home_assistant(items, homassistant_url, homeassistant_password):
     for item in items:
         data = urlencode({
             'title': 'FeedCrawler:',
-            'body': item["text"].replace(" - ", "\n\n")
+            'body': item["text"]
         }).encode("utf-8")
 
         try:
@@ -65,34 +80,25 @@ def telegram(items, token, chat_id):
         except KeyError:
             imdb_id = False
 
+        data = urlencode({
+            'chat_id': chat_id,
+            'text': format_notification(item["text"]),
+            'parse_mode': 'HTML'
+        }).encode("utf-8")
+        mode = "/sendMessage"
+
         if imdb_id:
             poster_link = get_poster_link(imdb_id)
             if poster_link:
                 data = urlencode({
                     'chat_id': chat_id,
                     'photo': poster_link,
-                    'caption': item["text"].replace(" - ", "\n\n")
+                    'caption': format_notification(item["text"]),
+                    'parse_mode': 'HTML'
                 }).encode("utf-8")
-
-                try:
-                    req = Request("https://api.telegram.org/bot" + token + "/sendPhoto", data)
-                    response = urlopen(req)
-                except HTTPError:
-                    internal.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
-                    continue
-                res = json.load(response)
-                if res['ok']:
-                    internal.logger.debug('Telegram Erfolgreich versendet')
-                else:
-                    internal.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
-
-        data = urlencode({
-            'chat_id': chat_id,
-            'text': item["text"].replace(" - ", "\n\n")
-        }).encode("utf-8")
-
+                mode = "/sendPhoto"
         try:
-            req = Request("https://api.telegram.org/bot" + token + "/sendMessage", data)
+            req = Request("https://api.telegram.org/bot" + token + mode, data)
             response = urlopen(req)
         except HTTPError:
             internal.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
@@ -109,7 +115,7 @@ def pushbullet(items, token):
         data = urlencode({
             'type': 'note',
             'title': 'FeedCrawler:',
-            'body': item["text"].replace(" - ", "\n\n")
+            'body': item["text"]
         }).encode("utf-8")
 
         try:
@@ -132,7 +138,7 @@ def pushover(items, pushover_user, pushover_token):
             'user': pushover_user,
             'token': pushover_token,
             'title': 'FeedCrawler',
-            'message': item["text"].replace(" - ", "\n\n")
+            'message': item["text"]
         }).encode("utf-8")
         try:
             req = Request('https://api.pushover.net/1/messages.json', data)
