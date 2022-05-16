@@ -7,7 +7,6 @@ import hashlib
 import re
 
 from feedcrawler import internal
-from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
@@ -349,7 +348,7 @@ def search_feed(self, feed):
     return added_items
 
 
-def download_hevc(self, title, imdb_id):
+def download_hevc(self, title, original_imdb_id):
     search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
     search_results = get_search_results(self, search_title)
@@ -358,35 +357,36 @@ def download_hevc(self, title, imdb_id):
     for result in search_results:
         i += 1
 
-        key = result[0].replace(" ", ".")
-
-        # ToDo add these for each search result
-        size = ""
-        source = ""
+        key = result["title"].replace(" ", ".")
 
         if feedsearch_title in key:
-            payload = result[1].split("|")
-            link = payload[0]
-            password = payload[1]
+            link = result["link"]
+            password = result["password"]
+            size = result["size"]
+            source = result["source"]
+            imdb_id = result["imdb_id"]
+            site = result["site"]
 
-            site = check_is_site(link)
-            if not site:
-                continue
-            elif "BY" in site:
+            if site == "BY":
                 get_download_links_method = by_page_download_link
                 download_method = myjd_download
-            elif "FX" in site:
+            elif site == "FX":
                 link = get_url(link)
                 get_download_links_method = fx_get_download_links
                 download_method = add_decrypt_instead_of_download
-            elif "HW" in site:
+            elif site == "HW":
                 link = get_url(link)
                 get_download_links_method = hw_get_download_links
                 download_method = add_decrypt_instead_of_download
-            elif "NK" in site:
+            elif site == "NK":
                 get_download_links_method = nk_page_download_link
                 download_method = myjd_download
             else:
+                continue
+
+            if original_imdb_id and imdb_id and imdb_id != original_imdb_id:
+                internal.logger.debug(
+                    "%s - Abweichende IMDb-IDs identifiziert! Breche ab." % key)
                 continue
 
             if is_hevc(key) and "1080p" in key:
@@ -411,13 +411,13 @@ def download_hevc(self, title, imdb_id):
                         if not self.feedcrawler.get('english'):
                             internal.logger.debug(
                                 "%s - Englische Releases deaktiviert" % key)
-                            return
+                            continue
 
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
                         if not imdb_id:
                             dual_found = download_dual_language(self, key, imdb_id)
                             if dual_found and ".1080p." in key:
-                                return
+                                continue
                             elif not dual_found and not englisch:
                                 internal.logger.debug(
                                     "%s - Kein zweisprachiges HEVC-Release gefunden." % key)
@@ -426,12 +426,12 @@ def download_hevc(self, title, imdb_id):
                             if original_language_not_german(imdb_id):
                                 dual_found = download_dual_language(self, key, imdb_id)
                                 if dual_found and ".1080p." in key:
-                                    return
+                                    continue
                                 elif not dual_found and not englisch:
                                     internal.logger.debug(
                                         "%s - Kein zweisprachiges HEVC-Release gefunden! Breche ab." % key)
                                     self.dl_unsatisfied = True
-                                    return
+                                    continue
 
                     if self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDB':
                         if self.config.get('cutoff') and is_retail(key, True):
@@ -450,7 +450,7 @@ def download_hevc(self, title, imdb_id):
                                     '/Retail' if retail else "") + '/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                                 internal.logger.info(log_entry)
                                 notify([{"text": log_entry, "imdb_id": imdb_id}])
-                                return log_entry
+                                return True
                     elif self.filename == 'List_ContentAll_Movies_Regex':
                         if download_method(key, "FeedCrawler", download_links, password):
                             self.db.store(
@@ -460,7 +460,7 @@ def download_hevc(self, title, imdb_id):
                             log_entry = '[Film/Serie/RegEx/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                             internal.logger.info(log_entry)
                             notify([{"text": log_entry, "imdb_id": imdb_id}])
-                            return log_entry
+                            return True
                     else:
                         if download_method(key, "FeedCrawler", download_links, password):
                             self.db.store(
@@ -470,7 +470,7 @@ def download_hevc(self, title, imdb_id):
                             log_entry = '[Staffel/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                             internal.logger.info(log_entry)
                             notify([{"text": log_entry, "imdb_id": imdb_id}])
-                            return log_entry
+                            return True
                 else:
                     storage = self.db.retrieve_all(key)
                     if 'added' not in storage and 'notdl' not in storage:
@@ -481,9 +481,10 @@ def download_hevc(self, title, imdb_id):
                             notify([{"text": wrong_hoster}])
                         else:
                             internal.logger.debug(wrong_hoster)
+    return False
 
 
-def download_dual_language(self, title, imdb_id):
+def download_dual_language(self, title, original_imdb_id):
     hevc = is_hevc(title)
 
     search_title = fullhd_title(title).split('.x264', 1)[0].split('.h264', 1)[0].split('.h265', 1)[0].split('.x265', 1)[
@@ -496,7 +497,7 @@ def download_dual_language(self, title, imdb_id):
 
     hevc_found = False
     for result in search_results:
-        key = result[0].replace(" ", ".")
+        key = result["title"].replace(" ", ".")
         if feedsearch_title in key and ".dl." in key.lower() and (hevc and is_hevc(key)):
             hevc_found = True
 
@@ -504,38 +505,37 @@ def download_dual_language(self, title, imdb_id):
     for result in search_results:
         i += 1
 
-        key = result[0].replace(" ", ".")
-
-        # ToDo add these for each search result
-        size = ""
-        source = ""
-        imdb_id = ""
+        key = result["title"].replace(" ", ".")
 
         if feedsearch_title in key:
-            payload = result[1].split("|")
-            link = payload[0]
-            password = payload[1]
+            link = result["link"]
+            password = result["password"]
+            size = result["size"]
+            source = result["source"]
+            imdb_id = result["imdb_id"]
+            site = result["site"]
 
-            site = check_is_site(link)
-            if not site:
-                continue
-            elif "BY" in site:
+            if site == "BY":
                 get_download_links_method = by_page_download_link
                 download_method = myjd_download
-            elif "FX" in site:
+            elif site == "FX":
                 link = get_url(link)
                 get_download_links_method = fx_get_download_links
                 download_method = add_decrypt_instead_of_download
-            elif "HW" in site:
+            elif site == "HW":
                 link = get_url(link)
                 get_download_links_method = hw_get_download_links
                 download_method = add_decrypt_instead_of_download
-            elif "NK" in site:
+            elif site == "NK":
                 get_download_links_method = nk_page_download_link
                 download_method = myjd_download
             else:
                 continue
 
+            if original_imdb_id and imdb_id and imdb_id != original_imdb_id:
+                internal.logger.debug(
+                    "%s - Abweichende IMDb-IDs identifiziert! Breche ab." % key)
+                continue
             if ".dl." not in key.lower():
                 internal.logger.debug(
                     "%s - Release ignoriert (nicht zweisprachig)" % key)
@@ -573,7 +573,7 @@ def download_dual_language(self, title, imdb_id):
                             '/Retail' if retail else "") + '/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
-                        return log_entry
+                        return True
                 elif self.filename == 'List_ContentAll_Movies_Regex':
                     if download_method(key, "FeedCrawler" + path_suffix, download_links, password):
                         self.db.store(
@@ -583,7 +583,7 @@ def download_dual_language(self, title, imdb_id):
                         log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
-                        return log_entry
+                        return True
                 else:
                     if download_method(key, "FeedCrawler" + path_suffix, download_links, password):
                         self.db.store(
@@ -593,7 +593,7 @@ def download_dual_language(self, title, imdb_id):
                         log_entry = '[Staffel/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                         internal.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
-                        return log_entry
+                        return True
             else:
                 storage = self.db.retrieve_all(key)
                 if 'added' not in storage and 'notdl' not in storage:
@@ -604,6 +604,7 @@ def download_dual_language(self, title, imdb_id):
                         notify([{"text": wrong_hoster}])
                     else:
                         internal.logger.debug(wrong_hoster)
+    return False
 
 
 def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail, score, download_method):

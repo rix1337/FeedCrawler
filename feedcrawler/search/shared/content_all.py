@@ -80,6 +80,11 @@ def download(payload):
     link = payload[0]
     password = payload[1]
 
+    # ToDo add these for each search result
+    size = ""
+    source = ""
+    imdb_id = ""
+
     site = check_is_site(link)
     if not site:
         return False

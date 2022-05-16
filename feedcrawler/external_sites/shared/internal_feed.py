@@ -192,6 +192,8 @@ def get_search_results(self, bl_query):
     else:
         nk_results = []
 
+    # ToDo get size, source and imdb_id for each result
+
     password = by.split('.')[0]
     for result in by_results:
         if "480p" in quality:
@@ -201,7 +203,15 @@ def get_search_results(self, bl_query):
                 0].lower() or "complete.uhd.bluray" in result[0].lower():
                 continue
         if "xxx" not in result[0].lower():
-            search_results.append([result[0], result[1] + "|" + password])
+            search_results.append({
+                "title": result[0],
+                "link": result[1],
+                "password": password,
+                "site": "BY",
+                "size": "",
+                "source": "",
+                "imdb_id": ""
+            })
 
     password = fx.split('.')[0]
     for result in fx_results:
@@ -211,7 +221,15 @@ def get_search_results(self, bl_query):
                     result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                 0].lower() or "complete.uhd.bluray" in result[0].lower():
                 continue
-        search_results.append([result[0], result[1] + "|" + password])
+        search_results.append({
+            "title": result[0],
+            "link": result[1],
+            "password": password,
+            "site": "FX",
+            "size": "",
+            "source": "",
+            "imdb_id": ""
+        })
 
     password = hw.split('.')[0]
     for result in hw_results:
@@ -222,7 +240,15 @@ def get_search_results(self, bl_query):
                 0].lower() or "complete.uhd.bluray" in result[0].lower():
                 continue
         if "xxx" not in result[0].lower():
-            search_results.append([result[0], result[1] + "|" + password])
+            search_results.append({
+                "title": result[0],
+                "link": result[1],
+                "password": password,
+                "site": "HW",
+                "size": "",
+                "source": "",
+                "imdb_id": ""
+            })
 
     password = nk.split('.')[0].capitalize()
     for result in nk_results:
@@ -232,7 +258,15 @@ def get_search_results(self, bl_query):
                     result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
                 0].lower() or "complete.uhd.bluray" in result[0].lower():
                 continue
-        search_results.append([result[0], result[1] + "|" + password])
+        search_results.append({
+            "title": result[0],
+            "link": result[1],
+            "password": password,
+            "site": "NK",
+            "size": "",
+            "source": "",
+            "imdb_id": ""
+        })
 
     return search_results
 

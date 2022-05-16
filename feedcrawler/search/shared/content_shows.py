@@ -338,6 +338,11 @@ def download(payload):
                 internal.logger.info(log_entry)
                 notify_array.append({"text": log_entry})
 
+    # ToDo add these for each search result
+    size = ""
+    source = ""
+    imdb_id = ""
+
     notify(notify_array)
 
     if not matches:
