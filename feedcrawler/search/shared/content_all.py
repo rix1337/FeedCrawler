@@ -92,7 +92,6 @@ def download(payload):
         soup = BeautifulSoup(response, 'html5lib')
         url_hosters = []
         if "BY" in site:
-            # ToDo untested
             key = soup.find("small").text
             details = soup.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
             imdb_link = ""
@@ -126,13 +125,14 @@ def download(payload):
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "NK" in site:
-            # ToDo untested
             key = soup.find("span", {"class": "subtitle"}).text
             details = soup.find("div", {"class": "article"})
             try:
-                imdb_id = get_imdb_id_from_content(key, str(details))
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(key, imdb_link["href"])
             except:
                 imdb_id = ""
+
             try:
                 size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
             except:
@@ -147,7 +147,6 @@ def download(payload):
             size = ""
             imdb_id = ""
         elif "HW" in site:
-            # ToDo untested
             key = soup.find("h2", {"class": "entry-title"}).text.strip()
 
             try:

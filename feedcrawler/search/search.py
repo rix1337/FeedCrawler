@@ -96,7 +96,7 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
 
         if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
-                                 data={'search': bl_query})
+                                 data={'search': bl_query.replace("+", " ")})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
         else:
             nk_results = []
@@ -268,6 +268,8 @@ def hw_search_results(content, resolution):
                         if "480p" in resolution:
                             if check_release_not_sd(title):
                                 continue
+                        else:
+                            continue
                     results.append([title, link])
         except:
             pass
@@ -289,6 +291,8 @@ def nk_search_results(content, base_url, resolution):
                         if "480p" in resolution:
                             if check_release_not_sd(title):
                                 continue
+                        else:
+                            continue
                     results.append([title, link])
         except:
             pass

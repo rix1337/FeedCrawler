@@ -663,6 +663,8 @@ def hw_search_results(content, resolution):
                         if "480p" in resolution:
                             if check_release_not_sd(title):
                                 continue
+                        else:
+                            continue
                     async_link_results.append(link)
         except:
             pass
@@ -871,6 +873,8 @@ def nk_search_results(content, base_url, resolution):
                         if "480p" in resolution:
                             if check_release_not_sd(title):
                                 continue
+                        else:
+                            continue
                     async_link_results.append(link)
         except:
             pass
