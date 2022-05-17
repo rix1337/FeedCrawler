@@ -6,7 +6,8 @@
 
 ### Changelog FeedCrawler:
 
-- **14.2.0** Benachrichtigungen, Web-Interface und Log beinhalten Link Release-Quelle
+- **14.2.1** Bugfix
+- **14.2.0** Benachrichtigungen, Web-Interface und Log beinhalten Link zur Release-Quelle
 - **14.2.0** Benachrichtigungen, Web-Interface und Log beinhalten die Release-Größe, wo verfügbar
 - **14.2.0** Telegram Benachrichtigungen enthalten Poster, wo verfügbar
 - **14.1.3** Verhindere Incomplete-Read-Fehler (#627)
