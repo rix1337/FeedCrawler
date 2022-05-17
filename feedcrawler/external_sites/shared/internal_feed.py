@@ -140,6 +140,13 @@ def check_download_links(self, url_hosters):
     return list(links.values())
 
 
+def check_release_not_sd(title):
+    if "720p" in title.lower() or "1080p" in title.lower() or "1080i" in title.lower() or "2160p" in title.lower() or "complete.bluray" in title.lower() or "complete.mbluray" in title.lower() or "complete.uhd.bluray" in title.lower():
+        return True
+    else:
+        return False
+
+
 def get_search_results(self, bl_query):
     unused_get_feed_parameter(self)
     hostnames = CrawlerConfig('Hostnames')
@@ -179,93 +186,73 @@ def get_search_results(self, bl_query):
 
     for res in async_results:
         if check_is_site(res[1]) == 'BY':
-            by_results = by_search_results(res[0], by)
+            by_results = by_search_results(res[0], by, resolution=quality)
         elif check_is_site(res[1]) == 'FX':
             fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
         elif check_is_site(res[1]) == 'HW':
-            hw_results = hw_search_results(res[0])
+            hw_results = hw_search_results(res[0], resolution=quality)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
-                             data={'search': bl_query.replace("+", " ") + " " + quality})
-        nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+                             data={'search': bl_query.replace("+", " ")})
+        nk_results = nk_search_results(nk_search, 'https://' + nk + '/', resolution=quality)
     else:
         nk_results = []
 
-    # ToDo get size, source and imdb_id for each result
-
-    password = by.split('.')[0]
+    password = ""
     for result in by_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        if "xxx" not in result[0].lower():
-            search_results.append({
-                "title": result[0],
-                "link": result[1],
-                "password": password,
-                "site": "BY",
-                "size": "",
-                "source": "",
-                "imdb_id": ""
-            })
+        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+            continue
+        search_results.append({
+            "title": result[2]["title"],
+            "link": result[2]["link"],
+            "password": password,
+            "site": "BY",
+            "size": result[2]["size"],
+            "source": result[2]["source"],
+            "imdb_id": result[2]["imdb_id"]
+        })
 
     password = fx.split('.')[0]
     for result in fx_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
+        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+            continue
         search_results.append({
-            "title": result[0],
-            "link": result[1],
+            "title": result[2]["title"],
+            "link": result[2]["link"],
             "password": password,
             "site": "FX",
-            "size": "",
-            "source": "",
-            "imdb_id": ""
+            "size": result[2]["size"],
+            "source": result[2]["source"],
+            "imdb_id": result[2]["imdb_id"]
         })
 
     password = hw.split('.')[0]
     for result in hw_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
-        if "xxx" not in result[0].lower():
-            search_results.append({
-                "title": result[0],
-                "link": result[1],
-                "password": password,
-                "site": "HW",
-                "size": "",
-                "source": "",
-                "imdb_id": ""
-            })
+        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+            continue
+        search_results.append({
+            "title": result[2]["title"],
+            "link": result[2]["link"],
+            "password": password,
+            "site": "HW",
+            "size": result[2]["size"],
+            "source": result[2]["source"],
+            "imdb_id": result[2]["imdb_id"]
+        })
 
     password = nk.split('.')[0].capitalize()
     for result in nk_results:
-        if "480p" in quality:
-            if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                0].lower() or "2160p" in \
-                    result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                0].lower() or "complete.uhd.bluray" in result[0].lower():
-                continue
+        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+            continue
         search_results.append({
-            "title": result[0],
-            "link": result[1],
+            "title": result[2]["title"],
+            "link": result[2]["link"],
             "password": password,
             "site": "NK",
-            "size": "",
-            "source": "",
-            "imdb_id": ""
+            "size": result[2]["size"],
+            "source": result[2]["source"],
+            "imdb_id": result[2]["imdb_id"]
         })
 
     return search_results
@@ -365,15 +352,60 @@ def by_feed_enricher(content):
     return feed
 
 
-def by_search_results(content, base_url):
+def by_search_results(content, base_url, resolution=""):
     content = BeautifulSoup(content, 'html5lib')
-    posts = content.findAll("a", href=re.compile("/category/"))
+    links = content.findAll("a", href=re.compile("/category/"))
+
+    async_link_results = []
+    for link in links:
+        if ".xxx." not in link.text.replace(" ", ".").lower():
+            title = link.text.replace(" ", ".").strip()
+            link = "https://" + base_url + link['href']
+            if resolution and resolution.lower() not in title.lower():
+                continue
+            async_link_results.append(link)
+    links = get_urls_async(async_link_results)
+
     results = []
-    for post in posts:
+
+    for link in links:
         try:
-            title = post.text.replace(" ", ".")
-            link = "https://" + base_url + post['href']
-            results.append([title, link])
+            soup = BeautifulSoup(link[0], 'html5lib')
+            details = soup.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
+            title = details.find("small").text.replace(" ", ".")
+
+            imdb_link = ""
+            try:
+                imdb = details.find("a", href=re.compile("imdb.com"))
+                imdb_link = imdb["href"].replace("https://anonym.to/?", "")
+            except:
+                pass
+
+            try:
+                imdb_id = get_imdb_id_from_link(title, imdb_link)
+            except:
+                imdb_id = ""
+
+            try:
+                size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
+            except:
+                size = ""
+
+            try:
+                source = link[1]
+            except:
+                source = ""
+
+            result = {
+                "title": title,
+                "link": link[1],
+                "size": size,
+                "source": source,
+                "imdb_id": imdb_id
+            }
+
+            # ToDo remove title/link if refactor for web search is possible
+            results.append([title, link[1], result])
         except:
             pass
     return results
@@ -488,37 +520,65 @@ def fx_feed_enricher(feed):
 def fx_search_results(content, search_term):
     fx = CrawlerConfig('Hostnames').get('fx')
     articles = content.find("main").find_all("article")
-    result_urls = []
+
+    async_link_results = []
     for article in articles:
         if simplified_search_term_in_title(search_term, article.find("h2").text):
-            url = article.find("a")["href"]
-            if url:
-                result_urls.append(url)
+            link = article.find("a")["href"]
+            if link:
+                async_link_results.append(link)
 
-    items = []
+    links = get_urls_async(async_link_results)
 
-    if result_urls:
-        results = []
-        for url in result_urls:
-            results.append(get_url(url))
+    results = []
 
-        for result in results:
-            article = BeautifulSoup(str(result), 'html5lib')
-            titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
-            for title in titles:
+    for link in links:
+        article = BeautifulSoup(str(link[0]), 'html5lib')
+        titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
+        i = 0
+        for title in titles:
+            try:
                 try:
-                    link = article.find("link", rel="canonical")["href"]
-                    title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
-                    if title and "-fun" in title.lower():
-                        if "download" in title.lower():
-                            try:
-                                title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
-                            except:
-                                continue
-                        items.append([title, link])
+                    source = link[1]
                 except:
-                    pass
-    return items
+                    source = ""
+
+                link = article.find("link", rel="canonical")["href"]
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                if title and "-fun" in title.lower():
+                    try:
+                        imdb_id = get_imdb_id_from_content(title, str(article))
+                    except:
+                        imdb_id = ""
+
+                    try:
+                        size = article.findAll("strong",
+                                               text=re.compile(
+                                                   r"(size|größe)", re.IGNORECASE))[i]. \
+                            next.next.text.replace("|", "").strip()
+                    except:
+                        size = ""
+
+                    if "download" in title.lower():
+                        try:
+                            title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                        except:
+                            continue
+
+                    result = {
+                        "title": title,
+                        "link": link,
+                        "size": size,
+                        "source": source,
+                        "imdb_id": imdb_id
+                    }
+
+                    # ToDo remove title/link if refactor for web search is possible
+                    results.append([title, link, result])
+                    i += 1
+            except:
+                pass
+    return results
 
 
 def hw_get_download_links(self, content, title):
@@ -587,18 +647,58 @@ def hw_feed_enricher(feed):
     return feed
 
 
-def hw_search_results(content):
+def hw_search_results(content, resolution=""):
     content = BeautifulSoup(content, 'html5lib')
-    posts = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
-    results = []
-    for post in posts:
-        try:
-            title = post.text.strip()
-            link = post['href']
+    links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
+
+    async_link_results = []
+    for link in links:
+        if ".xxx." not in link.text.replace(" ", ".").lower():
+            title = link.text.replace(" ", ".").strip()
+            link = link["href"]
             if "#comments-title" not in link:
-                results.append([title, link])
+                if resolution and resolution.lower() not in title.lower():
+                    continue
+                async_link_results.append(link)
+    links = get_urls_async(async_link_results)
+
+    results = []
+
+    for link in links:
+        try:
+            try:
+                source = link[1]
+            except:
+                source = ""
+
+            soup = BeautifulSoup(str(link[0]), 'html5lib')
+            title = soup.find("h2", {"class": "entry-title"}).text.strip().replace(" ", ".")
+
+            try:
+                imdb_id = get_imdb_id_from_content(title, str(soup))
+            except:
+                imdb_id = ""
+
+            try:
+                size = soup.find("strong",
+                                 text=re.compile(
+                                     r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+            except:
+                size = ""
+
+            result = {
+                "title": title,
+                "link": link[1],
+                "size": size,
+                "source": source,
+                "imdb_id": imdb_id
+            }
+
+            # ToDo remove title/link if refactor for web search is possible
+            results.append([title, link[1], result])
         except:
             pass
+
     return results
 
 
@@ -718,7 +818,8 @@ def nk_feed_enricher(content):
                 content = "".join(content)
 
                 try:
-                    imdb_id = get_imdb_id_from_content(title, str(details))
+                    imdb_link = details.find("a", href=re.compile("imdb.com"))
+                    imdb_id = get_imdb_id_from_link(title, imdb_link["href"])
                 except:
                     imdb_id = ""
 
@@ -749,17 +850,57 @@ def nk_feed_enricher(content):
     return feed
 
 
-def nk_search_results(content, base_url):
+def nk_search_results(content, base_url, resolution=""):
     content = BeautifulSoup(content, 'html5lib')
-    posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
+    links = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
+
+    async_link_results = []
+    for link in links:
+        if ".xxx." not in link.text.replace(" ", ".").lower():
+            title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text
+            link = base_url + link["href"]
+            if "#comments-title" not in link:
+                if resolution and resolution.lower() not in title.lower():
+                    continue
+                async_link_results.append(link)
+    links = get_urls_async(async_link_results)
+
     results = []
-    for post in posts:
+
+    for link in links:
         try:
-            title = post.parent.parent.parent.find("span", {"class": "subtitle"}).text
-            link = base_url + post['href']
-            results.append([title, link])
+            details = BeautifulSoup(link[0], 'html5lib').find("div", {"class": "article"})
+            title = details.find("span", {"class": "subtitle"}).text.replace(" ", ".")
+
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(title, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+            except:
+                size = ""
+
+            try:
+                source = link[1]
+            except:
+                source = ""
+
+            result = {
+                "title": title,
+                "link": source,
+                "size": size,
+                "source": source,
+                "imdb_id": imdb_id
+            }
+
+            # ToDo remove title/link if refactor for web search is possible
+            results.append([title, link[1], result])
         except:
             pass
+
     return results
 
 

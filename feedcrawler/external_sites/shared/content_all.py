@@ -357,15 +357,15 @@ def download_hevc(self, title, original_imdb_id):
     for result in search_results:
         i += 1
 
-        key = result["title"].replace(" ", ".")
+        key = result["title"]
 
         if feedsearch_title in key:
             link = result["link"]
             password = result["password"]
+            site = result["site"]
             size = result["size"]
             source = result["source"]
             imdb_id = result["imdb_id"]
-            site = result["site"]
 
             if site == "BY":
                 get_download_links_method = by_page_download_link
@@ -497,7 +497,7 @@ def download_dual_language(self, title, original_imdb_id):
 
     hevc_found = False
     for result in search_results:
-        key = result["title"].replace(" ", ".")
+        key = result["title"]
         if feedsearch_title in key and ".dl." in key.lower() and (hevc and is_hevc(key)):
             hevc_found = True
 
@@ -510,10 +510,10 @@ def download_dual_language(self, title, original_imdb_id):
         if feedsearch_title in key:
             link = result["link"]
             password = result["password"]
+            site = result["site"]
             size = result["size"]
             source = result["source"]
             imdb_id = result["imdb_id"]
-            site = result["site"]
 
             if site == "BY":
                 get_download_links_method = by_page_download_link

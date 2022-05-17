@@ -109,7 +109,7 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
         else:
             nk_results = []
 
-        password = by.split('.')[0]
+        password = ""
         for result in by_results:
             if "480p" in quality:
                 if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
