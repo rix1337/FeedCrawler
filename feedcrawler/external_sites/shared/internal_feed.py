@@ -440,6 +440,44 @@ def fx_content_to_soup(content):
     return content
 
 
+def fx_get_details(content, search_title):
+    fx = CrawlerConfig('Hostnames').get('fx')
+
+    try:
+        content = BeautifulSoup(content, 'html5lib')
+    except:
+        content = BeautifulSoup(str(content), 'html5lib')
+
+    size = ""
+    imdb_id = ""
+
+    titles = content.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
+    i = 0
+    for title in titles:
+        title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+        if search_title in title:
+            try:
+                imdb_id = get_imdb_id_from_content(title, str(content))
+            except:
+                imdb_id = ""
+
+            try:
+                size = content.findAll("strong",
+                                       text=re.compile(
+                                           r"(size|größe)", re.IGNORECASE))[i]. \
+                    next.next.text.replace("|", "").strip()
+            except:
+                size = ""
+        i += 1
+
+    details = {
+        "size": size,
+        "imdb_id": imdb_id
+    }
+
+    return details
+
+
 def fx_get_download_links(self, content, title):
     unused_get_feed_parameter(self)
     try:

@@ -19,6 +19,7 @@ from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_content
 from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_link
 from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.external_sites.shared.internal_feed import fx_get_details
 from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, rate
@@ -143,9 +144,6 @@ def download(payload):
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         elif "FX" in site:
             key = payload[2]
-            # ToDo add these for each search result
-            size = ""
-            imdb_id = ""
         elif "HW" in site:
             key = soup.find("h2", {"class": "entry-title"}).text.strip()
 
@@ -174,6 +172,10 @@ def download(payload):
         if "FX" in site:
             class FX:
                 unused = ""
+
+            details = fx_get_details(response, key)
+            size = details["size"]
+            imdb_id = details["imdb_id"]
 
             download_links = fx_get_download_links(FX, response, key)
         else:
