@@ -16,7 +16,6 @@ from feedcrawler import myjdapi
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
-from feedcrawler.notifiers import notify
 
 
 class Unbuffered(object):
@@ -416,10 +415,7 @@ def remove(retailtitel):
         by = by.replace("b", "B", 1)
         bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
 
-        notification = '[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.'
-        print(notification)
-        internal.logger.debug(notification)
-        notify([notification])
+        internal.logger.debug('[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.')
     except:
         print('Fehler beim Entfernen des Eintrages für ' + retailtitel + ' aus der Liste "Filme"!')
 

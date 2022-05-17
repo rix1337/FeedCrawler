@@ -194,7 +194,7 @@ def crawldog(global_variables):
                                 if offline_packages:
                                     for package in offline_packages:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
-                                            notify_list.append("[Offline] - " + title[0])
+                                            notify_list.append({"text": "[Offline] - " + title[0]})
                                             print((u"[Offline] - " + title[0]))
                                             db.delete(title[0])
 
@@ -211,7 +211,7 @@ def crawldog(global_variables):
                                                 add_decrypt(package['name'], package['url'], "")
                                                 remove_from_linkgrabber(package['linkids'],
                                                                         [package['uuid']])
-                                                notify_list.append("[CAPTCHA zu lösen] - " + title[0])
+                                                notify_list.append({"text": "[CAPTCHA zu lösen] - " + title[0]})
                                                 print(u"[CAPTCHA zu lösen] - " + title[0])
                                                 db.delete(title[0])
                     else:

@@ -215,7 +215,7 @@ def app_container():
 
     @app.get(prefix + "/api/log/")
     @auth_basic(is_authenticated_user)
-    def get_delete_log():
+    def get_log():
         try:
             log = []
             if os.path.isfile(internal.log_file):
@@ -250,7 +250,7 @@ def app_container():
 
     @app.delete(prefix + "/api/log_entry/<b64_entry>")
     @auth_basic(is_authenticated_user)
-    def get_delete_log_entry(b64_entry):
+    def delete_log_entry(b64_entry):
         try:
             entry = decode_base64(b64_entry)
             log = []
@@ -1497,8 +1497,8 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             if name:
                 if remove_decrypt(name):
                     try:
-                        notify([
-                            "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"])
+                        notify([{
+                            "text": "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(
@@ -1694,7 +1694,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                         if not db.retrieve(name):
                             db.store(name, 'added')
                         try:
-                            notify(["[FeedCrawler Sponsors Helper erfolgreich] - " + name])
+                            notify([{"text": "[FeedCrawler Sponsors Helper erfolgreich] - " + name}])
                         except:
                             print(u"Benachrichtigung konnte nicht versendet werden!")
                         print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)

@@ -379,7 +379,7 @@ function showSponsorsHelp() {
 <template>
   <div class="container">
     <div class="row my-3">
-      <div class="col-md-10 offset-md-1">
+      <div class="col-md-12">
         <div class="card text-center my-3">
           <div class="card-header">
             <h3><i class="bi bi-cloud-arrow-down"></i> My JDownloader</h3>

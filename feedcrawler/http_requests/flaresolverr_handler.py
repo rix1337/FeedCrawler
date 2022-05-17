@@ -17,6 +17,9 @@ def get_flaresolverr_url():
     config = CrawlerConfig('FeedCrawler')
     flaresolverr = config.get("flaresolverr")
     if flaresolverr:
+        if flaresolverr.endswith('/'):
+            flaresolverr = flaresolverr[:-1]
+            config.save('flaresolverr', flaresolverr)
         return flaresolverr + "/v1"
     return False
 

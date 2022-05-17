@@ -93,12 +93,11 @@ def download(payload):
 
     if site == "SF":
         password = sf
-        series_url = False
+        source = href
 
-        epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
-        season_page = get_url(href)
+        season_page = get_url(source)
         season_id = re.findall(r"initSeason\('(.+?)\',", season_page)[0]
-
+        epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
         api_url = 'https://' + sf + '/api/v1/' + season_id + '/season/ALL?lang=ALL&_=' + epoch
 
         response = get_url(api_url)
@@ -151,8 +150,9 @@ def download(payload):
     else:
         site = "SJ"
         password = sj
-        series_url = 'https://' + sj + href
-        series_info = get_url(series_url)
+        source = 'https://' + sj + href
+
+        series_info = get_url(source)
         series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
         api_url = 'https://' + sj + '/api/media/' + series_id + '/releases'
 
@@ -321,22 +321,24 @@ def download(payload):
 
     notify_array = []
     for title in matches:
+        size = ""  # currently no way to get this from the API
+
         db = FeedDb('FeedCrawler')
-        if not series_url:
+        if site == "SF":
             try:
                 url = real_urls[title]
             except:
                 url = False
                 print("Keine passende URL für " + title + " gefunden. Vermutlich hat SF die Seitenstruktur geändert!")
         else:
-            url = series_url
+            url = source
 
         if url:
             if add_decrypt(title, url, password):
                 db.store(title, 'added')
-                log_entry = u'[Suche/Serie] - ' + title + ' - ' + site
+                log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify_array.append(log_entry)
+                notify_array.append({"text": log_entry})
 
     notify(notify_array)
 

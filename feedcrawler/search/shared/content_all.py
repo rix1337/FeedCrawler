@@ -16,11 +16,13 @@ from feedcrawler.common import sanitize
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
-from feedcrawler.myjd import myjd_download
+from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_content
+from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_link
+from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
+from feedcrawler.external_sites.shared.internal_feed import fx_get_details
+from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.notifiers import notify
 from feedcrawler.search.search import get, rate
-from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
@@ -77,52 +79,91 @@ def download(payload):
     nk = hostnames.get('nk')
 
     payload = decode_base64(payload).split("|")
-    link = payload[0]
+    source = payload[0]
     password = payload[1]
 
-    site = check_is_site(link)
+    site = check_is_site(source)
     if not site:
         return False
     else:
-        url = get_url(link)
-        if not url or "NinjaFirewall 429" in url:
+        response = get_url(source)
+        if not response or "NinjaFirewall 429" in response:
             return False
-        download_method = myjd_download
-        soup = BeautifulSoup(url, 'html5lib')
 
+        soup = BeautifulSoup(response, 'html5lib')
+        url_hosters = []
         if "BY" in site:
             key = soup.find("small").text
+            details = soup.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
+            imdb_link = ""
+            try:
+                imdb = details.find("a", href=re.compile("imdb.com"))
+                imdb_link = imdb["href"].replace("https://anonym.to/?", "")
+            except:
+                pass
+
+            try:
+                imdb_id = get_imdb_id_from_link(key, imdb_link)
+            except:
+                imdb_id = ""
+
+            try:
+                size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
+            except:
+                size = ""
+
             links = soup.find_all("iframe")
             async_link_results = []
             for link in links:
                 link = link["src"]
                 if 'https://' + by in link:
                     async_link_results.append(link)
-            async_link_results = get_urls_async(async_link_results)
-            links = async_link_results[0]
-            url_hosters = []
+
+            links = get_urls_async(async_link_results)
             for link in links:
-                if link:
-                    link = BeautifulSoup(link, 'html5lib').find("a", href=re.compile("/go\.php\?"))
+                if link[0]:
+                    link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "NK" in site:
             key = soup.find("span", {"class": "subtitle"}).text
-            url_hosters = []
+            details = soup.find("div", {"class": "article"})
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(key, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+            except:
+                size = ""
+
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         elif "FX" in site:
-            download_method = add_decrypt_instead_of_download
             key = payload[2]
         elif "HW" in site:
-            download_method = add_decrypt_instead_of_download
+            key = soup.find("h2", {"class": "entry-title"}).text.strip()
+
+            try:
+                imdb_id = get_imdb_id_from_content(key, str(soup))
+            except:
+                imdb_id = ""
+
+            try:
+                size = soup.find("strong",
+                                 text=re.compile(
+                                     r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+            except:
+                size = ""
+
             download_links = soup.findAll("a", href=re.compile('filecrypt'))
             links_string = ""
             for link in download_links:
                 links_string += str(link)
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', links_string)
-            key = soup.find("h2", {"class": "entry-title"}).text.strip()
             password = payload[1]
         else:
             return False
@@ -132,7 +173,11 @@ def download(payload):
             class FX:
                 unused = ""
 
-            download_links = fx_get_download_links(FX, url, key)
+            details = fx_get_details(response, key)
+            size = details["size"]
+            imdb_id = details["imdb_id"]
+
+            download_links = fx_get_download_links(FX, response, key)
         else:
             for url_hoster in reversed(url_hosters):
                 try:
@@ -171,23 +216,23 @@ def download(payload):
 
     if download_links:
         if staffel:
-            if download_method(key, "FeedCrawler", download_links, password):
+            if add_decrypt_instead_of_download(key, "FeedCrawler", download_links, password):
                 db.store(
                     key.replace(".COMPLETE", "").replace(".Complete", ""),
                     'notdl' if config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
                 log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
-                                                                                        "") + ' - [' + site + ']'
+                                                                                        "") + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry])
-                return True
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
+                return [key]
         else:
             retail = False
             if config.get('cutoff') and '.COMPLETE.' not in key.lower():
                 if is_retail(key, True):
                     retail = True
-            if download_method(key, "FeedCrawler", download_links, password):
+            if add_decrypt_instead_of_download(key, "FeedCrawler", download_links, password):
                 db.store(
                     key,
                     'notdl' if config.get(
@@ -195,9 +240,9 @@ def download(payload):
                 )
                 log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
                     '/Englisch/Retail' if englisch and retail else '') + (
-                                '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + ']'
+                                '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
                 internal.logger.info(log_entry)
-                notify([log_entry])
+                notify([{"text": log_entry, "imdb_id": imdb_id}])
                 return [key]
     else:
         return False

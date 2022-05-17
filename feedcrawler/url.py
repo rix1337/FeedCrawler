@@ -166,10 +166,11 @@ def get_urls_async(urls):
 
     with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
         future_to_url = {executor.submit(load_url, url): url for url in urls}
-        for future in concurrent.futures.as_completed(future_to_url):
-            future_to_url[future]
+        futures = concurrent.futures.as_completed(future_to_url)
+        for future in futures:
+            source = future_to_url[future]
             try:
-                results.append(future.result())
+                results.append([future.result(), source])
             except Exception:
                 pass
-    return [results]
+    return results

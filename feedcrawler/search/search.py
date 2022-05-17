@@ -13,11 +13,8 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import sanitize
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.external_sites.shared.internal_feed import by_search_results
+from feedcrawler.external_sites.shared.internal_feed import check_release_not_sd
 from feedcrawler.external_sites.shared.internal_feed import fx_content_to_soup
-from feedcrawler.external_sites.shared.internal_feed import fx_search_results
-from feedcrawler.external_sites.shared.internal_feed import hw_search_results
-from feedcrawler.external_sites.shared.internal_feed import nk_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
@@ -64,13 +61,8 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
         quality = config.get('quality')
         ignore = config.get('ignore')
 
-        if "480p" not in quality:
-            search_quality = "+" + quality
-        else:
-            search_quality = ""
-
         if by:
-            by_search = 'https://' + by + '/?q=' + bl_query + search_quality
+            by_search = 'https://' + by + '/?q=' + bl_query
         else:
             by_search = None
         if fx:
@@ -89,71 +81,52 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
             hw_search = None
 
         async_results = get_urls_async([by_search, fx_search, hw_search])
-        async_results = async_results[0]
 
         by_results = []
         fx_results = []
         hw_results = []
 
         for res in async_results:
-            if check_is_site(res) == 'BY':
-                by_results = by_search_results(res, by)
-            elif check_is_site(res) == 'FX':
-                fx_results = fx_search_results(fx_content_to_soup(res), bl_query)
-            elif check_is_site(res) == 'HW':
-                hw_results = hw_search_results(res)
+            if check_is_site(res[1]) == 'BY':
+                by_results = by_search_results(res[0], by, quality)
+            elif check_is_site(res[1]) == 'FX':
+                fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
+            elif check_is_site(res[1]) == 'HW':
+                hw_results = hw_search_results(res[0], quality)
 
         if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
-                                 data={'search': bl_query})
-            nk_results = nk_search_results(nk_search, 'https://' + nk + '/')
+                                 data={'search': bl_query.replace("+", " ")})
+            nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
         else:
             nk_results = []
 
-        password = by.split('.')[0]
+        password = ""
         for result in by_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            if "xxx" not in result[0].lower():
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
+            unrated.append(
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
 
         password = fx.split('.')[0]
         for result in fx_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
             # title is intentionally sent with the password, so we can detect the correct link when downloading
             unrated.append([rate(result[0], ignore), encode_base64(result[1] + "|" + password + "|" + result[0]),
                             result[0] + " (FX)"])
 
         password = hw.split('.')[0]
         for result in hw_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
-            if "xxx" not in result[0].lower():
-                unrated.append(
-                    [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
+            unrated.append(
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:
-            if "480p" in quality:
-                if "720p" in result[0].lower() or "1080p" in result[0].lower() or "1080i" in result[
-                    0].lower() or "2160p" in \
-                        result[0].lower() or "complete.bluray" in result[0].lower() or "complete.mbluray" in result[
-                    0].lower() or "complete.uhd.bluray" in result[0].lower():
-                    continue
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
@@ -223,6 +196,108 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
         content_shows_sf_results = results
 
     return content_all_results, content_shows_sj_results, content_shows_sf_results
+
+
+def by_search_results(content, base_url, resolution):
+    content = BeautifulSoup(content, 'html5lib')
+    links = content.findAll("a", href=re.compile("/category/"))
+    results = []
+    for link in links:
+        try:
+            title = link.text.replace(" ", ".").strip()
+            if ".xxx." not in title.lower():
+                link = "https://" + base_url + link['href']
+                if resolution and resolution.lower() not in title.lower():
+                    if "480p" in resolution:
+                        if check_release_not_sd(title):
+                            continue
+                    else:
+                        continue
+                results.append([title, link])
+        except:
+            pass
+
+    return results
+
+
+def fx_search_results(content, search_term):
+    fx = CrawlerConfig('Hostnames').get('fx')
+    articles = content.find("main").find_all("article")
+
+    async_link_results = []
+    for article in articles:
+        if simplified_search_term_in_title(search_term, article.find("h2").text):
+            link = article.find("a")["href"]
+            if link:
+                async_link_results.append(link)
+
+    links = get_urls_async(async_link_results)
+
+    results = []
+
+    for link in links:
+        article = BeautifulSoup(str(link), 'html5lib')
+        titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
+        for title in titles:
+            try:
+                link = article.find("link", rel="canonical")["href"]
+                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                if title and "-fun" in title.lower():
+                    if "download" in title.lower():
+                        try:
+                            title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
+                        except:
+                            continue
+                    results.append([title, link])
+            except:
+                pass
+    return results
+
+
+def hw_search_results(content, resolution):
+    content = BeautifulSoup(content, 'html5lib')
+    links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
+    results = []
+    for link in links:
+        try:
+            title = link.text.replace(" ", ".").strip()
+            if ".xxx." not in title.lower():
+                link = link["href"]
+                if "#comments-title" not in link:
+                    if resolution and resolution.lower() not in title.lower():
+                        if "480p" in resolution:
+                            if check_release_not_sd(title):
+                                continue
+                        else:
+                            continue
+                    results.append([title, link])
+        except:
+            pass
+
+    return results
+
+
+def nk_search_results(content, base_url, resolution):
+    content = BeautifulSoup(content, 'html5lib')
+    links = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
+    results = []
+    for link in links:
+        try:
+            title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text.replace(" ", ".")
+            if ".xxx." not in title.lower():
+                link = base_url + link["href"]
+                if "#comments-title" not in link:
+                    if resolution and resolution.lower() not in title.lower():
+                        if "480p" in resolution:
+                            if check_release_not_sd(title):
+                                continue
+                        else:
+                            continue
+                    results.append([title, link])
+        except:
+            pass
+
+    return results
 
 
 def rate(title, ignore=False):
