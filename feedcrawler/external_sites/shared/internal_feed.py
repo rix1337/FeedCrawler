@@ -196,58 +196,58 @@ def get_search_results(self, bl_query):
 
     password = ""
     for result in by_results:
-        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+        if "480p" in quality and check_release_not_sd(result["title"]):
             continue
         search_results.append({
-            "title": result[2]["title"],
-            "link": result[2]["link"],
+            "title": result["title"],
+            "link": result["link"],
             "password": password,
             "site": "BY",
-            "size": result[2]["size"],
-            "source": result[2]["source"],
-            "imdb_id": result[2]["imdb_id"]
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
         })
 
     password = fx.split('.')[0]
     for result in fx_results:
-        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+        if "480p" in quality and check_release_not_sd(result["title"]):
             continue
         search_results.append({
-            "title": result[2]["title"],
-            "link": result[2]["link"],
+            "title": result["title"],
+            "link": result["link"],
             "password": password,
             "site": "FX",
-            "size": result[2]["size"],
-            "source": result[2]["source"],
-            "imdb_id": result[2]["imdb_id"]
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
         })
 
     password = hw.split('.')[0]
     for result in hw_results:
-        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+        if "480p" in quality and check_release_not_sd(result["title"]):
             continue
         search_results.append({
-            "title": result[2]["title"],
-            "link": result[2]["link"],
+            "title": result["title"],
+            "link": result["link"],
             "password": password,
             "site": "HW",
-            "size": result[2]["size"],
-            "source": result[2]["source"],
-            "imdb_id": result[2]["imdb_id"]
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
         })
 
     password = nk.split('.')[0].capitalize()
     for result in nk_results:
-        if "480p" in quality and check_release_not_sd(result[2]["title"]):
+        if "480p" in quality and check_release_not_sd(result["title"]):
             continue
         search_results.append({
-            "title": result[2]["title"],
-            "link": result[2]["link"],
+            "title": result["title"],
+            "link": result["link"],
             "password": password,
             "site": "NK",
-            "size": result[2]["size"],
-            "source": result[2]["source"],
-            "imdb_id": result[2]["imdb_id"]
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
         })
 
     return search_results
