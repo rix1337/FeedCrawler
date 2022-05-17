@@ -160,13 +160,8 @@ def get_search_results(self, bl_query):
     config = CrawlerConfig('ContentAll')
     quality = config.get('quality')
 
-    if "480p" not in quality:
-        search_quality = "+" + quality
-    else:
-        search_quality = ""
-
     if by:
-        by_search = 'https://' + by + '/?q=' + bl_query + search_quality
+        by_search = 'https://' + by + '/?q=' + bl_query
     else:
         by_search = None
     if fx:
@@ -186,16 +181,16 @@ def get_search_results(self, bl_query):
 
     for res in async_results:
         if check_is_site(res[1]) == 'BY':
-            by_results = by_search_results(res[0], by, resolution=quality)
+            by_results = by_search_results(res[0], by, quality)
         elif check_is_site(res[1]) == 'FX':
             fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
         elif check_is_site(res[1]) == 'HW':
-            hw_results = hw_search_results(res[0], resolution=quality)
+            hw_results = hw_search_results(res[0], quality)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
                              data={'search': bl_query.replace("+", " ")})
-        nk_results = nk_search_results(nk_search, 'https://' + nk + '/', resolution=quality)
+        nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
     else:
         nk_results = []
 
@@ -352,18 +347,26 @@ def by_feed_enricher(content):
     return feed
 
 
-def by_search_results(content, base_url, resolution=""):
+def by_search_results(content, base_url, resolution):
     content = BeautifulSoup(content, 'html5lib')
     links = content.findAll("a", href=re.compile("/category/"))
 
     async_link_results = []
     for link in links:
-        if ".xxx." not in link.text.replace(" ", ".").lower():
+        try:
             title = link.text.replace(" ", ".").strip()
-            link = "https://" + base_url + link['href']
-            if resolution and resolution.lower() not in title.lower():
-                continue
-            async_link_results.append(link)
+            if ".xxx." not in title.lower():
+                link = "https://" + base_url + link['href']
+                if resolution and resolution.lower() not in title.lower():
+                    if "480p" in resolution:
+                        if check_release_not_sd(title):
+                            continue
+                    else:
+                        continue
+                async_link_results.append(link)
+        except:
+            pass
+
     links = get_urls_async(async_link_results)
 
     results = []
@@ -404,8 +407,7 @@ def by_search_results(content, base_url, resolution=""):
                 "imdb_id": imdb_id
             }
 
-            # ToDo remove title/link if refactor for web search is possible
-            results.append([title, link[1], result])
+            results.append(result)
         except:
             pass
     return results
@@ -573,8 +575,7 @@ def fx_search_results(content, search_term):
                         "imdb_id": imdb_id
                     }
 
-                    # ToDo remove title/link if refactor for web search is possible
-                    results.append([title, link, result])
+                    results.append(result)
                     i += 1
             except:
                 pass
@@ -647,19 +648,25 @@ def hw_feed_enricher(feed):
     return feed
 
 
-def hw_search_results(content, resolution=""):
+def hw_search_results(content, resolution):
     content = BeautifulSoup(content, 'html5lib')
     links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
 
     async_link_results = []
     for link in links:
-        if ".xxx." not in link.text.replace(" ", ".").lower():
+        try:
             title = link.text.replace(" ", ".").strip()
-            link = link["href"]
-            if "#comments-title" not in link:
-                if resolution and resolution.lower() not in title.lower():
-                    continue
-                async_link_results.append(link)
+            if ".xxx." not in title.lower():
+                link = link["href"]
+                if "#comments-title" not in link:
+                    if resolution and resolution.lower() not in title.lower():
+                        if "480p" in resolution:
+                            if check_release_not_sd(title):
+                                continue
+                    async_link_results.append(link)
+        except:
+            pass
+
     links = get_urls_async(async_link_results)
 
     results = []
@@ -694,8 +701,7 @@ def hw_search_results(content, resolution=""):
                 "imdb_id": imdb_id
             }
 
-            # ToDo remove title/link if refactor for web search is possible
-            results.append([title, link[1], result])
+            results.append(result)
         except:
             pass
 
@@ -850,19 +856,24 @@ def nk_feed_enricher(content):
     return feed
 
 
-def nk_search_results(content, base_url, resolution=""):
+def nk_search_results(content, base_url, resolution):
     content = BeautifulSoup(content, 'html5lib')
     links = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
 
     async_link_results = []
     for link in links:
-        if ".xxx." not in link.text.replace(" ", ".").lower():
-            title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text
-            link = base_url + link["href"]
-            if "#comments-title" not in link:
-                if resolution and resolution.lower() not in title.lower():
-                    continue
-                async_link_results.append(link)
+        try:
+            title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text.replace(" ", ".")
+            if ".xxx." not in title.lower():
+                link = base_url + link["href"]
+                if "#comments-title" not in link:
+                    if resolution and resolution.lower() not in title.lower():
+                        if "480p" in resolution:
+                            if check_release_not_sd(title):
+                                continue
+                    async_link_results.append(link)
+        except:
+            pass
     links = get_urls_async(async_link_results)
 
     results = []
@@ -896,8 +907,7 @@ def nk_search_results(content, base_url, resolution=""):
                 "imdb_id": imdb_id
             }
 
-            # ToDo remove title/link if refactor for web search is possible
-            results.append([title, link[1], result])
+            results.append(result)
         except:
             pass
 
