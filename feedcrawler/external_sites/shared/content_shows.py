@@ -55,7 +55,7 @@ def feed_url(self):
         return False
 
 
-def send_package(self, title, link, language_id, season, episode, site, size, source, imdb_id):
+def send_package(self, title, link, language_id, season, episode, site, source, size,  imdb_id):
     englisch = ''
     if language_id == 2:
         englisch = '/Englisch'
@@ -221,16 +221,16 @@ def periodical_task(self):
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
-                                    title = package[0]
+                                    title = package["title"]
                                     site = self._SITE
-                                    download_link = False
-                                    if not download_link:
-                                        download_link = package[1]
-                                    language_id = package[2]
-                                    season = package[3]
-                                    episode = package[4]
+                                    download_link = package["download_link"]
+                                    language_id = package["language_id"]
+                                    season = package["season"]
+                                    episode = package["episode"]
+                                    size = package["size"]
+                                    imdb_id = package["imdb_id"]
                                     send_package(self, title, download_link, language_id, season, episode, site,
-                                                 post.size, post.source, post.imdb_id)
+                                                 post.source, size, imdb_id)
                         else:
                             internal.logger.debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -265,16 +265,16 @@ def periodical_task(self):
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
-                                    title = package[0]
+                                    title = package["title"]
                                     site = self._SITE
-                                    download_link = False
-                                    if not download_link:
-                                        download_link = package[1]
-                                    language_id = package[2]
-                                    season = package[3]
-                                    episode = package[4]
+                                    download_link = package["download_link"]
+                                    language_id = package["language_id"]
+                                    season = package["season"]
+                                    episode = package["episode"]
+                                    size = package["size"]
+                                    imdb_id = package["imdb_id"]
                                     send_package(self, title, download_link, language_id, season, episode, site,
-                                                 post.size, post.source, post.imdb_id)
+                                                 post.source, size, imdb_id)
                         else:
                             internal.logger.debug(
                                 "%s - Englische Releases deaktiviert" % title)
@@ -316,16 +316,16 @@ def periodical_task(self):
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
                                     if package:
-                                        title = package[0]
+                                        title = package["title"]
                                         site = self._SITE
-                                        download_link = False
-                                        if not download_link:
-                                            download_link = package[1]
-                                        language_id = package[2]
-                                        season = package[3]
-                                        episode = package[4]
+                                        download_link = package["download_link"]
+                                        language_id = package["language_id"]
+                                        season = package["season"]
+                                        episode = package["episode"]
+                                        size = package["size"]
+                                        imdb_id = package["imdb_id"]
                                         send_package(self, title, download_link, language_id, season, episode, site,
-                                                     post.size, post.source, post.imdb_id)
+                                                     post.source, size, imdb_id)
                             else:
                                 internal.logger.debug(
                                     "%s - Englische Releases deaktiviert" % title)
@@ -365,16 +365,16 @@ def periodical_task(self):
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
                                     if package:
-                                        title = package[0]
+                                        title = package["title"]
                                         site = self._SITE
-                                        download_link = False
-                                        if not download_link:
-                                            download_link = package[1]
-                                        language_id = package[2]
-                                        season = package[3]
-                                        episode = package[4]
+                                        download_link = package["download_link"]
+                                        language_id = package["language_id"]
+                                        season = package["season"]
+                                        episode = package["episode"]
+                                        size = package["size"]
+                                        imdb_id = package["imdb_id"]
                                         send_package(self, title, download_link, language_id, season, episode, site,
-                                                     post.size, post.source, post.imdb_id)
+                                                     post.source, size, imdb_id)
                                 else:
                                     internal.logger.debug(
                                         "%s - Englische Releases deaktiviert" % title)

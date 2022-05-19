@@ -6,10 +6,15 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.2** Für SF werden jetzt Release-Größe und IMDb-Poster erkannt, wenn verfügbar.
+  - Bei Episoden wird anhand der Episodenanzahl die Release-Größe anhand der Staffel gemittelt.
+  - Nicht jede Serie verfügt auf SF über eine IMDb-ID, weswegen Poster nur teilweise verfügbar sind.
+  - SJ/DJ bieten weder Release-Größe, noch IMDb-IDs für den Poster-Abruf
+- **14.2.2** Vereinheitlichte Schreibweise der Release-Größen.
 - **14.2.1** Bugfix
 - **14.2.0** Benachrichtigungen, Web-Interface und Log beinhalten Link zur Release-Quelle
 - **14.2.0** Benachrichtigungen, Web-Interface und Log beinhalten die Release-Größe, wo verfügbar
-- **14.2.0** Telegram Benachrichtigungen enthalten Poster, wo verfügbar
+- **14.2.0** Telegram Benachrichtigungen enthalten IMDb-Poster, wo verfügbar
 - **14.1.3** Verhindere Incomplete-Read-Fehler (#627)
 - **14.1.3** Erkenne und verhindere Verarbeitung von Ombi-Anfragen ohne IMDb-ID
 - **14.1.2** Detailverbesserungen im Web-Interface, insbesondere der Log-Darstellung

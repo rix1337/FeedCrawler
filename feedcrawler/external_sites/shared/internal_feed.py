@@ -84,6 +84,7 @@ from feedcrawler import internal
 from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
+from feedcrawler.common import readable_size
 from feedcrawler.common import rreplace
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
@@ -315,7 +316,7 @@ def by_feed_enricher(content):
                     imdb_id = ""
 
                 try:
-                    size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
+                    size = readable_size(details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip())
                 except:
                     size = ""
 
@@ -390,7 +391,7 @@ def by_search_results(content, base_url, resolution):
                 imdb_id = ""
 
             try:
-                size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
+                size = readable_size(details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip())
             except:
                 size = ""
 
@@ -462,10 +463,10 @@ def fx_get_details(content, search_title):
                 imdb_id = ""
 
             try:
-                size = content.findAll("strong",
-                                       text=re.compile(
-                                           r"(size|größe)", re.IGNORECASE))[i]. \
-                    next.next.text.replace("|", "").strip()
+                size = readable_size(content.findAll("strong",
+                                                     text=re.compile(
+                                                         r"(size|größe)", re.IGNORECASE))[i]. \
+                                     next.next.text.replace("|", "").strip())
             except:
                 size = ""
         i += 1
@@ -520,10 +521,10 @@ def fx_feed_enricher(feed):
                         imdb_id = ""
 
                     try:
-                        size = article.findAll("strong",
-                                               text=re.compile(
-                                                   r"(size|größe)", re.IGNORECASE))[i]. \
-                            next.next.text.replace("|", "").strip()
+                        size = readable_size(article.findAll("strong",
+                                                             text=re.compile(
+                                                                 r"(size|größe)", re.IGNORECASE))[i]. \
+                                             next.next.text.replace("|", "").strip())
                     except:
                         size = ""
 
@@ -592,10 +593,10 @@ def fx_search_results(content, search_term):
                         imdb_id = ""
 
                     try:
-                        size = article.findAll("strong",
-                                               text=re.compile(
-                                                   r"(size|größe)", re.IGNORECASE))[i]. \
-                            next.next.text.replace("|", "").strip()
+                        size = readable_size(article.findAll("strong",
+                                                             text=re.compile(
+                                                                 r"(size|größe)", re.IGNORECASE))[i]. \
+                                             next.next.text.replace("|", "").strip())
                     except:
                         size = ""
 
@@ -657,9 +658,10 @@ def hw_feed_enricher(feed):
                 imdb_id = ""
 
             try:
-                size = article.find("strong",
-                                    text=re.compile(
-                                        r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+                size = readable_size(article.find("strong",
+                                                  text=re.compile(
+                                                      r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|",
+                                                                                                              "").strip())
             except:
                 size = ""
 
@@ -727,9 +729,10 @@ def hw_search_results(content, resolution):
                 imdb_id = ""
 
             try:
-                size = soup.find("strong",
-                                 text=re.compile(
-                                     r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+                size = readable_size(soup.find("strong",
+                                               text=re.compile(
+                                                   r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|",
+                                                                                                           "").strip())
             except:
                 size = ""
 
@@ -813,8 +816,9 @@ def ff_feed_enricher(releases):
 
                     if release_info:
                         try:
-                            size = BeautifulSoup(release_info, 'html5lib').findAll("span")[2].text.split(":", 1)[
-                                1].strip()
+                            size = readable_size(
+                                BeautifulSoup(release_info, 'html5lib').findAll("span")[2].text.split(":", 1)[
+                                    1].strip())
                         except:
                             size = ""
 
@@ -870,7 +874,8 @@ def nk_feed_enricher(content):
                     imdb_id = ""
 
                 try:
-                    size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+                    size = readable_size(
+                        details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip())
                 except:
                     size = ""
 
@@ -932,7 +937,8 @@ def nk_search_results(content, base_url, resolution):
                 imdb_id = ""
 
             try:
-                size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+                size = readable_size(
+                    details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip())
             except:
                 size = ""
 
@@ -1038,7 +1044,7 @@ def ww_feed_enricher(content):
                     imdb_id = ""
 
                 try:
-                    size = post.find("span", {"class": "main-size"}).text.strip()
+                    size = readable_size(post.find("span", {"class": "main-size"}).text.strip())
                 except:
                     size = ""
 
@@ -1139,7 +1145,15 @@ def j_parse_download(self, series_url, title, language_id):
                                 internal.logger.debug(wrong_hoster)
                             return False
                     else:
-                        return [title, series_url, language_id, False, False]
+                        return {
+                            "title": title,
+                            "download_link": series_url,
+                            "language_id": language_id,
+                            "season": False,
+                            "episode": False,
+                            "size": "",  # Info not available
+                            "imdb_id": ""  # Info not available
+                        }
     except:
         print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False
@@ -1202,6 +1216,20 @@ def sf_parse_download(self, series_url, title, language_id):
         epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
         season_page = get_url(series_url)
         season_details = re.findall(r"initSeason\('(.+?)\',(.+?),", season_page)[-1]
+
+        season_page_soup = BeautifulSoup(season_page, 'html5lib')
+        imdb_link = ""
+        try:
+            imdb = season_page_soup.find("a", href=re.compile("imdb.com"))
+            imdb_link = imdb["href"].replace("https://anonym.to/?", "")
+        except:
+            pass
+
+        try:
+            imdb_id = get_imdb_id_from_link(title, imdb_link)
+        except:
+            imdb_id = ""
+
         season_id = season_details[0]
         season_nr = season_details[1]
 
@@ -1239,8 +1267,29 @@ def sf_parse_download(self, series_url, title, language_id):
                 season_title = season_title.replace(multiple_episodes[0], '.*')
 
         content = BeautifulSoup(info['html'], 'html5lib')
-        releases = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
-        links = releases.findAll("div", {'class': 'row'})[1].findAll('a')
+        release_info = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
+
+        try:
+            size = readable_size(
+                release_info.findAll("div", {'class': 'row'})[1].parent.find("span", {"class": "morespec"}).text.split(
+                    "|")[
+                    1].strip())
+        except:
+            size = ""
+
+        if is_episode:
+            try:
+                last_episode = release_info.find("div", {"class": "list"}).findAll("div", recursive=False)[
+                    -1].div.text.strip()
+                total_episodes = int(''.join(filter(str.isdigit, last_episode)))
+                total_size = float(re.sub('[^0-9,.]', '', size))
+                size_unit = re.sub('[0-9,.]', '', size).strip()
+                episode_size = round(total_size / total_episodes, 2)
+                size = "~" + str(episode_size) + " " + size_unit
+            except:
+                pass
+
+        links = release_info.findAll("div", {'class': 'row'})[1].findAll('a')
         download_link = False
         for link in links:
             if check_hoster(link.text.replace('\n', '')):
@@ -1258,7 +1307,15 @@ def sf_parse_download(self, series_url, title, language_id):
                     internal.logger.debug(wrong_hoster)
                 return False
         else:
-            return [title, download_link, language_id, season, episode]
+            return {
+                "title": title,
+                "download_link": download_link,
+                "language_id": language_id,
+                "season": season,
+                "episode": episode,
+                "size": size,
+                "imdb_id": imdb_id
+            }
     except:
         print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False
