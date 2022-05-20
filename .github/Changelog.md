@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.3** Bugfix
 - **14.2.2** Für SF werden jetzt Release-Größe und IMDb-Poster erkannt, wenn verfügbar.
   - Bei Episoden wird anhand der Episodenanzahl die Release-Größe anhand der Staffel gemittelt.
   - Nicht jede Serie verfügt auf SF über eine IMDb-ID, weswegen Poster nur teilweise verfügbar sind.
