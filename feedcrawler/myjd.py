@@ -19,7 +19,7 @@ from feedcrawler.common import readable_time
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException
+from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 
@@ -59,7 +59,7 @@ def get_device():
             jd.connect(myjd_user, myjd_pass)
             jd.update_devices()
             device = jd.get_device(myjd_device)
-        except feedcrawler.myjdapi.MYJDException as e:
+        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
         if not device or not is_device(device):
@@ -72,7 +72,7 @@ def get_device():
             jd.connect(myjd_user, myjd_pass)
             jd.update_devices()
             device = jd.get_device(myjd_device)
-        except feedcrawler.myjdapi.MYJDException as e:
+        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
         if not device or not is_device(device):
@@ -90,7 +90,7 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.connect(myjd_user, myjd_pass)
         jd.update_devices()
         device = jd.get_device(myjd_device)
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
     internal.set_device(device)
@@ -108,7 +108,7 @@ def get_if_one_device(myjd_user, myjd_pass):
             return devices[0].get('name')
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -307,7 +307,7 @@ def get_state():
             try:
                 downloader_state = internal.device.downloadcontroller.get_current_state()
                 grabber_collecting = internal.device.linkgrabber.is_collecting()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -316,7 +316,7 @@ def get_state():
             return [True, downloader_state, grabber_collecting]
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -360,7 +360,7 @@ def get_info():
                 packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
                 packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -404,7 +404,7 @@ def get_info():
                      packages_failed]]
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -416,7 +416,7 @@ def move_to_downloads(linkids, uuid):
         if internal.device:
             try:
                 internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -424,7 +424,7 @@ def move_to_downloads(linkids, uuid):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -436,7 +436,7 @@ def reset_in_downloads(linkids, uuid):
         if internal.device:
             try:
                 internal.device.downloads.reset_links(linkids, uuid)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -444,7 +444,7 @@ def reset_in_downloads(linkids, uuid):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -457,7 +457,7 @@ def remove_from_linkgrabber(linkids, uuid):
             try:
                 internal.device.linkgrabber.remove_links(linkids, uuid)
                 internal.device.downloads.remove_links(linkids, uuid)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -466,7 +466,7 @@ def remove_from_linkgrabber(linkids, uuid):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -478,7 +478,7 @@ def rename_package_in_linkgrabber(package_id, new_name):
         if internal.device:
             try:
                 internal.device.linkgrabber.rename_package(package_id, new_name)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -486,7 +486,7 @@ def rename_package_in_linkgrabber(package_id, new_name):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -499,7 +499,7 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
             try:
                 internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
                 internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -508,7 +508,7 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -554,7 +554,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
                     "comment": "FeedCrawler by rix1337",
                     "overwritePackagizerRules": False
                 }])
-        except (TokenExpiredException, RequestTimeoutException):
+        except (TokenExpiredException, RequestTimeoutException, MYJDException):
             get_device()
             if not internal.device or not is_device(internal.device):
                 return False
@@ -577,7 +577,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
         else:
             db.store(title, 'added')
         return True
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -606,7 +606,7 @@ def retry_decrypt(linkids, uuid, links):
                         "startAt": 0,
                         "status": True
                     }])
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -649,7 +649,7 @@ def retry_decrypt(linkids, uuid, links):
                             "packageUUIDs": uuid,
                             "startAt": 0,
                         }])
-                except (TokenExpiredException, RequestTimeoutException):
+                except (TokenExpiredException, RequestTimeoutException, MYJDException):
                     get_device()
                     if not internal.device or not is_device(internal.device):
                         return False
@@ -682,7 +682,7 @@ def retry_decrypt(linkids, uuid, links):
                 return False
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -694,7 +694,7 @@ def jdownloader_start():
         if internal.device:
             try:
                 internal.device.downloadcontroller.start_downloads()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -702,7 +702,7 @@ def jdownloader_start():
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -714,7 +714,7 @@ def jdownloader_pause(bl):
         if internal.device:
             try:
                 internal.device.downloadcontroller.pause_downloads(bl)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -722,7 +722,7 @@ def jdownloader_pause(bl):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -734,7 +734,7 @@ def jdownloader_stop():
         if internal.device:
             try:
                 internal.device.downloadcontroller.stop_downloads()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -742,7 +742,7 @@ def jdownloader_stop():
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
@@ -935,7 +935,7 @@ def do_package_merge(title, uuids, linkids):
         if internal.device:
             try:
                 move_to_new_package(linkids, uuids, title, "<jd:packagename>")
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -943,7 +943,7 @@ def do_package_merge(title, uuids, linkids):
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 

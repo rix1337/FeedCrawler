@@ -17,11 +17,11 @@ from feedcrawler import internal
 from feedcrawler import myjd
 from feedcrawler import version
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.watchdog import crawldog
 from feedcrawler.crawler import crawler
 from feedcrawler.db import FeedDb
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
+from feedcrawler.watchdog import crawldog
 from feedcrawler.web import web_server
 
 version = "v." + version.get_version()
@@ -119,8 +119,17 @@ def main():
 
     if not arguments.test_run:
         if not internal.device:
-            print(u'My JDownloader Zugangsdaten fehlerhaft! Beende FeedCrawler!')
-            time.sleep(10)
+            feedcrawler = CrawlerConfig('FeedCrawler')
+            device_name = feedcrawler.get('myjd_user')
+
+            i = 0
+            while i < 5:
+                i += 1
+                print(
+                    u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, device_name))
+                time.sleep(60)
+                get_device()
+            print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
             sys.exit(1)
         else:
             print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + internal.device.name)

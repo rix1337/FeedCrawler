@@ -78,7 +78,7 @@ def check_url(start_time):
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["BY", "FX", "HW", "DD"]:
+        if site in ["BY", "FX", "HW", "DD", "NK"]:
             status = cached_request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
                 return True
