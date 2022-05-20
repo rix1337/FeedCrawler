@@ -370,14 +370,6 @@ def readable_size(size):
         return ""
 
 
-def readable_size(size):
-    size_value = round(float(re.sub('[^0-9,.]', '', size)), 2)
-    if str(size_value).endswith('.0'):
-        size_value = int(size_value)
-    size_unit = re.sub('[0-9,.]', '', size).strip().upper()
-    return str(size_value) + " " + str(size_unit)
-
-
 def readable_time(time):
     try:
         if not time:

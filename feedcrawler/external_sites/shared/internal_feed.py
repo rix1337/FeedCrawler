@@ -84,7 +84,6 @@ from feedcrawler import internal
 from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import check_valid_release
-from feedcrawler.common import readable_size
 from feedcrawler.common import rreplace
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
@@ -146,6 +145,14 @@ def check_release_not_sd(title):
         return True
     else:
         return False
+
+
+def readable_size(size):
+    size_value = round(float(re.sub('[^0-9,.]', '', size)), 2)
+    if str(size_value).endswith('.0'):
+        size_value = int(size_value)
+    size_unit = re.sub('[0-9,.]', '', size).strip().upper()
+    return str(size_value) + " " + str(size_unit)
 
 
 def get_search_results(self, bl_query):
