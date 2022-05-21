@@ -10,12 +10,6 @@ input {
   text-align: center;
 }
 
-// Danger Color for Invalid Inputs
-input:invalid {
-  border-color: var(--bs-danger) !important;
-  box-shadow: 0 0 0 0.25rem var(--bs-danger) !important;
-}
-
 // Set Vue-Tippy variables to bootstrap variables
 .tippy-box {
   font-family: var(--bs-body-font-family) !important;

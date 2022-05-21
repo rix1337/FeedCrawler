@@ -6,6 +6,8 @@ import Toast, {TYPE, useToast} from "vue-toastification"
 import "vue-toastification/dist/index.css"
 import VueTippy from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
+import {defaultConfig, plugin} from '@formkit/vue'
+import {de} from '@formkit/i18n'
 import App from './App.vue'
 
 const toast = useToast()
@@ -263,4 +265,13 @@ app.use(Toast, {
     }
 })
 app.use(VueTippy)
+app.use(
+    plugin,
+    defaultConfig({
+        // Define additional locales
+        locales: {de},
+        // Define the active locale
+        locale: 'de',
+    })
+)
 app.mount('#app')

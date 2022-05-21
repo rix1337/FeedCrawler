@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.4** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Einstellungen
 - **14.2.4** Erkenne ob NK den Feed-Abruf blockiert.
 - **14.2.4** Versuche beim Start 5x eine Verbindung zum JDownloader aufzubauen (mit 60 Sekunden Wartezeit),
   bevor der Start scheitert.
