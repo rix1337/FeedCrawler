@@ -6,6 +6,8 @@ import Toast, {TYPE, useToast} from "vue-toastification"
 import "vue-toastification/dist/index.css"
 import VueTippy from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
+import {defaultConfig, plugin} from '@formkit/vue'
+import {de} from '@formkit/i18n'
 import App from './App.vue'
 
 const toast = useToast()
@@ -15,13 +17,9 @@ const toast = useToast()
 const store = createStore({
     state() {
         return {
-            crawltimes: {},
-            blocked_sites: {
-                normal: {},
-                flaresolverr: {},
-                flaresolverr_proxy: {}
-            },
-            hostnames: {
+            crawltimes: {}, blocked_sites: {
+                normal: {}, flaresolverr: {}, flaresolverr_proxy: {}
+            }, hostnames: {
                 sj: 'Nicht gesetzt!',
                 dj: 'Nicht gesetzt!',
                 sf: 'Nicht gesetzt!',
@@ -36,23 +34,12 @@ const store = createStore({
                 jf: 'Nicht gesetzt!',
                 jf_shorthands: '',
                 search_shorthands: ''
-            },
-            lists: {
-                mb: [],
-                sj: [],
-                dj: [],
-                dd: [],
-                mbsj: [],
-            },
-            settings: {
+            }, lists: {
+                mb: [], sj: [], dj: [], dd: [], mbsj: [],
+            }, settings: {
                 general: {
-                    myjd_user: '',
-                    myjd_pass: '',
-                    myjd_device: '',
-                    packages_per_myjd_page: 3,
-                    port: 9090,
-                },
-                mb: {
+                    myjd_user: '', myjd_pass: '', myjd_device: '', packages_per_myjd_page: 3, port: 9090,
+                }, mb: {
                     quality: '1080p',
                     search: 3,
                     regex: false,
@@ -63,35 +50,19 @@ const store = createStore({
                     cutoff: false,
                     hevc_retail: false,
                     hoster_fallback: false,
-                },
-                f: {
+                }, f: {
                     search: 3,
-                },
-                jf: {
+                }, jf: {
                     wait_time: 6,
-                },
-                sj: {
-                    quality: '1080p',
-                    regex: false,
-                    retail_only: false,
-                    hevc_retail: false,
+                }, sj: {
+                    quality: '1080p', regex: false, retail_only: false, hevc_retail: false, hoster_fallback: false,
+                }, mbsj: {
+                    enabled: false, quality: '1080p', packs: false, source: '',
+                }, dj: {
+                    quality: '1080p', regex: false, hoster_fallback: false,
+                }, dd: {
                     hoster_fallback: false,
-                },
-                mbsj: {
-                    enabled: false,
-                    quality: '1080p',
-                    packs: false,
-                    source: '',
-                },
-                dj: {
-                    quality: '1080p',
-                    regex: false,
-                    hoster_fallback: false,
-                },
-                dd: {
-                    hoster_fallback: false,
-                },
-                hosters: {
+                }, hosters: {
                     rapidgator: true,
                     turbobit: true,
                     uploaded: true,
@@ -105,26 +76,16 @@ const store = createStore({
                     nitroflare: true,
                     ironfiles: true,
                     k2s: true,
-                },
-                alerts: {
-                    pushbullet: "",
-                    pushover: "",
-                    telegram: "",
-                },
-                ombi: {
-                    url: "",
-                    api: ""
-                },
-                overseerr: {
-                    url: "",
-                    api: ""
-                },
-                crawljobs: {
-                    autostart: false,
-                    subdir: false,
+                }, alerts: {
+                    pushbullet: "", pushover: "", telegram: "",
+                }, ombi: {
+                    url: "", api: ""
+                }, overseerr: {
+                    url: "", api: ""
+                }, crawljobs: {
+                    autostart: false, subdir: false,
                 }
-            },
-            misc: {
+            }, misc: {
                 docker: false,
                 helper_active: false,
                 helper_available: false,
@@ -170,8 +131,7 @@ const store = createStore({
                     console.log('Konnte blockierte Seiten nicht abrufen!')
                     toast.error('Konnte blockierte Seiten nicht abrufen!')
                 })
-        },
-        getCrawlTimes(state) {
+        }, getCrawlTimes(state) {
             axios.get('api/crawltimes/')
                 .then(function (res) {
                     state.misc.starting = false
@@ -180,8 +140,7 @@ const store = createStore({
                     console.log('Konnte Laufzeiten nicht abrufen!')
                     toast.error('Konnte Laufzeiten nicht abrufen!')
                 })
-        },
-        getHostNames(state) {
+        }, getHostNames(state) {
             axios.get('api/hostnames/')
                 .then(function (res) {
                     state.hostnames = res.data.hostnames
@@ -191,8 +150,7 @@ const store = createStore({
                     console.log('Konnte Hostnamen nicht abrufen!')
                     toast.error('Konnte Hostnamen nicht abrufen!')
                 })
-        },
-        getLists(state) {
+        }, getLists(state) {
             axios.get('api/lists/')
                 .then(function (res) {
                     state.lists = res.data.lists
@@ -201,8 +159,7 @@ const store = createStore({
                     console.log('Konnte Listen nicht abrufen!')
                     toast.error('Konnte Listen nicht abrufen!')
                 })
-        },
-        getSettings(state) {
+        }, getSettings(state) {
             axios.get('api/settings/')
                 .then(function (res) {
                     state.settings = res.data.settings
@@ -213,26 +170,19 @@ const store = createStore({
                     console.log('Konnte Einstellungen nicht abrufen!')
                     toast.error('Konnte Einstellungen nicht abrufen!')
                 })
-        },
-        setDocker(state, docker) {
+        }, setDocker(state, docker) {
             state.misc.docker = docker
-        },
-        setHelperActive(state, helper_active) {
+        }, setHelperActive(state, helper_active) {
             state.misc.helper_active = helper_active
-        },
-        setHelperAvailable(state, helper_available) {
+        }, setHelperAvailable(state, helper_available) {
             state.misc.helper_available = helper_available
-        },
-        setMyJDConnectionError(state, myjd_connection_error) {
+        }, setMyJDConnectionError(state, myjd_connection_error) {
             state.misc.myjd_connection_error = myjd_connection_error
-        },
-        setNow(state, now) {
+        }, setNow(state, now) {
             state.misc.now = now
-        },
-        setSjBlEnabled(state, enabled) {
+        }, setSjBlEnabled(state, enabled) {
             state.misc.sjbl_enabled = enabled
-        },
-        setStarting(state, starting) {
+        }, setStarting(state, starting) {
             state.misc.starting = starting
         }
     }
@@ -242,25 +192,23 @@ const app = createApp(App)
 app.use(store)
 app.use(router)
 app.use(Toast, {
-    position: "top-center",
-    draggable: false,
-    maxToasts: 3,
-    bodyClassName: ["toast-body"],
-    toastDefaults: {
+    position: "top-center", draggable: false, maxToasts: 3, bodyClassName: ["toast-body"], toastDefaults: {
         [TYPE.ERROR]: {
             icon: 'bi bi-exclamation-triangle',
-        },
-        [TYPE.WARNING]: {
+        }, [TYPE.WARNING]: {
             icon: 'bi bi-exclamation-circle',
-        },
-        [TYPE.INFO]: {
+        }, [TYPE.INFO]: {
             icon: 'bi bi-info-circle',
-        },
-        [TYPE.SUCCESS]: {
-            icon: 'bi bi-check-circle-fill',
-            timeout: 3000,
+        }, [TYPE.SUCCESS]: {
+            icon: 'bi bi-check-circle-fill', timeout: 3000,
         }
     }
 })
 app.use(VueTippy)
+
+app.use(plugin, defaultConfig({
+    // Define additional locales
+    locales: {de}, // Define the active locale
+    locale: 'de'
+}))
 app.mount('#app')

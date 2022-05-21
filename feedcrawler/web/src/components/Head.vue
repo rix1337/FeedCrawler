@@ -121,8 +121,7 @@ function getSettings() {
 
 function showSiteStatusHelp() {
   getBlockedSites()
-  let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
-  offcanvas.show()
+  new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false}).show()
   new Collapse(document.getElementById('collapseSiteStatus'), {
     toggle: true
   })

@@ -23,3 +23,10 @@ $vt-toast-max-width: 1200px !default;
 @import "vue-toastification/src/scss/_progressBar";
 @import "vue-toastification/src/scss/_icon";
 @import "vue-toastification/src/scss/animations/_bounce";
+
+// Formkit Validation Styles
+[data-invalid] .formkit-inner {
+  border-color: $danger !important;
+  border-radius: .25rem;
+  box-shadow: 0 0 0 0.25rem $danger !important;
+}

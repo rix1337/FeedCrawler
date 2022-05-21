@@ -6,7 +6,11 @@
 
 ### Changelog FeedCrawler:
 
-- **14.2.3** Bugfix
+- **14.2.4** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Einstellungen
+- **14.2.4** Erkenne ob NK den Feed-Abruf blockiert.
+- **14.2.4** Versuche beim Start 5x eine Verbindung zum JDownloader aufzubauen (mit 60 Sekunden Wartezeit),
+  bevor der Start scheitert.
+- **14.2.3** Bugfix (#635)
 - **14.2.2** Für SF werden jetzt Release-Größe und IMDb-Poster erkannt, wenn verfügbar.
   - Bei Episoden wird anhand der Episodenanzahl die Release-Größe anhand der Staffel gemittelt.
   - Nicht jede Serie verfügt auf SF über eine IMDb-ID, weswegen Poster nur teilweise verfügbar sind.

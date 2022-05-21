@@ -617,7 +617,7 @@ def app_container():
 
             bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
             s = ' / '.join(list(filter(None, [sj, sf])))
-            f = ' / '.join(list(filter(None, [ff, sf])))
+            f = ' / '.join(list(filter(None, [sf, ff])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
             jf = ' / '.join(list(filter(None, [sj, dj, sf, ff])))
 
