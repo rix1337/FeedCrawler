@@ -21,3 +21,12 @@ input {
   border-color: #1a1e21 !important;
   max-width: 1200px !important;
 }
+
+// Set FormKit label to match BootStrap h5
+.formkit-label {
+  font-size: 1.25rem;
+  margin-top: 0;
+  margin-bottom: .5rem;
+  font-weight: 500;
+  line-height: 1.2;
+}

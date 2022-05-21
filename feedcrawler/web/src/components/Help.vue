@@ -385,7 +385,7 @@ const waitTimeActive = computed(() => {
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
                 <button @click="openHosterLink" class="btn btn-outline-success">
-                  Linksnappy.com (für DDownload, Rapidgator, 1Fichier, etc.)
+                  LinkSnappy.com (für DDownload, Rapidgator, 1Fichier, etc.)
                 </button>
               </div>
             </div>

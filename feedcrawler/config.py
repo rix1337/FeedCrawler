@@ -53,7 +53,6 @@ class CrawlerConfig(object):
             ("turbobit", "bool", "False"),
             ("uploaded", "bool", "False"),
             ("zippyshare", "bool", "False"),
-            ("oboom", "bool", "False"),
             ("ddl", "bool", "False"),
             ("filefactory", "bool", "False"),
             ("uptobox", "bool", "False"),

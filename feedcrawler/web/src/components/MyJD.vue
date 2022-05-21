@@ -365,13 +365,10 @@ function countDown() {
 }
 
 function showSponsorsHelp() {
-  let offcanvas = new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false})
-  offcanvas.show()
+  new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false}).show()
   new Collapse(document.getElementById('collapseSponsorsHelper'), {
     toggle: true
   })
-  sessionStorage.setItem('fromNav', '')
-  window.location.href = "#collapseSponsorsHelper"
 }
 </script>
 
