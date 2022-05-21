@@ -18,7 +18,7 @@ class CrawlerConfig(object):
             ("myjd_device", "str", ""),
             ("port", "int", "9090"),
             ("prefix", "str", ""),
-            ("interval", "int", "10"),
+            ("interval", "int", "60"),
             ("flaresolverr", "str", ""),
             ("flaresolverr_proxy", "str", ""),
             ("english", "bool", "False"),
@@ -49,14 +49,14 @@ class CrawlerConfig(object):
             ("pushover", "str", "")
         ],
         'Hosters': [
+            ("ddl", "bool", "True"),
             ("rapidgator", "bool", "True"),
+            ("1fichier", "bool", "True"),
             ("turbobit", "bool", "False"),
             ("uploaded", "bool", "False"),
             ("zippyshare", "bool", "False"),
-            ("ddl", "bool", "False"),
             ("filefactory", "bool", "False"),
             ("uptobox", "bool", "False"),
-            ("1fichier", "bool", "False"),
             ("filer", "bool", "False"),
             ("nitroflare", "bool", "False"),
             ("ironfiles", "bool", "False"),
@@ -82,8 +82,8 @@ class CrawlerConfig(object):
             ("seasonpacks", "bool", "False"),
             ("seasonssource", "str",
              "web-dl.*-(tvs|4sj|tvr)|webrip.*-(tvs|4sj|tvr)|webhd.*-(tvs|4sj|tvr)|netflix.*-(tvs|4sj|tvr)|amazon.*-(tvs|4sj|tvr)|itunes.*-(tvs|4sj|tvr)|bluray|bd|bdrip"),
-            ("imdbyear", "str", "2010"),
-            ("imdb", "str", "0.0"),
+            ("imdbyear", "str", "2020"),
+            ("imdb", "str", "6.5"),
             ("hevc_retail", "bool", "False"),
             ("retail_only", "bool", "False"),
             ("hoster_fallback", "bool", "False")
@@ -98,7 +98,7 @@ class CrawlerConfig(object):
         ],
         'CustomDJ': [
             ("quality", "str", "1080p"),
-            ("rejectlist", "str", "XviD,Subbed"),
+            ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False"),
             ("hoster_fallback", "bool", "False")
         ],
@@ -109,7 +109,7 @@ class CrawlerConfig(object):
             ("search", "int", "3")
         ],
         'CustomJF': [
-            ("wait_time", "int", "6"),
+            ("wait_time", "int", "12"),
         ]
     }
     __config__ = []

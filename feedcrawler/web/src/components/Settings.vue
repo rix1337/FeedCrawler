@@ -112,6 +112,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. name@mail.com"
                            validation="required|length:5|*email"
                            validation-visibility="live"
                            type="email"/>
@@ -122,6 +123,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. ●●●●●●●●"
                            validation="required"
                            validation-visibility="live"
                            type="password"/>
@@ -131,6 +133,7 @@ function submitSettings() {
                            input-class="form-control bg-light mb-2"
                            label="Gerätename"
                            help="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."
+                           placeholder="Bspw. JDownloader@Server"
                            type="text"/>
                   <h5>Autostart</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
@@ -159,6 +162,7 @@ function submitSettings() {
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
                            help="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."
+                           placeholder="Bspw. 3"
                            validation="required|between:3,30"
                            validation-visibility="live"
                            type="number"/>
@@ -184,6 +188,7 @@ function submitSettings() {
                              messages-class="text-danger"
                              outer-class="mb-4"
                              input-class="form-control bg-light mb-2"
+                             placeholder="Bspw. 9090"
                              validation="required|between:1024,65535"
                              validation-visibility="live"
                              type="number"/>
@@ -195,6 +200,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. feedcrawler"
                            validation="alpha"
                            validation-visibility="live"
                            type="text"/>
@@ -205,6 +211,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. rix1337"
                            type="text"/>
                   <FormKit v-model="store.state.settings.general.auth_hash"
                            label="Passwort"
@@ -213,6 +220,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. ●●●●●●●●"
                            type="password"/>
                   <FormKit v-model="store.state.settings.general.interval"
                            label="Suchintervall (Allgemein)"
@@ -221,6 +229,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 60"
                            validation="required|between:5,1440"
                            validation-visibility="live"
                            type="number"/>
@@ -231,25 +240,32 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 12"
                            validation="required|between:6,24"
                            validation-visibility="live"
                            type="number"/>
                   <FormKit v-model="store.state.settings.general.flaresolverr"
                            label="FlareSolverr-URL"
-                           help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben, bspw. http://192.168.0.1:8191 - FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."
+                           help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
-                           type="text"/>
+                           placeholder="Bspw. http://192.168.0.1:8191"
+                           validation="url"
+                           validation-visibility="live"
+                           type="url"/>
                   <FormKit v-model="store.state.settings.general.flaresolverr_proxy"
                            label="FlareSolverr-Proxy-URL"
-                           help="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben, bspw. http://192.168.0.1:8080 - FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."
+                           help="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben. FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
-                           type="text"/>
+                           placeholder="Bspw. http://192.168.0.1:8080"
+                           validation="url"
+                           validation-visibility="live"
+                           type="url"/>
                   <h5>Ein Mirror genügt</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.general.one_mirror_policy"
@@ -436,29 +452,50 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. o.12345ABCBCQJMmfhpWkkNFby7Z7qd6Rj"
+                           :validation="[['matches', /^o\.[A-Za-z0-9]+$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte einen validen Access-Token angeben.'
+                           }"
                            type="text"/>
                   <FormKit v-model="store.state.settings.alerts.pushover"
                            label="Pushover"
-                           help="Hier durch ein Komma getrennt (Keine Leerzeichen!) den User-Key und danach einen API-Token angeben - Für letzteren zunächst eine auf Pushover.net anlegen."
+                           help="Hier durch ein Komma getrennt den User-Key und danach einen API-Token angeben. Letzteren zunächst auf Pushover.net anlegen."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. uQiRzpo4DXghDmr9QzzfQu27cmVRsG,azGDORePK8gMaC0QOYAMyEEuzJnyUi"
+                           :validation="[['matches', /^[A-Za-z0-9]{30},[A-Za-z0-9]{30}$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte den User-Key und dann kommagetrennt einen API-Token angeben (ohne Leerzeichen).'
+                           }"
                            type="text"/>
                   <FormKit v-model="store.state.settings.alerts.homeassistant" help-class="text-muted"
                            label="Home Assistant"
-                           help="Hier durch ein Komma getrennt (Keine Leerzeichen!) die URL zur API und danach das Passwort angeben."
+                           help="Hier durch ein Komma getrennt die URL zur API und danach das Passwort angeben."
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
-                           type="text"/>
+                           placeholder="Bspw. http://192.168.0.1:8080,Passwort"
+                           validation="url"
+                           validation-visibility="live"
+                           type="url"/>
                   <FormKit v-model="store.state.settings.alerts.telegram"
                            label="Telegram"
-                           help="Hier durch ein Komma getrennt (Keine Leerzeichen!) den Token des eigenen Bots und danach die Chat Id des Ziel Chats angeben - Beide werden über Chat mit BotFather angelegt."
+                           help="Hier durch ein Komma getrennt den Token des eigenen Bots und danach die Chat-ID des Ziel Chats angeben. Beide werden im Chat mit BotFather angelegt."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. 123456789:sYV4B-Ez5yTh3heyFquV4QgQSW2XSBLF9Xj,987654321"
+                           :validation="[['matches', /^\d+?:[^\s]+?,\d+?$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte den Token des eigenen Bots und dann kommagetrennt die Chat-ID des Ziel Chats angeben (ohne Leerzeichen).'
+                           }"
                            type="text"/>
                 </div>
               </div>
@@ -478,12 +515,15 @@ function submitSettings() {
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.overseerr.url"
                            label="Overseerr URL"
-                           help="Hier die URL von Overseerr angeben, bspw. http://192.168.0.1:5055."
+                           help="Hier die URL von Overseerr angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
-                           type="text"/>
+                           placeholder="Bspw. http://192.168.0.1:5055"
+                           validation="url"
+                           validation-visibility="live"
+                           type="url"/>
                   <FormKit v-model="store.state.settings.overseerr.api"
                            label="Overseerr API-Key"
                            help="Hier den API-Key von Overseerr angeben."
@@ -491,15 +531,24 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. V2hhdCB3ZXJlIHlvdSBsb29raW5nIGZvcj8KV2h5IGFyZSB5b3UgZXZlbiBoZXJlPw=="
+                           :validation="[['matches', /^.{10,}$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte einen validen API-Key angeben.'
+                           }"
                            type="text"/>
                   <FormKit v-model="store.state.settings.ombi.url"
                            label="Ombi URL"
-                           help="Hier die URL von Ombi angeben, bspw. http://192.168.0.1:5000/ombi."
+                           help="Hier die URL von Ombi angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
-                           type="text"/>
+                           placeholder="Bspw. http://192.168.0.1:5000/ombi"
+                           validation="url"
+                           validation-visibility="live"
+                           type="url"/>
                   <FormKit v-model="store.state.settings.ombi.api"
                            label="Ombi API-Key"
                            help="Hier den API-Key von Ombi angeben."
@@ -507,6 +556,12 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. UQ6oVaEuPR3CyyhEfi2uT32PrRJfitfv3WG"
+                           :validation="[['matches', /^.{10,}$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte einen validen API-Key angeben.'
+                           }"
                            type="text"/>
                 </div>
               </div>
@@ -548,11 +603,12 @@ function submitSettings() {
                   </FormKit>
                   <FormKit v-model="store.state.settings.mb.ignore"
                            label="Filterliste"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."
+                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. cam,subbed,xvid,dvdr,untouched,remux,mpeg2,avc,pal,md,ac3md,mic,xxx"
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
@@ -573,16 +629,18 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 6,5"
                            validation="required|between:0.0,10.0"
                            validation-visibility="live"
                            type="number"/>
-                  <FormKit v-model="store.state.settings.mb.imdb_year" :max="year"
+                  <FormKit v-model="store.state.settings.mb.imdb_year"
                            label="IMDb hinzufügen ab Erscheinungsjahr"
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
                            help="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."
+                           placeholder="Bspw. 2020"
                            validation="between:1900,2099"
                            validation-visibility="live"
                            type="number"/>
@@ -710,11 +768,12 @@ function submitSettings() {
                   </FormKit>
                   <FormKit v-model="store.state.settings.sj.ignore"
                            label="Filterliste"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."
+                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. XviD,Subbed,HDTV"
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
@@ -756,8 +815,8 @@ function submitSettings() {
                              input-class="form-check-input"
                              type="checkbox"/>
                   </label>
-                  <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->
                   <div v-if="store.state.hostnames.bl === 'Nicht gesetzt!'">
+                    <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->
                     <label class="form-check form-switch">
                       <FormKit v-model="store.state.settings.mbsj.enabled"
                                help="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
@@ -871,6 +930,7 @@ function submitSettings() {
                              messages-class="text-danger"
                              outer-class="mb-4"
                              input-class=" form-control bg-light mb-2"
+                             placeholder="Bspw. 3"
                              validation="required|between:1,7"
                              validation-visibility="live"
                              type="number"/>
@@ -903,11 +963,12 @@ function submitSettings() {
                   </FormKit>
                   <FormKit v-model="store.state.settings.dj.ignore"
                            label="Filterliste"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (durch Kommata getrennt)."
+                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. XviD,Subbed,HDTV"
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
@@ -976,6 +1037,7 @@ function submitSettings() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 3"
                            validation="required|between:1,7"
                            validation-visibility="live"
                            type="number"/>
@@ -1002,7 +1064,7 @@ function submitSettings() {
 <style>
 /* Center Selects */
 select {
-  max-width: 480px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
   text-align-last: center;
@@ -1010,7 +1072,7 @@ select {
 
 /* Formkit Inputs */
 .formkit-inner {
-  max-width: 480px;
+  max-width: 720px;
   margin-left: auto;
   margin-right: auto;
   text-align: center;
