@@ -43,10 +43,10 @@ class CrawlerConfig(object):
             ("subdir", "bool", "True")
         ],
         'Notifications': [
-            ("homeassistant", "str", ""),
-            ("pushbullet", "str", ""),
             ("telegram", "str", ""),
-            ("pushover", "str", "")
+            ("pushbullet", "str", ""),
+            ("pushover", "str", ""),
+            ("homeassistant", "str", "")
         ],
         'Hosters': [
             ("ddl", "bool", "True"),
@@ -62,11 +62,11 @@ class CrawlerConfig(object):
             ("ironfiles", "bool", "False"),
             ("k2s", "bool", "False")
         ],
-        'Ombi': [
+        'Overseerr': [
             ("url", "str", ""),
             ("api", "str", "")
         ],
-        'Overseerr': [
+        'Ombi': [
             ("url", "str", ""),
             ("api", "str", "")
         ],

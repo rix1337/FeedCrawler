@@ -192,7 +192,7 @@ const app = createApp(App)
 app.use(store)
 app.use(router)
 app.use(Toast, {
-    position: "top-center", draggable: false, maxToasts: 3, bodyClassName: ["toast-body"], toastDefaults: {
+    position: "top-center", draggable: false, maxToasts: 1, bodyClassName: ["toast-body"], toastDefaults: {
         [TYPE.ERROR]: {
             icon: 'bi bi-exclamation-triangle',
         }, [TYPE.WARNING]: {
