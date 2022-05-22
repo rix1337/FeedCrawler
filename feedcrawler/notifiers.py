@@ -39,11 +39,11 @@ def notify(items):
 def format_notification(text):
     components = text.split(' - ')
     if len(components) == 5:
-        event = "<b>" + components[0].replace('[', '').replace(']', '') + "</b>"
+        event = "<b>" + components[0].replace('[', '').replace(']', '').replace("/", ' - ') + ":</b>"
         title = components[1]
         site = components[2].replace('[', '').replace(']', '')
-        size = " (" + components[3] + ")" if components[3] != '' else ''
-        source = "\n" + '<a href="' + components[4] + '">Quelle (' + site + ')</a>' if components[4] != '' else ''
+        size = "\n<b>Größe:</b> " + components[3] if components[3] != '' else ''
+        source = "\n" + '<b>Quelle:</b> <a href="' + components[4] + '">' + site + '</a>' if components[4] != '' else ''
         return event + "\n" + title + size + source
     else:
         event = "<b>" + components[0].replace('[', '').replace(']', '') + "</b>"

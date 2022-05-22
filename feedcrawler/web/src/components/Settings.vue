@@ -86,13 +86,12 @@ function submitSettings() {
       <div class="offcanvas-body">
         <h4 v-if="!store.state.misc.loaded_settings">Einstellungen werden geladen...</h4>
         <div v-if="store.state.misc.loaded_settings" id="accordionSettings" class="accordion">
-          <FormKit
-              type="form"
-              id="settings"
-              :actions="false"
-              @submit="saveSettings()"
-              messages-class="text-danger mt-4"
-              incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
+          <FormKit type="form" #default="{ value }"
+                   id="settings"
+                   :actions="false"
+                   @submit="saveSettings()"
+                   messages-class="text-danger mt-4"
+                   incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
           >
             <div class="accordion-item">
               <h2 id="headingSettingsMyJd" class="accordion-header">
@@ -206,21 +205,26 @@ function submitSettings() {
                            type="text"/>
                   <FormKit v-model="store.state.settings.general.auth_user"
                            label="Nutzername"
+                           name="auth_user"
                            help="Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!)."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. rix1337"
+                           :validation="value.auth_hash ? 'required' : ''"
                            type="text"/>
                   <FormKit v-model="store.state.settings.general.auth_hash"
                            label="Passwort"
+                           name="auth_hash"
                            help="Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!)."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. ●●●●●●●●"
+                           :validation="value.auth_user ? 'required' : ''"
+                           validation-visibility="live"
                            type="password"/>
                   <FormKit v-model="store.state.settings.general.interval"
                            label="Suchintervall (Allgemein)"
@@ -252,11 +256,12 @@ function submitSettings() {
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. http://192.168.0.1:8191"
-                           validation="url"
+                           :validation="value.flaresolverr_proxy ? 'required|url' : 'url'"
                            validation-visibility="live"
                            type="url"/>
                   <FormKit v-model="store.state.settings.general.flaresolverr_proxy"
                            label="FlareSolverr-Proxy-URL"
+                           name="flaresolverr_proxy"
                            help="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben. FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            messages-class="text-danger"
@@ -445,6 +450,23 @@ function submitSettings() {
               <div id="collapseNotifications" aria-labelledby="headingNotifications" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
+                  <FormKit v-model="store.state.settings.alerts.telegram"
+                           label="Telegram"
+                           help="Hier kommagetrennt den Token des eigenen Bots und danach die Chat-ID des Ziel-Chats angeben. Beide werden im Chat mit BotFather angelegt."
+                           help-class="text-muted"
+                           messages-class="text-danger"
+                           outer-class="mb-2"
+                           input-class="form-control bg-light mb-2"
+                           placeholder="Bspw. 123456789:sYV4B-Ez5yTh3heyFquV4QgQSW2XSBLF9Xj,987654321"
+                           :validation="[['matches', /^\d+?:[^\s]+?,\d+?$/]]"
+                           validation-visibility="live"
+                           :validation-messages="{
+                              matches: 'Bitte den Token des eigenen Bots und dann kommagetrennt die Chat-ID des Ziel-Chats angeben (ohne Leerzeichen).'
+                           }"
+                           type="text"/>
+                  <div class="mb-4">
+                    <mark>Telegram ist der offiziell empfohlene Weg, Benachrichtigungen zu versenden.</mark>
+                  </div>
                   <FormKit v-model="store.state.settings.alerts.pushbullet"
                            label="Pushbullet"
                            help="Access-Token auf Pushbullet.com anlegen und hier angeben."
@@ -461,7 +483,7 @@ function submitSettings() {
                            type="text"/>
                   <FormKit v-model="store.state.settings.alerts.pushover"
                            label="Pushover"
-                           help="Hier durch ein Komma getrennt den User-Key und danach einen API-Token angeben. Letzteren zunächst auf Pushover.net anlegen."
+                           help="Hier kommagetrennt den User-Key und danach einen API-Token angeben. Letzteren zunächst auf Pushover.net anlegen."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
@@ -475,7 +497,7 @@ function submitSettings() {
                            type="text"/>
                   <FormKit v-model="store.state.settings.alerts.homeassistant" help-class="text-muted"
                            label="Home Assistant"
-                           help="Hier durch ein Komma getrennt die URL zur API und danach das Passwort angeben."
+                           help="Hier kommagetrennt die URL zur API und danach das Passwort angeben."
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
@@ -483,20 +505,6 @@ function submitSettings() {
                            validation="url"
                            validation-visibility="live"
                            type="url"/>
-                  <FormKit v-model="store.state.settings.alerts.telegram"
-                           label="Telegram"
-                           help="Hier durch ein Komma getrennt den Token des eigenen Bots und danach die Chat-ID des Ziel Chats angeben. Beide werden im Chat mit BotFather angelegt."
-                           help-class="text-muted"
-                           messages-class="text-danger"
-                           outer-class="mb-4"
-                           input-class="form-control bg-light mb-2"
-                           placeholder="Bspw. 123456789:sYV4B-Ez5yTh3heyFquV4QgQSW2XSBLF9Xj,987654321"
-                           :validation="[['matches', /^\d+?:[^\s]+?,\d+?$/]]"
-                           validation-visibility="live"
-                           :validation-messages="{
-                              matches: 'Bitte den Token des eigenen Bots und dann kommagetrennt die Chat-ID des Ziel Chats angeben (ohne Leerzeichen).'
-                           }"
-                           type="text"/>
                 </div>
               </div>
             </div>
@@ -515,24 +523,26 @@ function submitSettings() {
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.overseerr.url"
                            label="Overseerr URL"
+                           name="overseerr_url"
                            help="Hier die URL von Overseerr angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. http://192.168.0.1:5055"
-                           validation="url"
+                           :validation="value.overseerr_api ? 'required|url' : 'url'"
                            validation-visibility="live"
                            type="url"/>
                   <FormKit v-model="store.state.settings.overseerr.api"
                            label="Overseerr API-Key"
+                           name="overseerr_api"
                            help="Hier den API-Key von Overseerr angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. V2hhdCB3ZXJlIHlvdSBsb29raW5nIGZvcj8KV2h5IGFyZSB5b3UgZXZlbiBoZXJlPw=="
-                           :validation="[['matches', /^.{10,}$/]]"
+                           :validation="value.overseerr_url ? 'required|length:10' : 'length:10'"
                            validation-visibility="live"
                            :validation-messages="{
                               matches: 'Bitte einen validen API-Key angeben.'
@@ -540,24 +550,26 @@ function submitSettings() {
                            type="text"/>
                   <FormKit v-model="store.state.settings.ombi.url"
                            label="Ombi URL"
+                           name="ombi_url"
                            help="Hier die URL von Ombi angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. http://192.168.0.1:5000/ombi"
-                           validation="url"
+                           :validation="value.ombi_api ? 'required|url' : 'url'"
                            validation-visibility="live"
                            type="url"/>
                   <FormKit v-model="store.state.settings.ombi.api"
                            label="Ombi API-Key"
+                           name="ombi_api"
                            help="Hier den API-Key von Ombi angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            input-class="form-control bg-light mb-2"
                            placeholder="Bspw. UQ6oVaEuPR3CyyhEfi2uT32PrRJfitfv3WG"
-                           :validation="[['matches', /^.{10,}$/]]"
+                           :validation="value.ombi_url ? 'required|length:10' : 'length:10'"
                            validation-visibility="live"
                            :validation-messages="{
                               matches: 'Bitte einen validen API-Key angeben.'
