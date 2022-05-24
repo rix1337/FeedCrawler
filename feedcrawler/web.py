@@ -23,7 +23,8 @@ import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
 from feedcrawler import internal
 from feedcrawler import version
-from feedcrawler.common import Unbuffered
+from feedcrawler.common import Unbuffered, keep_alphanumeric_with_special_characters, \
+    keep_alphanumeric_with_regex_characters, keep_numbers
 from feedcrawler.common import decode_base64
 from feedcrawler.common import get_to_decrypt
 from feedcrawler.common import is_device
@@ -1150,30 +1151,34 @@ def app_container():
     def post_lists():
         try:
             data = request.json
-            ListDb("List_ContentAll_Movies").store_list(
-                data['mb']['filme'].split('\n'))
-            ListDb("List_ContentAll_Seasons").store_list(
-                data['mbsj']['staffeln'].split('\n'))
-            ListDb("List_ContentAll_Movies_Regex").store_list(
-                data['mb']['regex'].split('\n'))
-            ListDb("List_ContentShows_Shows").store_list(
-                data['sj']['serien'].split('\n'))
-            ListDb("List_ContentShows_Shows_Regex").store_list(
-                data['sj']['regex'].split('\n'))
-            ListDb("List_ContentShows_Seasons_Regex").store_list(
-                data['sj']['staffeln_regex'].split('\n'))
-            ListDb("List_CustomDJ_Documentaries").store_list(
-                data['dj']['dokus'].split('\n'))
-            ListDb("List_CustomDJ_Documentaries_Regex").store_list(
-                data['dj']['regex'].split('\n'))
 
-            try:
-                replace_dd = 'https://' + CrawlerConfig('Hostnames').get('dd') + '/rss/'
-            except:
-                replace_dd = 'https:///rss/'
-                pass
-            ListDb("List_CustomDD_Feeds").store_list(
-                data['dd']['feeds'].replace(replace_dd, "").split('\n'))
+            mb_filme = keep_alphanumeric_with_special_characters(data['mb']['filme']).split('\n')
+            ListDb("List_ContentAll_Movies").store_list(mb_filme)
+
+            mbsj_staffeln = keep_alphanumeric_with_special_characters(data['mbsj']['staffeln']).split('\n')
+            ListDb("List_ContentAll_Seasons").store_list(mbsj_staffeln)
+
+            mb_regex = keep_alphanumeric_with_regex_characters(data['mb']['regex']).split('\n')
+            ListDb("List_ContentAll_Movies_Regex").store_list(mb_regex)
+
+            sj_serien = keep_alphanumeric_with_special_characters(data['sj']['serien']).split('\n')
+            ListDb("List_ContentShows_Shows").store_list(sj_serien)
+
+            sj_regex = keep_alphanumeric_with_regex_characters(data['sj']['regex']).split('\n')
+            ListDb("List_ContentShows_Shows_Regex").store_list(sj_regex)
+
+            sj_staffeln_regex = keep_alphanumeric_with_regex_characters(data['sj']['staffeln_regex']).split('\n')
+            ListDb("List_ContentShows_Seasons_Regex").store_list(sj_staffeln_regex)
+
+            dj_dokus = keep_alphanumeric_with_special_characters(data['dj']['dokus']).split('\n')
+            ListDb("List_CustomDJ_Documentaries").store_list(dj_dokus)
+
+            dj_regex = keep_alphanumeric_with_regex_characters(data['dj']['regex']).split('\n')
+            ListDb("List_CustomDJ_Documentaries_Regex").store_list(dj_regex)
+
+            dd_feeds = keep_numbers(data['dd']['feeds']).split('\n')
+            ListDb("List_CustomDD_Feeds").store_list(dd_feeds)
+
             return "Success"
         except:
             return abort(400, "Failed")

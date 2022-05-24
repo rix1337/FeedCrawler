@@ -11,7 +11,7 @@ const toast = useToast()
 onMounted(() => {
   getVersion()
   setInterval(getVersion, 300 * 1000)
-  setInterval(updateCrawlTimes, 5 * 1000)
+  setInterval(updateCrawlTimes, 10 * 1000)
 })
 
 function updateCrawlTimes() {

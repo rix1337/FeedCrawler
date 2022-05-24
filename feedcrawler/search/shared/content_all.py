@@ -12,7 +12,7 @@ from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
 from feedcrawler.common import decode_base64
 from feedcrawler.common import is_retail
-from feedcrawler.common import sanitize
+from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
@@ -29,7 +29,7 @@ from feedcrawler.url import get_urls_async
 
 
 def get_best_result(title):
-    title = sanitize(title)
+    title = keep_alphanumeric_with_special_characters(title)
     try:
         bl_results = get(title, only_content_all=True)[0]
     except:

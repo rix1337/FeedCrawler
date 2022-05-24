@@ -3,8 +3,8 @@ import {useStore} from 'vuex'
 import {ref} from 'vue'
 import {useToast} from "vue-toastification"
 import {submitForm} from '@formkit/vue'
-import axios from 'axios'
 import {Collapse, Offcanvas} from 'bootstrap'
+import axios from 'axios'
 
 const store = useStore()
 const toast = useToast()
@@ -1078,21 +1078,5 @@ select {
   margin-left: auto;
   margin-right: auto;
   text-align-last: center;
-}
-
-/* Formkit Inputs */
-.formkit-inner {
-  max-width: 720px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
-}
-
-/* Formkit Help texts */
-.formkit-help {
-  max-width: 1024px;
-  margin-left: auto;
-  margin-right: auto;
-  text-align: center;
 }
 </style>

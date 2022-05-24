@@ -766,14 +766,14 @@ class Jddevice:
             # Direct connection info available, we try to use it.
             for conn in self.__direct_connection_info:
                 connection_ip = conn['conn']['ip']
-                if "172.17." in connection_ip or "127.0.0.1" in connection_ip:
+                # prevent connection to internal docker ip
+                if "172.17." in connection_ip:
                     continue
                 if time.time() > conn['cooldown']:
                     # We can use the connection
                     connection = conn['conn']
                     api = "http://" + connection_ip + ":" + str(
                         connection["port"])
-                    # if self.myjd.request_api("/device/ping", "POST", None, self.__action_url(), api):
                     response = self.myjd.request_api(path, http_action, params,
                                                      action_url, api)
                     if response is not None:
@@ -1082,7 +1082,6 @@ class Myjdapi:
             if params is not None:
                 for param in params:
                     if not isinstance(param, list):
-                        # params_request+=[str(param).replace("'",'\"').replace("True","true").replace("False","false").replace('None',"null")]
                         params_request += [json.dumps(param)]
                     else:
                         params_request += [param]

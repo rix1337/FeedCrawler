@@ -3,7 +3,9 @@ import {useStore} from 'vuex'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
+import {submitForm} from "@formkit/vue/index"
 import axios from 'axios'
+
 
 const store = useStore()
 const toast = useToast()
@@ -46,6 +48,10 @@ function showRegExHelp() {
     toggle: true
   })
 }
+
+function submitLists() {
+  submitForm('lists')
+}
 </script>
 
 
@@ -58,136 +64,285 @@ function showRegExHelp() {
         <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
       </div>
       <div class="offcanvas-body">
-        <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
-        <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
-          <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
-            <h2 id="headingHostnamesBl" class="accordion-header">
-              <button aria-controls="collapseHostnamesBl" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapseHostnamesBl"
-                      data-bs-toggle="collapse" type="button">
-                {{ store.state.hostnames.bl }}
-              </button>
-            </h2>
-            <div id="collapseHostnamesBl" aria-labelledby="headingHostnamesBl" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionLists">
-              <div class="accordion-body">
-                <h5>Filme</h5>
-                <textarea v-model="store.state.lists.mb.filme"
-                          v-tippy="'Pro Zeile ein Filmtitel (wahlweise mit Erscheinungsjahr in Klammern).'"
-                          class="liste form-control bg-light mb-4"></textarea>
-                <h5 v-if="store.state.settings.mb.regex">Filme/Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
-                                                                            class="link-primary"
-                                                                            @click="showRegExHelp">(RegEx)</span>
-                </h5>
-                <textarea v-if="store.state.settings.mb.regex" v-model="store.state.lists.mb.regex"
-                          class="liste form-control bg-light mb-4"
-                          v-tippy="'Pro Zeile ein Film-/Serientitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
-                <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'">
-                  <h5>Staffeln</h5>
-                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
-                            v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
+        <FormKit type="form" #default="{ value }"
+                 id="lists"
+                 :actions="false"
+                 messages-class="text-danger"
+                 incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
+                 @submit="saveLists()"
+        >
+          <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
+          <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
+            <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
+              <h2 id="headingHostnamesBl" class="accordion-header">
+                <button aria-controls="collapseHostnamesBl" aria-expanded="false" class="accordion-button collapsed"
+                        data-bs-target="#collapseHostnamesBl"
+                        data-bs-toggle="collapse" type="button">
+                  {{ store.state.hostnames.bl }}
+                </button>
+              </h2>
+              <div id="collapseHostnamesBl" aria-labelledby="headingHostnamesBl" class="accordion-collapse collapse"
+                   data-bs-parent="#accordionLists">
+                <div class="accordion-body">
+                  <div v-tippy="'Pro Zeile ein Film-Titel'">
+                    <FormKit v-model="store.state.lists.mb.filme" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Filme"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Film-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.settings.mb.regex"
+                       v-tippy="'Pro Zeile ein Film-/Serien-Titel im RegEx-Format - Die Filterliste wird hier ignoriert.'">
+                    <h5>Filme/Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
+                                           class="link-primary"
+                                           @click="showRegExHelp">(RegEx)</span>
+                    </h5><!-- Setting variables in label is unsupported -->
+                    <FormKit v-model="store.state.lists.mb.regex" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Film.*.Titel.*"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'"
+                       v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
+                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
+              <h2 id="headingHostnamesS" class="accordion-header">
+                <button aria-controls="collapseHostnamesS" aria-expanded="false" class="accordion-button collapsed"
+                        data-bs-target="#collapseHostnamesS" data-bs-toggle="collapse" type="button">
+                  {{ store.state.hostnames.s }}
+                </button>
+              </h2>
+              <div id="collapseHostnamesS" aria-labelledby="headingHostnamesS" class="accordion-collapse collapse"
+                   data-bs-parent="#accordionLists">
+                <div class="accordion-body">
+                  <div v-tippy="'Pro Zeile ein Serien-Titel für Episoden.'">
+                    <FormKit v-model="store.state.lists.sj.serien" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Serien"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.settings.sj.regex"
+                       v-tippy="'Pro Zeile ein Serien-Titel im RegEx-Format - Die Filterliste wird hier ignoriert.'">
+                    <h5>Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
+                                     class="link-primary"
+                                     @click="showRegExHelp">(RegEx)</span>
+                    </h5><!-- Setting variables in label is unsupported -->
+                    <FormKit v-model="store.state.lists.sj.regex" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien.*.Titel.*"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.lists.sj.staffeln_regex"
+                       v-tippy="'Pro Zeile ein Serien-Titel im RegEx-Format für Staffeln - Die Filterliste wird hier ignoriert.'">
+                    <h5>Staffeln <span v-tippy="'Hilfe zu RegEx öffnen'"
+                                       class="link-primary"
+                                       @click="showRegExHelp">(RegEx)</span>
+                    </h5><!-- Setting variables in label is unsupported -->
+                    <FormKit v-if="store.state.lists.sj.staffeln_regex" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien.*.Titel.*"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'"
+                       v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
+                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div
+                v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
+                class="accordion-item">
+              <h2 id="headingHostnamesSjBl" class="accordion-header">
+                <button aria-controls="collapseHostnamesSjBl" aria-expanded="false" class="accordion-button collapsed"
+                        data-bs-target="#collapseHostnamesSjBl" data-bs-toggle="collapse"
+                        type="button">
+                  {{ store.state.hostnames.sjbl }}
+                </button>
+              </h2>
+              <div id="collapseHostnamesSjBl" aria-labelledby="headingHostnamesSjBl" class="accordion-collapse collapse"
+                   data-bs-parent="#accordionLists">
+                <div class="accordion-body">
+                  <div v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
+                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Serien-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
+              <h2 id="headingHostnamesDj" class="accordion-header">
+                <button aria-controls="collapseHostnamesDj" aria-expanded="false" class="accordion-button collapsed"
+                        data-bs-target="#collapseHostnamesDj" data-bs-toggle="collapse"
+                        type="button">
+                  {{ store.state.hostnames.dj }}
+                </button>
+              </h2>
+              <div id="collapseHostnamesDj" aria-labelledby="headingHostnamesDj" class="accordion-collapse collapse"
+                   data-bs-parent="#accordionLists">
+                <div class="accordion-body">
+                  <div v-tippy="'Pro Zeile ein Doku-Titel'">
+                    <FormKit v-model="store.state.lists.dj.dokus" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Dokus"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Doku-Titel"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                  <div v-if="store.state.settings.dj.regex"
+                       v-tippy="'Pro Zeile ein Doku-Titel im RegEx-Format - Die Filterliste wird hier ignoriert.'">
+                    <h5>Dokus <span v-tippy="'Hilfe zu RegEx öffnen'"
+                                    class="link-primary"
+                                    @click="showRegExHelp">(RegEx)</span>
+                    </h5><!-- Setting variables in label is unsupported -->
+                    <FormKit v-model="store.state.lists.dj.regex" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. Doku.*.Titel.*"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
+              <h2 id="headingHostnamesDd" class="accordion-header">
+                <button aria-controls="collapseHostnamesDd" aria-expanded="false" class="accordion-button collapsed"
+                        data-bs-target="#collapseHostnamesDd" data-bs-toggle="collapse"
+                        type="button">
+                  {{ store.state.hostnames.dd }}
+                </button>
+              </h2>
+              <div id="collapseHostnamesDd" aria-labelledby="headingHostnamesDd" class="accordion-collapse collapse"
+                   data-bs-parent="#accordionLists">
+                <div class="accordion-body">
+                  <div v-tippy="'Pro Zeile eine numerische RSS-Feed-ID'">
+                    <FormKit v-model="store.state.lists.dd.feeds" help-class="text-muted"
+                             messages-class="text-danger"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Feed-IDs"
+                             rows="10"
+                             class="liste form-control bg-light mb-4"
+                             placeholder="Bspw. 12345"
+                             :validation="[['?matches', /^[0-9\n]+$/]]"
+                             :validation-messages="{
+                                matches: 'Bitte nur Zahlen eingeben.'
+                             }"
+                             validation-visibility="live"
+                             type="textarea"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-          <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
-            <h2 id="headingHostnamesS" class="accordion-header">
-              <button aria-controls="collapseHostnamesS" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapseHostnamesS" data-bs-toggle="collapse" type="button">
-                {{ store.state.hostnames.s }}
-              </button>
-            </h2>
-            <div id="collapseHostnamesS" aria-labelledby="headingHostnamesS" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionLists">
-              <div class="accordion-body">
-                <h5>Serien</h5>
-                <textarea v-model="store.state.lists.sj.serien" v-tippy="'Pro Zeile ein Serientitel für Episoden.'"
-                          class="liste form-control bg-light mb-4"></textarea>
-                <h5 v-if="store.state.settings.sj.regex">Serien <span v-tippy="'Hilfe zu RegEx öffnen'"
-                                                                      class="link-primary"
-                                                                      @click="showRegExHelp">(RegEx)</span></h5>
-                <textarea v-if="store.state.settings.sj.regex" v-model="store.state.lists.sj.regex"
-                          class="liste form-control bg-light mb-4"
-                          v-tippy="'Pro Zeile ein Serientitel im RegEx-Format für Episoden - Die Filterliste wird hierbei ignoriert.'"></textarea>
-                <h5 v-if="store.state.lists.sj.staffeln_regex">Staffeln <span v-tippy="'Hilfe zu RegEx öffnen'"
-                                                                              class="link-primary"
-                                                                              @click="showRegExHelp">(RegEx)</span></h5>
-                <textarea v-if="store.state.lists.sj.staffeln_regex" v-model="store.state.lists.sj.staffeln_regex"
-                          v-tippy="'Pro Zeile ein Serientitel im RegEx-Format für Staffeln - Die Filterliste wird hierbei ignoriert.'"
-                          class="liste form-control bg-light mb-4"></textarea>
-                <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'">
-                  <h5>Staffeln</h5>
-                  <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
-                            v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-              v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
-              class="accordion-item">
-            <h2 id="headingHostnamesSjBl" class="accordion-header">
-              <button aria-controls="collapseHostnamesSjBl" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapseHostnamesSjBl" data-bs-toggle="collapse"
-                      type="button">
-                {{ store.state.hostnames.sjbl }}
-              </button>
-            </h2>
-            <div id="collapseHostnamesSjBl" aria-labelledby="headingHostnamesSjBl" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionLists">
-              <div class="accordion-body">
-                <h5>Staffeln</h5>
-                <textarea v-model="store.state.lists.mbsj.staffeln" class="liste form-control bg-light mb-4"
-
-                          v-tippy="'Pro Zeile ein Serientitel für ganze Staffeln.'"></textarea>
-              </div>
-            </div>
-          </div>
-          <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
-            <h2 id="headingHostnamesDj" class="accordion-header">
-              <button aria-controls="collapseHostnamesDj" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapseHostnamesDj" data-bs-toggle="collapse"
-                      type="button">
-                {{ store.state.hostnames.dj }}
-              </button>
-            </h2>
-            <div id="collapseHostnamesDj" aria-labelledby="headingHostnamesDj" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionLists">
-              <div class="accordion-body">
-                <h5>Dokus</h5>
-                <textarea v-model="store.state.lists.dj.dokus" v-tippy="'Pro Zeile ein Dokutitel.'"
-                          class="liste form-control bg-light mb-4"></textarea>
-                <h5 v-if="store.state.settings.dj.regex">Dokus <span v-tippy="'Hilfe zu RegEx öffnen'"
-                                                                     class="link-primary"
-                                                                     @click="showRegExHelp">(RegEx)</span></h5>
-                <textarea v-if="store.state.settings.dj.regex" v-model="store.state.lists.dj.regex"
-                          class="liste form-control bg-light mb-4"
-
-                          v-tippy="'Pro Zeile ein Dokutitel im RegEx-Format - Die Filterliste wird hierbei ignoriert.'"></textarea>
-              </div>
-            </div>
-          </div>
-          <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
-            <h2 id="headingHostnamesDd" class="accordion-header">
-              <button aria-controls="collapseHostnamesDd" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapseHostnamesDd" data-bs-toggle="collapse"
-                      type="button">
-                {{ store.state.hostnames.dd }}
-              </button>
-            </h2>
-            <div id="collapseHostnamesDd" aria-labelledby="headingHostnamesDd" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionLists">
-              <div class="accordion-body">
-                <h5>Feed-IDs</h5>
-                <textarea v-model="store.state.lists.dd.feeds"
-                          v-tippy="'Pro Zeile eine numerische RSS-Feed-ID.'"
-                          class="liste form-control bg-light mb-4"></textarea>
-              </div>
-            </div>
-          </div>
-        </div>
+        </FormKit>
         <div>
-          <button v-if="store.state.misc.loaded_lists" class="btn btn-primary mt-4" type="submit" @click="saveLists()">
+          <button v-if="store.state.misc.loaded_lists" class="btn btn-primary mt-4" type="submit"
+                  @click="submitLists()">
             <div v-if="spin_lists" class="spinner-border spinner-border-sm" role="status"></div>
             <i v-if="!spin_lists" class="bi bi-save"></i> Speichern
           </button>
@@ -203,7 +358,6 @@ function showRegExHelp() {
 <style>
 /* Custom Textarea for lists */
 .liste {
-  height: 10em !important;
   resize: none;
 }
 </style>

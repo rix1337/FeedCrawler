@@ -10,7 +10,7 @@ from bs4 import BeautifulSoup
 
 from feedcrawler.common import check_is_site
 from feedcrawler.common import encode_base64
-from feedcrawler.common import sanitize
+from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.external_sites.shared.internal_feed import check_release_not_sd
@@ -49,7 +49,7 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
 
     content_all_results = []
     if not only_content_shows:
-        mb_query = sanitize(title).replace(" ", "+")
+        mb_query = keep_alphanumeric_with_special_characters(title).replace(" ", "+")
         if special:
             bl_query = mb_query + "+" + special
         else:
@@ -145,7 +145,7 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
     content_shows_sf_results = []
     if not only_content_all:
         if sj and not only_slow:
-            sj_query = sanitize(title).replace(" ", "+")
+            sj_query = keep_alphanumeric_with_special_characters(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
                 sj_results = BeautifulSoup(sj_search, 'html5lib').findAll("a", href=re.compile("/serie"))
@@ -170,7 +170,7 @@ def get(title, only_content_all=False, only_content_shows=False, only_fast=False
         content_shows_sj_results = results
 
         if sf and not only_slow:
-            sf_query = sanitize(title)
+            sf_query = keep_alphanumeric_with_special_characters(title)
             sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
             try:
                 sf_results = json.loads(sf_search)["result"]

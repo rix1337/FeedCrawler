@@ -10,7 +10,7 @@ import feedcrawler.search.shared.content_shows
 from feedcrawler import internal
 from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
-from feedcrawler.common import sanitize
+from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.shared.imdb import get_episodes
@@ -21,7 +21,7 @@ from feedcrawler.http_requests.request_handler import request
 
 def imdb_movie(imdb_id):
     try:
-        title = sanitize(get_localized_title(imdb_id))
+        title = keep_alphanumeric_with_special_characters(get_localized_title(imdb_id))
         year = str(get_year(imdb_id))
         return title + " " + year
     except:
@@ -34,7 +34,7 @@ def imdb_movie(imdb_id):
 
 def imdb_show(imdb_id):
     try:
-        title = sanitize(get_localized_title(imdb_id))
+        title = keep_alphanumeric_with_special_characters(get_localized_title(imdb_id))
         seasons = get_episodes(imdb_id)
 
         return title, seasons

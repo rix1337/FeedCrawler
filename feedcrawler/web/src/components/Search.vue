@@ -2,9 +2,10 @@
 import {useStore} from 'vuex'
 import {computed, ref} from 'vue'
 import {useToast} from "vue-toastification"
-import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
 import {submitForm} from '@formkit/vue'
+import axios from 'axios'
+
 
 const store = useStore()
 const toast = useToast()
@@ -142,9 +143,8 @@ function submitSearch() {
                      messages-class="text-danger"
                      input-class="form-control bg-light mb-2"
                      label="Suchbegriff"
-                     placeholder="Film- oder Serientitel eingeben"
+                     placeholder="Film- oder Serien-Titel eingeben"
                      validation="required|length:3"
-                     validation-visibility="live"
                      type="text"/>
           </FormKit>
         </div>

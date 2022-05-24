@@ -448,17 +448,6 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
-def sanitize(key):
-    key = key.replace('.', ' ').replace(';', '').replace(',', '').replace(u'Ä', 'Ae').replace(u'ä', 'ae').replace('ä',
-                                                                                                                  'ae').replace(
-        u'Ö', 'Oe').replace(u'ö', 'oe').replace(u'Ü', 'Ue').replace(u'ü', 'ue').replace(u'ß', 'ss').replace('(',
-                                                                                                            '').replace(
-        ')', '').replace('*', '').replace('|', '').replace('\\', '').replace('/', '').replace('?', '').replace('!',
-                                                                                                               '').replace(
-        ':', '').replace('  ', ' ').replace("'", '').replace("- ", "")
-    return key
-
-
 def configpath(configpath):
     pathfile = "FeedCrawler.conf"
     if configpath:
@@ -521,3 +510,22 @@ def simplified_search_term_in_title(search_term, release_title, no_numbers=False
     release_title = re.sub(match_regex, '', unify(release_title))
 
     return search_term in release_title
+
+
+def replace_umlauts(string):
+    return string.replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue"). \
+        replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+
+
+def keep_alphanumeric_with_special_characters(string):
+    string = replace_umlauts(string)
+    return re.sub('[^0-9a-zA-Z\s\-+&]', '', string)
+
+
+def keep_alphanumeric_with_regex_characters(string):
+    string = replace_umlauts(string)
+    return re.sub('[^0-9a-zA-Z\s\-.*+()|\[\]?!]', '', string)
+
+
+def keep_numbers(string):
+    return re.sub(r'\D', '', string)

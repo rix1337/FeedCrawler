@@ -10,7 +10,7 @@ const toast = useToast()
 
 onMounted(() => {
   getLog()
-  setInterval(getLog, 5 * 1000)
+  setInterval(getLog, 10 * 1000)
 })
 
 const log = ref([])
