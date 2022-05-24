@@ -845,12 +845,15 @@ def app_container():
             try:
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
+                general_conf = CrawlerConfig('FeedCrawler')
+                packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
+                packages_per_myjd_page = 3
             if myjd:
                 return {
                     "downloader_state": myjd[1],
@@ -862,7 +865,8 @@ def app_container():
                         "linkgrabber_offline": myjd[4][2],
                         "linkgrabber_failed": myjd[4][3],
                         "to_decrypt": packages_to_decrypt
-                    }
+                    },
+                    "packages_per_myjd_page": packages_per_myjd_page
                 }
         except:
             pass

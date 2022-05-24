@@ -95,7 +95,6 @@ const store = createStore({
                 myjd_connection_error: false,
                 no_site_blocked: true,
                 now: Date.now(),
-                pageSizeMyJD: 3,
                 sjbl_enabled: true,
                 starting: false,
             },
@@ -165,7 +164,6 @@ const store = createStore({
                     state.settings = res.data.settings
                     state.misc.loaded_settings = true
                     state.misc.myjd_connection_error = !(state.settings.general.myjd_user && state.settings.general.myjd_device && state.settings.general.myjd_device)
-                    state.misc.pageSizeMyJD = state.settings.general.packages_per_myjd_page
                 }, function () {
                     console.log('Konnte Einstellungen nicht abrufen!')
                     toast.error('Konnte Einstellungen nicht abrufen!')

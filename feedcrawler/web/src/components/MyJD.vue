@@ -37,7 +37,7 @@ function getMyJD() {
   axios.get('api/myjd/')
       .then(function (res) {
         store.commit("setMyJDConnectionError", false)
-        pageSizeMyJD.value = store.state.misc.pageSizeMyJD
+        packages_per_myjd_page.value = res.data.packages_per_myjd_page
         myjd_state.value = res.data.downloader_state
         myjd_downloads.value = res.data.packages.downloader
         myjd_decrypted.value = res.data.packages.linkgrabber_decrypted
@@ -125,7 +125,7 @@ function getMyJD() {
 
 
 const resLengthMyJD = ref(0)
-const pageSizeMyJD = ref(3)
+const packages_per_myjd_page = ref(3)
 const currentPageMyJD = ref(1)
 const numberOfPagesMyJD = ref(1)
 
@@ -133,7 +133,7 @@ function getMyJDPages() {
   if (typeof myjd_packages.value !== 'undefined') {
     resLengthMyJD.value = myjd_packages.value.length
     if (resLengthMyJD.value > 0) {
-      numberOfPagesMyJD.value = Math.ceil(resLengthMyJD.value / pageSizeMyJD.value)
+      numberOfPagesMyJD.value = Math.ceil(resLengthMyJD.value / packages_per_myjd_page.value)
     } else {
       numberOfPagesMyJD.value = 1
     }
@@ -159,7 +159,7 @@ const currentMyJDPage = computed(() => {
   if (currentPageMyJD.value > numberOfPagesMyJD.value) {
     currentPageMyJD.value = numberOfPagesMyJD.value
   }
-  return myjd_packages.value.slice((currentPageMyJD.value - 1) * pageSizeMyJD.value, currentPageMyJD.value * pageSizeMyJD.value)
+  return myjd_packages.value.slice((currentPageMyJD.value - 1) * packages_per_myjd_page.value, currentPageMyJD.value * packages_per_myjd_page.value)
 })
 
 const myjd_starting = ref(false)

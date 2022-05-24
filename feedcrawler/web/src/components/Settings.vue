@@ -59,8 +59,6 @@ function saveSettings() {
 
 const spin_settings = ref(false)
 
-const year = ref((new Date).getFullYear())
-
 function showMultiHosterHelp() {
   new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false}).show()
   new Collapse(document.getElementById('collapseMultiHoster'), {
@@ -89,9 +87,9 @@ function submitSettings() {
           <FormKit type="form" #default="{ value }"
                    id="settings"
                    :actions="false"
-                   @submit="saveSettings()"
                    messages-class="text-danger mt-4"
                    incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
+                   @submit="saveSettings()"
           >
             <div class="accordion-item">
               <h2 id="headingSettingsMyJd" class="accordion-header">
@@ -206,7 +204,7 @@ function submitSettings() {
                   <FormKit v-model="store.state.settings.general.auth_user"
                            label="Nutzername"
                            name="auth_user"
-                           help="Hier den Nutzernamen für FeedCrawler eingeben (erfordert gesetztes Passwort!)."
+                           help="Hier den Nutzernamen für FeedCrawler eingeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
@@ -217,7 +215,7 @@ function submitSettings() {
                   <FormKit v-model="store.state.settings.general.auth_hash"
                            label="Passwort"
                            name="auth_hash"
-                           help="Hier das Passwort für FeedCrawler angeben (erfordert gesetzten Nutzernamen!)."
+                           help="Hier das Passwort für FeedCrawler angeben."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
@@ -228,7 +226,7 @@ function submitSettings() {
                            type="password"/>
                   <FormKit v-model="store.state.settings.general.interval"
                            label="Suchintervall (Allgemein)"
-                           help="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 5 Minuten. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."
+                           help="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
@@ -239,7 +237,7 @@ function submitSettings() {
                            type="number"/>
                   <h5>Wartezeit ({{ store.state.hostnames.jf }})</h5> <!-- Setting variables in label is unsupported -->
                   <FormKit v-model="store.state.settings.jf.wait_time"
-                           help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren - Minimum sind 6 Stunden, Maximum sind 24 Stunden."
+                           help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
@@ -315,7 +313,7 @@ function submitSettings() {
               <div id="collapseHosters" aria-labelledby="headingHosters" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body"
-                     help="Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende CAPTCHA-Bedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfügbar, wird dieses übersprungen!">
+                     v-tippy="'Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende CAPTCHA-Bedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfügbar, wird dieses übersprungen!'">
                   <div class="row mb-4">
                     <span>Als Multihoster unterstützt <a href="#" @click="showMultiHosterHelp()">LinkSnappy</a>
                       die meisten hier aktivierbaren Hoster.</span>
@@ -937,7 +935,7 @@ function submitSettings() {
                       v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.sjbl">
                     <FormKit v-model="store.state.settings.f.search"
                              label="Suchtiefe"
-                             help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."
+                             help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
                              help-class="text-muted"
                              messages-class="text-danger"
                              outer-class="mb-4"
@@ -1044,7 +1042,7 @@ function submitSettings() {
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.f.search"
                            label="Suchtiefe"
-                           help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren - Minimum ist 1 Tag, Maximum sind 7 Tage."
+                           help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
                            help-class="text-muted"
                            messages-class="text-danger"
                            outer-class="mb-4"
