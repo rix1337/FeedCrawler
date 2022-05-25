@@ -1286,8 +1286,12 @@ def sf_parse_download(self, series_url, title, language_id):
 
         if is_episode:
             try:
-                last_episode = release_info.find("div", {"class": "list"}).findAll("div", recursive=False)[
-                    -1].div.text.strip()
+                try:
+                    last_episode = release_info.find("div", {"class": "list"}).findAll("div", recursive=False)[
+                        -1].div.text.strip()
+                except:
+                    last_episode = re.findall(r'E(\d{1,3})', title)[-1]
+
                 total_episodes = int(''.join(filter(str.isdigit, last_episode)))
                 total_size = float(re.sub('[^0-9,.]', '', size))
                 size_unit = re.sub('[0-9,.]', '', size).strip()

@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.7** Schätze Episodengröße auf SF, auch wenn für das Release die Anzahl der Episoden nicht bekannt ist.
+- **14.2.7** Möglicher Bugfix in Verbindung zum JDownloader
 - **14.2.6** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Web-Suche und Suchlisten.
 - **14.2.6** Bugfix (#639): Web-Interface beachtet wieder die gesetzte Paketanzahl pro Seite
 - **14.2.5** Weitere Verbesserungen in den Telegram-Benachrichtigungen
