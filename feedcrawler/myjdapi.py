@@ -767,7 +767,7 @@ class Jddevice:
             for conn in self.__direct_connection_info:
                 connection_ip = conn['conn']['ip']
                 # prevent connection to internal docker ip
-                if "172.17." in connection_ip:
+                if "172.17." in connection_ip or "127.0.0.1" in connection_ip:
                     continue
                 if time.time() > conn['cooldown']:
                     # We can use the connection
