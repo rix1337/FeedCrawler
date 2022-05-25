@@ -11,7 +11,7 @@ const toast = useToast()
 onMounted(() => {
   getVersion()
   setInterval(getVersion, 300 * 1000)
-  setInterval(updateCrawlTimes, 5 * 1000)
+  setInterval(updateCrawlTimes, 10 * 1000)
 })
 
 function updateCrawlTimes() {
@@ -144,7 +144,6 @@ function showSiteStatusHelp() {
             </p>
           </div>
           <div class="card-body">
-
             <div v-if="Object.keys(store.state.crawltimes).length !== 0">
               <div v-if="store.state.crawltimes.active&& !isNaN(store.state.crawltimes.start_time)">
                 Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:

@@ -10,7 +10,11 @@ import re
 from bs4 import BeautifulSoup
 
 from feedcrawler import internal
-from feedcrawler.common import decode_base64, sanitize, check_hoster, simplified_search_term_in_title, check_is_site
+from feedcrawler.common import check_hoster
+from feedcrawler.common import check_is_site
+from feedcrawler.common import decode_base64
+from feedcrawler.common import keep_alphanumeric_with_special_characters
+from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.myjd import add_decrypt
@@ -162,7 +166,7 @@ def download(payload):
     listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
     for liste in listen:
         cont = ListDb(liste).retrieve()
-        list_title = sanitize(title)
+        list_title = keep_alphanumeric_with_special_characters(title)
         if not cont:
             cont = ""
         if list_title not in cont:

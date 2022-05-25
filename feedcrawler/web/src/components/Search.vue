@@ -2,8 +2,10 @@
 import {useStore} from 'vuex'
 import {computed, ref} from 'vue'
 import {useToast} from "vue-toastification"
-import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
+import {submitForm} from '@formkit/vue'
+import axios from 'axios'
+
 
 const store = useStore()
 const toast = useToast()
@@ -27,7 +29,7 @@ function getResultsPages() {
 }
 
 const search = ref('')
-const searching = ref(false)
+const spin_search = ref(false)
 const slow_ready = ref(false)
 
 function clearResults() {
@@ -38,48 +40,45 @@ function clearResults() {
 function searchNow() {
   clearResults()
   let title = search.value
-  searching.value = true
+  spin_search.value = true
   slow_ready.value = false
-  if (!title) {
-    results.value = false
-    resLengthResults.value = 0
-    searching.value = false
-  } else {
-    axios.post('api/search/' + title, {slow_only: false, fast_only: true})
-        .then(function (res) {
-          results.value = res.data.results
-          getResultsPages()
-          search.value = ""
-          console.log('Nach ' + title + ' gesucht (schnelle Seiten)!')
-          searching.value = false
-        }, function () {
-          console.log('Konnte ' + title + ' nicht suchen!')
-          toast.error('Konnte  ' + title + ' nicht suchen!')
-          results.value = false
-          resLengthResults.value = 0
-          searching.value = false
-        })
-    axios.post('api/search/' + title, {slow_only: true, fast_only: false})
-        .then(function (res) {
-          slow_ready.value = true
-          if (results.value) {
-            results.value.sj = res.data.results.sj.concat(results.value.sj)
-            results.value.bl = res.data.results.bl.concat(results.value.bl)
-          } else {
+  if (search.value) {
+    {
+      axios.post('api/search/' + title, {slow_only: false, fast_only: true})
+          .then(function (res) {
             results.value = res.data.results
-          }
-          getResultsPages()
-          search.value = ""
-          console.log('Nach ' + title + ' gesucht (langsame Seiten)!')
-          searching.value = false
-        }, function () {
-          slow_ready.value = true
-          console.log('Konnte ' + title + ' nicht suchen!')
-          toast.error('Konnte  ' + title + ' nicht suchen!')
-          results.value = false
-          resLengthResults.value = 0
-          searching.value = false
-        })
+            getResultsPages()
+            console.log('Nach ' + title + ' gesucht (schnelle Seiten)!')
+            spin_search.value = false
+          }, function () {
+            console.log('Konnte ' + title + ' nicht suchen!')
+            toast.error('Konnte  ' + title + ' nicht suchen!')
+            spin_search.value = false
+            results.value = false
+            resLengthResults.value = 0
+          })
+      spin_search.value = true
+      axios.post('api/search/' + title, {slow_only: true, fast_only: false})
+          .then(function (res) {
+            slow_ready.value = true
+            if (results.value) {
+              results.value.sj = res.data.results.sj.concat(results.value.sj)
+              results.value.bl = res.data.results.bl.concat(results.value.bl)
+            } else {
+              results.value = res.data.results
+            }
+            getResultsPages()
+            console.log('Nach ' + title + ' gesucht (langsame Seiten)!')
+            spin_search.value = false
+          }, function () {
+            slow_ready.value = true
+            console.log('Konnte ' + title + ' nicht suchen!')
+            toast.error('Konnte  ' + title + ' nicht suchen!')
+            spin_search.value = false
+            results.value = false
+            resLengthResults.value = 0
+          })
+    }
   }
 }
 
@@ -115,6 +114,10 @@ function downloadS(payload, title) {
         toast.error('Konnte Download nicht starten!')
       })
 }
+
+function submitSearch() {
+  submitForm('search')
+}
 </script>
 
 <template>
@@ -127,48 +130,65 @@ function downloadS(payload, title) {
                 @click="clearResults()"></button>
       </div>
       <div class="offcanvas-body">
-        <input v-model="search" aria-label="Search"
-               class="form-control mr-sm-2 bg-light"
-               minlength="3"
-               placeholder="Film- oder Serientitel eingeben"
-               v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
-               @keyup.enter="searchNow()">
-        <button v-if="search.length > 2" class="btn btn-primary mt-4" type="submit"
-                @click="searchNow()">
-          <span v-if="searching" id="spinner-search" class="spinner-border spinner-border-sm" role="status"> </span>
-          <i v-if="!searching" class="bi bi-search"></i> Suchen
-        </button>
-        <div v-else v-tippy="'Bitte zunächst einen Suchtitel (mehr als 3 Zeichen) eingeben!'">
-          <button class="btn btn-danger disabled mt-2">
-            <i class="bi bi-search"></i> Suchen
-          </button>
+        <div class="row"
+             v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'">
+          <FormKit type="form" #default="{ value }"
+                   id="search"
+                   :actions="false"
+                   messages-class="text-danger"
+                   incomplete-message="Das Suchfeld muss korrekt befüllt werden!"
+                   @submit="searchNow()"
+          >
+            <FormKit v-model="search" help-class="text-muted"
+                     messages-class="text-danger"
+                     input-class="form-control bg-light mb-2"
+                     label="Suchbegriff"
+                     placeholder="Film- oder Serien-Titel eingeben"
+                     validation="required|length:3"
+                     type="text"/>
+          </FormKit>
         </div>
-        <div v-if="results && !slow_ready" class="btn btn-warning disabled mt-2">
-          <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
+        <div class="row">
+          <div class="col-sm">
+            <button class="btn btn-primary mb-2" type="submit"
+                    @click="submitSearch">
+              <span v-if="spin_search" id="spinner-search" class="spinner-border spinner-border-sm"
+                    role="status"> </span>
+              <i v-if="!spin_search" class="bi bi-search"></i> Suchen
+            </button>
+            <div class="col-sm">
+              <div v-if="results && !slow_ready" class="btn btn-warning disabled mt-4">
+                <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
+              </div>
+            </div>
+          </div>
         </div>
-        <div v-if="results" class="results mt-2">
-          <p v-for="x in results.sf">
-            <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
-                class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
-            </button>
-          </p>
-          <p v-for="x in results.sj">
-            <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
-                class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
-            </button>
-          </p>
-          <p v-for="y in currentResultsPage">
-            <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload, y.title)"><i
-                class="bi bi-download"></i> <span v-text="y.title"></span></button>
-          </p>
-          <div v-if="resLengthResults>10" class="btn-group">
-            <paginate
-                v-model="currentPageResults"
-                :next-text="'>'"
-                :page-count="numberOfPagesResults"
-                :prev-text="'<'"
-            >
-            </paginate>
+
+        <div class="row">
+          <div v-if="results" class="results mt-4">
+            <p v-for="x in results.sf">
+              <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
+                  class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
+              </button>
+            </p>
+            <p v-for="x in results.sj">
+              <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
+                  class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
+              </button>
+            </p>
+            <p v-for="y in currentResultsPage">
+              <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload, y.title)"><i
+                  class="bi bi-download"></i> <span v-text="y.title"></span></button>
+            </p>
+            <div v-if="resLengthResults>10" class="btn-group">
+              <paginate
+                  v-model="currentPageResults"
+                  :next-text="'>'"
+                  :page-count="numberOfPagesResults"
+                  :prev-text="'<'"
+              >
+              </paginate>
+            </div>
           </div>
         </div>
       </div>

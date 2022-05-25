@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.6** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Web-Suche und Suchlisten.
+- **14.2.6** Bugfix (#639): Web-Interface beachtet wieder die gesetzte Paketanzahl pro Seite
 - **14.2.5** Weitere Verbesserungen in den Telegram-Benachrichtigungen
 - **14.2.5** Weitere Verbesserungen in [FormKit](https://formkit.com/)-Nutzung
 - **14.2.4** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Einstellungen
