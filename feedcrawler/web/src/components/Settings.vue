@@ -870,6 +870,20 @@ function submitSettings() {
                         {{ option.label }}
                       </option>
                     </FormKit>
+                    <div
+                        v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.s">
+                      <FormKit v-model="store.state.settings.f.search"
+                               label="Suchtiefe"
+                               help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
+                               help-class="text-muted"
+                               messages-class="text-danger"
+                               outer-class="mb-4"
+                               input-class=" form-control bg-light mb-2"
+                               placeholder="Bspw. 3"
+                               validation="required|between:1,7"
+                               validation-visibility="live"
+                               type="number"/>
+                    </div>
                   </div>
                 </div>
               </div>
