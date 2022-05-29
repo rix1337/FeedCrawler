@@ -120,10 +120,10 @@ def main():
     if not arguments.test_run:
         if not internal.device:
             feedcrawler = CrawlerConfig('FeedCrawler')
-            device_name = feedcrawler.get('myjd_user')
+            device_name = feedcrawler.get('myjd_device')
 
             i = 0
-            while i < 5:
+            while i < 10:
                 i += 1
                 print(
                     u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, device_name))

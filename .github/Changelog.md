@@ -6,6 +6,11 @@
 
 ### Changelog FeedCrawler:
 
+- **14.2.8** Anzahl der maximalen Fehlversuche pro Paket im 
+  [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) sind jetzt
+  konfigurierbar.
+- **14.2.8** Schätze Episodengröße auf SF, auch wenn mehrere Episoden in einem Release vorhanden sind.
+- **14.2.8** Bugfixes in Log-Meldung beim Start und dem Web-Interface
 - **14.2.7** Schätze Episodengröße auf SF, auch wenn für das Release die Anzahl der Episoden nicht bekannt ist.
 - **14.2.7** Möglicher Bugfix in Verbindung zum JDownloader
 - **14.2.6** Nutze [FormKit](https://formkit.com/) für bessere Validierung der Web-Suche und Suchlisten.

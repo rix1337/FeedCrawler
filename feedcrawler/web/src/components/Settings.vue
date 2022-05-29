@@ -870,6 +870,20 @@ function submitSettings() {
                         {{ option.label }}
                       </option>
                     </FormKit>
+                    <div
+                        v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.s">
+                      <FormKit v-model="store.state.settings.f.search"
+                               label="Suchtiefe"
+                               help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
+                               help-class="text-muted"
+                               messages-class="text-danger"
+                               outer-class="mb-4"
+                               input-class=" form-control bg-light mb-2"
+                               placeholder="Bspw. 3"
+                               validation="required|between:1,7"
+                               validation-visibility="live"
+                               type="number"/>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1049,6 +1063,35 @@ function submitSettings() {
                            input-class=" form-control bg-light mb-2"
                            placeholder="Bspw. 3"
                            validation="required|between:1,7"
+                           validation-visibility="live"
+                           type="number"/>
+                </div>
+              </div>
+            </div>
+            <div
+                v-if="store.state.misc.helper_active"
+                class="accordion-item">
+              <h2 id="headingSettingsHelper" class="accordion-header">
+                <button aria-controls="collapseSettingsHelper" aria-expanded="false"
+                        class="accordion-button collapsed"
+                        data-bs-target="#collapseSettingsHelper"
+                        data-bs-toggle="collapse" type="button">
+                  FeedCrawler Sponsors Helper
+                </button>
+              </h2>
+              <div id="collapseSettingsHelper" aria-labelledby="headingSettingsHelper"
+                   class="accordion-collapse collapse"
+                   data-bs-parent="#accordionSettings">
+                <div class="accordion-body">
+                  <FormKit v-model="store.state.settings.sponsors_helper.max_attempts"
+                           label="Erlaubte Fehlversuche"
+                           help="Um keine CAPTCHA-Credits zu verschwenden, löscht der FeedCrawler Sponsor Helper ein Paket, nachdem dieser Schwellwert erreicht wurde."
+                           help-class="text-muted"
+                           messages-class="text-danger"
+                           outer-class="mb-4"
+                           input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 3"
+                           validation="required|between:1,10"
                            validation-visibility="live"
                            type="number"/>
                 </div>

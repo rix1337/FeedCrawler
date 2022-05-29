@@ -284,6 +284,7 @@ def app_container():
             dd_conf = CrawlerConfig('CustomDD')
             f_conf = CrawlerConfig('CustomF')
             jf_conf = CrawlerConfig('CustomJF')
+            helper_conf = CrawlerConfig('SponsorsHelper')
             return {
                 "settings": {
                     "general": {
@@ -376,6 +377,9 @@ def app_container():
                     },
                     "jf": {
                         "wait_time": to_int(jf_conf.get("wait_time")),
+                    },
+                    "sponsors_helper": {
+                        "max_attempts": to_int(helper_conf.get("max_attempts")),
                     }
                 }
             }
@@ -534,6 +538,12 @@ def app_container():
             if to_int(wait_time) < 6:
                 wait_time = '6'
             section.save("wait_time", wait_time)
+
+            section = CrawlerConfig("SponsorsHelper")
+            max_attempts = to_str(data['sponsors_helper']['max_attempts'])
+            if to_int(max_attempts) > 10:
+                max_attempts = '10'
+            section.save("max_attempts", max_attempts)
 
             return "Success"
         except:
@@ -1490,11 +1500,17 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                     "password"]
                 decrypt_password = decrypt["password"]
 
+            try:
+                max_attempts = CrawlerConfig('SponsorsHelper').get("max_attempts")
+            except:
+                max_attempts = 3
+
             return {
                 "to_decrypt": {
                     "name": decrypt_name,
                     "url": decrypt_url,
-                    "password": decrypt_password
+                    "password": decrypt_password,
+                    "max_attempts": max_attempts
                 }
             }
         except:

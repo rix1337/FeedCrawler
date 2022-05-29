@@ -1248,6 +1248,7 @@ def sf_parse_download(self, series_url, title, language_id):
         info = json.loads(response)
 
         is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
+        multiple_episodes = False
         if is_episode:
             episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
             season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
@@ -1284,18 +1285,27 @@ def sf_parse_download(self, series_url, title, language_id):
         except:
             size = ""
 
-        if is_episode:
+        if is_episode or multiple_episodes:
             try:
                 try:
-                    last_episode = release_info.find("div", {"class": "list"}).findAll("div", recursive=False)[
+                    number_of_episodes = release_info.find("div", {"class": "list"}).findAll("div", recursive=False)[
                         -1].div.text.strip()
                 except:
-                    last_episode = re.findall(r'E(\d{1,3})', title)[-1]
+                    number_of_episodes = re.findall(r'E(\d{1,3})', title)[-1]
 
-                total_episodes = int(''.join(filter(str.isdigit, last_episode)))
+                total_episodes = int(''.join(filter(str.isdigit, number_of_episodes)))
                 total_size = float(re.sub('[^0-9,.]', '', size))
                 size_unit = re.sub('[0-9,.]', '', size).strip()
+
                 episode_size = round(total_size / total_episodes, 2)
+
+                if multiple_episodes:
+                    episodes_in_title = re.findall(r'E(\d{1,3})', title)
+                    first_episode_in_title = episodes_in_title[0]
+                    last_episode_in_title = episodes_in_title[-1]
+                    episodes_in_title = int(last_episode_in_title) - int(first_episode_in_title) + 1
+                    episode_size = round(episode_size * episodes_in_title, 2)
+
                 size = "~" + str(episode_size) + " " + size_unit
             except:
                 pass

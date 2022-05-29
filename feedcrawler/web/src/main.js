@@ -35,10 +35,10 @@ const store = createStore({
                 jf_shorthands: '',
                 search_shorthands: ''
             }, lists: {
-                mb: [], sj: [], dj: [], dd: [], mbsj: [],
+                mb: [], sj: [], dj: [], dd: [], mbsj: []
             }, settings: {
                 general: {
-                    myjd_user: '', myjd_pass: '', myjd_device: '', packages_per_myjd_page: 3, port: 9090,
+                    myjd_user: '', myjd_pass: '', myjd_device: '', packages_per_myjd_page: 3, port: 9090
                 }, mb: {
                     quality: '1080p',
                     search: 3,
@@ -49,19 +49,19 @@ const store = createStore({
                     retail_only: false,
                     cutoff: false,
                     hevc_retail: false,
-                    hoster_fallback: false,
+                    hoster_fallback: false
                 }, f: {
-                    search: 3,
+                    search: 3
                 }, jf: {
-                    wait_time: 6,
+                    wait_time: 6
                 }, sj: {
-                    quality: '1080p', regex: false, retail_only: false, hevc_retail: false, hoster_fallback: false,
+                    quality: '1080p', regex: false, retail_only: false, hevc_retail: false, hoster_fallback: false
                 }, mbsj: {
-                    enabled: false, quality: '1080p', packs: false, source: '',
+                    enabled: false, quality: '1080p', packs: false, source: ''
                 }, dj: {
-                    quality: '1080p', regex: false, hoster_fallback: false,
+                    quality: '1080p', regex: false, hoster_fallback: false
                 }, dd: {
-                    hoster_fallback: false,
+                    hoster_fallback: false
                 }, hosters: {
                     rapidgator: true,
                     turbobit: true,
@@ -77,14 +77,17 @@ const store = createStore({
                     ironfiles: true,
                     k2s: true,
                 }, alerts: {
-                    pushbullet: "", pushover: "", telegram: "",
+                    pushbullet: "", pushover: "", telegram: ""
                 }, ombi: {
                     url: "", api: ""
                 }, overseerr: {
                     url: "", api: ""
                 }, crawljobs: {
-                    autostart: false, subdir: false,
+                    autostart: false, subdir: false
+                }, sponsors_helper: {
+                    max_attempts: 3
                 }
+
             }, misc: {
                 docker: false,
                 helper_active: false,

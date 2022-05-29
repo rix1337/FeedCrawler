@@ -134,11 +134,11 @@ const waitTimeActive = computed(() => {
                           store.state.hostnames.ff
                         }}
                         (FF)
-                        <div v-if="!waitTimeActive">
+                        <span v-if="!waitTimeActive">
                           <i v-if="!store.state.blocked_sites.normal.FF"
                              v-tippy="'Seite mit aktueller IP verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
-                        </div>
+                        </span>
                         <i v-if="store.state.blocked_sites.normal.FF"
                            v-tippy="'Seite mit aktueller IP gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
@@ -213,11 +213,11 @@ const waitTimeActive = computed(() => {
                           store.state.hostnames.sj
                         }}
                         (SJ)
-                        <div v-if="!waitTimeActive">
+                        <span v-if="!waitTimeActive">
                           <i v-if="!store.state.blocked_sites.normal.SJ"
                              v-tippy="'Seite mit aktueller IP verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
-                        </div>
+                        </span>
                         <i v-if="store.state.blocked_sites.normal.SJ"
                            v-tippy="'Seite mit aktueller IP gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
@@ -242,11 +242,11 @@ const waitTimeActive = computed(() => {
                           store.state.hostnames.dj
                         }}
                         (DJ)
-                        <div v-if="!waitTimeActive">
+                        <span v-if="!waitTimeActive">
                           <i v-if="!store.state.blocked_sites.normal.DJ"
                              v-tippy="'Seite mit aktueller IP verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
-                        </div>
+                        </span>
                         <i v-if="store.state.blocked_sites.normal.DJ"
                            v-tippy="'Seite mit aktueller IP gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
@@ -271,11 +271,11 @@ const waitTimeActive = computed(() => {
                           store.state.hostnames.sf
                         }}
                         (SF)
-                        <div v-if="!waitTimeActive">
+                        <span v-if="!waitTimeActive">
                           <i v-if="!store.state.blocked_sites.normal.SF"
                              v-tippy="'Seite mit aktueller IP verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
-                        </div>
+                        </span>
                         <i v-if="store.state.blocked_sites.normal.SF"
                            v-tippy="'Seite mit aktueller IP gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
