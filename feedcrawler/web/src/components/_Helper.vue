@@ -45,21 +45,6 @@ function getAntiGate() {
       })
 }
 
-const to_decrypt = ref({
-  name: '',
-  url: false
-})
-
-function getToDecrypt() {
-  axios.get(context.value + '/api/to_decrypt/')
-      .then(function (res) {
-        to_decrypt.value = res.data.to_decrypt
-        startToDecrypt()
-      }, function () {
-        console.log('[FeedCrawler Sponsors Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!')
-      })
-}
-
 const f_blocked = ref(false)
 const sf_hostname = ref('')
 const ff_hostname = ref('')
@@ -91,14 +76,32 @@ function countPreviousAttempts(url) {
   console.log('[FeedCrawler Sponsors Helper] ' + url + ' wurde ' + previous_attempts.value[url] + ' mal versucht.')
 }
 
+const max_attempts = ref(3)
+
 function tooManyAttempts(url, name) {
   countPreviousAttempts(url)
-  if (previous_attempts.value[url] > 3) {
-    console.log('[FeedCrawler Sponsors Helper] ' + name + ' wurde bereits 3x versucht. Lösche Paket...')
+  if (previous_attempts.value[url] > max_attempts.value) {
+    console.log('[FeedCrawler Sponsors Helper] ' + name + ' wurde bereits ' + max_attempts.value + 'x versucht. Lösche Paket...')
     removeFromToDecrypt(name)
   } else {
     return false
   }
+}
+
+const to_decrypt = ref({
+  name: '',
+  url: false
+})
+
+function getToDecrypt() {
+  axios.get(context.value + '/api/to_decrypt/')
+      .then(function (res) {
+        to_decrypt.value = res.data.to_decrypt
+        max_attempts.value = to_decrypt.value.max_attempts
+        startToDecrypt()
+      }, function () {
+        console.log('[FeedCrawler Sponsors Helper] Konnte Pakete zum Entschlüsseln nicht abrufen!')
+      })
 }
 
 function removeFromToDecrypt(name) {
@@ -183,7 +186,7 @@ function spinHelper() {
 
               <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
         SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
-          getTimestamp(next_jf_run)
+                  getTimestamp(next_jf_run)
                 }}</span>
               <br v-if="f_blocked === true">
 

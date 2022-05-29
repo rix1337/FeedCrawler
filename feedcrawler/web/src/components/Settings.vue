@@ -1068,6 +1068,35 @@ function submitSettings() {
                 </div>
               </div>
             </div>
+            <div
+                v-if="store.state.misc.helper_active"
+                class="accordion-item">
+              <h2 id="headingSettingsHelper" class="accordion-header">
+                <button aria-controls="collapseSettingsHelper" aria-expanded="false"
+                        class="accordion-button collapsed"
+                        data-bs-target="#collapseSettingsHelper"
+                        data-bs-toggle="collapse" type="button">
+                  FeedCrawler Sponsors Helper
+                </button>
+              </h2>
+              <div id="collapseSettingsHelper" aria-labelledby="headingSettingsHelper"
+                   class="accordion-collapse collapse"
+                   data-bs-parent="#accordionSettings">
+                <div class="accordion-body">
+                  <FormKit v-model="store.state.settings.sponsors_helper.max_attempts"
+                           label="Erlaubte Fehlversuche"
+                           help="Um keine CAPTCHA-Credits zu verschwenden, löscht der FeedCrawler Sponsor Helper ein Paket, nachdem dieser Schwellwert erreicht wurde."
+                           help-class="text-muted"
+                           messages-class="text-danger"
+                           outer-class="mb-4"
+                           input-class=" form-control bg-light mb-2"
+                           placeholder="Bspw. 3"
+                           validation="required|between:1,10"
+                           validation-visibility="live"
+                           type="number"/>
+                </div>
+              </div>
+            </div>
           </FormKit>
         </div>
         <div>

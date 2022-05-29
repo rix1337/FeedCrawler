@@ -110,6 +110,9 @@ class CrawlerConfig(object):
         ],
         'CustomJF': [
             ("wait_time", "int", "12"),
+        ],
+        'SponsorsHelper': [
+            ("max_attempts", "int", "3"),
         ]
     }
     __config__ = []
