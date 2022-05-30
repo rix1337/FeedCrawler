@@ -6,11 +6,12 @@
 
 ### Changelog FeedCrawler:
 
+- **14.3.0** Bugfix im Aufbau der Direktverbindung per IP zum JDownloader.
+- **14.3.0** Synchronisiere Verbindung zum JDownloader zwischen Feed-Suche, Web-Interface und Paket-Überwachungsjob.
 - **14.3.0** Optionale Auto-Update-Funktion für den JDownloader, die am Ende jedes Suchlaufes durchgeführt wird.
 - **14.3.0** Reaktiviere JDownloader Update-Funktion im Web-Interface.
 - **14.3.0** Wähle JDownloader Gerät nur dann automatisch, wenn nicht bereits ein Gerätename in den Einstellungen
   definiert ist.
-- **14.3.0** Synchronisiere Verbindung zum JDownloader zwischen Feed-Suche, Web-Interface und Paket-Überwachungsjob.
 - **14.2.8** Anzahl der maximalen Fehlversuche pro Paket im 
   [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) sind jetzt
   konfigurierbar.
