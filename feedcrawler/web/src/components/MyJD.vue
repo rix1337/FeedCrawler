@@ -170,11 +170,12 @@ function myJDstart() {
       .then(function () {
         getMyJDstate()
         console.log('Download gestartet!')
+        myjd_starting.value = false
       }, function () {
         console.log('Konnte Downloads nicht starten!')
         toast.error('Konnte Downloads nicht starten!')
+        myjd_starting.value = false
       })
-  myjd_starting.value = false
 }
 
 const myjd_pausing = ref(false)
@@ -189,11 +190,12 @@ function myJDpause(pause) {
         } else {
           console.log('Download fortgesetzt!')
         }
+        myjd_pausing.value = false
       }, function () {
         console.log('Konnte Downloads nicht fortsetzen!')
         toast.error('Konnte Downloads nicht fortsetzen!')
+        myjd_pausing.value = false
       })
-  myjd_pausing.value = false
 }
 
 const myjd_stopping = ref(false)
@@ -204,11 +206,28 @@ function myJDstop() {
       .then(function () {
         getMyJDstate()
         console.log('Download angehalten!')
+        myjd_stopping.value = false
       }, function () {
         console.log('Konnte Downloads nicht anhalten!')
         toast.error('Konnte Downloads nicht anhalten!')
+        myjd_stopping.value = false
       })
-  myjd_stopping.value = false
+}
+
+const myjd_updating = ref(false)
+
+function myJDupdate() {
+  myjd_updating.value = true
+  axios.post('api/myjd_update/')
+      .then(function () {
+        getMyJDstate()
+        console.log('JDownloader geupdatet!')
+        myjd_updating.value = false
+      }, function () {
+        console.log('Konnte JDownloader nicht updaten!')
+        toast.error('Konnte JDownloader nicht updaten!')
+        myjd_updating.value = false
+      })
 }
 
 function getMyJDstate() {
@@ -628,7 +647,7 @@ function showSponsorsHelp() {
                          class="myjd_connection_state">
                       Fehler bei Verbindung mit My JDownloader!
                     </div>
-                    <div v-if="myjd_state && (myjd_packages.length == 0)" id="myjd_no_packages"
+                    <div v-if="myjd_state && (myjd_packages.length === 0)" id="myjd_no_packages"
                          class="myjd_connection_state">
                       Downloadliste und Linksammler sind leer.
                     </div>
@@ -662,8 +681,14 @@ function showSponsorsHelp() {
                               @click="myJDstop()">
                         <i v-tippy="'Downloads anhalten'" class="bi bi-stop"></i>
                       </button>
-
                     </div>
+                    <button v-if="update_ready" id="myjd_stop"
+                            :disabled="myjd_updating"
+                            :class="{ blinking: myjd_updating }"
+                            class="btn btn-outline-primary m-1"
+                            @click="myJDupdate()">
+                      <i v-tippy="'JDownloader updaten'" class="bi bi-wrench"></i>
+                    </button>
                   </div>
                 </div>
               </div>

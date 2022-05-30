@@ -44,6 +44,7 @@ from feedcrawler.myjd import get_state
 from feedcrawler.myjd import jdownloader_pause
 from feedcrawler.myjd import jdownloader_start
 from feedcrawler.myjd import jdownloader_stop
+from feedcrawler.myjd import jdownloader_update
 from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
@@ -1059,6 +1060,23 @@ def app_container():
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
+                return "Success"
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_update/")
+    @auth_basic(is_authenticated_user)
+    def myjd_update():
+        try:
+            try:
+                updated = jdownloader_update()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                updated = jdownloader_update()
+            if updated:
                 return "Success"
         except:
             pass

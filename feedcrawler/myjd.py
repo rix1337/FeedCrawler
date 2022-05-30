@@ -696,6 +696,26 @@ def retry_decrypt(linkids, uuid, links):
         return False
 
 
+def jdownloader_update():
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.update.restart_and_update()
+            except feedcrawler.myjdapi.TokenExpiredException:
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.update.restart_and_update()
+            return True
+        else:
+            return False
+    except feedcrawler.myjdapi.MYJDException as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def jdownloader_start():
     try:
         if not internal.device or not is_device(internal.device):

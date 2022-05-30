@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.3.0** Reaktiviere JDownloader Update-Funktion im Web-Interface und am Ende jedes Feed-Suchlaufs.
 - **14.3.0** Wähle JDownloader Gerät nur dann automatisch, wenn nicht bereits ein Gerätename in den Einstellungen
   definiert ist.
 - **14.3.0** Synchronisiere Verbindung zum JDownloader zwischen Feed-Suche, Web-Interface und Paket-Überwachungsjob.
