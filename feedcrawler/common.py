@@ -356,7 +356,7 @@ def longest_substr(data):
 
 
 def readable_size(size):
-    if size:
+    if size:  # integer byte value
         power = 2 ** 10
         n = 0
         powers = {0: '', 1: 'K', 2: 'M', 3: 'G', 4: 'T'}

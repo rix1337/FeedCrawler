@@ -12,6 +12,7 @@
 - **14.3.0** Reaktiviere JDownloader Update-Funktion im Web-Interface.
 - **14.3.0** Wähle JDownloader Gerät nur dann automatisch, wenn nicht bereits ein Gerätename in den Einstellungen
   definiert ist.
+- **14.3.0** Gleiche Ausgabe der Dateigrößen aus Feeds und den JDownloader-Informationen im Webinterface an.
 - **14.2.8** Anzahl der maximalen Fehlversuche pro Paket im 
   [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper) sind jetzt
   konfigurierbar.
