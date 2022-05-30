@@ -16,6 +16,7 @@ class CrawlerConfig(object):
             ("myjd_user", "str", ""),
             ("myjd_pass", "str", ""),
             ("myjd_device", "str", ""),
+            ("myjd_auto_update", "bool", "False"),
             ("port", "int", "9090"),
             ("prefix", "str", ""),
             ("interval", "int", "60"),

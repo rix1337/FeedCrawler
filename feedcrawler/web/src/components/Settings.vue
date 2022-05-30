@@ -142,6 +142,16 @@ function submitSettings() {
                              input-class="form-check-input"
                              type="checkbox"/>
                   </label>
+                  <h5>Automatische Updates</h5> <!-- Checkbox labels are not placed above -->
+                  <label class="form-check form-switch">
+                    <FormKit v-model="store.state.settings.general.myjd_auto_update"
+                             help="Wenn aktiviert, wird am Ende jedes Suchlaufs geprüft, ob ein Update verfügbar ist und dieses direkt ausgeführt."
+                             help-class="text-muted"
+                             messages-class="text-danger"
+                             outer-class="mb-4"
+                             input-class="form-check-input"
+                             type="checkbox"/>
+                  </label>
                   <h5>Unterordner bei Download</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.crawljobs.subdir"

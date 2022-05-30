@@ -60,11 +60,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-            return False
+            if not internal.synchronize_device():
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                return False
+            return True
         if not device or not is_device(device):
             return False
-        internal.set_device(device)
+        if not internal.synchronize_device():
+            internal.set_device(device)
         return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -73,11 +76,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-            return False
+            if not internal.synchronize_device():
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                return False
+            return True
         if not device or not is_device(device):
             return False
-        internal.set_device(device)
+        if not internal.synchronize_device():
+            internal.set_device(device)
         return True
     else:
         return False
@@ -91,9 +97,12 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-        return False
-    internal.set_device(device)
+        if not internal.synchronize_device():
+            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        return True
+    if not internal.synchronize_device():
+        internal.set_device(device)
     return True
 
 
@@ -683,6 +692,26 @@ def retry_decrypt(linkids, uuid, links):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def jdownloader_update():
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.update.restart_and_update()
+            except feedcrawler.myjdapi.TokenExpiredException:
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.update.restart_and_update()
+            return True
+        else:
+            return False
+    except feedcrawler.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 

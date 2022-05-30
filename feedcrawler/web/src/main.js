@@ -38,7 +38,12 @@ const store = createStore({
                 mb: [], sj: [], dj: [], dd: [], mbsj: []
             }, settings: {
                 general: {
-                    myjd_user: '', myjd_pass: '', myjd_device: '', packages_per_myjd_page: 3, port: 9090
+                    myjd_user: '',
+                    myjd_pass: '',
+                    myjd_device: '',
+                    packages_per_myjd_page: 3,
+                    port: 9090,
+                    myjd_auto_update: false,
                 }, mb: {
                     quality: '1080p',
                     search: 3,

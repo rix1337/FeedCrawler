@@ -26,6 +26,8 @@ from feedcrawler.external_tools.ombi import ombi
 from feedcrawler.external_tools.overseerr import overseerr
 from feedcrawler.http_requests.flaresolverr_handler import clean_flaresolverr_sessions
 from feedcrawler.myjd import get_device
+from feedcrawler.myjd import get_info
+from feedcrawler.myjd import jdownloader_update
 from feedcrawler.url import check_url
 
 
@@ -185,6 +187,13 @@ def crawler(global_variables, remove_jf_time, test_run):
             crawltimes.update_store("active", "False")
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
+
+            myjd_auto_update = feedcrawler.get("myjd_auto_update")
+            if myjd_auto_update:
+                update_ready = get_info()[3]
+                if update_ready:
+                    print("JDownloader Update steht bereit. Führe Update durch und starte JDownloader neu...")
+                    jdownloader_update()
 
             # Clean exit if test run active
             if test_run:

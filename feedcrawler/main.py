@@ -93,6 +93,8 @@ def main():
         time.sleep(10)
         sys.exit(1)
 
+    FeedDb('cached_internals').delete("device")
+
     if not arguments.test_run:
         if not os.path.exists(internal.configfile):
             if arguments.docker:
@@ -108,11 +110,13 @@ def main():
             password = feedcrawler.get('myjd_pass')
             if user and password:
                 if not get_device():
-                    one_device = get_if_one_device(user, password)
-                    if one_device:
-                        print(u"Gerätename " + one_device + " automatisch ermittelt.")
-                        feedcrawler.save('myjd_device', one_device)
-                        get_device()
+                    device_set = feedcrawler.get('myjd_device')
+                    if not device_set:
+                        one_device = get_if_one_device(user, password)
+                        if one_device:
+                            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                            feedcrawler.save('myjd_device', one_device)
+                            get_device()
             else:
                 myjd.myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
                                 arguments.jd_device)
@@ -120,15 +124,25 @@ def main():
     if not arguments.test_run:
         if not internal.device:
             feedcrawler = CrawlerConfig('FeedCrawler')
-            device_name = feedcrawler.get('myjd_device')
 
-            i = 0
-            while i < 10:
-                i += 1
-                print(
-                    u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, device_name))
-                time.sleep(60)
-                get_device()
+            device_name = feedcrawler.get('myjd_device')
+            if not device_name:
+                user = feedcrawler.get('myjd_user')
+                password = feedcrawler.get('myjd_pass')
+                one_device = get_if_one_device(user, password)
+                if one_device:
+                    print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                    feedcrawler.save('myjd_device', one_device)
+                    get_device()
+
+            if internal.device and internal.device.name:
+                i = 0
+                while i < 10:
+                    i += 1
+                    print(
+                        u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, internal.device.name))
+                    time.sleep(60)
+                    get_device()
             print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
             sys.exit(1)
         else:

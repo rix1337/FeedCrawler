@@ -767,15 +767,16 @@ class Jddevice:
             for conn in self.__direct_connection_info:
                 connection_ip = conn['conn']['ip']
                 # prevent connection to internal docker ip
-                if "172.17." in connection_ip or "127.0.0.1" in connection_ip:
-                    continue
                 if time.time() > conn['cooldown']:
                     # We can use the connection
                     connection = conn['conn']
                     api = "http://" + connection_ip + ":" + str(
                         connection["port"])
-                    response = self.myjd.request_api(path, http_action, params,
-                                                     action_url, api)
+                    try:
+                        response = self.myjd.request_api(path, http_action, params,
+                                                         action_url, api, timeout=5)
+                    except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                        response = None
                     if response is not None:
                         # This connection worked so we push it to the top of the list.
                         self.__direct_connection_info.remove(conn)
@@ -1035,7 +1036,8 @@ class Myjdapi:
                     http_method="GET",
                     params=None,
                     action=None,
-                    api=None):
+                    api=None,
+                    timeout=30):
         """
         Makes a request to the API to the 'path' using the 'http_method' with parameters,'params'.
         Ex:
@@ -1073,9 +1075,9 @@ class Myjdapi:
                 ]
             query = query[0] + "&".join(query[1:])
             try:
-                encrypted_response = request(api + query, timeout=30)
+                encrypted_response = request(api + query, timeout=timeout)
             except URLError:
-                encrypted_response = request(api + query, timeout=30, verify=False)
+                encrypted_response = request(api + query, timeout=timeout, verify=False)
                 print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
@@ -1109,7 +1111,7 @@ class Myjdapi:
                     },
                     data=encrypted_data,
                     method="POST",
-                    timeout=30)
+                    timeout=timeout)
             except URLError:
                 try:
                     encrypted_response = request(
@@ -1119,7 +1121,7 @@ class Myjdapi:
                         },
                         data=encrypted_data,
                         method="POST",
-                        timeout=30,
+                        timeout=timeout,
                         verify=False)
                     print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
                 except URLError:

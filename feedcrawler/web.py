@@ -44,6 +44,7 @@ from feedcrawler.myjd import get_state
 from feedcrawler.myjd import jdownloader_pause
 from feedcrawler.myjd import jdownloader_start
 from feedcrawler.myjd import jdownloader_stop
+from feedcrawler.myjd import jdownloader_update
 from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
@@ -293,6 +294,7 @@ def app_container():
                         "myjd_user": general_conf.get("myjd_user"),
                         "myjd_pass": general_conf.get("myjd_pass"),
                         "myjd_device": general_conf.get("myjd_device"),
+                        "myjd_auto_update": general_conf.get("myjd_auto_update"),
                         "port": to_int(general_conf.get("port")),
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
@@ -423,9 +425,12 @@ def app_container():
                         print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return abort(400, "Failed")
 
+            myjd_auto_update = to_str(data['general']['myjd_auto_update'])
+
             section.save("myjd_user", myjd_user)
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
+            section.save("myjd_auto_update", myjd_auto_update)
             section.save("port", to_str(data['general']['port']))
             section.save("prefix", to_str(data['general']['prefix']).lower())
             interval = to_str(data['general']['interval'])
@@ -1059,6 +1064,23 @@ def app_container():
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
+                return "Success"
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_update/")
+    @auth_basic(is_authenticated_user)
+    def myjd_update():
+        try:
+            try:
+                updated = jdownloader_update()
+            except (TokenExpiredException, RequestTimeoutException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return abort(500, "Failed")
+                updated = jdownloader_update()
+            if updated:
                 return "Success"
         except:
             pass
