@@ -3,10 +3,15 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt alle globalen Parameter für die verschiedenen parallel laufenden Threads bereit.
 
+import codecs
 import logging
 import os
+import pickle
 import sys
 from logging import handlers
+
+from feedcrawler.db import FeedDb
+from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 
 configpath = False
 log_level = False
@@ -65,9 +70,25 @@ def set_sites():
     sites = ["SJ", "DJ", "SF", "BY", "FX", "FF", "HW", "NK", "WW", "DD"]
 
 
+def synchronize_device():
+    global device
+    cached = FeedDb('cached_internals').retrieve("device")
+    if cached:
+        untested_device = pickle.loads(codecs.decode(cached.encode(), "base64"))
+        try:
+            test_device = untested_device.toolbar.get_status()
+            if test_device:
+                set_device(untested_device)
+                return True
+        except (TokenExpiredException, RequestTimeoutException, MYJDException):
+            pass
+    return False
+
+
 def set_device(set_device):
     global device
     device = set_device
+    FeedDb('cached_internals').store("device", codecs.encode(pickle.dumps(device), "base64").decode())
 
 
 def set_logger(set_log_level):

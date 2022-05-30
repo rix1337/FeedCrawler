@@ -60,11 +60,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-            return False
+            if not internal.synchronize_device():
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                return False
+            return True
         if not device or not is_device(device):
             return False
-        internal.set_device(device)
+        if not internal.synchronize_device():
+            internal.set_device(device)
         return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -73,11 +76,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-            return False
+            if not internal.synchronize_device():
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                return False
+            return True
         if not device or not is_device(device):
             return False
-        internal.set_device(device)
+        if not internal.synchronize_device():
+            internal.set_device(device)
         return True
     else:
         return False
@@ -91,9 +97,12 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
-        return False
-    internal.set_device(device)
+        if not internal.synchronize_device():
+            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+            return False
+        return True
+    if not internal.synchronize_device():
+        internal.set_device(device)
     return True
 
 
