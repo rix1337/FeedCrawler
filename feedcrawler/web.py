@@ -294,6 +294,7 @@ def app_container():
                         "myjd_user": general_conf.get("myjd_user"),
                         "myjd_pass": general_conf.get("myjd_pass"),
                         "myjd_device": general_conf.get("myjd_device"),
+                        "myjd_auto_update": general_conf.get("myjd_auto_update"),
                         "port": to_int(general_conf.get("port")),
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
@@ -424,9 +425,12 @@ def app_container():
                         print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return abort(400, "Failed")
 
+            myjd_auto_update = to_str(data['general']['myjd_auto_update'])
+
             section.save("myjd_user", myjd_user)
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
+            section.save("myjd_auto_update", myjd_auto_update)
             section.save("port", to_str(data['general']['port']))
             section.save("prefix", to_str(data['general']['prefix']).lower())
             interval = to_str(data['general']['interval'])

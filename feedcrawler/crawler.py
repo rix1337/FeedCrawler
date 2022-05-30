@@ -188,11 +188,12 @@ def crawler(global_variables, remove_jf_time, test_run):
             FeedDb('cached_requests').reset()
             FeedDb('cached_requests').cleanup()
 
-            # Make this optional through settings
-            update_ready = get_info()[3]
-            if update_ready:
-                print("JDownloader Update steht bereit. Führe Update durch und starte JDownloader neu...")
-                jdownloader_update()
+            myjd_auto_update = feedcrawler.get("myjd_auto_update")
+            if myjd_auto_update:
+                update_ready = get_info()[3]
+                if update_ready:
+                    print("JDownloader Update steht bereit. Führe Update durch und starte JDownloader neu...")
+                    jdownloader_update()
 
             # Clean exit if test run active
             if test_run:
