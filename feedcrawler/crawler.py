@@ -190,10 +190,17 @@ def crawler(global_variables, remove_jf_time, test_run):
 
             myjd_auto_update = feedcrawler.get("myjd_auto_update")
             if myjd_auto_update:
-                update_ready = get_info()[3]
-                if update_ready:
-                    print("JDownloader Update steht bereit. Führe Update durch und starte JDownloader neu...")
+                myjd_infos = get_info()
+                myjd_state = myjd_infos[1]
+                myjd_grabber_collecting = myjd_infos[2]
+                myjd_update_ready = myjd_infos[3]
+                if myjd_state == "IDLE" and not myjd_grabber_collecting and myjd_update_ready:
+                    print(
+                        "JDownloader Update steht bereit und JDownloader ist inaktiv.\nFühre Update durch und starte JDownloader neu...")
                     jdownloader_update()
+                elif myjd_update_ready:
+                    print(
+                        "JDownloader Update steht bereit, aber JDownloader ist aktiv.\nFühre das Update nicht automatisch durch.")
 
             # Clean exit if test run active
             if test_run:

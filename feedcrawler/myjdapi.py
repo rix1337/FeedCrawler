@@ -774,7 +774,7 @@ class Jddevice:
                         connection["port"])
                     try:
                         response = self.myjd.request_api(path, http_action, params,
-                                                         action_url, api, timeout=5)
+                                                         action_url, api, timeout=3, output_errors=False)
                     except (TokenExpiredException, RequestTimeoutException, MYJDException):
                         response = None
                     if response is not None:
@@ -1037,7 +1037,8 @@ class Myjdapi:
                     params=None,
                     action=None,
                     api=None,
-                    timeout=30):
+                    timeout=30,
+                    output_errors=True):
         """
         Makes a request to the API to the 'path' using the 'http_method' with parameters,'params'.
         Ex:
@@ -1075,9 +1076,9 @@ class Myjdapi:
                 ]
             query = query[0] + "&".join(query[1:])
             try:
-                encrypted_response = request(api + query, timeout=timeout)
+                encrypted_response = request(api + query, timeout=timeout, output_errors=output_errors)
             except URLError:
-                encrypted_response = request(api + query, timeout=timeout, verify=False)
+                encrypted_response = request(api + query, timeout=timeout, output_errors=output_errors, verify=False)
                 print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
@@ -1111,7 +1112,8 @@ class Myjdapi:
                     },
                     data=encrypted_data,
                     method="POST",
-                    timeout=timeout)
+                    timeout=timeout,
+                    output_errors=output_errors)
             except URLError:
                 try:
                     encrypted_response = request(
@@ -1122,6 +1124,7 @@ class Myjdapi:
                         data=encrypted_data,
                         method="POST",
                         timeout=timeout,
+                        output_errors=output_errors,
                         verify=False)
                     print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
                 except URLError:
