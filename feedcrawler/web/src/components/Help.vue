@@ -60,7 +60,7 @@ const waitTimeActive = computed(() => {
               <div class="accordion-body">
                 <div class="row">
                   <div
-                      v-if="store.state.hostnames.fx !== 'Nicht gesetzt!' || store.state.hostnames.hw !== 'Nicht gesetzt!' || store.state.hostnames.ww !== 'Nicht gesetzt!' || store.state.hostnames.ff !== 'Nicht gesetzt!' || store.state.hostnames.nk !== 'Nicht gesetzt!' || store.state.hostnames.by !== 'Nicht gesetzt!'"
+                      v-if="store.state.hostnames.fx !== 'Nicht gesetzt!' || store.state.hostnames.dw !== 'Nicht gesetzt!' || store.state.hostnames.hw !== 'Nicht gesetzt!' || store.state.hostnames.ww !== 'Nicht gesetzt!' || store.state.hostnames.ff !== 'Nicht gesetzt!' || store.state.hostnames.nk !== 'Nicht gesetzt!' || store.state.hostnames.by !== 'Nicht gesetzt!'"
                       class="col">
                     <ul class="list-group">
                       <li v-if="store.state.hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -82,6 +82,28 @@ const waitTimeActive = computed(() => {
                            v-tippy="'Seite mit FlareSolverr (Proxy) gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.flaresolverr_proxy.FX && ( store.state.blocked_sites.normal.FX && store.state.blocked_sites.flaresolverr.FX )"
+                           v-tippy="'Seite mit FlareSolverr (Proxy) verfügbar'"
+                           class="bi bi-check-square-fill text-success"></i>
+                      </li>
+                      <li v-if="store.state.hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.state.hostnames.dw
+                        }}
+                        (DW)
+                        <i v-if="store.state.blocked_sites.normal.DW"
+                           v-tippy="'Seite mit aktueller IP gesperrt'"
+                           class="bi bi-exclamation-square-fill text-danger"></i>
+                        <i v-if="!store.state.blocked_sites.normal.DW" v-tippy="'Seite mit aktueller IP verfügbar'"
+                           class="bi bi-check-square-fill text-success"></i>
+                        <i v-if="store.state.blocked_sites.flaresolverr.DW && store.state.blocked_sites.normal.DW"
+                           v-tippy="'Seite mit FlareSolverr (aktuelle IP) gesperrt'"
+                           class="bi bi-exclamation-square-fill text-danger"></i>
+                        <i v-if="!store.state.blocked_sites.flaresolverr.DW && store.state.blocked_sites.normal.DW"
+                           v-tippy="'Seite mit FlareSolverr (aktuelle IP) verfügbar'"
+                           class="bi bi-check-square-fill text-success"></i>
+                        <i v-if="store.state.blocked_sites.flaresolverr_proxy.DW && ( store.state.blocked_sites.normal.DW && store.state.blocked_sites.flaresolverr.DW )"
+                           v-tippy="'Seite mit FlareSolverr (Proxy) gesperrt'"
+                           class="bi bi-exclamation-square-fill text-danger"></i>
+                        <i v-if="!store.state.blocked_sites.flaresolverr_proxy.DW && ( store.state.blocked_sites.normal.DW && store.state.blocked_sites.flaresolverr.DW )"
                            v-tippy="'Seite mit FlareSolverr (Proxy) verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>

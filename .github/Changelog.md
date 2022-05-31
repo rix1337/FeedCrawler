@@ -6,6 +6,10 @@
 
 ### Changelog FeedCrawler:
 
+- **14.4.0** DW in die Feed-Suche integriert.
+- **14.4.0** Zeige einen Spinner während ein Update des JDownloaders über das Web-Interface durchgeführt wird.
+- **14.4.0** Unterdrücke Fehlermeldungen aus der Prüfung der Direktverbindung per IP zum JDownloader.
+- **14.4.0** Auto-Update-Funktion greift nur bei inaktivem JDownloader.
 - **14.3.0** Bugfix im Aufbau der Direktverbindung per IP zum JDownloader.
 - **14.3.0** Synchronisiere Verbindung zum JDownloader zwischen Feed-Suche, Web-Interface und Paket-Überwachungsjob.
 - **14.3.0** Optionale Auto-Update-Funktion für den JDownloader, die am Ende jedes Suchlaufes durchgeführt wird.

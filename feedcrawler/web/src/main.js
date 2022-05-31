@@ -20,14 +20,17 @@ const store = createStore({
             crawltimes: {}, blocked_sites: {
                 normal: {}, flaresolverr: {}, flaresolverr_proxy: {}
             }, hostnames: {
-                sj: 'Nicht gesetzt!',
-                dj: 'Nicht gesetzt!',
-                sf: 'Nicht gesetzt!',
-                by: 'Nicht gesetzt!',
-                dd: 'Nicht gesetzt!',
                 fx: 'Nicht gesetzt!',
+                sf: 'Nicht gesetzt!',
+                dw: 'Nicht gesetzt!',
+                hw: 'Nicht gesetzt!',
+                ff: 'Nicht gesetzt!',
+                by: 'Nicht gesetzt!',
                 nk: 'Nicht gesetzt!',
                 ww: 'Nicht gesetzt!',
+                sj: 'Nicht gesetzt!',
+                dj: 'Nicht gesetzt!',
+                dd: 'Nicht gesetzt!',
                 bl: 'Nicht gesetzt!',
                 s: 'Nicht gesetzt!',
                 sjbl: 'Nicht gesetzt!',

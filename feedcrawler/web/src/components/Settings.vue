@@ -145,7 +145,7 @@ function submitSettings() {
                   <h5>Automatische Updates</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.general.myjd_auto_update"
-                             help="Wenn aktiviert, wird am Ende jedes Suchlaufs geprüft, ob ein Update verfügbar ist und dieses direkt ausgeführt."
+                             help="Wenn aktiviert, wird am Ende jedes Suchlaufs geprüft, ob ein Update verfügbar ist. Verfügbare Updates werden bei inaktivem JDownloader sofort ausgeführt und der JDownloader dafür neugestartet."
                              help-class="text-muted"
                              messages-class="text-danger"
                              outer-class="mb-4"

@@ -460,6 +460,100 @@ def by_page_download_link(self, download_link, key):
     return check_download_links(self, url_hosters)
 
 
+def dw_get_download_links(self, content, title):
+    try:
+        try:
+            content = BeautifulSoup(content, 'html5lib')
+        except:
+            content = BeautifulSoup(str(content), 'html5lib')
+        download_buttons = content.findAll("button", {"class": "show_link"})
+    except:
+        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        return False
+
+    dw = CrawlerConfig('Hostnames').get('dw')
+    ajax_url = "https://" + dw + "/wp-admin/admin-ajax.php"
+
+    download_links = []
+    try:
+        for button in download_buttons:
+            payload = "action=show_link&link_id=" + button["value"]
+            response = json.loads(post_url(ajax_url, payload))
+            if response["success"]:
+                link = response["data"].split(",")[0]
+                hoster = button.nextSibling["href"].split("=")[-1]
+                download_links.append([link, hoster])
+    except:
+        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        pass
+
+    return check_download_links(self, download_links)
+
+
+def dw_feed_enricher(feed):
+    feed = BeautifulSoup(feed, 'html5lib')
+    articles = feed.findAll("article")
+    entries = []
+
+    async_results = []
+    for article in articles:
+        try:
+            async_results.append(article.find("h4").find("a")["href"])
+        except:
+            pass
+    async_results = get_urls_async(async_results)
+
+    for result in async_results:
+        try:
+            details = BeautifulSoup(result[0], 'html5lib')
+
+            title = details.find("h1").text.strip()
+
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(title, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(details.find("strong", text=re.compile(r"(size|größe)",
+                                                                                     re.IGNORECASE)).nextSibling.nextSibling.text.split(
+                    "|")[-1].strip())
+            except:
+                size = ""
+
+            try:
+                source = result[1]
+            except:
+                source = ""
+
+            try:
+                published = details.find("strong", text=re.compile(r"(date|datum)",
+                                                                   re.IGNORECASE)).nextSibling.nextSibling.text.strip()
+            except:
+                published = ""
+
+            if title:
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [
+                        FakeFeedParserDict({
+                            "value": str(details)
+                        })],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
+                }))
+        except:
+            print(u"DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
 def fx_content_to_soup(content):
     content = BeautifulSoup(content, 'html5lib')
     return content
@@ -653,6 +747,7 @@ def hw_get_download_links(self, content, title):
             content = BeautifulSoup(str(content), 'html5lib')
         download_links = content.findAll("a", href=re.compile('filecrypt'))
     except:
+        print(u"HW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
         return False
 
     links_string = ""
@@ -790,6 +885,7 @@ def ff_get_download_links(self, content, title):
                 download_link = "https://" + self.url + link['href']
                 break
     except:
+        print(u"FF hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
         return False
 
     return [download_link]

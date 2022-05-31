@@ -28,15 +28,16 @@ class CrawlerConfig(object):
             ("packages_per_myjd_page", "int", "3")
         ],
         'Hostnames': [
-            ("sj", "str", ""),
-            ("dj", "str", ""),
-            ("sf", "str", ""),
-            ("by", "str", ""),
             ("fx", "str", ""),
+            ("sf", "str", ""),
+            ("dw", "str", ""),
             ("hw", "str", ""),
             ("ff", "str", ""),
+            ("by", "str", ""),
             ("nk", "str", ""),
             ("ww", "str", ""),
+            ("sj", "str", ""),
+            ("dj", "str", ""),
             ("dd", "str", "")
         ],
         'Crawljobs': [

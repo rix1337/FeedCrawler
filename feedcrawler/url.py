@@ -78,20 +78,9 @@ def check_url(start_time):
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["BY", "FX", "HW", "DD", "NK"]:
+        if site in ["FX", "DW", "HW", "BY", "NK", "DD"]:
             status = cached_request(url, dont_cache=True)["status_code"]
             if not status == 200 or status == 403:
-                return True
-        # Custom check required
-        elif site in ["SJ", "DJ"]:
-            status = cached_request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
-            if not status == 200 or status == 403:
-                return True
-        elif site in ["FF"]:
-            delta = datetime.datetime.now().strftime("%Y-%m-%d")
-            ff_test = cached_request(url + '/updates/' + delta, dont_cache=True)
-            if not ff_test["text"] or ff_test["status_code"] is not (
-                    200 or 304) or '<div class="list blog"' not in ff_test["text"]:
                 return True
         # Custom check required
         elif site in ["SF"]:
@@ -100,11 +89,22 @@ def check_if_blocked(site, url):
             if not sf_test["text"] or sf_test["status_code"] is not (
                     200 or 304) or '<h3><a href="/' not in sf_test["text"]:
                 return True
+        elif site in ["FF"]:
+            delta = datetime.datetime.now().strftime("%Y-%m-%d")
+            ff_test = cached_request(url + '/updates/' + delta, dont_cache=True)
+            if not ff_test["text"] or ff_test["status_code"] is not (
+                    200 or 304) or '<div class="list blog"' not in ff_test["text"]:
+                return True
         # Custom check required
         elif site == "WW":
             ww_test = cached_request(url + "/ajax", method='post', params="p=1&t=l&q=1", dont_cache=True)
             if not ww_test["text"] or ww_test["status_code"] is not (
                     200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
+                return True
+        # Custom check required
+        elif site in ["SJ", "DJ"]:
+            status = cached_request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
+            if not status == 200 or status == 403:
                 return True
         else:
             print(u"Keine Prüfung für " + site + " implementiert.")

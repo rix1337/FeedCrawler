@@ -222,7 +222,6 @@ function myJDupdate() {
       .then(function () {
         getMyJDstate()
         console.log('JDownloader geupdatet!')
-        myjd_updating.value = false
       }, function () {
         console.log('Konnte JDownloader nicht updaten!')
         toast.error('Konnte JDownloader nicht updaten!')
@@ -236,6 +235,9 @@ function getMyJDstate() {
         myjd_state.value = res.data.downloader_state
         myjd_grabbing.value = res.data.grabber_collecting
         update_ready.value = res.data.update_ready
+        if (update_ready.value === false) {
+          myjd_updating.value = false
+        }
         myjd_pausing.value = false
         myjd_stopping.value = false
         myjd_starting.value = false
@@ -639,56 +641,59 @@ function showSponsorsHelp() {
                       </paginate>
                     </div>
 
-                    <div v-if="!myjd_state" class="myjd_connection_state">
-                      <p id="initial-loading">Verbinde mit My JDownloader...</p>
-                      <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
-                    </div>
-                    <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login"
-                         class="myjd_connection_state">
-                      Fehler bei Verbindung mit My JDownloader!
-                    </div>
-                    <div v-if="myjd_state && (myjd_packages.length === 0)" id="myjd_no_packages"
-                         class="myjd_connection_state">
-                      Downloadliste und Linksammler sind leer.
-                    </div>
+                    <div>
+                      <div v-if="!myjd_state" class="myjd_connection_state">
+                        <p id="initial-loading">Verbinde mit My JDownloader...</p>
+                        <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
+                      </div>
+                      <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login"
+                           class="myjd_connection_state">
+                        Fehler bei Verbindung mit My JDownloader!
+                      </div>
+                      <div v-if="myjd_state && (myjd_packages.length === 0)" id="myjd_no_packages"
+                           class="myjd_connection_state">
+                        Downloadliste und Linksammler sind leer.
+                      </div>
 
-                    <div v-if="myjd_downloads" id="myjd_state">
-                      <button v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"
-                              :disabled="myjd_starting"
-                              :class="{ blinking: myjd_starting }"
+                      <div v-if="myjd_downloads" id="myjd_state">
+                        <button v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"
+                                :disabled="myjd_starting"
+                                :class="{ blinking: myjd_starting }"
+                                class="btn btn-outline-primary m-1"
+                                @click="myJDstart()">
+                          <i v-tippy="'Downloads starten'" class="bi bi-play"></i>
+                        </button>
+                        <button v-if="myjd_state==='RUNNING'" id="myjd_pause"
+                                :disabled="myjd_pausing"
+                                :class="{ blinking: myjd_pausing }"
+                                class="btn btn-outline-primary m-1"
+                                @click="myJDpause(true)">
+                          <i v-tippy="'Downloads pausieren'" class="bi bi-pause"></i>
+                        </button>
+                        <button v-if="myjd_state==='PAUSE'" id="myjd_unpause"
+                                :disabled="myjd_pausing"
+                                :class="{ blinking: myjd_pausing }"
+                                class="btn btn-outline-primary m-1"
+                                @click="myJDpause(false)">
+                          <i v-tippy="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i>
+                        </button>
+                        <button v-if="myjd_state==='RUNNING' || myjd_state==='PAUSE'" id="myjd_stop"
+                                :disabled="myjd_stopping"
+                                :class="{ blinking: myjd_stopping }"
+                                class="btn btn-outline-primary m-1"
+                                @click="myJDstop()">
+                          <i v-tippy="'Downloads anhalten'" class="bi bi-stop"></i>
+                        </button>
+                      </div>
+                      <button v-if="update_ready" id="myjd_stop"
+                              :disabled="myjd_updating"
+                              :class="{ blinking: myjd_updating }"
                               class="btn btn-outline-primary m-1"
-                              @click="myJDstart()">
-                        <i v-tippy="'Downloads starten'" class="bi bi-play"></i>
-                      </button>
-                      <button v-if="myjd_state==='RUNNING'" id="myjd_pause"
-                              :disabled="myjd_pausing"
-                              :class="{ blinking: myjd_pausing }"
-                              class="btn btn-outline-primary m-1"
-                              @click="myJDpause(true)">
-                        <i v-tippy="'Downloads pausieren'" class="bi bi-pause"></i>
-                      </button>
-                      <button v-if="myjd_state==='PAUSE'" id="myjd_unpause"
-                              :disabled="myjd_pausing"
-                              :class="{ blinking: myjd_pausing }"
-                              class="btn btn-outline-primary m-1"
-                              @click="myJDpause(false)">
-                        <i v-tippy="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i>
-                      </button>
-                      <button v-if="myjd_state==='RUNNING' || myjd_state==='PAUSE'" id="myjd_stop"
-                              :disabled="myjd_stopping"
-                              :class="{ blinking: myjd_stopping }"
-                              class="btn btn-outline-primary m-1"
-                              @click="myJDstop()">
-                        <i v-tippy="'Downloads anhalten'" class="bi bi-stop"></i>
+                              @click="myJDupdate()">
+                        <i v-if="!myjd_updating" v-tippy="'JDownloader updaten'" class="bi bi-wrench"></i>
+                        <i v-else class="spinner-border spinner-border-sm" role="status"></i>
                       </button>
                     </div>
-                    <button v-if="update_ready" id="myjd_stop"
-                            :disabled="myjd_updating"
-                            :class="{ blinking: myjd_updating }"
-                            class="btn btn-outline-primary m-1"
-                            @click="myJDupdate()">
-                      <i v-tippy="'JDownloader updaten'" class="bi bi-wrench"></i>
-                    </button>
                   </div>
                 </div>
               </div>

@@ -38,6 +38,7 @@ import ssl
 from base64 import b64encode
 from collections import namedtuple
 from http.client import IncompleteRead
+from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
 from socket import timeout as socket_timeout
 from urllib.error import HTTPError, URLError
@@ -70,6 +71,7 @@ def request(
         cookiejar=None,
         basic_auth=None,
         timeout=None,
+        output_errors=True
 ):
     """
     Returns a (named)tuple with the following properties:
@@ -191,8 +193,9 @@ def request(
         except:
             text = ""
 
-    except (URLError, socket_timeout) as e:
-        print("Fehler bei Aufruf von: " + url + " (" + str(e) + ", timeout=" + str(timeout) + "s)")
+    except (URLError, socket_timeout, RemoteDisconnected) as e:
+        if output_errors:
+            print("Fehler bei Aufruf von: " + url + " (" + str(e) + ", timeout=" + str(timeout) + "s)")
         content = b""
         text = ""
         status_code = 503

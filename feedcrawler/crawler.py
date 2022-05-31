@@ -13,6 +13,7 @@ from feedcrawler.common import Unbuffered, is_device, readable_time
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.content_all_by import BL as BY
+from feedcrawler.external_sites.content_all_dw import BL as DW
 from feedcrawler.external_sites.content_all_ff import BL as FF
 from feedcrawler.external_sites.content_all_fx import BL as FX
 from feedcrawler.external_sites.content_all_hw import BL as HW
@@ -37,36 +38,40 @@ def search_pool():
         FX(filename='List_ContentAll_Movies'),
         FX(filename='List_ContentAll_Movies_Regex'),
         FX(filename='List_ContentAll_Seasons'),
+        SF(filename='List_ContentShows_Shows'),
+        SF(filename='List_ContentShows_Shows_Regex'),
+        SF(filename='List_ContentShows_Seasons_Regex'),
+        SF(filename='List_ContentAll_Seasons'),
+        DW(filename='IMDB'),
+        DW(filename='List_ContentAll_Movies'),
+        DW(filename='List_ContentAll_Movies_Regex'),
+        DW(filename='List_ContentAll_Seasons'),
         HW(filename='IMDB'),
         HW(filename='List_ContentAll_Movies'),
         HW(filename='List_ContentAll_Movies_Regex'),
         HW(filename='List_ContentAll_Seasons'),
+        FF(filename='IMDB'),
+        FF(filename='List_ContentAll_Movies'),
+        FF(filename='List_ContentAll_Movies_Regex'),
+        FF(filename='List_ContentAll_Seasons'),
+        BY(filename='IMDB'),
+        BY(filename='List_ContentAll_Movies'),
+        BY(filename='List_ContentAll_Movies_Regex'),
+        BY(filename='List_ContentAll_Seasons'),
+        NK(filename='IMDB'),
+        NK(filename='List_ContentAll_Movies'),
+        NK(filename='List_ContentAll_Movies_Regex'),
+        NK(filename='List_ContentAll_Seasons'),
+        WW(filename='List_ContentAll_Movies_Regex'),
+        WW(filename='IMDB'),
+        WW(filename='List_ContentAll_Movies'),
+        WW(filename='List_ContentAll_Seasons'),
         SJ(filename='List_ContentShows_Shows'),
         SJ(filename='List_ContentShows_Shows_Regex'),
         SJ(filename='List_ContentShows_Seasons_Regex'),
         SJ(filename='List_ContentAll_Seasons'),
         DJ(filename='List_CustomDJ_Documentaries'),
         DJ(filename='List_CustomDJ_Documentaries_Regex'),
-        SF(filename='List_ContentShows_Shows'),
-        SF(filename='List_ContentShows_Shows_Regex'),
-        SF(filename='List_ContentShows_Seasons_Regex'),
-        SF(filename='List_ContentAll_Seasons'),
-        FF(filename='IMDB'),
-        FF(filename='List_ContentAll_Movies'),
-        FF(filename='List_ContentAll_Movies_Regex'),
-        FF(filename='List_ContentAll_Seasons'),
-        WW(filename='List_ContentAll_Movies_Regex'),
-        WW(filename='IMDB'),
-        WW(filename='List_ContentAll_Movies'),
-        WW(filename='List_ContentAll_Seasons'),
-        NK(filename='IMDB'),
-        NK(filename='List_ContentAll_Movies'),
-        NK(filename='List_ContentAll_Movies_Regex'),
-        NK(filename='List_ContentAll_Seasons'),
-        BY(filename='IMDB'),
-        BY(filename='List_ContentAll_Movies'),
-        BY(filename='List_ContentAll_Movies_Regex'),
-        BY(filename='List_ContentAll_Seasons'),
         DD(filename='List_CustomDD_Feeds')
     ]
 
@@ -190,10 +195,17 @@ def crawler(global_variables, remove_jf_time, test_run):
 
             myjd_auto_update = feedcrawler.get("myjd_auto_update")
             if myjd_auto_update:
-                update_ready = get_info()[3]
-                if update_ready:
-                    print("JDownloader Update steht bereit. Führe Update durch und starte JDownloader neu...")
+                myjd_infos = get_info()
+                myjd_state = myjd_infos[1]
+                myjd_grabber_collecting = myjd_infos[2]
+                myjd_update_ready = myjd_infos[3]
+                if myjd_state == "IDLE" and not myjd_grabber_collecting and myjd_update_ready:
+                    print(
+                        "JDownloader Update steht bereit und JDownloader ist inaktiv.\nFühre Update durch und starte JDownloader neu...")
                     jdownloader_update()
+                elif myjd_update_ready:
+                    print(
+                        "JDownloader Update steht bereit, aber JDownloader ist aktiv.\nFühre das Update nicht automatisch durch.")
 
             # Clean exit if test run active
             if test_run:
