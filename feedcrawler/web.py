@@ -609,30 +609,39 @@ def app_container():
     def get_hostnames():
         try:
             hostnames = CrawlerConfig('Hostnames')
+
             fx = hostnames.get('fx')
+            dw = hostnames.get("dw")
             hw = hostnames.get('hw')
             ff = hostnames.get('ff')
-            sj = hostnames.get('sj')
-            dj = hostnames.get('dj')
-            sf = hostnames.get('sf')
-            ww = hostnames.get('ww')
-            nk = hostnames.get('nk')
             by = hostnames.get('by')
+            nk = hostnames.get('nk')
+            ww = hostnames.get('ww')
+
+            sf = hostnames.get('sf')
+            sj = hostnames.get('sj')
+
+            dj = hostnames.get('dj')
+
             dd = hostnames.get('dd')
 
             fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+            dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
             hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
             ff = ff.replace("f", "F", 2)
-            sj = sj.replace("s", "S", 1).replace("j", "J", 1)
-            dj = dj.replace("d", "D", 1).replace("j", "J", 1)
-            sf = sf.replace("s", "S", 1).replace("f", "F", 1)
-            ww = ww.replace("w", "W", 2)
-            nk = nk.replace("n", "N", 1).replace("k", "K", 1)
             by = by.replace("b", "B", 1)
+            nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+            ww = ww.replace("w", "W", 2)
+
+            sf = sf.replace("s", "S", 1).replace("f", "F", 1)
+            sj = sj.replace("s", "S", 1).replace("j", "J", 1)
+
+            dj = dj.replace("d", "D", 1).replace("j", "J", 1)
+
             dd = dd.replace("d", "D", 2).replace("l", "L", 1)
 
-            bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
-            s = ' / '.join(list(filter(None, [sj, sf])))
+            bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, ww])))
+            s = ' / '.join(list(filter(None, [sf, sj])))
             f = ' / '.join(list(filter(None, [sf, ff])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
             jf = ' / '.join(list(filter(None, [sj, dj, sf, ff])))
@@ -649,40 +658,42 @@ def app_container():
             jf_shorthands = '/'.join(list(filter(None, jf_shorthands)))
 
             search_shorthands = []
+            if fx:
+                search_shorthands.append("FX")
+            if sf:
+                search_shorthands.append("SF")
+            if hw:
+                search_shorthands.append("HW")
+            if by:
+                search_shorthands.append("BY")
+            if nk:
+                search_shorthands.append("NK")
             if sj:
                 search_shorthands.append("SJ")
             if dj:
                 search_shorthands.append("DJ")
-            if sf:
-                search_shorthands.append("SF")
-            if by:
-                search_shorthands.append("BY")
-            if fx:
-                search_shorthands.append("FX")
-            if hw:
-                search_shorthands.append("HW")
-            if nk:
-                search_shorthands.append("NK")
             search_shorthands = '/'.join(list(filter(None, search_shorthands)))
 
             if not fx:
                 fx = "Nicht gesetzt!"
+            if not sf:
+                sf = "Nicht gesetzt!"
+            if not dw:
+                dw = "Nicht gesetzt!"
             if not hw:
                 hw = "Nicht gesetzt!"
             if not ff:
                 ff = "Nicht gesetzt!"
+            if not by:
+                by = "Nicht gesetzt!"
+            if not nk:
+                nk = "Nicht gesetzt!"
+            if not ww:
+                ww = "Nicht gesetzt!"
             if not sj:
                 sj = "Nicht gesetzt!"
             if not dj:
                 dj = "Nicht gesetzt!"
-            if not sf:
-                sf = "Nicht gesetzt!"
-            if not ww:
-                ww = "Nicht gesetzt!"
-            if not nk:
-                nk = "Nicht gesetzt!"
-            if not by:
-                by = "Nicht gesetzt!"
             if not dd:
                 dd = "Nicht gesetzt!"
             if not bl:
@@ -698,16 +709,17 @@ def app_container():
 
             return {
                 "hostnames": {
-                    "sj": sj,
-                    "dj": dj,
-                    "sf": sf,
-                    "by": by,
-                    "dd": dd,
                     "fx": fx,
+                    "sf": sf,
+                    "dw": dw,
                     "hw": hw,
                     "ff": ff,
+                    "by": by,
                     "nk": nk,
                     "ww": ww,
+                    "sj": sj,
+                    "dj": dj,
+                    "dd": dd,
                     "bl": bl,
                     "s": s,
                     "f": f,

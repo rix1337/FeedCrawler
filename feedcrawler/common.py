@@ -61,37 +61,40 @@ def check_is_site(string):
         return False
 
     hostnames = CrawlerConfig('Hostnames')
-    sj = hostnames.get('sj')
-    dj = hostnames.get('dj')
-    sf = hostnames.get('sf')
-    by = hostnames.get('by')
     fx = hostnames.get('fx')
+    sf = hostnames.get('sf')
+    dw = hostnames.get('dw')
     hw = hostnames.get('hw')
     ff = hostnames.get('ff')
+    by = hostnames.get('by')
     nk = hostnames.get('nk')
     ww = hostnames.get('ww')
+    sj = hostnames.get('sj')
+    dj = hostnames.get('dj')
     dd = hostnames.get('dd')
 
     string = string.lower()
 
-    if sj and sj.split('.')[0] in string:
-        return "SJ"
-    elif dj and dj.split('.')[0] in string:
-        return "DJ"
+    if fx and fx.split('.')[0] in string:
+        return "FX"
     elif sf and sf.split('.')[0] in string:
         return "SF"
-    elif by and by.split('.')[0] in string:
-        return "BY"
-    elif fx and fx.split('.')[0] in string:
-        return "FX"
+    elif dw and dw.split('.')[0] in string:
+        return "DW"
     elif hw and hw.split('.')[0] in string:
         return "HW"
     elif ff and ff.split('.')[0] in string:
         return "FF"
+    elif by and by.split('.')[0] in string:
+        return "BY"
     elif nk and nk.split('.')[0] in string:
         return "NK"
     elif ww and ww.split('.')[0] in string:
         return "WW"
+    elif sj and sj.split('.')[0] in string:
+        return "SJ"
+    elif dj and dj.split('.')[0] in string:
+        return "DJ"
     elif dd and dd.split('.')[0] in string:
         return "DD"
     else:
