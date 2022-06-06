@@ -175,6 +175,7 @@ def get_packages_in_linkgrabber():
             "maxResults": -1,
             "startAt": 0,
         }])
+
     if links and packages and len(packages) > 0:
         packages_by_type = check_packages_types(links, packages)
         failed = packages_by_type[0]
@@ -238,9 +239,7 @@ def check_packages_types(links, packages):
                         package_online = True
                     url = link.get('url')
                     if url:
-                        url = str(url)
-                        if url not in urls:
-                            urls.append(url)
+                        urls.append(str(url))
                         filename = str(link.get('name'))
                         if filename not in filenames:
                             filenames.append(filename)

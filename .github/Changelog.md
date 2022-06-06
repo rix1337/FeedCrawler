@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.4.1** Neues Detail-Pop-Up um Paketname, Pfad und URLs eines Pakets anzuzeigen.
 - **14.4.1** KatFile als Hoster hinzugefügt
 - **14.4.1** Vereinheitlichung von Lade-Spinnern und Löschen-Icons im Web-Interface.
 - **14.4.0** DW in die Feed-Suche integriert.
