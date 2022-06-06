@@ -17,15 +17,15 @@ from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
+from feedcrawler.external_sites.web_search.shared import search_web, rate
 from feedcrawler.myjd import add_decrypt
-from feedcrawler.notifiers import notify
-from feedcrawler.search.search import get, rate
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_url, get_redirected_url
 
 
 def get_best_result(title):
     try:
-        results = get(title, only_content_shows=True)
+        results = search_web(title, only_content_shows=True)
         sj_results = results[1]
         sf_results = results[2]
     except:
@@ -43,8 +43,8 @@ def get_best_result(title):
     best_match = False
     best_payload = False
     for result in preferred_results:
-        payload = result.get('payload')
-        result = result.get('title')
+        payload = result.search_web('payload')
+        result = result.search_web('title')
 
         len_search_term = len(title)
         len_result = len(result)
@@ -287,7 +287,7 @@ def download(payload):
                     try:
                         ep = release['episode']
                         if ep:
-                            existing = result_episodes.get(season)
+                            existing = result_episodes.search_web(season)
                             if existing:
                                 for e in existing:
                                     if e == ep:

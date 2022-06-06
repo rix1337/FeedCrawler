@@ -11,7 +11,7 @@ import sys
 from logging import handlers
 
 from feedcrawler.db import FeedDb
-from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 
 configpath = False
 log_level = False

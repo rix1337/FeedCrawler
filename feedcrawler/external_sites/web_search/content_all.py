@@ -16,13 +16,13 @@ from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
-from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_content
-from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_link
-from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.external_sites.shared.internal_feed import fx_get_details
-from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
-from feedcrawler.notifiers import notify
-from feedcrawler.search.search import get, rate
+from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
+from feedcrawler.external_sites.feed_search.shared import fx_get_details
+from feedcrawler.external_sites.feed_search.shared import fx_get_download_links
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
+from feedcrawler.external_sites.web_search.shared import search_web, rate
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
@@ -31,7 +31,7 @@ from feedcrawler.url import get_urls_async
 def get_best_result(title):
     title = keep_alphanumeric_with_special_characters(title)
     try:
-        bl_results = get(title, only_content_all=True)[0]
+        bl_results = search_web(title, only_content_all=True)[0]
     except:
         return False
 
@@ -39,8 +39,8 @@ def get_best_result(title):
     best_match = False
     best_payload = False
     for result in bl_results:
-        payload = result.get('payload')
-        result = result.get('title')
+        payload = result.search_web('payload')
+        result = result.search_web('title')
         if simplified_search_term_in_title(title, result):
             score = rate(result)
             if score > best_score:

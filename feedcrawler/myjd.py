@@ -8,7 +8,7 @@ import time
 
 from bs4 import BeautifulSoup
 
-import feedcrawler.myjdapi
+import feedcrawler.external_tools.myjdapi
 from feedcrawler import internal
 from feedcrawler.common import check_hoster
 from feedcrawler.common import check_is_site
@@ -19,7 +19,7 @@ from feedcrawler.common import readable_time
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 
@@ -51,7 +51,7 @@ def get_device():
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
-    jd = feedcrawler.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
     jd.set_app_key('FeedCrawler')
 
     if myjd_user and myjd_pass and myjd_device:
@@ -90,7 +90,7 @@ def get_device():
 
 
 def check_device(myjd_user, myjd_pass, myjd_device):
-    jd = feedcrawler.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
     jd.set_app_key('FeedCrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
@@ -107,7 +107,7 @@ def check_device(myjd_user, myjd_pass, myjd_device):
 
 
 def get_if_one_device(myjd_user, myjd_pass):
-    jd = feedcrawler.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
     jd.set_app_key('FeedCrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
@@ -241,8 +241,7 @@ def check_packages_types(links, packages):
                     if url:
                         urls.append(str(url))
                         filename = str(link.get('name'))
-                        if filename not in filenames:
-                            filenames.append(filename)
+                        filenames.append(filename)
             if CrawlerConfig("FeedCrawler").get('one_mirror_policy'):
                 if delete_linkids:
                     if package_online:
@@ -729,7 +728,7 @@ def jdownloader_update():
         if internal.device:
             try:
                 internal.device.update.restart_and_update()
-            except feedcrawler.myjdapi.TokenExpiredException:
+            except feedcrawler.external_tools.myjdapi.TokenExpiredException:
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return False
@@ -737,7 +736,7 @@ def jdownloader_update():
             return True
         else:
             return False
-    except feedcrawler.myjdapi.MYJDException as e:
+    except feedcrawler.external_tools.myjdapi.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 

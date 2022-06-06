@@ -5,8 +5,8 @@
 
 import json
 
-import feedcrawler.search.shared.content_all
-import feedcrawler.search.shared.content_shows
+import feedcrawler.external_sites.web_search.content_all
+import feedcrawler.external_sites.web_search.content_shows
 from feedcrawler import internal
 from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
@@ -86,16 +86,16 @@ def overseerr(first_launch):
         if not db.retrieve('movie_' + str(item_id)) == 'added':
             title = r["title"]
             if title:
-                best_result = feedcrawler.search.shared.content_all.get_best_result(title)
+                best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
                 print(u"Film: " + title + u" durch Overseerr hinzugefügt.")
                 if best_result:
-                    feedcrawler.search.shared.content_all.download(best_result)
+                    feedcrawler.external_sites.web_search.content_all.download(best_result)
                 if english:
                     title = r.get('title')
-                    best_result = feedcrawler.search.shared.content_all.get_best_result(title)
+                    best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
                     print(u"Film: " + title + u"durch Overseerr hinzugefügt.")
                     if best_result:
-                        feedcrawler.search.shared.content_all.download(best_result)
+                        feedcrawler.external_sites.web_search.content_all.download(best_result)
                 db.store('movie_' + str(item_id), 'added')
 
     if requested_shows:
@@ -110,11 +110,11 @@ def overseerr(first_launch):
             if not db.retrieve('show_' + str(item_id) + "_" + str(season)) == 'added':
                 title = r["name"]
                 if title:
-                    payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+                    payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
                     if payload:
                         payload = decode_base64(payload).split("|")
                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + season)
-                        if feedcrawler.search.shared.content_shows.download(payload):
+                        if feedcrawler.external_sites.web_search.content_shows.download(payload):
                             db.store('show_' + str(item_id) + "_" + str(season), 'added')
                             print(u"Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
 

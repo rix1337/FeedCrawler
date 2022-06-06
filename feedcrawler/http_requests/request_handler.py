@@ -38,7 +38,6 @@ import ssl
 from base64 import b64encode
 from collections import namedtuple
 from http.client import IncompleteRead
-from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
 from urllib.error import HTTPError
 from urllib.parse import urlencode
@@ -58,6 +57,7 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
+# ToDo include proxies support
 def request(
         url,
         params={},
@@ -91,6 +91,20 @@ def request(
         url += "?" + urlencode(params)  # build URL from params
 
     url = url.replace(" ", "%20")  # replace spaces with %20
+
+    if "@" in url and "://" in url:  # parse basic auth info from url
+        split_protocol_and_url = url.split("://")
+
+        protocol = split_protocol_and_url[0]
+
+        split_auth_and_url = split_protocol_and_url[1].split("@")
+
+        auth_info = split_auth_and_url[0].split(":")
+        username = auth_info[0]
+        password = auth_info[1]
+        basic_auth = [username, password]
+
+        url = protocol + "://" + split_auth_and_url[1]
 
     if json and data:
         raise Exception("Cannot provide both json and data parameters")

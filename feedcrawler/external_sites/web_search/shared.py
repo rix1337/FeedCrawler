@@ -13,14 +13,14 @@ from feedcrawler.common import encode_base64
 from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.external_sites.shared.internal_feed import check_release_not_sd
-from feedcrawler.external_sites.shared.internal_feed import fx_content_to_soup
+from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
+from feedcrawler.external_sites.feed_search.shared import fx_content_to_soup
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
 
 
-def get(title, only_content_all=False, only_content_shows=False, only_fast=False, only_slow=False):
+def search_web(title, only_content_all=False, only_content_shows=False, only_fast=False, only_slow=False):
     if only_fast:
         only_slow = False
     if only_slow:

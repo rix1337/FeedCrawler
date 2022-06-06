@@ -3,12 +3,12 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf FX bereit.
 
-import feedcrawler.external_sites.shared.content_all as shared_blogs
+import feedcrawler.external_sites.feed_search.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.external_sites.shared.internal_feed import fx_feed_enricher
-from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
+from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
+from feedcrawler.external_sites.feed_search.shared import fx_feed_enricher
+from feedcrawler.external_sites.feed_search.shared import fx_get_download_links
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers
 

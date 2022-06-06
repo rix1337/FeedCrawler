@@ -12,10 +12,10 @@ import sys
 from urllib.parse import urlparse
 
 from feedcrawler import internal
-from feedcrawler import myjdapi
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
+from feedcrawler.external_tools import myjdapi
 
 
 class Unbuffered(object):

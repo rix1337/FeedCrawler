@@ -22,7 +22,7 @@ from feedcrawler.db import FeedDb
 from feedcrawler.myjd import get_device
 from feedcrawler.myjd import get_if_one_device
 from feedcrawler.watchdog import crawldog
-from feedcrawler.web import web_server
+from feedcrawler.web_interface.web_server import web_server
 
 version = "v." + version.get_version()
 
@@ -140,7 +140,8 @@ def main():
                 while i < 10:
                     i += 1
                     print(
-                        u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, internal.device.name))
+                        u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (
+                        i, internal.device.name))
                     time.sleep(60)
                     get_device()
             print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')

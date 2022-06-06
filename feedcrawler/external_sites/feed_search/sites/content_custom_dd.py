@@ -7,9 +7,9 @@ from datetime import datetime
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb, ListDb
-from feedcrawler.external_sites.shared.internal_feed import dd_rss_feed_to_feedparser_dict, check_hoster
+from feedcrawler.external_sites.feed_search.shared import dd_rss_feed_to_feedparser_dict, check_hoster
 from feedcrawler.myjd import myjd_download
-from feedcrawler.notifiers import notify
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_url
 
 

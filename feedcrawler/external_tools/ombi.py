@@ -5,17 +5,17 @@
 
 import json
 
-import feedcrawler.search.shared.content_all
-import feedcrawler.search.shared.content_shows
+import feedcrawler.external_sites.web_search.content_all
+import feedcrawler.external_sites.web_search.content_shows
 from feedcrawler import internal
 from feedcrawler.common import decode_base64
 from feedcrawler.common import encode_base64
 from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.shared.imdb import get_episodes
-from feedcrawler.external_sites.shared.imdb import get_localized_title
-from feedcrawler.external_sites.shared.imdb import get_year
+from feedcrawler.external_sites.metadata.imdb import get_episodes
+from feedcrawler.external_sites.metadata.imdb import get_localized_title
+from feedcrawler.external_sites.metadata.imdb import get_year
 from feedcrawler.http_requests.request_handler import request
 
 
@@ -87,16 +87,16 @@ def ombi(first_launch):
                     if not db.retrieve('movie_' + str(imdb_id)) == 'added':
                         title = imdb_movie(imdb_id)
                         if title:
-                            best_result = feedcrawler.search.shared.content_all.get_best_result(title)
+                            best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
                             print(u"Film: " + title + u" durch Ombi hinzugefügt.")
                             if best_result:
-                                feedcrawler.search.shared.content_all.download(best_result)
+                                feedcrawler.external_sites.web_search.content_all.download(best_result)
                             if english:
                                 title = r.get('title')
-                                best_result = feedcrawler.search.shared.content_all.get_best_result(title)
+                                best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
                                 print(u"Film: " + title + u"durch Ombi hinzugefügt.")
                                 if best_result:
-                                    feedcrawler.search.shared.content_all.download(best_result)
+                                    feedcrawler.external_sites.web_search.content_all.download(best_result)
                             db.store('movie_' + str(imdb_id), 'added')
                 else:
                     print("Ein Film ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
@@ -147,16 +147,17 @@ def ombi(first_launch):
                                                 if len(e) == 1:
                                                     e = "0" + e
                                                 se = s + "E" + e
-                                                payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+                                                payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(
+                                                    title)
                                                 if payload:
                                                     payload = decode_base64(payload).split("|")
                                                     payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
-                                                    added_episode = feedcrawler.search.shared.content_shows.download(
+                                                    added_episode = feedcrawler.external_sites.web_search.content_shows.download(
                                                         payload)
                                                     if not added_episode:
                                                         payload = decode_base64(payload).split("|")
                                                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                                        add_season = feedcrawler.search.shared.content_shows.download(
+                                                        add_season = feedcrawler.external_sites.web_search.content_shows.download(
                                                             payload)
                                                         for e in eps:
                                                             e = str(e)
@@ -170,11 +171,12 @@ def ombi(first_launch):
                                                         break
                                                 db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                         else:
-                                            payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+                                            payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(
+                                                title)
                                             if payload:
                                                 payload = decode_base64(payload).split("|")
                                                 payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                                feedcrawler.search.shared.content_shows.download(payload)
+                                                feedcrawler.external_sites.web_search.content_shows.download(payload)
                                             for ep in eps:
                                                 e = str(ep)
                                                 if len(e) == 1:

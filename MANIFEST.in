@@ -1,1 +1,1 @@
-recursive-include feedcrawler/web/dist *
+recursive-include feedcrawler/web_interface/vuejs_frontend/dist *

@@ -18,9 +18,7 @@ from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
 from bottle import Bottle, abort, redirect, request, static_file, HTTPError
 
-import feedcrawler.myjdapi
-import feedcrawler.search.shared.content_all
-import feedcrawler.search.shared.content_shows
+import feedcrawler.external_tools.myjdapi
 from feedcrawler import internal
 from feedcrawler import version
 from feedcrawler.common import Unbuffered
@@ -35,6 +33,8 @@ from feedcrawler.common import rreplace
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
 from feedcrawler.db import ListDb
+from feedcrawler.external_sites.web_search.shared import search_web
+from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.myjd import check_device
 from feedcrawler.myjd import do_add_decrypted
 from feedcrawler.myjd import download
@@ -52,9 +52,7 @@ from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
 from feedcrawler.myjd import retry_decrypt
 from feedcrawler.myjd import set_enabled
-from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
-from feedcrawler.notifiers import notify
-from feedcrawler.search import search
+from feedcrawler.notifications import notify
 
 
 class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
@@ -139,10 +137,10 @@ def app_container():
         auth_user = _config.get('auth_user')
         auth_hash = _config.get('auth_hash')
         if auth_user and auth_hash:
-            if auth_hash and "srcypt|" not in auth_hash:
+            if auth_hash and "scrypt|" not in auth_hash:
                 salt = get_random_bytes(16).hex()
                 key = scrypt(auth_hash, salt, 16, N=2 ** 14, r=8, p=1).hex()
-                auth_hash = "srcypt|" + salt + "|" + key
+                auth_hash = "scrypt|" + salt + "|" + key
                 _config.save("auth_hash", to_str(auth_hash))
             secrets = auth_hash.split("|")
             salt = secrets[1]
@@ -163,7 +161,7 @@ def app_container():
     @app.get(prefix + '/sponsors_helper/')
     @auth_basic(is_authenticated_user)
     def catch_all():
-        return static_file('index.html', root=base_dir + "/web/dist")
+        return static_file('index.html', root=base_dir + "/web_interface/vuejs_frontend/dist")
 
     @app.get('//<url:re:.*>')
     @auth_basic(is_authenticated_user)
@@ -192,12 +190,12 @@ def app_container():
     @app.get(prefix + '/assets/<filename>')
     @app.get(prefix + '/sponsors_helper/assets/<filename>')
     def static_files(filename):
-        return static_file(filename, root=base_dir + "/web/dist/assets")
+        return static_file(filename, root=base_dir + "/web_interface/vuejs_frontend/dist/assets")
 
     @app.get(prefix + '/favicon.ico')
     @app.get(prefix + '/sponsors_helper/favicon.ico')
     def static_favicon():
-        return static_file('favicon.ico', root=base_dir + "/web/dist/")
+        return static_file('favicon.ico', root=base_dir + "/web_interface/vuejs_frontend/dist/")
 
     def to_int(i):
         if isinstance(i, bytes):
@@ -403,10 +401,10 @@ def app_container():
                 "auth_user", to_str(data['general']['auth_user']))
 
             password_hash = data['general']['auth_hash']
-            if password_hash and "srcypt|" not in password_hash:
+            if password_hash and "scrypt|" not in password_hash:
                 salt = get_random_bytes(16).hex()
                 key = scrypt(password_hash, salt, 16, N=2 ** 14, r=8, p=1).hex()
-                password_hash = "srcypt|" + salt + "|" + key
+                password_hash = "scrypt|" + salt + "|" + key
             section.save(
                 "auth_hash", to_str(password_hash))
 
@@ -815,7 +813,7 @@ def app_container():
             slow_only = False
             fast_only = False
         try:
-            results = search.get(title, only_slow=slow_only, only_fast=fast_only)
+            results = search_web(title, only_slow=slow_only, only_fast=fast_only)
             return {
                 "results": {
                     "bl": results[0],
@@ -830,9 +828,9 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def download_movie(title):
         try:
-            payload = feedcrawler.search.shared.content_all.get_best_result(title)
+            payload = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
             if payload:
-                matches = feedcrawler.search.shared.content_all.download(payload)
+                matches = feedcrawler.external_sites.web_search.content_all.download(payload)
                 return "Success: " + str(matches)
         except:
             pass
@@ -842,9 +840,9 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def download_show(title):
         try:
-            payload = feedcrawler.search.shared.content_shows.get_best_result(title)
+            payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
             if payload:
-                matches = feedcrawler.search.shared.content_shows.download(payload)
+                matches = feedcrawler.external_sites.web_search.content_shows.download(payload)
                 if matches:
                     return "Success: " + str(matches)
         except:
@@ -855,7 +853,7 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def download_bl(payload):
         try:
-            if feedcrawler.search.shared.content_all.download(payload):
+            if feedcrawler.external_sites.web_search.content_all.download(payload):
                 return "Success"
         except:
             pass
@@ -865,7 +863,7 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def download_s(payload):
         try:
-            if feedcrawler.search.shared.content_shows.download(payload):
+            if feedcrawler.external_sites.web_search.content_shows.download(payload):
                 return "Success"
         except:
             pass
@@ -1610,14 +1608,14 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                 if remove_decrypt(name):
                     try:
                         notify([{
-                            "text": "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
+                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        u"[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)")
+                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "[FeedCrawler Sponsors Helper nicht erfolgreich] - " + name + " (Paket nach 3 Versuchen gelöscht)"
+                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"
         except:
             pass
         return abort(400, "Failed")
@@ -1806,14 +1804,14 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                         if not db.retrieve(name):
                             db.store(name, 'added')
                         try:
-                            notify([{"text": "[FeedCrawler Sponsors Helper erfolgreich] - " + name}])
+                            notify([{"text": "[CAPTCHA gelöst] - " + name}])
                         except:
                             print(u"Benachrichtigung konnte nicht versendet werden!")
-                        print(u"[FeedCrawler Sponsors Helper erfolgreich] - " + name)
+                        print(u"[CAPTCHA gelöst] - " + name)
                         already_added.append([name, str(epoch)])
                         return "<script type='text/javascript'>" \
                                "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                               "[FeedCrawler Sponsors Helper erfolgreich] - " + name
+                               "[CAPTCHA gelöst] - " + name
                     except:
                         print(name + u" konnte nicht hinzugefügt werden!")
         except:

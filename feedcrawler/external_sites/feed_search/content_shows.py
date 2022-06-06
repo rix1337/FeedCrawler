@@ -10,7 +10,7 @@ import re
 from feedcrawler import internal
 from feedcrawler.db import ListDb
 from feedcrawler.myjd import add_decrypt
-from feedcrawler.notifiers import notify
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_url
 from feedcrawler.url import get_url_headers
 
@@ -55,7 +55,7 @@ def feed_url(self):
         return False
 
 
-def send_package(self, title, link, language_id, season, episode, site, source, size,  imdb_id):
+def send_package(self, title, link, language_id, season, episode, site, source, size, imdb_id):
     englisch = ''
     if language_id == 2:
         englisch = '/Englisch'

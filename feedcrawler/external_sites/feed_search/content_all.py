@@ -12,18 +12,18 @@ from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
 from feedcrawler.common import is_retail
 from feedcrawler.db import ListDb
-from feedcrawler.external_sites.shared.imdb import get_rating
-from feedcrawler.external_sites.shared.imdb import get_votes
-from feedcrawler.external_sites.shared.imdb import get_year
-from feedcrawler.external_sites.shared.imdb import original_language_not_german
-from feedcrawler.external_sites.shared.internal_feed import add_decrypt_instead_of_download
-from feedcrawler.external_sites.shared.internal_feed import by_page_download_link
-from feedcrawler.external_sites.shared.internal_feed import fx_get_download_links
-from feedcrawler.external_sites.shared.internal_feed import get_search_results
-from feedcrawler.external_sites.shared.internal_feed import hw_get_download_links
-from feedcrawler.external_sites.shared.internal_feed import nk_page_download_link
+from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
+from feedcrawler.external_sites.feed_search.shared import by_page_download_link
+from feedcrawler.external_sites.feed_search.shared import fx_get_download_links
+from feedcrawler.external_sites.feed_search.shared import get_search_results
+from feedcrawler.external_sites.feed_search.shared import hw_get_download_links
+from feedcrawler.external_sites.feed_search.shared import nk_page_download_link
+from feedcrawler.external_sites.metadata.imdb import get_rating
+from feedcrawler.external_sites.metadata.imdb import get_votes
+from feedcrawler.external_sites.metadata.imdb import get_year
+from feedcrawler.external_sites.metadata.imdb import original_language_not_german
 from feedcrawler.myjd import myjd_download
-from feedcrawler.notifiers import notify
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_url
 
 

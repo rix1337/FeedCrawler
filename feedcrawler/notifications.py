@@ -10,7 +10,7 @@ from urllib.request import urlopen, Request
 
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.external_sites.shared.imdb import get_poster_link
+from feedcrawler.external_sites.metadata.imdb import get_poster_link
 
 
 def notify(items):

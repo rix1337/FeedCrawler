@@ -3,11 +3,11 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf DJ bereit.
 
-import feedcrawler.external_sites.shared.content_shows as shared_shows
+import feedcrawler.external_sites.feed_search.content_shows as shared_shows
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.shared.internal_feed import j_parse_download
-from feedcrawler.external_sites.shared.internal_feed import j_releases_to_feedparser_dict
+from feedcrawler.external_sites.feed_search.shared import j_parse_download
+from feedcrawler.external_sites.feed_search.shared import j_releases_to_feedparser_dict
 
 
 class DJ:

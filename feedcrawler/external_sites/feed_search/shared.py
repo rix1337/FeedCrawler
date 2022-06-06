@@ -15,13 +15,12 @@
 #                 {
 #                     'value': """HTML-Inhalt der entweder direkt Download-Links (inklusive Hoster-Bezeichnung)
 #                                 enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
-#                                 sind.
-#                                 Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
-#                                 zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feed-Suche den Link
-#                                 erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
-#                                 Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
+#                                 sind. Das Dateiformat "mkv" muss zwingend im Text vorhanden sein: mkv"""
 #                 }
-#             ]
+#             ],
+#             'source': 'https://example.com/2022/02/15/release-1/',
+#             'size': '2.89 GB',
+#             'imdb_id': 'tt1234567',
 #         },
 #         {
 #             'title': 'Release.2.Title-Group',
@@ -29,14 +28,13 @@
 #             'content': [
 #                 {
 #                     'value': """HTML-Inhalt der entweder direkt Download-Links (inklusive Hoster-Bezeichnung)
-#                                     enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
-#                                     sind.
-#                                     Der folgende IMDb-Link ist notwendig, um das Release eindeutig einer IMDb-Seite
-#                                     zuzuordnen. Der zeichengenaue Aufbau ist wichtig, damit die Feed-Suche den Link
-#                                     erkennt: <a href="http://www.imdb.com/title/tt0012345/" 9.9</a>
-#                                     Das Dateiformat "mkv" muss ebenfalls zwingend im Text vorhanden sein: mkv"""
+#                                 enthält, oder Links zu der eigentlichen Seite enthält, auf der die Links zu finden
+#                                 sind. Das Dateiformat "mkv" muss zwingend im Text vorhanden sein: mkv"""
 #                 }
-#             ]
+#             ],
+#             'source': 'https://example.com/2000/01/01/release-2/',
+#             'size': '3.28 GB',
+#             'imdb_id': 'tt1234567',
 #         }
 #     ]
 # }
@@ -53,13 +51,19 @@
 # feed = {
 #     'entries': [
 #         {
-#             'title': 'Release.1.Title-Group',
+#             'title': 'Release.1.Title.S01-Group',
 #             'series_url': 'https://link.zu/website_mit_download_links_des_ersten_releases',
 #             'published': '2000-01-30T00:00:00.999Z'},
+#             'source': 'https://link.zu/website_mit_download_links_des_ersten_releases#Release.1.Title.S01-Group',
+#             'size': '13.37 GB',
+#             'imdb_id': 'tt1234567',
 #         {
-#             'title': 'Release.2.Title-Group',
+#             'title': 'Release.2.Title.S10E42-Group',
 #             'series_url': 'https://link.zu/website_mit_download_links_des_zweiten_releases',
 #             'published': '2000-01-30T00:10:00.999Z'}
+#             'source': 'https://link.zu/website_mit_download_links_des_zweiten_releases#Release.2.Title.S10E42-Group',
+#             'size': '800.01 MB',
+#             'imdb_id': 'tt1234567',
 #     ]
 # }
 #
@@ -88,11 +92,11 @@ from feedcrawler.common import readable_size
 from feedcrawler.common import rreplace
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
-from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_content
-from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_link
-from feedcrawler.external_sites.shared.imdb import get_imdb_id_from_title
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_title
 from feedcrawler.myjd import add_decrypt
-from feedcrawler.notifiers import notify
+from feedcrawler.notifications import notify
 from feedcrawler.url import get_redirected_url
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
