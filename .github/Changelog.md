@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **14.4.1** Neues Funktion um Pakete zu De-/Aktivieren.
 - **14.4.1** Neues Detail-Pop-Up um Paketname, Pfad und URLs eines Pakets anzuzeigen.
 - **14.4.1** KatFile als Hoster hinzugefügt
 - **14.4.1** Vereinheitlichung von Lade-Spinnern und Löschen-Icons im Web-Interface.

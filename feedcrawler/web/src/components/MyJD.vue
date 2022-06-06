@@ -134,6 +134,10 @@ function setModalPackage(package_) {
   modalPackage.value = package_
 }
 
+function urlExists(url) {
+  return (url.startsWith('file:/') || url.startsWith('filecrypt'))
+
+}
 
 const resLengthMyJD = ref(0)
 const packages_per_myjd_page = ref(3)
@@ -268,6 +272,30 @@ function myJDmove(linkids, uuid, name) {
         toast.error('Konnte Download ' + name + ' nicht starten!')
       })
 }
+
+
+function myJDenable(linkids, uuid, name) {
+  axios.post('api/myjd_enable/' + linkids + "&" + uuid)
+      .then(function () {
+        toast.success('Download ' + name + ' aktiviert!')
+        getMyJD()
+      }, function () {
+        console.log('Konnte Download ' + name + ' nicht aktivieren!')
+        toast.error('Konnte Download ' + name + ' nicht aktivieren!')
+      })
+}
+
+function myJDdisable(linkids, uuid, name) {
+  axios.post('api/myjd_disable/' + linkids + "&" + uuid)
+      .then(function () {
+        toast.success('Download ' + name + ' deaktiviert!')
+        getMyJD()
+      }, function () {
+        console.log('Konnte Download ' + name + ' nicht deaktivieren!')
+        toast.error('Konnte Download ' + name + ' nicht deaktivieren!')
+      })
+}
+
 
 function myJDremove(linkids, uuid, name) {
   axios.post('api/myjd_remove/' + linkids + "&" + uuid)
@@ -441,13 +469,17 @@ function showSponsorsHelp() {
                       <div v-for="x in currentMyJDPage" class="myjd-items">
                         <div class="row m-2">
                           <div class="myjd-downloads">
-                            <div v-if="x.type=='online'" class="card bg-success">
+                            <div v-if="x.type==='online'" class="card bg-success">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>
                               <ul class="list-group list-group-flush">
                                 <li class="list-group-item"><span v-text="x.done"></span> / <span
                                     v-text="x.size"></span>
+                                  (<span v-for="(host, index) in x.hosts">
+                                    <template v-if="index > 0">, </template>
+                                    <span>{{ host }}</span>
+                                  </span>)
                                 </li>
                                 <li class="list-group-item">
                                   <div class="progress">
@@ -474,10 +506,22 @@ function showSponsorsHelp() {
                               </ul>
                               <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                  <button type="button" class="btn btn-outline-info m-1" data-bs-toggle="modal"
+                                  <button type="button" class="btn btn-outline-primary m-1" data-bs-toggle="modal"
                                           data-bs-target="#myJdItemModal"
                                           @click="setModalPackage(x)">
                                     <i class="bi bi-info-square"></i> Details
+                                  </button>
+                                  <button v-if="x.enabled"
+                                          class="btn btn-outline-dark m-1"
+                                          @click="myJDdisable(x.linkids, x.uuid, x.name)"><i
+                                      class="bi bi-toggle-off"></i>
+                                    Deaktivieren
+                                  </button>
+                                  <button v-else
+                                          class="btn btn-outline-dark m-1"
+                                          @click="myJDenable(x.linkids, x.uuid, x.name)"><i
+                                      class="bi bi-toggle-on"></i>
+                                    Aktivieren
                                   </button>
                                   <button class="btn btn-outline-danger m-1"
                                           @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
@@ -489,7 +533,7 @@ function showSponsorsHelp() {
                           </div>
 
                           <div class="myjd-decrypted">
-                            <div v-if="x.type=='decrypted'" class="card bg-warning">
+                            <div v-if="x.type==='decrypted'" class="card bg-warning">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>
@@ -499,18 +543,34 @@ function showSponsorsHelp() {
                                   class="cnl-spinner">
                                 <span class="spinner-border spinner-border-sm" role="status"></span> Warte auf hinzugefügte Links!</span>
                                 </li>
-                                <li v-if="x.size" class="list-group-item"><span v-text="x.size"></span></li>
+                                <li v-if="x.size" class="list-group-item"><span v-text="x.size"></span>
+                                  (<span v-for="(host, index) in x.hosts">
+                                    <template v-if="index > 0">, </template>
+                                    <span>{{ host }}</span>
+                                  </span>)
+                                </li>
                                 <li v-if="!cnl_active" class="list-group-item cnl-blockers">
                                   <button v-tippy="'Download starten'"
                                           class="btn btn-outline-success m-1"
                                           @click="myJDmove(x.linkids, x.uuid, x.name)"><i class="bi bi-play"></i>
-                                    Download
-                                    starten
+                                    Download starten
                                   </button>
-                                  <button type="button" class="btn btn-outline-info m-1" data-bs-toggle="modal"
+                                  <button type="button" class="btn btn-outline-primary m-1" data-bs-toggle="modal"
                                           data-bs-target="#myJdItemModal"
                                           @click="setModalPackage(x)">
                                     <i class="bi bi-info-square"></i> Details
+                                  </button>
+                                  <button v-if="x.enabled"
+                                          class="btn btn-outline-dark m-1"
+                                          @click="myJDdisable(x.linkids, x.uuid, x.name)"><i
+                                      class="bi bi-toggle-off"></i>
+                                    Deaktivieren
+                                  </button>
+                                  <button v-else
+                                          class="btn btn-outline-dark m-1"
+                                          @click="myJDenable(x.linkids, x.uuid, x.name)"><i
+                                      class="bi bi-toggle-on"></i>
+                                    Aktivieren
                                   </button>
                                   <button class="btn btn-outline-danger m-1"
                                           @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
@@ -522,7 +582,7 @@ function showSponsorsHelp() {
                           </div>
 
                           <div class="myjd-failed">
-                            <div v-if="x.type=='failed'" class="card bg-danger">
+                            <div v-if="x.type==='failed'" class="card bg-danger">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong>
                               </div>
@@ -549,7 +609,7 @@ function showSponsorsHelp() {
                           </div>
 
                           <div class="myjd-to-decrypt">
-                            <div v-if="x.type=='to_decrypt'" class="card bg-danger">
+                            <div v-if="x.type==='to_decrypt'" class="card bg-danger">
                               <div class="card-header">
                                 <strong>{{ x[1].name }}</strong>
                               </div>
@@ -664,27 +724,29 @@ function showSponsorsHelp() {
                                       aria-label="Close"></button>
                             </div>
                             <div class="modal-body">
-                              <div class="mb-4">
+                              <div class="mb-2">
                                 <h4>Paketname</h4>
                                 {{ modalPackage.name }}
                               </div>
-                              <div class="mb-4">
+                              <div class="mb-2">
                                 <h4>Pfad</h4>
                                 {{ modalPackage.path }}
                               </div>
-                              <div class="mb-4">
-                                <h4>URLs</h4>
-                                <button v-for="(url, index) in modalPackage.urls.split(/\r?\n/)"
-                                        class="btn btn-outline-info"
-                                        :class="{ 'btn-outline-warning': (url.startsWith('file:/') || url.startsWith('filecrypt')),
-                                                   'btn-outline-info': !(url.startsWith('file:/') || url.startsWith('filecrypt'))
+                              <div class="mb-2">
+                                <ul>
+                                  <button v-for="(url, index) in modalPackage.urls.split(/\r?\n/)"
+                                          class="btn"
+                                          :class="{ 'btn-outline-warning': urlExists(url),
+                                                   'btn-outline-primary': !urlExists(url)
                                         }">
-                                  <a v-if="!(url.startsWith('file:/') || url.startsWith('filecrypt'))" target="_blank" :href="url">
-                                    <i class="bi bi-link-45deg"></i> {{ modalPackage.filenames[index] }}</a>
-                                  <span v-else
-                                        v-tippy="'URL nicht durch My JDownloader abrufbar!'">
+                                    <a v-if="!urlExists(url)" target="_blank"
+                                       :href="url">
+                                      <i class="bi bi-link-45deg"></i> {{ modalPackage.filenames[index] }}</a>
+                                    <span v-else
+                                          v-tippy="'URL nicht durch My JDownloader abrufbar!'">
                                     {{ modalPackage.filenames[index] }}</span>
-                                </button>
+                                  </button>
+                                </ul>
                               </div>
                             </div>
                             <div class="modal-footer">

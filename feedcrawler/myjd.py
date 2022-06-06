@@ -417,6 +417,33 @@ def get_info():
         return False
 
 
+def set_enabled(enable, linkids, uuid):
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.downloads.set_enabled(enable, linkids, uuid)
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.downloads.set_enabled(enable, linkids, uuid)
+            try:
+                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+            return True
+        else:
+            return False
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
 def move_to_downloads(linkids, uuid):
     try:
         if not internal.device or not is_device(internal.device):

@@ -51,6 +51,7 @@ from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
 from feedcrawler.myjd import retry_decrypt
+from feedcrawler.myjd import set_enabled
 from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
@@ -920,6 +921,54 @@ def app_container():
                     "downloader_state": myjd[1],
                     "grabber_collecting": myjd[2]
                 }
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_enable/<linkids>&<uuids>")
+    @auth_basic(is_authenticated_user)
+    def myjd_enable(linkids, uuids):
+        try:
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            if set_enabled(True, linkids, uuids):
+                return "Success"
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_disable/<linkids>&<uuids>")
+    @auth_basic(is_authenticated_user)
+    def myjd_disable(linkids, uuids):
+        try:
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            if set_enabled(False, linkids, uuids):
+                return "Success"
         except:
             pass
         return abort(400, "Failed")

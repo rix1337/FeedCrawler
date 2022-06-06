@@ -375,18 +375,20 @@ class Linkgrabber:
         resp = self.device.action(self.url + "/setPriority", params)
         return resp
 
-    def set_enabled(self, params):
+    def set_enabled(self, enable, links_ids, packages_ids):
         """
 
         My guess is that it Enables/Disables a download, but i haven't got it working.
 
-        :param params: List with a boolean (enable/disable download), my guess
-        the parameters are package uuid, download uuid. Ex:
-        [False,2453556,2334455].
-        :type: List
-        :rtype:
-
+        :param params: List with a boolean (enable/disable download) and a list of links and packages UUIDs.
+        :param enable: Enable or disable package.
+        :type: boolean
+        :param packages_ids: Packages UUID.
+        :type: list of strings.
+        :param links_ids: Links UUID.
+        :type: list of strings
         """
+        params = [enable, links_ids, packages_ids]
         resp = self.device.action(self.url + "/setEnabled", params)
         return resp
 
@@ -653,6 +655,23 @@ class Downloads:
         params = [links_ids, packages_ids]
         params += [action, mode, selection_type]
         resp = self.device.action(self.url + "/cleanup", params)
+        return resp
+
+    def set_enabled(self, enable, links_ids, packages_ids):
+        """
+
+        My guess is that it Enables/Disables a download, but i haven't got it working.
+
+        :param params: List with a boolean (enable/disable download) and a list of links and packages UUIDs.
+        :param enable: Enable or disable package.
+        :type: boolean
+        :param packages_ids: Packages UUID.
+        :type: list of strings.
+        :param links_ids: Links UUID.
+        :type: list of strings
+        """
+        params = [enable, links_ids, packages_ids]
+        resp = self.device.action(self.url + "/setEnabled", params)
         return resp
 
     def move_to_new_package(self, links_ids, packages_ids, new_pkg_name, download_path):
