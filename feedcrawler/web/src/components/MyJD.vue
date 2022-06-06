@@ -640,7 +640,6 @@ function showSponsorsHelp() {
                       >
                       </paginate>
                     </div>
-
                     <div>
                       <div v-if="!myjd_state">
                         <h4 id="initial-loading">Verbinde mit My JDownloader...</h4>

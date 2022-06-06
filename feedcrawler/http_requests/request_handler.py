@@ -38,6 +38,7 @@ import ssl
 from base64 import b64encode
 from collections import namedtuple
 from http.client import IncompleteRead
+from http.client import RemoteDisconnected
 from http.cookiejar import CookieJar
 from urllib.error import HTTPError
 from urllib.parse import urlencode
