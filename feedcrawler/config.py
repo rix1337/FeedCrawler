@@ -61,8 +61,9 @@ class CrawlerConfig(object):
             ("uptobox", "bool", "False"),
             ("filer", "bool", "False"),
             ("nitroflare", "bool", "False"),
+            ("k2s", "bool", "False"),
+            ("katfile", "bool", "False"),
             ("ironfiles", "bool", "False"),
-            ("k2s", "bool", "False")
         ],
         'Overseerr': [
             ("url", "str", ""),

@@ -463,7 +463,7 @@ function showSponsorsHelp() {
                             <ul class="list-group list-group-flush">
                               <li class="list-group-item">
                                 <button class="btn btn-outline-danger m-1"
-                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
+                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
                                   Löschen
                                 </button>
                               </li>
@@ -491,7 +491,7 @@ function showSponsorsHelp() {
                                   starten
                                 </button>
                                 <button class="btn btn-outline-danger m-1"
-                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
+                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
                                   Löschen
                                 </button>
                               </li>
@@ -518,7 +518,7 @@ function showSponsorsHelp() {
                                   Zurücksetzen
                                 </button>
                                 <button v-if="!cnl_active" class="btn btn-outline-danger m-1"
-                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
+                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
                                   Löschen
                                 </button>
                               </li>
@@ -599,7 +599,7 @@ function showSponsorsHelp() {
                               </li>
                               <li v-if="!cnl_active" class="list-group-item cnl-blockers">
                                 <button v-if="!cnl_active" class="btn btn-outline-danger"
-                                        @click="internalRemove(x[1].name)"><i class="bi bi-trash"></i>
+                                        @click="internalRemove(x[1].name)"><i class="bi bi-trash3"></i>
                                   Löschen
                                 </button>
                               </li>
@@ -622,7 +622,7 @@ function showSponsorsHelp() {
                                   hinzufügen
                                 </button>
                                 <button class="btn btn-outline-danger m-1"
-                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash"></i>
+                                        @click="myJDremove(x.linkids, x.uuid, x.name)"><i class="bi bi-trash3"></i>
                                   Löschen
                                 </button>
                               </li>
@@ -642,18 +642,16 @@ function showSponsorsHelp() {
                     </div>
 
                     <div>
-                      <div v-if="!myjd_state" class="myjd_connection_state">
-                        <p id="initial-loading">Verbinde mit My JDownloader...</p>
-                        <div id="spinner-myjd" class="spinner-border text-primary" role="status"></div>
+                      <div v-if="!myjd_state">
+                        <h4 id="initial-loading">Verbinde mit My JDownloader...</h4>
+                        <div class="spinner-border text-primary" role="status"></div>
                       </div>
-                      <div v-if="store.state.misc.myjd_connection_error" id="myjd_no_login"
-                           class="myjd_connection_state">
+                      <h4 v-if="store.state.misc.myjd_connection_error">
                         Fehler bei Verbindung mit My JDownloader!
-                      </div>
-                      <div v-if="myjd_state && (myjd_packages.length === 0)" id="myjd_no_packages"
-                           class="myjd_connection_state">
+                      </h4>
+                      <h4 v-if="myjd_state && (myjd_packages.length === 0)">
                         Downloadliste und Linksammler sind leer.
-                      </div>
+                      </h4>
 
                       <div v-if="myjd_downloads" id="myjd_state">
                         <button v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"

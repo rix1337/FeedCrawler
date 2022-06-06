@@ -199,7 +199,9 @@ def crawler(global_variables, remove_jf_time, test_run):
                 myjd_state = myjd_infos[1]
                 myjd_grabber_collecting = myjd_infos[2]
                 myjd_update_ready = myjd_infos[3]
-                if myjd_state == "IDLE" and not myjd_grabber_collecting and myjd_update_ready:
+                myjd_packages = myjd_infos[4]
+                if (myjd_state == "IDLE" or not myjd_packages[0]) and (
+                        not myjd_grabber_collecting and myjd_update_ready):
                     print(
                         "JDownloader Update steht bereit und JDownloader ist inaktiv.\nFühre Update durch und starte JDownloader neu...")
                     jdownloader_update()
