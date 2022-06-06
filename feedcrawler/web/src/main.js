@@ -82,10 +82,11 @@ const store = createStore({
                     onefichier: true,
                     filer: true,
                     nitroflare: true,
-                    ironfiles: true,
                     k2s: true,
+                    katfile: true,
+                    ironfiles: true,
                 }, alerts: {
-                    pushbullet: "", pushover: "", telegram: ""
+                    pushbullet: "", pushover: "", telegram: "", homeassistant: ""
                 }, ombi: {
                     url: "", api: ""
                 }, overseerr: {

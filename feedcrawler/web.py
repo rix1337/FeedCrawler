@@ -23,11 +23,13 @@ import feedcrawler.search.shared.content_all
 import feedcrawler.search.shared.content_shows
 from feedcrawler import internal
 from feedcrawler import version
-from feedcrawler.common import Unbuffered, keep_alphanumeric_with_special_characters, \
-    keep_alphanumeric_with_regex_characters, keep_numbers
+from feedcrawler.common import Unbuffered
 from feedcrawler.common import decode_base64
 from feedcrawler.common import get_to_decrypt
 from feedcrawler.common import is_device
+from feedcrawler.common import keep_alphanumeric_with_regex_characters
+from feedcrawler.common import keep_alphanumeric_with_special_characters
+from feedcrawler.common import keep_numbers
 from feedcrawler.common import remove_decrypt
 from feedcrawler.common import rreplace
 from feedcrawler.config import CrawlerConfig
@@ -49,7 +51,8 @@ from feedcrawler.myjd import move_to_downloads
 from feedcrawler.myjd import remove_from_linkgrabber
 from feedcrawler.myjd import reset_in_downloads
 from feedcrawler.myjd import retry_decrypt
-from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException
+from feedcrawler.myjd import set_enabled
+from feedcrawler.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.notifiers import notify
 from feedcrawler.search import search
 
@@ -317,8 +320,9 @@ def app_container():
                         "onefichier": hosters.get("1fichier"),
                         "filer": hosters.get("filer"),
                         "nitroflare": hosters.get("nitroflare"),
-                        "ironfiles": hosters.get("ironfiles"),
                         "k2s": hosters.get("k2s"),
+                        "katfile": hosters.get("katfile"),
+                        "ironfiles": hosters.get("ironfiles"),
                     },
                     "alerts": {
                         "pushbullet": alerts.get("pushbullet"),
@@ -466,8 +470,9 @@ def app_container():
             section.save("1fichier", to_str(data['hosters']['onefichier']))
             section.save("filer", to_str(data['hosters']['filer']))
             section.save("nitroflare", to_str(data['hosters']['nitroflare']))
-            section.save("ironfiles", to_str(data['hosters']['ironfiles']))
             section.save("k2s", to_str(data['hosters']['k2s']))
+            section.save("katfile", to_str(data['hosters']['katfile']))
+            section.save("ironfiles", to_str(data['hosters']['ironfiles']))
 
             section = CrawlerConfig("Ombi")
             ombi_url = to_str(data['ombi']['url'])
@@ -875,7 +880,7 @@ def app_container():
                 packages_to_decrypt = get_to_decrypt()
                 general_conf = CrawlerConfig('FeedCrawler')
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -906,7 +911,7 @@ def app_container():
         try:
             try:
                 myjd = get_state()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -916,6 +921,54 @@ def app_container():
                     "downloader_state": myjd[1],
                     "grabber_collecting": myjd[2]
                 }
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_enable/<linkids>&<uuids>")
+    @auth_basic(is_authenticated_user)
+    def myjd_enable(linkids, uuids):
+        try:
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            if set_enabled(True, linkids, uuids):
+                return "Success"
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.post(prefix + "/api/myjd_disable/<linkids>&<uuids>")
+    @auth_basic(is_authenticated_user)
+    def myjd_disable(linkids, uuids):
+        try:
+            linkids_raw = ast.literal_eval(linkids)
+            linkids = []
+            if isinstance(linkids_raw, (list, tuple)):
+                for linkid in linkids_raw:
+                    linkids.append(linkid)
+            else:
+                linkids.append(linkids_raw)
+            uuids_raw = ast.literal_eval(uuids)
+            uuids = []
+            if isinstance(uuids_raw, (list, tuple)):
+                for uuid in uuids_raw:
+                    uuids.append(uuid)
+            else:
+                uuids.append(uuids_raw)
+            if set_enabled(False, linkids, uuids):
+                return "Success"
         except:
             pass
         return abort(400, "Failed")
@@ -1035,7 +1088,7 @@ def app_container():
         try:
             try:
                 started = jdownloader_start()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -1053,7 +1106,7 @@ def app_container():
             bl = json.loads(bl)
             try:
                 paused = jdownloader_pause(bl)
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -1070,7 +1123,7 @@ def app_container():
         try:
             try:
                 stopped = jdownloader_stop()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -1087,7 +1140,7 @@ def app_container():
         try:
             try:
                 updated = jdownloader_update()
-            except (TokenExpiredException, RequestTimeoutException):
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
                 if not internal.device or not is_device(internal.device):
                     return abort(500, "Failed")
@@ -1679,7 +1732,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                             season_string = "^unmatchable$"
                         try:
                             packages = get_packages_in_linkgrabber()
-                        except (TokenExpiredException, RequestTimeoutException):
+                        except (TokenExpiredException, RequestTimeoutException, MYJDException):
                             get_device()
                             if not internal.device or not is_device(internal.device):
                                 return abort(500, "Failed")

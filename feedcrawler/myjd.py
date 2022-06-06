@@ -175,6 +175,7 @@ def get_packages_in_linkgrabber():
             "maxResults": -1,
             "startAt": 0,
         }])
+
     if links and packages and len(packages) > 0:
         packages_by_type = check_packages_types(links, packages)
         failed = packages_by_type[0]
@@ -238,9 +239,7 @@ def check_packages_types(links, packages):
                         package_online = True
                     url = link.get('url')
                     if url:
-                        url = str(url)
-                        if url not in urls:
-                            urls.append(url)
+                        urls.append(str(url))
                         filename = str(link.get('name'))
                         if filename not in filenames:
                             filenames.append(filename)
@@ -411,6 +410,33 @@ def get_info():
                     [packages_in_downloader_decrypted, packages_in_linkgrabber_decrypted,
                      packages_offline,
                      packages_failed]]
+        else:
+            return False
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return False
+
+
+def set_enabled(enable, linkids, uuid):
+    try:
+        if not internal.device or not is_device(internal.device):
+            get_device()
+        if internal.device:
+            try:
+                internal.device.downloads.set_enabled(enable, linkids, uuid)
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.downloads.set_enabled(enable, linkids, uuid)
+            try:
+                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                get_device()
+                if not internal.device or not is_device(internal.device):
+                    return False
+                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+            return True
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:

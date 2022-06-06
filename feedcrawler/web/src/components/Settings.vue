@@ -324,10 +324,6 @@ function submitSettings() {
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body"
                      v-tippy="'Für jeden gewählten Hoster werden Links hinzugefügt, sofern verfügbar. Der damit einhergehende CAPTCHA-Bedarf sollte beachtet werden! Ist kein gewählter Hoster am Release verfügbar, wird dieses übersprungen!'">
-                  <div class="row mb-4">
-                    <span>Als Multihoster unterstützt <a href="#" @click="showMultiHosterHelp()">LinkSnappy</a>
-                      die meisten hier aktivierbaren Hoster.</span>
-                  </div>
                   <div class="row">
                     <div class="col-sm">
                       <h5>DDownload</h5> <!-- Checkbox labels are not placed above -->
@@ -404,20 +400,20 @@ function submitSettings() {
                                  input-class="form-check-input"
                                  type="checkbox"/>
                       </label>
-                    </div>
-                    <div class="col-sm">
-                      <h5>Nitroflare</h5> <!-- Checkbox labels are not placed above -->
+                      <h5>Zippyshare</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.nitroflare"
+                        <FormKit v-model="store.state.settings.hosters.zippyshare"
                                  help-class="text-muted"
                                  messages-class="text-danger"
                                  outer-class="mb-4"
                                  input-class="form-check-input"
                                  type="checkbox"/>
                       </label>
-                      <h5>IronFiles</h5> <!-- Checkbox labels are not placed above -->
+                    </div>
+                    <div class="col-sm">
+                      <h5>Nitroflare</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.ironfiles"
+                        <FormKit v-model="store.state.settings.hosters.nitroflare"
                                  help-class="text-muted"
                                  messages-class="text-danger"
                                  outer-class="mb-4"
@@ -433,15 +429,29 @@ function submitSettings() {
                                  input-class="form-check-input"
                                  type="checkbox"/>
                       </label>
-                      <h5>Zippyshare</h5> <!-- Checkbox labels are not placed above -->
+                      <h5>KatFile</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.zippyshare"
+                        <FormKit v-model="store.state.settings.hosters.katfile"
                                  help-class="text-muted"
                                  messages-class="text-danger"
                                  outer-class="mb-4"
                                  input-class="form-check-input"
                                  type="checkbox"/>
                       </label>
+                      <h5>IronFiles</h5> <!-- Checkbox labels are not placed above -->
+                      <label class="form-check form-switch">
+                        <FormKit v-model="store.state.settings.hosters.ironfiles"
+                                 help-class="text-muted"
+                                 messages-class="text-danger"
+                                 outer-class="mb-4"
+                                 input-class="form-check-input"
+                                 type="checkbox"/>
+                      </label>
+                    </div>
+                    <div class="row mb-4">
+                      <mark>Als Multihoster unterstützt <a href="#" @click="showMultiHosterHelp()">LinkSnappy</a>
+                        die meisten hier aktivierbaren Hoster.
+                      </mark>
                     </div>
                   </div>
                 </div>

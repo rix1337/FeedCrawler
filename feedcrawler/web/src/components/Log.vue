@@ -129,7 +129,10 @@ function spinLog() {
           </div>
           <div class="card-body">
             <div class="row">
-              <h4 v-if="!store.state.misc.loaded_log" class="text-center">Log wird geladen...</h4>
+              <div v-if="!store.state.misc.loaded_log" class="text-center">
+                <h4>Log wird geladen...</h4>
+                <div class="spinner-border text-primary" role="status"></div>
+              </div>
               <div v-else class="table-responsive">
                 <table class="table table-light table-bordered">
                   <thead>
@@ -224,7 +227,7 @@ function spinLog() {
                     <div class="modal-footer">
                       <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
                       <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteLog()">
-                        <i class="bi bi-trash"></i>
+                        <i class="bi bi-trash3"></i>
                         Log leeren
                       </button>
                     </div>
@@ -235,7 +238,7 @@ function spinLog() {
                 <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
                         data-bs-target="#deleteLogModal">
                   <span v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></span>
-                  <i v-if="!spin_log" class="bi bi-trash"></i> Leeren
+                  <i v-if="!spin_log" class="bi bi-trash3"></i> Leeren
                 </button>
               </div>
             </div>
