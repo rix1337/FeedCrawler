@@ -47,6 +47,7 @@ from urllib.request import (
     HTTPRedirectHandler,
     HTTPSHandler,
     HTTPCookieProcessor,
+    ProxyHandler
 )
 
 Response = namedtuple("Response", "request content text json status_code url headers cookiejar")
@@ -57,7 +58,6 @@ class NoRedirect(HTTPRedirectHandler):
         return None
 
 
-# ToDo include proxies support
 def request(
         url,
         params={},
@@ -67,6 +67,7 @@ def request(
         method="GET",
         verify=True,
         redirect=True,
+        proxies={},
         cookiejar=None,
         basic_auth=None,
         timeout=None,
@@ -141,6 +142,9 @@ def request(
     handlers = []
     handlers.append(HTTPSHandler(context=ctx))
     handlers.append(HTTPCookieProcessor(cookiejar=cookiejar))
+
+    if proxies:
+        handlers.append(ProxyHandler(proxies=proxies))
 
     if not redirect:
         no_redirect = NoRedirect()
