@@ -6,6 +6,7 @@
 #
 # Für die self.get_feed_method von "content_all"-Modulen muss der resultierende FakeFeed wie folgt aufgebaut sein:
 #
+#
 # feed = {
 #     'entries': [
 #         {
