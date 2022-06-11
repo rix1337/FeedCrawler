@@ -61,7 +61,7 @@ def get_device():
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
             if not internal.synchronize_device():
-                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
@@ -77,7 +77,7 @@ def get_device():
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
             if not internal.synchronize_device():
-                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e.replace("\n", " ")))
                 return False
             return True
         if not device or not is_device(device):

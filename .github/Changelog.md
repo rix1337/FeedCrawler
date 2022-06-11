@@ -7,6 +7,7 @@
 ### Changelog FeedCrawler:
 
 - **15.0.0** DW Web-Suche hinzugefügt.
+- **15.0.0** Korrektur in der Prüfung der Verbindung zu My JDownloader beim Start
 - **15.0.0** Interne Paketstruktur erneut überarbeitet.
 - **15.0.0** Der interne Request Handler unterstützt nun auch HTTP-Authentifizierung per URL und Proxies
   (derzeit ungenutzt).
