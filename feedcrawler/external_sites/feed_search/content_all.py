@@ -14,15 +14,15 @@ from feedcrawler.common import is_hevc
 from feedcrawler.common import is_retail
 from feedcrawler.db import ListDb
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
-from feedcrawler.external_sites.feed_search.shared import by_page_download_link
-from feedcrawler.external_sites.feed_search.shared import fx_get_download_links
-from feedcrawler.external_sites.feed_search.shared import get_search_results
-from feedcrawler.external_sites.feed_search.shared import hw_get_download_links
-from feedcrawler.external_sites.feed_search.shared import nk_page_download_link
+from feedcrawler.external_sites.feed_search.sites.content_all_by import by_page_download_link
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_download_links
+from feedcrawler.external_sites.feed_search.sites.content_all_hw import hw_get_download_links
+from feedcrawler.external_sites.feed_search.sites.content_all_nk import nk_page_download_link
 from feedcrawler.external_sites.metadata.imdb import get_rating
 from feedcrawler.external_sites.metadata.imdb import get_votes
 from feedcrawler.external_sites.metadata.imdb import get_year
 from feedcrawler.external_sites.metadata.imdb import original_language_not_german
+from feedcrawler.external_sites.web_search.content_all import get_search_results_for_feed_search
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifications import notify
 from feedcrawler.url import get_url
@@ -346,7 +346,7 @@ def search_feed(self, feed):
 def download_hevc(self, title, original_imdb_id):
     search_title = fullhd_title(title).split('.German', 1)[0].replace(".", " ").replace(" ", "+")
     feedsearch_title = fullhd_title(title).split('.German', 1)[0]
-    search_results = get_search_results(self, search_title)
+    search_results = get_search_results_for_feed_search(self, search_title)
 
     i = 0
     for result in search_results:
@@ -488,7 +488,7 @@ def download_dual_language(self, title, original_imdb_id):
         fullhd_title(title).split('.German', 1)[0].split('.x264', 1)[0].split('.h264', 1)[0].split('.h265', 1)[0].split(
             '.x265', 1)[
             0].split('.HEVC-', 1)[0]
-    search_results = get_search_results(self, search_title)
+    search_results = get_search_results_for_feed_search(self, search_title)
 
     hevc_found = False
     for result in search_results:

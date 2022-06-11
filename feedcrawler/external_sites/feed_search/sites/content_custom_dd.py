@@ -2,12 +2,16 @@
 # DDtoFeedCrawler
 # Project by https://github.com/rix1337
 
+import re
 from datetime import datetime
+
+from bs4 import BeautifulSoup
 
 from feedcrawler import internal
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb, ListDb
-from feedcrawler.external_sites.feed_search.shared import dd_rss_feed_to_feedparser_dict, check_hoster
+from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
+from feedcrawler.external_sites.feed_search.shared import check_hoster
 from feedcrawler.myjd import myjd_download
 from feedcrawler.notifications import notify
 from feedcrawler.url import get_url
@@ -63,9 +67,39 @@ class DD:
                         else:
                             if myjd_download(post.title, "FeedCrawler", links, self.url):
                                 self.db.store(post.title, 'added')
-                                log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' + post.size + ' - ' + post.source
+                                log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' \
+                                            + post.size + ' - ' + post.source
                                 internal.logger.info(log_entry)
                                 notify([{"text": log_entry, 'imdb_id': post.imdb_id}])
                     else:
                         internal.logger.debug(
                             post.title + " - Releases, die weniger als 30 Minuten alt sind, werden ignoriert (da Links noch hochgeladen werden).")
+
+
+def dd_rss_feed_to_feedparser_dict(raw_rss_feed):
+    rss_feed_soup = BeautifulSoup(raw_rss_feed, 'html5lib')
+    releases = rss_feed_soup.findAll("item")
+
+    entries = []
+    for release in releases:
+        title = release.find("title").text.replace(" ", ".").strip()
+        published = release.find("pubdate").text.strip()
+        links = re.findall(r'(http.*)', release.find("description").text.strip())
+
+        try:
+            source = release.find("link").next.strip()
+        except:
+            source = ""
+
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "published": published,
+            "links": links,
+            "source": source,
+            "size": "",
+            "imdb_id": "",
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed

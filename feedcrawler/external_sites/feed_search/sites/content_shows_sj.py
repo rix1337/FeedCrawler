@@ -3,12 +3,17 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf SJ bereit.
 
-import feedcrawler.external_sites.feed_search.content_shows as shared_shows
-from feedcrawler.config import CrawlerConfig
+import json
+import re
 
+import feedcrawler.external_sites.feed_search.content_shows as shared_shows
+from feedcrawler import internal
+from feedcrawler.common import check_valid_release, check_hoster
+from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.feed_search.shared import j_parse_download
-from feedcrawler.external_sites.feed_search.shared import j_releases_to_feedparser_dict
+from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
+from feedcrawler.notifications import notify
+from feedcrawler.url import get_url
 
 
 class SJ:
@@ -63,8 +68,95 @@ class SJ:
         self.day = 0
         self.max_days = 8
 
-        self.get_feed_method = j_releases_to_feedparser_dict
-        self.parse_download_method = j_parse_download
+        self.get_feed_method = sj_releases_to_feedparser_dict
+        self.parse_download_method = sj_parse_download
 
     def periodical_task(self):
         shared_shows.periodical_task(self)
+
+
+def sj_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
+    releases = json.loads(releases)
+    entries = []
+
+    for release in releases:
+        if check_seasons_or_episodes:
+            try:
+                if list_type == 'seasons' and release['episode']:
+                    continue
+                elif list_type == 'episodes' and not release['episode']:
+                    continue
+            except:
+                continue
+        title = release['name']
+        series_url = base_url + '/serie/' + release["_media"]['slug']
+        published = release['createdAt']
+
+        entries.append(FakeFeedParserDict({
+            "title": title,
+            "series_url": series_url,
+            "published": published,
+            "source": series_url + "#" + title,
+            "size": "",
+            "imdb_id": ""
+        }))
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def sj_parse_download(self, series_url, title, language_id):
+    if not check_valid_release(title, self.retail_only, self.hevc_retail):
+        internal.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        return False
+    if self.filename == 'List_ContentAll_Seasons':
+        if not self.config.get("seasonpacks"):
+            staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
+            if staffelpack:
+                internal.logger.debug(
+                    "%s - Release ignoriert (Staffelpaket)" % title)
+                return False
+        if not re.search(self.seasonssource, title.lower()):
+            internal.logger.debug(title + " - Release hat falsche Quelle")
+            return False
+    try:
+        series_info = get_url(series_url)
+        series_id = re.findall(r'data-mediaid="(.*?)"', series_info)[0]
+        api_url = 'https://' + self.url + '/api/media/' + series_id + '/releases'
+
+        response = get_url(api_url)
+        seasons = json.loads(response)
+        for season in seasons:
+            season = seasons[season]
+            for item in season['items']:
+                if item['name'] == title:
+                    valid = False
+                    for hoster in item['hoster']:
+                        if hoster:
+                            if check_hoster(hoster):
+                                valid = True
+                    if not valid and not self.hoster_fallback:
+                        storage = self.db.retrieve_all(title)
+                        if 'added' not in storage and 'notdl' not in storage:
+                            wrong_hoster = '[' + self._INTERNAL_NAME + ' / Hoster fehlt] - ' + title
+                            if 'wrong_hoster' not in storage:
+                                print(wrong_hoster)
+                                self.db.store(title, 'wrong_hoster')
+                                notify([{"text": wrong_hoster}])
+                            else:
+                                internal.logger.debug(wrong_hoster)
+                            return False
+                    else:
+                        return {
+                            "title": title,
+                            "download_link": series_url,
+                            "language_id": language_id,
+                            "season": False,
+                            "episode": False,
+                            "size": "",  # Info not available
+                            "imdb_id": ""  # Info not available
+                        }
+    except:
+        print(self._INTERNAL_NAME + u" hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+        return False

@@ -147,18 +147,18 @@ def ombi(first_launch):
                                                 if len(e) == 1:
                                                     e = "0" + e
                                                 se = s + "E" + e
-                                                payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(
-                                                    title)
+                                                payload = feedcrawler.external_sites.web_search. \
+                                                    content_shows.get_best_result(title)
                                                 if payload:
                                                     payload = decode_base64(payload).split("|")
                                                     payload = encode_base64(payload[0] + "|" + payload[1] + "|" + se)
-                                                    added_episode = feedcrawler.external_sites.web_search.content_shows.download(
-                                                        payload)
+                                                    added_episode = feedcrawler.external_sites.web_search. \
+                                                        content_shows.download(payload)
                                                     if not added_episode:
                                                         payload = decode_base64(payload).split("|")
                                                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)
-                                                        add_season = feedcrawler.external_sites.web_search.content_shows.download(
-                                                            payload)
+                                                        add_season = feedcrawler.external_sites.web_search. \
+                                                            content_shows.download(payload)
                                                         for e in eps:
                                                             e = str(e)
                                                             if len(e) == 1:
@@ -171,8 +171,8 @@ def ombi(first_launch):
                                                         break
                                                 db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                         else:
-                                            payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(
-                                                title)
+                                            payload = feedcrawler.external_sites.web_search. \
+                                                content_shows.get_best_result(title)
                                             if payload:
                                                 payload = decode_base64(payload).split("|")
                                                 payload = encode_base64(payload[0] + "|" + payload[1] + "|" + s)

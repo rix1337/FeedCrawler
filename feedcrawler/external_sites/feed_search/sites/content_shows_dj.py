@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf DJ bereit.
+# Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf DJ bereit und basiert dabei auf SJ.
 
 import feedcrawler.external_sites.feed_search.content_shows as shared_shows
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.feed_search.shared import j_parse_download
-from feedcrawler.external_sites.feed_search.shared import j_releases_to_feedparser_dict
+from feedcrawler.external_sites.feed_search.sites.content_shows_sj import sj_parse_download
+from feedcrawler.external_sites.feed_search.sites.content_shows_sj import sj_releases_to_feedparser_dict
 
 
 class DJ:
@@ -55,8 +55,8 @@ class DJ:
         self.day = 0
         self.max_days = 8
 
-        self.get_feed_method = j_releases_to_feedparser_dict
-        self.parse_download_method = j_parse_download
+        self.get_feed_method = sj_releases_to_feedparser_dict
+        self.parse_download_method = sj_parse_download
 
     def periodical_task(self):
         shared_shows.periodical_task(self)

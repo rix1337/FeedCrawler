@@ -3,14 +3,20 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf HW bereit.
 
+import json
+import re
+
+from bs4 import BeautifulSoup
+
 import feedcrawler.external_sites.feed_search.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
-from feedcrawler.external_sites.feed_search.shared import dw_feed_enricher
-from feedcrawler.external_sites.feed_search.shared import dw_get_download_links
-from feedcrawler.url import get_url
-from feedcrawler.url import get_url_headers
+from feedcrawler.external_sites.feed_search.shared import check_download_links
+from feedcrawler.external_sites.feed_search.shared import standardize_size_value
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
+from feedcrawler.url import get_url, get_url_headers, get_urls_async, post_url
 
 
 class BL:
@@ -72,3 +78,97 @@ class BL:
 
     def periodical_task(self):
         shared_blogs.periodical_task(self)
+
+
+def dw_get_download_links(self, content, title):
+    try:
+        try:
+            content = BeautifulSoup(content, 'html5lib')
+        except:
+            content = BeautifulSoup(str(content), 'html5lib')
+        download_buttons = content.findAll("button", {"class": "show_link"})
+    except:
+        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links für " + title + " nicht möglich!")
+        return False
+
+    dw = CrawlerConfig('Hostnames').get('dw')
+    ajax_url = "https://" + dw + "/wp-admin/admin-ajax.php"
+
+    download_links = []
+    try:
+        for button in download_buttons:
+            payload = "action=show_link&link_id=" + button["value"]
+            response = json.loads(post_url(ajax_url, payload))
+            if response["success"]:
+                link = response["data"].split(",")[0]
+                hoster = button.nextSibling["href"].split("=")[-1]
+                download_links.append([link, hoster])
+    except:
+        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        pass
+
+    return check_download_links(self, download_links)
+
+
+def dw_feed_enricher(feed):
+    feed = BeautifulSoup(feed, 'html5lib')
+    articles = feed.findAll("article")
+    entries = []
+
+    async_results = []
+    for article in articles:
+        try:
+            async_results.append(article.find("h4").find("a")["href"])
+        except:
+            pass
+    async_results = get_urls_async(async_results)
+
+    for result in async_results:
+        try:
+            details = BeautifulSoup(result[0], 'html5lib')
+
+            title = details.find("h1").text.strip()
+
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(title, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(details.find("strong", text=re.compile(r"(size|größe)",
+                                                                                     re.IGNORECASE)).nextSibling.nextSibling.text.split(
+                    "|")[-1].strip())
+            except:
+                size = ""
+
+            try:
+                source = result[1]
+            except:
+                source = ""
+
+            try:
+                published = details.find("strong", text=re.compile(r"(date|datum)",
+                                                                   re.IGNORECASE)).nextSibling.nextSibling.text.strip()
+            except:
+                published = ""
+
+            if title:
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [
+                        FakeFeedParserDict({
+                            "value": str(details)
+                        })],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
+                }))
+        except:
+            print(u"DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed

@@ -8,13 +8,18 @@ import re
 
 from bs4 import BeautifulSoup
 
+from feedcrawler.common import check_is_ignored
 from feedcrawler.common import check_is_site
 from feedcrawler.common import encode_base64
 from feedcrawler.common import keep_alphanumeric_with_special_characters
 from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
-from feedcrawler.external_sites.feed_search.shared import fx_content_to_soup
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
+from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
 from feedcrawler.url import get_url
 from feedcrawler.url import get_urls_async
 from feedcrawler.url import post_url
@@ -198,108 +203,6 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
     return content_all_results, content_shows_sj_results, content_shows_sf_results
 
 
-def by_search_results(content, base_url, resolution):
-    content = BeautifulSoup(content, 'html5lib')
-    links = content.findAll("a", href=re.compile("/category/"))
-    results = []
-    for link in links:
-        try:
-            title = link.text.replace(" ", ".").strip()
-            if ".xxx." not in title.lower():
-                link = "https://" + base_url + link['href']
-                if resolution and resolution.lower() not in title.lower():
-                    if "480p" in resolution:
-                        if check_release_not_sd(title):
-                            continue
-                    else:
-                        continue
-                results.append([title, link])
-        except:
-            pass
-
-    return results
-
-
-def fx_search_results(content, search_term):
-    fx = CrawlerConfig('Hostnames').get('fx')
-    articles = content.find("main").find_all("article")
-
-    async_link_results = []
-    for article in articles:
-        if simplified_search_term_in_title(search_term, article.find("h2").text):
-            link = article.find("a")["href"]
-            if link:
-                async_link_results.append(link)
-
-    links = get_urls_async(async_link_results)
-
-    results = []
-
-    for link in links:
-        article = BeautifulSoup(str(link), 'html5lib')
-        titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
-        for title in titles:
-            try:
-                link = article.find("link", rel="canonical")["href"]
-                title = title.text.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
-                if title and "-fun" in title.lower():
-                    if "download" in title.lower():
-                        try:
-                            title = str(content.find("strong", text=re.compile(r".*Release.*")).nextSibling)
-                        except:
-                            continue
-                    results.append([title, link])
-            except:
-                pass
-    return results
-
-
-def hw_search_results(content, resolution):
-    content = BeautifulSoup(content, 'html5lib')
-    links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
-    results = []
-    for link in links:
-        try:
-            title = link.text.replace(" ", ".").strip()
-            if ".xxx." not in title.lower():
-                link = link["href"]
-                if "#comments-title" not in link:
-                    if resolution and resolution.lower() not in title.lower():
-                        if "480p" in resolution:
-                            if check_release_not_sd(title):
-                                continue
-                        else:
-                            continue
-                    results.append([title, link])
-        except:
-            pass
-
-    return results
-
-
-def nk_search_results(content, base_url, resolution):
-    content = BeautifulSoup(content, 'html5lib')
-    links = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
-    results = []
-    for link in links:
-        try:
-            title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text.replace(" ", ".")
-            if ".xxx." not in title.lower():
-                link = base_url + link["href"]
-                if "#comments-title" not in link:
-                    if resolution and resolution.lower() not in title.lower():
-                        if "480p" in resolution:
-                            if check_release_not_sd(title):
-                                continue
-                        else:
-                            continue
-                    results.append([title, link])
-        except:
-            pass
-
-    return results
-
-
 def rate(title, ignore=False):
     score = 0
     if ".bluray." in title.lower():
@@ -345,12 +248,8 @@ def rate(title, ignore=False):
     if "dvd9" in title.lower():
         score -= 10
     if ignore:
-        try:
-            ignore = ignore.replace(",", "|").lower() if len(ignore) > 0 else r"^unmatchable$"
-        except TypeError:
-            ignore = r"^unmatchable$"
-        r = re.search(ignore, title.lower())
-        if r:
+        match = check_is_ignored(title, ignore)
+        if match:
             score -= 5
     if ".subpack." in title.lower():
         score -= 10

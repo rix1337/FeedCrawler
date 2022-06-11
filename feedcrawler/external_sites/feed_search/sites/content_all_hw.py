@@ -3,14 +3,20 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf HW bereit.
 
+import re
+
+from bs4 import BeautifulSoup
+
 import feedcrawler.external_sites.feed_search.content_all as shared_blogs
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import FeedDb
+from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
-from feedcrawler.external_sites.feed_search.shared import hw_feed_enricher
-from feedcrawler.external_sites.feed_search.shared import hw_get_download_links
-from feedcrawler.url import get_url
-from feedcrawler.url import get_url_headers
+from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
+from feedcrawler.external_sites.feed_search.shared import get_download_links
+from feedcrawler.external_sites.feed_search.shared import standardize_size_value
+from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
+from feedcrawler.url import get_url, get_url_headers, get_urls_async
 
 
 class BL:
@@ -72,3 +78,135 @@ class BL:
 
     def periodical_task(self):
         shared_blogs.periodical_task(self)
+
+
+def hw_get_download_links(self, content, title):
+    try:
+        try:
+            content = BeautifulSoup(content, 'html5lib')
+        except:
+            content = BeautifulSoup(str(content), 'html5lib')
+        download_links = content.findAll("a", href=re.compile('filecrypt'))
+    except:
+        print(u"HW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        return False
+
+    links_string = ""
+    for link in download_links:
+        links_string += str(link)
+
+    return get_download_links(self, links_string, title)
+
+
+def hw_feed_enricher(feed):
+    feed = BeautifulSoup(feed, 'html5lib')
+    articles = feed.findAll("article")
+    entries = []
+
+    for article in articles:
+        try:
+            try:
+                source = article.header.find("a")["href"]
+            except:
+                source = ""
+
+            title = article.find("h2", {"class": "entry-title"}).text.strip()
+
+            try:
+                imdb_id = get_imdb_id_from_content(title, str(article))
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(article.find("strong",
+                                                           text=re.compile(
+                                                               r"(size|größe)", re.IGNORECASE)).next.next.text.replace(
+                    "|",
+                    "").strip())
+            except:
+                size = ""
+
+            media_post = article.find("strong", text="Format: ")
+            if title and media_post:
+                published = article.find("p", {"class": "blog-post-meta"}).text.split("|")[0].strip()
+                entries.append(FakeFeedParserDict({
+                    "title": title,
+                    "published": published,
+                    "content": [
+                        FakeFeedParserDict({
+                            "value": str(article)
+                        })],
+                    "source": source,
+                    "size": size,
+                    "imdb_id": imdb_id
+                }))
+        except:
+            print(u"HW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            continue
+
+    feed = {"entries": entries}
+    feed = FakeFeedParserDict(feed)
+    return feed
+
+
+def hw_search_results(content, resolution):
+    content = BeautifulSoup(content, 'html5lib')
+    links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
+
+    async_link_results = []
+    for link in links:
+        try:
+            title = link.text.replace(" ", ".").strip()
+            if ".xxx." not in title.lower():
+                link = link["href"]
+                if "#comments-title" not in link:
+                    if resolution and resolution.lower() not in title.lower():
+                        if "480p" in resolution:
+                            if check_release_not_sd(title):
+                                continue
+                        else:
+                            continue
+                    async_link_results.append(link)
+        except:
+            pass
+
+    links = get_urls_async(async_link_results)
+
+    results = []
+
+    for link in links:
+        try:
+            try:
+                source = link[1]
+            except:
+                source = ""
+
+            soup = BeautifulSoup(str(link[0]), 'html5lib')
+            title = soup.find("h2", {"class": "entry-title"}).text.strip().replace(" ", ".")
+
+            try:
+                imdb_id = get_imdb_id_from_content(title, str(soup))
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(soup.find("strong",
+                                                        text=re.compile(
+                                                            r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|",
+                                                                                                                    "").strip())
+            except:
+                size = ""
+
+            result = {
+                "title": title,
+                "link": link[1],
+                "size": size,
+                "source": source,
+                "imdb_id": imdb_id
+            }
+
+            results.append(result)
+        except:
+            pass
+
+    return results

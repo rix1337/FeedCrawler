@@ -17,15 +17,24 @@ from feedcrawler.common import simplified_search_term_in_title
 from feedcrawler.config import CrawlerConfig
 from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
-from feedcrawler.external_sites.feed_search.shared import fx_get_details
-from feedcrawler.external_sites.feed_search.shared import fx_get_download_links
+from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
+from feedcrawler.external_sites.feed_search.shared import unused_get_feed_parameter
+from feedcrawler.external_sites.feed_search.sites.content_all_by import by_search_results
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_details
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_download_links
+from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_search_results
+from feedcrawler.external_sites.feed_search.sites.content_all_hw import hw_search_results
+from feedcrawler.external_sites.feed_search.sites.content_all_nk import nk_search_results
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
 from feedcrawler.external_sites.web_search.shared import search_web, rate
+from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
 from feedcrawler.notifications import notify
-from feedcrawler.url import get_redirected_url
-from feedcrawler.url import get_url
-from feedcrawler.url import get_urls_async
+from feedcrawler.url import get_redirected_url, get_url, get_urls_async, post_url
 
 
 def get_best_result(title):
@@ -246,3 +255,109 @@ def download(payload):
                 return [key]
     else:
         return False
+
+
+def get_search_results_for_feed_search(self, bl_query):
+    unused_get_feed_parameter(self)
+    hostnames = CrawlerConfig('Hostnames')
+    by = hostnames.get('by')
+    fx = hostnames.get('fx')
+    hw = hostnames.get('hw')
+    nk = hostnames.get('nk')
+
+    search_results = []
+
+    config = CrawlerConfig('ContentAll')
+    quality = config.get('quality')
+
+    if by:
+        by_search = 'https://' + by + '/?q=' + bl_query
+    else:
+        by_search = None
+    if fx:
+        fx_search = 'https://' + fx + '/?s=' + bl_query
+    else:
+        fx_search = None
+    if hw:
+        hw_search = 'https://' + hw + '/?s=' + bl_query
+    else:
+        hw_search = None
+
+    async_results = get_urls_async([by_search, fx_search, hw_search])
+
+    by_results = []
+    fx_results = []
+    hw_results = []
+
+    for res in async_results:
+        if check_is_site(res[1]) == 'BY':
+            by_results = by_search_results(res[0], by, quality)
+        elif check_is_site(res[1]) == 'FX':
+            fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
+        elif check_is_site(res[1]) == 'HW':
+            hw_results = hw_search_results(res[0], quality)
+
+    if nk:
+        nk_search = post_url('https://' + nk + "/search",
+                             data={'search': bl_query.replace("+", " ")})
+        nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
+    else:
+        nk_results = []
+
+    password = ""
+    for result in by_results:
+        if "480p" in quality and check_release_not_sd(result["title"]):
+            continue
+        search_results.append({
+            "title": result["title"],
+            "link": result["link"],
+            "password": password,
+            "site": "BY",
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
+        })
+
+    password = fx.split('.')[0]
+    for result in fx_results:
+        if "480p" in quality and check_release_not_sd(result["title"]):
+            continue
+        search_results.append({
+            "title": result["title"],
+            "link": result["link"],
+            "password": password,
+            "site": "FX",
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
+        })
+
+    password = hw.split('.')[0]
+    for result in hw_results:
+        if "480p" in quality and check_release_not_sd(result["title"]):
+            continue
+        search_results.append({
+            "title": result["title"],
+            "link": result["link"],
+            "password": password,
+            "site": "HW",
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
+        })
+
+    password = nk.split('.')[0].capitalize()
+    for result in nk_results:
+        if "480p" in quality and check_release_not_sd(result["title"]):
+            continue
+        search_results.append({
+            "title": result["title"],
+            "link": result["link"],
+            "password": password,
+            "site": "NK",
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
+        })
+
+    return search_results
