@@ -256,6 +256,16 @@ def check_valid_release(title, retail_only, hevc_retail):
     return True
 
 
+def check_is_ignored(title, ignore):
+    if ignore:
+        title = title.replace(" ", ".").lower()
+        ignore_list = ignore.replace(" ", ".").lower().split(",")
+        for i in ignore_list:
+            if i in title:
+                return True
+    return False
+
+
 def decode_base64(value):
     value = value.replace("-", "/")
     return base64.b64decode(value).decode()

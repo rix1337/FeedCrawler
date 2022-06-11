@@ -7,6 +7,7 @@ import hashlib
 import re
 
 from feedcrawler import internal
+from feedcrawler.common import check_is_ignored
 from feedcrawler.common import check_valid_release
 from feedcrawler.common import fullhd_title
 from feedcrawler.common import is_hevc
@@ -129,10 +130,7 @@ def search_imdb(self, desired_rating, feed):
                             "%s - Release ignoriert (falsche Auflösung)" % post.title)
                         continue
 
-                ignore = "|".join(
-                    [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
-                    "ignore") else r"^unmatchable$"
-                found = re.search(ignore, post.title.lower())
+                found = check_is_ignored(post.title, self.config.get("ignore"))
                 if found:
                     if self.hevc_retail:
                         if is_hevc(post.title) and "1080p" in post.title:
@@ -143,7 +141,7 @@ def search_imdb(self, desired_rating, feed):
                                 found = False
                 if found:
                     internal.logger.debug(
-                        "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                        "%s - Release ignoriert (aufgrund der Filterliste)" % post.title)
                     continue
                 if self.feedcrawler.get("surround"):
                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
@@ -204,9 +202,6 @@ def search_feed(self, feed):
     if not self.pattern:
         return
     added_items = []
-    ignore = "|".join(
-        [r"\.%s(\.|-)" % p for p in self.config.get("ignore").lower().split(',')]) if self.config.get(
-        "ignore") else r"^unmatchable$"
 
     if "Regex" not in self.filename:
         s = re.sub(self.SUBSTITUTE, "../..", "^" + self.pattern + r'.(\d{4}|German|\d{3,4}p).*').lower()
@@ -240,7 +235,7 @@ def search_feed(self, feed):
             if content:
                 if "mkv" in content.lower():
                     hevc_retail = False
-                    found = re.search(ignore, post.title.lower())
+                    found = check_is_ignored(post.title, self.config.get("ignore"))
                     if found:
                         if self.hevc_retail:
                             if is_hevc(post.title) and "1080p" in post.title:
@@ -251,7 +246,7 @@ def search_feed(self, feed):
                                     found = False
                     if found:
                         internal.logger.debug(
-                            "%s - Release ignoriert (basierend auf ignore-Einstellung)" % post.title)
+                            "%s - Release ignoriert (aufgrund der Filterliste)" % post.title)
                         continue
                     if self.feedcrawler.get("surround"):
                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):

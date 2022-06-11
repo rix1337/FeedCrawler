@@ -8,6 +8,7 @@ import hashlib
 import re
 
 from feedcrawler import internal
+from feedcrawler.common import check_is_ignored
 from feedcrawler.db import ListDb
 from feedcrawler.myjd import add_decrypt
 from feedcrawler.notifications import notify
@@ -116,10 +117,10 @@ def periodical_task(self):
             "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
         return
     try:
-        reject = self.config.get("rejectlist").replace(",", "|").lower() if len(
+        ignore = self.config.get("rejectlist").replace(",", "|").lower() if len(
             self.config.get("rejectlist")) > 0 else r"^unmatchable$"
     except TypeError:
-        reject = r"^unmatchable$"
+        ignore = r"^unmatchable$"
 
     current_set = settings_hash(self, False)
     sha = False
@@ -202,22 +203,22 @@ def periodical_task(self):
                         else:
                             language_id = 0
                         if language_id:
-                            m = re.search(self.pattern, title.lower())
-                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                                m = re.search(self.pattern.replace(
+                            match = re.search(self.pattern, title.lower())
+                            if not match and "720p" not in title and "1080p" not in title and "2160p" not in title:
+                                match = re.search(self.pattern.replace(
                                     "480p", "."), title.lower())
                                 self.quality = "480p"
-                            if m:
+                            if match:
                                 if "720p" in title.lower():
                                     self.quality = "720p"
                                 if "1080p" in title.lower():
                                     self.quality = "1080p"
                                 if "2160p" in title.lower():
                                     self.quality = "2160p"
-                                m = re.search(reject, title.lower())
-                                if m:
+                                match = check_is_ignored(title, ignore)
+                                if match:
                                     internal.logger.debug(
-                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                                        title + " - Release durch Regex gefunden (trotz Filterliste)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
@@ -246,22 +247,22 @@ def periodical_task(self):
                         else:
                             language_id = 0
                         if language_id:
-                            m = re.search(self.pattern, title.lower())
-                            if not m and "720p" not in title and "1080p" not in title and "2160p" not in title:
-                                m = re.search(self.pattern.replace(
+                            match = re.search(self.pattern, title.lower())
+                            if not match and "720p" not in title and "1080p" not in title and "2160p" not in title:
+                                match = re.search(self.pattern.replace(
                                     "480p", "."), title.lower())
                                 self.quality = "480p"
-                            if m:
+                            if match:
                                 if "720p" in title.lower():
                                     self.quality = "720p"
                                 if "1080p" in title.lower():
                                     self.quality = "1080p"
                                 if "2160p" in title.lower():
                                     self.quality = "2160p"
-                                m = re.search(reject, title.lower())
-                                if m:
+                                match = check_is_ignored(title, ignore)
+                                if match:
                                     internal.logger.debug(
-                                        title + " - Release durch Regex gefunden (trotz rejectlist-Einstellung)")
+                                        title + " - Release durch Regex gefunden (trotz Filterliste)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
                                 if package:
@@ -283,8 +284,8 @@ def periodical_task(self):
                         continue
                 else:
                     if self.config.get("quality") != '480p':
-                        m = re.search(self.pattern, title.lower())
-                        if m:
+                        match = re.search(self.pattern, title.lower())
+                        if match:
                             if '.german.' in title.lower():
                                 language_id = 1
                             elif self.feedcrawler.get('english'):
@@ -292,12 +293,12 @@ def periodical_task(self):
                             else:
                                 language_id = 0
                             if language_id:
-                                mm = re.search(self.quality, title.lower())
-                                if mm:
-                                    mmm = re.search(reject, title.lower())
-                                    if mmm:
+                                match = re.search(self.quality, title.lower())
+                                if match:
+                                    match = check_is_ignored(title, ignore)
+                                    if match:
                                         internal.logger.debug(
-                                            title + " - Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                            title + " - Release ignoriert (aufgrund der Filterliste)")
                                         continue
                                     if self.feedcrawler.get("surround"):
                                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
@@ -331,8 +332,8 @@ def periodical_task(self):
                                     "%s - Englische Releases deaktiviert" % title)
 
                         else:
-                            m = re.search(self.pattern, title.lower())
-                            if m:
+                            match = re.search(self.pattern, title.lower())
+                            if match:
                                 if '.german.' in title.lower():
                                     language_id = 1
                                 elif self.feedcrawler.get('english'):
@@ -342,10 +343,10 @@ def periodical_task(self):
                                 if language_id:
                                     if "720p" in title.lower() or "1080p" in title.lower() or "2160p" in title.lower():
                                         continue
-                                    mm = re.search(reject, title.lower())
-                                    if mm:
+                                    match = check_is_ignored(title, ignore)
+                                    if match:
                                         internal.logger.debug(
-                                            title + " Release ignoriert (basierend auf rejectlist-Einstellung)")
+                                            title + " Release ignoriert (aufgrund der Filterliste)")
                                         continue
                                     if self.feedcrawler.get("surround"):
                                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
