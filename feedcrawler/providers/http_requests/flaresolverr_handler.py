@@ -6,10 +6,10 @@
 from json import loads
 from urllib.parse import urlencode
 
-from feedcrawler.http_requests.request_handler import request
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import site_blocked_with_flaresolverr
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import ListDb
 
 

@@ -9,10 +9,10 @@ import pickle
 from functools import wraps
 from urllib.error import URLError
 
-from feedcrawler.http_requests.flaresolverr_handler import get_flaresolverr_url, flaresolverr_request
-from feedcrawler.http_requests.request_handler import request
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import site_blocked
+from feedcrawler.providers.http_requests.flaresolverr_handler import get_flaresolverr_url, flaresolverr_request
+from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
 
 

@@ -6,10 +6,10 @@
 import concurrent.futures
 import datetime
 
-from feedcrawler.http_requests.cache_handler import cached_request
-from feedcrawler.http_requests.flaresolverr_handler import get_flaresolverr_url
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.cache_handler import cached_request
+from feedcrawler.providers.http_requests.flaresolverr_handler import get_flaresolverr_url
 from feedcrawler.providers.sqlite_database import FeedDb
 
 

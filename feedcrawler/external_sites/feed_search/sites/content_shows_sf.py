@@ -16,8 +16,8 @@ from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_valid_release, rreplace, check_hoster
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.url_functions import get_url
 
 

@@ -21,20 +21,20 @@ from feedcrawler.external_sites.feed_search.sites.content_shows_sf import SF
 from feedcrawler.external_sites.feed_search.sites.content_shows_sj import SJ
 from feedcrawler.external_tools.ombi_api import ombi_search
 from feedcrawler.external_tools.overseerr_api import overseerr_search
-from feedcrawler.http_requests.flaresolverr_handler import clean_flaresolverr_sessions
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.http_requests.flaresolverr_handler import clean_flaresolverr_sessions
 from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import jdownloader_update
+from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.url_functions import check_url
 
 
 def search_pool():
     return [
-        FX(filename='IMDB'),
+        FX(filename='IMDb'),
         FX(filename='List_ContentAll_Movies'),
         FX(filename='List_ContentAll_Movies_Regex'),
         FX(filename='List_ContentAll_Seasons'),
@@ -42,28 +42,28 @@ def search_pool():
         SF(filename='List_ContentShows_Shows_Regex'),
         SF(filename='List_ContentShows_Seasons_Regex'),
         SF(filename='List_ContentAll_Seasons'),
-        DW(filename='IMDB'),
+        DW(filename='IMDb'),
         DW(filename='List_ContentAll_Movies'),
         DW(filename='List_ContentAll_Movies_Regex'),
         DW(filename='List_ContentAll_Seasons'),
-        HW(filename='IMDB'),
+        HW(filename='IMDb'),
         HW(filename='List_ContentAll_Movies'),
         HW(filename='List_ContentAll_Movies_Regex'),
         HW(filename='List_ContentAll_Seasons'),
-        FF(filename='IMDB'),
+        FF(filename='IMDb'),
         FF(filename='List_ContentAll_Movies'),
         FF(filename='List_ContentAll_Movies_Regex'),
         FF(filename='List_ContentAll_Seasons'),
-        BY(filename='IMDB'),
+        BY(filename='IMDb'),
         BY(filename='List_ContentAll_Movies'),
         BY(filename='List_ContentAll_Movies_Regex'),
         BY(filename='List_ContentAll_Seasons'),
-        NK(filename='IMDB'),
+        NK(filename='IMDb'),
         NK(filename='List_ContentAll_Movies'),
         NK(filename='List_ContentAll_Movies_Regex'),
         NK(filename='List_ContentAll_Seasons'),
         WW(filename='List_ContentAll_Movies_Regex'),
-        WW(filename='IMDB'),
+        WW(filename='IMDb'),
         WW(filename='List_ContentAll_Movies'),
         WW(filename='List_ContentAll_Seasons'),
         SJ(filename='List_ContentShows_Shows'),

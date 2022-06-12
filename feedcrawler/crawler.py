@@ -19,10 +19,10 @@ from feedcrawler.providers import version
 from feedcrawler.providers.common_functions import check_ip
 from feedcrawler.providers.common_functions import configpath
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_if_one_device
 from feedcrawler.providers.myjd_connection import myjd_input
+from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.web_interface.web_server import web_server
 
 version = "v." + version.get_version()

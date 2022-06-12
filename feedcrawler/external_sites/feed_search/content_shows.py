@@ -9,9 +9,9 @@ import re
 
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_is_ignored
-from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.myjd_connection import add_decrypt
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.url_functions import get_url
 from feedcrawler.providers.url_functions import get_url_headers
 

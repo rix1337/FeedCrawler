@@ -17,9 +17,9 @@ from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import simplified_search_term_in_title
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import ListDb, FeedDb
 from feedcrawler.providers.myjd_connection import add_decrypt
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import ListDb, FeedDb
 from feedcrawler.providers.url_functions import get_url, get_redirected_url
 
 

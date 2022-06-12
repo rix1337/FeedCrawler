@@ -10,12 +10,12 @@ import feedcrawler.external_sites.web_search.content_shows
 from feedcrawler.external_sites.metadata.imdb import get_episodes
 from feedcrawler.external_sites.metadata.imdb import get_localized_title
 from feedcrawler.external_sites.metadata.imdb import get_year
-from feedcrawler.http_requests.request_handler import request
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import encode_base64
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
 
 

@@ -32,8 +32,8 @@ from feedcrawler.providers.common_functions import is_retail
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import simplified_search_term_in_title
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import ListDb, FeedDb
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import ListDb, FeedDb
 from feedcrawler.providers.url_functions import get_redirected_url, get_url, get_urls_async, post_url
 
 

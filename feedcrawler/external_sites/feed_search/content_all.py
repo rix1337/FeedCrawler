@@ -22,9 +22,9 @@ from feedcrawler.providers.common_functions import check_valid_release
 from feedcrawler.providers.common_functions import fullhd_title
 from feedcrawler.providers.common_functions import is_hevc
 from feedcrawler.providers.common_functions import is_retail
-from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.myjd_connection import myjd_download
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.url_functions import get_url
 
 
@@ -49,7 +49,7 @@ def settings_hash(self, refresh):
         self.settings.append(self.hosters)
         for s in settings:
             self.settings.append(self.config.get(s))
-        if self.filename == "IMDB":
+        if self.filename == "IMDb":
             self.pattern = self.filename
         else:
             liste = get_movies_list(self.filename)
@@ -428,7 +428,7 @@ def download_hevc(self, title, original_imdb_id):
                                     self.dl_unsatisfied = True
                                     continue
 
-                    if self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDB':
+                    if self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDb':
                         if self.config.get('cutoff') and is_retail(key, True):
                             retail = True
                         elif is_retail(key, False):
@@ -554,7 +554,7 @@ def download_dual_language(self, title, original_imdb_id):
                     shared_state.logger.debug(
                         "%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
                     return True
-                elif self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDB':
+                elif self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDb':
                     retail = False
                     if self.config.get('cutoff'):
                         if is_retail(key, True):
@@ -825,7 +825,7 @@ def periodical_task(self):
         liste = get_movies_list(self.filename)
         if liste:
             self.pattern = r'(' + "|".join(liste).lower() + ').*'
-    elif self.filename == "IMDB":
+    elif self.filename == "IMDb":
         self.pattern = self.filename
     else:
         liste = get_movies_list(self.filename)
@@ -837,7 +837,7 @@ def periodical_task(self):
         return
 
     desired_rating = self.imdb
-    if self.filename == 'IMDB' and desired_rating == 0:
+    if self.filename == 'IMDb' and desired_rating == 0:
         shared_state.logger.debug("IMDb-Suchwert ist 0. Stoppe Suche für Filme! (" + self.filename + ")")
         return
 
@@ -862,7 +862,7 @@ def periodical_task(self):
 
     sha = None
 
-    if self.filename != 'IMDB':
+    if self.filename != 'IMDb':
         if not loading_304 and first_page_content:
             for i in first_page_content.entries:
                 concat = i.title + i.published + str(self.settings) + str(self.pattern)
@@ -876,7 +876,7 @@ def periodical_task(self):
                 break
 
     added_items = []
-    if self.filename == "IMDB":
+    if self.filename == "IMDb":
         if desired_rating > 0:
             i = 0
             for url in urls:

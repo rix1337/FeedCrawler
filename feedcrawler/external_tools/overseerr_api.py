@@ -7,11 +7,11 @@ import json
 
 import feedcrawler.external_sites.web_search.content_all
 import feedcrawler.external_sites.web_search.content_shows
-from feedcrawler.http_requests.request_handler import request
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import encode_base64
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
 
 

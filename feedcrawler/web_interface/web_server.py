@@ -32,8 +32,6 @@ from feedcrawler.providers.common_functions import keep_numbers
 from feedcrawler.providers.common_functions import remove_decrypt
 from feedcrawler.providers.common_functions import rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import FeedDb
-from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.myjd_connection import check_device
 from feedcrawler.providers.myjd_connection import do_add_decrypted
 from feedcrawler.providers.myjd_connection import download
@@ -52,6 +50,8 @@ from feedcrawler.providers.myjd_connection import reset_in_downloads
 from feedcrawler.providers.myjd_connection import retry_decrypt
 from feedcrawler.providers.myjd_connection import set_enabled
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.sqlite_database import ListDb
 
 
 class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):

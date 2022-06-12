@@ -11,9 +11,9 @@ from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import check_hoster
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.sqlite_database import FeedDb, ListDb
 from feedcrawler.providers.myjd_connection import myjd_download
 from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.sqlite_database import FeedDb, ListDb
 from feedcrawler.providers.url_functions import get_url
 
 

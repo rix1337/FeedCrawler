@@ -38,7 +38,7 @@ from urllib.parse import quote
 
 from Cryptodome.Cipher import AES
 
-from feedcrawler.http_requests.request_handler import request
+from feedcrawler.providers.http_requests.request_handler import request
 
 BS = 16
 
