@@ -18,41 +18,40 @@ from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
 from bottle import Bottle, abort, redirect, request, static_file, HTTPError
 
-import feedcrawler.external_tools.myjdapi
-from feedcrawler import internal
-from feedcrawler import version
-from feedcrawler.common import Unbuffered
-from feedcrawler.common import decode_base64
-from feedcrawler.common import get_to_decrypt
-from feedcrawler.common import is_device
-from feedcrawler.common import keep_alphanumeric_with_regex_characters
-from feedcrawler.common import keep_alphanumeric_with_special_characters
-from feedcrawler.common import keep_numbers
-from feedcrawler.common import remove_decrypt
-from feedcrawler.common import rreplace
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
-from feedcrawler.db import ListDb
+import feedcrawler.external_tools.myjd_api
 from feedcrawler.external_sites.web_search.shared import search_web
-from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
-from feedcrawler.myjd import check_device
-from feedcrawler.myjd import do_add_decrypted
-from feedcrawler.myjd import download
-from feedcrawler.myjd import get_device
-from feedcrawler.myjd import get_if_one_device
-from feedcrawler.myjd import get_info
-from feedcrawler.myjd import get_packages_in_linkgrabber
-from feedcrawler.myjd import get_state
-from feedcrawler.myjd import jdownloader_pause
-from feedcrawler.myjd import jdownloader_start
-from feedcrawler.myjd import jdownloader_stop
-from feedcrawler.myjd import jdownloader_update
-from feedcrawler.myjd import move_to_downloads
-from feedcrawler.myjd import remove_from_linkgrabber
-from feedcrawler.myjd import reset_in_downloads
-from feedcrawler.myjd import retry_decrypt
-from feedcrawler.myjd import set_enabled
-from feedcrawler.notifications import notify
+from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.providers import version, shared_state
+from feedcrawler.providers.common_functions import Unbuffered
+from feedcrawler.providers.common_functions import decode_base64
+from feedcrawler.providers.common_functions import get_to_decrypt
+from feedcrawler.providers.common_functions import is_device
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_characters
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
+from feedcrawler.providers.common_functions import keep_numbers
+from feedcrawler.providers.common_functions import remove_decrypt
+from feedcrawler.providers.common_functions import rreplace
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.sqlite_database import ListDb
+from feedcrawler.providers.myjd_connection import check_device
+from feedcrawler.providers.myjd_connection import do_add_decrypted
+from feedcrawler.providers.myjd_connection import download
+from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import get_if_one_device
+from feedcrawler.providers.myjd_connection import get_info
+from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
+from feedcrawler.providers.myjd_connection import get_state
+from feedcrawler.providers.myjd_connection import jdownloader_pause
+from feedcrawler.providers.myjd_connection import jdownloader_start
+from feedcrawler.providers.myjd_connection import jdownloader_stop
+from feedcrawler.providers.myjd_connection import jdownloader_update
+from feedcrawler.providers.myjd_connection import move_to_downloads
+from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
+from feedcrawler.providers.myjd_connection import reset_in_downloads
+from feedcrawler.providers.myjd_connection import retry_decrypt
+from feedcrawler.providers.myjd_connection import set_enabled
+from feedcrawler.providers.notifications import notify
 
 
 class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
@@ -93,7 +92,7 @@ def app_container():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
-    elif internal.docker:
+    elif shared_state.docker:
         static_location = site.getsitepackages()[0]
         base_dir = static_location + "/feedcrawler"
 
@@ -221,8 +220,8 @@ def app_container():
     def get_log():
         try:
             log = []
-            if os.path.isfile(internal.log_file):
-                logfile = open(internal.log_file)
+            if os.path.isfile(shared_state.log_file):
+                logfile = open(shared_state.log_file)
                 i = 0
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
@@ -246,7 +245,7 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def delete_log():
         try:
-            open(internal.log_file, 'w').close()
+            open(shared_state.log_file, 'w').close()
             return "Success"
         except:
             return abort(400, "Failed")
@@ -257,14 +256,14 @@ def app_container():
         try:
             entry = decode_base64(b64_entry)
             log = []
-            if os.path.isfile(internal.log_file):
-                logfile = open(internal.log_file)
+            if os.path.isfile(shared_state.log_file):
+                logfile = open(shared_state.log_file)
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
                         if entry not in line:
                             log.append(line)
                 log = "".join(reversed(log))
-                with open(internal.log_file, 'w') as file:
+                with open(shared_state.log_file, 'w') as file:
                     file.write(log)
             return "Success"
         except:
@@ -573,7 +572,7 @@ def app_container():
                 "version": {
                     "ver": ver,
                     "update_ready": updateready,
-                    "docker": internal.docker,
+                    "docker": shared_state.docker,
                     "helper_active": helper_active
                 }
             }
@@ -880,7 +879,7 @@ def app_container():
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
@@ -911,7 +910,7 @@ def app_container():
                 myjd = get_state()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 myjd = get_state()
             if myjd:
@@ -1088,7 +1087,7 @@ def app_container():
                 started = jdownloader_start()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 started = jdownloader_start()
             if started:
@@ -1106,7 +1105,7 @@ def app_container():
                 paused = jdownloader_pause(bl)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 paused = jdownloader_pause(bl)
             if paused:
@@ -1123,7 +1122,7 @@ def app_container():
                 stopped = jdownloader_stop()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
@@ -1140,7 +1139,7 @@ def app_container():
                 updated = jdownloader_update()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return abort(500, "Failed")
                 updated = jdownloader_update()
             if updated:
@@ -1349,7 +1348,7 @@ var checkExist = setInterval(async function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + internal.local_address + """';
+const sponsorsURL = '""" + shared_state.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1458,7 +1457,7 @@ const dlExists = setInterval(function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + internal.local_address + """';
+const sponsorsURL = '""" + shared_state.local_address + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1675,7 +1674,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                     ids = False
 
                 FeedDb('crawldog').store(package_name, 'added')
-                if internal.device:
+                if shared_state.device:
                     if ids:
                         try:
                             ids = ids.replace("%20", "").split(";")
@@ -1732,7 +1731,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                             packages = get_packages_in_linkgrabber()
                         except (TokenExpiredException, RequestTimeoutException, MYJDException):
                             get_device()
-                            if not internal.device or not is_device(internal.device):
+                            if not shared_state.device or not is_device(shared_state.device):
                                 return abort(500, "Failed")
                             packages = get_packages_in_linkgrabber()
 
@@ -1818,7 +1817,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             pass
         return abort(400, "Failed")
 
-    Server(app, listen='0.0.0.0', port=internal.port).serve_forever()
+    Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
 
 
 def start():
@@ -1833,5 +1832,5 @@ def start():
 
 
 def web_server(global_variables):
-    internal.set_globals(global_variables)
+    shared_state.set_globals(global_variables)
     start()

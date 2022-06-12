@@ -161,11 +161,11 @@ function spinLog() {
                   <tr v-for="x in currentLogPage">
                     <td class="text-center">{{ x[1] }}</td>
                     <td class="text-left">
-                      {{ shortenEntry(x[3]) }}<span class="btn btn-outline-secondary btn-sm mt-0 pt-0 pb-0"
-                                                    v-if="!longLogItemsAllowed && checkEntryLength(x[3])"
+                      {{ shortenEntry(x[3]) }}<span v-if="!longLogItemsAllowed && checkEntryLength(x[3])"
+                                                    class="btn btn-outline-secondary btn-sm mt-0 pt-0 pb-0"
                                                     @click="longerLog()"><i
-                        class="bi bi-three-dots"
-                        v-tippy="'Titel vollständig anzeigen'"></i></span>
+                        v-tippy="'Titel vollständig anzeigen'"
+                        class="bi bi-three-dots"></i></span>
                       <span v-if="longLogItemsAllowed && checkEntryLength(x[3])" v-tippy="'Titel kürzen'"
                             class="btn btn-outline-secondary btn-sm mt-0 pt-0 pb-0"
                             @click="shorterLog()"><i
@@ -177,14 +177,14 @@ function spinLog() {
                                                          class="bi bi-question-square text-secondary"
                                                          style="color: #6c757d !important; opacity: .65;"></i></td>
                     <td class="text-center">
-                      <a class="btn btn-sm mt-0 pt-0 pb-0"
-                         v-tippy="'Quelle öffnen'"
+                      <a v-tippy="'Quelle öffnen'"
                          :class="{
                                     'disabled': (!x[6] || x[6] === '' || typeof x[6] === 'undefined'),
                                     'btn-outline-secondary': (!x[6] || x[6] === '' || typeof x[6] === 'undefined'),
                                     'btn-outline-primary': x[6] && x[6] !== '' && typeof x[6] !== 'undefined'
                                  }"
                          :href="x[6]"
+                         class="btn btn-sm mt-0 pt-0 pb-0"
                          target="_blank">
                         <i class="bi bi-link-45deg"></i>
                       </a>
@@ -213,20 +213,20 @@ function spinLog() {
                 </div>
               </div>
               <!-- Modal -->
-              <div class="modal fade" id="deleteLogModal" tabindex="-1" aria-labelledby="deleteLogModalLabel"
-                   aria-hidden="true">
+              <div id="deleteLogModal" aria-hidden="true" aria-labelledby="deleteLogModalLabel" class="modal fade"
+                   tabindex="-1">
                 <div class="modal-dialog">
                   <div class="modal-content">
                     <div class="modal-header">
-                      <h5 class="modal-title" id="deleteLogModalLabel">Log wirklich leeren?</h5>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                      <h5 id="deleteLogModalLabel" class="modal-title">Log wirklich leeren?</h5>
+                      <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
                     </div>
                     <div class="modal-body">
                       Hierdurch werden alle Log-Zeilen gelöscht!
                     </div>
                     <div class="modal-footer">
-                      <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Schließen</button>
-                      <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="deleteLog()">
+                      <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">Schließen</button>
+                      <button class="btn btn-danger" data-bs-dismiss="modal" type="button" @click="deleteLog()">
                         <i class="bi bi-trash3"></i>
                         Log leeren
                       </button>
@@ -235,8 +235,8 @@ function spinLog() {
                 </div>
               </div>
               <div class="text-center">
-                <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                        data-bs-target="#deleteLogModal">
+                <button class="btn btn-outline-danger" data-bs-target="#deleteLogModal" data-bs-toggle="modal"
+                        type="button">
                   <span v-if="spin_log" class="spinner-border spinner-border-sm" role="status"></span>
                   <i v-if="!spin_log" class="bi bi-trash3"></i> Leeren
                 </button>

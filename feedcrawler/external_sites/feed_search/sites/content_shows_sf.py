@@ -10,15 +10,15 @@ import re
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites.feed_search.content_shows as shared_shows
-from feedcrawler import internal
-from feedcrawler.common import check_valid_release, rreplace, check_hoster
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
-from feedcrawler.notifications import notify
-from feedcrawler.url import get_url
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_valid_release, rreplace, check_hoster
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.url_functions import get_url
 
 
 class SF:
@@ -117,17 +117,17 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
 
 def sf_parse_download(self, series_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail):
-        internal.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        shared_state.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                internal.logger.debug(
+                shared_state.logger.debug(
                     "%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
-            internal.logger.debug(title + " - Release hat falsche Quelle")
+            shared_state.logger.debug(title + " - Release hat falsche Quelle")
             return False
     try:
         if language_id == 2:
@@ -239,7 +239,7 @@ def sf_parse_download(self, series_url, title, language_id):
                     self.db.store(title, 'wrong_hoster')
                     notify([{"text": wrong_hoster}])
                 else:
-                    internal.logger.debug(wrong_hoster)
+                    shared_state.logger.debug(wrong_hoster)
                 return False
         else:
             return {

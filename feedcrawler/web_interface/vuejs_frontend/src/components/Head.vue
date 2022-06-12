@@ -151,8 +151,8 @@ function showSiteStatusHelp() {
               </div>
               <div v-if="!store.state.crawltimes.active&& !isNaN(store.state.crawltimes.next_start)">
                 Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
-                <i v-tippy="'Suchlauf direkt starten'" class="bi bi-skip-end-fill text-primary"
-                   v-if="!store.state.misc.starting"
+                <i v-if="!store.state.misc.starting" v-tippy="'Suchlauf direkt starten'"
+                   class="bi bi-skip-end-fill text-primary"
                    @click="startNow()"></i>
                 <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
               </div>
@@ -173,33 +173,37 @@ function showSiteStatusHelp() {
 
             <div class="row justify-content-center mt-2">
               <div class="col-md-auto p-1">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                <button aria-controls="offcanvasBottomSearch" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomSearch"
-                        aria-controls="offcanvasBottomSearch"><i class="bi bi-search"></i> Web-Suche
+                        data-bs-toggle="offcanvas"
+                        type="button"><i class="bi bi-search"></i> Web-Suche
                 </button>
               </div>
 
               <div class="col-md-auto p-1">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                <button aria-controls="offcanvasBottomLists" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomLists"
-                        aria-controls="offcanvasBottomLists"
+                        data-bs-toggle="offcanvas"
+                        type="button"
                         @click='getLists'><i class="bi bi-text-left"></i>
                   Suchlisten
                 </button>
               </div>
 
               <div class="col-md-auto p-1">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                <button aria-controls="offcanvasBottomSettings" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomSettings"
-                        aria-controls="offcanvasBottomSettings"
+                        data-bs-toggle="offcanvas"
+                        type="button"
                         @click='getSettings'><i class="bi bi-gear"></i> Einstellungen
                 </button>
               </div>
 
               <div class="col-md-auto p-1">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="offcanvas"
+                <button aria-controls="offcanvasBottomHelp" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomHelp"
-                        aria-controls="offcanvasBottomHelp"
+                        data-bs-toggle="offcanvas"
+                        type="button"
                         @click='getBlockedSites'><i class="bi bi-question-diamond"></i> Hilfe
                 </button>
               </div>
@@ -217,15 +221,16 @@ function showSiteStatusHelp() {
               </div>
 
               <div class="col-md-auto p-1">
-                <a v-if="!store.state.misc.helper_active" href="https://github.com/users/rix1337/sponsorship"
-                   target="_blank"
+                <a v-if="!store.state.misc.helper_active"
                    v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
-                   class="btn btn-outline-danger"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
+                   class="btn btn-outline-danger"
+                   href="https://github.com/users/rix1337/sponsorship"
+                   target="_blank"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
                   aktiver
                   Sponsor</a>
-                <a v-else href="https://github.com/users/rix1337/sponsorship" target="_blank"
-                   v-tippy="'Vielen Dank für die aktive Github Sponsorship!'"
-                   class="btn btn-outline-success"><i id="heart" class="bi bi-heart"></i> Aktiver
+                <a v-else v-tippy="'Vielen Dank für die aktive Github Sponsorship!'" class="btn btn-outline-success"
+                   href="https://github.com/users/rix1337/sponsorship"
+                   target="_blank"><i id="heart" class="bi bi-heart"></i> Aktiver
                   Sponsor</a>
               </div>
             </div>

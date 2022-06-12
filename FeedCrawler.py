@@ -5,8 +5,8 @@
 
 import multiprocessing
 
-from feedcrawler import main
+from feedcrawler import crawler
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
-    main.main()
+    crawler.start_feedcrawler()

@@ -10,16 +10,16 @@ import re
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites.feed_search.content_all as shared_blogs
-from feedcrawler import internal
-from feedcrawler.common import check_hoster
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.feed_search.shared import unused_get_feed_parameter
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
-from feedcrawler.url import get_url, get_url_headers
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.url_functions import get_url, get_url_headers
 
 
 class BL:
@@ -165,7 +165,7 @@ def ff_feed_enricher(releases):
                             "imdb_id": imdb_id
                         }))
         except Exception as e:
-            internal.logger.debug("FF-Feed konnte nicht gelesen werden: " + str(e))
+            shared_state.logger.debug("FF-Feed konnte nicht gelesen werden: " + str(e))
             pass
 
     feed = {"entries": entries}

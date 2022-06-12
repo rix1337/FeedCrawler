@@ -4,10 +4,10 @@
 # Dieses Modul stellt content_all alle benötigten Parameter für die Feed-Suche auf DJ bereit und basiert dabei auf SJ.
 
 import feedcrawler.external_sites.feed_search.content_shows as shared_shows
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.feed_search.sites.content_shows_sj import sj_parse_download
 from feedcrawler.external_sites.feed_search.sites.content_shows_sj import sj_releases_to_feedparser_dict
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 class DJ:

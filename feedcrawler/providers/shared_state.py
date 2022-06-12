@@ -10,8 +10,8 @@ import pickle
 import sys
 from logging import handlers
 
-from feedcrawler.db import FeedDb
-from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.providers.sqlite_database import FeedDb
 
 configpath = False
 log_level = False

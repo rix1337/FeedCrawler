@@ -7,9 +7,9 @@ import re
 
 from bs4 import BeautifulSoup
 
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.url import get_urls_async
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.url_functions import get_urls_async
 
 
 def fx_search_results(content, search_term):

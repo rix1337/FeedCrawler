@@ -5,10 +5,10 @@
 
 import re
 
-from feedcrawler.common import check_hoster
-from feedcrawler.common import readable_size
-from feedcrawler.myjd import add_decrypt
-from feedcrawler.url import get_redirected_url
+from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.common_functions import readable_size
+from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.url_functions import get_redirected_url
 
 
 class FakeFeedParserDict(dict):

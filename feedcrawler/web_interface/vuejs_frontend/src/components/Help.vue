@@ -389,7 +389,7 @@ const waitTimeActive = computed(() => {
             <div id="collapseCaptchas" aria-labelledby="headingCaptchas" class="accordion-collapse collapse"
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
-                <button @click="openCaptchaLink" class="btn btn-outline-success">
+                <button class="btn btn-outline-success" @click="openCaptchaLink">
                   Anti-Captcha.com (schnelles Lösen von reCAPTCHA, cutcaptcha, etc. - auch im Browser)
                 </button>
               </div>
@@ -406,7 +406,7 @@ const waitTimeActive = computed(() => {
             <div id="collapseMultiHoster" aria-labelledby="headingMultiHoster" class="accordion-collapse collapse"
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
-                <button @click="openHosterLink" class="btn btn-outline-success">
+                <button class="btn btn-outline-success" @click="openHosterLink">
                   LinkSnappy.com (für DDownload, Rapidgator, 1Fichier, etc.)
                 </button>
               </div>

@@ -9,18 +9,18 @@ import re
 
 from bs4 import BeautifulSoup
 
-from feedcrawler import internal
-from feedcrawler.common import check_hoster
-from feedcrawler.common import check_is_site
-from feedcrawler.common import decode_base64
-from feedcrawler.common import keep_alphanumeric_with_special_characters
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.external_sites.web_search.shared import search_web, rate
-from feedcrawler.myjd import add_decrypt
-from feedcrawler.notifications import notify
-from feedcrawler.url import get_url, get_redirected_url
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.common_functions import check_is_site
+from feedcrawler.providers.common_functions import decode_base64
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import ListDb, FeedDb
+from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.url_functions import get_url, get_redirected_url
 
 
 def get_best_result(title):
@@ -33,10 +33,10 @@ def get_best_result(title):
 
     preferred_results = []
     if sf_results:
-        internal.logger.debug('SF-Ergebnisse werden für ' + title + ' verwendet!')
+        shared_state.logger.debug('SF-Ergebnisse werden für ' + title + ' verwendet!')
         preferred_results = sf_results
     elif sj_results:
-        internal.logger.debug('SJ-Ergebnisse werden für ' + title + ' verwendet!')
+        shared_state.logger.debug('SJ-Ergebnisse werden für ' + title + ' verwendet!')
         preferred_results = sj_results
 
     best_difference = 999
@@ -58,7 +58,7 @@ def get_best_result(title):
                 best_payload = payload
 
     if not best_match or not best_payload:
-        internal.logger.debug('Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        shared_state.logger.debug('Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         listen = ["List_ContentShows_Shows", "List_ContentAll_Seasons"]
         for liste in listen:
             cont = ListDb(liste).retrieve()
@@ -67,7 +67,7 @@ def get_best_result(title):
             if title not in cont:
                 ListDb(liste).store(title)
             return False
-    internal.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
+    shared_state.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
     return best_payload
 
 
@@ -268,7 +268,7 @@ def download(payload):
                 pass
 
         if success:
-            internal.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
@@ -313,7 +313,7 @@ def download(payload):
                     del result_episodes[season]
             except:
                 pass
-            internal.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
 
     matches = []
 
@@ -341,7 +341,7 @@ def download(payload):
             if add_decrypt(title, url, password):
                 db.store(title, 'added')
                 log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
-                internal.logger.info(log_entry)
+                shared_state.logger.info(log_entry)
                 notify_array.append({"text": log_entry})
 
     notify(notify_array)

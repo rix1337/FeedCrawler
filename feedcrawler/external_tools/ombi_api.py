@@ -7,16 +7,16 @@ import json
 
 import feedcrawler.external_sites.web_search.content_all
 import feedcrawler.external_sites.web_search.content_shows
-from feedcrawler import internal
-from feedcrawler.common import decode_base64
-from feedcrawler.common import encode_base64
-from feedcrawler.common import keep_alphanumeric_with_special_characters
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.metadata.imdb import get_episodes
 from feedcrawler.external_sites.metadata.imdb import get_localized_title
 from feedcrawler.external_sites.metadata.imdb import get_year
 from feedcrawler.http_requests.request_handler import request
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import decode_base64
+from feedcrawler.providers.common_functions import encode_base64
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 def imdb_movie(imdb_id):
@@ -26,7 +26,7 @@ def imdb_movie(imdb_id):
         return title + " " + year
     except:
         if imdb_id is None:
-            internal.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
+            shared_state.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
         else:
             print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
@@ -40,13 +40,13 @@ def imdb_show(imdb_id):
         return title, seasons
     except:
         if imdb_id is None:
-            internal.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
+            shared_state.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
         else:
             print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
-def ombi(first_launch):
+def ombi_search(first_launch):
     db = FeedDb('Ombi')
     config = CrawlerConfig('Ombi')
     url = config.get('url')
@@ -69,15 +69,15 @@ def ombi(first_launch):
         len_movies = len(requested_movies)
         len_shows = len(requested_shows)
         if first_launch:
-            internal.logger.debug("Erfolgreich mit Ombi verbunden.")
+            shared_state.logger.debug("Erfolgreich mit Ombi verbunden.")
             print(u"Erfolgreich mit Ombi verbunden.")
     except:
-        internal.logger.debug("Ombi ist nicht erreichbar!")
+        shared_state.logger.debug("Ombi ist nicht erreichbar!")
         print(u"Ombi ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
-        internal.logger.debug(
+        shared_state.logger.debug(
             "Die Suchfunktion für Filme nutzt BY, FX, HW und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         if bool(r.get("approved")):
@@ -100,11 +100,11 @@ def ombi(first_launch):
                             db.store('movie_' + str(imdb_id), 'added')
                 else:
                     print("Ein Film ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
-                    internal.logger.debug(
+                    shared_state.logger.debug(
                         "Ein Film ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
 
     if requested_shows:
-        internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
+        shared_state.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         imdb_id = r.get("imdbId")
         if imdb_id:
@@ -166,7 +166,7 @@ def ombi(first_launch):
                                                             se = s + "E" + e
                                                             db.store('show_' + str(imdb_id) + '_' + se, 'added')
                                                         if not add_season:
-                                                            internal.logger.debug(
+                                                            shared_state.logger.debug(
                                                                 u"Konnte kein Release für " + title + " " + se + "finden.")
                                                         break
                                                 db.store('show_' + str(imdb_id) + '_' + se, 'added')
@@ -186,7 +186,7 @@ def ombi(first_launch):
                                         print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
         else:
             print("Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
-            internal.logger.debug(
+            shared_state.logger.debug(
                 "Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
 
     return [len_movies, len_shows]

@@ -8,25 +8,25 @@ import sys
 import time
 import traceback
 
-from feedcrawler import internal
-from feedcrawler.common import Unbuffered
-from feedcrawler.common import is_device
-from feedcrawler.common import longest_substr
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
-from feedcrawler.myjd import add_decrypt
-from feedcrawler.myjd import get_device
-from feedcrawler.myjd import get_info
-from feedcrawler.myjd import hoster_check
-from feedcrawler.myjd import move_to_downloads
-from feedcrawler.myjd import remove_from_linkgrabber
-from feedcrawler.myjd import rename_package_in_linkgrabber
-from feedcrawler.myjd import retry_decrypt
-from feedcrawler.notifications import notify
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import Unbuffered
+from feedcrawler.providers.common_functions import is_device
+from feedcrawler.providers.common_functions import longest_substr
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import get_info
+from feedcrawler.providers.myjd_connection import hoster_check
+from feedcrawler.providers.myjd_connection import move_to_downloads
+from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
+from feedcrawler.providers.myjd_connection import rename_package_in_linkgrabber
+from feedcrawler.providers.myjd_connection import retry_decrypt
+from feedcrawler.providers.notifications import notify
 
 
-def crawldog(global_variables):
-    internal.set_globals(global_variables)
+def watch_packages(global_variables):
+    shared_state.set_globals(global_variables)
 
     sys.stdout = Unbuffered(sys.stdout)
 
@@ -38,7 +38,7 @@ def crawldog(global_variables):
 
     while True:
         try:
-            if not internal.device or not is_device(internal.device):
+            if not shared_state.device or not is_device(shared_state.device):
                 get_device()
 
             myjd_packages = get_info()

@@ -11,11 +11,11 @@ import socket
 import sys
 from urllib.parse import urlparse
 
-from feedcrawler import internal
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
-from feedcrawler.db import ListDb
-from feedcrawler.external_tools import myjdapi
+from feedcrawler.external_tools import myjd_api
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.sqlite_database import ListDb
 
 
 class Unbuffered(object):
@@ -334,7 +334,7 @@ def get_to_decrypt():
 
 
 def is_device(device):
-    return isinstance(device, (type, myjdapi.Jddevice))
+    return isinstance(device, (type, myjd_api.Jddevice))
 
 
 def is_hevc(key):
@@ -428,7 +428,7 @@ def remove(retailtitel):
         by = by.replace("b", "B", 1)
         bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
 
-        internal.logger.debug('[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.')
+        shared_state.logger.debug('[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.')
     except:
         print('Fehler beim Entfernen des Eintrages für ' + retailtitel + ' aus der Liste "Filme"!')
 
@@ -494,7 +494,7 @@ def configpath(configpath):
 def site_blocked(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    for check_against in internal.sites:
+    for check_against in shared_state.sites:
         if site and check_against == site and db_status.retrieve(check_against + "_normal"):
             return True
     return False
@@ -503,7 +503,7 @@ def site_blocked(url):
 def site_blocked_with_flaresolverr(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    for check_against in internal.sites:
+    for check_against in shared_state.sites:
         if site and check_against == site and db_status.retrieve(check_against + "_flaresolverr"):
             return True
     return False

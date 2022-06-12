@@ -130,22 +130,23 @@ function submitSearch() {
                 @click="clearResults()"></button>
       </div>
       <div class="offcanvas-body">
-        <div class="row"
-             v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'">
-          <FormKit type="form" #default="{ value }"
-                   id="search"
+        <div
+            v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search_shorthands + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Episoden hinzugefügt. Komplette Serien landen auch in der Suchliste. Alternativ kann eine einzelne Staffel/Episode per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die jeweilige Auflösung und die Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
+            class="row">
+          <FormKit id="search" #default="{ value }"
                    :actions="false"
-                   messages-class="text-danger"
                    incomplete-message="Das Suchfeld muss korrekt befüllt werden!"
+                   messages-class="text-danger"
+                   type="form"
                    @submit="searchNow()"
           >
             <FormKit v-model="search" help-class="text-muted"
-                     messages-class="text-danger"
                      input-class="form-control bg-light mb-2"
                      label="Suchbegriff"
+                     messages-class="text-danger"
                      placeholder="Film- oder Serien-Titel eingeben"
-                     validation="required|length:3"
-                     type="text"/>
+                     type="text"
+                     validation="required|length:3"/>
           </FormKit>
         </div>
         <div class="row">

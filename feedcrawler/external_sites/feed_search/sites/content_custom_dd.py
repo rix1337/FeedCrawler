@@ -7,14 +7,14 @@ from datetime import datetime
 
 from bs4 import BeautifulSoup
 
-from feedcrawler import internal
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb, ListDb
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import check_hoster
-from feedcrawler.myjd import myjd_download
-from feedcrawler.notifications import notify
-from feedcrawler.url import get_url
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb, ListDb
+from feedcrawler.providers.myjd_connection import myjd_download
+from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.url_functions import get_url
 
 
 class DD:
@@ -43,7 +43,7 @@ class DD:
 
     def periodical_task(self):
         if not self.url:
-            internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Episoden! (" + self.filename + ")")
+            shared_state.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Episoden! (" + self.filename + ")")
             return
         else:
             for feed_id in self.feed_ids:
@@ -61,18 +61,18 @@ class DD:
                             links = post.links
                         storage = self.db.retrieve_all(post.title)
                         if not links:
-                            internal.logger.debug(u"Release ignoriert - keine Links gefunden")
+                            shared_state.logger.debug(u"Release ignoriert - keine Links gefunden")
                         elif 'added' in storage:
-                            internal.logger.debug(post.title + " - Release ignoriert (bereits gefunden)")
+                            shared_state.logger.debug(post.title + " - Release ignoriert (bereits gefunden)")
                         else:
                             if myjd_download(post.title, "FeedCrawler", links, self.url):
                                 self.db.store(post.title, 'added')
                                 log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' \
                                             + post.size + ' - ' + post.source
-                                internal.logger.info(log_entry)
+                                shared_state.logger.info(log_entry)
                                 notify([{"text": log_entry, 'imdb_id': post.imdb_id}])
                     else:
-                        internal.logger.debug(
+                        shared_state.logger.debug(
                             post.title + " - Releases, die weniger als 30 Minuten alt sind, werden ignoriert (da Links noch hochgeladen werden).")
 
 

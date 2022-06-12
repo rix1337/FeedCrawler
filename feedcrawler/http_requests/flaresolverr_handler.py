@@ -6,11 +6,11 @@
 from json import loads
 from urllib.parse import urlencode
 
-from feedcrawler import internal
-from feedcrawler.common import site_blocked_with_flaresolverr
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb
 from feedcrawler.http_requests.request_handler import request
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import site_blocked_with_flaresolverr
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import ListDb
 
 
 def get_flaresolverr_url():
@@ -73,7 +73,7 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
     else:
         encoded_params = params
 
-    internal.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
+    shared_state.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
     if not flaresolverr_session:
         json_session = request(flaresolverr_url, method="POST", json={
             'cmd': 'sessions.create'
@@ -81,8 +81,8 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
         response_session = loads(json_session.text)
         flaresolverr_session = response_session['session']
     elif site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
-        internal.logger.debug("Proxy ist notwendig. Zerstöre aktive Sessions",
-                              flaresolverr_session)
+        shared_state.logger.debug("Proxy ist notwendig. Zerstöre aktive Sessions",
+                                  flaresolverr_session)
         clean_flaresolverr_sessions()
         json_session = request(flaresolverr_url, method="POST", json={
             'cmd': 'sessions.create'
@@ -110,8 +110,8 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
     status_code = json_response.status_code
 
     if status_code == 500:
-        internal.logger.debug("Der Request für " + url + " ist fehlgeschlagen. Zerstöre die Session" +
-                              str(flaresolverr_session))
+        shared_state.logger.debug("Der Request für " + url + " ist fehlgeschlagen. Zerstöre die Session" +
+                                  str(flaresolverr_session))
         clean_flaresolverr_sessions()
         flaresolverr_session = None
 
@@ -121,7 +121,7 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
             try:
                 url = response['solution']['url']
             except:
-                internal.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
+                shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
         text = response['solution']['response']
         response_headers = response['solution']['headers']
 

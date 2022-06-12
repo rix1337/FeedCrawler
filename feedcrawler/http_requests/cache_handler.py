@@ -9,11 +9,11 @@ import pickle
 from functools import wraps
 from urllib.error import URLError
 
-from feedcrawler import internal
-from feedcrawler.common import site_blocked
-from feedcrawler.db import FeedDb
 from feedcrawler.http_requests.flaresolverr_handler import get_flaresolverr_url, flaresolverr_request
 from feedcrawler.http_requests.request_handler import request
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import site_blocked
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 def cache(func):
@@ -50,7 +50,7 @@ def cache(func):
 @cache
 def cached_request(url, method='get', params=None, headers=None, redirect_url=False, dont_cache=False):
     if dont_cache:
-        internal.logger.debug("Aufruf ohne HTTP-Cache: " + url)
+        shared_state.logger.debug("Aufruf ohne HTTP-Cache: " + url)
 
     flaresolverr_url = get_flaresolverr_url()
 
@@ -77,19 +77,19 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                 if redirect_url:
                     return url
             else:
-                internal.logger.debug(
+                shared_state.logger.debug(
                     "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
                 return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
             headers[
-                'User-Agent'] = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36"
+                'User-Agent'] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36"
             if method == 'post':
                 response = request(url, method="POST", data=params, timeout=10, headers=headers)
             elif redirect_url:
                 try:
                     return request(url, timeout=10).url
                 except Exception as e:
-                    internal.logger.debug("Der Abruf der Redirect-URL war ohne FlareSolverr fehlerhaft: " + str(e))
+                    shared_state.logger.debug("Der Abruf der Redirect-URL war ohne FlareSolverr fehlerhaft: " + str(e))
                     return url
             else:
                 response = request(url, timeout=10, headers=headers)

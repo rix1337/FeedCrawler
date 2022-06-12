@@ -10,9 +10,9 @@ from urllib.parse import quote
 
 from bs4 import BeautifulSoup
 
-from feedcrawler import internal
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.url import get_url, get_url_headers
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.url_functions import get_url, get_url_headers
 
 
 def imdb_id_not_none(f):
@@ -23,7 +23,7 @@ def imdb_id_not_none(f):
             caller = traceback.extract_stack(f=None, limit=None)[-2]
             detailed_trace = "In " + str(caller.name) + ":" + str(caller.lineno) + ", Aufruf: " + str(caller.line)
             print("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
-            internal.logger.debug("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
+            shared_state.logger.debug("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
             return False
         return f(imdb_id)
 
@@ -90,7 +90,7 @@ def get_imdb_id_from_title(title, current_list="NoList"):
                 imdb_id = result[0]
                 break
     else:
-        internal.logger.debug("[IMDb] - %s - Keine ID gefunden" % title)
+        shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title)
     return imdb_id
 
 
@@ -124,13 +124,13 @@ def original_language_not_german(imdb_id):
         pass
 
     if original_language and original_language == "de":
-        internal.logger.debug(
+        shared_state.logger.debug(
             "[IMDb] - %s - Original-Sprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % imdb_id)
         return False
 
     if not original_language:
         print(u"[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
 
     return original_language
 
@@ -161,7 +161,7 @@ def get_episodes(imdb_id):
 
     if not episodes:
         print(u"[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
 
     return episodes
 
@@ -183,7 +183,7 @@ def get_localized_title(imdb_id):
 
     if not localized_title:
         print(u"[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
 
     return localized_title
 
@@ -203,7 +203,7 @@ def get_rating(imdb_id):
 
     if not rating:
         print(u"[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
 
     return rating
 
@@ -223,7 +223,7 @@ def get_votes(imdb_id):
 
     if not votes:
         print(u"[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
 
     return votes
 
@@ -241,6 +241,6 @@ def get_year(imdb_id):
 
     if not year:
         print(u"[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
-        internal.logger.debug("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
 
     return year

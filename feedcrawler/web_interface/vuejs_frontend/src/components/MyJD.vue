@@ -441,10 +441,10 @@ function showSponsorsHelp() {
           <div class="card-header">
             <h3>
               <i>
-                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                     width="40" height="40"
-                     viewBox="0 0 32 32"
-                     style=" fill:#000000;">
+                <svg height="40" style=" fill:#000000;" viewBox="0 0 32 32"
+                     width="40" x="0px"
+                     xmlns="http://www.w3.org/2000/svg"
+                     y="0px">
                   <path
                       d="M 15.40625 4 C 9.066406 4 3.90625 9.160156 3.90625 15.5 C 3.90625 21.839844 9.066406 27 15.40625 27 C 17.21875 27 18.941406 26.5625 20.46875 25.8125 L 18.75 24.375 C 17.710938 24.765625 16.578125 25 15.40625 25 C 14.859375 25 14.332031 24.933594 13.8125 24.84375 C 14.636719 24.375 15.578125 23.734375 16.5625 22.84375 C 18.214844 21.347656 19.960938 19.148438 21.4375 16.03125 C 22.003906 17.609375 22.476563 19.320313 22.75 21.15625 L 19 22 L 25.03125 27 L 28 20 L 24.71875 20.71875 C 24.300781 18.007813 23.5 15.523438 22.5625 13.375 C 22.886719 12.472656 23.167969 11.5 23.4375 10.46875 C 23.9375 11.265625 24.347656 12.128906 24.59375 13.0625 C 25.265625 14.664063 25.847656 16.445313 26.28125 18.34375 L 26.5625 18.28125 C 26.785156 17.390625 26.90625 16.457031 26.90625 15.5 C 26.90625 9.160156 21.746094 4 15.40625 4 Z M 15.40625 6 C 15.460938 6 15.511719 6 15.5625 6 C 15.605469 6.050781 15.695313 6.15625 15.75 6.21875 L 15.1875 6.3125 L 14.71875 7 L 15.46875 8.125 L 15.28125 8.6875 L 15.84375 9.25 L 17.1875 8.0625 C 18.160156 9.398438 19.347656 11.226563 20.40625 13.5 C 19.164063 16.667969 17.601563 18.910156 16.125 20.46875 L 15.6875 20.4375 L 13.9375 19.65625 L 13.28125 20.0625 L 13 19.03125 L 9.34375 17.4375 L 8.21875 17.53125 L 8.375 18.21875 L 7.96875 20.0625 L 8.9375 20.9375 L 9.46875 21.5625 L 11 22.375 L 11.3125 23.21875 L 11.6875 23.6875 C 11.484375 23.773438 11.257813 23.894531 11.125 23.9375 C 11.117188 23.933594 11.101563 23.941406 11.09375 23.9375 C 8.164063 22.425781 6.109375 19.445313 5.9375 15.96875 L 6.71875 16.46875 L 7.75 17.5 L 6.40625 15.4375 L 6.78125 14.3125 L 7.90625 14.25 L 8.90625 15.53125 L 8.9375 14.5 L 10.34375 13.6875 L 11.3125 12.75 L 13.15625 12.1875 L 12.53125 11.78125 L 14.3125 10.90625 L 14.03125 10.125 L 13.15625 9.65625 L 12.28125 10.1875 L 11.6875 11.21875 L 11.09375 11.0625 L 10.9375 10.03125 L 11.53125 9.5 L 13.28125 8.53125 L 11.875 8.4375 L 10.375 8.6875 L 10.84375 8.21875 L 9.90625 7.78125 C 11.460938 6.671875 13.355469 6 15.40625 6 Z M 18.5625 6.53125 C 19.804688 6.96875 20.929688 7.652344 21.875 8.53125 C 21.703125 9.328125 21.519531 10.09375 21.3125 10.8125 C 20.34375 9.027344 19.378906 7.617188 18.5625 6.53125 Z M 8.40625 9.125 L 8.375 9.25 L 7.53125 10.1875 C 7.789063 9.804688 8.097656 9.464844 8.40625 9.125 Z"></path>
                 </svg> <!-- Wrapped in <i> so the distance to My JDownloader text matches other headings -->
@@ -506,8 +506,9 @@ function showSponsorsHelp() {
                               </ul>
                               <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                                  <button type="button" class="btn btn-outline-primary m-1" data-bs-toggle="modal"
-                                          data-bs-target="#myJdItemModal"
+                                  <button class="btn btn-outline-primary m-1" data-bs-target="#myJdItemModal"
+                                          data-bs-toggle="modal"
+                                          type="button"
                                           @click="setModalPackage(x)">
                                     <i class="bi bi-info-square"></i> Details
                                   </button>
@@ -555,8 +556,9 @@ function showSponsorsHelp() {
                                           @click="myJDmove(x.linkids, x.uuid, x.name)"><i class="bi bi-play"></i>
                                     Download starten
                                   </button>
-                                  <button type="button" class="btn btn-outline-primary m-1" data-bs-toggle="modal"
-                                          data-bs-target="#myJdItemModal"
+                                  <button class="btn btn-outline-primary m-1" data-bs-target="#myJdItemModal"
+                                          data-bs-toggle="modal"
+                                          type="button"
                                           @click="setModalPackage(x)">
                                     <i class="bi bi-info-square"></i> Details
                                   </button>
@@ -617,10 +619,10 @@ function showSponsorsHelp() {
                                 <li v-if="x[1].url" class="list-group-item">
                                   <div class="row m-1">
                                     <a v-if="store.state.misc.helper_active && store.state.misc.helper_available && x.first && !cnl_active"
+                                       v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                                        :href="x[1].url + '#' + x[1].name"
                                        class="cnl-button btn btn-outline-success"
                                        target="_blank"
-                                       v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
                                        type="submit">Sponsors Helper Click'n'Load
                                     </a>
                                   </div>
@@ -644,9 +646,9 @@ function showSponsorsHelp() {
                                     </span>
                                   <div class="row m-1">
                                     <a v-if="!myjd_grabbing && !cnl_active"
+                                       v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
                                        :href="x[1].url + '#' + x[1].name"
                                        class="cnl-button btn btn-outline-secondary"
-                                       v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
                                        target="_blank"
                                        type="submit"
                                        @click="internalCnl(x[1].name, x[1].password)">Click'n'Load-Automatik
@@ -668,8 +670,8 @@ function showSponsorsHelp() {
                                   <span v-if="!store.state.misc.helper_active"><br>
                                         <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
                                             v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
-                                            target="_blank"
-                                            href="https://github.com/users/rix1337/sponsorship">Sponsor werden</a> und den <a
+                                            href="https://github.com/users/rix1337/sponsorship"
+                                            target="_blank">Sponsor werden</a> und den <a
                                             href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</div>
                                     </span>
                                   <span v-if="myjd_grabbing"><br>Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
@@ -714,14 +716,14 @@ function showSponsorsHelp() {
                         </div>
                       </div>
                       <!-- Modal -->
-                      <div class="modal fade" id="myJdItemModal" tabindex="-1" aria-labelledby="myJdItemModalLabel"
-                           aria-hidden="true">
+                      <div id="myJdItemModal" aria-hidden="true" aria-labelledby="myJdItemModalLabel" class="modal fade"
+                           tabindex="-1">
                         <div class="modal-dialog">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title" id="myJdItemModalLabel">Details</h5>
-                              <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                      aria-label="Close"></button>
+                              <h5 id="myJdItemModalLabel" class="modal-title">Details</h5>
+                              <button aria-label="Close" class="btn-close" data-bs-dismiss="modal"
+                                      type="button"></button>
                             </div>
                             <div class="modal-body">
                               <div class="mb-2">
@@ -735,12 +737,12 @@ function showSponsorsHelp() {
                               <div class="mb-2">
                                 <ul>
                                   <button v-for="(url, index) in modalPackage.urls.split(/\r?\n/)"
-                                          class="btn"
                                           :class="{ 'btn-outline-warning': urlExists(url),
                                                    'btn-outline-primary': !urlExists(url)
-                                        }">
-                                    <a v-if="!urlExists(url)" target="_blank"
-                                       :href="url">
+                                        }"
+                                          class="btn">
+                                    <a v-if="!urlExists(url)" :href="url"
+                                       target="_blank">
                                       <i class="bi bi-link-45deg"></i> {{ modalPackage.filenames[index] }}</a>
                                     <span v-else
                                           v-tippy="'URL nicht durch My JDownloader abrufbar!'">
@@ -750,7 +752,7 @@ function showSponsorsHelp() {
                               </div>
                             </div>
                             <div class="modal-footer">
-                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                              <button class="btn btn-outline-secondary" data-bs-dismiss="modal" type="button">
                                 Schließen
                               </button>
                             </div>
@@ -783,37 +785,37 @@ function showSponsorsHelp() {
 
                       <div v-if="myjd_downloads" id="myjd_state">
                         <button v-if="myjd_state==='STOPPED_STATE' || myjd_state==='STOPPING'" id="myjd_start"
-                                :disabled="myjd_starting"
                                 :class="{ blinking: myjd_starting }"
+                                :disabled="myjd_starting"
                                 class="btn btn-outline-primary m-1"
                                 @click="myJDstart()">
                           <i v-tippy="'Downloads starten'" class="bi bi-play"></i>
                         </button>
                         <button v-if="myjd_state==='RUNNING'" id="myjd_pause"
-                                :disabled="myjd_pausing"
                                 :class="{ blinking: myjd_pausing }"
+                                :disabled="myjd_pausing"
                                 class="btn btn-outline-primary m-1"
                                 @click="myJDpause(true)">
                           <i v-tippy="'Downloads pausieren'" class="bi bi-pause"></i>
                         </button>
                         <button v-if="myjd_state==='PAUSE'" id="myjd_unpause"
-                                :disabled="myjd_pausing"
                                 :class="{ blinking: myjd_pausing }"
+                                :disabled="myjd_pausing"
                                 class="btn btn-outline-primary m-1"
                                 @click="myJDpause(false)">
                           <i v-tippy="'Downloads fortsetzen'" class="bi bi-skip-end-fill"></i>
                         </button>
                         <button v-if="myjd_state==='RUNNING' || myjd_state==='PAUSE'" id="myjd_stop"
-                                :disabled="myjd_stopping"
                                 :class="{ blinking: myjd_stopping }"
+                                :disabled="myjd_stopping"
                                 class="btn btn-outline-primary m-1"
                                 @click="myJDstop()">
                           <i v-tippy="'Downloads anhalten'" class="bi bi-stop"></i>
                         </button>
                       </div>
                       <button v-if="update_ready" id="myjd_stop"
-                              :disabled="myjd_updating"
                               :class="{ blinking: myjd_updating }"
+                              :disabled="myjd_updating"
                               class="btn btn-outline-primary m-1"
                               @click="myJDupdate()">
                         <i v-if="!myjd_updating" v-tippy="'JDownloader updaten'" class="bi bi-wrench"></i>

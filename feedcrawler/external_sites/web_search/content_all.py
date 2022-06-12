@@ -7,15 +7,6 @@ import re
 
 from bs4 import BeautifulSoup
 
-from feedcrawler import internal
-from feedcrawler.common import check_hoster
-from feedcrawler.common import check_is_site
-from feedcrawler.common import decode_base64
-from feedcrawler.common import is_retail
-from feedcrawler.common import keep_alphanumeric_with_special_characters
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import ListDb, FeedDb
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.shared import unused_get_feed_parameter
@@ -33,8 +24,17 @@ from feedcrawler.external_sites.web_search.sites.content_all_by import by_search
 from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
-from feedcrawler.notifications import notify
-from feedcrawler.url import get_redirected_url, get_url, get_urls_async, post_url
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.common_functions import check_is_site
+from feedcrawler.providers.common_functions import decode_base64
+from feedcrawler.providers.common_functions import is_retail
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import ListDb, FeedDb
+from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.url_functions import get_redirected_url, get_url, get_urls_async, post_url
 
 
 def get_best_result(title):
@@ -58,7 +58,7 @@ def get_best_result(title):
                 best_payload = payload
 
     if not best_match or not best_payload:
-        internal.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        shared_state.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:
@@ -67,7 +67,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return False
     if not is_retail(best_match, True):
-        internal.logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        shared_state.logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:
@@ -76,7 +76,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return best_payload
     else:
-        internal.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
+        shared_state.logger.debug('Bester Treffer für die Suche nach ' + title + ' ist ' + best_match)
         return best_payload
 
 
@@ -233,7 +233,7 @@ def download(payload):
                 )
                 log_entry = '[Suche/Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
                                                                                         "") + ' - [' + site + '] - ' + size + ' - ' + source
-                internal.logger.info(log_entry)
+                shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 return [key]
         else:
@@ -250,7 +250,7 @@ def download(payload):
                 log_entry = '[Suche/Film' + ('/Englisch' if englisch and not retail else '') + (
                     '/Englisch/Retail' if englisch and retail else '') + (
                                 '/Retail' if not englisch and retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
-                internal.logger.info(log_entry)
+                shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 return [key]
     else:

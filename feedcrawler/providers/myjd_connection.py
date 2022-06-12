@@ -8,20 +8,20 @@ import time
 
 from bs4 import BeautifulSoup
 
-import feedcrawler.external_tools.myjdapi
-from feedcrawler import internal
-from feedcrawler.common import check_hoster
-from feedcrawler.common import check_is_site
-from feedcrawler.common import is_device
-from feedcrawler.common import longest_substr
-from feedcrawler.common import readable_size
-from feedcrawler.common import readable_time
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
-from feedcrawler.external_tools.myjdapi import TokenExpiredException, RequestTimeoutException, MYJDException
-from feedcrawler.url import get_redirected_url
-from feedcrawler.url import get_url
+import feedcrawler.external_tools.myjd_api
+from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.common_functions import check_is_site
+from feedcrawler.providers.common_functions import is_device
+from feedcrawler.providers.common_functions import longest_substr
+from feedcrawler.providers.common_functions import readable_size
+from feedcrawler.providers.common_functions import readable_time
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.url_functions import get_redirected_url
+from feedcrawler.providers.url_functions import get_url
 
 
 def split_urls(urls):
@@ -51,7 +51,7 @@ def get_device():
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
-    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
     jd.set_app_key('FeedCrawler')
 
     if myjd_user and myjd_pass and myjd_device:
@@ -60,14 +60,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not internal.synchronize_device():
+            if not shared_state.synchronize_device():
                 print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not internal.synchronize_device():
-            internal.set_device(device)
+        if not shared_state.synchronize_device():
+            shared_state.set_device(device)
         return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -76,38 +76,38 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not internal.synchronize_device():
+            if not shared_state.synchronize_device():
                 print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e.replace("\n", " ")))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not internal.synchronize_device():
-            internal.set_device(device)
+        if not shared_state.synchronize_device():
+            shared_state.set_device(device)
         return True
     else:
         return False
 
 
 def check_device(myjd_user, myjd_pass, myjd_device):
-    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
     jd.set_app_key('FeedCrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        if not internal.synchronize_device():
+        if not shared_state.synchronize_device():
             print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
             return False
         return True
-    if not internal.synchronize_device():
-        internal.set_device(device)
+    if not shared_state.synchronize_device():
+        shared_state.set_device(device)
     return True
 
 
 def get_if_one_device(myjd_user, myjd_pass):
-    jd = feedcrawler.external_tools.myjdapi.Myjdapi()
+    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
     jd.set_app_key('FeedCrawler')
     try:
         jd.connect(myjd_user, myjd_pass)
@@ -123,9 +123,9 @@ def get_if_one_device(myjd_user, myjd_pass):
 
 
 def get_packages_in_downloader():
-    links = internal.device.downloads.query_links()
+    links = shared_state.device.downloads.query_links()
 
-    packages = internal.device.downloads.query_packages([{
+    packages = shared_state.device.downloads.query_packages([{
         "bytesLoaded": True,
         "bytesTotal": True,
         "comment": False,
@@ -155,9 +155,9 @@ def get_packages_in_downloader():
 
 
 def get_packages_in_linkgrabber():
-    links = internal.device.linkgrabber.query_links()
+    links = shared_state.device.linkgrabber.query_links()
 
-    packages = internal.device.linkgrabber.query_packages(params=[
+    packages = shared_state.device.linkgrabber.query_packages(params=[
         {
             "bytesLoaded": True,
             "bytesTotal": True,
@@ -308,18 +308,18 @@ def check_packages_types(links, packages):
 
 def get_state():
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                downloader_state = internal.device.downloadcontroller.get_current_state()
-                grabber_collecting = internal.device.linkgrabber.is_collecting()
+                downloader_state = shared_state.device.downloadcontroller.get_current_state()
+                grabber_collecting = shared_state.device.linkgrabber.is_collecting()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                downloader_state = internal.device.downloadcontroller.get_current_state()
-                grabber_collecting = internal.device.linkgrabber.is_collecting()
+                downloader_state = shared_state.device.downloadcontroller.get_current_state()
+                grabber_collecting = shared_state.device.linkgrabber.is_collecting()
             return [True, downloader_state, grabber_collecting]
         else:
             return False
@@ -349,14 +349,14 @@ def cryptor_url_first(failed_package):
 
 def get_info():
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                downloader_state = internal.device.downloadcontroller.get_current_state()
-                grabber_collecting = internal.device.linkgrabber.is_collecting()
-                internal.device.update.run_update_check()
-                update_ready = internal.device.update.is_update_available()
+                downloader_state = shared_state.device.downloadcontroller.get_current_state()
+                grabber_collecting = shared_state.device.linkgrabber.is_collecting()
+                shared_state.device.update.run_update_check()
+                update_ready = shared_state.device.update.is_update_available()
 
                 packages_in_downloader = get_packages_in_downloader()
                 packages_in_downloader_failed = packages_in_downloader[0]
@@ -369,12 +369,12 @@ def get_info():
                 packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                downloader_state = internal.device.downloadcontroller.get_current_state()
-                grabber_collecting = internal.device.linkgrabber.is_collecting()
-                internal.device.update.run_update_check()
-                update_ready = internal.device.update.is_update_available()
+                downloader_state = shared_state.device.downloadcontroller.get_current_state()
+                grabber_collecting = shared_state.device.linkgrabber.is_collecting()
+                shared_state.device.update.run_update_check()
+                update_ready = shared_state.device.update.is_update_available()
 
                 packages_in_downloader = get_packages_in_downloader()
                 packages_in_downloader_failed = packages_in_downloader[0]
@@ -418,23 +418,23 @@ def get_info():
 
 def set_enabled(enable, linkids, uuid):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.downloads.set_enabled(enable, linkids, uuid)
+                shared_state.device.downloads.set_enabled(enable, linkids, uuid)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.downloads.set_enabled(enable, linkids, uuid)
+                shared_state.device.downloads.set_enabled(enable, linkids, uuid)
             try:
-                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+                shared_state.device.linkgrabber.set_enabled(enable, linkids, uuid)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.linkgrabber.set_enabled(enable, linkids, uuid)
+                shared_state.device.linkgrabber.set_enabled(enable, linkids, uuid)
             return True
         else:
             return False
@@ -445,16 +445,16 @@ def set_enabled(enable, linkids, uuid):
 
 def move_to_downloads(linkids, uuid):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
+                shared_state.device.linkgrabber.move_to_downloadlist(linkids, uuid)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.linkgrabber.move_to_downloadlist(linkids, uuid)
+                shared_state.device.linkgrabber.move_to_downloadlist(linkids, uuid)
             return True
         else:
             return False
@@ -465,16 +465,16 @@ def move_to_downloads(linkids, uuid):
 
 def reset_in_downloads(linkids, uuid):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.downloads.reset_links(linkids, uuid)
+                shared_state.device.downloads.reset_links(linkids, uuid)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.downloads.reset_links(linkids, uuid)
+                shared_state.device.downloads.reset_links(linkids, uuid)
             return True
         else:
             return False
@@ -485,18 +485,18 @@ def reset_in_downloads(linkids, uuid):
 
 def remove_from_linkgrabber(linkids, uuid):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.linkgrabber.remove_links(linkids, uuid)
-                internal.device.downloads.remove_links(linkids, uuid)
+                shared_state.device.linkgrabber.remove_links(linkids, uuid)
+                shared_state.device.downloads.remove_links(linkids, uuid)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.linkgrabber.remove_links(linkids, uuid)
-                internal.device.downloads.remove_links(linkids, uuid)
+                shared_state.device.linkgrabber.remove_links(linkids, uuid)
+                shared_state.device.downloads.remove_links(linkids, uuid)
             return True
         else:
             return False
@@ -507,16 +507,16 @@ def remove_from_linkgrabber(linkids, uuid):
 
 def rename_package_in_linkgrabber(package_id, new_name):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.linkgrabber.rename_package(package_id, new_name)
+                shared_state.device.linkgrabber.rename_package(package_id, new_name)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.linkgrabber.rename_package(package_id, new_name)
+                shared_state.device.linkgrabber.rename_package(package_id, new_name)
             return True
         else:
             return False
@@ -527,18 +527,18 @@ def rename_package_in_linkgrabber(package_id, new_name):
 
 def move_to_new_package(linkids, package_id, new_title, new_path):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
-                internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+                shared_state.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                shared_state.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
-                internal.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
+                shared_state.device.linkgrabber.move_to_new_package(linkids, package_id, new_title, new_path)
+                shared_state.device.downloads.move_to_new_package(linkids, package_id, new_title, new_path)
             return True
         else:
             return False
@@ -549,7 +549,7 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
 
 def download(title, subdir, old_links, password, full_path=None, autostart=False):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
 
         if isinstance(old_links, list):
@@ -576,7 +576,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
             priority = "LOWER"
 
         try:
-            internal.device.linkgrabber.add_links(params=[
+            shared_state.device.linkgrabber.add_links(params=[
                 {
                     "autostart": autostart,
                     "links": links,
@@ -590,9 +590,9 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
                 }])
         except (TokenExpiredException, RequestTimeoutException, MYJDException):
             get_device()
-            if not internal.device or not is_device(internal.device):
+            if not shared_state.device or not is_device(shared_state.device):
                 return False
-            internal.device.linkgrabber.add_links(params=[
+            shared_state.device.linkgrabber.add_links(params=[
                 {
                     "autostart": autostart,
                     "links": links,
@@ -618,11 +618,11 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
 
 def retry_decrypt(linkids, uuid, links):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                package = internal.device.linkgrabber.query_packages(params=[
+                package = shared_state.device.linkgrabber.query_packages(params=[
                     {
                         "availableOfflineCount": True,
                         "availableOnlineCount": True,
@@ -642,9 +642,9 @@ def retry_decrypt(linkids, uuid, links):
                     }])
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                package = internal.device.linkgrabber.query_packages(params=[
+                package = shared_state.device.linkgrabber.query_packages(params=[
                     {
                         "availableOfflineCount": True,
                         "availableOnlineCount": True,
@@ -664,7 +664,7 @@ def retry_decrypt(linkids, uuid, links):
                     }])
             if not package:
                 try:
-                    package = internal.device.downloads.query_packages(params=[
+                    package = shared_state.device.downloads.query_packages(params=[
                         {
                             "bytesLoaded": True,
                             "bytesTotal": True,
@@ -685,9 +685,9 @@ def retry_decrypt(linkids, uuid, links):
                         }])
                 except (TokenExpiredException, RequestTimeoutException, MYJDException):
                     get_device()
-                    if not internal.device or not is_device(internal.device):
+                    if not shared_state.device or not is_device(shared_state.device):
                         return False
-                    package = internal.device.downloads.query_packages(params=[
+                    package = shared_state.device.downloads.query_packages(params=[
                         {
                             "bytesLoaded": True,
                             "bytesTotal": True,
@@ -723,36 +723,36 @@ def retry_decrypt(linkids, uuid, links):
 
 def jdownloader_update():
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.update.restart_and_update()
-            except feedcrawler.external_tools.myjdapi.TokenExpiredException:
+                shared_state.device.update.restart_and_update()
+            except feedcrawler.external_tools.myjd_api.TokenExpiredException:
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.update.restart_and_update()
+                shared_state.device.update.restart_and_update()
             return True
         else:
             return False
-    except feedcrawler.external_tools.myjdapi.MYJDException as e:
+    except feedcrawler.external_tools.myjd_api.MYJDException as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
 
 
 def jdownloader_start():
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.downloadcontroller.start_downloads()
+                shared_state.device.downloadcontroller.start_downloads()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.downloadcontroller.start_downloads()
+                shared_state.device.downloadcontroller.start_downloads()
             return True
         else:
             return False
@@ -763,16 +763,16 @@ def jdownloader_start():
 
 def jdownloader_pause(bl):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.downloadcontroller.pause_downloads(bl)
+                shared_state.device.downloadcontroller.pause_downloads(bl)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.downloadcontroller.pause_downloads(bl)
+                shared_state.device.downloadcontroller.pause_downloads(bl)
             return True
         else:
             return False
@@ -783,16 +783,16 @@ def jdownloader_pause(bl):
 
 def jdownloader_stop():
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
-                internal.device.downloadcontroller.stop_downloads()
+                shared_state.device.downloadcontroller.stop_downloads()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
-                internal.device.downloadcontroller.stop_downloads()
+                shared_state.device.downloadcontroller.stop_downloads()
             return True
         else:
             return False
@@ -817,7 +817,7 @@ def check_failed_link_exists(links):
 
 
 def myjd_download(title, subdir, links, password):
-    if internal.device:
+    if shared_state.device:
         is_episode = re.findall(r'[\w.\s]*S\d{1,2}(E\d{1,2})[\w.\s]*', title)
         if is_episode:
             exists = check_failed_link_exists(links)
@@ -843,13 +843,13 @@ def myjd_download(title, subdir, links, password):
                     new_title = title.replace(new_episode, combined_episodes)
                     new_path = old_path.replace(old_title, new_title)
 
-                    internal.device = move_to_new_package(linkids, package_id, new_title, new_path)
+                    shared_state.device = move_to_new_package(linkids, package_id, new_title, new_path)
                     FeedDb('crawldog').store(new_title, 'added')
                     FeedDb('crawldog').delete(old_title)
                     return True
 
-        internal.device = download(title, subdir, links, password)
-        if internal.device:
+        shared_state.device = download(title, subdir, links, password)
+        if shared_state.device:
             return True
     return False
 
@@ -984,14 +984,14 @@ def package_to_merge(decrypted_package, decrypted_packages, known_packages):
 
 def do_package_merge(title, uuids, linkids):
     try:
-        if not internal.device or not is_device(internal.device):
+        if not shared_state.device or not is_device(shared_state.device):
             get_device()
-        if internal.device:
+        if shared_state.device:
             try:
                 move_to_new_package(linkids, uuids, title, "<jd:packagename>")
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 get_device()
-                if not internal.device or not is_device(internal.device):
+                if not shared_state.device or not is_device(shared_state.device):
                     return False
                 move_to_new_package(linkids, uuids, title, "<jd:packagename>")
             return True

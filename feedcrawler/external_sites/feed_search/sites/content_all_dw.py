@@ -9,14 +9,14 @@ import re
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites.feed_search.content_all as shared_blogs
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import check_download_links
 from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
-from feedcrawler.url import get_url, get_url_headers, get_urls_async, post_url
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.url_functions import get_url, get_url_headers, get_urls_async, post_url
 
 
 class BL:

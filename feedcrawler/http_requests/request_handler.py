@@ -139,9 +139,7 @@ def request(
         ctx.check_hostname = False
         ctx.verify_mode = ssl.CERT_NONE
 
-    handlers = []
-    handlers.append(HTTPSHandler(context=ctx))
-    handlers.append(HTTPCookieProcessor(cookiejar=cookiejar))
+    handlers = [HTTPSHandler(context=ctx), HTTPCookieProcessor(cookiejar=cookiejar)]
 
     if proxies:
         handlers.append(ProxyHandler(proxies=proxies))

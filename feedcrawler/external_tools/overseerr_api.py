@@ -7,15 +7,15 @@ import json
 
 import feedcrawler.external_sites.web_search.content_all
 import feedcrawler.external_sites.web_search.content_shows
-from feedcrawler import internal
-from feedcrawler.common import decode_base64
-from feedcrawler.common import encode_base64
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.http_requests.request_handler import request
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import decode_base64
+from feedcrawler.providers.common_functions import encode_base64
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def overseerr(first_launch):
+def overseerr_search(first_launch):
     db = FeedDb('Overseerr')
     config = CrawlerConfig('Overseerr')
     url = config.get('url')
@@ -33,7 +33,7 @@ def overseerr(first_launch):
     try:
         requested_titles_raw = request(url + '/api/v1/request?take=999', headers={'X-Api-Key': api})
         if requested_titles_raw.status_code != 200:
-            internal.logger.debug("Overseerr API-Key ungültig!")
+            shared_state.logger.debug("Overseerr API-Key ungültig!")
             print(u"Overseerr API-Key ungültig!")
             return [0, 0]
 
@@ -44,12 +44,12 @@ def overseerr(first_launch):
 
         for item in requested_titles['results']:
             if item['status'] == 2:
-                internal.logger.debug("Anfrage mit ID " + str(item['id']) + " ist freigegeben.")
+                shared_state.logger.debug("Anfrage mit ID " + str(item['id']) + " ist freigegeben.")
                 if item['type'] == 'movie':
                     details_raw = request(url + '/api/v1/movie/' + str(item['media']['tmdbId']),
                                           headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
-                        internal.logger.debug(
+                        shared_state.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                         print(u"Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                     else:
@@ -59,27 +59,27 @@ def overseerr(first_launch):
                     details_raw = request(url + '/api/v1/tv/' + str(item['media']['tmdbId']),
                                           headers={'X-Api-Key': api})
                     if details_raw.status_code != 200:
-                        internal.logger.debug(
+                        shared_state.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                         print(u"Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                     else:
                         details = json.loads(details_raw.text)
                         requested_shows.append(details)
             else:
-                internal.logger.debug("Anfrage mit ID " + str(item['id']) + " ist noch nicht freigegeben.")
+                shared_state.logger.debug("Anfrage mit ID " + str(item['id']) + " ist noch nicht freigegeben.")
 
         len_movies = len(requested_movies)
         len_shows = len(requested_shows)
         if first_launch:
-            internal.logger.debug("Erfolgreich mit Overseerr verbunden.")
+            shared_state.logger.debug("Erfolgreich mit Overseerr verbunden.")
             print(u"Erfolgreich mit Overseerr verbunden.")
     except:
-        internal.logger.debug("Overseerr ist nicht erreichbar!")
+        shared_state.logger.debug("Overseerr ist nicht erreichbar!")
         print(u"Overseerr ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
-        internal.logger.debug(
+        shared_state.logger.debug(
             "Die Suchfunktion für Filme nutzt BY, FX, HW und NK, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         item_id = r["id"]
@@ -99,7 +99,7 @@ def overseerr(first_launch):
                 db.store('movie_' + str(item_id), 'added')
 
     if requested_shows:
-        internal.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
+        shared_state.logger.debug("Die Suchfunktion für Serien nutzt SF und SJ, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_shows:
         item_id = r["id"]
         seasons = r['seasons']

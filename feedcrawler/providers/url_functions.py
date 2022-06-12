@@ -6,11 +6,11 @@
 import concurrent.futures
 import datetime
 
-from feedcrawler import internal
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.http_requests.cache_handler import cached_request
 from feedcrawler.http_requests.flaresolverr_handler import get_flaresolverr_url
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 def check_url(start_time):
@@ -19,12 +19,12 @@ def check_url(start_time):
     db_status.reset()
     db_status = FeedDb('site_status')
 
-    for site in internal.sites:
+    for site in shared_state.sites:
         if site in ["SJ", "DJ", "SF", "FF"]:
             last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
             jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
             if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
-                internal.logger.debug(
+                shared_state.logger.debug(
                     "-----------Wartezeit bei " + site + " (6h) nicht verstrichen - überspringe Prüfung!-----------")
                 continue
 

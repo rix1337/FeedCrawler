@@ -5,8 +5,8 @@
 
 import sqlite3
 
-import feedcrawler.common
-from feedcrawler import internal
+import feedcrawler.providers.common_functions
+from feedcrawler.providers import shared_state
 
 
 def get_first(iterable):
@@ -15,7 +15,7 @@ def get_first(iterable):
 
 class FeedDb(object):
     def __init__(self, table):
-        self._conn = sqlite3.connect(internal.dbfile, check_same_thread=False, timeout=10)
+        self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
@@ -96,7 +96,7 @@ class FeedDb(object):
 
 class ListDb(object):
     def __init__(self, table):
-        self._conn = sqlite3.connect(internal.dbfile, check_same_thread=False, timeout=10)
+        self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
@@ -113,7 +113,7 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = feedcrawler.common.keep_alphanumeric_with_special_characters(key)
+        key = feedcrawler.providers.common.keep_alphanumeric_with_special_characters(key)
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -124,14 +124,14 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = feedcrawler.common.keep_alphanumeric_with_special_characters(k)
+                    k = feedcrawler.providers.common.keep_alphanumeric_with_special_characters(k)
                     key = key + (k,)
                     items.append(key)
         else:
             for k in keys:
                 if k:
                     key = ()
-                    k = feedcrawler.common.keep_alphanumeric_with_regex_characters(k)
+                    k = feedcrawler.providers.common.keep_alphanumeric_with_regex_characters(k)
                     key = key + (k,)
                     items.append(key)
         self._conn.execute("DELETE FROM %s" % self._table)

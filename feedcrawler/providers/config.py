@@ -5,7 +5,7 @@
 
 import configparser
 
-from feedcrawler import internal
+from feedcrawler.providers import shared_state
 
 
 class CrawlerConfig(object):
@@ -121,7 +121,7 @@ class CrawlerConfig(object):
     __config__ = []
 
     def __init__(self, section):
-        self._configfile = internal.configfile
+        self._configfile = shared_state.configfile
         self._section = section
         self._config = configparser.RawConfigParser()
         try:

@@ -5,7 +5,7 @@
 
 import setuptools
 
-from feedcrawler.version import get_version
+from feedcrawler.providers.version import get_version
 
 try:
     with open('README.md', encoding='utf-8') as f:

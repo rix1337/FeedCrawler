@@ -64,11 +64,11 @@ function submitLists() {
         <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
       </div>
       <div class="offcanvas-body">
-        <FormKit type="form" #default="{ value }"
-                 id="lists"
+        <FormKit id="lists" #default="{ value }"
                  :actions="false"
-                 messages-class="text-danger"
                  incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
+                 messages-class="text-danger"
+                 type="form"
                  @submit="saveLists()"
         >
           <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
@@ -85,19 +85,20 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Film-Titel'">
-                    <FormKit v-model="store.state.lists.mb.filme" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Filme"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Film-Titel"
+                    <FormKit v-model="store.state.lists.mb.filme"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Filme"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Film-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.settings.mb.regex"
@@ -106,35 +107,37 @@ function submitLists() {
                                            class="link-primary"
                                            @click="showRegExHelp">(RegEx)</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.mb.regex" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Film.*.Titel.*"
+                    <FormKit v-model="store.state.lists.mb.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Film.*.Titel.*"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'"
                        v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Staffeln"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien-Titel"
+                    <FormKit v-model="store.state.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                 </div>
@@ -151,19 +154,20 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Serien-Titel für Episoden.'">
-                    <FormKit v-model="store.state.lists.sj.serien" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Serien"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien-Titel"
+                    <FormKit v-model="store.state.lists.sj.serien"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Serien"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.settings.sj.regex"
@@ -172,18 +176,19 @@ function submitLists() {
                                      class="link-primary"
                                      @click="showRegExHelp">(RegEx)</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.sj.regex" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien.*.Titel.*"
+                    <FormKit v-model="store.state.lists.sj.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien.*.Titel.*"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.lists.sj.staffeln_regex"
@@ -192,35 +197,37 @@ function submitLists() {
                                        class="link-primary"
                                        @click="showRegExHelp">(RegEx)</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-if="store.state.lists.sj.staffeln_regex" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien.*.Titel.*"
+                    <FormKit v-if="store.state.lists.sj.staffeln_regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien.*.Titel.*"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'"
                        v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Staffeln"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien-Titel"
+                    <FormKit v-model="store.state.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                 </div>
@@ -240,19 +247,20 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Serien-Titel für ganze Staffeln.'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Staffeln"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Serien-Titel"
+                    <FormKit v-model="store.state.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Staffeln"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Serien-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                 </div>
@@ -270,19 +278,20 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Doku-Titel'">
-                    <FormKit v-model="store.state.lists.dj.dokus" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Dokus"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Doku-Titel"
+                    <FormKit v-model="store.state.lists.dj.dokus"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Dokus"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Doku-Titel"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                   <div v-if="store.state.settings.dj.regex"
@@ -291,18 +300,19 @@ function submitLists() {
                                     class="link-primary"
                                     @click="showRegExHelp">(RegEx)</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.dj.regex" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. Doku.*.Titel.*"
+                    <FormKit v-model="store.state.lists.dj.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             messages-class="text-danger"
+                             placeholder="Bspw. Doku.*.Titel.*"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                 </div>
@@ -320,19 +330,19 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile eine numerische RSS-Feed-ID'">
-                    <FormKit v-model="store.state.lists.dd.feeds" help-class="text-muted"
-                             messages-class="text-danger"
-                             input-class="liste form-control bg-light mb-4"
-                             label="Feed-IDs"
-                             rows="10"
-                             class="liste form-control bg-light mb-4"
-                             placeholder="Bspw. 12345"
-                             :validation="[['?matches', /^[0-9\n]+$/]]"
+                    <FormKit v-model="store.state.lists.dd.feeds" :validation="[['?matches', /^[0-9\n]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Zahlen eingeben.'
                              }"
-                             validation-visibility="live"
+                             class="liste form-control bg-light mb-4"
+                             help-class="text-muted"
+                             input-class="liste form-control bg-light mb-4"
+                             label="Feed-IDs"
+                             messages-class="text-danger"
+                             placeholder="Bspw. 12345"
+                             rows="10"
                              type="textarea"
+                             validation-visibility="live"
                     />
                   </div>
                 </div>

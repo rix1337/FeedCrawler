@@ -7,13 +7,13 @@ import datetime
 import hashlib
 import re
 
-from feedcrawler import internal
-from feedcrawler.common import check_is_ignored
-from feedcrawler.db import ListDb
-from feedcrawler.myjd import add_decrypt
-from feedcrawler.notifications import notify
-from feedcrawler.url import get_url
-from feedcrawler.url import get_url_headers
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_is_ignored
+from feedcrawler.providers.sqlite_database import ListDb
+from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.notifications import notify
+from feedcrawler.providers.url_functions import get_url
+from feedcrawler.providers.url_functions import get_url_headers
 
 
 def get_series_list(self):
@@ -77,11 +77,11 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
-        internal.logger.debug(
+        shared_state.logger.debug(
             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
 
     if 'added' in storage or 'notdl' in storage:
-        internal.logger.debug(title + " - Release ignoriert (bereits gefunden)")
+        shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
     else:
         if season and episode:
             link = link.replace('&_=', '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
@@ -89,31 +89,31 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
         if download:
             self.db.store(title, 'added')
             log_entry = release_type + title + ' - [' + site + '] - ' + size + ' - ' + source
-            internal.logger.info(log_entry)
+            shared_state.logger.info(log_entry)
             notify([{"text": log_entry, "imdb_id": imdb_id}])
             return log_entry
 
 
 def periodical_task(self):
     if not self.url:
-        internal.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Serien! (" + self.filename + ")")
+        shared_state.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Serien! (" + self.filename + ")")
         return
 
     if self.filename == 'List_ContentShows_Shows_Regex':
         if not self.config.get('regex'):
-            internal.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
+            shared_state.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return
     elif self.filename == 'List_ContentShows_Seasons_Regex':
         if not self.config.get('regex'):
-            internal.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
+            shared_state.logger.debug("Suche für " + self._SITE + "-Regex deaktiviert!")
             return
     elif self.filename == 'List_ContentAll_Seasons':
         if not self.config.get('crawlseasons'):
-            internal.logger.debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
+            shared_state.logger.debug("Suche für " + self._SITE + "-Staffeln deaktiviert!")
             return
 
     if self.empty_list:
-        internal.logger.debug(
+        shared_state.logger.debug(
             "Liste ist leer. Stoppe Suche für Serien!" + self.listtype)
         return
     try:
@@ -146,7 +146,7 @@ def periodical_task(self):
 
             if response:
                 if response["status_code"] == 304:
-                    internal.logger.debug(
+                    shared_state.logger.debug(
                         self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche  Suche ab!")
                     return
                 header = True
@@ -173,11 +173,11 @@ def periodical_task(self):
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
-            if self._SITE == "SF" and not internal.sf_blocked:
+            if self._SITE == "SF" and not shared_state.sf_blocked:
                 print(u"SF hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
-                internal.sf_blocked = True
+                shared_state.sf_blocked = True
             else:
-                internal.logger.debug(
+                shared_state.logger.debug(
                     "Feed ist leer - breche die Suche für diesen Feed ab!")
 
         if feed:
@@ -187,7 +187,7 @@ def periodical_task(self):
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
                 if sha == self.last_sha:
-                    internal.logger.debug(
+                    shared_state.logger.debug(
                         "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                     break
 
@@ -217,7 +217,7 @@ def periodical_task(self):
                                     self.quality = "2160p"
                                 match = check_is_ignored(title, ignore)
                                 if match:
-                                    internal.logger.debug(
+                                    shared_state.logger.debug(
                                         title + " - Release durch Regex gefunden (trotz Filterliste)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
@@ -233,7 +233,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            internal.logger.debug(
+                            shared_state.logger.debug(
                                 "%s - Englische Releases deaktiviert" % title)
 
                     else:
@@ -261,7 +261,7 @@ def periodical_task(self):
                                     self.quality = "2160p"
                                 match = check_is_ignored(title, ignore)
                                 if match:
-                                    internal.logger.debug(
+                                    shared_state.logger.debug(
                                         title + " - Release durch Regex gefunden (trotz Filterliste)")
                                 title = re.sub(r'\[.*\] ', '', post.title)
                                 package = self.parse_download_method(self, series_url, title, language_id)
@@ -277,7 +277,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            internal.logger.debug(
+                            shared_state.logger.debug(
                                 "%s - Englische Releases deaktiviert" % title)
 
                     else:
@@ -297,22 +297,22 @@ def periodical_task(self):
                                 if match:
                                     match = check_is_ignored(title, ignore)
                                     if match:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             title + " - Release ignoriert (aufgrund der Filterliste)")
                                         continue
                                     if self.feedcrawler.get("surround"):
                                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                            internal.logger.debug(
+                                            shared_state.logger.debug(
                                                 title + " - Release ignoriert (kein Mehrkanalton)")
                                             continue
                                     try:
                                         storage = self.db.retrieve_all(title)
                                     except Exception as e:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                         return
                                     if 'added' in storage:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             title + " - Release ignoriert (bereits gefunden)")
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
@@ -328,7 +328,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                             else:
-                                internal.logger.debug(
+                                shared_state.logger.debug(
                                     "%s - Englische Releases deaktiviert" % title)
 
                         else:
@@ -345,23 +345,23 @@ def periodical_task(self):
                                         continue
                                     match = check_is_ignored(title, ignore)
                                     if match:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             title + " Release ignoriert (aufgrund der Filterliste)")
                                         continue
                                     if self.feedcrawler.get("surround"):
                                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', title):
-                                            internal.logger.debug(
+                                            shared_state.logger.debug(
                                                 title + " - Release ignoriert (kein Mehrkanalton)")
                                             continue
                                     title = re.sub(r'\[.*\] ', '', post.title)
                                     try:
                                         storage = self.db.retrieve_all(title)
                                     except Exception as e:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                         return
                                     if 'added' in storage:
-                                        internal.logger.debug(
+                                        shared_state.logger.debug(
                                             title + " - Release ignoriert (bereits gefunden)")
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
@@ -377,7 +377,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                                 else:
-                                    internal.logger.debug(
+                                    shared_state.logger.debug(
                                         "%s - Englische Releases deaktiviert" % title)
 
     if current_set and sha:
@@ -393,7 +393,7 @@ def periodical_task(self):
         try:
             self.cdc.store(self._INTERNAL_NAME + "Headers-" + self.filename, response['headers']['date'])
         except:
-            internal.logger.debug(
+            shared_state.logger.debug(
                 "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
             pass
 

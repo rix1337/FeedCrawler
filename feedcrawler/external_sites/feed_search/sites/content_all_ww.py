@@ -8,15 +8,15 @@ import re
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites.feed_search.content_all as shared_blogs
-from feedcrawler import internal
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import get_download_links
 from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_title
-from feedcrawler.url import get_url, post_url_headers
+from feedcrawler.providers import shared_state
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.url_functions import get_url, post_url_headers
 
 
 class BL:
@@ -102,9 +102,9 @@ def ww_post_url_headers(url, headers=False):
         response = post_url_headers(url, headers, data)
         if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
                                                                                       response["text"]:
-            if not internal.ww_blocked:
+            if not shared_state.ww_blocked:
                 print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
-                internal.ww_blocked = True
+                shared_state.ww_blocked = True
             return ""
         return response
     except:
@@ -118,10 +118,10 @@ def ww_get_download_links(self, content, title):
     try:
         response = get_url(content)
         if not response or "NinjaFirewall 429" in response:
-            if not internal.ww_blocked:
+            if not shared_state.ww_blocked:
                 print(
                     u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
-                internal.ww_blocked = True
+                shared_state.ww_blocked = True
             return False
         links = BeautifulSoup(response, 'html5lib').findAll("div", {"id": "download-links"})
         for link in links:

@@ -8,21 +8,21 @@ import re
 
 from bs4 import BeautifulSoup
 
-from feedcrawler.common import check_is_ignored
-from feedcrawler.common import check_is_site
-from feedcrawler.common import encode_base64
-from feedcrawler.common import keep_alphanumeric_with_special_characters
-from feedcrawler.common import simplified_search_term_in_title
-from feedcrawler.config import CrawlerConfig
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
 from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
-from feedcrawler.url import get_url
-from feedcrawler.url import get_urls_async
-from feedcrawler.url import post_url
+from feedcrawler.providers.common_functions import check_is_ignored
+from feedcrawler.providers.common_functions import check_is_site
+from feedcrawler.providers.common_functions import encode_base64
+from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.url_functions import get_url
+from feedcrawler.providers.url_functions import get_urls_async
+from feedcrawler.providers.url_functions import post_url
 
 
 def search_web(title, only_content_all=False, only_content_shows=False, only_fast=False, only_slow=False):

@@ -377,16 +377,14 @@ class Linkgrabber:
 
     def set_enabled(self, enable, links_ids, packages_ids):
         """
+        Enable or disable packages.
 
-        My guess is that it Enables/Disables a download, but i haven't got it working.
-
-        :param params: List with a boolean (enable/disable download) and a list of links and packages UUIDs.
         :param enable: Enable or disable package.
         :type: boolean
-        :param packages_ids: Packages UUID.
-        :type: list of strings.
         :param links_ids: Links UUID.
         :type: list of strings
+        :param packages_ids: Packages UUID.
+        :type: list of strings.
         """
         params = [enable, links_ids, packages_ids]
         resp = self.device.action(self.url + "/setEnabled", params)
@@ -659,16 +657,14 @@ class Downloads:
 
     def set_enabled(self, enable, links_ids, packages_ids):
         """
+        Enable or disable packages.
 
-        My guess is that it Enables/Disables a download, but i haven't got it working.
-
-        :param params: List with a boolean (enable/disable download) and a list of links and packages UUIDs.
         :param enable: Enable or disable package.
         :type: boolean
-        :param packages_ids: Packages UUID.
-        :type: list of strings.
         :param links_ids: Links UUID.
         :type: list of strings
+        :param packages_ids: Packages UUID.
+        :type: list of strings.
         """
         params = [enable, links_ids, packages_ids]
         resp = self.device.action(self.url + "/setEnabled", params)
@@ -831,7 +827,7 @@ class Myjdapi:
 
     def __init__(self):
         """
-        This functions initializates the myjdapi object.
+        This functions initializates the myjd_api object.
 
         """
         self.__request_id = int(time.time() * 1000)
