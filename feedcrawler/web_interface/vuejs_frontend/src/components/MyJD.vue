@@ -469,7 +469,10 @@ function showSponsorsHelp() {
                       <div v-for="x in currentMyJDPage" class="myjd-items">
                         <div class="row m-2">
                           <div class="myjd-downloads">
-                            <div v-if="x.type==='online'" class="card bg-success">
+                            <div v-if="x.type==='online'" class="card"
+                                 :class="{ 'bg-success': x.enabled,
+                                           'bg-secondary': !x.enabled
+                                        }">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>
@@ -534,7 +537,10 @@ function showSponsorsHelp() {
                           </div>
 
                           <div class="myjd-decrypted">
-                            <div v-if="x.type==='decrypted'" class="card bg-warning">
+                            <div v-if="x.type==='decrypted'" class="card"
+                                 :class="{ 'bg-warning': x.enabled,
+                                           'bg-secondary': !x.enabled
+                                        }">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>

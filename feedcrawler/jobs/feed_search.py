@@ -208,6 +208,17 @@ def crawler(global_variables, remove_jf_time, test_run):
                 elif myjd_update_ready:
                     print(
                         "JDownloader Update steht bereit, aber JDownloader ist aktiv.\nFühre das Update nicht automatisch durch.")
+            hide_donation_banner = CrawlerConfig('SponsorsHelper').get('hide_donation_banner')
+            if hide_donation_banner:
+                current_donation_banner_setting = shared_state.device.config.get(
+                    'org.jdownloader.settings.GraphicalUserInterfaceSettings',
+                    'null',
+                    'DonateButtonState')
+                if current_donation_banner_setting != "CUSTOM_HIDDEN":
+                    print("Blende das Spenden-Banner im JDownloader aus.")
+                    shared_state.device.config.set('org.jdownloader.settings.GraphicalUserInterfaceSettings',
+                                                   'null',
+                                                   'DonateButtonState', "CUSTOM_HIDDEN")
 
             # Clean exit if test run active
             if test_run:

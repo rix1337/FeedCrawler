@@ -1117,6 +1117,16 @@ function submitSettings() {
                            type="number"
                            validation="required|between:1,10"
                            validation-visibility="live"/>
+                  <h5>Spenden-Banner automatisch ausblenden</h5> <!-- Checkbox labels are not placed above -->
+                  <label class="form-check form-switch">
+                    <FormKit v-model="store.state.settings.sponsors_helper.hide_donation_banner"
+                             help="Wenn aktiviert, wird das Spenden-Banner im JDownloader automatisch ausgeblendet!"
+                             help-class="text-muted"
+                             input-class="form-check-input"
+                             messages-class="text-danger"
+                             outer-class="mb-4"
+                             type="checkbox"/>
+                  </label>
                 </div>
               </div>
             </div>

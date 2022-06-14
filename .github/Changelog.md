@@ -7,6 +7,8 @@
 ### Changelog FeedCrawler:
 
 - **15.0.0** DW Web-Suche hinzugefügt.
+- **15.0.0** Neue Funktion zum automatischen Ausblenden des JDownloader-Spendenbanners für Sponsoren implementiert.
+- **15.0.0** Hinterlege Deaktivierte Pakete grau
 - **15.0.0** Korrektur in der Auswertung der Filterlisten
 - **15.0.0** Korrektur in der Prüfung der Verbindung zu My JDownloader beim Start
 - **15.0.0** Interne Paketstruktur erneut überarbeitet.

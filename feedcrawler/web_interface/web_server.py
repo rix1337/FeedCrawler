@@ -383,6 +383,7 @@ def app_container():
                     },
                     "sponsors_helper": {
                         "max_attempts": to_int(helper_conf.get("max_attempts")),
+                        "hide_donation_banner": helper_conf.get("hide_donation_banner"),
                     }
                 }
             }
@@ -551,6 +552,7 @@ def app_container():
             if to_int(max_attempts) > 10:
                 max_attempts = '10'
             section.save("max_attempts", max_attempts)
+            section.save("hide_donation_banner", to_str(data['sponsors_helper']['hide_donation_banner']))
 
             return "Success"
         except:

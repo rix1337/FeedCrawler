@@ -116,6 +116,7 @@ class CrawlerConfig(object):
         ],
         'SponsorsHelper': [
             ("max_attempts", "int", "3"),
+            ("hide_donation_banner", "bool", "False")
         ]
     }
     __config__ = []
