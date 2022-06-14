@@ -11,6 +11,7 @@ from bs4 import BeautifulSoup
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
 from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_dw import dw_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
@@ -33,6 +34,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
 
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
+    dw = hostnames.get('dw')
     fx = hostnames.get('fx')
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
@@ -70,6 +72,10 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             by_search = 'https://' + by + '/?q=' + bl_query
         else:
             by_search = None
+        if dw:
+            dw_search = 'https://' + dw + '/?s=' + bl_query + '&orderby=date&order=desc'
+        else:
+            dw_search = None
         if fx:
             fx_search = 'https://' + fx + '/?s=' + bl_query
         else:
@@ -85,15 +91,18 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             by_search = None
             hw_search = None
 
-        async_results = get_urls_async([by_search, fx_search, hw_search])
+        async_results = get_urls_async([by_search, dw_search, fx_search, hw_search])
 
         by_results = []
+        dw_results = []
         fx_results = []
         hw_results = []
 
         for res in async_results:
             if check_is_site(res[1]) == 'BY':
                 by_results = by_search_results(res[0], by, quality)
+            elif check_is_site(res[1]) == 'DW':
+                dw_results = dw_search_results(res[0], quality)
             elif check_is_site(res[1]) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
             elif check_is_site(res[1]) == 'HW':
@@ -120,6 +129,13 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             # title is intentionally sent with the password, so we can detect the correct link when downloading
             unrated.append([rate(result[0], ignore), encode_base64(result[1] + "|" + password + "|" + result[0]),
                             result[0] + " (FX)"])
+
+        password = dw.split('.')[0]
+        for result in dw_results:
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
+            unrated.append(
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (DW)"])
 
         password = hw.split('.')[0]
         for result in hw_results:

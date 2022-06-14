@@ -12,6 +12,7 @@ import feedcrawler.external_sites.feed_search.content_all as shared_blogs
 from feedcrawler.external_sites.feed_search.shared import FakeFeedParserDict
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import check_download_links
+from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
 from feedcrawler.providers.config import CrawlerConfig
@@ -172,3 +173,65 @@ def dw_feed_enricher(feed):
     feed = {"entries": entries}
     feed = FakeFeedParserDict(feed)
     return feed
+
+
+def dw_search_results(content, resolution):
+    content = BeautifulSoup(content, 'html5lib')
+    articles = content.findAll("article")
+
+    async_results = []
+    for article in articles:
+        try:
+            title = article.find("h4").find("a")["title"].replace(" ", ".").strip()
+            if ".xxx." not in title.lower():
+                link = article.find("h4").find("a")["href"]
+                if resolution and resolution.lower() not in title.lower():
+                    if "480p" in resolution:
+                        if check_release_not_sd(title):
+                            continue
+                    else:
+                        continue
+                async_results.append(link)
+        except:
+            pass
+    async_results = get_urls_async(async_results)
+
+    results = []
+
+    for result in async_results:
+        try:
+            details = BeautifulSoup(result[0], 'html5lib')
+
+            title = details.find("h1").text.strip()
+
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(title, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(details.find("strong", text=re.compile(r"(size|größe)",
+                                                                                     re.IGNORECASE)).nextSibling.nextSibling.text.split(
+                    "|")[-1].strip())
+            except:
+                size = ""
+
+            try:
+                source = result[1]
+            except:
+                source = ""
+
+            result = {
+                "title": title,
+                "link": result[1],
+                "size": size,
+                "source": source,
+                "imdb_id": imdb_id
+            }
+
+            results.append(result)
+        except:
+            pass
+
+    return results

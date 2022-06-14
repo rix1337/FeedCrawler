@@ -1044,10 +1044,13 @@ def app_container():
             pass
         return abort(400, "Failed")
 
-    @app.post(prefix + "/api/internal_remove/<name>")
+    @app.post(prefix + "/api/internal_remove/")
     @auth_basic(is_authenticated_user)
-    def internal_remove(name):
+    def internal_remove():
         try:
+            data = request.body.read().decode("utf-8")
+            payload = json.loads(data)
+            name = payload["name"]
             delete = remove_decrypt(name)
             if delete:
                 return "Success"
@@ -1655,8 +1658,6 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
     def to_download(payload):
         try:
-            global already_added
-
             try:
                 payload = decode_base64(payload.replace("%3D", "=")).split("|")
             except:
@@ -1675,151 +1676,176 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
                 except:
                     ids = False
 
-                FeedDb('crawldog').store(package_name, 'added')
-                if shared_state.device:
-                    if ids:
-                        try:
-                            ids = ids.replace("%20", "").split(";")
-                            linkids = ids[0]
-                            uuids = ids[1]
-                        except:
-                            linkids = False
-                            uuids = False
-                        if ids and uuids:
-                            linkids_raw = ast.literal_eval(linkids)
-                            linkids = []
-                            if isinstance(linkids_raw, (list, tuple)):
-                                for linkid in linkids_raw:
-                                    linkids.append(linkid)
-                            else:
-                                linkids.append(linkids_raw)
-                            uuids_raw = ast.literal_eval(uuids)
-                            uuids = []
-                            if isinstance(uuids_raw, (list, tuple)):
-                                for uuid in uuids_raw:
-                                    uuids.append(uuid)
-                            else:
-                                uuids.append(uuids_raw)
+            attempt_download(package_name, links, password, ids)
+        except:
+            pass
+        return abort(400, "Failed")
 
-                            remove_from_linkgrabber(linkids, uuids)
-                            remove_decrypt(package_name)
-                    else:
-                        is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
-                        if not is_episode:
-                            re_name = rreplace(package_name.lower(), "-", ".*", 1)
-                            re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
-                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
-                            if season_string:
-                                re_name = re_name.replace(season_string[0], season_string[0] + '.*')
-                            codec_tags = [".h264", ".x264"]
-                            for tag in codec_tags:
-                                re_name = re_name.replace(tag, ".*264")
-                            web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
-                            for tag in web_tags:
-                                re_name = re_name.replace(tag, ".web.*")
-                            multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
-                            if multigroup:
-                                re_name = re_name.replace(multigroup[0][0],
-                                                          '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
-                        else:
-                            re_name = package_name
-                            season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+    @app.post(prefix + "/sponsors_helper/to_download/")
+    # ToDo switch Helper to this
+    def to_download():
+        try:
+            data = request.body.read().decode("utf-8")
+            payload = json.loads(data)
 
-                        if season_string:
-                            season_string = season_string[0].replace("s", "S")
-                        else:
-                            season_string = "^unmatchable$"
-                        try:
-                            packages = get_packages_in_linkgrabber()
-                        except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                            get_device()
-                            if not shared_state.device or not is_device(shared_state.device):
-                                return abort(500, "Failed")
-                            packages = get_packages_in_linkgrabber()
+            package_name = payload["package_name"]
+            links = payload["links"]
+            password = payload["password"]
+            ids = payload["ids"]
 
-                        if packages:
-                            failed = packages[0]
-                            offline = packages[1]
-
-                            def check_if_broken(check_packages):
-                                if check_packages:
-                                    for check_package in check_packages:
-                                        if re.match(re.compile(re_name), check_package['name'].lower()):
-                                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
-                                                                 check_package['name'])
-                                            if episode:
-                                                FeedDb('episode_remover').store(package_name,
-                                                                                str(int(episode[0])))
-                                            linkids = check_package['linkids']
-                                            uuids = [check_package['uuid']]
-                                            remove_from_linkgrabber(linkids, uuids)
-                                            remove_decrypt(package_name)
-                                            return True
-
-                            try:
-                                check_if_broken(failed)
-                                check_if_broken(offline)
-                            except:
-                                pass
-
-                        packages = get_to_decrypt()
-                        if packages:
-                            for package in packages:
-                                if name == package["name"].strip():
-                                    name = package["name"]
-                                elif re.match(re.compile(re_name),
-                                              package['name'].lower().strip().replace(".untouched",
-                                                                                      ".*").replace(
-                                                  "dd+51",
-                                                  "dd.51")):
-                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                                    remove_decrypt(package['name'])
-                                    if episode:
-                                        episode_to_keep = str(int(episode[0]))
-                                        episode = str(episode[0])
-                                        if len(episode) == 1:
-                                            episode = "0" + episode
-                                        name = name.replace(season_string + ".",
-                                                            season_string + "E" + episode + ".")
-                                        episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
-                                        if episode_in_remover:
-                                            episode_to_keep = episode_in_remover + "|" + episode_to_keep
-                                            FeedDb('episode_remover').delete(package_name)
-                                            time.sleep(1)
-                                        FeedDb('episode_remover').store(package_name, episode_to_keep)
-                                        break
-                        time.sleep(1)
-                        remove_decrypt(name)
-                    try:
-                        epoch = int(time.time())
-                        for item in already_added:
-                            if item[0] == package_name:
-                                if int(item[1]) + 30 > epoch:
-                                    print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
-                                    return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt", 400
-                                else:
-                                    already_added.remove(item)
-
-                        download(package_name, "FeedCrawler", links, password)
-                        db = FeedDb('FeedCrawler')
-                        if not db.retrieve(name):
-                            db.store(name, 'added')
-                        try:
-                            notify([{"text": "[CAPTCHA gelöst] - " + name}])
-                        except:
-                            print(u"Benachrichtigung konnte nicht versendet werden!")
-                        print(u"[CAPTCHA gelöst] - " + name)
-                        already_added.append([name, str(epoch)])
-                        return "<script type='text/javascript'>" \
-                               "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                               "[CAPTCHA gelöst] - " + name
-                    except:
-                        print(name + u" konnte nicht hinzugefügt werden!")
+            result = attempt_download(package_name, links, password, ids)
+            return result
         except:
             pass
         return abort(400, "Failed")
 
     Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
+
+
+def attempt_download(package_name, links, password, ids):
+    # ToDo test this still works
+    global already_added
+
+    FeedDb('crawldog').store(package_name, 'added')
+    if shared_state.device:
+        if ids:
+            try:
+                ids = ids.replace("%20", "").split(";")
+                linkids = ids[0]
+                uuids = ids[1]
+            except:
+                linkids = False
+                uuids = False
+            if ids and uuids:
+                linkids_raw = ast.literal_eval(linkids)
+                linkids = []
+                if isinstance(linkids_raw, (list, tuple)):
+                    for linkid in linkids_raw:
+                        linkids.append(linkid)
+                else:
+                    linkids.append(linkids_raw)
+                uuids_raw = ast.literal_eval(uuids)
+                uuids = []
+                if isinstance(uuids_raw, (list, tuple)):
+                    for uuid in uuids_raw:
+                        uuids.append(uuid)
+                else:
+                    uuids.append(uuids_raw)
+
+                remove_from_linkgrabber(linkids, uuids)
+                remove_decrypt(package_name)
+        else:
+            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
+            if not is_episode:
+                re_name = rreplace(package_name.lower(), "-", ".*", 1)
+                re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
+                season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                if season_string:
+                    re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                codec_tags = [".h264", ".x264"]
+                for tag in codec_tags:
+                    re_name = re_name.replace(tag, ".*264")
+                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                for tag in web_tags:
+                    re_name = re_name.replace(tag, ".web.*")
+                multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
+                if multigroup:
+                    re_name = re_name.replace(multigroup[0][0],
+                                              '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+            else:
+                re_name = package_name
+                season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+
+            if season_string:
+                season_string = season_string[0].replace("s", "S")
+            else:
+                season_string = "^unmatchable$"
+            try:
+                packages = get_packages_in_linkgrabber()
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                get_device()
+                if not shared_state.device or not is_device(shared_state.device):
+                    return abort(500, "Failed")
+                packages = get_packages_in_linkgrabber()
+
+            if packages:
+                failed = packages[0]
+                offline = packages[1]
+
+                def check_if_broken(check_packages):
+                    if check_packages:
+                        for check_package in check_packages:
+                            if re.match(re.compile(re_name), check_package['name'].lower()):
+                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
+                                                     check_package['name'])
+                                if episode:
+                                    FeedDb('episode_remover').store(package_name,
+                                                                    str(int(episode[0])))
+                                linkids = check_package['linkids']
+                                uuids = [check_package['uuid']]
+                                remove_from_linkgrabber(linkids, uuids)
+                                remove_decrypt(package_name)
+                                return True
+
+                try:
+                    check_if_broken(failed)
+                    check_if_broken(offline)
+                except:
+                    pass
+
+            packages = get_to_decrypt()
+            if packages:
+                for package in packages:
+                    if name == package["name"].strip():
+                        name = package["name"]
+                    elif re.match(re.compile(re_name),
+                                  package['name'].lower().strip().replace(".untouched",
+                                                                          ".*").replace(
+                                      "dd+51",
+                                      "dd.51")):
+                        episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                        remove_decrypt(package['name'])
+                        if episode:
+                            episode_to_keep = str(int(episode[0]))
+                            episode = str(episode[0])
+                            if len(episode) == 1:
+                                episode = "0" + episode
+                            name = name.replace(season_string + ".",
+                                                season_string + "E" + episode + ".")
+                            episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
+                            if episode_in_remover:
+                                episode_to_keep = episode_in_remover + "|" + episode_to_keep
+                                FeedDb('episode_remover').delete(package_name)
+                                time.sleep(1)
+                            FeedDb('episode_remover').store(package_name, episode_to_keep)
+                            break
+            time.sleep(1)
+            remove_decrypt(name)
+        try:
+            epoch = int(time.time())
+            for item in already_added:
+                if item[0] == package_name:
+                    if int(item[1]) + 30 > epoch:
+                        print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
+                        return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt"
+                    else:
+                        already_added.remove(item)
+
+            download(package_name, "FeedCrawler", links, password)
+            db = FeedDb('FeedCrawler')
+            if not db.retrieve(name):
+                db.store(name, 'added')
+            try:
+                notify([{"text": "[CAPTCHA gelöst] - " + name}])
+            except:
+                print(u"Benachrichtigung konnte nicht versendet werden!")
+            print(u"[CAPTCHA gelöst] - " + name)
+            already_added.append([name, str(epoch)])
+            return "<script type='text/javascript'>" \
+                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                   "[CAPTCHA gelöst] - " + name
+        except:
+            print(name + u" konnte nicht hinzugefügt werden!")
 
 
 def start():

@@ -338,7 +338,7 @@ function myJDreset(linkids, uuid, name) {
 }
 
 function internalRemove(name) {
-  axios.post('api/internal_remove/' + name)
+  axios.post('api/internal_remove/', {"name": name})
       .then(function () {
         toast.success('Download ' + name + ' gelöscht!')
         if (to_decrypt.value) {

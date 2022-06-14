@@ -8,11 +8,13 @@ import re
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites.feed_search.sites.content_all_by as content_all_by_feed_search
+import feedcrawler.external_sites.feed_search.sites.content_all_dw as content_all_dw_feed_search
 import feedcrawler.external_sites.feed_search.sites.content_all_fx as content_all_fx_feed_search
 import feedcrawler.external_sites.feed_search.sites.content_all_hw as content_all_hw_feed_search
 import feedcrawler.external_sites.feed_search.sites.content_all_nk as content_all_nk_feed_search
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
+from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.feed_search.shared import unused_get_feed_parameter
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
@@ -110,7 +112,8 @@ def download(payload):
                 imdb_id = ""
 
             try:
-                size = details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip()
+                size = standardize_size_value(
+                    details.findAll("td", {"align": "LEFT"})[-1].text.split(" ", 1)[1].strip())
             except:
                 size = ""
 
@@ -127,23 +130,23 @@ def download(payload):
                     link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
-        elif "NK" in site:
-            key = soup.find("span", {"class": "subtitle"}).text
-            details = soup.find("div", {"class": "article"})
+        elif "DW" in site:
+            key = soup.find("h1").text.strip()
+
             try:
-                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_link = soup.find("a", href=re.compile("imdb.com"))
                 imdb_id = get_imdb_id_from_link(key, imdb_link["href"])
             except:
                 imdb_id = ""
 
             try:
-                size = details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip()
+                size = standardize_size_value(soup.find("strong", text=re.compile(r"(size|größe)",
+                                                                                  re.IGNORECASE)).nextSibling.nextSibling.text.split(
+                    "|")[-1].strip())
             except:
                 size = ""
 
-            hosters = soup.find_all("a", href=re.compile("/go/"))
-            for hoster in hosters:
-                url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
+            password = payload[1]
         elif "FX" in site:
             key = payload[2]
         elif "HW" in site:
@@ -155,9 +158,10 @@ def download(payload):
                 imdb_id = ""
 
             try:
-                size = soup.find("strong",
-                                 text=re.compile(
-                                     r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|", "").strip()
+                size = standardize_size_value(soup.find("strong",
+                                                        text=re.compile(
+                                                            r"(size|größe)", re.IGNORECASE)).next.next.text.replace("|",
+                                                                                                                    "").strip())
             except:
                 size = ""
 
@@ -167,6 +171,24 @@ def download(payload):
                 links_string += str(link)
             url_hosters = re.findall(r'href="([^"\'>]*)".+?(.+?)<', links_string)
             password = payload[1]
+        elif "NK" in site:
+            key = soup.find("span", {"class": "subtitle"}).text
+            details = soup.find("div", {"class": "article"})
+            try:
+                imdb_link = details.find("a", href=re.compile("imdb.com"))
+                imdb_id = get_imdb_id_from_link(key, imdb_link["href"])
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(
+                    details.find("span", text=re.compile(r"(size|größe)", re.IGNORECASE)).next.next.strip())
+            except:
+                size = ""
+
+            hosters = soup.find_all("a", href=re.compile("/go/"))
+            for hoster in hosters:
+                url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
         else:
             return False
 
@@ -176,10 +198,15 @@ def download(payload):
                 unused = ""
 
             details = content_all_fx_feed_search.fx_get_details(response, key)
-            size = details["size"]
+            size = standardize_size_value(details["size"])
             imdb_id = details["imdb_id"]
-
             download_links = content_all_fx_feed_search.fx_get_download_links(FX, response, key)
+        elif "DW" in site:
+            class DW:
+                url = source
+                hoster_fallback = config.get("hoster_fallback")
+
+            download_links = content_all_dw_feed_search.dw_get_download_links(DW, str(soup), key)
         else:
             for url_hoster in reversed(url_hosters):
                 try:
@@ -254,6 +281,7 @@ def get_search_results_for_feed_search(self, bl_query):
     unused_get_feed_parameter(self)
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
+    dw = hostnames.get('dw')
     fx = hostnames.get('fx')
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
@@ -267,6 +295,10 @@ def get_search_results_for_feed_search(self, bl_query):
         by_search = 'https://' + by + '/?q=' + bl_query
     else:
         by_search = None
+    if dw:
+        dw_search = 'https://' + dw + '/?s=' + bl_query + '&orderby=date&order=desc'
+    else:
+        dw_search = None
     if fx:
         fx_search = 'https://' + fx + '/?s=' + bl_query
     else:
@@ -276,15 +308,18 @@ def get_search_results_for_feed_search(self, bl_query):
     else:
         hw_search = None
 
-    async_results = get_urls_async([by_search, fx_search, hw_search])
+    async_results = get_urls_async([by_search, dw_search, fx_search, hw_search])
 
     by_results = []
+    dw_results = []
     fx_results = []
     hw_results = []
 
     for res in async_results:
         if check_is_site(res[1]) == 'BY':
             by_results = content_all_by_feed_search.by_search_results(res[0], by, quality)
+        elif check_is_site(res[1]) == 'DW':
+            dw_results = content_all_dw_feed_search.dw_search_results(res[0], quality)
         elif check_is_site(res[1]) == 'FX':
             fx_results = content_all_fx_feed_search.fx_search_results(
                 content_all_fx_feed_search.fx_content_to_soup(res[0]), bl_query)
@@ -307,6 +342,20 @@ def get_search_results_for_feed_search(self, bl_query):
             "link": result["link"],
             "password": password,
             "site": "BY",
+            "size": result["size"],
+            "source": result["source"],
+            "imdb_id": result["imdb_id"]
+        })
+
+    password = dw.split('.')[0]
+    for result in dw_results:
+        if "480p" in quality and check_release_not_sd(result["title"]):
+            continue
+        search_results.append({
+            "title": result["title"],
+            "link": result["link"],
+            "password": password,
+            "site": "DW",
             "size": result["size"],
             "source": result["source"],
             "imdb_id": result["imdb_id"]
