@@ -7,23 +7,16 @@ import re
 
 from bs4 import BeautifulSoup
 
+import feedcrawler.external_sites.feed_search.sites.content_all_by as content_all_by_feed_search
+import feedcrawler.external_sites.feed_search.sites.content_all_fx as content_all_fx_feed_search
+import feedcrawler.external_sites.feed_search.sites.content_all_hw as content_all_hw_feed_search
+import feedcrawler.external_sites.feed_search.sites.content_all_nk as content_all_nk_feed_search
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.shared import unused_get_feed_parameter
-from feedcrawler.external_sites.feed_search.sites.content_all_by import by_search_results
-from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
-from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_details
-from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_download_links
-from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_search_results
-from feedcrawler.external_sites.feed_search.sites.content_all_hw import hw_search_results
-from feedcrawler.external_sites.feed_search.sites.content_all_nk import nk_search_results
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_content
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_link
 from feedcrawler.external_sites.web_search.shared import search_web, rate
-from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
-from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
-from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
-from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
 from feedcrawler.providers.common_functions import check_is_site
@@ -182,11 +175,11 @@ def download(payload):
             class FX:
                 unused = ""
 
-            details = fx_get_details(response, key)
+            details = content_all_fx_feed_search.fx_get_details(response, key)
             size = details["size"]
             imdb_id = details["imdb_id"]
 
-            download_links = fx_get_download_links(FX, response, key)
+            download_links = content_all_fx_feed_search.fx_get_download_links(FX, response, key)
         else:
             for url_hoster in reversed(url_hosters):
                 try:
@@ -291,16 +284,17 @@ def get_search_results_for_feed_search(self, bl_query):
 
     for res in async_results:
         if check_is_site(res[1]) == 'BY':
-            by_results = by_search_results(res[0], by, quality)
+            by_results = content_all_by_feed_search.by_search_results(res[0], by, quality)
         elif check_is_site(res[1]) == 'FX':
-            fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
+            fx_results = content_all_fx_feed_search.fx_search_results(
+                content_all_fx_feed_search.fx_content_to_soup(res[0]), bl_query)
         elif check_is_site(res[1]) == 'HW':
-            hw_results = hw_search_results(res[0], quality)
+            hw_results = content_all_hw_feed_search.hw_search_results(res[0], quality)
 
     if nk:
         nk_search = post_url('https://' + nk + "/search",
                              data={'search': bl_query.replace("+", " ")})
-        nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
+        nk_results = content_all_nk_feed_search.nk_search_results(nk_search, 'https://' + nk + '/', quality)
     else:
         nk_results = []
 

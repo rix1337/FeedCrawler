@@ -6,11 +6,11 @@
 import hashlib
 import re
 
+import feedcrawler.external_sites.feed_search.sites.content_all_by as content_all_by
+import feedcrawler.external_sites.feed_search.sites.content_all_fx as content_all_fx
+import feedcrawler.external_sites.feed_search.sites.content_all_hw as content_all_hw
+import feedcrawler.external_sites.feed_search.sites.content_all_nk as content_all_nk
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
-from feedcrawler.external_sites.feed_search.sites.content_all_by import by_page_download_link
-from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_get_download_links
-from feedcrawler.external_sites.feed_search.sites.content_all_hw import hw_get_download_links
-from feedcrawler.external_sites.feed_search.sites.content_all_nk import nk_page_download_link
 from feedcrawler.external_sites.metadata.imdb import get_rating
 from feedcrawler.external_sites.metadata.imdb import get_votes
 from feedcrawler.external_sites.metadata.imdb import get_year
@@ -363,18 +363,18 @@ def download_hevc(self, title, original_imdb_id):
             imdb_id = result["imdb_id"]
 
             if site == "BY":
-                get_download_links_method = by_page_download_link
+                get_download_links_method = content_all_by.by_page_download_link
                 download_method = myjd_download
             elif site == "FX":
                 link = get_url(link)
-                get_download_links_method = fx_get_download_links
+                get_download_links_method = content_all_fx.fx_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif site == "HW":
                 link = get_url(link)
-                get_download_links_method = hw_get_download_links
+                get_download_links_method = content_all_hw.hw_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif site == "NK":
-                get_download_links_method = nk_page_download_link
+                get_download_links_method = content_all_nk.nk_page_download_link
                 download_method = myjd_download
             else:
                 continue
@@ -511,18 +511,18 @@ def download_dual_language(self, title, original_imdb_id):
             imdb_id = result["imdb_id"]
 
             if site == "BY":
-                get_download_links_method = by_page_download_link
+                get_download_links_method = content_all_by.by_page_download_link
                 download_method = myjd_download
             elif site == "FX":
                 link = get_url(link)
-                get_download_links_method = fx_get_download_links
+                get_download_links_method = content_all_fx.fx_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif site == "HW":
                 link = get_url(link)
-                get_download_links_method = hw_get_download_links
+                get_download_links_method = content_all_hw.hw_get_download_links
                 download_method = add_decrypt_instead_of_download
             elif site == "NK":
-                get_download_links_method = nk_page_download_link
+                get_download_links_method = content_all_nk.nk_page_download_link
                 download_method = myjd_download
             else:
                 continue

@@ -113,7 +113,7 @@ class ListDb(object):
         return items if items else None
 
     def store(self, key):
-        key = feedcrawler.providers.common.keep_alphanumeric_with_special_characters(key)
+        key = feedcrawler.providers.common_functions.keep_alphanumeric_with_special_characters(key)
         self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
                            (self._table, key))
         self._conn.commit()
@@ -124,14 +124,14 @@ class ListDb(object):
             for k in keys:
                 if k:
                     key = ()
-                    k = feedcrawler.providers.common.keep_alphanumeric_with_special_characters(k)
+                    k = feedcrawler.providers.common_functions.keep_alphanumeric_with_special_characters(k)
                     key = key + (k,)
                     items.append(key)
         else:
             for k in keys:
                 if k:
                     key = ()
-                    k = feedcrawler.providers.common.keep_alphanumeric_with_regex_characters(k)
+                    k = feedcrawler.providers.common_functions.keep_alphanumeric_with_regex_characters(k)
                     key = key + (k,)
                     items.append(key)
         self._conn.execute("DELETE FROM %s" % self._table)
