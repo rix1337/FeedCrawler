@@ -7,6 +7,7 @@
 ### Changelog FeedCrawler:
 
 - **15.0.0** DW Web-Suche hinzugefügt.
+- **15.0.0** **Hinweis:** Das Passwort für das Web-Interface muss in der _FeedCrawler.ini_ neu gesetzt werden.
 - **15.0.0** Neue Funktion zum automatischen Ausblenden des JDownloader-Spendenbanners für Sponsoren implementiert.
 - **15.0.0** Hinterlege Deaktivierte Pakete grau
 - **15.0.0** Korrektur beim Löschen von Paketen mit Sonderzeichen im Titel.
