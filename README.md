@@ -1,6 +1,6 @@
 # FeedCrawler
 
-<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web/public/favicon.ico" width="64" height="64" />
+<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" width="64" height="64" />
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
@@ -31,14 +31,14 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ### Voraussetzungen
 
-* [Python 3.7](https://www.python.org/downloads/) oder neuer
+* [Python 3.6](https://www.python.org/downloads/) oder neuer
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
 * [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
 
 ### Lokaler Build
 Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
 
-1. Frontend-Pfad aufrufen: `cd feedcrawler/web`
+1. Frontend-Pfad aufrufen: `cd feedcrawler/web_interface/vuejs_frontend`
 2. Dependencies installieren: `npm ci`
 3. [Vue.js 3](https://vuejs.org/) Frontend kompilieren: `npm run build`
 4. Zurück in das Hauptverzeichnis wechseln: `cd ../..`

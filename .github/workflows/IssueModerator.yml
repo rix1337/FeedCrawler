@@ -1,12 +1,12 @@
 name: Autocloser
-on: [issues]
+on: [ issues ]
 jobs:
   autoclose:
     runs-on: ubuntu-latest
     steps:
-    - name: Autoclose issues that did not follow issue template
-      uses: roots/issue-closer@v1.1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-close-message: "@${issue.user.login} das Issue-Template wurde nicht befolgt. Schließe dieses Issue automatisch!"
-        issue-pattern: ".*Fehlermeldung aus dem Log.*"
+      - name: Autoclose issues that did not follow issue template
+        uses: roots/issue-closer@v1.1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-close-message: "@${issue.user.login} das Issue-Template wurde nicht befolgt. Schließe dieses Issue automatisch!"
+          issue-pattern: ".*Fehlermeldung aus dem Log.*"

@@ -35,5 +35,5 @@ venv
 .eggs
 
 # Vue
-feedcrawler/web/node_modules
-feedcrawler/web/dist
+feedcrawler/web_interface/vuejs_frontend/node_modules
+feedcrawler/web_interface/vuejs_frontend/dist

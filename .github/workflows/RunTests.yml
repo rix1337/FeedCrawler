@@ -1,5 +1,5 @@
 name: Run Tests
-on: [pull_request]
+on: [ pull_request ]
 
 jobs:
   build-python:
@@ -35,6 +35,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Install dependencies
         run: npm ci
-        working-directory: feedcrawler/web
+        working-directory: feedcrawler/web_interface/vuejs_frontend
       - run: npm run build --if-present
-        working-directory: feedcrawler/web
+        working-directory: feedcrawler/web_interface/vuejs_frontend

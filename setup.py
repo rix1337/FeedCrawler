@@ -5,7 +5,7 @@
 
 import setuptools
 
-from feedcrawler.version import get_version
+from feedcrawler.providers.version import get_version
 
 try:
     with open('README.md', encoding='utf-8') as f:
@@ -23,7 +23,7 @@ setuptools.setup(
     version=get_version(),
     author="rix1337",
     author_email="",
-    description="Automating JDownloader Downloads (German!)",
+    description="Automate downloads using predefined sites and the My JDownloader API",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rix1337/FeedCrawler",

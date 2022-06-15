@@ -1,236 +1,216 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul ist das Herzstück des FeedCrawlers. Es durchsucht zyklisch die Feeds der konfigurierten Hostnamen.
+# Dieses Modul initialisiert die globalen Parameter und starte alle parallel laufenden Threads des FeedCrawlers.
 
-import random
+import argparse
+import logging
+import multiprocessing
+import os
+import re
+import signal
 import sys
 import time
-import traceback
 
-from feedcrawler import internal
-from feedcrawler.common import Unbuffered, is_device, readable_time
-from feedcrawler.config import CrawlerConfig
-from feedcrawler.db import FeedDb
-from feedcrawler.external_sites.content_all_by import BL as BY
-from feedcrawler.external_sites.content_all_dw import BL as DW
-from feedcrawler.external_sites.content_all_ff import BL as FF
-from feedcrawler.external_sites.content_all_fx import BL as FX
-from feedcrawler.external_sites.content_all_hw import BL as HW
-from feedcrawler.external_sites.content_all_nk import BL as NK
-from feedcrawler.external_sites.content_all_ww import BL as WW
-from feedcrawler.external_sites.content_custom_dd import DD
-from feedcrawler.external_sites.content_shows_dj import DJ
-from feedcrawler.external_sites.content_shows_sf import SF
-from feedcrawler.external_sites.content_shows_sj import SJ
-from feedcrawler.external_tools.ombi import ombi
-from feedcrawler.external_tools.overseerr import overseerr
-from feedcrawler.http_requests.flaresolverr_handler import clean_flaresolverr_sessions
-from feedcrawler.myjd import get_device
-from feedcrawler.myjd import get_info
-from feedcrawler.myjd import jdownloader_update
-from feedcrawler.url import check_url
+from feedcrawler.jobs.feed_search import crawler
+from feedcrawler.jobs.package_watcher import watch_packages
+from feedcrawler.providers import shared_state
+from feedcrawler.providers import version
+from feedcrawler.providers.common_functions import check_ip
+from feedcrawler.providers.common_functions import configpath
+from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import get_if_one_device
+from feedcrawler.providers.myjd_connection import myjd_input
+from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.web_interface.web_server import web_server
+
+version = "v." + version.get_version()
 
 
-def search_pool():
-    return [
-        FX(filename='IMDB'),
-        FX(filename='List_ContentAll_Movies'),
-        FX(filename='List_ContentAll_Movies_Regex'),
-        FX(filename='List_ContentAll_Seasons'),
-        SF(filename='List_ContentShows_Shows'),
-        SF(filename='List_ContentShows_Shows_Regex'),
-        SF(filename='List_ContentShows_Seasons_Regex'),
-        SF(filename='List_ContentAll_Seasons'),
-        DW(filename='IMDB'),
-        DW(filename='List_ContentAll_Movies'),
-        DW(filename='List_ContentAll_Movies_Regex'),
-        DW(filename='List_ContentAll_Seasons'),
-        HW(filename='IMDB'),
-        HW(filename='List_ContentAll_Movies'),
-        HW(filename='List_ContentAll_Movies_Regex'),
-        HW(filename='List_ContentAll_Seasons'),
-        FF(filename='IMDB'),
-        FF(filename='List_ContentAll_Movies'),
-        FF(filename='List_ContentAll_Movies_Regex'),
-        FF(filename='List_ContentAll_Seasons'),
-        BY(filename='IMDB'),
-        BY(filename='List_ContentAll_Movies'),
-        BY(filename='List_ContentAll_Movies_Regex'),
-        BY(filename='List_ContentAll_Seasons'),
-        NK(filename='IMDB'),
-        NK(filename='List_ContentAll_Movies'),
-        NK(filename='List_ContentAll_Movies_Regex'),
-        NK(filename='List_ContentAll_Seasons'),
-        WW(filename='List_ContentAll_Movies_Regex'),
-        WW(filename='IMDB'),
-        WW(filename='List_ContentAll_Movies'),
-        WW(filename='List_ContentAll_Seasons'),
-        SJ(filename='List_ContentShows_Shows'),
-        SJ(filename='List_ContentShows_Shows_Regex'),
-        SJ(filename='List_ContentShows_Seasons_Regex'),
-        SJ(filename='List_ContentAll_Seasons'),
-        DJ(filename='List_CustomDJ_Documentaries'),
-        DJ(filename='List_CustomDJ_Documentaries_Regex'),
-        DD(filename='List_CustomDD_Feeds')
-    ]
+def start_feedcrawler():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
+    parser.add_argument("--config", help="Legt den Ablageort für Einstellungen und Logs fest")
+    parser.add_argument("--port", help="Legt den Port des Webservers fest")
+    parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
+    parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
+    parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
+    parser.add_argument("--keep-cdc", action='store_true',
+                        help="Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
+    parser.add_argument("--remove_jf_time", action='store_true',
+                        help="Leere die Zeit des letzten SJ/DJ/SF/FF-Laufes vor dem ersten Suchlauf")
+    parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
+    parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
+    arguments = parser.parse_args()
 
+    print(u"┌──────────────────────────────────────────────┐")
+    print(u"  FeedCrawler " + version + " von RiX")
+    print(u"  https://github.com/rix1337/FeedCrawler")
+    print(u"└──────────────────────────────────────────────┘")
 
-def crawler(global_variables, remove_jf_time, test_run):
-    internal.set_globals(global_variables)
+    if arguments.docker:
+        config_path = "/config"
+    else:
+        config_path = configpath(arguments.config)
 
-    sys.stdout = Unbuffered(sys.stdout)
-    logger = internal.logger
+    shared_state.set_files(config_path)
 
-    request_management_first_run = True
-    crawltimes = FeedDb("crawltimes")
-    feedcrawler = CrawlerConfig('FeedCrawler')
+    FeedDb('proxystatus').reset()
+    FeedDb('normalstatus').reset()
 
-    try:
-        clean_flaresolverr_sessions()
-    except:
-        pass
+    print(u"Nutze das Verzeichnis " + config_path + u" für Einstellungen/Logs")
 
-    if remove_jf_time:
-        logger.debug(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
-        print(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
-        FeedDb('crawltimes').delete("last_jf_run")
+    log_level = logging.__dict__[
+        arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
 
-    while True:
-        try:
-            if not internal.device or not is_device(internal.device):
-                get_device()
-            FeedDb('cached_requests').reset()
-            FeedDb('cached_requests').cleanup()
-            start_time = time.time()
-            check_url(start_time)
-            crawltimes.update_store("active", "True")
-            crawltimes.update_store("start_time", start_time * 1000)
-            logger.debug("-----------Alle Suchläufe gestartet.-----------")
+    shared_state.set_logger(log_level)
 
-            # Connect to and run request management services
-            overseerr_string = ""
-            overseerr_results = overseerr(request_management_first_run)
-            requested_movies = overseerr_results[0]
-            requested_shows = overseerr_results[1]
-            request_management_first_run = False
-            if requested_movies or requested_shows:
-                overseerr_string = u"Die Overseerr-Suche lief für: "
-                if requested_movies:
-                    overseerr_string = overseerr_string + str(requested_movies) + " Filme"
-                    if requested_shows:
-                        overseerr_string = overseerr_string + " und "
-                if requested_shows:
-                    overseerr_string = overseerr_string + str(requested_shows) + " Serien"
-            ombi_string = ""
-            ombi_results = ombi(request_management_first_run)
-            requested_movies = ombi_results[0]
-            requested_shows = ombi_results[1]
-            request_management_first_run = False
-            if requested_movies or requested_shows:
-                ombi_string = u"Die Ombi-Suche lief für: "
-                if requested_movies:
-                    ombi_string = ombi_string + str(requested_movies) + " Filme"
-                    if requested_shows:
-                        ombi_string = ombi_string + " und "
-                if requested_shows:
-                    ombi_string = ombi_string + str(requested_shows) + " Serien"
+    hostnames = CrawlerConfig('Hostnames')
 
-            # Start feed search
-            current_jf_run = False
-            last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
-            for task in search_pool():
-                name = task._SITE
-                try:
-                    file = " - Liste: " + task.filename
-                except AttributeError:
-                    file = ""
-                if name in ["SJ", "DJ", "SF", "FF"]:
-                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
-                    if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
-                        logger.debug(
-                            "-----------Wartezeit bei " + name + " (6h) nicht verstrichen - überspringe Suchlauf!-----------")
-                        continue
-                    else:
-                        current_jf_run = time.time()
-                        FeedDb('site_status').delete("SF_FF")
-                logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
-                task.periodical_task()
-                logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
+    def clean_up_hostname(host, string):
+        if string and '/' in string:
+            string = string.replace('https://', '').replace('http://', '')
+            string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
+            hostnames.save(host, string)
+        if string and re.match(r'.*[A-Z].*', string):
+            hostnames.save(host, string.lower())
+        if string:
+            print(u'Hostname für ' + host.upper() + ": " + string)
+        else:
+            print(u'Hostname für ' + host.upper() + ': Nicht gesetzt!')
+        return string
 
-            # Finish feed search and log results
-            if current_jf_run:
-                crawltimes.update_store("last_jf_run", current_jf_run * 1000)
-            cached_requests = FeedDb('cached_requests').count()
-            request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
-            end_time = time.time()
-            total_time = end_time - start_time
-            interval = int(feedcrawler.get('interval')) * 60
-            random_range = random.randrange(0, interval // 4)
-            wait = interval + random_range
-            next_start = end_time + wait
-            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
-                         " - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!")
-            print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!")
+    set_hostnames = {}
+    shared_state.set_sites()
+    for name in shared_state.sites:
+        name = name.lower()
+        hostname = clean_up_hostname(name, hostnames.get(name))
+        if hostname:
+            set_hostnames[name] = hostname
 
-            if overseerr_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
-            if ombi_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+    if not arguments.test_run and not set_hostnames:
+        print(u'Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
+        time.sleep(10)
+        sys.exit(1)
 
-            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
-            logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
-            print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
-            crawltimes.update_store("end_time", end_time * 1000)
-            crawltimes.update_store("total_time", readable_time(total_time))
-            crawltimes.update_store("next_start", next_start * 1000)
-            crawltimes.update_store("active", "False")
-            FeedDb('cached_requests').reset()
-            FeedDb('cached_requests').cleanup()
+    FeedDb('cached_internals').delete("device")
 
-            myjd_auto_update = feedcrawler.get("myjd_auto_update")
-            if myjd_auto_update:
-                myjd_infos = get_info()
-                myjd_state = myjd_infos[1]
-                myjd_grabber_collecting = myjd_infos[2]
-                myjd_update_ready = myjd_infos[3]
-                myjd_packages = myjd_infos[4]
-                if (myjd_state == "IDLE" or not myjd_packages[0]) and (
-                        not myjd_grabber_collecting and myjd_update_ready):
-                    print(
-                        "JDownloader Update steht bereit und JDownloader ist inaktiv.\nFühre Update durch und starte JDownloader neu...")
-                    jdownloader_update()
-                elif myjd_update_ready:
-                    print(
-                        "JDownloader Update steht bereit, aber JDownloader ist aktiv.\nFühre das Update nicht automatisch durch.")
-
-            # Clean exit if test run active
-            if test_run:
-                logger.debug(u"-----------test_run beendet!-----------")
-                print(u"-----------test_run beendet!-----------")
-                return
-
-            # Wait until next start
-            wait_chunks = wait // 10
-            start_now_triggered = False
-            while wait_chunks:
-                time.sleep(10)
-                if FeedDb('crawltimes').retrieve("startnow"):
-                    FeedDb('crawltimes').delete("startnow")
-                    start_now_triggered = True
-                    break
-
-                wait_chunks -= 1
-
-            if start_now_triggered:
-                logger.debug("----------Wartezeit vorzeitig beendet----------")
+    if not arguments.test_run:
+        if not os.path.exists(shared_state.configfile):
+            if arguments.docker:
+                if arguments.jd_user and arguments.jd_pass:
+                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
             else:
-                logger.debug("-------------Wartezeit verstrichen-------------")
-        except Exception:
-            traceback.print_exc()
-            time.sleep(10)
+                myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
+        else:
+            feedcrawler = CrawlerConfig('FeedCrawler')
+            user = feedcrawler.get('myjd_user')
+            password = feedcrawler.get('myjd_pass')
+            if user and password:
+                if not get_device():
+                    device_set = feedcrawler.get('myjd_device')
+                    if not device_set:
+                        one_device = get_if_one_device(user, password)
+                        if one_device:
+                            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                            feedcrawler.save('myjd_device', one_device)
+                            get_device()
+            else:
+                myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
+                           arguments.jd_device)
+
+    if not arguments.test_run:
+        if shared_state.device and shared_state.device.name:
+            success = True
+        else:
+            success = False
+            feedcrawler = CrawlerConfig('FeedCrawler')
+
+            device_name = feedcrawler.get('myjd_device')
+            if not device_name:
+                user = feedcrawler.get('myjd_user')
+                password = feedcrawler.get('myjd_pass')
+                one_device = get_if_one_device(user, password)
+                if one_device:
+                    print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                    feedcrawler.save('myjd_device', one_device)
+                    get_device()
+                    success = shared_state.device and shared_state.device.name
+            if not success:
+                i = 0
+                while i < 10:
+                    i += 1
+                    print(
+                        u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, device_name))
+                    time.sleep(60)
+                    get_device()
+                    success = shared_state.device and shared_state.device.name
+                    if success:
+                        break
+        if success:
+            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + shared_state.device.name)
+        else:
+            print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
+            sys.exit(1)
+
+    feedcrawler = CrawlerConfig('FeedCrawler')
+    port = int(feedcrawler.get("port"))
+    docker = False
+    if arguments.docker:
+        port = int('9090')
+        docker = True
+    elif arguments.port:
+        port = int(arguments.port)
+
+    if feedcrawler.get("prefix"):
+        prefix = '/' + feedcrawler.get("prefix")
+    else:
+        prefix = ''
+    local_address = 'http://' + check_ip() + ':' + str(port) + prefix
+    if not arguments.docker:
+        print(u'Der Webserver ist erreichbar unter ' + local_address)
+
+    shared_state.set_connection_info(local_address, port, prefix, docker)
+
+    if arguments.keep_cdc:
+        print(u"CDC-Tabelle nicht geleert!")
+    else:
+        FeedDb('cdc').reset()
+
+    global_variables = shared_state.get_globals()
+
+    p = multiprocessing.Process(target=web_server, args=(global_variables,))
+    p.start()
+
+    if not arguments.test_run:
+        c = multiprocessing.Process(target=crawler,
+                                    args=(global_variables, arguments.remove_jf_time, False,))
+        c.start()
+
+        w = multiprocessing.Process(target=watch_packages, args=(global_variables,))
+        w.start()
+
+        def signal_handler(sig, frame):
+            print(u'Beende FeedCrawler...')
+            p.terminate()
+            c.terminate()
+            w.terminate()
+            sys.exit(0)
+
+        signal.signal(signal.SIGINT, signal_handler)
+        print(u'Drücke [Strg] + [C] zum Beenden')
+        try:
+            while True:
+                signal.pause()
+        except AttributeError:
+            while True:
+                time.sleep(1)
+    else:
+        crawler(global_variables, arguments.remove_jf_time, True)
+        p.terminate()
+        sys.exit(0)
+
+
+if __name__ == "__main__":
+    start_feedcrawler()
