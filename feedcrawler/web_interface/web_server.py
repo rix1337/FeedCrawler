@@ -1658,31 +1658,27 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
     def to_download(payload):
         try:
-            try:
-                payload = decode_base64(payload.replace("%3D", "=")).split("|")
-            except:
-                return abort(400, "Failed")
-            if payload:
-                links = payload[0]
-                package_name = payload[1].replace("%20", "")
-                name = package_name
-
-                try:
-                    password = payload[2]
-                except:
-                    password = ""
-                try:
-                    ids = payload[3]
-                except:
-                    ids = False
-
-            attempt_download(package_name, links, password, ids)
+            payload = decode_base64(payload.replace("%3D", "=")).split("|")
         except:
-            pass
+            return abort(400, "Failed")
+        if payload:
+            links = payload[0]
+            package_name = payload[1].replace("%20", "")
+
+            try:
+                password = payload[2]
+            except:
+                password = ""
+            try:
+                ids = payload[3]
+            except:
+                ids = False
+
+            result = attempt_download(package_name, links, password, ids)
+            return result
         return abort(400, "Failed")
 
     @app.post(prefix + "/sponsors_helper/to_download/")
-    # ToDo switch Helper to this
     def to_download():
         try:
             data = request.body.read().decode("utf-8")
@@ -1703,7 +1699,6 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
 
 
 def attempt_download(package_name, links, password, ids):
-    # ToDo test this still works
     global already_added
 
     FeedDb('crawldog').store(package_name, 'added')
@@ -1785,7 +1780,9 @@ def attempt_download(package_name, links, password, ids):
                                 uuids = [check_package['uuid']]
                                 remove_from_linkgrabber(linkids, uuids)
                                 remove_decrypt(package_name)
-                                return True
+                                return "<script type='text/javascript'>" \
+                                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                       "[CAPTCHA gelöst] - " + package_name
 
                 try:
                     check_if_broken(failed)
@@ -1796,8 +1793,8 @@ def attempt_download(package_name, links, password, ids):
             packages = get_to_decrypt()
             if packages:
                 for package in packages:
-                    if name == package["name"].strip():
-                        name = package["name"]
+                    if package_name == package["name"].strip():
+                        package_name = package["name"]
                     elif re.match(re.compile(re_name),
                                   package['name'].lower().strip().replace(".untouched",
                                                                           ".*").replace(
@@ -1810,8 +1807,8 @@ def attempt_download(package_name, links, password, ids):
                             episode = str(episode[0])
                             if len(episode) == 1:
                                 episode = "0" + episode
-                            name = name.replace(season_string + ".",
-                                                season_string + "E" + episode + ".")
+                            package_name = package_name.replace(season_string + ".",
+                                                                season_string + "E" + episode + ".")
                             episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
                             if episode_in_remover:
                                 episode_to_keep = episode_in_remover + "|" + episode_to_keep
@@ -1820,32 +1817,33 @@ def attempt_download(package_name, links, password, ids):
                             FeedDb('episode_remover').store(package_name, episode_to_keep)
                             break
             time.sleep(1)
-            remove_decrypt(name)
+            remove_decrypt(package_name)
         try:
             epoch = int(time.time())
             for item in already_added:
                 if item[0] == package_name:
                     if int(item[1]) + 30 > epoch:
-                        print(name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
-                        return name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt"
+                        print(package_name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
+                        return abort(500, package_name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
                     else:
                         already_added.remove(item)
 
             download(package_name, "FeedCrawler", links, password)
             db = FeedDb('FeedCrawler')
-            if not db.retrieve(name):
-                db.store(name, 'added')
+            if not db.retrieve(package_name):
+                db.store(package_name, 'added')
             try:
-                notify([{"text": "[CAPTCHA gelöst] - " + name}])
+                notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
             except:
                 print(u"Benachrichtigung konnte nicht versendet werden!")
-            print(u"[CAPTCHA gelöst] - " + name)
-            already_added.append([name, str(epoch)])
+            print(u"[CAPTCHA gelöst] - " + package_name)
+            already_added.append([package_name, str(epoch)])
             return "<script type='text/javascript'>" \
                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                   "[CAPTCHA gelöst] - " + name
+                   "[CAPTCHA gelöst] - " + package_name
         except:
-            print(name + u" konnte nicht hinzugefügt werden!")
+            print(package_name + u" konnte nicht hinzugefügt werden!")
+            return abort(500, package_name + u" konnte nicht hinzugefügt werden!")
 
 
 def start():
