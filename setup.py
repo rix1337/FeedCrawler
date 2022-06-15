@@ -38,7 +38,7 @@ setuptools.setup(
     ],
     entry_points={
         'console_scripts': [
-            'feedcrawler = feedcrawler.main:main',
+            'feedcrawler = feedcrawler.crawler:start_feedcrawler',
         ],
     },
 )
