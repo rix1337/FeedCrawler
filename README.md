@@ -41,7 +41,7 @@ Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.c
 1. Frontend-Pfad aufrufen: `cd feedcrawler/web_interface/vuejs_frontend`
 2. Dependencies installieren: `npm ci`
 3. [Vue.js 3](https://vuejs.org/) Frontend kompilieren: `npm run build`
-4. Zurück in das Hauptverzeichnis wechseln: `cd ../..`
+4. Zurück in das Hauptverzeichnis wechseln: `cd ../../..`
 5. FeedCrawler auf Basis der _setup.py_ installieren: `pip install .`
 
 ### [pip](https://pip.pypa.io/en/stable/installation/)

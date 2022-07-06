@@ -43,8 +43,8 @@ def get_best_result(title):
     best_match = False
     best_payload = False
     for result in preferred_results:
-        payload = result.search_web('payload')
-        result = result.search_web('title')
+        payload = result['payload']
+        result = result['title']
 
         len_search_term = len(title)
         len_result = len(result)
@@ -287,7 +287,7 @@ def download(payload):
                     try:
                         ep = release['episode']
                         if ep:
-                            existing = result_episodes.search_web(season)
+                            existing = result_episodes[season]
                             if existing:
                                 for e in existing:
                                     if e == ep:

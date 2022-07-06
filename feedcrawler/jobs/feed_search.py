@@ -110,31 +110,37 @@ def crawler(global_variables, remove_jf_time, test_run):
 
             # Connect to and run request management services
             overseerr_string = ""
-            overseerr_results = overseerr_search(request_management_first_run)
-            requested_movies = overseerr_results[0]
-            requested_shows = overseerr_results[1]
-            request_management_first_run = False
-            if requested_movies or requested_shows:
-                overseerr_string = u"Die Overseerr-Suche lief für: "
-                if requested_movies:
-                    overseerr_string = overseerr_string + str(requested_movies) + " Filme"
+            try:
+                overseerr_results = overseerr_search(request_management_first_run)
+                requested_movies = overseerr_results[0]
+                requested_shows = overseerr_results[1]
+                request_management_first_run = False
+                if requested_movies or requested_shows:
+                    overseerr_string = u"Die Overseerr-Suche lief für: "
+                    if requested_movies:
+                        overseerr_string = overseerr_string + str(requested_movies) + " Filme"
+                        if requested_shows:
+                            overseerr_string = overseerr_string + " und "
                     if requested_shows:
-                        overseerr_string = overseerr_string + " und "
-                if requested_shows:
-                    overseerr_string = overseerr_string + str(requested_shows) + " Serien"
+                        overseerr_string = overseerr_string + str(requested_shows) + " Serien"
+            except Exception as e:
+                print(u"Fehler bei der Overseerr-Suche: " + str(e))
             ombi_string = ""
-            ombi_results = ombi_search(request_management_first_run)
-            requested_movies = ombi_results[0]
-            requested_shows = ombi_results[1]
-            request_management_first_run = False
-            if requested_movies or requested_shows:
-                ombi_string = u"Die Ombi-Suche lief für: "
-                if requested_movies:
-                    ombi_string = ombi_string + str(requested_movies) + " Filme"
+            try:
+                ombi_results = ombi_search(request_management_first_run)
+                requested_movies = ombi_results[0]
+                requested_shows = ombi_results[1]
+                request_management_first_run = False
+                if requested_movies or requested_shows:
+                    ombi_string = u"Die Ombi-Suche lief für: "
+                    if requested_movies:
+                        ombi_string = ombi_string + str(requested_movies) + " Filme"
+                        if requested_shows:
+                            ombi_string = ombi_string + " und "
                     if requested_shows:
-                        ombi_string = ombi_string + " und "
-                if requested_shows:
-                    ombi_string = ombi_string + str(requested_shows) + " Serien"
+                        ombi_string = ombi_string + str(requested_shows) + " Serien"
+            except Exception as e:
+                print(u"Fehler bei der Ombi-Suche: " + str(e))
 
             # Start feed search
             current_jf_run = False
@@ -155,7 +161,10 @@ def crawler(global_variables, remove_jf_time, test_run):
                         current_jf_run = time.time()
                         FeedDb('site_status').delete("SF_FF")
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
-                task.periodical_task()
+                try:
+                    task.periodical_task()
+                except Exception as e:
+                    print(u"Fehler bei der Feed-Suche: " + str(e))
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
 
             # Finish feed search and log results

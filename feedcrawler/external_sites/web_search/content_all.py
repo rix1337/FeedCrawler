@@ -43,8 +43,8 @@ def get_best_result(title):
     best_match = False
     best_payload = False
     for result in bl_results:
-        payload = result.search_web('payload')
-        result = result.search_web('title')
+        payload = result['payload']
+        result = result['title']
         if simplified_search_term_in_title(title, result):
             score = rate(result)
             if score > best_score:

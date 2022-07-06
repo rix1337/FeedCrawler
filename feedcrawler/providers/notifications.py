@@ -46,7 +46,7 @@ def format_notification(text):
         source = "\n" + '<b>Quelle:</b> <a href="' + components[4] + '">' + site + '</a>' if components[4] != '' else ''
         return event + "\n" + title + size + source
     else:
-        event = "<b>" + components[0].replace('[', '').replace(']', '') + "</b>"
+        event = "<b>" + components[0].replace('[', '').replace(']', '') + ":</b>"
         message = " - ".join(components[1:])
         return event + "\n" + message
 

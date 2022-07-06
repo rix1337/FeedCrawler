@@ -231,7 +231,9 @@ def watch_packages(global_variables):
 
                 time.sleep(30)
             else:
-                print(u"Scheinbar ist der JDownloader nicht erreichbar - bitte prüfen und neustarten!")
+                time.sleep(30)
+                if not get_device():
+                    print(u"Scheinbar ist der JDownloader nicht erreichbar.")
         except Exception:
             traceback.print_exc()
             time.sleep(30)
