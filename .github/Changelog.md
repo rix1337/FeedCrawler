@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.1** Bugfix #649 (Fehler in automatischer Web-Suche)
+- **15.0.1** Verbesserter Verbindungsaufbau zum JDownloader nach Nichtverfügbarkeit.
 - **15.0.0** DW Web-Suche hinzugefügt.
 - **15.0.0** **Hinweis:** Das Passwort für das Web-Interface muss in der _FeedCrawler.ini_ neu gesetzt werden.
 - **15.0.0** Neue Funktion zum automatischen Ausblenden des JDownloader-Spendenbanners für Sponsoren implementiert.
