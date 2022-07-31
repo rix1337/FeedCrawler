@@ -1686,8 +1686,16 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
 
             package_name = payload["package_name"]
             links = payload["links"]
-            password = payload["password"]
-            ids = payload["ids"]
+
+            try:
+                password = payload["password"]
+            except:
+                password = ""
+
+            try:
+                ids = payload["ids"]
+            except:
+                ids = False
 
             result = attempt_download(package_name, links, password, ids)
             return result
@@ -1737,7 +1745,7 @@ def attempt_download(package_name, links, password, ids):
                 season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
                 if season_string:
                     re_name = re_name.replace(season_string[0], season_string[0] + '.*')
-                codec_tags = [".h264", ".x264"]
+                codec_tags = [".h264", ".x264", ".x265", ".h265", ".hevc", ".h.264", ".h.265"]
                 for tag in codec_tags:
                     re_name = re_name.replace(tag, ".*264")
                 web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]

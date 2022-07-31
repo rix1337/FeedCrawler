@@ -84,13 +84,56 @@ def watch_packages(global_variables):
                                                 except:
                                                     episodes = [episodes]
 
+                                                try:
+                                                    season_string = title[0].split("E" + str(episodes[0]))[0]
+                                                except:
+                                                    season_string = False
+
+                                                additional_eps = False
+
+                                                if season_string:
+                                                    more_episodes = FeedDb(
+                                                        'episode_remover').retrieve_all_beginning_with(season_string)
+                                                    for ep in more_episodes:
+                                                        if title[0] not in ep:
+                                                            additional_eps = FeedDb('episode_remover').retrieve(ep)
+                                                            # This happens if multiple Episodes are waiting for decryption
+                                                            if additional_eps:
+                                                                try:
+                                                                    additional_eps = additional_eps.split("|")
+                                                                except:
+                                                                    additional_eps = [additional_eps]
+
+                                                                episodes = episodes + additional_eps
+
+                                                                # This prevents leftover episodes piling up in the database
+                                                                updated_eps = "|".join(episodes)
+                                                                FeedDb('episode_remover').update_store(title[0],
+                                                                                                       updated_eps)
+                                                                FeedDb('episode_remover').delete(ep)
+
                                                 delete_linkids = []
                                                 keep_linkids = []
 
                                                 season_string = re.findall(r'.*(s\d{1,3}).*', title[0], re.IGNORECASE)[
                                                     0]
                                                 if season_string:
-                                                    if len(episodes) == 1:
+                                                    if additional_eps:
+                                                        # This is required to append additional episodes to a mono-episode title
+                                                        episode_string = str(episodes[0])
+                                                        if len(episodes[0]) == 1:
+                                                            episode_string = "0" + episode_string
+                                                        replace_string = season_string + "E" + episode_string
+                                                        if additional_eps:
+                                                            episode_to_string = str(episodes[-1])
+                                                            if len(episodes[-1]) == 1:
+                                                                episode_to_string = "0" + episode_to_string
+                                                            replace_string = replace_string + "-E" + episode_to_string
+                                                        append_package_name = title[0].replace(
+                                                            season_string + "E" + episode_string,
+                                                            replace_string)
+                                                    elif len(episodes) == 1 or additional_eps:
+                                                        # This should be the default case (one episode in the title)
                                                         episode_string = str(episodes[0])
                                                         if len(episodes[0]) == 1:
                                                             episode_string = "0" + episode_string
@@ -98,6 +141,7 @@ def watch_packages(global_variables):
                                                         append_package_name = title[0].replace(season_string,
                                                                                                replace_string)
                                                     else:
+                                                        # This should only trigger when multiple episodes are in the episode title
                                                         episode_from_string = str(episodes[0])
                                                         if len(episodes[0]) == 1:
                                                             episode_from_string = "0" + episode_from_string
@@ -173,9 +217,12 @@ def watch_packages(global_variables):
 
                                                         pos = 0
                                                         for keep_id in package['linkids']:
-                                                            if str(episode) == str(fname_episodes[pos]):
-                                                                keep_linkids.append(keep_id)
-                                                            pos += 1
+                                                            try:
+                                                                if str(episode) == str(fname_episodes[pos]):
+                                                                    keep_linkids.append(keep_id)
+                                                                pos += 1
+                                                            except:
+                                                                pass
 
                                                 for delete_id in package['linkids']:
                                                     if delete_id not in keep_linkids:
