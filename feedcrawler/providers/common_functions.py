@@ -440,6 +440,19 @@ def remove_decrypt(title):
             if t[0].strip() == title.strip():
                 FeedDb('to_decrypt').delete(t[0])
                 return True
+
+            try:
+                season_in_title = re.findall(r"s(\d{1,3})", t[0], re.IGNORECASE)
+                season_package = re.findall(r"s\d{1,3}\.*-\.*s\d{1,3}", title.strip(), re.IGNORECASE)
+                if season_in_title and season_package:
+                    seasons_in_package = re.findall(r"s(\d{1,3})", season_package[0], re.IGNORECASE)
+                    if int(season_in_title[0]) in range(int(seasons_in_package[0]), int(seasons_in_package[1]) + 1):
+                        check_title = t[0].strip().lower().split('s' + season_in_title[0])[0]
+                        if check_title in title.strip().lower():
+                            FeedDb('to_decrypt').delete(t[0])
+                            return True
+            except:
+                pass
     except:
         pass
     return False
