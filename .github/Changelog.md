@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.3** Verbesserung im Zuordnen von Staffelpaketen.
+- **15.0.3** Korrektur in Hoster-Identifikation auf DW
 - **15.0.2** Verhindert das Überspringen von kurz hintereinander hinzugefügten Episoden einer Staffel.
 - **15.0.2** Die SF-Suche beachtet wieder die korrekte Suchtiefe (in Tagen).
 - **15.0.1** Bugfix #649 (Fehler in automatischer Web-Suche)

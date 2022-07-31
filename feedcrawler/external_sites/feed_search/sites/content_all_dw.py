@@ -102,7 +102,7 @@ def dw_get_download_links(self, content, title):
             response = json.loads(post_url(ajax_url, payload))
             if response["success"]:
                 link = response["data"].split(",")[0]
-                hoster = button.nextSibling["href"].split("=")[-1]
+                hoster = button.nextSibling.img["src"].split("/")[-1].replace(".png", "")
                 download_links.append([link, hoster])
     except:
         print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
