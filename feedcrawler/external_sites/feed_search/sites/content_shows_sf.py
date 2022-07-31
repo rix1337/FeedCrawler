@@ -71,7 +71,7 @@ class SF:
             self.empty_list = True
 
         self.day = 0
-        self.max_days = int(CrawlerConfig('CustomF').get('search')) - 1
+        self.max_days = int(CrawlerConfig('CustomF').get('search'))
 
         self.get_feed_method = sf_releases_to_feedparser_dict
         self.parse_download_method = sf_parse_download
