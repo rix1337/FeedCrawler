@@ -6,6 +6,11 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.5** Beim Hinzufügen einzelner Episoden wird deren Titel wieder korrekt gesetzt
+- **15.0.5** Über die Click'n'Load-Automatik hinzugefügte Releases werden korrekt um unerwünschte Episoden bereinigt.
+- **15.0.5** Updates in den GitHub-Actions
+- **15.0.4** Dependency-Updates
+- **15.0.4** Erkenne Fehler in der Verbindung zur FeedCrawler.db
 - **15.0.3** Verbesserung im Zuordnen von Staffelpaketen.
 - **15.0.3** Korrektur in Hoster-Identifikation auf DW
 - **15.0.2** Verhindert das Überspringen von kurz hintereinander hinzugefügten Episoden einer Staffel.
