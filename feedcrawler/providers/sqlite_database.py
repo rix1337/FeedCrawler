@@ -4,6 +4,7 @@
 # Dieses Modul stellt die SQlite-Datenbank für den FeedCrawler bereit.
 
 import sqlite3
+import time
 
 import feedcrawler.providers.common_functions
 from feedcrawler.providers import shared_state
@@ -15,12 +16,27 @@ def get_first(iterable):
 
 class FeedDb(object):
     def __init__(self, table):
-        self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
-        self._table = table
-        if not self._conn.execute(
-                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-            self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
-            self._conn.commit()
+        try:
+            self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=5)
+            self._table = table
+            if not self._conn.execute(
+                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
+                self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
+                self._conn.commit()
+        except sqlite3.OperationalError as e:
+            try:
+                shared_state.logger.debug(
+                    "Fehler bei Zugriff auf FeedCrawler.db: " + str(e) + " (neuer Versuch in 5 Sekunden).")
+                time.sleep(5)
+                self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
+                self._table = table
+                if not self._conn.execute(
+                        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
+                    self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
+                    self._conn.commit()
+                    shared_state.logger.debug("Zugriff auf FeedCrawler.db nach Wartezeit war erfolgreich.")
+            except sqlite3.OperationalError as e:
+                print("Fehler bei Zugriff auf FeedCrawler.db: ", str(e))
 
     def cleanup(self):
         self._conn.execute("VACUUM")
