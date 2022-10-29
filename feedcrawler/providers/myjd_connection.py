@@ -1015,6 +1015,9 @@ def do_add_decrypted(title, password, cnl_packages):
     links = ensure_string(urls).replace("\n\n", "\n")
     if remove_from_linkgrabber(linkids, uuids):
         if download(title, "FeedCrawler", links, password):
+            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', title)
+            if episode:
+                FeedDb('episode_remover').store(title, str(int(episode[0])))
             print(u"[Click'n'Load-Automatik erfolgreich] - " + title)
             return [True, title]
     return False

@@ -118,7 +118,18 @@ def watch_packages(global_variables):
                                                 season_string = re.findall(r'.*(s\d{1,3}).*', title[0], re.IGNORECASE)[
                                                     0]
                                                 if season_string:
-                                                    if additional_eps:
+                                                    if len(episodes) == 1 or additional_eps:
+                                                        # This should be the default case (one episode in the title)
+                                                        episode_string = str(episodes[0])
+                                                        if len(episodes[0]) == 1:
+                                                            episode_string = "0" + episode_string
+                                                        if "E" + episode_string not in title[0]:
+                                                            replace_string = season_string + "E" + episode_string
+                                                            append_package_name = title[0].replace(season_string,
+                                                                                                   replace_string)
+                                                        else:
+                                                            append_package_name = title[0]
+                                                    elif additional_eps:
                                                         # This is required to append additional episodes to a mono-episode title
                                                         episode_string = str(episodes[0])
                                                         if len(episodes[0]) == 1:
@@ -132,14 +143,6 @@ def watch_packages(global_variables):
                                                         append_package_name = title[0].replace(
                                                             season_string + "E" + episode_string,
                                                             replace_string)
-                                                    elif len(episodes) == 1 or additional_eps:
-                                                        # This should be the default case (one episode in the title)
-                                                        episode_string = str(episodes[0])
-                                                        if len(episodes[0]) == 1:
-                                                            episode_string = "0" + episode_string
-                                                        replace_string = season_string + "E" + episode_string
-                                                        append_package_name = title[0].replace(season_string,
-                                                                                               replace_string)
                                                     else:
                                                         # This should only trigger when multiple episodes are in the episode title
                                                         episode_from_string = str(episodes[0])
