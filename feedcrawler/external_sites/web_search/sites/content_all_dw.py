@@ -6,9 +6,10 @@
 from bs4 import BeautifulSoup
 
 from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
+from feedcrawler.providers.common_functions import simplified_search_term_in_title
 
 
-def dw_search_results(content, resolution):
+def dw_search_results(content, resolution, search_term):
     content = BeautifulSoup(content, 'html5lib')
     links = content.findAll("article")
     results = []
@@ -16,7 +17,7 @@ def dw_search_results(content, resolution):
         try:
             link = link.findAll("a")[1]
             title = link["title"].replace(" ", ".").strip()
-            if ".xxx." not in title.lower():
+            if ".xxx." not in title.lower() and simplified_search_term_in_title(search_term, title):
                 link = link["href"]
                 if resolution and resolution.lower() not in title.lower():
                     if "480p" in resolution:
