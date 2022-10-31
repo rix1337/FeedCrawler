@@ -100,34 +100,18 @@ jobs:
         run: echo "::set-output name=version::$(python feedcrawler/providers/version.py)"
         id: version
       - name: Create Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+        uses: softprops/action-gh-release@v1
         id: create_release
         with:
           draft: false
           prerelease: false
-          release_name: v.${{ steps.version.outputs.version }}
+          name: v.${{ steps.version.outputs.version }}
           tag_name: v.${{ steps.version.outputs.version }}
           body_path: .github/Changelog.md
-      - name: Upload Linux Wheel
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifact-wheel/feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
-          asset_name: feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
-          asset_content_type: application/octet-stream
-      - name: Upload Windows Exe
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./artifact-exe/feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
-          asset_name: feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
-          asset_content_type: application/octet-stream
+          files: |
+            ./artifact-wheel/feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
+            ./artifact-exe/feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
+          fail_on_unmatched_files: true
       - name: Upload to PyPI
         run: |
           python -m twine upload ./artifact-wheel/* -u __token__ -p ${{ secrets.PYPI_TOKEN }}
