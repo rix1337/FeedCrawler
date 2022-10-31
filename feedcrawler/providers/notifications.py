@@ -4,13 +4,12 @@
 # Dieses Modul stellt verschiedene Möglichkeiten zum Versand von Benachrichtigungen bereit.
 
 import json
-from urllib.error import HTTPError
-from urllib.parse import urlencode
-from urllib.request import urlopen, Request
+from urllib.error import URLError, HTTPError
 
 from feedcrawler.external_sites.metadata.imdb import get_poster_link
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.request_handler import request
 
 
 def notify(items):
@@ -51,28 +50,7 @@ def format_notification(text):
         return event + "\n" + message
 
 
-def home_assistant(items, homassistant_url, homeassistant_password):
-    for item in items:
-        data = urlencode({
-            'title': 'FeedCrawler:',
-            'body': item["text"]
-        }).encode("utf-8")
-
-        try:
-            req = Request(homassistant_url, data)
-            req.add_header('X-HA-Access', homeassistant_password)
-            req.add_header('Content-Type', 'application/json')
-            response = urlopen(req)
-        except HTTPError:
-            shared_state.logger.debug('FEHLER - Konnte Home Assistant API nicht erreichen')
-            return False
-        res = json.load(response)
-        if res['sender_name']:
-            shared_state.logger.debug('Home Assistant Erfolgreich versendet')
-        else:
-            shared_state.logger.debug('FEHLER - Konnte nicht an Home Assistant Senden')
-
-
+# This is the preferred way to send notifications, as it is the only one that supports images.
 def telegram(items, token, chat_id):
     for item in items:
         try:
@@ -80,30 +58,29 @@ def telegram(items, token, chat_id):
         except KeyError:
             imdb_id = False
 
-        data = urlencode({
+        data = {
             'chat_id': chat_id,
             'text': format_notification(item["text"]),
             'parse_mode': 'HTML'
-        }).encode("utf-8")
+        }
         mode = "/sendMessage"
 
         if imdb_id:
             poster_link = get_poster_link(imdb_id)
             if poster_link:
-                data = urlencode({
+                data = {
                     'chat_id': chat_id,
                     'photo': poster_link,
                     'caption': format_notification(item["text"]),
                     'parse_mode': 'HTML'
-                }).encode("utf-8")
+                }
                 mode = "/sendPhoto"
         try:
-            req = Request("https://api.telegram.org/bot" + token + mode, data)
-            response = urlopen(req)
-        except HTTPError:
+            response = request("https://api.telegram.org/bot" + token + mode, method="POST", json=data)
+        except (HTTPError, URLError):
             shared_state.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
             continue
-        res = json.load(response)
+        res = json.loads(response.text)
         if res['ok']:
             shared_state.logger.debug('Telegram Erfolgreich versendet')
         else:
@@ -111,21 +88,23 @@ def telegram(items, token, chat_id):
 
 
 def pushbullet(items, token):
+    headers = {
+        'Access-Token': token
+    }
+
     for item in items:
-        data = urlencode({
+        data = {
             'type': 'note',
             'title': 'FeedCrawler:',
             'body': item["text"]
-        }).encode("utf-8")
+        }
 
         try:
-            req = Request('https://api.pushbullet.com/v2/pushes', data)
-            req.add_header('Access-Token', token)
-            response = urlopen(req)
-        except HTTPError:
+            response = request('https://api.pushbullet.com/v2/pushes', method="POST", json=data, headers=headers)
+        except (HTTPError, URLError):
             shared_state.logger.debug('FEHLER - Konnte Pushbullet API nicht erreichen')
             return False
-        res = json.load(response)
+        res = json.loads(response.text)
         if res['sender_name']:
             shared_state.logger.debug('Pushbullet Erfolgreich versendet')
         else:
@@ -134,20 +113,43 @@ def pushbullet(items, token):
 
 def pushover(items, pushover_user, pushover_token):
     for item in items:
-        data = urlencode({
+        data = {
             'user': pushover_user,
             'token': pushover_token,
             'title': 'FeedCrawler',
             'message': item["text"]
-        }).encode("utf-8")
+        }
         try:
-            req = Request('https://api.pushover.net/1/messages.json', data)
-            response = urlopen(req)
-        except HTTPError:
+            response = request('https://api.pushover.net/1/messages.json', method="POST", json=data)
+        except (HTTPError, URLError):
             shared_state.logger.debug('FEHLER - Konnte Pushover API nicht erreichen')
             return False
-        res = json.load(response)
+        res = json.loads(response.text)
         if res['status'] == 1:
             shared_state.logger.debug('Pushover Erfolgreich versendet')
         else:
             shared_state.logger.debug('FEHLER - Konnte nicht an Pushover Senden')
+
+
+def home_assistant(items, homassistant_url, homeassistant_password):
+    headers = {
+        'X-HA-Access': homeassistant_password,
+        'Content-Type': 'application/json'
+    }
+
+    for item in items:
+        data = {
+            'title': 'FeedCrawler:',
+            'body': item["text"]
+        }
+
+        try:
+            response = request(homassistant_url, method="POST", json=data, headers=headers)
+        except (HTTPError, URLError):
+            shared_state.logger.debug('FEHLER - Konnte Home Assistant API nicht erreichen')
+            return False
+        res = json.loads(response.text)
+        if res['sender_name']:
+            shared_state.logger.debug('Home Assistant Erfolgreich versendet')
+        else:
+            shared_state.logger.debug('FEHLER - Konnte nicht an Home Assistant Senden')
