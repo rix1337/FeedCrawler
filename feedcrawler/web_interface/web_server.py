@@ -290,7 +290,7 @@ def app_container():
                 "settings": {
                     "general": {
                         "auth_user": general_conf.get("auth_user"),
-                        "auth_hash": general_conf.get("auth_hash"),
+                        "auth_hash": "",  # This is always empty to not leak password hashes
                         "myjd_user": general_conf.get("myjd_user"),
                         "myjd_pass": general_conf.get("myjd_pass"),
                         "myjd_device": general_conf.get("myjd_device"),
@@ -405,8 +405,8 @@ def app_container():
                 salt = get_random_bytes(16).hex()
                 key = scrypt(password_hash, salt, 16, N=2 ** 14, r=8, p=1).hex()
                 password_hash = "scrypt|" + salt + "|" + key
-            section.save(
-                "auth_hash", to_str(password_hash))
+                section.save(
+                    "auth_hash", to_str(password_hash))
 
             myjd_user = to_str(data['general']['myjd_user'])
             myjd_pass = to_str(data['general']['myjd_pass'])

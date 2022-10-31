@@ -102,7 +102,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             if check_is_site(res[1]) == 'BY':
                 by_results = by_search_results(res[0], by, quality)
             elif check_is_site(res[1]) == 'DW':
-                dw_results = dw_search_results(res[0], quality)
+                dw_results = dw_search_results(res[0], quality, title)
             elif check_is_site(res[1]) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
             elif check_is_site(res[1]) == 'HW':

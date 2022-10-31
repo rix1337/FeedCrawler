@@ -157,11 +157,6 @@ function submitSearch() {
                     role="status"> </span>
               <i v-if="!spin_search" class="bi bi-search"></i> Suchen
             </button>
-            <div class="col-sm">
-              <div v-if="results && !slow_ready" class="btn btn-warning disabled mt-4">
-                <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
-              </div>
-            </div>
           </div>
         </div>
 
@@ -189,6 +184,13 @@ function submitSearch() {
                   :prev-text="'<'"
               >
               </paginate>
+            </div>
+            <div class="row justify-content-center">
+              <div class="col-sm-3">
+                <div v-if="results && !slow_ready" class="alert alert-info" role="alert">
+                  <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
+                </div>
+              </div>
             </div>
           </div>
         </div>
