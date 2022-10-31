@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.6** Der bestehende Hash für das FeedCrawler-Passwort wird nun nicht mehr im Einstellungs-REST herausgegeben.
 - **15.0.6** Hinweis auf langsame Seiten in Websuche ist nun weniger prominent.
 - **15.0.6** DW-Websuche ignoriert nun Release-Titel, die nicht mit dem Suchbegriff übereinstimmen.
 - **15.0.5** Beim Hinzufügen einzelner Episoden wird deren Titel wieder korrekt gesetzt

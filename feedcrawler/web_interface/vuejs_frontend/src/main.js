@@ -41,6 +41,7 @@ const store = createStore({
                 mb: [], sj: [], dj: [], dd: [], mbsj: []
             }, settings: {
                 general: {
+                    auth_hash: '',
                     myjd_user: '',
                     myjd_pass: '',
                     myjd_device: '',

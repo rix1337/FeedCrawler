@@ -1,6 +1,6 @@
 <script setup>
 import {useStore} from 'vuex'
-import {ref} from 'vue'
+import {computed, ref} from 'vue'
 import {useToast} from "vue-toastification"
 import {submitForm} from '@formkit/vue'
 import {Collapse, Offcanvas} from 'bootstrap'
@@ -66,6 +66,7 @@ function showMultiHosterHelp() {
   })
 }
 
+const password_changed = computed(() => (store.state.settings.general.auth_hash.length > 0))
 
 function submitSettings() {
   submitForm('settings')
@@ -224,7 +225,7 @@ function submitSettings() {
                            placeholder="Bspw. rix1337"
                            type="text"/>
                   <FormKit v-model="store.state.settings.general.auth_hash"
-                           :validation="value.auth_user ? 'required' : ''"
+                           :validation="(password_changed && value.auth_user) ? 'required|length:6' : ''"
                            help="Hier das Passwort für FeedCrawler angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
