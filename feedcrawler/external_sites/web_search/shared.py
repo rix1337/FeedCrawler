@@ -100,18 +100,18 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
 
         for res in async_results:
             if check_is_site(res[1]) == 'BY':
-                by_results = by_search_results(res[0], by, quality)
+                by_results = by_search_results(res[0], by, quality, title)
             elif check_is_site(res[1]) == 'DW':
                 dw_results = dw_search_results(res[0], quality, title)
             elif check_is_site(res[1]) == 'FX':
                 fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
             elif check_is_site(res[1]) == 'HW':
-                hw_results = hw_search_results(res[0], quality)
+                hw_results = hw_search_results(res[0], quality, title)
 
         if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
                                  data={'search': bl_query.replace("+", " ")})
-            nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality)
+            nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality, title)
         else:
             nk_results = []
 

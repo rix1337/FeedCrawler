@@ -6,7 +6,7 @@
 
 ### Changelog FeedCrawler:
 
-- **15.0.8** Alle Websuchen (Blogs) ignorieren nun Release-Titel, die nicht mit dem Suchbegriff übereinstimmen.
+- **15.0.9** Alle Websuchen (Blogs) ignorieren nun Release-Titel, die nicht mit dem Suchbegriff übereinstimmen.
 - **15.0.8** Überarbeitung der Build-Pipeline (GitHub Actions)
 - **15.0.7** Der interne Request Handler wird nun auch für Benachrichtigungen verwendet.
 - **15.0.6** Der bestehende Hash für das FeedCrawler-Passwort wird nun nicht mehr im Einstellungs-REST herausgegeben.
