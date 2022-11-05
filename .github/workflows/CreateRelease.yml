@@ -25,7 +25,7 @@ jobs:
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Use Node.js 16.x
+      - name: Build using Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -60,7 +60,7 @@ jobs:
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Use Node.js 16.x
+      - name: Build using Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
@@ -97,7 +97,7 @@ jobs:
         run: |
           pip install twine
       - name: Get Version
-        run: echo "::set-output name=version::$(python feedcrawler/providers/version.py)"
+        run: echo "version=$(python feedcrawler/providers/version.py)" >>$GITHUB_OUTPUT
         id: version
       - name: Create Release
         uses: softprops/action-gh-release@v1
