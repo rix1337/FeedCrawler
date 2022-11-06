@@ -40,5 +40,4 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
-- **6.0.0** Der Helper nutzt analog zum FeedCrawler weniger externe Python-Dependencies
-  (`docopt`, `flask` und `waitress` wurden entfernt).
+- **6.0.3** Der Helper nutzt jetzt Chrome in der Version 107
