@@ -100,18 +100,12 @@ jobs:
         run: echo "version=$(python feedcrawler/providers/version.py)" >>$GITHUB_OUTPUT
         id: version
       - name: Create Release
-        uses: softprops/action-gh-release@v1
-        id: create_release
+        uses: ncipollo/release-action@v1
         with:
-          draft: false
-          prerelease: false
-          name: v.${{ steps.version.outputs.version }}
-          tag_name: v.${{ steps.version.outputs.version }}
-          body_path: .github/Changelog.md
-          files: |
-            ./artifact-wheel/feedcrawler-${{ steps.version.outputs.version }}-py3-none-any.whl
-            ./artifact-exe/feedcrawler-${{ steps.version.outputs.version }}-standalone-win64.exe
-          fail_on_unmatched_files: true
+          artifacts: "./artifact-wheel/*.whl,./artifact-exe/*.exe"
+          artifactErrorsFailBuild: true
+          bodyFile: ".github/Changelog.md"
+          tag: v.${{ steps.version.outputs.version }}
       - name: Upload to PyPI
         run: |
           python -m twine upload ./artifact-wheel/* -u __token__ -p ${{ secrets.PYPI_TOKEN }}

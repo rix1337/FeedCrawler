@@ -3,6 +3,7 @@ on: [ pull_request ]
 
 jobs:
   check-branch:
+    name: Check version info and changelog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -11,14 +12,15 @@ jobs:
         with:
           python-version: 3.11
           architecture: x64
-      - run: python .github/workflows/CheckBranch.py
+      - name: Verify version and changelog info
+        run: python .github/workflows/CheckBranch.py
   build-python:
     runs-on: ubuntu-latest
     needs: check-branch
     strategy:
       matrix:
         python-version: [ 3.7, 3.8, 3.9, "3.10", 3.11 ]
-    name: Python ${{ matrix.python-version }}
+    name: Python ${{ matrix.python-version }} build
     steps:
       - uses: actions/checkout@v3
       - name: Setup python
@@ -30,20 +32,23 @@ jobs:
         with:
           path: ~/.cache/pip
           key: ${{ hashFiles('setup.py') }}-${{ hashFiles('requirements.txt') }}
-      - run: pip install -r requirements.txt
-      - run: python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run build from branch
+        run: python FeedCrawler.py --port=9090 --config="/home/runner/work/_temp/_github_home" --test_run --log-level=DEBUG
   build-vuejs:
     runs-on: ubuntu-latest
     needs: check-branch
-    name: Build using Node.js
+    name: Node.js build
     steps:
       - uses: actions/checkout@v3
-      - name: Use Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - name: Install dependencies
         run: npm ci
         working-directory: feedcrawler/web_interface/vuejs_frontend
-      - run: npm run build --if-present
+      - name: Run build from branch
+        run: npm run build
         working-directory: feedcrawler/web_interface/vuejs_frontend
