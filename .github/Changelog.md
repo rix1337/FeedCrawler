@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.10** Weitere Überarbeitung der Build-Pipeline (GitHub Actions)
 - **15.0.9** Alle Websuchen (Blogs) ignorieren nun Release-Titel, die nicht mit dem Suchbegriff übereinstimmen.
 - **15.0.8** Überarbeitung der Build-Pipeline (GitHub Actions)
 - **15.0.7** Der interne Request Handler wird nun auch für Benachrichtigungen verwendet.
@@ -39,5 +40,4 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
-- **6.0.0** Der Helper nutzt analog zum FeedCrawler weniger externe Python-Dependencies
-  (`docopt`, `flask` und `waitress` wurden entfernt).
+- **6.0.3** Der Helper nutzt jetzt Chrome in der Version 107
