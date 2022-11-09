@@ -20,16 +20,16 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('setup.py') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install requirements
+      - name: Install Python dependencies
         run: |
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Build using Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - name: Install dependencies
+      - name: Install Node dependencies
         run: npm ci
         working-directory: feedcrawler/web_interface/vuejs_frontend
       - run: npm run build
@@ -55,16 +55,16 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('setup.py') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-      - name: Install requirements
+      - name: Install Python dependencies
         run: |
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
-      - name: Build using Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 16.x
-      - name: Install dependencies
+      - name: Install Node dependencies
         run: npm ci
         working-directory: feedcrawler/web_interface/vuejs_frontend
       - run: npm run build
