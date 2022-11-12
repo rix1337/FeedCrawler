@@ -29,11 +29,19 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ## Installation
 
+## Manuelle Installation
+
 ### Voraussetzungen
 
-* [Python 3.6](https://www.python.org/downloads/) oder neuer
-* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit [My JDownloader-Konto](https://my.jdownloader.org)
-* [FlareSolverr](https://github.com/FlareSolverr/FlareSolverr) ab v.2.0.0 um Cloudflare-Blockaden zu umgehen (optional)
+* [Python 3.7](https://www.python.org/downloads/) oder neuer
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit aktivem [My JDownloader-Konto](https://my.jdownloader.org)
+* _optional: [FlareSolverr 2](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen_
+
+### Installation / Update durch [pip](https://pip.pypa.io/en/stable/installation/)
+
+```pip install -U feedcrawler```
+
+Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
 ### Lokaler Build
 Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
@@ -44,19 +52,7 @@ Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.c
 4. Zurück in das Hauptverzeichnis wechseln: `cd ../../..`
 5. FeedCrawler auf Basis der _setup.py_ installieren: `pip install .`
 
-### [pip](https://pip.pypa.io/en/stable/installation/)
-
-#### Installieren
-
-```pip install feedcrawler```
-
-Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
-
-#### Update
-
-```pip install -U feedcrawler```
-
-#### Starten
+### Start
 
 ```feedcrawler``` in der Konsole (Python muss im System-PATH hinterlegt sein)
 
@@ -70,28 +66,23 @@ Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https:
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
   werden.
 
-### Windows Exe
+### Windows Build
 
 * Jedem [Release](https://github.com/rix1337/FeedCrawler/releases) wird eine selbstständig unter Windows lauffähige
   Version des FeedCrawlers beigefügt.
 * Hierfür müssen weder Python, noch die Zusatzpakete installiert werden.
 * Einfach die jeweilige Exe herunterladen und ausführen bzw. bei Updates die Exe ersetzen.
 
-### Hostnamen festlegen
+## Hostnamen
 
-FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Ausschließlich der Anwender entscheidet, welche
-Seiten durchsucht werden sollen. Diese Entscheidung trifft der Anwender selbstständig, indem er die _FeedCrawler.ini_ in
-der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werden dort reine Hostnamen (ohne _https://_).
+FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Welche das sind, entscheiden Anwender durch das
+Befüllen der _FeedCrawler.ini_ in der Kategorie _[Hostnames]_. Eingetragen werden dort Hostnamen, bspw. _ab = xyz.com_.
 
-#### Dabei gilt
-
-* Welcher Hostname aufgerufen wird entscheidet allein der Anwender.
+* Welche Hostname aufgerufen werden entscheidet allein der Anwender.
 * Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
-* Passt die aufgerufene Seite hinter dem jeweiligen Hostnamen nicht zum Suchmuster des FeedCrawlers, kann es zu Fehlern
-  kommen.
-* Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden ignoriert!
+* Passen Hostnamen nicht zum jeweiligen Suchmuster des FeedCrawlers, sind Fehlermeldungen möglich.
 
-### Startparameter
+## Startparameter
 
 | Parameter                      | Erläuterung |
 |--------------------------------|---|
@@ -102,7 +93,7 @@ der Kategorie _[Hostnames]_ manuell befüllt (_ab = xyz.com_). Eingetragen werde
 | ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 
-### Sicherheitshinweis
+## Sicherheitshinweis
 
 Der Webserver sollte nie ohne Absicherung im Internet freigegeben werden. Dazu lassen sich im Webinterface Nutzername
 und Passwort festlegen.
@@ -112,7 +103,5 @@ bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 
 ## Credits
 
-* [zapp-brannigan](https://github.com/zapp-brannigan/) (Idee)
-* Gutz-Pilz (Idee)
 * [mmarquezs](https://github.com/mmarquezs/) (MyJDownloader-API für Python)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Lizenz für die IDE)
+* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Open-Source-Lizenz für dieses Projekt)
