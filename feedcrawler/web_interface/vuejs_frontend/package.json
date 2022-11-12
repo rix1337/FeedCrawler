@@ -1,6 +1,6 @@
 {
   "name": "feedcrawler-web",
-  "version": "15.0.12",
+  "version": "15.0.13",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.13** FuN-Releases werden anderen HEVC-Releases gegenüber bevorzugt.
+- **15.0.13** Die Restzeit für das Entpacken von Dateien wird im Webinterface nun heruntergezählt.
 - **15.0.12** Readme aktualisiert
 - **15.0.12** Master-Branch heißt nun main
 - **15.0.11** Dependabot Security Update (#663)
