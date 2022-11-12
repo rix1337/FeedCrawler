@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **15.0.12** Readme aktualisiert
+- **15.0.12** Master-Branch heißt nun main
 - **15.0.11** Dependabot Security Update (#663)
 - **15.0.10** Weitere Überarbeitung der Build-Pipeline (GitHub Actions)
 - **15.0.9** Alle Websuchen (Blogs) ignorieren nun Release-Titel, die nicht mit dem Suchbegriff übereinstimmen.
