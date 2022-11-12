@@ -1,6 +1,6 @@
 # FeedCrawler
 
-<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/master/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" width="64" height="64" />
+<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" width="64" height="64" />
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
@@ -14,10 +14,10 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![Docker Image Version (latest semver)](https://img.shields.io/docker/v/rix1337/docker-feedcrawler?label=docker%20image&sort=semver)](https://hub.docker.com/r/rix1337/docker-feedcrawler/tags)
 [![Docker Pulls](https://img.shields.io/docker/pulls/rix1337/docker-feedcrawler)](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 
-[![GitHub license](https://img.shields.io/github/license/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/blob/master/LICENSE.md)
-[![Python 3 Backend](https://img.shields.io/badge/backend-python%203-blue.svg)](https://github.com/rix1337/FeedCrawler/tree/master/feedcrawler)
-[![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)](https://github.com/rix1337/FeedCrawler/tree/master/feedcrawler/web_interface/vuejs_frontend)
-[![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/commits/master)
+[![GitHub license](https://img.shields.io/github/license/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/blob/main/LICENSE.md)
+[![Python 3 Backend](https://img.shields.io/badge/backend-python%203-blue.svg)](https://github.com/rix1337/FeedCrawler/tree/main/feedcrawler)
+[![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)](https://github.com/rix1337/FeedCrawler/tree/main/feedcrawler/web_interface/vuejs_frontend)
+[![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/commits/main)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/rix1337/feedcrawler)](https://github.com/rix1337/FeedCrawler/graphs/commit-activity)
 [![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/pulse)
 

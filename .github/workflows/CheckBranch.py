@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Script prüft, ob Versionsnummern und Changelog gegenüber dem master geändert wurden.
+# Dieses Script prüft, ob Versionsnummern und Changelog gegenüber main geändert wurden.
 
 import json
 import re
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             'Version info mismatch in feedcrawler/providers/version.py and feedcrawler/web_interface/vuejs_frontend/package.json')
 
     online_changelog = urlopen(
-        'https://raw.githubusercontent.com/rix1337/FeedCrawler/master/.github/Changelog.md').read()
+        'https://raw.githubusercontent.com/rix1337/FeedCrawler/main/.github/Changelog.md').read()
     online_changelog = online_changelog.decode("utf-8")
     with open('.github/Changelog.md', encoding='utf8') as local_changelog:
         local_changelog = local_changelog.read()
