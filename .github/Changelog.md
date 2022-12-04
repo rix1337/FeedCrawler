@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **16.0.1** Integration der [Plex-Watchlist](https://support.plex.tv/articles/universal-watchlist/) als Suchquelle
+- **16.0.1** Bugfix in Identifikation der IMDb-ID auf Basis eines Suchtitels
 - **16.0.0** Versionsprüfung für den Sponsors Helper
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
@@ -13,5 +15,6 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **7.0.1** Redundante Prüfung, ob der Proxy erfolgreich erstellt wurde (falls ident.me oder ipify.org down sind)
 - **7.0.0** Der Sponsors Helper prüft nun, ob er mit der aktuellen FeedCrawler-Version kompatibel ist.
 - **7.0.0** Update auf Google Chrome 108

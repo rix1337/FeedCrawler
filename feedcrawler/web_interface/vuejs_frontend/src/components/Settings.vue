@@ -543,6 +543,37 @@ function submitSettings() {
                    class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
+                  <FormKit v-model="store.state.settings.plex.url"
+                           help="Hier die Plex-Direct-URL von Plex angeben, inklusive https:// und Port."
+                           help-class="text-muted"
+                           input-class="form-control bg-light mb-2"
+                           label="Plex URL"
+                           messages-class="text-danger"
+                           outer-class="mb-4"
+                           placeholder="Bspw. https://192-168-0-1.a1bcd234abc123456c7891011def12g9.plex.direct:32400"
+                           type="url"
+                           validation="url"
+                           validation-visibility="live"/>
+                  <h5>Plex Integration</h5>
+                  <div class="mb-4">
+                    <div v-if="store.state.settings.plex.url !== ''">
+                      <div v-if="!store.state.settings.plex.api">
+                        <mark>
+                          <a href="./api/plex_auth/">Hier</a> authentifizieren.
+                        </mark>
+                      </div>
+                      <div v-else>
+                        <mark>
+                          Erfolgreich authentifiziert.
+                        </mark>
+                      </div>
+                    </div>
+                    <div v-else>
+                      <mark>
+                        Bitte zuerst eine valide Plex URL eintragen und <strong>speichern</strong>!
+                      </mark>
+                    </div>
+                  </div>
                   <FormKit v-model="store.state.settings.overseerr.url"
                            :validation="value.overseerr_api ? 'required|url' : 'url'"
                            help="Hier die URL von Overseerr angeben."
@@ -916,13 +947,15 @@ function submitSettings() {
                 v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
                 class="accordion-item">
               <h2 id="headingSettingsSjBl" class="accordion-header">
-                <button aria-controls="collapseSettingsSjBl" aria-expanded="false" class="accordion-button collapsed"
+                <button aria-controls="collapseSettingsSjBl" aria-expanded="false"
+                        class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsSjBl"
                         data-bs-toggle="collapse" type="button">
                   {{ store.state.hostnames.sjbl }}
                 </button>
               </h2>
-              <div id="collapseSettingsSjBl" aria-labelledby="headingSettingsSjBl" class="accordion-collapse collapse"
+              <div id="collapseSettingsSjBl" aria-labelledby="headingSettingsSjBl"
+                   class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
                   <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->

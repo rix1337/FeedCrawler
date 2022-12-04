@@ -21,6 +21,7 @@ from feedcrawler.external_sites.feed_search.sites.content_shows_sf import SF
 from feedcrawler.external_sites.feed_search.sites.content_shows_sj import SJ
 from feedcrawler.external_tools.ombi_api import ombi_search
 from feedcrawler.external_tools.overseerr_api import overseerr_search
+from feedcrawler.external_tools.plex_api import plex_search
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
@@ -109,7 +110,25 @@ def crawler(global_variables, remove_jf_time, test_run):
             logger.debug("-----------Alle Suchläufe gestartet.-----------")
 
             # Connect to and run request management services
+
+            plex_string = ""
+            try:
+                plex_results = plex_search(request_management_first_run)
+                requested_movies = plex_results[0]
+                requested_shows = plex_results[1]
+                request_management_first_run = False
+                if requested_movies or requested_shows:
+                    plex_string = u"Die Plex-Suche lief für: "
+                    if requested_movies:
+                        plex_string = plex_string + str(requested_movies) + " Filme"
+                        if requested_shows:
+                            plex_string = plex_string + " und "
+                    if requested_shows:
+                        plex_string = plex_string + str(requested_shows) + " Serien"
+            except Exception as e:
+                print(u"Fehler bei der Plex-Suche: " + str(e))
             overseerr_string = ""
+
             try:
                 overseerr_results = overseerr_search(request_management_first_run)
                 requested_movies = overseerr_results[0]
@@ -126,6 +145,7 @@ def crawler(global_variables, remove_jf_time, test_run):
             except Exception as e:
                 print(u"Fehler bei der Overseerr-Suche: " + str(e))
             ombi_string = ""
+
             try:
                 ombi_results = ombi_search(request_management_first_run)
                 requested_movies = ombi_results[0]

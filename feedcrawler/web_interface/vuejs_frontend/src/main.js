@@ -88,6 +88,8 @@ const store = createStore({
                     ironfiles: true,
                 }, alerts: {
                     pushbullet: "", pushover: "", telegram: "", homeassistant: ""
+                }, plex: {
+                    url: "", api: ""
                 }, ombi: {
                     url: "", api: ""
                 }, overseerr: {

@@ -12,7 +12,9 @@ import sys
 import time
 from functools import wraps
 from socketserver import ThreadingMixIn
+from urllib import parse
 from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
+from xml.etree import ElementTree
 
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
@@ -21,6 +23,8 @@ from bottle import Bottle, abort, redirect, request, static_file, HTTPError
 import feedcrawler.external_tools.myjd_api
 from feedcrawler.external_sites.web_search.shared import search_web
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.external_tools.plex_api import get_client_id
+from feedcrawler.external_tools.plex_api import get_plex_headers
 from feedcrawler.providers import version, shared_state
 from feedcrawler.providers.common_functions import Unbuffered
 from feedcrawler.providers.common_functions import decode_base64
@@ -52,6 +56,8 @@ from feedcrawler.providers.myjd_connection import set_enabled
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.sqlite_database import ListDb
+from feedcrawler.providers.url_functions import get_url_headers
+from feedcrawler.providers.url_functions import post_url_headers
 
 
 class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
@@ -276,6 +282,7 @@ def app_container():
             general_conf = CrawlerConfig('FeedCrawler')
             hosters = CrawlerConfig('Hosters')
             alerts = CrawlerConfig('Notifications')
+            plex = CrawlerConfig('Plex')
             ombi = CrawlerConfig('Ombi')
             overseerr = CrawlerConfig('Overseerr')
             crawljobs = CrawlerConfig('Crawljobs')
@@ -326,6 +333,10 @@ def app_container():
                         "pushover": alerts.get("pushover"),
                         "homeassistant": alerts.get("homeassistant"),
                         "telegram": alerts.get("telegram"),
+                    },
+                    "plex": {
+                        "url": plex.get("url"),
+                        "api": bool(plex.get("api")),
                     },
                     "ombi": {
                         "url": ombi.get("url"),
@@ -472,6 +483,9 @@ def app_container():
             section.save("katfile", to_str(data['hosters']['katfile']))
             section.save("ironfiles", to_str(data['hosters']['ironfiles']))
 
+            section = CrawlerConfig("Plex")
+            section.save("url", to_str(data['plex']['url']))
+
             section = CrawlerConfig("Ombi")
             ombi_url = to_str(data['ombi']['url'])
             ombi_url = ombi_url[:-1] if ombi_url.endswith('/') else ombi_url
@@ -557,6 +571,99 @@ def app_container():
             return "Success"
         except:
             return abort(400, "Failed")
+
+    @app.get(prefix + "/api/plex_auth/")
+    @auth_basic(is_authenticated_user)
+    def get_plex_token():
+        auth_url = ""
+        try:
+            plex_config = CrawlerConfig('Plex')
+
+            if not plex_config.get('url'):
+                return (
+                    "Bitte zuerst eine valide Plex URL eintragen und <strong>speichern</strong>! <a href='../..'>Zurück</a>")
+
+            plex_config.save('pin_id', '')
+            plex_config.save('pin_code', '')
+
+            token = plex_config.get('api')
+            if token:
+                headers = get_plex_headers(token)
+                token_valid = get_url_headers('https://plex.tv/api/v2/user', headers=headers)
+                if token_valid["status_code"] == 200:
+                    return "Plex-Token ist bereits konfiguriert und gültig!"
+                if token_valid["status_code"] == 401:
+                    token = ''
+                    plex_config.save('api', token)
+                else:
+                    return abort(400, "Plex-API reagiert nicht. Token konnte nicht geprüft werden.")
+
+            origin = parse.urlparse(request.url)
+            origin_url = origin.scheme + "://" + origin.netloc
+            generate_pin = post_url_headers('https://plex.tv/api/v2/pins?strong=true', headers={
+                'accept': 'application/json',
+                'X-Plex-Product': 'FeedCrawler',
+                'X-Plex-Client-Identifier': get_client_id(),
+                'Origin': origin_url
+            })
+
+            if generate_pin["status_code"] == 201:
+                response = json.loads(generate_pin["text"])
+                pin_id = response['id']
+                pin_code = response['code']
+                plex_config.save('pin_id', pin_id)
+                plex_config.save('pin_code', pin_code)
+            else:
+                return abort(400, "Plex-API reagiert nicht. PIN konnte nicht erzeugt werden.")
+
+            return_url = request.url.replace("/api/plex_auth/", "/api/plex_pin/")
+            client_id = get_client_id()
+            auth_url = "https://app.plex.tv/auth#" \
+                       "?clientID=" + client_id + \
+                       "&code=" + pin_code + \
+                       "&context%5Bdevice%5D%5Bproduct%5D=FeedCrawler" + \
+                       "&forwardUrl=" + parse.quote(return_url, safe='')
+
+        except:
+            time.sleep(3)
+            pass
+
+        if auth_url:
+            redirect(auth_url)
+        else:
+            return abort(400, "Failed")
+
+    @app.get(prefix + "/api/plex_pin/")
+    @auth_basic(is_authenticated_user)
+    def get_plex_pin():
+        token = ""
+        plex_config = CrawlerConfig('Plex')
+
+        try:
+            pin_id = plex_config.get('pin_id')
+            pin_code = plex_config.get('pin_code')
+
+            check_pin = get_url_headers('https://plex.tv/api/v2/pins/' + pin_id, headers={
+                'code': pin_code,
+                'X-Plex-Client-Identifier': get_client_id()
+            })
+
+            if check_pin["status_code"] == 200:
+                response = ElementTree.fromstring(check_pin["text"])
+                token = response.attrib['authToken']
+                if token and str(token) != 'null':
+                    plex_config.save('api', token)
+        except:
+            time.sleep(3)
+            pass
+
+        plex_config.save('pin_id', '')
+        plex_config.save('pin_code', '')
+
+        if token:
+            return ("Plex-Token wurde erfolgreich gespeichert! <a href='../..'>Zurück</a>")
+        else:
+            return abort(400, "Die Authentifizierung war nicht erfolgreich. Bitte erneut versuchen.")
 
     @app.get(prefix + "/api/version/")
     @auth_basic(is_authenticated_user)
