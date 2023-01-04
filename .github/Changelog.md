@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **16.0.2** Bugfix in Plex-Serien-Suche
+- **16.0.2** Bugfix in Identifikation der IMDb-ID auf Basis eines Suchtitels
 - **16.0.1** Integration der [Plex-Watchlist](https://support.plex.tv/articles/universal-watchlist/) als Suchquelle
 - **16.0.1** Bugfix in Identifikation der IMDb-ID auf Basis eines Suchtitels
 - **16.0.0** Versionsprüfung für den Sponsors Helper

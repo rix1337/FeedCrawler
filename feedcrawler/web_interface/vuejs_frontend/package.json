@@ -1,6 +1,6 @@
 {
   "name": "feedcrawler-web",
-  "version": "16.0.1",
+  "version": "16.0.2",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -23,6 +23,6 @@
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.0.0",
     "@vue/cli-plugin-router": "^5.0.8",
-    "vite": "^4.0.3"
+    "vite": "^4.0.4"
   }
 }
