@@ -544,7 +544,7 @@ function submitSettings() {
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.plex.url"
-                           help="Hier die Plex-Direct-URL von Plex angeben, inklusive https:// und Port."
+                           help="Hier die URL des eigenen Plex-Servers angeben, inklusive https:// und Port."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="Plex URL"

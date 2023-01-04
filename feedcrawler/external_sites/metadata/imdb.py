@@ -79,22 +79,30 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
     else:
         query = query + "&s=tt&ttype=ft&ref_=fn_ft"
 
-    request = get_url_headers("https://www.imdb.com/find?q=" + query, headers={'Accept-Language': language})
-    soup = BeautifulSoup(request["text"], "html5lib")
-    props = soup.find("script", text=re.compile("props"))
-    details = loads(props.string)
-    search_results = details['props']['pageProps']['titleResults']['results']
-
     imdb_id = False
-    if len(search_results) > 0:
-        for result in search_results:
-            year = ""
-            if year_in_title:
-                year = ' ' + result['titleReleaseText']
-            if simplified_search_term_in_title(title, result['titleNameText'] + year):
-                imdb_id = result['id']
-                break
+
+    request = get_url_headers("https://www.imdb.com/find/?q=" + query, headers={'Accept-Language': language})
+
+    if request["status_code"] == 200:
+        soup = BeautifulSoup(request["text"], "html5lib")
+        props = soup.find("script", text=re.compile("props"))
+        details = loads(props.string)
+        search_results = details['props']['pageProps']['titleResults']['results']
+
+        if len(search_results) > 0:
+            for result in search_results:
+                year = ""
+                if year_in_title:
+                    year = ' ' + result['titleReleaseText']
+                if simplified_search_term_in_title(title, result['titleNameText'] + year):
+                    imdb_id = result['id']
+                    break
     else:
+        print("IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
+        shared_state.logger.debug(
+            "IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
+
+    if imdb_id:
         shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title)
     return imdb_id
 
