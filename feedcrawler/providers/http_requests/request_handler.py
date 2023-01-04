@@ -124,6 +124,8 @@ def request(
             data = urlencode(data).encode()
         except:
             data = data.encode()
+    elif method in ["POST", "PATCH", "PUT"] and not data:
+        data = "".encode()
 
     if basic_auth and len(basic_auth) == 2 and "authorization" not in headers:
         username, password = basic_auth

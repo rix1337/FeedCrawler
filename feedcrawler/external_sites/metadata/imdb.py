@@ -69,7 +69,7 @@ def get_clean_title(release_title):
     return clean_title
 
 
-def get_imdb_id_from_title(title, current_list="NoList"):
+def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_title=False):
     title = get_clean_title(title)
 
     query = quote(title)
@@ -79,15 +79,20 @@ def get_imdb_id_from_title(title, current_list="NoList"):
     else:
         query = query + "&s=tt&ttype=ft&ref_=fn_ft"
 
-    request = get_url_headers("https://www.imdb.com/find?q=" + query, headers={'Accept-Language': 'de'})
-    search_results = re.findall(r'<td class="result_text"> <a href="\/title\/(tt[0-9]{7,9}).*?" >(.*?)<\/a>(.*?)<\/td>',
-                                request["text"])
+    request = get_url_headers("https://www.imdb.com/find?q=" + query, headers={'Accept-Language': language})
+    soup = BeautifulSoup(request["text"], "html5lib")
+    props = soup.find("script", text=re.compile("props"))
+    details = loads(props.string)
+    search_results = details['props']['pageProps']['titleResults']['results']
 
     imdb_id = False
     if len(search_results) > 0:
         for result in search_results:
-            if simplified_search_term_in_title(title, result[1] + "." + result[2]):
-                imdb_id = result[0]
+            year = ""
+            if year_in_title:
+                year = ' ' + result['titleReleaseText']
+            if simplified_search_term_in_title(title, result['titleNameText'] + year):
+                imdb_id = result['id']
                 break
     else:
         shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title)

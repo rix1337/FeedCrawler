@@ -65,6 +65,13 @@ class CrawlerConfig(object):
             ("katfile", "bool", "False"),
             ("ironfiles", "bool", "False"),
         ],
+        'Plex': [
+            ("url", "str", ""),
+            ("api", "str", ""),
+            ("client_id", "str", ""),
+            ("pin_code", "str", ""),
+            ("pin_id", "str", "")
+        ],
         'Overseerr': [
             ("url", "str", ""),
             ("api", "str", "")
