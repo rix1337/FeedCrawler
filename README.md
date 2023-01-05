@@ -4,7 +4,7 @@
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
-[![GitHub Workflow Status](https://img.shields.io/github/workflow/status/rix1337/FeedCrawler/Release%20Artifacts)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
+[![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rix1337/FeedCrawler/CreateRelease.yml?branch=main)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
 [![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/stargazers)
 [![GitHub all releases](https://img.shields.io/github/downloads/rix1337/feedcrawler/total?label=github%20downloads)](https://github.com/rix1337/FeedCrawler/releases)
 
@@ -75,7 +75,7 @@ Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.c
 
 ## Hostnamen
 
-FeedCrawler kann zum durchsuchen beliebiger Webseiten verwendet werden. Welche das sind, entscheiden Anwender durch das
+FeedCrawler kann zum Durchsuchen beliebiger Webseiten verwendet werden. Welche das sind, entscheiden Anwender durch das
 Befüllen der _FeedCrawler.ini_ in der Kategorie _[Hostnames]_. Eingetragen werden dort Hostnamen, bspw. _ab = xyz.com_.
 
 * Welche Hostname aufgerufen werden entscheidet allein der Anwender.
