@@ -127,8 +127,8 @@ def crawler(global_variables, remove_jf_time, test_run):
                         plex_string = plex_string + str(requested_shows) + " Serien"
             except Exception as e:
                 print(u"Fehler bei der Plex-Suche: " + str(e))
-            overseerr_string = ""
 
+            overseerr_string = ""
             try:
                 overseerr_results = overseerr_search(request_management_first_run)
                 requested_movies = overseerr_results[0]
@@ -205,6 +205,9 @@ def crawler(global_variables, remove_jf_time, test_run):
                   u" - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
                 total_time) + u")!")
 
+            if plex_string:
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + plex_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + plex_string)
             if overseerr_string:
                 logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
                 print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)

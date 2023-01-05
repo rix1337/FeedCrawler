@@ -71,6 +71,13 @@ const password_changed = computed(() => (store.state.settings.general.auth_hash.
 function submitSettings() {
   submitForm('settings')
 }
+
+function showWikiHelp() {
+  new Offcanvas(document.getElementById("offcanvasBottomHelp"), {backdrop: false}).show()
+  new Collapse(document.getElementById('collapsePlexDirect'), {
+    toggle: true
+  })
+}
 </script>
 
 
@@ -544,16 +551,25 @@ function submitSettings() {
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.plex.url"
-                           help="Hier die URL des eigenen Plex-Servers angeben, inklusive https:// und Port."
+                           :validation="[['matches', /^https:\/\/.*\.plex.direct:\d{1,6}$/]]"
+                           :validation-messages="{
+                              matches: 'Bitte die Plex-Direct-URL inklusive https:// und Port angeben!'
+                           }"
+                           help="Hier die Plex-Direct-URL des eigenen Plex-Servers angeben, inklusive https:// und Port."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
-                           label="Plex URL"
+                           label="Plex-Direct-URL"
                            messages-class="text-danger"
                            outer-class="mb-4"
                            placeholder="Bspw. https://192-168-0-1.a1bcd234abc123456c7891011def12g9.plex.direct:32400"
                            type="url"
                            validation="url"
                            validation-visibility="live"/>
+                  <div class="mb-4">
+                    <span>Wie eine Plex-Direct-URL ermittelt wird, ist im <a href="#" @click="showWikiHelp()">Wiki</a>
+                      beschrieben.
+                    </span>
+                  </div>
                   <h5>Plex Integration</h5>
                   <div class="mb-4">
                     <div v-if="store.state.settings.plex.url !== ''">
@@ -563,15 +579,15 @@ function submitSettings() {
                         </mark>
                       </div>
                       <div v-else>
-                        <mark>
+                        <span class="text-success">
                           Erfolgreich authentifiziert.
-                        </mark>
+                        </span>
                       </div>
                     </div>
                     <div v-else>
-                      <mark>
+                      <span class="text-danger">
                         Bitte zuerst eine valide Plex URL eintragen und <strong>speichern</strong>!
-                      </mark>
+                      </span>
                     </div>
                   </div>
                   <FormKit v-model="store.state.settings.overseerr.url"
