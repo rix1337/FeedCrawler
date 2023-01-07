@@ -176,16 +176,16 @@ def app_container():
             redirect_url = prefix + redirect_url
         return redirect(redirect_url)
 
+    @app.hook('before_request')
+    def redirect_without_trailing_slash():
+        if not request.path.endswith('/') and "/favicon.ico" not in request.path and "/assets/" not in request.path:
+            raise redirect(request.url + '/')
+
     if prefix:
         @app.get('/')
         @auth_basic(is_authenticated_user)
         def index_prefix():
             return redirect(prefix)
-
-    @app.get(prefix)
-    @auth_basic(is_authenticated_user)
-    def redirect_to_slash():
-        return redirect(prefix + '/')
 
     @app.get(prefix + '/sponsors_helper')
     @auth_basic(is_authenticated_user)
