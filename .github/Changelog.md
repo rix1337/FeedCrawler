@@ -6,7 +6,7 @@
 
 ### Changelog FeedCrawler:
 
-- **16.0.4** Leite alle Web-Requests ohne Trailing Slash korrekt weiter 
+- **16.1.0** Bugfix: Leite alle Web-Requests ohne Trailing Slash korrekt weiter 
              (Behebt [Organizr#1830](https://github.com/causefx/Organizr/issues/1830)).
 - **16.0.3** Verbesserte Validierung der und Hinweise zur Plex-Direct-URL
 - **16.0.2** Bugfix in Plex-Serien-Suche

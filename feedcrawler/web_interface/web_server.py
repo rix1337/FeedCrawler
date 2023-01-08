@@ -178,7 +178,29 @@ def app_container():
 
     @app.hook('before_request')
     def redirect_without_trailing_slash():
-        if not request.path.endswith('/') and "/favicon.ico" not in request.path and "/assets/" not in request.path:
+        no_trailing_slash = [
+            "/assets/",
+            "/favicon.ico",
+            ".user.js",
+            "/api/log_entry/",
+            "/api/search/",
+            "/api/download_movie/",
+            "/api/download_show/",
+            "/api/download_bl/",
+            "/api/download_s/",
+            "/api/myjd_enable/",
+            "/api/myjd_disable/",
+            "/api/myjd_move/",
+            "/api/myjd_remove/",
+            "/api/myjd_reset/",
+            "/api/myjd_retry/",
+            "/api/myjd_pause/",
+            "/api/internal_cnl/",
+            "/sponsors_helper/api/to_decrypt/",
+            "/sponsors_helper/api/f_blocked/",
+            "/sponsors_helper/to_download/",  # this one is ambivalent
+        ]
+        if not request.path.endswith('/') and not any(s in request.path for s in no_trailing_slash):
             raise redirect(request.url + '/')
 
     if prefix:
@@ -1208,7 +1230,7 @@ def app_container():
             pass
         return abort(400, "Failed")
 
-    @app.post(prefix + "/api/myjd_pause/<bl>")
+    @app.post(prefix + "/api/myjd_pause/<bl>/")
     @auth_basic(is_authenticated_user)
     def myjd_pause(bl):
         try:
@@ -1716,6 +1738,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
     def to_download(name):
         try:
             if name:
+                name.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 if remove_decrypt(name):
                     try:
                         notify([{
@@ -1770,7 +1793,8 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             return abort(400, "Failed")
         if payload:
             links = payload[0]
-            package_name = payload[1].replace("%20", "")
+            package_name = payload[1].replace("%20", "")\
+                .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
 
             try:
                 password = payload[2]
@@ -1791,7 +1815,8 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             data = request.body.read().decode("utf-8")
             payload = json.loads(data)
 
-            package_name = payload["package_name"]
+            package_name = payload["package_name"]\
+                .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
             links = payload["links"]
 
             try:
