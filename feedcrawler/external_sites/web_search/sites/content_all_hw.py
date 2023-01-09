@@ -12,7 +12,7 @@ from feedcrawler.providers.common_functions import simplified_search_term_in_tit
 
 
 def hw_search_results(content, resolution, search_term):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
     results = []
     for link in links:

@@ -7,6 +7,9 @@
 ### Changelog FeedCrawler:
 
 - **16.2.0** Dark-Mode-Unterstützung für die Web-UI
+- **16.2.0** Dependency `html5lib` entfernt und durch den schnelleren Python-eigenen `html.parser` ersetzt.
+- **16.2.0** Bugfix: Die BY-Feed-Suche funktioniert wieder.
+- **16.2.0** Bugfix: Die FF-Feed-Suche funktioniert wieder.
 - **16.1.0** Bugfix: Leite alle Web-Requests ohne Trailing Slash korrekt weiter (Behebt [Organizr#1830](https://github.com/causefx/Organizr/issues/1830)).
 - **16.0.3** Verbesserte Validierung der und Hinweise zur Plex-Direct-URL
 - **16.0.2** Bugfix in Plex-Serien-Suche

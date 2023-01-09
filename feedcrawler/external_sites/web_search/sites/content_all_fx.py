@@ -28,7 +28,7 @@ def fx_search_results(content, search_term):
     results = []
 
     for link in links:
-        article = BeautifulSoup(str(link), 'html5lib')
+        article = BeautifulSoup(str(link), "html.parser")
         titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
         for title in titles:
             try:

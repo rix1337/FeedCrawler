@@ -94,7 +94,7 @@ def download(payload):
         if not response or "NinjaFirewall 429" in response:
             return False
 
-        soup = BeautifulSoup(response, 'html5lib')
+        soup = BeautifulSoup(response, "html.parser")
         url_hosters = []
         if "BY" in site:
             key = soup.find("small").text
@@ -127,7 +127,7 @@ def download(payload):
             links = get_urls_async(async_link_results)
             for link in links:
                 if link[0]:
-                    link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
+                    link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "DW" in site:

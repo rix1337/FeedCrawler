@@ -81,7 +81,7 @@ class BL:
 
 
 def fx_content_to_soup(content):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     return content
 
 
@@ -89,9 +89,9 @@ def fx_get_details(content, search_title):
     fx = CrawlerConfig('Hostnames').get('fx')
 
     try:
-        content = BeautifulSoup(content, 'html5lib')
+        content = BeautifulSoup(content, "html.parser")
     except:
-        content = BeautifulSoup(str(content), 'html5lib')
+        content = BeautifulSoup(str(content), "html.parser")
 
     size = ""
     imdb_id = ""
@@ -127,9 +127,9 @@ def fx_get_download_links(self, content, title):
     unused_get_feed_parameter(self)
     try:
         try:
-            content = BeautifulSoup(content, 'html5lib')
+            content = BeautifulSoup(content, "html.parser")
         except:
-            content = BeautifulSoup(str(content), 'html5lib')
+            content = BeautifulSoup(str(content), "html.parser")
         try:
             download_links = [content.find("a", text=re.compile(r".*" + title + r".*"))['href']]
         except:
@@ -141,14 +141,14 @@ def fx_get_download_links(self, content, title):
 
 
 def fx_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'html5lib')
+    feed = BeautifulSoup(feed, "html.parser")
     fx = CrawlerConfig('Hostnames').get('fx')
     articles = feed.findAll("article")
     entries = []
 
     for article in articles:
         try:
-            article = BeautifulSoup(str(article), 'html5lib')
+            article = BeautifulSoup(str(article), "html.parser")
             try:
                 source = article.header.find("a")["href"]
             except:
@@ -218,7 +218,7 @@ def fx_search_results(content, search_term):
     results = []
 
     for link in links:
-        article = BeautifulSoup(str(link[0]), 'html5lib')
+        article = BeautifulSoup(str(link[0]), "html.parser")
         titles = article.findAll("a", href=re.compile("(filecrypt|safe." + fx + ")"))
         i = 0
         for title in titles:

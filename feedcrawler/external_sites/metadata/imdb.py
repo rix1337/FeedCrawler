@@ -60,12 +60,16 @@ def get_imdb_id_from_link(key, link, current_list="NoList"):
     return imdb_id
 
 
-def get_clean_title(release_title):
+def get_clean_title(title):
     try:
-        clean_title = re.findall(r"(.*?)(?:.\|(?:19|20)\d{2}|\.German|\.\d{3,4}p|\.S(?:\d{1,3})\.)", release_title)[
-            0].replace(".", "+")
+        extracted_title = re.findall(r"(.*?)(?:.(?!19|20)\d{2}|\.German|.GERMAN|\.\d{3,4}p|\.S(?:\d{1,3}))", title)[0]
+        leftover_tags_removed = re.sub(
+            r'(|.UNRATED.*|.Unrated.*|.Uncut.*|.UNCUT.*)(|.Directors.Cut.*|.Final.Cut.*|.DC.*|.REMASTERED.*|.EXTENDED.*|.Extended.*|.Theatrical.*|.THEATRICAL.*)',
+            "", extracted_title)
+        clean_title = leftover_tags_removed.replace(".", " ").strip().replace(" ", "+")
+
     except:
-        clean_title = release_title
+        clean_title = title
     return clean_title
 
 
@@ -84,7 +88,7 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
     request = get_url_headers("https://www.imdb.com/find/?q=" + query, headers={'Accept-Language': language})
 
     if request["status_code"] == 200:
-        soup = BeautifulSoup(request["text"], "html5lib")
+        soup = BeautifulSoup(request["text"], "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
         search_results = details['props']['pageProps']['titleResults']['results']
@@ -102,15 +106,15 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
         shared_state.logger.debug(
             "IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
 
-    if imdb_id:
-        shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title)
+    if not imdb_id:
+        shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title.replace("+", " "))
     return imdb_id
 
 
 @imdb_id_not_none
 def get_poster_link(imdb_id):
     request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-    soup = BeautifulSoup(request, "html5lib")
+    soup = BeautifulSoup(request, "html.parser")
     try:
         poster_set = soup.find('div', class_='ipc-poster').div.img[
             "srcset"]  # contains links to posters in ascending resolution
@@ -128,7 +132,7 @@ def original_language_not_german(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-        soup = BeautifulSoup(request, "html5lib")
+        soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
         languages = details['props']['pageProps']['mainColumnData']['spokenLanguages']['spokenLanguages']
@@ -154,7 +158,7 @@ def get_episodes(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/episodes?ref_=tt_eps_sm" % imdb_id)
-        soup = BeautifulSoup(request, "html5lib")
+        soup = BeautifulSoup(request, "html.parser")
         seasons = soup.find("select", {"id": "bySeason"}).findAll("option")
         if len(seasons) > 0:
             episodes = {}
@@ -163,7 +167,7 @@ def get_episodes(imdb_id):
                 sn = sn["value"]
                 eps = []
                 request = get_url("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + sn)
-                soup = BeautifulSoup(request, "html5lib")
+                soup = BeautifulSoup(request, "html.parser")
                 details = soup.findAll("div", {"itemprop": "episodes"})
                 for _ in details:
                     eps.append(i)
@@ -207,7 +211,7 @@ def get_rating(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-        soup = BeautifulSoup(request, "html5lib")
+        soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
         rating = details['props']['pageProps']['aboveTheFoldData']['ratingsSummary']['aggregateRating']
@@ -227,7 +231,7 @@ def get_votes(imdb_id):
 
     try:
         request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
-        soup = BeautifulSoup(request, "html5lib")
+        soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
         votes = details['props']['pageProps']['aboveTheFoldData']['ratingsSummary']['voteCount']

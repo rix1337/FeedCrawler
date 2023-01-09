@@ -81,7 +81,7 @@ class SF:
 
 
 def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_or_episodes):
-    content = BeautifulSoup(releases, 'html5lib')
+    content = BeautifulSoup(releases, "html.parser")
     releases = content.findAll("div", {"class": "row"}, style=re.compile("order"))
     entries = []
 
@@ -138,7 +138,7 @@ def sf_parse_download(self, series_url, title, language_id):
         season_page = get_url(series_url)
         season_details = re.findall(r"initSeason\('(.+?)\',(.+?),", season_page)[-1]
 
-        season_page_soup = BeautifulSoup(season_page, 'html5lib')
+        season_page_soup = BeautifulSoup(season_page, "html.parser")
         imdb_link = ""
         try:
             imdb = season_page_soup.find("a", href=re.compile("imdb.com"))
@@ -188,7 +188,7 @@ def sf_parse_download(self, series_url, title, language_id):
             if multiple_episodes:
                 season_title = season_title.replace(multiple_episodes[0], '.*')
 
-        content = BeautifulSoup(info['html'], 'html5lib')
+        content = BeautifulSoup(info['html'], "html.parser")
         release_info = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
 
         try:
