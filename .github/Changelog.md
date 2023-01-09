@@ -7,7 +7,14 @@
 ### Changelog FeedCrawler:
 
 - **16.2.0** Dark-Mode-Unterstützung für die Web-UI
+- **16.2.0** Flaresolverr 3 wird ab sofort unterstützt (verbraucht deutlich weniger CPU/RAM)
+  - Derzeit gibt Flaresolverr 3 keine Header zurück.
+  - Daher können Weiterleitungen von URLs (bspw. für die Download-Links) noch nicht automatisch aufgelöst werden.
+  - Die Implementierung ist darauf vorbereitet, dass in Zukunft Header und Cookies aus der Flaresolverr-Antwort
+    genutzt werden, um diese, solange gültig, direkt in Python zu verwenden.
+  - Dies sollte für deutlich weniger Aufrufe von Flaresolverr sorgen.
 - **16.2.0** Dependency `html5lib` entfernt und durch den schnelleren Python-eigenen `html.parser` ersetzt.
+- **16.2.0** Verbesserungen in der IMDb-Suche, wenn die IMDb-ID nicht am Release verfügbar ist.
 - **16.2.0** Bugfix: Die BY-Feed-Suche funktioniert wieder.
 - **16.2.0** Bugfix: Die FF-Feed-Suche funktioniert wieder.
 - **16.1.0** Bugfix: Leite alle Web-Requests ohne Trailing Slash korrekt weiter (Behebt [Organizr#1830](https://github.com/causefx/Organizr/issues/1830)).

@@ -75,14 +75,14 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                 status_code, text, response_headers, url = flaresolverr_request(flaresolverr_url, url, method, params,
                                                                                 headers, redirect_url)
                 if redirect_url:
+                    # ToDo: as soon as FlareSolverr 3.0 supports headers, the redirect url needs to be returned here
                     return url
             else:
                 shared_state.logger.debug(
                     "Um Cloudflare auf der Seite %s zu umgehen, muss ein FlareSolverr konfiguriert werden." % url)
                 return {'status_code': status_code, 'text': "", 'headers': {}}
         else:
-            headers[
-                'User-Agent'] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.61 Safari/537.36"
+            headers['User-Agent'] = shared_state.user_agent
             if method == 'post':
                 response = request(url, method="POST", data=params, timeout=10, headers=headers)
             elif redirect_url:
