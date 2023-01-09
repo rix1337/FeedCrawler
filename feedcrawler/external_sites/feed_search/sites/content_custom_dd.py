@@ -77,7 +77,7 @@ class DD:
 
 
 def dd_rss_feed_to_feedparser_dict(raw_rss_feed):
-    rss_feed_soup = BeautifulSoup(raw_rss_feed, 'html5lib')
+    rss_feed_soup = BeautifulSoup(raw_rss_feed, "html.parser")
     releases = rss_feed_soup.findAll("item")
 
     entries = []

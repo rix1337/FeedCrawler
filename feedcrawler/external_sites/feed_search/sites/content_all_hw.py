@@ -83,9 +83,9 @@ class BL:
 def hw_get_download_links(self, content, title):
     try:
         try:
-            content = BeautifulSoup(content, 'html5lib')
+            content = BeautifulSoup(content, "html.parser")
         except:
-            content = BeautifulSoup(str(content), 'html5lib')
+            content = BeautifulSoup(str(content), "html.parser")
         download_links = content.findAll("a", href=re.compile('filecrypt'))
     except:
         print(u"HW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
@@ -99,7 +99,7 @@ def hw_get_download_links(self, content, title):
 
 
 def hw_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'html5lib')
+    feed = BeautifulSoup(feed, "html.parser")
     articles = feed.findAll("article")
     entries = []
 
@@ -150,7 +150,7 @@ def hw_feed_enricher(feed):
 
 
 def hw_search_results(content, resolution):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     links = content.findAll("a", href=re.compile(r"^(?!.*\/category).*\/(filme|serien).*(?!.*#comments.*)$"))
 
     async_link_results = []
@@ -181,7 +181,7 @@ def hw_search_results(content, resolution):
             except:
                 source = ""
 
-            soup = BeautifulSoup(str(link[0]), 'html5lib')
+            soup = BeautifulSoup(str(link[0]), "html.parser")
             title = soup.find("h2", {"class": "entry-title"}).text.strip().replace(" ", ".")
 
             try:

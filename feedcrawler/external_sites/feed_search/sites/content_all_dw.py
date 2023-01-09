@@ -84,9 +84,9 @@ class BL:
 def dw_get_download_links(self, content, title):
     try:
         try:
-            content = BeautifulSoup(content, 'html5lib')
+            content = BeautifulSoup(content, "html.parser")
         except:
-            content = BeautifulSoup(str(content), 'html5lib')
+            content = BeautifulSoup(str(content), "html.parser")
         download_buttons = content.findAll("button", {"class": "show_link"})
     except:
         print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links für " + title + " nicht möglich!")
@@ -112,7 +112,7 @@ def dw_get_download_links(self, content, title):
 
 
 def dw_feed_enricher(feed):
-    feed = BeautifulSoup(feed, 'html5lib')
+    feed = BeautifulSoup(feed, "html.parser")
     articles = feed.findAll("article")
     entries = []
 
@@ -126,7 +126,7 @@ def dw_feed_enricher(feed):
 
     for result in async_results:
         try:
-            details = BeautifulSoup(result[0], 'html5lib')
+            details = BeautifulSoup(result[0], "html.parser")
 
             title = details.find("h1").text.strip()
 
@@ -176,7 +176,7 @@ def dw_feed_enricher(feed):
 
 
 def dw_search_results(content, resolution):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     articles = content.findAll("article")
 
     async_results = []
@@ -200,7 +200,7 @@ def dw_search_results(content, resolution):
 
     for result in async_results:
         try:
-            details = BeautifulSoup(result[0], 'html5lib')
+            details = BeautifulSoup(result[0], "html.parser")
 
             title = details.find("h1").text.strip()
 

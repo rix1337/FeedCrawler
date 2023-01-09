@@ -173,7 +173,7 @@ function submitSearch() {
               </button>
             </p>
             <p v-for="y in currentResultsPage">
-              <button class="btn btn-outline-dark" type="submit" @click="downloadBL(y.payload, y.title)"><i
+              <button class="btn btn-outline-secondary" type="submit" @click="downloadBL(y.payload, y.title)"><i
                   class="bi bi-download"></i> <span v-text="y.title"></span></button>
             </p>
             <div v-if="resLengthResults>10" class="btn-group">

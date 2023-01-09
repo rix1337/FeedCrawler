@@ -106,7 +106,7 @@ def download(payload):
 
         response = get_url(api_url)
         info = json.loads(response)
-        content = BeautifulSoup(info['html'], 'html5lib')
+        content = BeautifulSoup(info['html'], "html.parser")
         releases = content.findAll("h3")
 
         unsorted_seasons = {}

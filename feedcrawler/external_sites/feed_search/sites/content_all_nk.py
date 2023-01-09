@@ -85,7 +85,7 @@ class BL:
 
 def nk_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('nk')
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     posts = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
     async_results = []
     for post in posts:
@@ -100,7 +100,7 @@ def nk_feed_enricher(content):
         for result in async_results:
             try:
                 content = []
-                details = BeautifulSoup(result[0], 'html5lib').find("div", {"class": "article"})
+                details = BeautifulSoup(result[0], "html.parser").find("div", {"class": "article"})
                 title = details.find("span", {"class": "subtitle"}).text
                 published = details.find("p", {"class": "meta"}).text
                 content.append("mkv ")
@@ -145,7 +145,7 @@ def nk_feed_enricher(content):
 
 
 def nk_search_results(content, base_url, resolution):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     links = content.findAll("a", {"class": "btn"}, href=re.compile("/release/"))
 
     async_link_results = []
@@ -170,7 +170,7 @@ def nk_search_results(content, base_url, resolution):
 
     for link in links:
         try:
-            details = BeautifulSoup(link[0], 'html5lib').find("div", {"class": "article"})
+            details = BeautifulSoup(link[0], "html.parser").find("div", {"class": "article"})
             title = details.find("span", {"class": "subtitle"}).text.replace(" ", ".")
 
             try:
@@ -209,7 +209,7 @@ def nk_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     nk = self.hostnames.get('nk')
     download_link = get_url(download_link)
-    soup = BeautifulSoup(download_link, 'html5lib')
+    soup = BeautifulSoup(download_link, "html.parser")
     url_hosters = []
     hosters = soup.find_all("a", href=re.compile("/go/"))
     for hoster in hosters:

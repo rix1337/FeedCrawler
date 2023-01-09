@@ -169,7 +169,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             sj_query = keep_alphanumeric_with_special_characters(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
-                sj_results = BeautifulSoup(sj_search, 'html5lib').findAll("a", href=re.compile("/serie"))
+                sj_results = BeautifulSoup(sj_search, "html.parser").findAll("a", href=re.compile("/serie"))
             except:
                 sj_results = []
         else:

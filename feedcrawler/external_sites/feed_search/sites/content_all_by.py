@@ -87,13 +87,13 @@ class BL:
 
 
 def by_get_download_links(self, content, title):
-    async_link_results = re.findall(r'href="([^"\'>]*)"', content)
+    async_link_results = re.findall(r'href="(http[^"\'>]*)"', content)
     links = get_urls_async(async_link_results)
 
     content = []
     for link in links:
         if link[0]:
-            link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
+            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
             try:
                 content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
             except:
@@ -106,7 +106,7 @@ def by_get_download_links(self, content, title):
 
 def by_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('by')
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     posts = content.findAll("a", href=re.compile("/category/"), text=re.compile("Download"))
     async_results = []
     for post in posts:
@@ -121,7 +121,7 @@ def by_feed_enricher(content):
         for result in results:
             try:
                 content = []
-                result = BeautifulSoup(result[0], 'html5lib')
+                result = BeautifulSoup(result[0], "html.parser")
                 details = result.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
                 title = details.find("small").text
                 published = details.find("th", {"align": "RIGHT"}).text
@@ -149,7 +149,7 @@ def by_feed_enricher(content):
                 except:
                     source = ""
 
-                links = details.find_all("iframe")
+                links = result.find_all("iframe")
                 for link in links:
                     content.append('href="' + link["src"] + '"')
 
@@ -173,7 +173,7 @@ def by_feed_enricher(content):
 
 
 def by_search_results(content, base_url, resolution):
-    content = BeautifulSoup(content, 'html5lib')
+    content = BeautifulSoup(content, "html.parser")
     links = content.findAll("a", href=re.compile("/category/"))
 
     async_link_results = []
@@ -198,7 +198,7 @@ def by_search_results(content, base_url, resolution):
 
     for link in links:
         try:
-            soup = BeautifulSoup(link[0], 'html5lib')
+            soup = BeautifulSoup(link[0], "html.parser")
             details = soup.findAll("td", {"valign": "TOP", "align": "CENTER"})[1]
             title = details.find("small").text.replace(" ", ".")
 
@@ -243,7 +243,7 @@ def by_page_download_link(self, download_link, key):
     unused_get_feed_parameter(key)
     by = self.hostnames.get('by')
     download_link = get_url(download_link)
-    soup = BeautifulSoup(download_link, 'html5lib')
+    soup = BeautifulSoup(download_link, "html.parser")
     links = soup.find_all("iframe")
     async_link_results = []
     for link in links:
@@ -255,7 +255,7 @@ def by_page_download_link(self, download_link, key):
     url_hosters = []
     for link in links:
         if link[0]:
-            link = BeautifulSoup(link[0], 'html5lib').find("a", href=re.compile("/go\.php\?"))
+            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
             if link:
                 url_hosters.append([link["href"], link.text.replace(" ", "")])
     return check_download_links(self, url_hosters)

@@ -3,14 +3,18 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul integriert den FlareSolverr, um Cloudflare-Blockaden zu umgehen.
 
+import codecs
+import http.cookiejar
+import pickle
 from json import loads
+from urllib.error import URLError
 from urllib.parse import urlencode
 
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import site_blocked_with_flaresolverr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.request_handler import request
-from feedcrawler.providers.sqlite_database import ListDb
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 def get_flaresolverr_url():
@@ -32,34 +36,106 @@ def get_flaresolverr_proxy():
     return False
 
 
-def get_flaresolverr_session():
-    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
+def pickle_db(key, value):
     try:
-        return flaresolverr_sessions[0]
+        FeedDb('flaresolverr').delete(key)
+        return FeedDb('flaresolverr').store(key, codecs.encode(pickle.dumps(value), "base64").decode())
     except:
-        return False
+        pass
+    return False
 
 
-def save_flaresolverr_session(flaresolverr_session):
-    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
-    if (flaresolverr_sessions and flaresolverr_session not in flaresolverr_sessions) or not flaresolverr_sessions:
-        ListDb('flaresolverr_sessions').store(flaresolverr_session)
+def unpickle_db(key):
+    try:
+        pickled = FeedDb('flaresolverr').retrieve(key)
+        if pickled:
+            return pickle.loads(codecs.decode(pickled.encode(), "base64"))
+    except:
+        pass
+    return False
 
 
-def clean_flaresolverr_sessions():
-    flaresolverr_url = get_flaresolverr_url()
-    flaresolverr_sessions = ListDb('flaresolverr_sessions').retrieve()
-    if flaresolverr_sessions:
-        for flaresolverr_session in flaresolverr_sessions:
-            request(flaresolverr_url, headers={}, method="POST", json={
-                'cmd': 'sessions.destroy',
-                'session': flaresolverr_session
-            })
-        ListDb('flaresolverr_sessions').reset()
+def clean_flaresolverr_session():
+    return FeedDb('flaresolverr').reset()
+
+
+def set_flaresolverr_session(cookies, headers, user_agent):
+    try:
+        cookiejar = pickle_db('cookies', cookies)
+        headers = pickle_db('headers', headers)
+        user_agent = pickle_db('user_agent', user_agent)
+        if cookiejar and headers and user_agent:
+            return True
+    except:
+        pass
+    return False
+
+
+def get_flaresolverr_session():
+    cookies = unpickle_db('cookies')
+    headers = unpickle_db('headers')
+    user_agent = unpickle_db('user_agent')
+    cookiejar = http.cookiejar.CookieJar()
+
+    if cookies:
+        for cookie in cookies:
+            if cookie['name'] == 'cf_clearance' and cookie['value']:
+                cookie = http.cookiejar.Cookie(
+                    version=0,
+                    name=cookie['name'],
+                    value=cookie['value'],
+                    port=None,
+                    port_specified=False,
+                    domain=cookie['domain'],
+                    domain_specified=bool(cookie['domain']),
+                    domain_initial_dot=bool(cookie['domain'].startswith('.')),
+                    path=cookie['path'],
+                    path_specified=True,
+                    secure=True,
+                    expires=cookie['expiry'],
+                    discard=True,
+                    comment=None,
+                    comment_url=None,
+                    rest={
+                        'HttpOnly': bool(cookie['httpOnly']),
+                        'sameSite': 'None'
+                    },
+                    rfc2109=False,
+                )
+                cookiejar.set_cookie(cookie)
+                break
+
+        return cookiejar, headers, user_agent
+    return False, False, False
 
 
 def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirect_url):
-    flaresolverr_session = get_flaresolverr_session()
+    session_cookiejar, session_headers, session_user_agent = get_flaresolverr_session()
+    # ToDo: as soon as FlareSolverr 3.0 supports headers, this should be true and hopefully working
+    if session_cookiejar and session_headers and session_user_agent:
+        shared_state.logger.debug(
+            "Cloudflare-Session gefunden. Versuche Seite %s ohne Flaresolverr aufzurufen..." % url)
+
+        session_headers['User-Agent'] = session_user_agent
+
+        try:
+            result = request(url, method=method, data=params, timeout=10,
+                             headers=session_headers,
+                             cookiejar=session_cookiejar
+                             )
+
+            if result.status_code == 200:
+                shared_state.logger.debug("Cloudflare-Cookie erfolgreich verwendet.")
+                return result.status_code, result.text, result.headers, result.url
+            else:
+                shared_state.logger.debug("Cloudflare-Session ungültig!")
+                clean_flaresolverr_session()
+
+        except URLError as e:
+            shared_state.logger.debug("Cloudflare-Session ungültig!.")
+            clean_flaresolverr_session()
+            print("Fehler im HTTP-Request (ohne Flaresolverr)", e)
+
     flaresolverr_proxy = get_flaresolverr_proxy()
 
     text = ''
@@ -74,29 +150,13 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
         encoded_params = params
 
     shared_state.logger.debug("Versuche Cloudflare auf der Seite %s mit dem FlareSolverr zu umgehen..." % url)
-    if not flaresolverr_session:
-        json_session = request(flaresolverr_url, method="POST", json={
-            'cmd': 'sessions.create'
-        })
-        response_session = loads(json_session.text)
-        flaresolverr_session = response_session['session']
-    elif site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
-        shared_state.logger.debug("Proxy ist notwendig. Zerstöre aktive Sessions",
-                                  flaresolverr_session)
-        clean_flaresolverr_sessions()
-        json_session = request(flaresolverr_url, method="POST", json={
-            'cmd': 'sessions.create'
-        })
-        response_session = loads(json_session.text)
-        flaresolverr_session = response_session['session']
 
     headers['Content-Type'] = 'application/x-www-form-urlencoded' if (
             method == 'post') else 'application/json'
 
     flaresolverr_payload = {
         'cmd': 'request.%s' % method,
-        'url': url,
-        'session': flaresolverr_session
+        'url': url
     }
 
     if method == 'post':
@@ -110,22 +170,25 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
     status_code = json_response.status_code
 
     if status_code == 500:
-        shared_state.logger.debug("Der Request für " + url + " ist fehlgeschlagen. Zerstöre die Session" +
-                                  str(flaresolverr_session))
-        clean_flaresolverr_sessions()
-        flaresolverr_session = None
+        shared_state.logger.debug("Der Request für " + url + " ist fehlgeschlagen.")
 
     response = loads(json_response.text)
+
     if 'solution' in response:
         if redirect_url:
             try:
                 url = response['solution']['url']
             except:
                 shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
+
+        shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr erfolgreich.")
+
         text = response['solution']['response']
         response_headers = response['solution']['headers']
+        new_session_cookies = response['solution']['cookies']
+        new_session_headers = response['solution']['headers']
+        new_session_user_agent = response['solution']['userAgent']
 
-    if flaresolverr_session:
-        save_flaresolverr_session(flaresolverr_session)
+        set_flaresolverr_session(new_session_cookies, new_session_headers, new_session_user_agent)
 
     return status_code, text, response_headers, url

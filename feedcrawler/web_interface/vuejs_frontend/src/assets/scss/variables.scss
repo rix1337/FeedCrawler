@@ -30,3 +30,94 @@ $vt-toast-max-width: 1200px !default;
   border-radius: .25rem;
   box-shadow: 0 0 0 0.25rem $danger !important;
 }
+
+.dark {
+  .card, .offcanvas, .modal-content {
+    background-color: $dark;
+    color: $white;
+    border-color: $secondary;
+  }
+
+  .card-header {
+    border-bottom-color: $secondary;
+  }
+
+  .offcanvas-header button.btn-close {
+    background-color: $secondary;
+  }
+
+  .border-top {
+    border-top-color: $secondary !important;
+  }
+
+  .modal-header {
+    border-bottom-color: $secondary;
+  }
+
+  .modal-footer {
+    border-top-color: $secondary;
+  }
+
+  .table > :not(caption) > * > * {
+    background-color: $dark;
+    color: $white;
+  }
+
+  tbody, td, tfoot, th, thead, tr {
+    border-color: $secondary;
+  }
+
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+  background-color: $warning;
+}
+
+  .list-group-item {
+    background-color: $dark;
+    color: $white;
+  }
+
+  .accordion-item {
+    color: $white;
+  }
+
+  .accordion {
+    background-color: black !important;
+    color: $white !important;
+    border-color: $secondary !important;
+    --bs-accordion-bg: $dark !important;
+  }
+
+  .accordion-button {
+    background-color: $gray-800 !important;
+    color: $warning !important;
+  }
+
+
+  .form-control {
+    border-color: $secondary;
+  }
+
+  .form-control.bg-light {
+    background-color: $dark !important;
+    color: $white;
+  }
+
+  ul.pagination li {
+    --bs-pagination-bg: $dark !important;
+    --bs-pagination-disabled-bg: $white !important;
+  }
+
+  svg {
+    -webkit-filter: invert(100%); /* safari 6.0 - 9.0 */
+    filter: invert(100%);
+  }
+
+  mark {
+    background-color: $secondary;
+    color: $white;
+  }
+
+  mark a {
+    color: $warning;
+  }
+}

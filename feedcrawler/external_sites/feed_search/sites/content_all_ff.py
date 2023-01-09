@@ -87,9 +87,9 @@ def ff_get_download_links(self, content, title):
     unused_get_feed_parameter(title)
     try:
         try:
-            content = BeautifulSoup(content, 'html5lib')
+            content = BeautifulSoup(content, "html.parser")
         except:
-            content = BeautifulSoup(str(content), 'html5lib')
+            content = BeautifulSoup(str(content), "html.parser")
         links = content.findAll("div", {'class': 'row'})[1].findAll('a')
         download_link = False
         for link in links:
@@ -108,20 +108,18 @@ def ff_feed_enricher(releases):
     if releases:
         try:
             base_url = CrawlerConfig('Hostnames').get('ff')
-            page = BeautifulSoup(releases, 'html5lib')
+            page = BeautifulSoup(releases, "html.parser")
             day = page.find("li", {"class": "active"}).find("a")["href"].replace("/updates/", "").replace("#list", "")
             movies = page.findAll("div", {"class": "sra"}, style=re.compile("order"))
 
             for movie in movies:
                 movie_url = "https://" + base_url + movie.find("a")["href"]
-                details = BeautifulSoup(get_url(movie_url), 'html5lib')
-                api_secret = re.sub(r"[\n\t\s]*", "",
-                                    str(details.find("script", text=re.compile(".*initMovie.*"))).strip()).replace(
-                    "<script>initMovie(\'", "").replace("\',\'\',\'ALL\');</script>", "")
+                details = BeautifulSoup(get_url(movie_url), "html.parser")
+                api_secret = details.find("script", text=re.compile(".*initMovie.*")).text.split("'")[1]
                 epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
                 api_url = "https://" + base_url + '/api/v1/' + api_secret + '?lang=ALL&_=' + epoch
                 response = get_url(api_url)
-                info = BeautifulSoup(json.loads(response)["html"], 'html5lib')
+                info = BeautifulSoup(json.loads(response)["html"], "html.parser")
 
                 releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
                 for release in releases:
@@ -150,7 +148,7 @@ def ff_feed_enricher(releases):
                     if release_info:
                         try:
                             size = standardize_size_value(
-                                BeautifulSoup(release_info, 'html5lib').findAll("span")[2].text.split(":", 1)[
+                                BeautifulSoup(release_info, "html.parser").findAll("span")[2].text.split(":", 1)[
                                     1].strip())
                         except:
                             size = ""

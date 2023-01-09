@@ -123,7 +123,7 @@ def ww_get_download_links(self, content, title):
                     u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
                 shared_state.ww_blocked = True
             return False
-        links = BeautifulSoup(response, 'html5lib').findAll("div", {"id": "download-links"})
+        links = BeautifulSoup(response, "html.parser").findAll("div", {"id": "download-links"})
         for link in links:
             hoster = link.text
             if 'Direct Download 100 MBit/s' not in hoster:
@@ -140,9 +140,9 @@ def ww_get_download_links(self, content, title):
 def ww_feed_enricher(content):
     base_url = "https://" + CrawlerConfig('Hostnames').get('ww')
     try:
-        response = BeautifulSoup(content, 'html5lib')
+        response = BeautifulSoup(content, "html.parser")
     except:
-        response = BeautifulSoup(content["text"], 'html5lib')
+        response = BeautifulSoup(content["text"], "html.parser")
     posts = response.findAll("li")
     entries = []
     if posts:
