@@ -12,7 +12,7 @@ const toggleDark = useToggle(isDark)
   <router-view/>
 
   <div class="sticky-bottom float-end">
-    <button type="button" class="btn btn-outline-light bg-dark m-3" @click="toggleDark()">
+    <button type="button" class="btn btn-outline-secondary bg-dark m-3 text-warning" @click="toggleDark()">
       <i v-if="isDark" class="bi bi-sun"></i>
       <i v-else class="bi bi-moon-stars"></i>
     </button>

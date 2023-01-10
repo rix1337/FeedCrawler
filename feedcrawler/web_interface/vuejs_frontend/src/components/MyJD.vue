@@ -491,7 +491,7 @@ function showSponsorsHelp() {
                                          aria-valuemax="100" aria-valuemin="0" aria-valuenow="x.percentage"
                                          class="progress-bar progress-bar-striped progress-bar-animated"
                                          role="progressbar">
-                                      <div id="percentage"><span v-text="x.percentage"></span> %</div>
+                                      <div class="percentage"><span v-text="x.percentage"></span> %</div>
                                     </div>
                                   </div>
                                 </li>
@@ -516,13 +516,13 @@ function showSponsorsHelp() {
                                     <i class="bi bi-info-square"></i> Details
                                   </button>
                                   <button v-if="x.enabled"
-                                          class="btn btn-outline-dark m-1"
+                                          class="btn btn-outline-secondary m-1"
                                           @click="myJDdisable(x.linkids, x.uuid, x.name)"><i
                                       class="bi bi-toggle-off"></i>
                                     Deaktivieren
                                   </button>
                                   <button v-else
-                                          class="btn btn-outline-dark m-1"
+                                          class="btn btn-outline-secondary m-1"
                                           @click="myJDenable(x.linkids, x.uuid, x.name)"><i
                                       class="bi bi-toggle-on"></i>
                                     Aktivieren
@@ -569,13 +569,13 @@ function showSponsorsHelp() {
                                     <i class="bi bi-info-square"></i> Details
                                   </button>
                                   <button v-if="x.enabled"
-                                          class="btn btn-outline-dark m-1"
+                                          class="btn btn-outline-secondary m-1"
                                           @click="myJDdisable(x.linkids, x.uuid, x.name)"><i
                                       class="bi bi-toggle-off"></i>
                                     Deaktivieren
                                   </button>
                                   <button v-else
-                                          class="btn btn-outline-dark m-1"
+                                          class="btn btn-outline-secondary m-1"
                                           @click="myJDenable(x.linkids, x.uuid, x.name)"><i
                                       class="bi bi-toggle-on"></i>
                                     Aktivieren
