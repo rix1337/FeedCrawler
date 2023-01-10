@@ -766,7 +766,10 @@ def app_container():
             ff = ff.replace("f", "F", 2)
             by = by.replace("b", "B", 1)
             nk = nk.replace("n", "N", 1).replace("k", "K", 1)
-            nx = ".".join([nx.split(".")[0].upper(), nx.split(".")[1]])
+            try:
+                nx = ".".join([nx.split(".")[0].upper(), nx.split(".")[1]])
+            except:
+                pass
             ww = ww.replace("w", "W", 2)
 
             sf = sf.replace("s", "S", 1).replace("f", "F", 1)

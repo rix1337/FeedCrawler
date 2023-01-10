@@ -431,7 +431,10 @@ def remove(retailtitel):
         ff = ff.replace("f", "F", 2)
         by = by.replace("b", "B", 1)
         nk = nk.replace("n", "N", 1).replace("k", "K", 1)
-        nx = nx.split(".")[0].toUpperCase() + nx.split(".")[1]
+        try:
+            nx = ".".join([nx.split(".")[0].upper(), nx.split(".")[1]])
+        except:
+            pass
         ww = ww.replace("w", "W", 2)
 
         bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, nx, ww])))
