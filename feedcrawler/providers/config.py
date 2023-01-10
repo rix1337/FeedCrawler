@@ -35,6 +35,7 @@ class CrawlerConfig(object):
             ("ff", "str", ""),
             ("by", "str", ""),
             ("nk", "str", ""),
+            ("nx", "str", ""),
             ("ww", "str", ""),
             ("sj", "str", ""),
             ("dj", "str", ""),

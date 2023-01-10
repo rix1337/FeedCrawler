@@ -19,6 +19,7 @@ from xml.etree import ElementTree
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
 from bottle import Bottle, abort, redirect, request, static_file, HTTPError
+from bs4 import BeautifulSoup
 
 import feedcrawler.external_tools.myjd_api
 from feedcrawler.external_sites.web_search.shared import search_web
@@ -56,7 +57,7 @@ from feedcrawler.providers.myjd_connection import set_enabled
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.sqlite_database import ListDb
-from feedcrawler.providers.url_functions import get_url_headers
+from feedcrawler.providers.url_functions import get_url_headers, get_url
 from feedcrawler.providers.url_functions import post_url_headers
 
 
@@ -749,6 +750,7 @@ def app_container():
             ff = hostnames.get('ff')
             by = hostnames.get('by')
             nk = hostnames.get('nk')
+            nx = hostnames.get('nx')
             ww = hostnames.get('ww')
 
             sf = hostnames.get('sf')
@@ -764,6 +766,7 @@ def app_container():
             ff = ff.replace("f", "F", 2)
             by = by.replace("b", "B", 1)
             nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+            nx = ".".join([nx.split(".")[0].upper(), nx.split(".")[1]])
             ww = ww.replace("w", "W", 2)
 
             sf = sf.replace("s", "S", 1).replace("f", "F", 1)
@@ -773,7 +776,7 @@ def app_container():
 
             dd = dd.replace("d", "D", 2).replace("l", "L", 1)
 
-            bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, ww])))
+            bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, nx, ww])))
             s = ' / '.join(list(filter(None, [sf, sj])))
             f = ' / '.join(list(filter(None, [sf, ff])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
@@ -821,6 +824,8 @@ def app_container():
                 by = "Nicht gesetzt!"
             if not nk:
                 nk = "Nicht gesetzt!"
+            if not nx:
+                nx = "Nicht gesetzt!"
             if not ww:
                 ww = "Nicht gesetzt!"
             if not sj:
@@ -849,6 +854,7 @@ def app_container():
                     "ff": ff,
                     "by": by,
                     "nk": nk,
+                    "nx": nx,
                     "ww": ww,
                     "sj": sj,
                     "dj": dj,
@@ -881,6 +887,7 @@ def app_container():
                         "HW": check("HW_normal", db_status),
                         "FF": check("FF_normal", db_status),
                         "NK": check("NK_normal", db_status),
+                        "NX": check("NX_normal", db_status),
                         "WW": check("WW_normal", db_status)
                     },
                     "flaresolverr": {
@@ -892,6 +899,7 @@ def app_container():
                         "HW": check("HW_flaresolverr", db_status),
                         "FF": check("FF_flaresolverr", db_status),
                         "NK": check("NK_flaresolverr", db_status),
+                        "NX": check("NX_flaresolverr", db_status),
                         "WW": check("WW_flaresolverr", db_status)
                     },
                     "flaresolverr_proxy": {
@@ -903,6 +911,7 @@ def app_container():
                         "HW": check("HW_flaresolverr_proxy", db_status),
                         "FF": check("FF_flaresolverr_proxy", db_status),
                         "NK": check("NK_flaresolverr_proxy", db_status),
+                        "NX": check("NX_flaresolverr_proxy", db_status),
                         "WW": check("WW_flaresolverr_proxy", db_status)
                     }
                 }
@@ -1793,7 +1802,14 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             return abort(400, "Failed")
         if payload:
             links = payload[0]
-            package_name = payload[1].replace("%20", "")\
+
+            try:
+                if type(links) is str and "filer.net/folder/" in links:
+                    links = get_filer_folder_links(links)
+            except:
+                pass
+
+            package_name = payload[1].replace("%20", "") \
                 .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
 
             try:
@@ -1815,9 +1831,15 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
             data = request.body.read().decode("utf-8")
             payload = json.loads(data)
 
-            package_name = payload["package_name"]\
+            package_name = payload["package_name"] \
                 .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
             links = payload["links"]
+
+            try:
+                if type(links) is str and "filer.net/folder/" in links:
+                    links = get_filer_folder_links(links)
+            except:
+                pass
 
             try:
                 password = payload["password"]
@@ -1836,6 +1858,23 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         return abort(400, "Failed")
 
     Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
+
+    def get_filer_folder_links(url):
+        try:
+            content = get_url(url)
+            links = []
+            if content:
+                soup = BeautifulSoup(content, 'html.parser')
+                folder_links = soup.find_all('a', href=re.compile("/get/"))
+                for link in folder_links:
+                    link = "https://filer.net" + link.get('href')
+                    if link not in links:
+                        links.append(link)
+            if links:
+                return links
+        except:
+            pass
+        return url
 
 
 def attempt_download(package_name, links, password, ids):

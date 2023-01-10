@@ -14,6 +14,7 @@ from feedcrawler.external_sites.feed_search.sites.content_all_ff import BL as FF
 from feedcrawler.external_sites.feed_search.sites.content_all_fx import BL as FX
 from feedcrawler.external_sites.feed_search.sites.content_all_hw import BL as HW
 from feedcrawler.external_sites.feed_search.sites.content_all_nk import BL as NK
+from feedcrawler.external_sites.feed_search.sites.content_all_nx import BL as NX
 from feedcrawler.external_sites.feed_search.sites.content_all_ww import BL as WW
 from feedcrawler.external_sites.feed_search.sites.content_custom_dd import DD
 from feedcrawler.external_sites.feed_search.sites.content_shows_dj import DJ
@@ -63,6 +64,10 @@ def search_pool():
         NK(filename='List_ContentAll_Movies'),
         NK(filename='List_ContentAll_Movies_Regex'),
         NK(filename='List_ContentAll_Seasons'),
+        NX(filename='IMDb'),
+        NX(filename='List_ContentAll_Movies'),
+        NX(filename='List_ContentAll_Movies_Regex'),
+        NX(filename='List_ContentAll_Seasons'),
         WW(filename='List_ContentAll_Movies_Regex'),
         WW(filename='IMDb'),
         WW(filename='List_ContentAll_Movies'),
