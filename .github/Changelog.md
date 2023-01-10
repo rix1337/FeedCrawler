@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.1** Bugfix im Abruf der Hostnamen
 - **16.3.0** NX-Feed-Suche integriert
 - **16.2.0** Dark-Mode-Unterstützung für die Web-UI
 - **16.2.0** Flaresolverr 3 wird ab sofort unterstützt (verbraucht deutlich weniger CPU/RAM)
