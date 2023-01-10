@@ -68,7 +68,7 @@ def set_files(set_configpath):
 
 def set_sites():
     global sites
-    sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "WW", "SJ", "DJ", "DD"]
+    sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
 
 
 def synchronize_device():

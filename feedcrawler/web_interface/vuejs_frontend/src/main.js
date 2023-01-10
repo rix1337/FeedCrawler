@@ -27,6 +27,7 @@ const store = createStore({
                 ff: 'Nicht gesetzt!',
                 by: 'Nicht gesetzt!',
                 nk: 'Nicht gesetzt!',
+                nx: 'Nicht gesetzt!',
                 ww: 'Nicht gesetzt!',
                 sj: 'Nicht gesetzt!',
                 dj: 'Nicht gesetzt!',

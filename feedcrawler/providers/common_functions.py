@@ -68,6 +68,7 @@ def check_is_site(string):
     ff = hostnames.get('ff')
     by = hostnames.get('by')
     nk = hostnames.get('nk')
+    nx = hostnames.get('nx')
     ww = hostnames.get('ww')
     sj = hostnames.get('sj')
     dj = hostnames.get('dj')
@@ -89,6 +90,8 @@ def check_is_site(string):
         return "BY"
     elif nk and nk.split('.')[0] in string:
         return "NK"
+    elif nx and nx.split('.')[0] in string:
+        return "NX"
     elif ww and ww.split('.')[0] in string:
         return "WW"
     elif sj and sj.split('.')[0] in string:
@@ -414,19 +417,24 @@ def remove(retailtitel):
 
         hostnames = CrawlerConfig('Hostnames')
         fx = hostnames.get('fx')
+        dw = hostnames.get("dw")
         hw = hostnames.get('hw')
         ff = hostnames.get('ff')
-        ww = hostnames.get('ww')
-        nk = hostnames.get('nk')
         by = hostnames.get('by')
+        nk = hostnames.get('nk')
+        nx = hostnames.get('nx')
+        ww = hostnames.get('ww')
 
         fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+        dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
         hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
         ff = ff.replace("f", "F", 2)
-        ww = ww.replace("w", "W", 2)
-        nk = nk.replace("n", "N", 1).replace("k", "K", 1)
         by = by.replace("b", "B", 1)
-        bl = ' / '.join(list(filter(None, [fx, ff, hw, ww, nk, by])))
+        nk = nk.replace("n", "N", 1).replace("k", "K", 1)
+        nx = nx.split(".")[0].toUpperCase() + nx.split(".")[1]
+        ww = ww.replace("w", "W", 2)
+
+        bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, nx, ww])))
 
         shared_state.logger.debug('[Retail] - Eintrag "' + retail + '" aus "Filme"-Liste (' + bl + ') entfernt.')
     except:

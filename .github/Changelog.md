@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.0** NX-Feed-Suche integriert
 - **16.2.0** Dark-Mode-Unterstützung für die Web-UI
 - **16.2.0** Flaresolverr 3 wird ab sofort unterstützt (verbraucht deutlich weniger CPU/RAM)
   - Derzeit gibt Flaresolverr 3 keine Header zurück.
@@ -29,6 +30,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **7.2.0** Löse NX-Captchas automatisch
 - **7.1.0** Update auf neue noVNC Version
 - **7.0.4** Das Chrome-Profil wird jetzt vor jedem Start bereinigt, um Caching-Probleme bei Updates zu vermeiden. 
 - **7.0.4** Fehlerbehebung in der Proxy-Prüfung beim Start
