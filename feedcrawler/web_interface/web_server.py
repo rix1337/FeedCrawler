@@ -22,6 +22,7 @@ from bottle import Bottle, abort, redirect, request, static_file, HTTPError
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_tools.myjd_api
+from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.web_search.shared import search_web
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.external_tools.plex_api import get_client_id
@@ -199,7 +200,8 @@ def app_container():
             "/api/internal_cnl/",
             "/sponsors_helper/api/to_decrypt/",
             "/sponsors_helper/api/f_blocked/",
-            "/sponsors_helper/to_download/",  # this one is ambivalent
+            "/sponsors_helper/replace_decrypt/",
+            "/sponsors_helper/to_download/"
         ]
         if not request.path.endswith('/') and not any(s in request.path for s in no_trailing_slash):
             raise redirect(request.url + '/')
@@ -1714,6 +1716,64 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         except:
             return abort(400, "Failed")
 
+    @app.get(prefix + "/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js")
+    @auth_basic(is_authenticated_user)
+    def feedcrawler_sponsors_helper_nx():
+        if not helper_active:
+            return abort(403, "Forbidden")
+        hostnames = CrawlerConfig('Hostnames')
+        nx = hostnames.get('nx')
+        try:
+            return """// ==UserScript==
+// @name            FeedCrawler Sponsors Helper (NX)
+// @author          rix1337
+// @description     Forwards decrypted links to FeedCrawler
+// @version         0.1.1
+// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+// @match           https://""" + nx + """/release/*
+// @grant           window.close
+// ==/UserScript==
+// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
+const sponsorsURL = '""" + shared_state.local_address + """';
+
+function Sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+var tag = window.location.hash.replace("#", "").split('|');
+var title = tag[0];
+var password = '""" + nx + """';
+
+if (title) {
+    await Sleep(3000);
+    $('h2').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
+    var dl = false;
+    var dlExists = setInterval(function() {
+        console.log($("tr:contains("+ title +")").find("a[href*=filer]").length)
+        if ($("tr:contains("+ title +")").find("a[href*=filer]").length) {
+            var link = $("tr:contains("+ title +")").find("a[href*=filer]")[0]["href"].replace("https://referer.to/?", "");
+            var links = [link];
+            console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
+            clearInterval(dlExists);
+            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+            window.close();
+        }
+    }, 1000);
+    var tolinkExists = setInterval(function() {
+        console.log($("tr:contains("+ title +")").find("a[href*=tolink]").length)
+        if ($("tr:contains("+ title +")").find("a[href*=tolink]").length) {
+            var link = $("tr:contains("+ title +")").find("a[href*=tolink]")[0]["href"].replace("https://referer.to/?", "");
+            var links = [link];
+            console.log("[FeedCrawler Sponsors Helper] found encrypted download links: " + links);
+            clearInterval(tolinkExists);
+            window.open(sponsorsURL + '/sponsors_helper/replace_decrypt/' + btoa(links + '|' + title + '|' + password));
+            window.close();
+        }
+    }, 1000);
+}"""
+        except:
+            return abort(400, "Failed")
+
     @app.get(prefix + "/sponsors_helper/api/to_decrypt/")
     def to_decrypt_api():
         global helper_active
@@ -1797,6 +1857,59 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         except:
             return abort(400, "Failed")
 
+    def get_filer_folder_links(url):
+        try:
+            content = get_url(url)
+            links = []
+            if content:
+                soup = BeautifulSoup(content, 'html.parser')
+                folder_links = soup.find_all('a', href=re.compile("/get/"))
+                for link in folder_links:
+                    link = "https://filer.net" + link.get('href')
+                    if link not in links:
+                        links.append(link)
+            if links:
+                return links
+        except:
+            pass
+        return url
+
+    def clean_links(links):
+        try:
+            if len(links) == 1 and "filer.net/folder/" in links[0]:
+                links = get_filer_folder_links(links[0])
+            elif type(links) is str and "filer.net/folder/" in links:
+                if links.startswith("['") and links.endswith("']"):
+                    links = links.split("'")[1]
+                elif links.startswith('["') and links.endswith('"]'):
+                    links = links.split('"')[1]
+                links = get_filer_folder_links(links)
+        except:
+            pass
+        return links
+
+    @app.get(prefix + "/sponsors_helper/replace_decrypt/<payload>")
+    def replace_decrypt(payload):
+        try:
+            payload = decode_base64(payload.replace("%3D", "=")).split("|")
+        except:
+            return abort(400, "Failed")
+        if payload:
+            links = clean_links(payload[0])
+
+            package_name = payload[1].replace("%20", "") \
+                .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+
+            try:
+                password = payload[2]
+            except:
+                password = ""
+
+            result = add_decrypt_instead_of_download(package_name, 'unused', [links], password, replace=True)
+            if result:
+                return "Link replaced for " + package_name
+        return abort(400, "Failed")
+
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
     def to_download(payload):
         try:
@@ -1804,13 +1917,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         except:
             return abort(400, "Failed")
         if payload:
-            links = payload[0]
-
-            try:
-                if type(links) is str and "filer.net/folder/" in links:
-                    links = get_filer_folder_links(links)
-            except:
-                pass
+            links = clean_links(payload[0])
 
             package_name = payload[1].replace("%20", "") \
                 .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
@@ -1836,13 +1943,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
 
             package_name = payload["package_name"] \
                 .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
-            links = payload["links"]
-
-            try:
-                if type(links) is str and "filer.net/folder/" in links:
-                    links = get_filer_folder_links(links)
-            except:
-                pass
+            links = clean_links(payload["links"])
 
             try:
                 password = payload["password"]
@@ -1861,23 +1962,6 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         return abort(400, "Failed")
 
     Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
-
-    def get_filer_folder_links(url):
-        try:
-            content = get_url(url)
-            links = []
-            if content:
-                soup = BeautifulSoup(content, 'html.parser')
-                folder_links = soup.find_all('a', href=re.compile("/get/"))
-                for link in folder_links:
-                    link = "https://filer.net" + link.get('href')
-                    if link not in links:
-                        links.append(link)
-            if links:
-                return links
-        except:
-            pass
-        return url
 
 
 def attempt_download(package_name, links, password, ids):

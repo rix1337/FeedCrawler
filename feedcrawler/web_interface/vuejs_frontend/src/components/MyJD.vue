@@ -650,6 +650,12 @@ function showSponsorsHelp() {
                                         <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
+                                  <span
+                                      v-if="( store.state.hostnames.nx && x[1].url.includes(store.state.hostnames.nx.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_nx.user.js'"
+                                           target="_blank">FeedCrawler Sponsors Helper (NX)</a> installieren!
+                                    </span>
                                   <div class="row m-1">
                                     <a v-if="!myjd_grabbing && !cnl_active"
                                        v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
