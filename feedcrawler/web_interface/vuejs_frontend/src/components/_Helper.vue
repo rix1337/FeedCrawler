@@ -43,14 +43,17 @@ function sponsorCheck() {
   }
 }
 
-const antigate_available_and_active = ref(false)
+const antigate_active = ref(false)
+const antigate_available = ref(false)
 
 function getAntiGate() {
   if (sponsor.value) {
     axios.get("http://127.0.0.1:9700/status")
         .then(function (res) {
-          antigate_available_and_active.value = res.data
+          antigate_active.value = res.data
+          antigate_available.value = true
         }, function () {
+          antigate_available.value = false
           console.log('[FeedCrawler Sponsors Helper] Konnte AntiGate Status nicht abrufen!')
         })
   }
@@ -139,24 +142,30 @@ function startToDecrypt() {
       if (to_decrypt.value.name && to_decrypt.value.url) {
         if (!tooManyAttempts(to_decrypt.value.url, to_decrypt.value.name)) {
           current_to_decrypt.value = to_decrypt.value.name
-          if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
-            console.log('[FeedCrawler Sponsors Helper] SF ist derzeit geblockt!')
-          } else if (f_blocked.value && ff_hostname.value && to_decrypt.value.url.includes(ff_hostname.value)) {
-            console.log('[FeedCrawler Sponsors Helper] FF ist derzeit geblockt!')
-          } else if (antigate_available_and_active.value && to_decrypt.value.url.includes("filecrypt.")) {
-            if (antigate_available_and_active.value === "false") {
-              let clean_url = to_decrypt.value.url
-              console.log(clean_url)
-              if (to_decrypt.value.url.includes("#")) {
-                clean_url = to_decrypt.value.url.split('#')[0]
+          if (antigate_available.value) {
+            if (antigate_active.value === false) {
+              if (to_decrypt.value.url.includes("filecrypt.") || (to_decrypt.value.url.includes("tolink."))) {
+                let clean_url = to_decrypt.value.url
+                if (to_decrypt.value.url.includes("#")) {
+                  clean_url = to_decrypt.value.url.split('#')[0]
+                }
+                let password = to_decrypt.value.password
+                let payload = btoa(decodeURIComponent(encodeURIComponent((clean_url + "|" + password))))
+                console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + to_decrypt.value.name + ' gestartet...')
+                wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
+              } else {
+                if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
+                  console.log('[FeedCrawler Sponsors Helper] SF ist derzeit geblockt!')
+                } else if (f_blocked.value && ff_hostname.value && to_decrypt.value.url.includes(ff_hostname.value)) {
+                  console.log('[FeedCrawler Sponsors Helper] FF ist derzeit geblockt!')
+                } else {
+                  console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + to_decrypt.value.name + ' gestartet...')
+                  wnd_to_decrypt.value = window.open(to_decrypt.value.url)
+                }
               }
-              console.log(clean_url)
-              let password = to_decrypt.value.password
-              let payload = window.btoa(decodeURIComponent(encodeURIComponent((clean_url + "|" + password))))
-              wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
+            } else {
+              console.log('[FeedCrawler Sponsors Helper] Entschlüsselung ist noch aktiv!')
             }
-          } else {
-            wnd_to_decrypt.value = window.open(to_decrypt.value.url)
           }
         }
       }
@@ -196,14 +205,16 @@ function spinHelper() {
               <h1>
                 <i class="bi bi-reception-4"></i> FeedCrawler Sponsors Helper</h1>
             </div>
+            <div class=card-body>
+            </div>
             <div v-if="!sponsor" class="card-body">
               FeedCrawler Sponsors Helper ist nicht aktuell. Bitte auf neue Version updaten!
             </div>
             <div v-else class="card-body">
               <span v-if="!to_decrypt.url && !to_decrypt.name" class="btn btn-outline-success disabled">Keine verschlüsselten Links vorhanden</span>
 
-              <span v-if="antigate_available_and_active === 'true'" class="btn btn-outline-success disabled">Automatische Entschlüsselung von Filecrypt ist aktiv!</span><br
-                v-if="antigate_available_and_active === 'true'">
+              <span v-if="antigate_active === 'true'" class="btn btn-outline-success disabled">Automatische Entschlüsselung ist aktiv!</span><br
+                v-if="antigate_active === 'true'">
 
               <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
         SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
