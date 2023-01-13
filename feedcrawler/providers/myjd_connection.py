@@ -1058,7 +1058,7 @@ def myjd_input(port, user, password, device):
         return False
 
 
-def add_decrypt(title, link, password):
+def add_decrypt(title, link, password, replace=False):
     try:
         if check_is_site(link):
             hostnames = CrawlerConfig('Hostnames')
@@ -1077,6 +1077,8 @@ def add_decrypt(title, link, password):
                 if real_link:
                     link = real_link
 
+        if replace:
+            FeedDb('to_decrypt').delete(title)
         FeedDb('to_decrypt').store(title, link + '|' + password)
         return True
     except:

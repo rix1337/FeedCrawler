@@ -83,10 +83,10 @@ def standardize_size_value(size):
     return size
 
 
-def add_decrypt_instead_of_download(key, path, download_links, password):
+def add_decrypt_instead_of_download(key, path, download_links, password, replace=False):
     unused_get_feed_parameter(path)
 
-    if add_decrypt(key.strip(), download_links[0], password):
+    if add_decrypt(key.strip(), download_links[0], password, replace):
         return True
     else:
         return False

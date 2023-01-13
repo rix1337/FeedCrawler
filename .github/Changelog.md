@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.2** Verbessertes Handling von NX-Links, inklusive Click'n'Load-Script für Sponsoren in der Web-UI.
 - **16.3.1** Bugfix im Abruf der Hostnamen
 - **16.3.0** NX-Feed-Suche integriert
 - **16.2.0** Dark-Mode-Unterstützung für die Web-UI
@@ -31,6 +32,9 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **7.3.0** Erweiterung um toLink-Antigate-Script
+- **7.3.0** NX-Login-Funktion, um weniger CAPTCHAs lösen zu müssen
+- **7.3.0** Starte ohne Fehler, auch wenn optionale Startparameter fehlen.
 - **7.2.0** Löse NX-Captchas automatisch
 - **7.1.0** Update auf neue noVNC Version
 - **7.0.4** Das Chrome-Profil wird jetzt vor jedem Start bereinigt, um Caching-Probleme bei Updates zu vermeiden. 
