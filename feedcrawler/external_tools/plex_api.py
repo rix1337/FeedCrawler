@@ -163,7 +163,7 @@ def plex_search(first_launch):
 
     if requested_movies:
         shared_state.logger.debug(
-            "Die Suchfunktion für Filme nutzt BY, FX, HW und NK, sofern deren Hostnamen gesetzt wurden.")
+            "Die Suchfunktion für Filme nutzt BY, FX, HW, NK und NX, sofern deren Hostnamen gesetzt wurden.")
     for r in requested_movies:
         imdb_id = r.get("imdb_id")
         if imdb_id:

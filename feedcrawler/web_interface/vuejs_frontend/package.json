@@ -1,16 +1,16 @@
 {
   "name": "feedcrawler-web",
-  "version": "16.3.3",
+  "version": "16.3.4",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 5050"
   },
   "dependencies": {
-    "@formkit/i18n": "^1.0.0-beta.12",
-    "@formkit/vue": "^1.0.0-beta.12",
-    "@vueuse/core": "^9.10.0",
-    "axios": "^1.2.2",
+    "@formkit/i18n": "^1.0.0-beta.14",
+    "@formkit/vue": "^1.0.0-beta.14",
+    "@vueuse/core": "^9.12.0",
+    "axios": "^1.2.6",
     "bootstrap": "^5.2.3",
     "bootstrap-icons": "^1.10.3",
     "sass": "^1.57.1",

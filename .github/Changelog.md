@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.4** Integration der NX-Websuche
 - **16.3.3** Bugfix im Aufruf der Entschlüsselungsfunktion im [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 - **16.3.2** Verbessertes Handling von NX-Links, inklusive Click'n'Load-Script für Sponsoren in der Web-UI.
 - **16.3.1** Bugfix im Abruf der Hostnamen

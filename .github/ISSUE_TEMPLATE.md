@@ -12,7 +12,7 @@ Für **Rückfragen** und Allgemeines gibt es den [Chat auf gitter](https://gitte
 
 - **Genutzte Version** (kein Support für alte Releases)
 
-- **Wird Python 3.6 oder aktueller genutzt?**
+- **Wird Python 3.8 oder aktueller genutzt?**
 
 ## Fehlerbeschreibung
 
