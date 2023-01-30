@@ -15,6 +15,7 @@ from feedcrawler.external_sites.web_search.sites.content_all_dw import dw_search
 from feedcrawler.external_sites.web_search.sites.content_all_fx import fx_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_hw import hw_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_nk import nk_search_results
+from feedcrawler.external_sites.web_search.sites.content_all_nx import nx_search_results
 from feedcrawler.providers.common_functions import check_is_ignored
 from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import encode_base64
@@ -38,6 +39,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
     fx = hostnames.get('fx')
     hw = hostnames.get('hw')
     nk = hostnames.get('nk')
+    nx = hostnames.get('nx')
     sj = hostnames.get('sj')
     sf = hostnames.get('sf')
 
@@ -84,19 +86,25 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             hw_search = 'https://' + hw + '/?s=' + bl_query
         else:
             hw_search = None
+        if nx:
+            nx_search = 'https://' + nx + '/api/frontend/search/' + bl_query
+        else:
+            nx_search = None
 
         if only_fast:
             fx_search = None
+            nx_search = None
         if only_slow:
             by_search = None
             hw_search = None
 
-        async_results = get_urls_async([by_search, dw_search, fx_search, hw_search])
+        async_results = get_urls_async([by_search, dw_search, fx_search, hw_search, nx_search])
 
         by_results = []
         dw_results = []
         fx_results = []
         hw_results = []
+        nx_results = []
 
         for res in async_results:
             if check_is_site(res[1]) == 'BY':
@@ -107,6 +115,8 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
                 fx_results = fx_search_results(fx_content_to_soup(res[0]), bl_query)
             elif check_is_site(res[1]) == 'HW':
                 hw_results = hw_search_results(res[0], quality, title)
+            elif check_is_site(res[1]) == 'NX':
+                nx_results = nx_search_results(res[0], quality, title)
 
         if nk and not only_slow:
             nk_search = post_url('https://' + nk + "/search",
@@ -150,6 +160,13 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
                 continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
+
+        password = nx.split('.')[0]
+        for result in nx_results:
+            if "480p" in quality and check_release_not_sd(result[0]):
+                continue
+            unrated.append(
+                [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NX)"])
 
         rated = sorted(unrated, reverse=True)
 

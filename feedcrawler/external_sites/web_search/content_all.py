@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul durchsucht die Web-Suchen vieler Seiten des Typs content_all auf Basis einer standardisierten Struktur.
 
+import json
 import re
 
 from bs4 import BeautifulSoup
@@ -81,6 +82,7 @@ def download(payload):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     nk = hostnames.get('nk')
+    nx = hostnames.get('nx')
 
     payload = decode_base64(payload).split("|")
     source = payload[0]
@@ -94,7 +96,11 @@ def download(payload):
         if not response or "NinjaFirewall 429" in response:
             return False
 
-        soup = BeautifulSoup(response, "html.parser")
+        if not "NX" in site:
+            soup = BeautifulSoup(response, "html.parser")
+        else:
+            soup = json.loads(response)
+
         url_hosters = []
         if "BY" in site:
             key = soup.find("small").text
@@ -189,6 +195,24 @@ def download(payload):
             hosters = soup.find_all("a", href=re.compile("/go/"))
             for hoster in hosters:
                 url_hosters.append(['https://' + nk + hoster["href"], hoster.text])
+        elif "NX" in site:
+            item = soup["result"]
+            try:
+                source = "https://" + nx + "/release/" + item['slug']
+            except:
+                source = ""
+
+            key = item['name']
+
+            try:
+                imdb_id = item['_media']['imdbid']
+            except:
+                imdb_id = ""
+
+            try:
+                size = standardize_size_value(item['size'] + item['sizeunit'])
+            except:
+                size = ""
         else:
             return False
 
@@ -207,6 +231,8 @@ def download(payload):
                 hoster_fallback = config.get("hoster_fallback")
 
             download_links = content_all_dw_feed_search.dw_get_download_links(DW, str(soup), key)
+        elif "NX" in site:
+            download_links = [source]
         else:
             for url_hoster in reversed(url_hosters):
                 try:

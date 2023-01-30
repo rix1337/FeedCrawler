@@ -809,6 +809,8 @@ def app_container():
                 search_shorthands.append("BY")
             if nk:
                 search_shorthands.append("NK")
+            if nx:
+                search_shorthands.append("NX")
             if sj:
                 search_shorthands.append("SJ")
             if dj:
