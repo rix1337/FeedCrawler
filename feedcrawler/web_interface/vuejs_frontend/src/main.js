@@ -109,7 +109,7 @@ const store = createStore({
                 loaded_lists: false,
                 loaded_settings: false,
                 myjd_connection_error: false,
-                no_site_blocked: true,
+                no_site_blocked: 0,
                 now: Date.now(),
                 sjbl_enabled: true,
                 starting: false,
@@ -135,7 +135,9 @@ const store = createStore({
                             for (let site in blocked_sites.normal) {
                                 if (current_hostnames.includes(site.toLowerCase())) {
                                     if (blocked_sites.normal[site] && blocked_sites.flaresolverr[site] && blocked_sites.flaresolverr_proxy[site]) {
-                                        state.misc.no_site_blocked = false
+                                        state.misc.no_site_blocked = 2
+                                    } else if (blocked_sites.normal[site]) {
+                                        state.misc.no_site_blocked = 1
                                     }
                                 }
                             }

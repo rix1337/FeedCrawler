@@ -32,7 +32,7 @@ class BL:
         self.password = self.url.split('.')[0]
 
         self.URL = 'https://' + self.url
-        self.FEED_URLS = [self.URL]
+        self.FEED_URLS = []
         self.config = CrawlerConfig("ContentAll")
         self.feedcrawler = CrawlerConfig("FeedCrawler")
         self.filename = filename
@@ -119,7 +119,8 @@ def ff_feed_enricher(releases):
                 epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
                 api_url = "https://" + base_url + '/api/v1/' + api_secret + '?lang=ALL&_=' + epoch
                 response = get_url(api_url)
-                info = BeautifulSoup(json.loads(response)["html"], "html.parser")
+                clean_response_content = BeautifulSoup(response, "html.parser").body.text
+                info = BeautifulSoup(json.loads(clean_response_content)["html"], "html.parser")
 
                 releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
                 for release in releases:

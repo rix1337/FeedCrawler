@@ -212,7 +212,10 @@ function showSiteStatusHelp() {
             <div class="row justify-content-center">
               <div class="col-md-auto p-1">
                 <button
-                    :class="{ 'btn-outline-success': store.state.misc.no_site_blocked, 'btn-outline-danger': !store.state.misc.no_site_blocked }"
+                    :class="{ 'btn-outline-success': store.state.misc.no_site_blocked === 0,
+                              'btn-outline-warning': store.state.misc.no_site_blocked === 1,
+                              'btn-outline-danger': store.state.misc.no_site_blocked === 2
+                    }"
                     class="btn"
                     type="button" @click="showSiteStatusHelp">
                   <i class="bi bi-bar-chart"></i>

@@ -211,7 +211,8 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             sf_query = keep_alphanumeric_with_special_characters(title)
             sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
             try:
-                sf_results = json.loads(sf_search)["result"]
+                clean_sf_search = BeautifulSoup(sf_search, "html.parser").body.text
+                sf_results = json.loads(clean_sf_search)["result"]
             except:
                 sf_results = []
         else:
