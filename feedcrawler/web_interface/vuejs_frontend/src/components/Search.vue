@@ -151,6 +151,12 @@ function submitSearch() {
         </div>
         <div class="row">
           <div class="col-sm">
+            <div >
+              <mark v-if="store.state.misc.no_site_blocked === 1">
+                FlareSolverr ist für mindestens eine Seite notwendig.
+                Die Suche kann dadurch deutlich länger dauern als üblich!
+              </mark>
+            </div>
             <button class="btn btn-primary mb-2" type="submit"
                     @click="submitSearch">
               <span v-if="spin_search" id="spinner-search" class="spinner-border spinner-border-sm"

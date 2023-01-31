@@ -178,10 +178,11 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
         if redirect_url:
             try:
                 url = response['solution']['url']
+                shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr erfolgreich.")
             except:
                 shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr fehlerhaft.")
 
-        shared_state.logger.debug("Der Abruf der Redirect-URL war mit FlareSolverr erfolgreich.")
+        shared_state.logger.debug("Der Abruf der URL war mit FlareSolverr erfolgreich.")
 
         text = response['solution']['response']
         response_headers = response['solution']['headers']

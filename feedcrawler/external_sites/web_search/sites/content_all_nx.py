@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt content_all alle benötigten Parameter für die Web-Suche auf FX bereit.
+# Dieses Modul stellt content_all alle benötigten Parameter für die Web-Suche auf NX bereit.
 
 import json
 
