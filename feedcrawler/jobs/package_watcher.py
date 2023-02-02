@@ -17,9 +17,11 @@ from feedcrawler.providers.myjd_connection import add_decrypt
 from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import hoster_check
+from feedcrawler.providers.myjd_connection import jdownloader_start
 from feedcrawler.providers.myjd_connection import move_to_downloads
 from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
 from feedcrawler.providers.myjd_connection import rename_package_in_linkgrabber
+from feedcrawler.providers.myjd_connection import reset_in_downloads
 from feedcrawler.providers.myjd_connection import retry_decrypt
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -272,6 +274,16 @@ def watch_packages(global_variables):
                                                 notify_list.append({"text": "[CAPTCHA zu lösen] - " + title[0]})
                                                 print(u"[CAPTCHA zu lösen] - " + title[0])
                                                 db.delete(title[0])
+
+                        if encrypted_packages:
+                            for package in encrypted_packages:
+                                if package['zero_byte_files']:
+                                    reset_in_downloads(package['zero_byte_files'], [package['uuid']])
+                                    print(u'Falsch als "Fertig" markierte Dateien mit 0 Byte Größe in ' + package[
+                                        'name'] + " wurden zurückgesetzt.")
+                                    if autostart:
+                                        time.sleep(5)
+                                        jdownloader_start()
                     else:
                         if not grabber_collecting:
                             db.reset()
