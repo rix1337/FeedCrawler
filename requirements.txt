@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-beautifulsoup4==4.11.1
+beautifulsoup4==4.11.2
 bottle==0.12.23
 pycryptodomex==3.17

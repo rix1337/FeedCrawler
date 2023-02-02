@@ -56,6 +56,7 @@ def unpickle_db(key):
 
 
 def clean_flaresolverr_session():
+    # ToDo: as soon as FlareSolverr 3.0 supports sessions we need to send a delete request to the session endpoint
     return FeedDb('flaresolverr').reset()
 
 

@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.6** Verhindere, dass während der SJ/DJ/SF/FF-Wartezeit der Seitenstatus gelöscht wird.
 - **16.3.5** Bugfix im Abruf von FF in Verbindung mit FlareSolverr
 - **16.3.5** Bugfix im Abruf von SF in Verbindung mit FlareSolverr
 - **16.3.4** Integration der NX-Websuche
