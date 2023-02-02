@@ -218,6 +218,7 @@ def check_packages_types(links, packages):
         urls = []
         filenames = []
         linkids = []
+        zero_byte_files = []
         package_failed = False
         package_offline = False
         package_online = False
@@ -227,8 +228,13 @@ def check_packages_types(links, packages):
                 if uuid == link.get('packageUUID'):
                     linkid = link.get('uuid')
                     linkids.append(linkid)
-                    if link.get('availability') == 'OFFLINE' or link.get(
-                            'status') == 'Datei nicht gefunden' or link.get('status') == 'File not found':
+                    if ('Datei nicht gefunden' in link.get('status') or 'File not found' in link.get(
+                            'status')) and link.get("bytesTotal") == 0:
+                        shared_state.logger.debug("Datei mit 0 Bytes als fertig markiert! " + str(link.get('name')))
+                        zero_byte_files.append(linkid)
+                        package_failed = True
+                    elif link.get('availability') == 'OFFLINE' or 'Datei nicht gefunden' in link.get(
+                            'status') or 'File not found' in link.get('status'):
                         delete_linkids.append(linkid)
                         package_offline = True
                     elif 'Falscher Captcha Code!' in link.get('name') or 'Wrong Captcha!' in link.get('name') or (
@@ -274,13 +280,15 @@ def check_packages_types(links, packages):
                            "urls": urls,
                            "url": url,
                            "linkids": linkids,
-                           "uuid": uuid})
+                           "uuid": uuid,
+                           "zero_byte_files": zero_byte_files})
         elif package_offline:
             offline.append({"name": name,
                             "path": save_to,
                             "urls": urls,
                             "linkids": linkids,
-                            "uuid": uuid})
+                            "uuid": uuid,
+                            "zero_byte_files": zero_byte_files})
         else:
             decrypted.append({"name": name,
                               "links": total_links,
@@ -296,7 +304,8 @@ def check_packages_types(links, packages):
                               "urls": urls,
                               "filenames": filenames,
                               "linkids": linkids,
-                              "uuid": uuid})
+                              "uuid": uuid,
+                              "zero_byte_files": zero_byte_files})
     if not failed:
         failed = False
     if not offline:
@@ -331,7 +340,14 @@ def get_state():
 def cryptor_url_first(failed_package):
     resorted_failed_package = []
     for p in failed_package:
-        pk = {'name': p['name'], 'path': p['path'], 'urls': p['urls'], 'linkids': p['linkids'], 'uuid': p['uuid']}
+        pk = {
+            'name': p['name'],
+            'path': p['path'],
+            'urls': p['urls'],
+            'linkids': p['linkids'],
+            'uuid': p['uuid'],
+            'zero_byte_files': p['zero_byte_files']
+        }
 
         cryptor_found = False
         links = split_urls(pk['urls'])

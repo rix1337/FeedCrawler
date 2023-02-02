@@ -56,9 +56,6 @@ def start_feedcrawler():
 
     shared_state.set_files(config_path)
 
-    FeedDb('proxystatus').reset()
-    FeedDb('normalstatus').reset()
-
     print(u"Nutze das Verzeichnis " + config_path + u" für Einstellungen/Logs")
 
     log_level = logging.__dict__[
