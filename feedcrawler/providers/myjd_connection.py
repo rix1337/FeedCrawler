@@ -228,13 +228,18 @@ def check_packages_types(links, packages):
                 if uuid == link.get('packageUUID'):
                     linkid = link.get('uuid')
                     linkids.append(linkid)
-                    if ('Datei nicht gefunden' in link.get('status') or 'File not found' in link.get(
-                            'status')) and link.get("bytesTotal") == 0:
+                    link_status = link.get('status')
+                    if not link_status:
+                        link_status = ""
+
+                    if ('Datei nicht gefunden' in link_status or 'File not found' in link_status) and \
+                            link.get("bytesTotal") == 0:
                         shared_state.logger.debug("Datei mit 0 Bytes als fertig markiert! " + str(link.get('name')))
                         zero_byte_files.append(linkid)
                         package_failed = True
-                    elif link.get('availability') == 'OFFLINE' or 'Datei nicht gefunden' in link.get(
-                            'status') or 'File not found' in link.get('status'):
+                    elif link.get(
+                            'availability') == 'OFFLINE' or 'Datei nicht gefunden' in link_status or \
+                            'File not found' in link_status:
                         delete_linkids.append(linkid)
                         package_offline = True
                     elif 'Falscher Captcha Code!' in link.get('name') or 'Wrong Captcha!' in link.get('name') or (

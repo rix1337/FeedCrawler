@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.3.7** Bugfix: "'NoneType' is not iterable" in myjd_connection.py
 - **16.3.6** Erkenne fälschlich als "Fertig" markierte Dateien (Größe 0 Bytes) und setze diese zurück.
 - **16.3.6** Verhindere, dass während der SJ/DJ/SF/FF-Wartezeit der Seitenstatus gelöscht wird.
 - **16.3.5** Bugfix im Abruf von FF in Verbindung mit FlareSolverr
