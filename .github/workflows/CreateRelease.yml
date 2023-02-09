@@ -3,6 +3,7 @@ name: Release Artifacts
 on:
   push:
     paths-ignore:
+      - '.github/ISSUE_TEMPLATE/**'
       - '.github/workflows/**'
     branches:
       - main

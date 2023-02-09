@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Vorschläge für neue Funktionen / allgemeine Ideen
+    url: https://github.com/rix1337/FeedCrawler/discussions/new?category=ideas
+    about: Bitte ein neues Diskussionsthema erstellen, das unter "Ideas" zusammengefasst wird.
+  - name: Öffentliche Rückfragen
+    url: https://github.com/rix1337/FeedCrawler/discussions/categories/q-a
+    about: Bitte ein neues Diskussionsthema erstellen, das unter "Q&A" zusammengefasst wird.
+  - name: Chat mit der Community
+    url: https://gitter.im/FeedCrawler/community
+    about: Gedacht für den allgemeinen Erfahrungsaustausch. Der falsche Ort für Fehlermeldungen.
