@@ -1,0 +1,69 @@
+name: Fehlermeldung
+description: Erstelle eine Fehlermeldung
+body:
+- type: checkboxes
+  attributes:
+    label: Hast du die README gelesen?
+    description: Bitte die <a href="https://github.com/rix1337/FeedCrawler/blob/master/README.md">README</a> lesen.
+    options:
+      - label: Ich habe die README gelesen
+        required: true
+- type: checkboxes
+  attributes:
+    label: Gibt es bereits ein Issue für das Problembild?
+    description: Bitte sicherstellen, dass es nicht ein bereits eingereichtes <a href="https://github.com/rix1337/FeedCrawler/issues">Issue</a> für das Problem gibt. Bitte auch geschlossene Issues beachten, da das Problem möglicherweise bereits behoben wurde.
+    options:
+      - label: Ich habe ältere, offene und geschlossene Issues überprüft
+        required: true
+- type: checkboxes
+  attributes:
+    label: Hast du die Discussions überprüft?
+    description: Bitte lies unsere <a href="https://github.com/rix1337/FeedCrawler/discussions">Discussions</a>, bevor du ein Issue erstellst, da dort einige Fragen bereits beantwortet wurden.
+    options:
+      - label: Ich habe die Diskussionen gelesen
+        required: true
+- type: checkboxes
+  attributes:
+    label: Enthält die Problembeschreibung einen oder mehrere Hostnamen?
+    description: Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden kommentarlos geschlossen!
+    options:
+      - label: Nein, ich habe keine Hostnamen in der Problembeschreibung hinterlegt.
+        required: true
+- type: textarea
+  attributes:
+    label: Laufzeitumgebung
+    description: Bitte geben Sie die Details des Systems an, auf dem FeedCrawler läuft.
+    value: |
+      - FeedCrawler Version:
+      - Letzte funktionierende FeedCrawler-Version:
+      - Betriebssystem:
+      - Docker: [ja/nein]
+      - FlareSolverr: [ja/nein]
+      - Proxy: [ja/nein]
+    render: markdown
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Beschreibung
+    description: Führe die Schritte auf, mit denen sich der Fehler reproduzieren lässt, und beschreibe, was passiert und was stattdessen geschehen sollte.
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Fehlermeldungen aus dem DEBUG-Log
+    description: |
+      Bitte ALLE relevanten Fehlermeldungen bereitstellen, die im Log ausgegeben wurden.
+      Hostnamen aus dem Log sind zu entfernen.
+      Wenn im Log keine Fehlermeldung auftaucht, bitte Screenshots oder den DEBUG-Log zur Verfügung stellen.
+      Zur Aktivierung des DEBUG-Loglevels steht ein <a
+      href="https://github.com/rix1337/FeedCrawler/wiki/2.-Startparameter">Startparameter</a> zur Verfügung.
+    render: text
+  validations:
+    required: true
+- type: textarea
+  attributes:
+    label: Screenshots
+    description: Fügehier bei Bedarf Screenshots des Fehlers ein
+  validations:
+    required: false
