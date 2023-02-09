@@ -51,7 +51,7 @@ body:
     required: true
 - type: textarea
   attributes:
-    label: Fehlermeldungen aus dem DEBUG-Log
+    label: Fehlermeldungen aus dem Log
     description: |
       Bitte ALLE relevanten Fehlermeldungen bereitstellen, die im Log ausgegeben wurden.
       Hostnamen aus dem Log sind zu entfernen.
@@ -64,6 +64,6 @@ body:
 - type: textarea
   attributes:
     label: Screenshots
-    description: Fügehier bei Bedarf Screenshots des Fehlers ein
+    description: Füge hier bei Bedarf Screenshots des Fehlers ein
   validations:
     required: false
