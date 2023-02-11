@@ -2090,9 +2090,9 @@ def attempt_download(package_name, links, password, ids):
             epoch = int(time.time())
             for item in already_added:
                 if item[0] == package_name:
-                    if int(item[1]) + 30 > epoch:
-                        print(package_name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
-                        return abort(500, package_name + u" wurde in den letzten 30 Sekunden bereits hinzugefügt")
+                    if int(item[1]) + 5 > epoch:
+                        print(package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        return abort(500, package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
                     else:
                         already_added.remove(item)
 

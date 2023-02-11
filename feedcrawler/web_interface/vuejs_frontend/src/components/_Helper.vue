@@ -38,7 +38,7 @@ function getContext() {
 const sponsor = ref(false)
 
 function sponsorCheck() {
-  if (window.location.search.includes('sponsor=true')) {
+  if (window.location.search.includes('sponsor=yes')) {
     sponsor.value = true
   }
 }
@@ -149,9 +149,10 @@ function startToDecrypt() {
                 if (to_decrypt.value.url.includes("#")) {
                   clean_url = to_decrypt.value.url.split('#')[0]
                 }
+                let title = to_decrypt.value.name
                 let password = to_decrypt.value.password
-                let payload = btoa(decodeURIComponent(encodeURIComponent((clean_url + "|" + password))))
-                console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + to_decrypt.value.name + ' gestartet...')
+                let payload = btoa(decodeURIComponent(encodeURIComponent((clean_url + "|" + title + "|" + password))))
+                console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + title + ' gestartet...')
                 wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
               } else {
                 if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
