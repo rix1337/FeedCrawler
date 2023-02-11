@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.4.0** Kompatibilität mit Sponsors Helper v.8.0.0
 - **16.3.8** VueJS Depedency Updates [#694](https://github.com/rix1337/FeedCrawler/pull/694)
 - **16.3.7** Bugfix: "'NoneType' is not iterable" in myjd_connection.py
 - **16.3.6** Erkenne fälschlich als "Fertig" markierte Dateien (Größe 0 Bytes) und setze diese zurück.
@@ -40,16 +41,6 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
-- **7.3.0** Erweiterung um toLink-Antigate-Script
-- **7.3.0** NX-Login-Funktion, um weniger CAPTCHAs lösen zu müssen
-- **7.3.0** Starte ohne Fehler, auch wenn optionale Startparameter fehlen.
-- **7.2.0** Löse NX-Captchas automatisch
-- **7.1.0** Update auf neue noVNC Version
-- **7.0.4** Das Chrome-Profil wird jetzt vor jedem Start bereinigt, um Caching-Probleme bei Updates zu vermeiden. 
-- **7.0.4** Fehlerbehebung in der Proxy-Prüfung beim Start
-- **7.0.4** Nutze den aktuellen Bootstrap 5 Standard für das Webinterface
-- **7.0.3** Freischaltung der neuen Domain von Anti-Captcha im Proxy
-- **7.0.2** Bugfix für Ausführung ohne `privileged`-Flag
-- **7.0.1** Redundante Prüfung, ob der Proxy erfolgreich erstellt wurde (falls ident.me oder ipify.org down sind)
-- **7.0.0** Der Sponsors Helper prüft nun, ob er mit der aktuellen FeedCrawler-Version kompatibel ist.
-- **7.0.0** Update auf Google Chrome 108
+- **8.0.0** Der Sponsors Helper erkennt bei FC-Links nun, ob laut Release-Titel eine einzelne Staffel oder Episode
+  hinzugefügt werden soll. In diesem Fall werden nur die tatsächlich notwendigen Links an JDownloader übergeben. 
+- **8.0.0** Update auf Google Chrome 110
