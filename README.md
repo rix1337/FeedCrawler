@@ -22,7 +22,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/pulse)
 
 [![Github Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
-[![Gitter](https://img.shields.io/gitter/room/FeedCrawler/community)](https://gitter.im/FeedCrawler/community)
+[![Discord](https://img.shields.io/discord/1075348594225315891)](https://discord.gg/enn4AG3VnM)
 [![GitHub issues](https://img.shields.io/github/issues/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/issues)
 
 ***
