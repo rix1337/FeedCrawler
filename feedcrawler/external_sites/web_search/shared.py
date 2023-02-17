@@ -43,6 +43,8 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
     sj = hostnames.get('sj')
     sf = hostnames.get('sf')
 
+    force_ignore_in_web_search = CrawlerConfig('FeedCrawler').get('force_ignore_in_web_search')
+
     specific_season = re.match(r'^(.*),(s\d{1,3})$', title.lower())
     specific_episode = re.match(r'^(.*),(s\d{1,3}e\d{1,3})$', title.lower())
     if specific_season:
@@ -127,44 +129,32 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
 
         password = ""
         for result in by_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
 
         password = fx.split('.')[0]
         for result in fx_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             # title is intentionally sent with the password, so we can detect the correct link when downloading
             unrated.append([rate(result[0], ignore), encode_base64(result[1] + "|" + password + "|" + result[0]),
                             result[0] + " (FX)"])
 
         password = dw.split('.')[0]
         for result in dw_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (DW)"])
 
         password = hw.split('.')[0]
         for result in hw_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         password = nx.split('.')[0]
         for result in nx_results:
-            if "480p" in quality and check_release_not_sd(result[0]):
-                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NX)"])
 
@@ -174,6 +164,8 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
         i = 0
 
         for result in rated:
+            if force_ignore_in_web_search and check_is_ignored(result[2], ignore):
+                continue
             res = {"payload": result[1], "title": result[2]}
             results.append(res)
             i += 1

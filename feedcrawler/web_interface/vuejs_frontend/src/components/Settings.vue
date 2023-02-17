@@ -286,6 +286,16 @@ function showWikiHelp() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
+                  <h5>Filterliste in Websuche erzwingen</h5> <!-- Checkbox labels are not placed above -->
+                  <label class="form-check form-switch">
+                    <FormKit v-model="store.state.settings.general.force_ignore_in_web_search"
+                             help="Die Web-Suche erlaubt, wenn keine anderen Releases verfügbar sind, auch Releases, die nicht der für die Feed-Suche gesetzten Filterliste entsprechen. Wenn aktiviert, werden betroffene Releases, analog zur Feed-Suche ignoriert."
+                             help-class="text-muted"
+                             input-class="form-check-input"
+                             messages-class="text-danger"
+                             outer-class="mb-4"
+                             type="checkbox"/>
+                  </label>
                   <h5>Englische Releases hinzufügen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.general.english"
@@ -466,6 +476,25 @@ function showWikiHelp() {
               <div id="collapseNotifications" aria-labelledby="headingNotifications" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
+                  <FormKit v-model="store.state.settings.alerts.discord"
+                           :validation="[['matches', /^\d+?,\S+?$/]]"
+                           :validation-messages="{
+                              matches: 'Bitte die Webhook-ID und dann kommagetrennt den Webhook-Token eines Discord-Kanals angeben (ohne Leerzeichen).'
+                           }"
+                           help="Hier kommagetrennt die Webhook-ID und danach den Webhook-Token angeben. Beide sind Teil der Webhook-URL: https://discord.com/api/webhooks/[Webhook-ID]/[Webhook-Token]"
+                           help-class="text-muted"
+                           input-class="form-control bg-light mb-2"
+                           label="Discord"
+                           messages-class="text-danger"
+                           outer-class="mb-2"
+                           placeholder="Bspw. 1041924765142156906,JxxhatQggSXPcyOpSefXwtoXpSEYLLDwXYCgzuSulcHADQLhJflSCVQhLOmOYRTaazrY"
+                           type="text"
+                           validation-visibility="live"/>
+                  <div class="mb-4">
+                    <mark>Discord ist der beste Weg, Benachrichtigungen zu versenden. Webhooks sind sehr einfach
+                      einzurichten und Discord unterstützt den Versand von Postern.
+                    </mark>
+                  </div>
                   <FormKit v-model="store.state.settings.alerts.telegram"
                            :validation="[['matches', /^\d+?:[^\s]+?,\d+?$/]]"
                            :validation-messages="{
@@ -481,22 +510,8 @@ function showWikiHelp() {
                            type="text"
                            validation-visibility="live"/>
                   <div class="mb-4">
-                    <mark>Telegram ist der offiziell empfohlene Weg, Benachrichtigungen zu versenden.</mark>
+                    <mark>Telegram unterstützt ebenfalls den Versand von Postern.</mark>
                   </div>
-                  <FormKit v-model="store.state.settings.alerts.discord"
-                           :validation="[['matches', /^\d+?,\S+?$/]]"
-                           :validation-messages="{
-                              matches: 'Bitte die Webhook-ID und dann kommagetrennt den Webhook-Token eines Discord-Kanals angeben (ohne Leerzeichen).'
-                           }"
-                           help="Hier kommagetrennt die Webhook-ID und danach den Webhook-Token angeben. Beide sind Teil der Webhook-URL: https://discord.com/api/webhooks/[Webhook-ID]/[Webhook-Token]"
-                           help-class="text-muted"
-                           input-class="form-control bg-light mb-2"
-                           label="Discord"
-                           messages-class="text-danger"
-                           outer-class="mb-2"
-                           placeholder="Bspw. 1041924765142156906,JxxhatQggSXPcyOpSefXwtoXpSEYLLDwXYCgzuSulcHADQLhJflSCVQhLOmOYRTaazrY"
-                           type="text"
-                           validation-visibility="live"/>
                   <FormKit v-model="store.state.settings.alerts.pushbullet"
                            :validation="[['matches', /^o\.[A-Za-z0-9]+$/]]"
                            :validation-messages="{
@@ -685,7 +700,7 @@ function showWikiHelp() {
                     </option>
                   </FormKit>
                   <FormKit v-model="store.state.settings.mb.ignore"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
+                           help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="Filterliste"
@@ -850,7 +865,7 @@ function showWikiHelp() {
                     </option>
                   </FormKit>
                   <FormKit v-model="store.state.settings.sj.ignore"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
+                           help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="Filterliste"
@@ -1061,7 +1076,7 @@ function showWikiHelp() {
                     </option>
                   </FormKit>
                   <FormKit v-model="store.state.settings.dj.ignore"
-                           help="Releases mit diesen Begriffen werden nicht hinzugefügt (kommagetrennt)."
+                           help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="Filterliste"
