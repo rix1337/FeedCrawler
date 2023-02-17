@@ -88,7 +88,7 @@ const store = createStore({
                     katfile: true,
                     ironfiles: true,
                 }, alerts: {
-                    pushbullet: "", pushover: "", telegram: "", homeassistant: ""
+                    telegram: "", discord: "", pushbullet: "", pushover: "", homeassistant: ""
                 }, plex: {
                     url: "", api: ""
                 }, ombi: {

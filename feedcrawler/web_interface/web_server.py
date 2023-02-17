@@ -354,10 +354,11 @@ def app_container():
                         "ironfiles": hosters.get("ironfiles"),
                     },
                     "alerts": {
+                        "telegram": alerts.get("telegram"),
+                        "discord": alerts.get("discord"),
                         "pushbullet": alerts.get("pushbullet"),
                         "pushover": alerts.get("pushover"),
                         "homeassistant": alerts.get("homeassistant"),
-                        "telegram": alerts.get("telegram"),
                     },
                     "plex": {
                         "url": plex.get("url"),
@@ -487,9 +488,10 @@ def app_container():
             section.save("subdir", to_str(data['crawljobs']['subdir']))
 
             section = CrawlerConfig("Notifications")
+            section.save("telegram", to_str(data['alerts']['telegram']))
+            section.save("discord", to_str(data['alerts']['discord']))
             section.save("pushbullet", to_str(data['alerts']['pushbullet']))
             section.save("pushover", to_str(data['alerts']['pushover']))
-            section.save("telegram", to_str(data['alerts']['telegram']))
             section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
             section = CrawlerConfig("Hosters")

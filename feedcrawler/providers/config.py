@@ -47,6 +47,7 @@ class CrawlerConfig(object):
         ],
         'Notifications': [
             ("telegram", "str", ""),
+            ("discord", "str", ""),
             ("pushbullet", "str", ""),
             ("pushover", "str", ""),
             ("homeassistant", "str", "")

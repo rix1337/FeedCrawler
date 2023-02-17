@@ -495,6 +495,20 @@ function showWikiHelp() {
                   <div class="mb-4">
                     <mark>Telegram ist der offiziell empfohlene Weg, Benachrichtigungen zu versenden.</mark>
                   </div>
+                                    <FormKit v-model="store.state.settings.alerts.discord"
+                           :validation="[['matches', /^\d+?,\S+?$/]]"
+                           :validation-messages="{
+                              matches: 'Bitte die Webhook-ID und dann kommagetrennt den Webhook-Token eines Discord-Kanals angeben (ohne Leerzeichen).'
+                           }"
+                           help="Hier kommagetrennt die Webhook-ID und danach den Webhook-Token angeben. Beide sind Teil der Webhook-URL: https://discord.com/api/webhooks/[Webhook-ID]/[Webhook-Token]"
+                           help-class="text-muted"
+                           input-class="form-control bg-light mb-2"
+                           label="Discord"
+                           messages-class="text-danger"
+                           outer-class="mb-2"
+                           placeholder="Bspw. 1041924765142156906,JxxhatQggSXPcyOpSefXwtoXpSEYLLDwXYCgzuSulcHADQLhJflSCVQhLOmOYRTaazrY"
+                           type="text"
+                           validation-visibility="live"/>
                   <FormKit v-model="store.state.settings.alerts.pushbullet"
                            :validation="[['matches', /^o\.[A-Za-z0-9]+$/]]"
                            :validation-messages="{
