@@ -21,7 +21,6 @@ class CrawlerConfig(object):
             ("prefix", "str", ""),
             ("interval", "int", "60"),
             ("flaresolverr", "str", ""),
-            ("flaresolverr_proxy", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("one_mirror_policy", "bool", "False"),

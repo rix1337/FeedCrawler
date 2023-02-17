@@ -11,7 +11,6 @@ from urllib.error import URLError
 from urllib.parse import urlencode
 
 from feedcrawler.providers import shared_state
-from feedcrawler.providers.common_functions import site_blocked_with_flaresolverr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -25,14 +24,6 @@ def get_flaresolverr_url():
             flaresolverr = flaresolverr[:-1]
             config.save('flaresolverr', flaresolverr)
         return flaresolverr + "/v1"
-    return False
-
-
-def get_flaresolverr_proxy():
-    config = CrawlerConfig('FeedCrawler')
-    flaresolverr_proxy = config.get("flaresolverr_proxy")
-    if flaresolverr_proxy:
-        return flaresolverr_proxy
     return False
 
 
@@ -137,8 +128,6 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
             clean_flaresolverr_session()
             print("Fehler im HTTP-Request (ohne Flaresolverr)", e)
 
-    flaresolverr_proxy = get_flaresolverr_proxy()
-
     text = ''
     response_headers = {}
 
@@ -162,9 +151,6 @@ def flaresolverr_request(flaresolverr_url, url, method, params, headers, redirec
 
     if method == 'post':
         flaresolverr_payload["postData"] = encoded_params
-
-    if site_blocked_with_flaresolverr(url) and flaresolverr_proxy:
-        flaresolverr_payload["proxy"] = {"url": flaresolverr_proxy}
 
     json_response = request(flaresolverr_url, method="POST", json=flaresolverr_payload)
 

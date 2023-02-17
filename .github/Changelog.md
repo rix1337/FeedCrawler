@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **16.4.2** Proxy-Support für FlareSolverr entfernt. Der Seitenstatus sollte nun wieder korrekt angezeigt werden.
+- **16.4.2** Verbessertes Chunking beim `build` des VueJS Frontends
 - **16.4.1** Discord-Benachrichtigungen
 - **16.4.0** Kompatibilität mit Sponsors Helper v.8.0.0
 - **16.3.8** VueJS Depedency Updates [#694](https://github.com/rix1337/FeedCrawler/pull/694)

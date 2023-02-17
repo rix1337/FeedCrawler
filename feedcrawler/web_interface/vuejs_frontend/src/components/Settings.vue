@@ -266,7 +266,6 @@ function showWikiHelp() {
                            validation="required|between:6,24"
                            validation-visibility="live"/>
                   <FormKit v-model="store.state.settings.general.flaresolverr"
-                           :validation="value.flaresolverr_proxy ? 'required|url' : 'url'"
                            help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr ist ein Proxy-Server zur Umgehung des Cloudflare-Schutzes von Seiten wie SF oder WW. FlareSolverr wird nur dann genutzt, wenn eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -274,17 +273,6 @@ function showWikiHelp() {
                            messages-class="text-danger"
                            outer-class="mb-4"
                            placeholder="Bspw. http://192.168.0.1:8191"
-                           type="url"
-                           validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.general.flaresolverr_proxy"
-                           help="Hier optional die URL eines durch FlareSolverr erreichbaren ungeschützten HTTP-Proxies (ohne Nutzername/Passwort) angeben. FlareSolverr nutzt den hinterlegten Proxy-Server zum Seitenaufruf, wenn eine Blockade der normalen IP durch Cloudflare erkannt wurde."
-                           help-class="text-muted"
-                           input-class="form-control bg-light mb-2"
-                           label="FlareSolverr-Proxy-URL"
-                           messages-class="text-danger"
-                           name="flaresolverr_proxy"
-                           outer-class="mb-4"
-                           placeholder="Bspw. http://192.168.0.1:8080"
                            type="url"
                            validation="url"
                            validation-visibility="live"/>
@@ -495,7 +483,7 @@ function showWikiHelp() {
                   <div class="mb-4">
                     <mark>Telegram ist der offiziell empfohlene Weg, Benachrichtigungen zu versenden.</mark>
                   </div>
-                                    <FormKit v-model="store.state.settings.alerts.discord"
+                  <FormKit v-model="store.state.settings.alerts.discord"
                            :validation="[['matches', /^\d+?,\S+?$/]]"
                            :validation-messages="{
                               matches: 'Bitte die Webhook-ID und dann kommagetrennt den Webhook-Token eines Discord-Kanals angeben (ohne Leerzeichen).'

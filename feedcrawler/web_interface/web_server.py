@@ -331,7 +331,6 @@ def app_container():
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
                         "flaresolverr": general_conf.get("flaresolverr"),
-                        "flaresolverr_proxy": general_conf.get("flaresolverr_proxy"),
                         "english": general_conf.get("english"),
                         "surround": general_conf.get("surround"),
                         "one_mirror_policy": general_conf.get("one_mirror_policy"),
@@ -477,7 +476,6 @@ def app_container():
                 interval = '5'
             section.save("interval", interval)
             section.save("flaresolverr", to_str(data['general']['flaresolverr']))
-            section.save("flaresolverr_proxy", to_str(data['general']['flaresolverr_proxy']))
             section.save("english", to_str(data['general']['english']))
             section.save("surround", to_str(data['general']['surround']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
@@ -910,18 +908,6 @@ def app_container():
                         "NK": check("NK_flaresolverr", db_status),
                         "NX": check("NX_flaresolverr", db_status),
                         "WW": check("WW_flaresolverr", db_status)
-                    },
-                    "flaresolverr_proxy": {
-                        "SJ": check("SJ_flaresolverr_proxy", db_status),
-                        "DJ": check("DJ_flaresolverr_proxy", db_status),
-                        "SF": check("SF_flaresolverr_proxy", db_status),
-                        "BY": check("BY_flaresolverr_proxy", db_status),
-                        "FX": check("FX_flaresolverr_proxy", db_status),
-                        "HW": check("HW_flaresolverr_proxy", db_status),
-                        "FF": check("FF_flaresolverr_proxy", db_status),
-                        "NK": check("NK_flaresolverr_proxy", db_status),
-                        "NX": check("NX_flaresolverr_proxy", db_status),
-                        "WW": check("WW_flaresolverr_proxy", db_status)
                     }
                 }
             }
