@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.4.1** Discord-Benachrichtigungen
 - **16.4.0** Kompatibilität mit Sponsors Helper v.8.0.0
 - **16.3.8** VueJS Depedency Updates [#694](https://github.com/rix1337/FeedCrawler/pull/694)
 - **16.3.7** Bugfix: "'NoneType' is not iterable" in myjd_connection.py
@@ -41,6 +42,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **8.0.1** Fehlerbehebung beim Setzen des User-Agents
 - **8.0.0** Der Sponsors Helper erkennt bei FC-Links nun, ob laut Release-Titel eine einzelne Staffel oder Episode
   hinzugefügt werden soll. In diesem Fall werden nur die tatsächlich notwendigen Links an JDownloader übergeben. 
 - **8.0.0** Update auf Google Chrome 110
