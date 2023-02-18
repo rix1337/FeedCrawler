@@ -46,8 +46,8 @@ class CrawlerConfig(object):
             ("subdir", "bool", "True")
         ],
         'Notifications': [
-            ("telegram", "str", ""),
             ("discord", "str", ""),
+            ("telegram", "str", ""),
             ("pushbullet", "str", ""),
             ("pushover", "str", ""),
             ("homeassistant", "str", "")

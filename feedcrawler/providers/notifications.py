@@ -56,45 +56,6 @@ def format_notification(text):
         return event + "\n" + message
 
 
-# This is the preferred way to send notifications, as it is the only one that supports images.
-def telegram(items, token, chat_id):
-    for item in items:
-        try:
-            imdb_id = item["imdb_id"]
-        except KeyError:
-            imdb_id = False
-
-        formatted_notification = format_notification(item["text"])
-
-        data = {
-            'chat_id': chat_id,
-            'text': formatted_notification,
-            'parse_mode': 'HTML'
-        }
-        mode = "/sendMessage"
-
-        if imdb_id:
-            poster_link = get_poster_link(imdb_id)
-            if poster_link:
-                data = {
-                    'chat_id': chat_id,
-                    'photo': poster_link,
-                    'caption': formatted_notification,
-                    'parse_mode': 'HTML'
-                }
-                mode = "/sendPhoto"
-        try:
-            response = request("https://api.telegram.org/bot" + token + mode, method="POST", json=data)
-            res = json.loads(response.text)
-            if res['ok']:
-                shared_state.logger.debug('Telegram - Erfolgreich versendet')
-            else:
-                shared_state.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
-        except (HTTPError, URLError):
-            shared_state.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
-            continue
-
-
 def discord(items, webhook_id, webhook_token):
     for item in items:
         try:
@@ -128,17 +89,57 @@ def discord(items, webhook_id, webhook_token):
                     'username': 'FeedCrawler',
                     'avatar_url': 'https://imgur.com/tEi4qtb.png'
                 }
-            try:
-                response = request("https://discord.com/api/webhooks/" + webhook_id + "/" + webhook_token,
-                                   method="POST",
-                                   json=data, headers=headers)
-                if response.status_code == 204:
-                    shared_state.logger.debug('Discord - Erfolgreich versendet')
-                else:
-                    shared_state.logger.debug('FEHLER - Konnte nicht an Discord Senden')
-            except (HTTPError, URLError):
-                shared_state.logger.debug('FEHLER - Konnte Discord API nicht erreichen')
-                continue
+
+        try:
+            response = request("https://discord.com/api/webhooks/" + webhook_id + "/" + webhook_token,
+                               method="POST",
+                               json=data, headers=headers)
+            if response.status_code == 204:
+                shared_state.logger.debug('Discord - Erfolgreich versendet')
+            else:
+                shared_state.logger.debug('FEHLER - Konnte nicht an Discord Senden')
+        except (HTTPError, URLError):
+            shared_state.logger.debug('FEHLER - Konnte Discord API nicht erreichen')
+            continue
+
+
+def telegram(items, token, chat_id):
+    for item in items:
+        try:
+            imdb_id = item["imdb_id"]
+        except KeyError:
+            imdb_id = False
+
+        formatted_notification = format_notification(item["text"])
+
+        data = {
+            'chat_id': chat_id,
+            'text': formatted_notification,
+            'parse_mode': 'HTML'
+        }
+        mode = "/sendMessage"
+
+        if imdb_id:
+            poster_link = get_poster_link(imdb_id)
+            if poster_link:
+                data = {
+                    'chat_id': chat_id,
+                    'photo': poster_link,
+                    'caption': formatted_notification,
+                    'parse_mode': 'HTML'
+                }
+                mode = "/sendPhoto"
+
+        try:
+            response = request("https://api.telegram.org/bot" + token + mode, method="POST", json=data)
+            res = json.loads(response.text)
+            if res['ok']:
+                shared_state.logger.debug('Telegram - Erfolgreich versendet')
+            else:
+                shared_state.logger.debug('FEHLER - Konnte nicht an Telegram Senden')
+        except (HTTPError, URLError):
+            shared_state.logger.debug('FEHLER - Konnte Telegram API nicht erreichen')
+            continue
 
 
 def pushbullet(items, token):
