@@ -335,6 +335,7 @@ def app_container():
                         "surround": general_conf.get("surround"),
                         "one_mirror_policy": general_conf.get("one_mirror_policy"),
                         "packages_per_myjd_page": to_int(general_conf.get("packages_per_myjd_page")),
+                        "force_ignore_in_web_search": general_conf.get("force_ignore_in_web_search"),
                     },
                     "hosters": {
                         "rapidgator": hosters.get("rapidgator"),
@@ -480,6 +481,7 @@ def app_container():
             section.save("surround", to_str(data['general']['surround']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
             section.save("packages_per_myjd_page", to_str(data['general']['packages_per_myjd_page']))
+            section.save("force_ignore_in_web_search", to_str(data['general']['force_ignore_in_web_search']))
 
             section = CrawlerConfig("Crawljobs")
             section.save("autostart", to_str(data['crawljobs']['autostart']))

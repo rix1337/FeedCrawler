@@ -24,7 +24,8 @@ class CrawlerConfig(object):
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("one_mirror_policy", "bool", "False"),
-            ("packages_per_myjd_page", "int", "3")
+            ("packages_per_myjd_page", "int", "3"),
+            ("force_ignore_in_web_search", "bool", "False"),
         ],
         'Hostnames': [
             ("fx", "str", ""),

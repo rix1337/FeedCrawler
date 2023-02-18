@@ -12,6 +12,7 @@ from bs4 import BeautifulSoup
 from feedcrawler.external_sites.web_search.shared import search_web, rate
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
+from feedcrawler.providers.common_functions import check_is_ignored
 from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
@@ -177,6 +178,7 @@ def download(payload):
     english_ok = CrawlerConfig('FeedCrawler').get("english")
     quality = config.get('quality').replace("480p", "SD")
     ignore = config.get('rejectlist')
+    force_ignore_in_web_search = CrawlerConfig('FeedCrawler').get('force_ignore_in_web_search')
 
     result_seasons = {}
     result_episodes = {}
@@ -216,6 +218,10 @@ def download(payload):
                     valid = bool("." + special.lower() + "." in name.lower())
             if valid and not english_ok:
                 valid = bool(".german." in name.lower())
+
+            if force_ignore_in_web_search and check_is_ignored(name, ignore):
+                valid = False
+
             if valid:
                 valid = False
                 for hoster in hosters:
