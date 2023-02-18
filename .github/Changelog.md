@@ -6,7 +6,8 @@
 
 ### Changelog FeedCrawler:
 
-- **16.4.3** Option, die für die Feed-Suche gewählte Auflösung und Filterliste in der Web-Suche erzwingen [#697](https://github.com/rix1337/FeedCrawler/issues/697)
+- **16.4.4** Bugfix bei Discord-Benachrichtigungen ohne Poster 
+- **16.4.3** Option, die die Filterliste der Feed-Suche in der Web-Suche erzwingt [#697](https://github.com/rix1337/FeedCrawler/issues/697)
 - **16.4.2** Proxy-Support für FlareSolverr entfernt. Der Seitenstatus sollte nun wieder korrekt angezeigt werden.
 - **16.4.2** Verbessertes Chunking beim `build` des VueJS Frontends
 - **16.4.1** Discord-Benachrichtigungen
