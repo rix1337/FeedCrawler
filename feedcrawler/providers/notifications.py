@@ -41,7 +41,7 @@ def notify(items):
             home_assistant(items, homassistant_url, homeassistant_password)
 
 
-def format_notification(text):
+def format_notification_as_html(text):
     components = text.split(' - ')
     if len(components) == 5:
         event = "<b>" + components[0].replace('[', '').replace(']', '').replace("/", ' - ') + ":</b>"
@@ -56,6 +56,23 @@ def format_notification(text):
         return event + "\n" + message
 
 
+def format_notification_as_dict(text):
+    components = text.split(' - ')
+    if len(components) == 5:
+        return {
+            "release": components[1] if components[1] != '' else '-',
+            "event": components[0].replace('[', '').replace(']', '').replace("/", ' - ')  if components[0] != '' else '-',
+            "site": components[2].replace('[', '').replace(']', '') if components[2] != '' else '-',
+            "size": components[3] if components[3] != '' else '-',
+            "source": components[4] if components[4] != '' else '-'
+        }
+    else:
+        return {
+            "release": " - ".join(components[1:]),
+            "event": components[0].replace('[', '').replace(']', '')
+        }
+
+
 def discord(items, webhook_id, webhook_token):
     for item in items:
         try:
@@ -67,27 +84,42 @@ def discord(items, webhook_id, webhook_token):
             'User-Agent': 'FeedCrawler',
             'Content-Type': 'multipart/form-data'
         }
-        formatted_notification = format_notification(item["text"]).replace('<b>', '**').replace('</b>', '**').replace(
-            '<a href="', '').replace('">', ' - ').replace('</a>', '')
+        notification_dict = format_notification_as_dict(item["text"])
 
         data = {
-            'content': formatted_notification,
             'username': 'FeedCrawler',
-            'avatar_url': 'https://imgur.com/tEi4qtb.png'
+            'avatar_url': 'https://imgur.com/tEi4qtb.png',
+            'embeds': [{
+                'title': notification_dict["release"],
+                'description': notification_dict["event"]
+            }]
         }
 
         if imdb_id:
             poster_link = get_poster_link(imdb_id)
             if poster_link:
                 data = {
-                    'content': formatted_notification,
-                    'embeds': [
-                        {'image':
-                             {'url': poster_link}
-                         }
-                    ],
                     'username': 'FeedCrawler',
-                    'avatar_url': 'https://imgur.com/tEi4qtb.png'
+                    'avatar_url': 'https://imgur.com/tEi4qtb.png',
+                    'embeds': [{
+                        'title': notification_dict["release"],
+                        'description': notification_dict["event"],
+                        'image': {
+                            'url': poster_link
+                        },
+                        'fields': [
+                            {
+                                'name': "Größe:",
+                                'value': notification_dict["size"],
+                            }, {
+                                'name': "Links:",
+                                'value': '[IMDb](https://www.imdb.com/title/' + imdb_id + ') / [Quelle (' +
+                                         notification_dict["site"] + ')](' +
+                                         notification_dict["source"] + ')',
+                            }
+
+                        ]
+                    }]
                 }
 
         try:
@@ -110,7 +142,7 @@ def telegram(items, token, chat_id):
         except KeyError:
             imdb_id = False
 
-        formatted_notification = format_notification(item["text"])
+        formatted_notification = format_notification_as_html(item["text"])
 
         data = {
             'chat_id': chat_id,

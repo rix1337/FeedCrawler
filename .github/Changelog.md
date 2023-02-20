@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **16.4.5** Verbessertes Styling der Discord-Benachrichtigungen
 - **16.4.4** Bugfix bei Discord-Benachrichtigungen ohne Poster 
 - **16.4.3** Option, die die Filterliste der Feed-Suche in der Web-Suche erzwingt [#697](https://github.com/rix1337/FeedCrawler/issues/697)
 - **16.4.2** Proxy-Support für FlareSolverr entfernt. Der Seitenstatus sollte nun wieder korrekt angezeigt werden.
