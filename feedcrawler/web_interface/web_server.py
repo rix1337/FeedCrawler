@@ -901,17 +901,17 @@ def app_container():
                         "NX": check("NX_normal", db_status),
                         "WW": check("WW_normal", db_status)
                     },
-                    "flaresolverr": {
-                        "SJ": check("SJ_flaresolverr", db_status),
-                        "DJ": check("DJ_flaresolverr", db_status),
-                        "SF": check("SF_flaresolverr", db_status),
-                        "BY": check("BY_flaresolverr", db_status),
-                        "FX": check("FX_flaresolverr", db_status),
-                        "HW": check("HW_flaresolverr", db_status),
-                        "FF": check("FF_flaresolverr", db_status),
-                        "NK": check("NK_flaresolverr", db_status),
-                        "NX": check("NX_flaresolverr", db_status),
-                        "WW": check("WW_flaresolverr", db_status)
+                    "advanced": {
+                        "SJ": check("SJ_advanced", db_status),
+                        "DJ": check("DJ_advanced", db_status),
+                        "SF": check("SF_advanced", db_status),
+                        "BY": check("BY_advanced", db_status),
+                        "FX": check("FX_advanced", db_status),
+                        "HW": check("HW_advanced", db_status),
+                        "FF": check("FF_advanced", db_status),
+                        "NK": check("NK_advanced", db_status),
+                        "NX": check("NX_advanced", db_status),
+                        "WW": check("WW_advanced", db_status)
                     }
                 }
             }

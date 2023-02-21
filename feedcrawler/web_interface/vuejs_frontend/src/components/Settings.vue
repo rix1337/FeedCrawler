@@ -297,6 +297,7 @@ function showWikiHelp() {
                     FlareSolverr ist ein lokaler Proxy-Server zur kostenlosen Umgehung von Cloudflare-Blockaden.
                     Die Umgehung funktioniert nicht immer zuverlässig, da Cloudflare die Blockaden immer wieder ändert.
                     In unregelmäßigen Abständen vorgeschaltete CAPTCHAs werden durch FlareSolverr nicht umgangen.
+                    Wird nur genutzt, wenn keine Sponsors-Helper-URL konfiguriert ist.
                   </mark>
                   <h5>Ein Mirror genügt</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">

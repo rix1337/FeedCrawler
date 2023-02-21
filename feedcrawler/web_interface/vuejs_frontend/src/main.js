@@ -134,7 +134,7 @@ const store = createStore({
                             const blocked_sites = state.blocked_sites
                             for (let site in blocked_sites.normal) {
                                 if (current_hostnames.includes(site.toLowerCase())) {
-                                    if (blocked_sites.normal[site] && blocked_sites.flaresolverr[site]) {
+                                    if (blocked_sites.normal[site] && blocked_sites.advanced[site]) {
                                         state.misc.no_site_blocked = 2
                                     } else if (blocked_sites.normal[site]) {
                                         state.misc.no_site_blocked = 1

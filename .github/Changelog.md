@@ -13,6 +13,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **9.0.1** Freischaltung benötigter Cloudflare Domains
 - **9.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen.
 - **9.0.0** Ausführliche Fehlermeldungen bei Fehlern in der Proxy-Prüfung
 - **8.0.1** Fehlerbehebung beim Setzen des User-Agents
