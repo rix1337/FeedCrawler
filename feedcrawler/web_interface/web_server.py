@@ -331,6 +331,7 @@ def app_container():
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
                         "flaresolverr": general_conf.get("flaresolverr"),
+                        "sponsors_helper": general_conf.get("sponsors_helper"),
                         "english": general_conf.get("english"),
                         "surround": general_conf.get("surround"),
                         "one_mirror_policy": general_conf.get("one_mirror_policy"),
@@ -477,6 +478,7 @@ def app_container():
                 interval = '5'
             section.save("interval", interval)
             section.save("flaresolverr", to_str(data['general']['flaresolverr']))
+            section.save("sponsors_helper", to_str(data['general']['sponsors_helper']))
             section.save("english", to_str(data['general']['english']))
             section.save("surround", to_str(data['general']['surround']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
