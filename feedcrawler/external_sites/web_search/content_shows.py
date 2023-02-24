@@ -106,8 +106,11 @@ def download(payload):
         api_url = 'https://' + sf + '/api/v1/' + season_id + '/season/ALL?lang=ALL&_=' + epoch
 
         response = get_url(api_url)
-        clean_response_content = BeautifulSoup(response, "html.parser").body.text
-        info = json.loads(clean_response_content)
+        try:
+            info = json.loads(response)
+        except:
+            clean_response_content = BeautifulSoup(response, "html.parser").body.text
+            info = json.loads(clean_response_content)
         content = BeautifulSoup(info['html'], "html.parser")
         releases = content.findAll("h3")
 

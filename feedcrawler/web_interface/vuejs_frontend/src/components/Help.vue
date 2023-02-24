@@ -72,11 +72,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.FX" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.FX && store.state.blocked_sites.normal.FX"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.FX && store.state.blocked_sites.normal.FX"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.FX && store.state.blocked_sites.normal.FX"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.FX && store.state.blocked_sites.normal.FX"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -88,11 +88,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.DW" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.DW && store.state.blocked_sites.normal.DW"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.DW && store.state.blocked_sites.normal.DW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.DW && store.state.blocked_sites.normal.DW"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.DW && store.state.blocked_sites.normal.DW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.hw !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -104,11 +104,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.HW" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.HW && store.state.blocked_sites.normal.HW"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.HW && store.state.blocked_sites.normal.HW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.HW && store.state.blocked_sites.normal.HW"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.HW && store.state.blocked_sites.normal.HW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -123,11 +123,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="store.state.blocked_sites.normal.FF"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.FF && store.state.blocked_sites.normal.FF"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.FF && store.state.blocked_sites.normal.FF"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.FF && store.state.blocked_sites.normal.FF"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.FF && store.state.blocked_sites.normal.FF"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
                         <i v-tippy="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
@@ -143,11 +143,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.BY" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.BY && store.state.blocked_sites.normal.BY"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.BY && store.state.blocked_sites.normal.BY"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.BY && store.state.blocked_sites.normal.BY"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.BY && store.state.blocked_sites.normal.BY"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -159,11 +159,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.NK" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.NK && store.state.blocked_sites.normal.NK"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.NK && store.state.blocked_sites.normal.NK"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.NK && store.state.blocked_sites.normal.NK"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.NK && store.state.blocked_sites.normal.NK"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.nx !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -176,11 +176,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="!store.state.blocked_sites.normal.NX && !store.state.settings.general.flaresolverr"
                            v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.NX && store.state.blocked_sites.normal.NX"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.NX && store.state.blocked_sites.normal.NX"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.NX && store.state.blocked_sites.normal.NX"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.NX && store.state.blocked_sites.normal.NX"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                       <li v-if="store.state.hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
@@ -193,11 +193,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="!store.state.blocked_sites.normal.WW && !store.state.settings.general.flaresolverr"
                            v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.WW && store.state.blocked_sites.normal.WW"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.WW && store.state.blocked_sites.normal.WW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.WW && store.state.blocked_sites.normal.WW"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.WW && store.state.blocked_sites.normal.WW"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                     </ul>
@@ -218,11 +218,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="store.state.blocked_sites.normal.SJ"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.SJ && store.state.blocked_sites.normal.SJ"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.SJ && store.state.blocked_sites.normal.SJ"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.SJ && store.state.blocked_sites.normal.SJ"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.SJ && store.state.blocked_sites.normal.SJ"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
                         <i v-tippy="'Keine SJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
@@ -241,11 +241,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="store.state.blocked_sites.normal.DJ"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.DJ && store.state.blocked_sites.normal.DJ"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.DJ && store.state.blocked_sites.normal.DJ"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.DJ && store.state.blocked_sites.normal.DJ"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.DJ && store.state.blocked_sites.normal.DJ"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
                         <i v-tippy="'Keine DJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
@@ -264,11 +264,11 @@ const waitTimeActive = computed(() => {
                         <i v-if="store.state.blocked_sites.normal.SF"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.SF && store.state.blocked_sites.normal.SF"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.SF && store.state.blocked_sites.normal.SF"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.SF && store.state.blocked_sites.normal.SF"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.SF && store.state.blocked_sites.normal.SF"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
                         <i v-tippy="'Keine SF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
@@ -284,11 +284,11 @@ const waitTimeActive = computed(() => {
                            class="bi bi-exclamation-square-fill text-danger"></i>
                         <i v-if="!store.state.blocked_sites.normal.DD" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.flaresolverr.DD && store.state.blocked_sites.normal.DD"
-                           v-tippy="'Seite mit FlareSolverr gesperrt'"
+                        <i v-if="store.state.blocked_sites.advanced.DD && store.state.blocked_sites.normal.DD"
+                           v-tippy="'Seite mit CloudFlare-Umgehung gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.flaresolverr.DD && store.state.blocked_sites.normal.DD"
-                           v-tippy="'Seite mit FlareSolverr verfügbar'"
+                        <i v-if="!store.state.blocked_sites.advanced.DD && store.state.blocked_sites.normal.DD"
+                           v-tippy="'Seite mit CloudFlare-Umgehung verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
                     </ul>

@@ -159,8 +159,11 @@ def sf_parse_download(self, series_url, title, language_id):
         api_url = 'https://' + sf + '/api/v1/' + season_id + '/season/' + season_nr + '?lang=' + lang + '&_=' + epoch
 
         response = get_url(api_url)
-        clean_response_content = BeautifulSoup(response, "html.parser").body.text
-        info = json.loads(clean_response_content)
+        try:
+            info = json.loads(response)
+        except:
+            clean_response_content = BeautifulSoup(response, "html.parser").body.text
+            info = json.loads(clean_response_content)
 
         is_episode = re.findall(r'.*\.(s\d{1,3}e\d{1,3})\..*', title, re.IGNORECASE)
         multiple_episodes = False

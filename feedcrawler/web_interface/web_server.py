@@ -331,6 +331,7 @@ def app_container():
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
                         "flaresolverr": general_conf.get("flaresolverr"),
+                        "sponsors_helper": general_conf.get("sponsors_helper"),
                         "english": general_conf.get("english"),
                         "surround": general_conf.get("surround"),
                         "one_mirror_policy": general_conf.get("one_mirror_policy"),
@@ -477,6 +478,7 @@ def app_container():
                 interval = '5'
             section.save("interval", interval)
             section.save("flaresolverr", to_str(data['general']['flaresolverr']))
+            section.save("sponsors_helper", to_str(data['general']['sponsors_helper']))
             section.save("english", to_str(data['general']['english']))
             section.save("surround", to_str(data['general']['surround']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
@@ -899,17 +901,17 @@ def app_container():
                         "NX": check("NX_normal", db_status),
                         "WW": check("WW_normal", db_status)
                     },
-                    "flaresolverr": {
-                        "SJ": check("SJ_flaresolverr", db_status),
-                        "DJ": check("DJ_flaresolverr", db_status),
-                        "SF": check("SF_flaresolverr", db_status),
-                        "BY": check("BY_flaresolverr", db_status),
-                        "FX": check("FX_flaresolverr", db_status),
-                        "HW": check("HW_flaresolverr", db_status),
-                        "FF": check("FF_flaresolverr", db_status),
-                        "NK": check("NK_flaresolverr", db_status),
-                        "NX": check("NX_flaresolverr", db_status),
-                        "WW": check("WW_flaresolverr", db_status)
+                    "advanced": {
+                        "SJ": check("SJ_advanced", db_status),
+                        "DJ": check("DJ_advanced", db_status),
+                        "SF": check("SF_advanced", db_status),
+                        "BY": check("BY_advanced", db_status),
+                        "FX": check("FX_advanced", db_status),
+                        "HW": check("HW_advanced", db_status),
+                        "FF": check("FF_advanced", db_status),
+                        "NK": check("NK_advanced", db_status),
+                        "NX": check("NX_advanced", db_status),
+                        "WW": check("WW_advanced", db_status)
                     }
                 }
             }

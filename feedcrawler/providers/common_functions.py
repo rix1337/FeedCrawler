@@ -524,11 +524,11 @@ def site_blocked(url):
     return False
 
 
-def site_blocked_with_flaresolverr(url):
+def site_blocked_with_advanced_methods(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
     for check_against in shared_state.sites:
-        if site and check_against == site and db_status.retrieve(check_against + "_flaresolverr"):
+        if site and check_against == site and db_status.retrieve(check_against + "_advanced"):
             return True
     return False
 

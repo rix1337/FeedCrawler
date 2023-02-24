@@ -61,7 +61,8 @@ def format_notification_as_dict(text):
     if len(components) == 5:
         return {
             "release": components[1] if components[1] != '' else '-',
-            "event": components[0].replace('[', '').replace(']', '').replace("/", ' - ')  if components[0] != '' else '-',
+            "event": components[0].replace('[', '').replace(']', '').replace("/", ' - ') if components[
+                                                                                                0] != '' else '-',
             "site": components[2].replace('[', '').replace(']', '') if components[2] != '' else '-',
             "size": components[3] if components[3] != '' else '-',
             "source": components[4] if components[4] != '' else '-'
@@ -104,16 +105,19 @@ def discord(items, webhook_id, webhook_token):
                     'embeds': [{
                         'title': notification_dict["release"],
                         'description': notification_dict["event"],
+                        'thumbnail': {
+                            'url': poster_link
+                        },
                         'image': {
                             'url': poster_link
                         },
                         'fields': [
                             {
-                                'name': "Größe:",
+                                'name': "Größe",
                                 'value': notification_dict["size"],
                             }, {
-                                'name': "Links:",
-                                'value': '[IMDb](https://www.imdb.com/title/' + imdb_id + ') / [Quelle (' +
+                                'name': "Links",
+                                'value': '[IMDb](https://www.imdb.com/title/' + str(imdb_id) + ') / [Quelle (' +
                                          notification_dict["site"] + ')](' +
                                          notification_dict["source"] + ')',
                             }

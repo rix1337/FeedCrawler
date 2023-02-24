@@ -8,7 +8,6 @@ import re
 
 from bs4 import BeautifulSoup
 
-from feedcrawler.external_sites.feed_search.shared import check_release_not_sd
 from feedcrawler.external_sites.feed_search.sites.content_all_fx import fx_content_to_soup
 from feedcrawler.external_sites.web_search.sites.content_all_by import by_search_results
 from feedcrawler.external_sites.web_search.sites.content_all_dw import dw_search_results
@@ -203,8 +202,11 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             sf_query = keep_alphanumeric_with_special_characters(title)
             sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
             try:
-                clean_sf_search = BeautifulSoup(sf_search, "html.parser").body.text
-                sf_results = json.loads(clean_sf_search)["result"]
+                try:
+                    sf_results = json.loads(sf_search)["result"]
+                except:
+                    clean_sf_search = BeautifulSoup(sf_search, "html.parser").body.text
+                    sf_results = json.loads(clean_sf_search)["result"]
             except:
                 sf_results = []
         else:

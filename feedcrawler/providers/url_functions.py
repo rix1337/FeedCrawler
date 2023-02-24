@@ -10,6 +10,7 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.cache_handler import cached_request
 from feedcrawler.providers.http_requests.flaresolverr_handler import get_flaresolverr_url
+from feedcrawler.providers.http_requests.sponsors_helper_handler import get_sponsors_helper_url
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
@@ -19,6 +20,8 @@ def check_url(start_time):
 
     for site in shared_state.sites:
         if site in ["SJ", "DJ", "SF", "FF"]:
+            db_status.delete(site + "_normal")
+
             last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
             jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
             if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
@@ -29,37 +32,37 @@ def check_url(start_time):
         hostname = hostnames.get(site.lower())
         if not hostname:
             db_status.update_store(site + "_normal", "Blocked")
-            db_status.update_store(site + "_flaresolverr", "Blocked")
+            db_status.update_store(site + "_advanced", "Blocked")
         else:
-            flaresolverr = get_flaresolverr_url()
+            flaresolverr_url = get_flaresolverr_url()
+            sponsors_helper_url = get_sponsors_helper_url()
             skip_sites = ["WW"]
-            skip_normal_ip = flaresolverr and (site in skip_sites)
+            skip_normal_ip = flaresolverr_url and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True
             else:
                 blocked_with_normal_ip = check_if_blocked(site, "https://" + hostname)
             if not blocked_with_normal_ip:
                 print(u"Der Zugriff auf " + site + " funktioniert!")
-                db_status.delete(site + "_normal")
             else:
                 if skip_normal_ip:
-                    print(u"Der Zugriff auf " + site + " erfolgt nur mit FlareSolverr!")
+                    print(u"Der Zugriff auf " + site + " ist nur mit Sponsors Helper bzw. FlareSolverr möglich!")
                 else:
                     print(u"Der Zugriff auf " + site + " ist gesperrt!")
                 db_status.update_store(site + "_normal", "Blocked")
-                if not flaresolverr:
+                if not sponsors_helper_url and not flaresolverr_url:
                     print(
-                        u"Der Zugriff auf " + site + " funktioniert vielleicht mit FlareSolverr. FlareSolverr ist derzeit nicht eingerichtet!")
-                    db_status.update_store(site + "_flaresolverr", "Blocked")
+                        u"Der Zugriff auf " + site + " ist ohne Sponsors Helper bzw. FlareSolverr derzeit nicht möglich!")
+                    db_status.update_store(site + "_advanced", "Blocked")
                 else:
-                    # Since we are aware this site is blocked FlareSolverr will be used for subsequent requests
-                    blocked_with_flaresolverr = check_if_blocked(site, "https://" + hostname)
-                    if not blocked_with_flaresolverr:
-                        print(u"Der Zugriff auf " + site + " mit FlareSolverr funktioniert!")
-                        db_status.delete(site + "_flaresolverr")
+                    # Since we are aware this site is blocked Sponsors Helper/FlareSolverr will be used for subsequent requests
+                    still_blocked = check_if_blocked(site, "https://" + hostname)
+                    if not still_blocked:
+                        print(u"Die Cloudflare-Blockade auf " + site + " wurde erfolgreich umgangen!")
+                        db_status.delete(site + "_advanced")
                     else:
-                        print(u"Der Zugriff auf " + site + " ist mit FlareSolverr gesperrt!")
-                        db_status.update_store(site + "_flaresolverr", "Blocked")
+                        print(u"Die Cloudflare-Blockade auf " + site + " konnte nicht umgangen werden!")
+                        db_status.update_store(site + "_advanced", "Blocked")
 
 
 def check_if_blocked(site, url):

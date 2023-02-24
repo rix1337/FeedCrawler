@@ -119,8 +119,11 @@ def ff_feed_enricher(releases):
                 epoch = str(datetime.datetime.now().timestamp()).replace('.', '')[:-3]
                 api_url = "https://" + base_url + '/api/v1/' + api_secret + '?lang=ALL&_=' + epoch
                 response = get_url(api_url)
-                clean_response_content = BeautifulSoup(response, "html.parser").body.text
-                info = BeautifulSoup(json.loads(clean_response_content)["html"], "html.parser")
+                try:
+                    info = BeautifulSoup(json.loads(response)["html"], "html.parser")
+                except:
+                    clean_response_content = BeautifulSoup(response, "html.parser").body.text
+                    info = BeautifulSoup(json.loads(clean_response_content)["html"], "html.parser")
 
                 releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
                 for release in releases:

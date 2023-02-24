@@ -26,7 +26,6 @@ from feedcrawler.external_tools.plex_api import plex_search
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.http_requests.flaresolverr_handler import clean_flaresolverr_session
 from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import jdownloader_update
@@ -91,11 +90,6 @@ def crawler(global_variables, remove_jf_time, test_run):
     request_management_first_run = True
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
-
-    try:
-        clean_flaresolverr_session()
-    except:
-        pass
 
     if remove_jf_time:
         logger.debug(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
