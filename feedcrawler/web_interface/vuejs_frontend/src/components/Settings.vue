@@ -164,10 +164,26 @@ function showWikiHelp() {
                   <h5>Unterordner bei Download</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.crawljobs.subdir"
+                             :validation="value.subdir_type ? 'accepted' : ''"
+                             :validation-messages="{
+                              accepted: 'Unterordner nach Typ setzt voraus, dass Unterordner bei Download aktiviert ist!'
+                             }"
                              help="Wenn aktiviert, werden Downloads in passende Unterordner sortiert - Empfohlen für die Weiterverarbeitung per Script!"
                              help-class="text-muted"
                              input-class="form-check-input"
                              messages-class="text-danger"
+                             outer-class="mb-4"
+                             type="checkbox"
+                             validation-visibility="live"/>
+                  </label>
+                  <h5>Unterordner nach Typ</h5> <!-- Checkbox labels are not placed above -->
+                  <label class="form-check form-switch">
+                    <FormKit v-model="store.state.settings.crawljobs.subdir_by_type"
+                             help="Wenn aktiviert, werden Serien und Filme in getrennte Unterordner sortiert"
+                             help-class="text-muted"
+                             input-class="form-check-input"
+                             messages-class="text-danger"
+                             name="subdir_type"
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>

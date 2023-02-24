@@ -20,8 +20,8 @@ class CrawlerConfig(object):
             ("port", "int", "9090"),
             ("prefix", "str", ""),
             ("interval", "int", "60"),
-            ("flaresolverr", "str", ""),
             ("sponsors_helper", "str", ""),
+            ("flaresolverr", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),
             ("one_mirror_policy", "bool", "False"),
@@ -44,7 +44,8 @@ class CrawlerConfig(object):
         ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
-            ("subdir", "bool", "True")
+            ("subdir", "bool", "True"),
+            ("subdir_by_type", "bool", "False")
         ],
         'Notifications': [
             ("discord", "str", ""),

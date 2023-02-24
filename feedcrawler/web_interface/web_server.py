@@ -330,8 +330,8 @@ def app_container():
                         "port": to_int(general_conf.get("port")),
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
-                        "flaresolverr": general_conf.get("flaresolverr"),
                         "sponsors_helper": general_conf.get("sponsors_helper"),
+                        "flaresolverr": general_conf.get("flaresolverr"),
                         "english": general_conf.get("english"),
                         "surround": general_conf.get("surround"),
                         "one_mirror_policy": general_conf.get("one_mirror_policy"),
@@ -376,6 +376,7 @@ def app_container():
                     "crawljobs": {
                         "autostart": crawljobs.get("autostart"),
                         "subdir": crawljobs.get("subdir"),
+                        "subdir_by_type": crawljobs.get("subdir_by_type"),
                     },
                     "mb": {
                         "quality": mb_conf.get("quality"),
@@ -477,8 +478,8 @@ def app_container():
             if to_int(interval) < 5:
                 interval = '5'
             section.save("interval", interval)
-            section.save("flaresolverr", to_str(data['general']['flaresolverr']))
             section.save("sponsors_helper", to_str(data['general']['sponsors_helper']))
+            section.save("flaresolverr", to_str(data['general']['flaresolverr']))
             section.save("english", to_str(data['general']['english']))
             section.save("surround", to_str(data['general']['surround']))
             section.save("one_mirror_policy", to_str(data['general']['one_mirror_policy']))
@@ -488,6 +489,7 @@ def app_container():
             section = CrawlerConfig("Crawljobs")
             section.save("autostart", to_str(data['crawljobs']['autostart']))
             section.save("subdir", to_str(data['crawljobs']['subdir']))
+            section.save("subdir_by_type", to_str(data['crawljobs']['subdir_by_type']))
 
             section = CrawlerConfig("Notifications")
             section.save("telegram", to_str(data['alerts']['telegram']))
