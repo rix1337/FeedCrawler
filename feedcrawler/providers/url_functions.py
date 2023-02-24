@@ -32,6 +32,7 @@ def check_url(start_time):
             db_status.update_store(site + "_normal", "Blocked")
             db_status.update_store(site + "_advanced", "Blocked")
         else:
+            db_status.delete(site + "_normal")
             sponsors_helper_url = get_sponsors_helper_url()
             flaresolverr_url = get_flaresolverr_url()
             skip_sites = ["WW"]
@@ -41,7 +42,6 @@ def check_url(start_time):
             else:
                 blocked_with_normal_ip = check_if_blocked(site, "https://" + hostname)
             if not blocked_with_normal_ip:
-                db_status.delete(site + "_normal")
                 print(u"Der Zugriff auf " + site + " funktioniert!")
             else:
                 if skip_normal_ip:

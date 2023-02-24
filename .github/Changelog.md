@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.1** NX-Web-Suche beachtet nun die gesetzte Auflösung (#708), Danke @kroeberd
 - **17.0.1** Umgehe Cloudflare-Blockade für die Web-Suche auch während der SJ/DJ/SF/FF-Wartezeit.
 - **17.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen.
 
