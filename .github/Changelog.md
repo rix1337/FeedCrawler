@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.1** Umgehe Cloudflare-Blockade für die Web-Suche auch während der SJ/DJ/SF/FF-Wartezeit.
 - **17.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen.
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
@@ -13,6 +14,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **9.0.2** Weitergabe des lokalen Proxies für die Verwendung im FeedCrawler
 - **9.0.1** Freischaltung benötigter Cloudflare Domains
 - **9.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen.
 - **9.0.0** Ausführliche Fehlermeldungen bei Fehlern in der Proxy-Prüfung

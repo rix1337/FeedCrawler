@@ -110,7 +110,7 @@ def sponsors_helper_cookies_and_user_agent(sponsors_helper_url, url):
                 user_agent = last_solution["user_agent"]
                 proxy = last_solution["proxy"]
                 if cookiejar:
-                    shared_state.logger.debug("Die Erzeugung von Cloudflare-Cookies für " + url + " war erfolgreich.")
+                    shared_state.logger.debug("Ein bestehender Cloudflare-Cookies wird für " + url + " verwendet.")
                     return cookiejar, user_agent, proxy
             else:
                 clean_db(base_domain)

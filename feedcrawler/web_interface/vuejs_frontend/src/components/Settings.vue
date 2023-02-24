@@ -309,7 +309,7 @@ function showWikiHelp() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <h5>Filterliste in Websuche erzwingen</h5> <!-- Checkbox labels are not placed above -->
+                  <h5>Filterliste in Web-Suche erzwingen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.general.force_ignore_in_web_search"
                              help="Die Web-Suche erlaubt, wenn keine anderen Releases verfügbar sind, auch Releases, die nicht der für die Feed-Suche gesetzten Filterliste entsprechen. Wenn aktiviert, werden betroffene Releases, analog zur Feed-Suche ignoriert."
