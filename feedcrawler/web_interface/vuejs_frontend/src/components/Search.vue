@@ -151,10 +151,10 @@ function submitSearch() {
         </div>
         <div class="row">
           <div class="col-sm">
-            <div >
+            <div>
               <mark v-if="store.state.misc.no_site_blocked === 1">
-                FlareSolverr ist für mindestens eine Seite notwendig.
-                Die Suche kann dadurch deutlich länger dauern als üblich!
+                Für mindestens eine Seite ist derzeit die Cloudflare-Umgehung notwendig.
+                Die Suche kann dadurch länger dauern als üblich!
               </mark>
             </div>
             <button class="btn btn-primary mb-2" type="submit"

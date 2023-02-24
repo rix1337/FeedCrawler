@@ -17,8 +17,9 @@ const toast = useToast()
 const store = createStore({
     state() {
         return {
-            crawltimes: {}, blocked_sites: {
-                normal: {}, flaresolverr: {}
+            crawltimes: {},
+            blocked_sites: {
+                normal: {}, advanced: {}
             }, hostnames: {
                 fx: 'Nicht gesetzt!',
                 sf: 'Nicht gesetzt!',
@@ -96,7 +97,7 @@ const store = createStore({
                 }, overseerr: {
                     url: "", api: ""
                 }, crawljobs: {
-                    autostart: false, subdir: false
+                    autostart: false, subdir: false, subdir_by_type: false
                 }, sponsors_helper: {
                     max_attempts: 3
                 }

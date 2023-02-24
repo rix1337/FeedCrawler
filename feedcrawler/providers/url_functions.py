@@ -20,8 +20,6 @@ def check_url(start_time):
 
     for site in shared_state.sites:
         if site in ["SJ", "DJ", "SF", "FF"]:
-            db_status.delete(site + "_normal")
-
             last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
             jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
             if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
@@ -34,8 +32,9 @@ def check_url(start_time):
             db_status.update_store(site + "_normal", "Blocked")
             db_status.update_store(site + "_advanced", "Blocked")
         else:
-            flaresolverr_url = get_flaresolverr_url()
+            db_status.delete(site + "_normal")
             sponsors_helper_url = get_sponsors_helper_url()
+            flaresolverr_url = get_flaresolverr_url()
             skip_sites = ["WW"]
             skip_normal_ip = flaresolverr_url and (site in skip_sites)
             if skip_normal_ip:

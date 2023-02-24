@@ -38,8 +38,8 @@ body:
       - Letzte funktionierende FeedCrawler-Version:
       - Betriebssystem:
       - Docker: [ja/nein]
-      - FlareSolverr: [ja/nein]
-      - Proxy: [ja/nein]
+      - Sponsors-Helper-URL: [ja/nein]
+      - FlareSolverr-URL: [ja/nein]
     render: markdown
   validations:
     required: true

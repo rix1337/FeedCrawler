@@ -584,6 +584,13 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
         links = str(links).replace(" ", "")
         crawljobs = CrawlerConfig('Crawljobs')
         usesubdir = crawljobs.get("subdir")
+        subdir_by_type = crawljobs.get("subdir_by_type")
+        if subdir_by_type:
+            if re.search(r'S\d{1,3}E\d{1,3}', title, re.IGNORECASE):
+                subdir += "/Serien"
+            else:
+                subdir += "/Filme"
+
         priority = "DEFAULT"
 
         if full_path:
