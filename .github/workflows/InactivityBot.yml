@@ -23,6 +23,6 @@ jobs:
           close-issue-reason: 'not_planned'
           exempt-issue-labels: 'Fehler, Erweiterung'
           days-before-pr-stale: 30
-          stale-pr-message: 'Pull-Request ist seit 30 Tagen inaktiv und wird in 90 Tagen automatisch geschlossen.'
+          stale-pr-message: 'Pull-Request ist seit 30 Tagen inaktiv.'
           stale-pr-label: 'Inaktiv'
           operations-per-run: 99
