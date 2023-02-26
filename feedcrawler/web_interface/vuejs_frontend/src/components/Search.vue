@@ -1,6 +1,6 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, ref} from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useToast} from "vue-toastification"
 import Paginate from "vuejs-paginate-next"
 import {submitForm} from '@formkit/vue'
@@ -32,6 +32,31 @@ const search = ref('')
 const spin_search = ref(false)
 const slow_ready = ref(false)
 
+const search_movies = ref(true)
+const search_shows = ref(true)
+const movies_only = ref(false)
+const shows_only = ref(false)
+
+watch([search_movies, search_shows], ([movies_value, shows_value], [old_movies_value, old_show_value]) => {
+  if (movies_value === false && shows_value === false) {
+    if (old_movies_value === true) {
+      search_shows.value = true
+    } else if (old_show_value === true) {
+      search_movies.value = true
+    }
+  }
+  if (movies_value === true && shows_value === false) {
+    movies_only.value = true
+    shows_only.value = false
+  } else if (movies_value === false && shows_value === true) {
+    movies_only.value = false
+    shows_only.value = true
+  } else {
+    movies_only.value = false
+    shows_only.value = false
+  }
+})
+
 function clearResults() {
   results.value = false
   currentPageResults.value = 1
@@ -44,21 +69,8 @@ function searchNow() {
   slow_ready.value = false
   if (search.value) {
     {
-      axios.post('api/search/' + title, {slow_only: false, fast_only: true})
-          .then(function (res) {
-            results.value = res.data.results
-            getResultsPages()
-            console.log('Nach ' + title + ' gesucht (schnelle Seiten)!')
-            spin_search.value = false
-          }, function () {
-            console.log('Konnte ' + title + ' nicht suchen!')
-            toast.error('Konnte  ' + title + ' nicht suchen!')
-            spin_search.value = false
-            results.value = false
-            resLengthResults.value = 0
-          })
       spin_search.value = true
-      axios.post('api/search/' + title, {slow_only: true, fast_only: false})
+      axios.post('api/search/' + title, {movies_only: movies_only.value, shows_only: shows_only.value})
           .then(function (res) {
             slow_ready.value = true
             if (results.value) {
@@ -68,7 +80,7 @@ function searchNow() {
               results.value = res.data.results
             }
             getResultsPages()
-            console.log('Nach ' + title + ' gesucht (langsame Seiten)!')
+            console.log('Nach ' + title + ' gesucht!')
             spin_search.value = false
           }, function () {
             slow_ready.value = true
@@ -149,14 +161,18 @@ function submitSearch() {
                      validation="required|length:3"/>
           </FormKit>
         </div>
-        <div class="row">
-          <div class="col-sm">
-            <div>
-              <mark v-if="store.state.misc.no_site_blocked === 1">
-                Für mindestens eine Seite ist derzeit die Cloudflare-Umgehung notwendig.
-                Die Suche kann dadurch länger dauern als üblich!
-              </mark>
-            </div>
+        <div class="row justify-content-center">
+          <div class="col-sm-1 form-check form-check-inline form-switch">
+            <input class="form-check-input" type="checkbox" id="flexSwitchMovies" v-model="search_movies">
+            <label class="form-check-label" for="flexSwitchMovies">Filme</label>
+          </div>
+          <div class="col-sm-1 form-check form-check-inline form-switch">
+            <input class="form-check-input" type="checkbox" id="flexSwitchShows" v-model="search_shows">
+            <label class="form-check-label" for="flexSwitchShows">Serien</label>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-sm-1">
             <button class="btn btn-primary mb-2" type="submit"
                     @click="submitSearch">
               <span v-if="spin_search" id="spinner-search" class="spinner-border spinner-border-sm"
@@ -165,9 +181,17 @@ function submitSearch() {
             </button>
           </div>
         </div>
+        <div class="row justify-content-center" v-if="store.state.misc.no_site_blocked === 1 && spin_search">
+          <div class="col-sm-4">
+            <mark>
+              Aufgrund aktiver Cloudflare-Blockaden dauert die Suche etwas länger!
+            </mark>
+          </div>
+        </div>
 
         <div class="row">
-          <div v-if="results" class="results mt-4">
+          <div v-if="results" class="results">
+            <div class="border-top mt-2 mb-2" v-if="results.sf.length > 0 || results.sj.length > 0"></div>
             <p v-for="x in results.sf">
               <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
                   class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
@@ -178,6 +202,7 @@ function submitSearch() {
                   class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SJ)
               </button>
             </p>
+            <div class="border-top mt-2 mb-2"></div>
             <p v-for="y in currentResultsPage">
               <button class="btn btn-outline-secondary" type="submit" @click="downloadBL(y.payload, y.title)"><i
                   class="bi bi-download"></i> <span v-text="y.title"></span></button>
@@ -190,13 +215,6 @@ function submitSearch() {
                   :prev-text="'<'"
               >
               </paginate>
-            </div>
-            <div class="row justify-content-center">
-              <div class="col-sm-3">
-                <div v-if="results && !slow_ready" class="alert alert-info" role="alert">
-                  <span class="spinner-border spinner-border-sm"></span> Suche auf langsamen Seiten läuft noch...
-                </div>
-              </div>
             </div>
           </div>
         </div>

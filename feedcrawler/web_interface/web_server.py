@@ -947,13 +947,13 @@ def app_container():
             if len(title) < 3:
                 return abort(400, "Search term too short!")
             data = request.json
-            slow_only = data.get('slow_only')
-            fast_only = data.get('fast_only')
+            movies_only = data.get('movies_only')
+            shows_only = data.get('shows_only')
         except:
-            slow_only = False
-            fast_only = False
+            movies_only = False
+            shows_only = False
         try:
-            results = search_web(title, only_slow=slow_only, only_fast=fast_only)
+            results = search_web(title, only_content_movies=movies_only, only_content_shows=shows_only)
             return {
                 "results": {
                     "bl": results[0],

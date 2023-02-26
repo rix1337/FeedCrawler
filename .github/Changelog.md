@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.2** Schalter für Medientypen (Filme und/oder Serien) im Web-Interface
 - **17.0.1** Option, Serien und Filme in getrennte Unterordner zu verschieben
 - **17.0.1** NX-Web-Suche beachtet nun die gesetzte Auflösung (#708), Danke @kroeberd
 - **17.0.1** Umgehe Cloudflare-Blockade für die Web-Suche auch während der SJ/DJ/SF/FF-Wartezeit

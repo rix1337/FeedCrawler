@@ -14,6 +14,7 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
 from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import is_device
+from feedcrawler.providers.common_functions import is_show
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.common_functions import readable_size
 from feedcrawler.providers.common_functions import readable_time
@@ -586,7 +587,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
         usesubdir = crawljobs.get("subdir")
         subdir_by_type = crawljobs.get("subdir_by_type")
         if subdir_by_type:
-            if re.search(r'S\d{1,3}E\d{1,3}', title, re.IGNORECASE):
+            if is_show(title):
                 subdir += "/Serien"
             else:
                 subdir += "/Filme"

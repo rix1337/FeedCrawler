@@ -361,6 +361,13 @@ def is_retail(key, delete):
         return False
 
 
+def is_show(title):
+    if re.search(r'S\d{1,3}E\d{1,3}', title, re.IGNORECASE) or re.search(r'S\d{1,3}', title, re.IGNORECASE):
+        return True
+    else:
+        return False
+
+
 def longest_substr(data):
     substr = ''
     if len(data) > 1 and len(data[0]) > 0:
