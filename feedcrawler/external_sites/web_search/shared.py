@@ -18,6 +18,7 @@ from feedcrawler.external_sites.web_search.sites.content_all_nx import nx_search
 from feedcrawler.providers.common_functions import check_is_ignored
 from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import encode_base64
+from feedcrawler.providers.common_functions import is_show
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import simplified_search_term_in_title
 from feedcrawler.providers.config import CrawlerConfig
@@ -26,12 +27,7 @@ from feedcrawler.providers.url_functions import get_urls_async
 from feedcrawler.providers.url_functions import post_url
 
 
-def search_web(title, only_content_all=False, only_content_shows=False, only_fast=False, only_slow=False):
-    if only_fast:
-        only_slow = False
-    if only_slow:
-        only_fast = False
-
+def search_web(title, only_content_movies=False, only_content_shows=False):
     hostnames = CrawlerConfig('Hostnames')
     by = hostnames.get('by')
     dw = hostnames.get('dw')
@@ -92,13 +88,6 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
         else:
             nx_search = None
 
-        if only_fast:
-            fx_search = None
-            nx_search = None
-        if only_slow:
-            by_search = None
-            hw_search = None
-
         async_results = get_urls_async([by_search, dw_search, fx_search, hw_search, nx_search])
 
         by_results = []
@@ -119,7 +108,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
             elif check_is_site(res[1]) == 'NX':
                 nx_results = nx_search_results(res[0], quality, title)
 
-        if nk and not only_slow:
+        if nk:
             nk_search = post_url('https://' + nk + "/search",
                                  data={'search': bl_query.replace("+", " ")})
             nk_results = nk_search_results(nk_search, 'https://' + nk + '/', quality, title)
@@ -128,32 +117,44 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
 
         password = ""
         for result in by_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (BY)"])
 
         password = fx.split('.')[0]
         for result in fx_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             # title is intentionally sent with the password, so we can detect the correct link when downloading
             unrated.append([rate(result[0], ignore), encode_base64(result[1] + "|" + password + "|" + result[0]),
                             result[0] + " (FX)"])
 
         password = dw.split('.')[0]
         for result in dw_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (DW)"])
 
         password = hw.split('.')[0]
         for result in hw_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (HW)"])
 
         password = nk.split('.')[0].capitalize()
         for result in nk_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NK)"])
 
         password = nx.split('.')[0]
         for result in nx_results:
+            if only_content_movies and is_show(result[0]):
+                continue
             unrated.append(
                 [rate(result[0], ignore), encode_base64(result[1] + "|" + password), result[0] + " (NX)"])
 
@@ -172,8 +173,8 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
 
     content_shows_sj_results = []
     content_shows_sf_results = []
-    if not only_content_all:
-        if sj and not only_slow:
+    if not only_content_movies:
+        if sj:
             sj_query = keep_alphanumeric_with_special_characters(title).replace(" ", "+")
             sj_search = get_url('https://' + sj + '/serie/search?q=' + sj_query)
             try:
@@ -198,7 +199,7 @@ def search_web(title, only_content_all=False, only_content_shows=False, only_fas
                 i += 1
         content_shows_sj_results = results
 
-        if sf and not only_slow:
+        if sf:
             sf_query = keep_alphanumeric_with_special_characters(title)
             sf_search = get_url('https://' + sf + '/api/v2/search?q=' + sf_query + '&ql=DE')
             try:

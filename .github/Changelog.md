@@ -6,10 +6,15 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.2** Timeout für die Cloudflare-Umgehung des 
+  [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf 3 Minuten
+  erhöht
+- **17.0.2** Schalter für Medientypen (Filme und/oder Serien) im Web-Interface
 - **17.0.1** Option, Serien und Filme in getrennte Unterordner zu verschieben
 - **17.0.1** NX-Web-Suche beachtet nun die gesetzte Auflösung (#708), Danke @kroeberd
 - **17.0.1** Umgehe Cloudflare-Blockade für die Web-Suche auch während der SJ/DJ/SF/FF-Wartezeit
-- **17.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen
+- **17.0.0** Option, die Cloudflare-Blockaden durch den
+  [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) zu lösen
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
 

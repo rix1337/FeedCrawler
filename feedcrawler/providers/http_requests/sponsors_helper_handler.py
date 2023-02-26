@@ -24,7 +24,12 @@ def get_sponsors_helper_url():
             sponsors_helper = sponsors_helper[:-1]
             config.save('sponsors_helper', sponsors_helper)
         try:
-            if request(sponsors_helper + "/status").status_code == 200:
+            if request(sponsors_helper + "/status", timeout=30).status_code == 200:
+                return sponsors_helper + "/cloudflare_cookie/"
+        except:
+            pass
+        try:  ## again, with longer timeout
+            if request(sponsors_helper + "/status", timeout=60).status_code == 200:
                 return sponsors_helper + "/cloudflare_cookie/"
         except:
             pass
@@ -121,7 +126,7 @@ def sponsors_helper_cookies_and_user_agent(sponsors_helper_url, url):
         'url': url
     }
 
-    json_response = request(sponsors_helper_url, method="POST", json=sponsors_helper_payload)
+    json_response = request(sponsors_helper_url, method="POST", json=sponsors_helper_payload, timeout=180)
 
     status_code = json_response.status_code
 
