@@ -71,7 +71,8 @@ def request(
         cookiejar=None,
         basic_auth=None,
         timeout=None,
-        output_errors=True
+        output_errors=True,
+        force_ipv4=False
 ):
     """
     Returns a (named)tuple with the following properties:
@@ -149,6 +150,27 @@ def request(
     if not redirect:
         no_redirect = NoRedirect()
         handlers.append(no_redirect)
+
+    if force_ipv4:
+        import socket
+        def create_ipv4_socket(address, timeout=None, source_address=None):
+            family = socket.AF_INET
+            socktype = socket.SOCK_STREAM
+            proto = socket.IPPROTO_TCP
+            sockaddr = address
+            if source_address:
+                sockaddr = (source_address, 0)
+            sock = socket.socket(family, socktype, proto)
+            sock.settimeout(timeout)
+            try:
+                sock.connect(sockaddr)
+            except socket.error:
+                sock.close()
+                raise
+            return sock
+
+        # Monkey-patch the create_connection function to use IPv4 only
+        socket.create_connection = create_ipv4_socket
 
     opener = build_opener(*handlers)
     req = Request(url, data=data, headers=headers, method=method)

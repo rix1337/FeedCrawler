@@ -9,8 +9,7 @@ import datetime
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.cache_handler import cached_request
-from feedcrawler.providers.http_requests.flaresolverr_handler import get_flaresolverr_url
-from feedcrawler.providers.http_requests.sponsors_helper_handler import get_sponsors_helper_url
+from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
@@ -33,10 +32,10 @@ def check_url(start_time):
             db_status.update_store(site + "_advanced", "Blocked")
         else:
             db_status.delete(site + "_normal")
-            sponsors_helper_url = get_sponsors_helper_url()
-            flaresolverr_url = get_flaresolverr_url()
-            skip_sites = ["WW"]
-            skip_normal_ip = flaresolverr_url and (site in skip_sites)
+            sponsors_helper_url = get_solver_url("sponsors_helper")
+            flaresolverr_url = get_solver_url("flaresolverr")
+            skip_sites = ["SF", "FF", "WW"]
+            skip_normal_ip = (sponsors_helper_url or flaresolverr_url) and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True
             else:
@@ -45,13 +44,13 @@ def check_url(start_time):
                 print(u"Der Zugriff auf " + site + " funktioniert!")
             else:
                 if skip_normal_ip:
-                    print(u"Der Zugriff auf " + site + " ist nur mit Sponsors Helper bzw. FlareSolverr möglich!")
+                    print(u"Der Zugriff auf " + site + " ist nur mit FlareSolverr bzw. Sponsors Helper möglich!")
                 else:
                     print(u"Der Zugriff auf " + site + " ist gesperrt!")
                 db_status.update_store(site + "_normal", "Blocked")
                 if not sponsors_helper_url and not flaresolverr_url:
                     print(
-                        u"Der Zugriff auf " + site + " ist ohne Sponsors Helper bzw. FlareSolverr derzeit nicht möglich!")
+                        u"Der Zugriff auf " + site + " ist ohne FlareSolverr bzw. Sponsors Helper derzeit nicht möglich!")
                     db_status.update_store(site + "_advanced", "Blocked")
                 else:
                     # Since we are aware this site is blocked Sponsors Helper/FlareSolverr will be used for subsequent requests
@@ -103,48 +102,54 @@ def check_if_blocked(site, url):
 
 
 def get_url(url):
-    try:
-        response = cached_request(url)["text"]
-        return response
-    except Exception as e:
-        print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return ""
+    if url:
+        try:
+            response = cached_request(url)["text"]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + str(url) + " " + str(e))
+            pass
+    return ""
 
 
 def get_url_headers(url, headers=False):
-    try:
-        response = cached_request(url, headers=headers)
-        return response
-    except Exception as e:
-        print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return ""
+    if url:
+        try:
+            response = cached_request(url, headers=headers)
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+    return ""
 
 
 def get_redirected_url(url):
-    try:
-        redirect_url = cached_request(url, redirect_url=True)
-        return redirect_url
-    except Exception as e:
-        print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return url
+    if url:
+        try:
+            redirect_url = cached_request(url, redirect_url=True)["url"]
+            return redirect_url
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+    return url
 
 
 def post_url(url, data=False):
-    try:
-        response = cached_request(url, method='post', params=data)["text"]
-        return response
-    except Exception as e:
-        print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return ""
+    if url:
+        try:
+            response = cached_request(url, method='post', params=data)["text"]
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+    return ""
 
 
 def post_url_headers(url, headers, data=False):
-    try:
-        response = cached_request(url, method='post', params=data, headers=headers)
-        return response
-    except Exception as e:
-        print(u"Fehler beim Abruf von: " + url + " " + str(e))
-        return ""
+    if url:
+        try:
+            response = cached_request(url, method='post', params=data, headers=headers)
+            return response
+        except Exception as e:
+            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+    return ""
 
 
 def get_urls_async(urls):
