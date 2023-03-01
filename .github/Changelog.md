@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.4** Status bestehender Cloudflare-Blockaden wird wieder korrekt aktualisiert
 - **17.0.3** FlareSolverr-Anbindung überarbeitet:
   - Die Implementierung folgt jetzt der deutlich effizienteren Lösung auf Basis des **FeedCrawler Sponsors Helpers**.
   - FlareSolverr wird nur noch für die Erzeugung gültiger Cloudflare-Cookies verwendet.

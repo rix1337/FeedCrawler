@@ -32,6 +32,7 @@ def check_url(start_time):
             db_status.update_store(site + "_advanced", "Blocked")
         else:
             db_status.delete(site + "_normal")
+            db_status.delete(site + "_advanced")
             sponsors_helper_url = get_solver_url("sponsors_helper")
             flaresolverr_url = get_solver_url("flaresolverr")
             skip_sites = ["SF", "FF", "WW"]
@@ -57,7 +58,6 @@ def check_url(start_time):
                     still_blocked = check_if_blocked(site, "https://" + hostname)
                     if not still_blocked:
                         print(u"Die Cloudflare-Blockade auf " + site + " wurde erfolgreich umgangen!")
-                        db_status.delete(site + "_advanced")
                     else:
                         print(u"Die Cloudflare-Blockade auf " + site + " konnte nicht umgangen werden!")
                         db_status.update_store(site + "_advanced", "Blocked")
