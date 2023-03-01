@@ -10,12 +10,11 @@ from functools import wraps
 from urllib.error import URLError
 
 from feedcrawler.providers import shared_state
-from feedcrawler.providers.common_functions import site_blocked
-from feedcrawler.providers.http_requests.flaresolverr_handler import flaresolverr_request
-from feedcrawler.providers.http_requests.flaresolverr_handler import get_flaresolverr_url
+from feedcrawler.providers.common_functions import site_blocked, site_blocked_with_advanced_methods
+from feedcrawler.providers.http_requests.cloudflare_handlers import flaresolverr_task
+from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
+from feedcrawler.providers.http_requests.cloudflare_handlers import sponsors_helper_task
 from feedcrawler.providers.http_requests.request_handler import request
-from feedcrawler.providers.http_requests.sponsors_helper_handler import get_sponsors_helper_url
-from feedcrawler.providers.http_requests.sponsors_helper_handler import sponsors_helper_cookies_and_user_agent
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
@@ -55,8 +54,8 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     if dont_cache:
         shared_state.logger.debug("Aufruf ohne HTTP-Cache: " + url)
 
-    sponsors_helper_url = get_sponsors_helper_url()
-    flaresolverr_url = get_flaresolverr_url()
+    sponsors_helper_url = get_solver_url("sponsors_helper")
+    flaresolverr_url = get_solver_url("flaresolverr")
 
     if not headers:
         headers = {}
@@ -69,75 +68,59 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     if "ajax" in url.lower():
         headers['X-Requested-With'] = 'XMLHttpRequest'
 
-    text = ''
     status_code = 500
+    text = ""
     response_headers = {}
 
-    try:
-        if site_blocked(url):
-            if sponsors_helper_url:
-                cookiejar, user_agent, proxy = sponsors_helper_cookies_and_user_agent(sponsors_helper_url, url)
+    headers['User-Agent'] = shared_state.user_agent
+    cookiejar = None
+    proxies = {}
+    force_ipv4 = False
 
-                proxies = {"http": proxy, "https": proxy}
+    flaresolverr_run = False
+    allow_sponsors_helper_run = False
+    if sponsors_helper_url and not flaresolverr_url:
+        allow_sponsors_helper_run = True
 
-                headers['User-Agent'] = user_agent
-                if method == 'post':
-                    response = request(url, method="POST", data=params, timeout=10, headers=headers,
-                                       cookiejar=cookiejar, proxies=proxies)
-                elif redirect_url:
-                    try:
-                        response = request(url, timeout=10, cookiejar=cookiejar, proxies=proxies)
-                        if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
-                            shared_state.logger.debug(
-                                "Sponsors Helper konnte die Cloudflare-Blockade auf %s nicht umgehen." % url)
-                        else:
-                            return {'status_code': status_code, 'text': "", 'headers': {}}
+    while True:
+        try:
+            if site_blocked(url):
+                if site_blocked_with_advanced_methods(url):
+                    print("Die Seite %s ist blockiert..." % url)
+                    return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
+                if allow_sponsors_helper_run:  # will only be used when flaresolverr is not available or not working
+                    cookiejar, user_agent, proxy = sponsors_helper_task(sponsors_helper_url, url)
+                    proxies = {"http": proxy, "https": proxy}
+                    headers['User-Agent'] = user_agent
+                    force_ipv4 = False
+                    flaresolverr_run = False
+                elif flaresolverr_url:
+                    cookiejar, user_agent = flaresolverr_task(flaresolverr_url, url)
+                    headers['User-Agent'] = user_agent
+                    force_ipv4 = True
+                    flaresolverr_run = True
+                    allow_sponsors_helper_run = True
 
-                        return response.url
-                    except Exception as e:
-                        pass
-                    shared_state.logger.debug(
-                        "Der Abruf der Redirect-URL war mit Sponsors Helper fehlerhaft: " + str(e))
-                    return url
-                else:
-                    response = request(url, timeout=10, headers=headers, cookiejar=cookiejar, proxies=proxies)
-
-                if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
-                    shared_state.logger.debug(
-                        "Sponsors Helper konnte die Cloudflare-Blockade auf %s nicht umgehen." % url)
-                    return {'status_code': status_code, 'text': "", 'headers': {}}
-
-                status_code = response.status_code
-                text = response.text
-                response_headers = response.headers
-            elif flaresolverr_url:
-                status_code, text, response_headers, url = flaresolverr_request(flaresolverr_url, url, method, params,
-                                                                                headers, redirect_url)
-                if redirect_url:
-                    shared_state.logger.debug(
-                        "FlaresSolverr ist nicht in der Lage, die Redirect-URL von %s abzurufen." % url)
-                    return url
-            else:
-                shared_state.logger.debug(
-                    "Um Cloudflare auf der Seite %s zu umgehen, müssen Sponsors Helper oder FlareSolverr konfiguriert werden." % url)
-                return {'status_code': status_code, 'text': "", 'headers': {}}
-        else:
-            headers['User-Agent'] = shared_state.user_agent
             if method == 'post':
-                response = request(url, method="POST", data=params, timeout=10, headers=headers)
-            elif redirect_url:
-                try:
-                    return request(url, timeout=10).url
-                except Exception as e:
-                    shared_state.logger.debug("Der Abruf der Redirect-URL war fehlerhaft: " + str(e))
-                    return url
+                response = request(url, method="POST", data=params, timeout=10, headers=headers,
+                                   cookiejar=cookiejar, proxies=proxies, force_ipv4=force_ipv4)
             else:
-                response = request(url, timeout=10, headers=headers)
+                response = request(url, timeout=10, headers=headers, cookiejar=cookiejar, proxies=proxies,
+                                   force_ipv4=force_ipv4)
 
+            if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
+                print("Die Cloudflare-Umgehung auf %s war nicht erfolgreich." % url)
+                if flaresolverr_run and allow_sponsors_helper_run:
+                    print("Lösung mit FlareSolverr gescheitert. Versuche es mit Sponsors Helper...")
+                    continue  # try again with sponsors helper
+                return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
+
+            if redirect_url:
+                url = response.url
             status_code = response.status_code
             text = response.text
             response_headers = response.headers
-    except URLError as e:
-        print("Fehler im HTTP-Request", e)
+        except URLError as e:
+            print("Fehler im HTTP-Request", e)
 
-    return {'status_code': status_code, 'text': text, 'headers': response_headers}
+        return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}

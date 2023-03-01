@@ -6,15 +6,21 @@
 
 ### Changelog FeedCrawler:
 
-- **17.0.2** Timeout für die Cloudflare-Umgehung des 
-  [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) auf 3 Minuten
-  erhöht
+- **17.0.3** FlareSolverr-Anbindung überarbeitet:
+  - Die Implementierung folgt jetzt der deutlich effizienteren Lösung auf Basis des **FeedCrawler Sponsors Helpers**.
+  - FlareSolverr wird nur noch für die Erzeugung gültiger Cloudflare-Cookies verwendet.
+  - Zuvor wurden alle Requests zu gesperrten Seiten über den FlareSolverr geschickt.
+  - Da FlareSolverr gratis ist, wird dieser von FeedCrawler bevorzugt zur Cloudflare-Umgehung eingesetzt.
+  - Ist ein **FeedCrawler Sponsors Helper** konfiguriert, wird dieser nur verwendet, wenn FlareSolverr gescheitert ist.
+- **17.0.3** Neue Fehlermeldung, wenn Release aus SF-Feed nicht auf Download-Seite verfügbar ist 
+- **17.0.3** Schalter für Medientypen merkt sich die Einstellung im Browser-Storage, analog zum Dark Mode
+- **17.0.3** Schalter für Medientypen in der mobilen Ansicht stärker zentriert (#712), Danke @kroeberd
+- **17.0.2** Timeout für die Cloudflare-Umgehung des **FeedCrawler Sponsors Helper** auf 3 Minuten erhöht
 - **17.0.2** Schalter für Medientypen (Filme und/oder Serien) im Web-Interface
-- **17.0.1** Option, Serien und Filme in getrennte Unterordner zu verschieben
+- **17.0.1** Neue Option, Serien und Filme in getrennte Unterordner zu verschieben
 - **17.0.1** NX-Web-Suche beachtet nun die gesetzte Auflösung (#708), Danke @kroeberd
 - **17.0.1** Umgehe Cloudflare-Blockade für die Web-Suche auch während der SJ/DJ/SF/FF-Wartezeit
-- **17.0.0** Option, die Cloudflare-Blockaden durch den
-  [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper) zu lösen
+- **17.0.0** Neue Option, die Cloudflare-Blockaden durch den **FeedCrawler Sponsors Helper** zu lösen
 
 ### Changelog [FeedCrawler Sponsors Helper](https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper):
 
@@ -25,7 +31,3 @@ betreffen, werden erst nach dessen Update aktiv.
 - **9.0.1** Freischaltung benötigter Cloudflare Domains
 - **9.0.0** Neue Möglichkeit, Cloudflare-Blockaden zu lösen.
 - **9.0.0** Ausführliche Fehlermeldungen bei Fehlern in der Proxy-Prüfung
-- **8.0.1** Fehlerbehebung beim Setzen des User-Agents
-- **8.0.0** Der Sponsors Helper erkennt bei FC-Links nun, ob laut Release-Titel eine einzelne Staffel oder Episode
-  hinzugefügt werden soll. In diesem Fall werden nur die tatsächlich notwendigen Links an JDownloader übergeben. 
-- **8.0.0** Update auf Google Chrome 110

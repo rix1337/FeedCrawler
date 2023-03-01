@@ -193,7 +193,11 @@ def sf_parse_download(self, series_url, title, language_id):
                 season_title = season_title.replace(multiple_episodes[0], '.*')
 
         content = BeautifulSoup(info['html'], "html.parser")
-        release_info = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
+        try:
+            release_info = content.find("small", text=re.compile(season_title, re.IGNORECASE)).parent.parent.parent
+        except:
+            print(title + " wird im Feed referenziert, fehlt jedoch auf der Download-Seite!")
+            return False
 
         try:
             size = standardize_size_value(
