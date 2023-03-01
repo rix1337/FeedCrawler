@@ -19,7 +19,7 @@ jobs:
     needs: check-branch
     strategy:
       matrix:
-        python-version: [ 3.7, 3.8, 3.9, "3.10", 3.11 ]
+        python-version: [ 3.8, 3.9, "3.10", 3.11 ]
     name: Python ${{ matrix.python-version }} build
     steps:
       - uses: actions/checkout@v3
