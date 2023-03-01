@@ -13,6 +13,8 @@
   - Da FlareSolverr gratis ist, wird dieser von FeedCrawler bevorzugt zur Cloudflare-Umgehung eingesetzt.
   - Ist ein **FeedCrawler Sponsors Helper** konfiguriert, wird dieser nur verwendet, wenn FlareSolverr gescheitert ist.
 - **17.0.3** Neue Fehlermeldung, wenn Release aus SF-Feed nicht auf Download-Seite verfügbar ist 
+- **17.0.3** Schalter für Medientypen merkt sich die Einstellung im Browser-Storage, analog zum Dark Mode
+- **17.0.3** Schalter für Medientypen in der mobilen Ansicht stärker zentriert (#712), Danke @kroeberd
 - **17.0.2** Timeout für die Cloudflare-Umgehung des **FeedCrawler Sponsors Helper** auf 3 Minuten erhöht
 - **17.0.2** Schalter für Medientypen (Filme und/oder Serien) im Web-Interface
 - **17.0.1** Neue Option, Serien und Filme in getrennte Unterordner zu verschieben

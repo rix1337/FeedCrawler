@@ -1,6 +1,6 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, ref, watch} from 'vue'
+import {computed, onMounted, ref, watch} from 'vue'
 import {useToast} from "vue-toastification"
 import Paginate from "vuejs-paginate-next"
 import {submitForm} from '@formkit/vue'
@@ -9,6 +9,27 @@ import axios from 'axios'
 
 const store = useStore()
 const toast = useToast()
+
+const search_movies = ref(true)
+const search_shows = ref(true)
+
+onMounted(() => {
+  const check_storage_movies = localStorage.getItem("search_movies")
+  if (check_storage_movies === null) {
+    search_movies.value = true
+    localStorage.setItem("search_movies", "true")
+  } else {
+    search_movies.value = check_storage_movies === "true"
+  }
+
+  const check_storage_shows = localStorage.getItem("search_shows")
+  if (check_storage_shows === null) {
+    search_shows.value = true
+    localStorage.setItem("search_shows", "true")
+  } else {
+    search_shows.value = check_storage_shows === "true"
+  }
+})
 
 const results = ref(false)
 
@@ -30,30 +51,31 @@ function getResultsPages() {
 
 const search = ref('')
 const spin_search = ref(false)
-const slow_ready = ref(false)
 
-const search_movies = ref(true)
-const search_shows = ref(true)
 const movies_only = ref(false)
 const shows_only = ref(false)
 
-watch([search_movies, search_shows], ([movies_value, shows_value], [old_movies_value, old_show_value]) => {
-  if (movies_value === false && shows_value === false) {
-    if (old_movies_value === true) {
-      search_shows.value = true
-    } else if (old_show_value === true) {
-      search_movies.value = true
-    }
+watch(search_movies, (newVal) => {
+  if (newVal === false && search_shows.value === false) {
+    search_shows.value = true
   }
+  localStorage.setItem("search_movies", newVal.toString())
+})
+
+watch(search_shows, (newVal) => {
+  if (newVal === false && search_movies.value === false) {
+    search_movies.value = true
+  }
+  localStorage.setItem("search_shows", newVal.toString())
+})
+
+watch([search_movies, search_shows], ([movies_value, shows_value]) => {
   if (movies_value === true && shows_value === false) {
     movies_only.value = true
     shows_only.value = false
   } else if (movies_value === false && shows_value === true) {
     movies_only.value = false
     shows_only.value = true
-  } else {
-    movies_only.value = false
-    shows_only.value = false
   }
 })
 
@@ -66,13 +88,11 @@ function searchNow() {
   clearResults()
   let title = search.value
   spin_search.value = true
-  slow_ready.value = false
   if (search.value) {
     {
       spin_search.value = true
       axios.post('api/search/' + title, {movies_only: movies_only.value, shows_only: shows_only.value})
           .then(function (res) {
-            slow_ready.value = true
             if (results.value) {
               results.value.sj = res.data.results.sj.concat(results.value.sj)
               results.value.bl = res.data.results.bl.concat(results.value.bl)
@@ -83,7 +103,6 @@ function searchNow() {
             console.log('Nach ' + title + ' gesucht!')
             spin_search.value = false
           }, function () {
-            slow_ready.value = true
             console.log('Konnte ' + title + ' nicht suchen!')
             toast.error('Konnte  ' + title + ' nicht suchen!')
             spin_search.value = false
@@ -161,7 +180,7 @@ function submitSearch() {
                      validation="required|length:3"/>
           </FormKit>
         </div>
-        <div class="row justify-content-center">
+        <div class="row justify-content-center mx-2">
           <div class="col-sm-1 form-check form-check-inline form-switch">
             <input class="form-check-input" type="checkbox" id="flexSwitchMovies" v-model="search_movies">
             <label class="form-check-label" for="flexSwitchMovies">Filme</label>
