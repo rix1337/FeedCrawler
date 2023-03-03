@@ -6,6 +6,7 @@
 import codecs
 import http.cookiejar
 import pickle
+import re
 import time
 from json import loads
 
@@ -116,6 +117,23 @@ def test_solver_url(solver_internal_name, solver_status_endpoint):
     return False
 
 
+def get_local_proxy_url(solver_url, proxy_url):
+    try:
+        solver_scheme = solver_url.split(":")[0]
+        solver_adress = solver_url.split(":")[1].replace("//", "")
+
+        proxy_user = proxy_url.split(":")[1].replace("//", "")
+        proxy_pass = proxy_url.split(":")[2].split("@")[0]
+        proxy_port = proxy_url.split(":")[3].replace("/", "")
+
+        local_proxy_url = solver_scheme + "://" + proxy_user + ":" + proxy_pass + "@" + solver_adress + ":" + proxy_port
+
+        return local_proxy_url
+    except:
+        pass
+    return proxy_url
+
+
 def sponsors_helper_task(solver_url, url):
     base_domain = url.split("/")[2]
     last_solution = unpickle_db("sponsors_helper", base_domain)
@@ -124,7 +142,7 @@ def sponsors_helper_task(solver_url, url):
             if last_solution["valid_until"] > int(time.time()):
                 cookiejar = cookie_dict_to_cookiejar(last_solution["cookies"])
                 user_agent = last_solution["user_agent"]
-                proxy = last_solution["proxy"]
+                proxy = get_local_proxy_url(solver_url, last_solution["proxy"])
                 if cookiejar:
                     shared_state.logger.debug("Bestehende Cloudflare-Cookies werden für " + url + " verwendet.")
                     return cookiejar, user_agent, proxy
@@ -154,7 +172,7 @@ def sponsors_helper_task(solver_url, url):
                 if cookies:
                     cookiejar = cookie_dict_to_cookiejar(cookies)
                     user_agent = response["user_agent"]
-                    proxy = response["proxy"]
+                    proxy = get_local_proxy_url(solver_url, response["proxy"])
                     valid_until = int(time.time()) + 1800 - 60
 
                     pickle_db("sponsors_helper",
