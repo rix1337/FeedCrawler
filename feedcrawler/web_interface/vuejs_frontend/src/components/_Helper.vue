@@ -38,7 +38,7 @@ function getContext() {
 const sponsor = ref(false)
 
 function sponsorCheck() {
-  if (window.location.search.includes('sponsor=yes')) {
+  if (window.location.search.includes('sponsor=true')) {
     sponsor.value = true
   }
 }
@@ -95,10 +95,13 @@ function countPreviousAttempts(url) {
 const max_attempts = ref(3)
 
 function tooManyAttempts(url, name) {
-  countPreviousAttempts(url)
+  if (antigate_active.value === false) {
+    countPreviousAttempts(url)
+  }
   if (previous_attempts.value[url] > max_attempts.value) {
     console.log('[FeedCrawler Sponsors Helper] ' + name + ' wurde bereits ' + max_attempts.value + 'x versucht. Lösche Paket...')
     removeFromToDecrypt(name)
+    return true
   } else {
     return false
   }
