@@ -10,6 +10,7 @@ from functools import wraps
 from urllib.error import URLError
 
 from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import site_blocked, site_blocked_with_advanced_methods
 from feedcrawler.providers.http_requests.cloudflare_handlers import flaresolverr_task
 from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
@@ -110,6 +111,19 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
 
             if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
                 print("Die Cloudflare-Umgehung auf %s war nicht erfolgreich." % url)
+                site = check_is_site(url)
+                if site:
+                    db_status = FeedDb('site_status')
+                    normal_blocked = db_status.retrieve(site + "_normal")
+                    if not normal_blocked:
+                        db_status.store(site + "_normal", "Blocked")
+                        if sponsors_helper_url or flaresolverr_url:
+                            print("Versuche es mit Cloudfare-Umgehung erneut...")
+                            continue  # try again with any solver
+                    else:
+                        advanced_blocked = db_status.retrieve(site + "_advanced")
+                        if not advanced_blocked:
+                            db_status.store(site + "_advanced", "Blocked")
                 if flaresolverr_run and allow_sponsors_helper_run:
                     print("Lösung mit FlareSolverr gescheitert. Versuche es mit Sponsors Helper...")
                     continue  # try again with sponsors helper
