@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.6** Erkenne und umgehe Cloudflare-Blockaden auch während eines Suchlaufes, statt nur davor.
 - **17.0.5** Ermittle und nutze die lokale Adresse des **Sponsors-Helper**-Proxies anhand der **Sponsors-Helper**-URL.
   - Bei einigen Benutzern traten mit der externen Proxy-Adresse Probleme auf (bspw. bei @mx-hero)
   - Die lokale Adresse ist nutzbar, da diese bereits für den Aufruf des **Sponsors-Helpers** verwendet wird.
