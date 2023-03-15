@@ -62,7 +62,7 @@ function getAntiGate() {
 const f_blocked = ref(false)
 const sf_hostname = ref('')
 const ff_hostname = ref('')
-const next_jf_run = ref(0)
+const next_cloudflare_run = ref(0)
 
 function getFBlocked() {
   if (sponsor.value) {
@@ -71,7 +71,7 @@ function getFBlocked() {
           f_blocked.value = res.data.blocked_sites.sf_ff
           sf_hostname.value = res.data.blocked_sites.sf_hostname
           ff_hostname.value = res.data.blocked_sites.ff_hostname
-          next_jf_run.value = res.data.blocked_sites.next_jf_run
+          next_cloudflare_run.value = res.data.blocked_sites.next_cloudflare_run
         }, function () {
           console.log('[FeedCrawler Sponsors Helper] Konnte Block-Status von SF/FF nicht abrufen!')
         })
@@ -222,7 +222,7 @@ function spinHelper() {
 
               <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
         SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
-                  getTimestamp(next_jf_run)
+                  getTimestamp(next_cloudflare_run)
                 }}</span>
               <br v-if="f_blocked === true">
 

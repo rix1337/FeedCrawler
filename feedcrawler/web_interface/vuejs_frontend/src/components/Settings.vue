@@ -270,8 +270,8 @@ function showWikiHelp() {
                            type="number"
                            validation="required|between:5,1440"
                            validation-visibility="live"/>
-                  <h5>Wartezeit ({{ store.state.hostnames.jf }})</h5> <!-- Setting variables in label is unsupported -->
-                  <FormKit v-model="store.state.settings.jf.wait_time"
+                  <h5>Wartezeit ({{ store.state.hostnames.cloudflare }})</h5> <!-- Setting variables in label is unsupported -->
+                  <FormKit v-model="store.state.settings.cloudflare.wait_time"
                            help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"

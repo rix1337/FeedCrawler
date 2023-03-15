@@ -122,7 +122,7 @@ class CrawlerConfig(object):
         'CustomF': [
             ("search", "int", "3")
         ],
-        'CustomJF': [
+        'Cloudflare': [
             ("wait_time", "int", "12"),
         ],
         'SponsorsHelper': [

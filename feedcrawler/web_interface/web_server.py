@@ -316,7 +316,7 @@ def app_container():
             dj_conf = CrawlerConfig('CustomDJ')
             dd_conf = CrawlerConfig('CustomDD')
             f_conf = CrawlerConfig('CustomF')
-            jf_conf = CrawlerConfig('CustomJF')
+            cloudflare_conf = CrawlerConfig('Cloudflare')
             helper_conf = CrawlerConfig('SponsorsHelper')
             return {
                 "settings": {
@@ -417,8 +417,8 @@ def app_container():
                     "f": {
                         "search": to_int(f_conf.get("search"))
                     },
-                    "jf": {
-                        "wait_time": to_int(jf_conf.get("wait_time")),
+                    "cloudflare": {
+                        "wait_time": to_int(cloudflare_conf.get("wait_time")),
                     },
                     "sponsors_helper": {
                         "max_attempts": to_int(helper_conf.get("max_attempts")),
@@ -586,8 +586,8 @@ def app_container():
                 search_depth = '7'
             section.save("search", search_depth)
 
-            section = CrawlerConfig("CustomJF")
-            wait_time = to_str(data['jf']['wait_time'])
+            section = CrawlerConfig("Cloudflare")
+            wait_time = to_str(data['cloudflare']['wait_time'])
             if to_int(wait_time) < 6:
                 wait_time = '6'
             section.save("wait_time", wait_time)
@@ -724,12 +724,12 @@ def app_container():
     def get_crawltimes():
         try:
             crawltimes = FeedDb("crawltimes")
-            next_jf_run = False
+            next_cloudflare_run = False
             try:
-                last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
-                jf_wait_time = to_float(CrawlerConfig('CustomJF').get("wait_time"))
-                if last_jf_run:
-                    next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
+                last_cloudflare_run = to_float(FeedDb('crawltimes').retrieve("last_cloudflare_run"))
+                cloudflare_wait_time = to_float(CrawlerConfig('Cloudflare').get("wait_time"))
+                if last_cloudflare_run:
+                    next_cloudflare_run = last_cloudflare_run + 1000 * cloudflare_wait_time * 60 * 60
             except:
                 pass
             return {
@@ -739,7 +739,7 @@ def app_container():
                     "end_time": to_float(crawltimes.retrieve("end_time")),
                     "total_time": crawltimes.retrieve("total_time"),
                     "next_start": to_float(crawltimes.retrieve("next_start")),
-                    "next_jf_run": next_jf_run
+                    "next_cloudflare_run": next_cloudflare_run
                 }
             }
         except:
@@ -791,7 +791,7 @@ def app_container():
             s = ' / '.join(list(filter(None, [sf, sj])))
             f = ' / '.join(list(filter(None, [sf, ff])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
-            jf = ' / '.join(list(filter(None, [sj, dj, sf, ff])))
+            cloudflare = ' / '.join(list(filter(None, [sj, dj, sf, ff, hw, ww])))  # all sites know to use cloudflare
 
             jf_shorthands = []
             if sj:
@@ -855,8 +855,8 @@ def app_container():
                 f = "Nicht gesetzt!"
             if not sjbl:
                 sjbl = "Nicht gesetzt!"
-            if not jf:
-                jf = "Nicht gesetzt!"
+            if not cloudflare:
+                cloudflare = "Nicht gesetzt!"
 
             return {
                 "hostnames": {
@@ -876,7 +876,7 @@ def app_container():
                     "s": s,
                     "f": f,
                     "sjbl": sjbl,
-                    "jf": jf,
+                    "cloudflare": cloudflare,
                     "jf_shorthands": jf_shorthands,
                     "search_shorthands": search_shorthands
                 }
@@ -1834,12 +1834,12 @@ if (title) {
                        "Block status saved"
             else:
                 hostnames = CrawlerConfig('Hostnames')
-                next_jf_run = False
+                next_cloudflare_run = False
                 try:
-                    last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
-                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
-                    if last_jf_run:
-                        next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
+                    last_cloudflare_run = to_float(FeedDb('crawltimes').retrieve("last_cloudflare_run"))
+                    cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))
+                    if last_cloudflare_run:
+                        next_cloudflare_run = last_cloudflare_run + 1000 * cloudflare_wait_time * 60 * 60
                 except:
                     pass
                 return {
@@ -1847,7 +1847,7 @@ if (title) {
                         "sf_ff": check("SF_FF", db_status),
                         "sf_hostname": hostnames.get('sf'),
                         "ff_hostname": hostnames.get('ff'),
-                        "next_jf_run": next_jf_run
+                        "next_cloudflare_run": next_cloudflare_run
                     }
                 }
         except:

@@ -156,9 +156,9 @@ function showSiteStatusHelp() {
                    @click="startNow()"></i>
                 <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
               </div>
-              <div v-if="store.state.crawltimes.next_jf_run && store.state.hostnames.jf_shorthands !== ''">
+              <div v-if="store.state.crawltimes.next_cloudflare_run && store.state.hostnames.jf_shorthands !== ''">
                 Wartezeit ({{ store.state.hostnames.jf_shorthands }}) bis: {{
-                  getTimestamp(store.state.crawltimes.next_jf_run)
+                  getTimestamp(store.state.crawltimes.next_cloudflare_run)
                 }}
               </div>
               <div v-if="typeof store.state.crawltimes.total_time === 'string'">

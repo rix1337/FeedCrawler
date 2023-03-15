@@ -36,7 +36,7 @@ const store = createStore({
                 bl: 'Nicht gesetzt!',
                 s: 'Nicht gesetzt!',
                 sjbl: 'Nicht gesetzt!',
-                jf: 'Nicht gesetzt!',
+                cloudflare: 'Nicht gesetzt!',
                 jf_shorthands: '',
                 search_shorthands: ''
             }, lists: {
@@ -63,7 +63,7 @@ const store = createStore({
                     hoster_fallback: false
                 }, f: {
                     search: 3
-                }, jf: {
+                }, cloudflare: {
                     wait_time: 6
                 }, sj: {
                     quality: '1080p', regex: false, retail_only: false, hevc_retail: false, hoster_fallback: false

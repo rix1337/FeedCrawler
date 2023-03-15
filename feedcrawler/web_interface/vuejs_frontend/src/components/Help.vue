@@ -27,8 +27,8 @@ function getTimestamp(ms) {
 }
 
 const waitTimeActive = computed(() => {
-      if (store.state.crawltimes.next_jf_run !== "undefined" && !isNaN(store.state.crawltimes.next_jf_run) && !isNaN(store.state.misc.now)) {
-        return store.state.crawltimes.next_jf_run > store.state.misc.now
+      if (store.state.crawltimes.next_cloudflare_run !== "undefined" && !isNaN(store.state.crawltimes.next_cloudflare_run) && !isNaN(store.state.misc.now)) {
+        return store.state.crawltimes.next_cloudflare_run > store.state.misc.now
       } else {
         return false
       }
@@ -130,7 +130,7 @@ const waitTimeActive = computed(() => {
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
+                        <i v-tippy="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
@@ -225,7 +225,7 @@ const waitTimeActive = computed(() => {
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine SJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
+                        <i v-tippy="'Keine SJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
@@ -248,7 +248,7 @@ const waitTimeActive = computed(() => {
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine DJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
+                        <i v-tippy="'Keine DJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
@@ -271,7 +271,7 @@ const waitTimeActive = computed(() => {
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine SF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_jf_run)"
+                        <i v-tippy="'Keine SF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>

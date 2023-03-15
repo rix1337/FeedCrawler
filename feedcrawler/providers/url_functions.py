@@ -18,10 +18,10 @@ def check_url(start_time):
     db_status = FeedDb('site_status')
 
     for site in shared_state.sites:
-        if site in ["SJ", "DJ", "SF", "FF"]:
-            last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
-            jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
-            if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
+        if site in ["SJ", "DJ", "SF", "FF", "HW", "WW"]:  # all sites know to use cloudflare
+            last_cloudflare_run = FeedDb('crawltimes').retrieve("last_cloudflare_run")
+            cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))
+            if last_cloudflare_run and start_time < float(last_cloudflare_run) // 1000 + cloudflare_wait_time * 60 * 60:
                 shared_state.logger.debug(
                     "-----------Wartezeit bei " + site + " (6h) nicht verstrichen - überspringe Prüfung!-----------")
                 continue
@@ -35,7 +35,7 @@ def check_url(start_time):
             db_status.delete(site + "_advanced")
             sponsors_helper_url = get_solver_url("sponsors_helper")
             flaresolverr_url = get_solver_url("flaresolverr")
-            skip_sites = ["SF", "FF", "WW"]
+            skip_sites = ["SF", "FF", "HW", "WW", ]  # SJ/DJ not listed, because they rarely block scraping attempts
             skip_normal_ip = (sponsors_helper_url or flaresolverr_url) and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True
@@ -66,11 +66,11 @@ def check_url(start_time):
 def check_if_blocked(site, url):
     try:
         # These can be checked the same way
-        if site in ["FX", "DW", "HW", "BY", "NK", "NX", "DD"]:
+        if site in ["FX", "DW", "BY", "NK", "NX", "DD"]:
             status = cached_request(url, dont_cache=True)["status_code"]
-            if not status == 200 or status == 403:
+            if status is not (200 or 304):
                 return True
-        # Custom check required
+        # Custom checks required
         elif site in ["SF"]:
             delta = datetime.datetime.now().strftime("%Y-%m-%d")
             sf_test = cached_request(url + '/updates/' + delta, dont_cache=True)
@@ -83,16 +83,18 @@ def check_if_blocked(site, url):
             if not ff_test["text"] or ff_test["status_code"] is not (
                     200 or 304) or '<div class="list blog"' not in ff_test["text"]:
                 return True
-        # Custom check required
+        elif site in ["HW"]:
+            status = cached_request(url + '/category/neuerscheinung/', dont_cache=True)["status_code"]
+            if status is not (200 or 304):
+                return True
         elif site == "WW":
             ww_test = cached_request(url + "/ajax", method='post', params="p=1&t=l&q=1", dont_cache=True)
             if not ww_test["text"] or ww_test["status_code"] is not (
                     200 or 304) or '<span class="main-rls">' not in ww_test["text"]:
                 return True
-        # Custom check required
         elif site in ["SJ", "DJ"]:
             status = cached_request(url + '/api/releases/latest/0', dont_cache=True)["status_code"]
-            if not status == 200 or status == 403:
+            if status is not (200 or 304):
                 return True
         else:
             print(u"Keine Prüfung für " + site + " implementiert.")

@@ -81,7 +81,7 @@ def search_pool():
     ]
 
 
-def crawler(global_variables, remove_jf_time, test_run):
+def crawler(global_variables, remove_cloudflare_time, test_run):
     shared_state.set_globals(global_variables)
 
     sys.stdout = Unbuffered(sys.stdout)
@@ -91,10 +91,10 @@ def crawler(global_variables, remove_jf_time, test_run):
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
 
-    if remove_jf_time:
-        logger.debug(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
-        print(u"-----------Entferne Zeitpunkt des letzten SJ/DJ/SF/FF-Suchlaufes!-----------")
-        FeedDb('crawltimes').delete("last_jf_run")
+    if remove_cloudflare_time:
+        logger.debug(u"-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
+        print(u"-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
+        FeedDb('crawltimes').delete("last_cloudflare_run")
 
     while True:
         try:
@@ -163,7 +163,7 @@ def crawler(global_variables, remove_jf_time, test_run):
 
             # Start feed search
             current_jf_run = False
-            last_jf_run = FeedDb('crawltimes').retrieve("last_jf_run")
+            last_cloudflare_run = FeedDb('crawltimes').retrieve("last_cloudflare_run")
             for task in search_pool():
                 name = task._SITE
                 try:
@@ -171,8 +171,8 @@ def crawler(global_variables, remove_jf_time, test_run):
                 except AttributeError:
                     file = ""
                 if name in ["SJ", "DJ", "SF", "FF"]:
-                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
-                    if last_jf_run and start_time < float(last_jf_run) // 1000 + jf_wait_time * 60 * 60:
+                    cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))
+                    if last_cloudflare_run and start_time < float(last_cloudflare_run) // 1000 + cloudflare_wait_time * 60 * 60:
                         logger.debug(
                             "-----------Wartezeit bei " + name + " (6h) nicht verstrichen - überspringe Suchlauf!-----------")
                         continue
@@ -188,7 +188,7 @@ def crawler(global_variables, remove_jf_time, test_run):
 
             # Finish feed search and log results
             if current_jf_run:
-                crawltimes.update_store("last_jf_run", current_jf_run * 1000)
+                crawltimes.update_store("last_cloudflare_run", current_jf_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
