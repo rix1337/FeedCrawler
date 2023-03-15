@@ -1807,17 +1807,18 @@ if (title) {
         try:
             if name:
                 name.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                max_attempts = str(CrawlerConfig('SponsorsHelper').get("max_attempts"))
                 if remove_decrypt(name):
                     try:
                         notify([{
-                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
+                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"}])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)")
+                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"
+                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
         except:
             pass
         return abort(400, "Failed")

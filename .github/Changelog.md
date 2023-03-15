@@ -8,6 +8,7 @@
 
 - **17.0.7** Alle Seiten mit bekannten Cloudflare-Blockaden in die Wartezeit aufgenommen
 - **17.0.7** Verbesserte Cloudflare-Blockaden-Überprüfung für HW
+- **17.0.7** Zeige korrekte Anzahl von Fehlversuchen im Log an
 - **17.0.6** Werte Fehlversuche im **Sponsors-Helper** nur, wenn der vorhergehende Suchlauf vollständig beendet wurde.
 - **17.0.6** Erkenne und umgehe Cloudflare-Blockaden auch während eines Suchlaufes, statt nur davor.
 - **17.0.5** Ermittle und nutze die lokale Adresse des **Sponsors-Helper**-Proxies anhand der **Sponsors-Helper**-URL.
