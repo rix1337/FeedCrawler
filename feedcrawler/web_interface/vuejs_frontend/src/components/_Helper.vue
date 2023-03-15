@@ -59,25 +59,6 @@ function getAntiGate() {
   }
 }
 
-const f_blocked = ref(false)
-const sf_hostname = ref('')
-const ff_hostname = ref('')
-const next_cloudflare_run = ref(0)
-
-function getFBlocked() {
-  if (sponsor.value) {
-    axios.get(context.value + '/api/f_blocked/False')
-        .then(function (res) {
-          f_blocked.value = res.data.blocked_sites.sf_ff
-          sf_hostname.value = res.data.blocked_sites.sf_hostname
-          ff_hostname.value = res.data.blocked_sites.ff_hostname
-          next_cloudflare_run.value = res.data.blocked_sites.next_cloudflare_run
-        }, function () {
-          console.log('[FeedCrawler Sponsors Helper] Konnte Block-Status von SF/FF nicht abrufen!')
-        })
-  }
-}
-
 const current_to_decrypt = ref('')
 const wnd_to_decrypt = ref(false)
 
@@ -158,14 +139,8 @@ function startToDecrypt() {
                 console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + title + ' gestartet...')
                 wnd_to_decrypt.value = window.open("http://127.0.0.1:9700/?payload=" + payload)
               } else {
-                if (f_blocked.value && sf_hostname.value && to_decrypt.value.url.includes(sf_hostname.value)) {
-                  console.log('[FeedCrawler Sponsors Helper] SF ist derzeit geblockt!')
-                } else if (f_blocked.value && ff_hostname.value && to_decrypt.value.url.includes(ff_hostname.value)) {
-                  console.log('[FeedCrawler Sponsors Helper] FF ist derzeit geblockt!')
-                } else {
-                  console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + to_decrypt.value.name + ' gestartet...')
-                  wnd_to_decrypt.value = window.open(to_decrypt.value.url)
-                }
+                console.log('[FeedCrawler Sponsors Helper] Entschlüsselung von ' + to_decrypt.value.name + ' gestartet...')
+                wnd_to_decrypt.value = window.open(to_decrypt.value.url)
               }
             } else {
               console.log('[FeedCrawler Sponsors Helper] Entschlüsselung ist noch aktiv!')
@@ -219,12 +194,6 @@ function spinHelper() {
 
               <span v-if="antigate_active === 'true'" class="btn btn-outline-success disabled">Automatische Entschlüsselung ist aktiv!</span><br
                 v-if="antigate_active === 'true'">
-
-              <span v-if="f_blocked === true" class="btn btn-outline-danger disabled">
-        SF/FF haben derzeit die Entschlüsselung gesperrt! Start des nächsten Versuchs: {{
-                  getTimestamp(next_cloudflare_run)
-                }}</span>
-              <br v-if="f_blocked === true">
 
               <a v-if="to_decrypt.url && to_decrypt.name" :href="to_decrypt.url" class="btn btn-outline-danger"
                  target="_blank">{{

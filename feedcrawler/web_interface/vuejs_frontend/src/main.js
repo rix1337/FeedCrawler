@@ -37,8 +37,8 @@ const store = createStore({
                 s: 'Nicht gesetzt!',
                 sjbl: 'Nicht gesetzt!',
                 cloudflare: 'Nicht gesetzt!',
-                jf_shorthands: '',
-                search_shorthands: ''
+                cloudflare_shorthands: 'Nicht gesetzt!',
+                search: 'Nicht gesetzt!'
             }, lists: {
                 mb: [], sj: [], dj: [], dd: [], mbsj: []
             }, settings: {

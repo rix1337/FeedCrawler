@@ -103,7 +103,7 @@ def ww_post_url_headers(url, headers=False):
         if not response["text"] or response["status_code"] is not (200 or 304) or not '<span class="main-rls">' in \
                                                                                       response["text"]:
             if not shared_state.ww_blocked:
-                print(u"WW hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                print(u"WW hat den Feed-Anruf während der Feed-Suche blockiert.")
                 shared_state.ww_blocked = True
             return ""
         return response
