@@ -26,6 +26,7 @@ from feedcrawler.external_tools.plex_api import plex_search
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
 from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import jdownloader_update
@@ -162,7 +163,7 @@ def crawler(global_variables, remove_cloudflare_time, test_run):
                 print(u"Fehler bei der Ombi-Suche: " + str(e))
 
             # Start feed search
-            current_jf_run = False
+            current_cloudflare_run = False
             last_cloudflare_run = FeedDb('crawltimes').retrieve("last_cloudflare_run")
             for task in search_pool():
                 name = task._SITE
@@ -170,15 +171,22 @@ def crawler(global_variables, remove_cloudflare_time, test_run):
                     file = " - Liste: " + task.filename
                 except AttributeError:
                     file = ""
-                if name in ["SJ", "DJ", "SF", "FF"]:
+                if name in ["SJ", "DJ", "SF", "FF", "HW", "WW"]:  # all sites know to use cloudflare
                     cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))
-                    if last_cloudflare_run and start_time < float(last_cloudflare_run) // 1000 + cloudflare_wait_time * 60 * 60:
+                    if last_cloudflare_run and start_time < float(
+                            last_cloudflare_run) // 1000 + cloudflare_wait_time * 60 * 60:
                         logger.debug(
                             "-----------Wartezeit bei " + name + " (6h) nicht verstrichen - überspringe Suchlauf!-----------")
                         continue
                     else:
-                        current_jf_run = time.time()
-                        FeedDb('site_status').delete("SF_FF")
+                        current_cloudflare_run = time.time()
+
+                if FeedDb('site_status').retrieve(name + "_normal"):
+                    if (not get_solver_url("sponsors_helper") and not get_solver_url("flaresolverr")) or FeedDb(
+                            'site_status').retrieve(name + "_advanced"):
+                        logger.debug("-----------Suchlauf (" + name + file + ") übersprungen!-----------")
+                        continue
+
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")
                 try:
                     task.periodical_task()
@@ -187,8 +195,8 @@ def crawler(global_variables, remove_cloudflare_time, test_run):
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
 
             # Finish feed search and log results
-            if current_jf_run:
-                crawltimes.update_store("last_cloudflare_run", current_jf_run * 1000)
+            if current_cloudflare_run:
+                crawltimes.update_store("last_cloudflare_run", current_cloudflare_run * 1000)
             cached_requests = FeedDb('cached_requests').count()
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
