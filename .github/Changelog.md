@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.8** Cloudflare-Umgehung auf HW korrigiert
 - **17.0.7** Alle Seiten mit bekannten Cloudflare-Blockaden in die Wartezeit aufgenommen
 - **17.0.7** Verbesserte Cloudflare-Blockaden-Überprüfung für HW
 - **17.0.7** Überspringe Suchläufe blockierter Seiten

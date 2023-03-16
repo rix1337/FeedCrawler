@@ -84,7 +84,7 @@ def check_if_blocked(site, url):
                     200 or 304) or '<div class="list blog"' not in ff_test["text"]:
                 return True
         elif site in ["HW"]:
-            status = cached_request(url + '/category/neuerscheinung/', dont_cache=True)["status_code"]
+            status = cached_request(url, dont_cache=True)["status_code"]
             if status is not (200 or 304):
                 return True
         elif site == "WW":
