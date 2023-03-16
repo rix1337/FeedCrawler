@@ -87,7 +87,7 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
         try:
             if site_blocked(url):
                 if site_blocked_with_advanced_methods(url):
-                    print("Die Seite %s ist blockiert..." % url)
+                    print("Der Aufruf von %s wurde blockiert!" % url)
                     return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
                 if allow_sponsors_helper_run:  # will only be used when flaresolverr is not available or not working
                     cookiejar, user_agent, proxy = sponsors_helper_task(sponsors_helper_url, url)

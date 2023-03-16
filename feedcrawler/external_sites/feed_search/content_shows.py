@@ -174,7 +174,7 @@ def periodical_task(self):
                 'ascii', 'ignore')).hexdigest()
         else:
             if self._SITE == "SF" and not shared_state.sf_blocked:
-                print(u"SF hat den Feed-Anruf blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                print(u"SF hat den Feed-Anruf während der Feed-Suche blockiert.")
                 shared_state.sf_blocked = True
             else:
                 shared_state.logger.debug(

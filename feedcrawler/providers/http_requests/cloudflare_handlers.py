@@ -6,7 +6,6 @@
 import codecs
 import http.cookiejar
 import pickle
-import re
 import time
 from json import loads
 

@@ -6,7 +6,11 @@
 
 ### Changelog FeedCrawler:
 
-- **17.0.5** Werte Fehlversuche im **Sponsors-Helper** nur, wenn der vorhergehende Suchlauf vollständig beendet wurde.
+- **17.0.7** Alle Seiten mit bekannten Cloudflare-Blockaden in die Wartezeit aufgenommen
+- **17.0.7** Verbesserte Cloudflare-Blockaden-Überprüfung für HW
+- **17.0.7** Überspringe Suchläufe blockierter Seiten
+- **17.0.7** Zeige korrekte Anzahl von **Sponsors-Helper** Fehlversuchen im Log an
+- **17.0.6** Werte Fehlversuche im **Sponsors-Helper** nur, wenn der vorhergehende Suchlauf vollständig beendet wurde.
 - **17.0.6** Erkenne und umgehe Cloudflare-Blockaden auch während eines Suchlaufes, statt nur davor.
 - **17.0.5** Ermittle und nutze die lokale Adresse des **Sponsors-Helper**-Proxies anhand der **Sponsors-Helper**-URL.
   - Bei einigen Benutzern traten mit der externen Proxy-Adresse Probleme auf (bspw. bei @mx-hero)
@@ -33,6 +37,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **9.0.4** Bugfix beim Auswählen des Wunschhosters auf FC
 - **9.0.3** Update auf Chrome 111
 - **9.0.2** Weitergabe des lokalen Proxies für die Verwendung im FeedCrawler
 - **9.0.1** Freischaltung benötigter Cloudflare Domains

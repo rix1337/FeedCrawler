@@ -270,17 +270,6 @@ function showWikiHelp() {
                            type="number"
                            validation="required|between:5,1440"
                            validation-visibility="live"/>
-                  <h5>Wartezeit ({{ store.state.hostnames.jf }})</h5> <!-- Setting variables in label is unsupported -->
-                  <FormKit v-model="store.state.settings.jf.wait_time"
-                           help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren."
-                           help-class="text-muted"
-                           input-class=" form-control bg-light mb-2"
-                           messages-class="text-danger"
-                           outer-class="mb-4"
-                           placeholder="Bspw. 12"
-                           type="number"
-                           validation="required|between:6,24"
-                           validation-visibility="live"/>
                   <h5>Ein Mirror genügt</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.state.settings.general.one_mirror_policy"
@@ -346,13 +335,16 @@ function showWikiHelp() {
                            type="url"
                            validation="url"
                            validation-visibility="live"/>
-                  <mark>
-                    Die zuverlässigste Möglichkeit, Cloudflare-Blockaden zu umgehen, ist dafür zu bezahlen.<br>
-                    Über den Sponsors Helper ist es möglich, vor dem Suchlauf erkannte Cloudflare-Blockaden zu umgehen.
-                    Dabei wird pro blockierter Seite ein kurzfristig gültiger Cloudflare-Cookie erzeugt, der dann für
-                    den Suchlauf verwendet wird. Die Kosten pro Seite und Suchlauf liegen im Sub-Cent-Bereich.<br>
-                    Um Kosten zu sparen, kann parallel ein FlareSolverr betrieben werden.
-                  </mark>
+                  <div class="mb-4">
+                    <mark>
+                      Die zuverlässigste Möglichkeit, Cloudflare-Blockaden zu umgehen, ist dafür zu bezahlen.<br>
+                      Über den Sponsors Helper ist es möglich, vor dem Suchlauf erkannte Cloudflare-Blockaden zu
+                      umgehen.
+                      Dabei wird pro blockierter Seite ein kurzfristig gültiger Cloudflare-Cookie erzeugt, der dann für
+                      den Suchlauf verwendet wird. Die Kosten pro Seite und Suchlauf liegen im Sub-Cent-Bereich.<br>
+                      Um Kosten zu sparen, kann parallel ein FlareSolverr betrieben werden.
+                    </mark>
+                  </div>
                   <FormKit v-model="store.state.settings.general.flaresolverr"
                            help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr wird für jede Seite genutzt, auf der eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"
@@ -364,15 +356,30 @@ function showWikiHelp() {
                            type="url"
                            validation="url"
                            validation-visibility="live"/>
-                  <mark>
-                    FlareSolverr ist ein lokaler Proxy-Server zur kostenlosen Umgehung von Cloudflare-Blockaden.<br>
-                    Die Umgehung funktioniert nicht immer zuverlässig, da Cloudflare die Blockaden immer wieder ändert.
-                    In unregelmäßigen Abständen vorgeschaltete CAPTCHAs werden durch FlareSolverr nicht umgangen.<br>
-                    Wird bevorzugt genutzt, da die Coudflare-Umgehung mit FlareSolverr kostenlos ist.<br>
-                    Damit FeedCrawler und FlareSolverr die selbe IP benutzen, muss im FlareSolverr IPv6 deaktiviert
-                    werden.<br>
-                    Dafür den FlareSolverr-Container mit --sysctl net.ipv6.conf.all.disable_ipv6=1 starten.
-                  </mark>
+                  <div class="mb-4">
+                    <mark>
+                      FlareSolverr ist ein lokaler Proxy-Server zur kostenlosen Umgehung von Cloudflare-Blockaden.<br>
+                      Die Umgehung funktioniert nicht immer zuverlässig, da Cloudflare die Blockaden immer wieder
+                      ändert.
+                      In unregelmäßigen Abständen vorgeschaltete CAPTCHAs werden durch FlareSolverr nicht umgangen.<br>
+                      Wird bevorzugt genutzt, da die Coudflare-Umgehung mit FlareSolverr kostenlos ist.<br>
+                      Damit FeedCrawler und FlareSolverr die selbe IP benutzen, muss im FlareSolverr IPv6 deaktiviert
+                      werden.<br>
+                      Dafür den FlareSolverr-Container mit --sysctl net.ipv6.conf.all.disable_ipv6=1 starten.
+                    </mark>
+                  </div>
+                  <h5>Wartezeit ({{ store.state.hostnames.cloudflare }})</h5>
+                  <!-- Setting variables in label is unsupported -->
+                  <FormKit v-model="store.state.settings.cloudflare.wait_time"
+                           help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren."
+                           help-class="text-muted"
+                           input-class=" form-control bg-light mb-2"
+                           messages-class="text-danger"
+                           outer-class="mb-4"
+                           placeholder="Bspw. 12"
+                           type="number"
+                           validation="required|between:6,24"
+                           validation-visibility="live"/>
                 </div>
               </div>
             </div>

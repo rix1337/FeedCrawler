@@ -29,6 +29,7 @@ from feedcrawler.external_tools.plex_api import get_client_id
 from feedcrawler.external_tools.plex_api import get_plex_headers
 from feedcrawler.providers import version, shared_state
 from feedcrawler.providers.common_functions import Unbuffered
+from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import get_to_decrypt
 from feedcrawler.providers.common_functions import is_device
@@ -199,7 +200,6 @@ def app_container():
             "/api/myjd_pause/",
             "/api/internal_cnl/",
             "/sponsors_helper/api/to_decrypt/",
-            "/sponsors_helper/api/f_blocked/",
             "/sponsors_helper/replace_decrypt/",
             "/sponsors_helper/to_download/"
         ]
@@ -316,7 +316,7 @@ def app_container():
             dj_conf = CrawlerConfig('CustomDJ')
             dd_conf = CrawlerConfig('CustomDD')
             f_conf = CrawlerConfig('CustomF')
-            jf_conf = CrawlerConfig('CustomJF')
+            cloudflare_conf = CrawlerConfig('Cloudflare')
             helper_conf = CrawlerConfig('SponsorsHelper')
             return {
                 "settings": {
@@ -417,8 +417,8 @@ def app_container():
                     "f": {
                         "search": to_int(f_conf.get("search"))
                     },
-                    "jf": {
-                        "wait_time": to_int(jf_conf.get("wait_time")),
+                    "cloudflare": {
+                        "wait_time": to_int(cloudflare_conf.get("wait_time")),
                     },
                     "sponsors_helper": {
                         "max_attempts": to_int(helper_conf.get("max_attempts")),
@@ -586,8 +586,8 @@ def app_container():
                 search_depth = '7'
             section.save("search", search_depth)
 
-            section = CrawlerConfig("CustomJF")
-            wait_time = to_str(data['jf']['wait_time'])
+            section = CrawlerConfig("Cloudflare")
+            wait_time = to_str(data['cloudflare']['wait_time'])
             if to_int(wait_time) < 6:
                 wait_time = '6'
             section.save("wait_time", wait_time)
@@ -724,12 +724,12 @@ def app_container():
     def get_crawltimes():
         try:
             crawltimes = FeedDb("crawltimes")
-            next_jf_run = False
+            next_cloudflare_run = False
             try:
-                last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
-                jf_wait_time = to_float(CrawlerConfig('CustomJF').get("wait_time"))
-                if last_jf_run:
-                    next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
+                last_cloudflare_run = to_float(FeedDb('crawltimes').retrieve("last_cloudflare_run"))
+                cloudflare_wait_time = to_float(CrawlerConfig('Cloudflare').get("wait_time"))
+                if last_cloudflare_run:
+                    next_cloudflare_run = last_cloudflare_run + 1000 * cloudflare_wait_time * 60 * 60
             except:
                 pass
             return {
@@ -739,7 +739,7 @@ def app_container():
                     "end_time": to_float(crawltimes.retrieve("end_time")),
                     "total_time": crawltimes.retrieve("total_time"),
                     "next_start": to_float(crawltimes.retrieve("next_start")),
-                    "next_jf_run": next_jf_run
+                    "next_cloudflare_run": next_cloudflare_run
                 }
             }
         except:
@@ -752,133 +752,60 @@ def app_container():
         try:
             hostnames = CrawlerConfig('Hostnames')
 
-            fx = hostnames.get('fx')
-            dw = hostnames.get("dw")
-            hw = hostnames.get('hw')
-            ff = hostnames.get('ff')
-            by = hostnames.get('by')
-            nk = hostnames.get('nk')
-            nx = hostnames.get('nx')
-            ww = hostnames.get('ww')
-
-            sf = hostnames.get('sf')
-            sj = hostnames.get('sj')
-
-            dj = hostnames.get('dj')
-
-            dd = hostnames.get('dd')
-
-            fx = fx.replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
-            dw = dw.replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
-            hw = hw.replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
-            ff = ff.replace("f", "F", 2)
-            by = by.replace("b", "B", 1)
-            nk = nk.replace("n", "N", 1).replace("k", "K", 1)
-            try:
-                nx = ".".join([nx.split(".")[0].upper(), nx.split(".")[1]])
-            except:
-                pass
-            ww = ww.replace("w", "W", 2)
-
-            sf = sf.replace("s", "S", 1).replace("f", "F", 1)
-            sj = sj.replace("s", "S", 1).replace("j", "J", 1)
-
-            dj = dj.replace("d", "D", 1).replace("j", "J", 1)
-
-            dd = dd.replace("d", "D", 2).replace("l", "L", 1)
+            fx = hostnames.get('fx').replace("f", "F", 1).replace("d", "D", 1).replace("x", "X", 1)
+            dw = hostnames.get("dw").replace("d", "D", 2).replace("l", "L", 1).replace("w", "W", 1)
+            hw = hostnames.get('hw').replace("h", "H", 1).replace("d", "D", 1).replace("w", "W", 1)
+            ff = hostnames.get('ff').replace("f", "F", 2)
+            by = hostnames.get('by').replace("b", "B", 1)
+            nk = hostnames.get('nk').replace("n", "N", 1).replace("k", "K", 1)
+            nx = hostnames.get('nx').replace("o", "O", 1).replace("x", "X", 1).replace("n", "N", 1)
+            ww = hostnames.get('ww').replace("w", "W", 2)
+            sf = hostnames.get('sf').replace("s", "S", 1).replace("f", "F", 1)
+            sj = hostnames.get('sj').replace("s", "S", 1).replace("j", "J", 1)
+            dj = hostnames.get('dj').replace("d", "D", 1).replace("j", "J", 1)
+            dd = hostnames.get('dd').replace("d", "D", 2).replace("l", "L", 1)
 
             bl = ' / '.join(list(filter(None, [fx, dw, hw, ff, by, nk, nx, ww])))
             s = ' / '.join(list(filter(None, [sf, sj])))
             f = ' / '.join(list(filter(None, [sf, ff])))
             sjbl = ' / '.join(list(filter(None, [s, bl])))
-            jf = ' / '.join(list(filter(None, [sj, dj, sf, ff])))
+            cloudflare = ' / '.join(list(filter(None, [sj, dj, sf, ff, hw, ww])))  # all sites know to use cloudflare
+            search = '/'.join(list(filter(None, [fx, sf, hw, by, nk, nx, sj, dj])))
 
-            jf_shorthands = []
-            if sj:
-                jf_shorthands.append("SJ")
-            if dj:
-                jf_shorthands.append("DJ")
-            if sf:
-                jf_shorthands.append("SF")
-            if ff:
-                jf_shorthands.append("FF")
-            jf_shorthands = '/'.join(list(filter(None, jf_shorthands)))
+            def check_if_set(value):
+                if not value:
+                    return "Nicht gesetzt!"
+                else:
+                    return value
 
-            search_shorthands = []
-            if fx:
-                search_shorthands.append("FX")
-            if sf:
-                search_shorthands.append("SF")
-            if hw:
-                search_shorthands.append("HW")
-            if by:
-                search_shorthands.append("BY")
-            if nk:
-                search_shorthands.append("NK")
-            if nx:
-                search_shorthands.append("NX")
-            if sj:
-                search_shorthands.append("SJ")
-            if dj:
-                search_shorthands.append("DJ")
-            search_shorthands = '/'.join(list(filter(None, search_shorthands)))
-
-            if not fx:
-                fx = "Nicht gesetzt!"
-            if not sf:
-                sf = "Nicht gesetzt!"
-            if not dw:
-                dw = "Nicht gesetzt!"
-            if not hw:
-                hw = "Nicht gesetzt!"
-            if not ff:
-                ff = "Nicht gesetzt!"
-            if not by:
-                by = "Nicht gesetzt!"
-            if not nk:
-                nk = "Nicht gesetzt!"
-            if not nx:
-                nx = "Nicht gesetzt!"
-            if not ww:
-                ww = "Nicht gesetzt!"
-            if not sj:
-                sj = "Nicht gesetzt!"
-            if not dj:
-                dj = "Nicht gesetzt!"
-            if not dd:
-                dd = "Nicht gesetzt!"
-            if not bl:
-                bl = "Nicht gesetzt!"
-            if not s:
-                s = "Nicht gesetzt!"
-            if not f:
-                f = "Nicht gesetzt!"
-            if not sjbl:
-                sjbl = "Nicht gesetzt!"
-            if not jf:
-                jf = "Nicht gesetzt!"
+            cloudflare_shorthands = []
+            for site_name in cloudflare.split(" / "):
+                site_shorthand = check_is_site(site_name)
+                if site_shorthand:
+                    cloudflare_shorthands.append(site_shorthand)
+            cloudflare_shorthands = " / ".join(cloudflare_shorthands)
 
             return {
                 "hostnames": {
-                    "fx": fx,
-                    "sf": sf,
-                    "dw": dw,
-                    "hw": hw,
-                    "ff": ff,
-                    "by": by,
-                    "nk": nk,
-                    "nx": nx,
-                    "ww": ww,
-                    "sj": sj,
-                    "dj": dj,
-                    "dd": dd,
-                    "bl": bl,
-                    "s": s,
-                    "f": f,
-                    "sjbl": sjbl,
-                    "jf": jf,
-                    "jf_shorthands": jf_shorthands,
-                    "search_shorthands": search_shorthands
+                    "fx": check_if_set(fx),
+                    "sf": check_if_set(sf),
+                    "dw": check_if_set(dw),
+                    "hw": check_if_set(hw),
+                    "ff": check_if_set(ff),
+                    "by": check_if_set(by),
+                    "nk": check_if_set(nk),
+                    "nx": check_if_set(nx),
+                    "ww": check_if_set(ww),
+                    "sj": check_if_set(sj),
+                    "dj": check_if_set(dj),
+                    "dd": check_if_set(dd),
+                    "bl": check_if_set(bl),
+                    "s": check_if_set(s),
+                    "f": check_if_set(f),
+                    "sjbl": check_if_set(sjbl),
+                    "cloudflare": check_if_set(cloudflare),
+                    "cloudflare_shorthands": check_if_set(cloudflare_shorthands),
+                    "search": check_if_set(search)
                 }
             }
         except:
@@ -1807,51 +1734,21 @@ if (title) {
         try:
             if name:
                 name.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
+                max_attempts = str(CrawlerConfig('SponsorsHelper').get("max_attempts"))
                 if remove_decrypt(name):
                     try:
                         notify([{
-                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"}])
+                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"}])
                     except:
                         print(u"Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)")
+                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach 3 Versuchen gelöscht)"
+                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
         except:
             pass
         return abort(400, "Failed")
-
-    @app.get(prefix + "/sponsors_helper/api/f_blocked/<payload>")
-    def f_blocked(payload):
-        try:
-            payload = to_bool(payload)
-            db_status = FeedDb('site_status')
-            if payload:
-                db_status.update_store("SF_FF", "Blocked")
-                return "<script type='text/javascript'>" \
-                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                       "Block status saved"
-            else:
-                hostnames = CrawlerConfig('Hostnames')
-                next_jf_run = False
-                try:
-                    last_jf_run = to_float(FeedDb('crawltimes').retrieve("last_jf_run"))
-                    jf_wait_time = int(CrawlerConfig('CustomJF').get('wait_time'))
-                    if last_jf_run:
-                        next_jf_run = last_jf_run + 1000 * jf_wait_time * 60 * 60
-                except:
-                    pass
-                return {
-                    "blocked_sites": {
-                        "sf_ff": check("SF_FF", db_status),
-                        "sf_hostname": hostnames.get('sf'),
-                        "ff_hostname": hostnames.get('ff'),
-                        "next_jf_run": next_jf_run
-                    }
-                }
-        except:
-            return abort(400, "Failed")
 
     def get_filer_folder_links(url):
         try:

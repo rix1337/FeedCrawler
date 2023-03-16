@@ -42,17 +42,24 @@ class CrawlerConfig(object):
             ("dj", "str", ""),
             ("dd", "str", "")
         ],
+        "Cloudflare": [
+            ("wait_time", "int", "12"),
+        ],
+        'SponsorsHelper': [
+            ("max_attempts", "int", "3"),
+            ("hide_donation_banner", "bool", "False"),
+        ],
         'Crawljobs': [
             ("autostart", "bool", "True"),
             ("subdir", "bool", "True"),
-            ("subdir_by_type", "bool", "False")
+            ("subdir_by_type", "bool", "False"),
         ],
         'Notifications': [
             ("discord", "str", ""),
             ("telegram", "str", ""),
             ("pushbullet", "str", ""),
             ("pushover", "str", ""),
-            ("homeassistant", "str", "")
+            ("homeassistant", "str", ""),
         ],
         'Hosters': [
             ("ddl", "bool", "True"),
@@ -74,15 +81,15 @@ class CrawlerConfig(object):
             ("api", "str", ""),
             ("client_id", "str", ""),
             ("pin_code", "str", ""),
-            ("pin_id", "str", "")
+            ("pin_id", "str", ""),
         ],
         'Overseerr': [
             ("url", "str", ""),
-            ("api", "str", "")
+            ("api", "str", ""),
         ],
         'Ombi': [
             ("url", "str", ""),
-            ("api", "str", "")
+            ("api", "str", ""),
         ],
         'ContentAll': [
             ("quality", "str", "1080p"),
@@ -100,7 +107,7 @@ class CrawlerConfig(object):
             ("imdb", "str", "6.5"),
             ("hevc_retail", "bool", "False"),
             ("retail_only", "bool", "False"),
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
         ],
         'ContentShows': [
             ("quality", "str", "1080p"),
@@ -108,26 +115,19 @@ class CrawlerConfig(object):
             ("regex", "bool", "False"),
             ("hevc_retail", "bool", "False"),
             ("retail_only", "bool", "False"),
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
         ],
         'CustomDJ': [
             ("quality", "str", "1080p"),
             ("rejectlist", "str", "XviD,Subbed,HDTV"),
             ("regex", "bool", "False"),
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
         ],
         'CustomDD': [
-            ("hoster_fallback", "bool", "False")
+            ("hoster_fallback", "bool", "False"),
         ],
         'CustomF': [
-            ("search", "int", "3")
-        ],
-        'CustomJF': [
-            ("wait_time", "int", "12"),
-        ],
-        'SponsorsHelper': [
-            ("max_attempts", "int", "3"),
-            ("hide_donation_banner", "bool", "False")
+            ("search", "int", "3"),
         ]
     }
     __config__ = []

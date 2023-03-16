@@ -156,9 +156,10 @@ function showSiteStatusHelp() {
                    @click="startNow()"></i>
                 <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
               </div>
-              <div v-if="store.state.crawltimes.next_jf_run && store.state.hostnames.jf_shorthands !== ''">
-                Wartezeit ({{ store.state.hostnames.jf_shorthands }}) bis: {{
-                  getTimestamp(store.state.crawltimes.next_jf_run)
+              <div
+                  v-if="store.state.crawltimes.next_cloudflare_run && store.state.hostnames.cloudflare_shorthands !== 'Nicht gesetzt!'">
+                Wartezeit ({{ store.state.hostnames.cloudflare_shorthands }}) bis: {{
+                  getTimestamp(store.state.crawltimes.next_cloudflare_run)
                 }}
               </div>
               <div v-if="typeof store.state.crawltimes.total_time === 'string'">
@@ -172,7 +173,7 @@ function showSiteStatusHelp() {
             <div class="border-top mt-2"></div>
 
             <div class="row justify-content-center mt-2">
-              <div class="col-md-auto p-1">
+              <div v-if="store.state.hostnames.search !== 'Nicht gesetzt!'" class="col-md-auto p-1">
                 <button aria-controls="offcanvasBottomSearch" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomSearch"
                         data-bs-toggle="offcanvas"
