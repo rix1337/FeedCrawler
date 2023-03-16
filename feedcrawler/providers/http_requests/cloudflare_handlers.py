@@ -10,6 +10,7 @@ import time
 from json import loads
 
 from feedcrawler.providers import shared_state
+from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -133,6 +134,14 @@ def get_local_proxy_url(solver_url, proxy_url):
     return proxy_url
 
 
+def test_challenge_path(url):
+    site = check_is_site(url)
+    if site and site == "HW":
+        return "/category/neuerscheinung/"
+    else:
+        return "/"
+
+
 def sponsors_helper_task(solver_url, url):
     base_domain = url.split("/")[2]
     last_solution = unpickle_db("sponsors_helper", base_domain)
@@ -155,7 +164,7 @@ def sponsors_helper_task(solver_url, url):
 
         solver_endpoint = "/cloudflare_cookie/"
         solver_payload = {
-            'url': "https://" + base_domain + "/"
+            'url': "https://" + base_domain + test_challenge_path(url)
         }
 
         response = request(
@@ -216,7 +225,7 @@ def flaresolverr_task(solver_url, url):
         solver_endpoint = "/v1"
         solver_payload = {
             'cmd': 'request.get',
-            'url': "https://" + base_domain + "/"
+            'url': "https://" + base_domain + test_challenge_path(url)
         }
 
         response = request(
