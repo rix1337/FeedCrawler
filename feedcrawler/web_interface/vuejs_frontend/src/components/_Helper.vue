@@ -38,7 +38,7 @@ function getContext() {
 const sponsor = ref(false)
 
 function sponsorCheck() {
-  if (window.location.search.includes('sponsor=true')) {
+  if (window.location.search.includes('sponsor=active')) {
     sponsor.value = true
   }
 }

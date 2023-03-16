@@ -37,6 +37,7 @@
 Punkte, die den [FeedCrawler Sponsors Helper](https://github.com/rix1337/RSScrawler/wiki/5.-FeedCrawler-Sponsors-Helper)
 betreffen, werden erst nach dessen Update aktiv.
 
+- **9.0.4** Bugfix beim Auswählen des Wunschhosters auf FC
 - **9.0.3** Update auf Chrome 111
 - **9.0.2** Weitergabe des lokalen Proxies für die Verwendung im FeedCrawler
 - **9.0.1** Freischaltung benötigter Cloudflare Domains
