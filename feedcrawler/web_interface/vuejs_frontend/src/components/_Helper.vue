@@ -19,7 +19,6 @@ onMounted(() => {
 function updateToDecrypt() {
   spinHelper()
   getAntiGate()
-  getFBlocked()
   getToDecrypt()
 }
 
