@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.11** Update der Formkit-Abhängigkeit
 - **17.0.10** Startparameter, um den ersten Suchlauf nach Programmstart in Sekunden festzulegen
 - **17.0.10** Farbiges Icon
 - **17.0.10** Anpassung der Seiten-Erkennung

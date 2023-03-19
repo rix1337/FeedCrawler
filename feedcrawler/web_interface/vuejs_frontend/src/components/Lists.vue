@@ -3,7 +3,7 @@ import {useStore} from 'vuex'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
-import {submitForm} from "@formkit/vue/index"
+import {submitForm} from "@formkit/vue"
 import axios from 'axios'
 
 
