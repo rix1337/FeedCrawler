@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.11** Farbiges Icon
+- **17.0.10** Anpassung der Seiten-Erkennung
 - **17.0.9** Fix in der Link-Übergabe zum Helper
 - **17.0.8** Cloudflare-Umgehung auf HW korrigiert
 - **17.0.7** Alle Seiten mit bekannten Cloudflare-Blockaden in die Wartezeit aufgenommen
