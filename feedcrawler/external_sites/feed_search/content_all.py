@@ -294,7 +294,7 @@ def search_feed(self, feed):
                                 post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in self._SITE:
+                            if "FX" not in self._SITE and "DW" not in self._SITE:
                                 shared_state.logger.debug(
                                     post.title + " - Staffel noch nicht komplett")
                                 continue
@@ -646,7 +646,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
             retail = False
             if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                     'enforcedl'):
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                if self.config.get('cutoff'):
                     if self.config.get('enforcedl'):
                         if is_retail(key, True):
                             retail = True
@@ -745,11 +745,11 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
             retail = False
             if (self.config.get('enforcedl') and '.dl.' in key.lower()) or not self.config.get(
                     'enforcedl'):
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                if self.config.get('cutoff'):
                     if is_retail(key, True):
                         retail = True
             else:
-                if self.config.get('cutoff') and '.COMPLETE.' not in key.lower():
+                if self.config.get('cutoff'):
                     if is_retail(key, True):
                         retail = True
             if download_method(key, "FeedCrawler", download_links, self.password):
@@ -768,8 +768,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
         elif self.filename == 'List_ContentAll_Seasons':
             if download_method(key, "FeedCrawler", download_links, self.password):
                 self.db.store(
-                    key.replace(".COMPLETE", "").replace(
-                        ".Complete", ""),
+                    key.replace(".COMPLETE", "").replace(".Complete", ""),
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
