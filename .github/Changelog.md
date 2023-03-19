@@ -6,6 +6,9 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.11** Performance-Optimierung in der SF-Websuche
+- **17.0.11** Erkenne unvollständige Staffeln in der SF-Websuche, um diese nicht vorzeitig als hinzugefügt zu markieren.
+- **17.0.11** Update der Formkit-Abhängigkeit
 - **17.0.10** Startparameter, um den ersten Suchlauf nach Programmstart in Sekunden festzulegen
 - **17.0.10** Farbiges Icon
 - **17.0.10** Anpassung der Seiten-Erkennung

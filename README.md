@@ -92,6 +92,7 @@ Befüllen der _FeedCrawler.ini_ in der Kategorie _[Hostnames]_. Eingetragen werd
 | ```--jd-user=<NUTZERNAME>```   | Legt den Nutzernamen für My JDownloader fest |
 | ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
+| ```--delay=<SEKUNDEN>``` | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional) |
 
 ## Sicherheitshinweis
 

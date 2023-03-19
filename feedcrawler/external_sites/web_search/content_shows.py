@@ -9,6 +9,7 @@ import re
 
 from bs4 import BeautifulSoup
 
+from feedcrawler.external_sites.feed_search.shared import standardize_size_value
 from feedcrawler.external_sites.web_search.shared import search_web, rate
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
@@ -94,7 +95,9 @@ def download(payload):
 
     site = check_is_site(href)
 
-    real_urls = {}
+    masked_urls = {}
+    release_sizes = {}
+    incomplete_seasons = {}
 
     if site == "SF":
         password = sf
@@ -122,6 +125,20 @@ def download(payload):
                 name = details.find("small").text.strip()
             except:
                 continue
+
+            try:
+                size = standardize_size_value(release.find("span", {"class": "morespec"}).text.split("|")[1].strip())
+            except:
+                size = ""
+
+            if size:
+                release_sizes[name] = size
+
+            try:
+                release.findAll("div", {"class": "complete"})[0].text.strip().lower()
+            except:
+                incomplete_seasons[name] = True
+
             try:
                 resolution = re.findall(r"(\d+p)", name, re.IGNORECASE)[0].replace("480p", "SD")
             except:
@@ -135,9 +152,6 @@ def download(payload):
                     hosters.append(hoster)
 
             url = 'https://' + sf + details.find("a")['href']
-            demasked_link = get_redirected_url(url)
-            if demasked_link:
-                url = demasked_link.split("?")[0]
 
             items = {
                 "items": [
@@ -154,7 +168,7 @@ def download(payload):
                     "items": unsorted_seasons[season]["items"] + items["items"]
                 }
 
-            real_urls[name] = url
+            masked_urls[name] = url
             unsorted_seasons[season] = items
     else:
         site = "SJ"
@@ -211,9 +225,9 @@ def download(payload):
             if valid and special:
                 if site == "SF" and special_season and special_episode:
                     if special_season in name:
-                        special_url = real_urls[name] + "?episode=" + special_episode
+                        special_url = masked_urls[name] + "?episode=" + special_episode
                         name = name.replace("." + special_season + ".", "." + special + ".")
-                        real_urls[name] = special_url
+                        masked_urls[name] = special_url
                         valid = True
                     else:
                         valid = False
@@ -335,22 +349,38 @@ def download(payload):
 
     notify_array = []
     for title in matches:
-        size = ""  # currently no way to get this from the API
+        size = ""
+        incomplete = False
 
         db = FeedDb('FeedCrawler')
         if site == "SF":
             try:
-                url = real_urls[title]
+                masked_url = masked_urls[title]
+                url = get_redirected_url(masked_url)
             except:
                 url = False
                 print("Keine passende URL für " + title + " gefunden. Vermutlich hat SF die Seitenstruktur geändert!")
+            try:
+                size = release_sizes[title]
+            except:
+                pass
+            try:
+                incomplete = incomplete_seasons[title]
+            except:
+                incomplete = False
         else:
+            if ".incomplete." in title.lower():
+                incomplete = True
             url = source
 
         if url:
             if add_decrypt(title, url, password):
-                db.store(title, 'added')
-                log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                if incomplete:
+                    db.store(title, 'incomplete')
+                    log_entry = u'[Suche/Serie/Unvollständig] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                else:
+                    db.store(title, 'added')
+                    log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 shared_state.logger.info(log_entry)
                 notify_array.append({"text": log_entry})
 
