@@ -36,10 +36,11 @@ def start_feedcrawler():
     parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
     parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
     parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
+    parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
     parser.add_argument("--keep-cdc", action='store_true',
-                        help="Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
+                        help="Intern: Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
     parser.add_argument("--remove_cloudflare_time", action='store_true',
-                        help="Leere die Zeit des letzten Cloudflare-Umgehungs-Laufes vor dem ersten Suchlauf")
+                        help="Intern: Leere die Zeit des letzten Cloudflare-Umgehungs-Laufes vor dem ersten Suchlauf")
     parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
     parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
     arguments = parser.parse_args()
@@ -179,6 +180,11 @@ def start_feedcrawler():
 
     p = multiprocessing.Process(target=web_server, args=(global_variables,))
     p.start()
+
+    if arguments.delay:
+        delay = int(arguments.delay)
+        print(u"Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
+        time.sleep(delay)
 
     if not arguments.test_run:
         c = multiprocessing.Process(target=crawler,
