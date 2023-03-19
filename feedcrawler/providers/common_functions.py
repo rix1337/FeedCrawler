@@ -76,29 +76,29 @@ def check_is_site(string):
 
     string = string.lower()
 
-    if fx and fx.split('.')[0] in string:
+    if fx and fx in string:
         return "FX"
-    elif sf and sf.split('.')[0] in string:
+    elif sf and sf in string:
         return "SF"
-    elif dw and dw.split('.')[0] in string:
+    elif dw and dw in string:
         return "DW"
-    elif hw and hw.split('.')[0] in string:
+    elif hw and hw in string:
         return "HW"
-    elif ff and ff.split('.')[0] in string:
+    elif ff and ff in string:
         return "FF"
-    elif by and by.split('.')[0] in string:
+    elif by and by in string:
         return "BY"
-    elif nk and nk.split('.')[0] in string:
+    elif nk and nk in string:
         return "NK"
-    elif nx and nx.split('.')[0] in string:
+    elif nx and nx in string:
         return "NX"
-    elif ww and ww.split('.')[0] in string:
+    elif ww and ww in string:
         return "WW"
-    elif sj and sj.split('.')[0] in string:
+    elif sj and sj in string:
         return "SJ"
-    elif dj and dj.split('.')[0] in string:
+    elif dj and dj in string:
         return "DJ"
-    elif dd and dd.split('.')[0] in string:
+    elif dd and dd in string:
         return "DD"
     else:
         return False
