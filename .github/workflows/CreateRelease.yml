@@ -61,6 +61,7 @@ jobs:
           pip install wheel
           pip install pyinstaller
           pip install -r requirements.txt
+          pip install -r requirements_gui.txt
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:

@@ -23,6 +23,7 @@ from feedcrawler.external_sites.feed_search.sites.content_shows_sj import SJ
 from feedcrawler.external_tools.ombi_api import ombi_search
 from feedcrawler.external_tools.overseerr_api import overseerr_search
 from feedcrawler.external_tools.plex_api import plex_search
+from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
@@ -82,10 +83,12 @@ def search_pool():
     ]
 
 
-def crawler(global_variables, remove_cloudflare_time, test_run):
+def crawler(shared_print_mem, global_variables, remove_cloudflare_time, test_run):
+    if gui.enabled and shared_print_mem:
+        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+    else:
+        sys.stdout = Unbuffered(sys.stdout)
     shared_state.set_globals(global_variables)
-
-    sys.stdout = Unbuffered(sys.stdout)
     logger = shared_state.logger
 
     request_management_first_run = True
@@ -269,7 +272,10 @@ def crawler(global_variables, remove_cloudflare_time, test_run):
             wait_chunks = wait // 10
             start_now_triggered = False
             while wait_chunks:
-                time.sleep(10)
+                try:
+                    time.sleep(10)
+                except KeyboardInterrupt:
+                    pass
                 if FeedDb('crawltimes').retrieve("startnow"):
                     FeedDb('crawltimes').delete("startnow")
                     start_now_triggered = True
