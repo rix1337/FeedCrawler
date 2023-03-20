@@ -32,7 +32,7 @@ def get_download_links(self, content, title):
 def check_download_links(self, url_hosters):
     links = {}
     for url_hoster in reversed(url_hosters):
-        hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+        hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
         if check_hoster(hoster):
             link = url_hoster[0]
             if self.url in link:
@@ -42,7 +42,7 @@ def check_download_links(self, url_hosters):
             links[hoster] = link
     if self.hoster_fallback and not links:
         for url_hoster in reversed(url_hosters):
-            hoster = url_hoster[1].lower().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+            hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
             link = url_hoster[0]
             if self.url in link:
                 demasked_link = get_redirected_url(link)

@@ -425,6 +425,15 @@ function showWikiHelp() {
                                  outer-class="mb-4"
                                  type="checkbox"/>
                       </label>
+                      <h5>Filer</h5> <!-- Checkbox labels are not placed above -->
+                      <label class="form-check form-switch">
+                        <FormKit v-model="store.state.settings.hosters.filer"
+                                 help-class="text-muted"
+                                 input-class="form-check-input"
+                                 messages-class="text-danger"
+                                 outer-class="mb-4"
+                                 type="checkbox"/>
+                      </label>
                       <h5>Turbobit</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
                         <FormKit v-model="store.state.settings.hosters.turbobit"
@@ -436,15 +445,6 @@ function showWikiHelp() {
                       </label>
                     </div>
                     <div class="col-sm">
-                      <h5>Uploaded</h5> <!-- Checkbox labels are not placed above -->
-                      <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.uploaded"
-                                 help-class="text-muted"
-                                 input-class="form-check-input"
-                                 messages-class="text-danger"
-                                 outer-class="mb-4"
-                                 type="checkbox"/>
-                      </label>
                       <h5>FileFactory</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
                         <FormKit v-model="store.state.settings.hosters.filefactory"
@@ -463,26 +463,6 @@ function showWikiHelp() {
                                  outer-class="mb-4"
                                  type="checkbox"/>
                       </label>
-                      <h5>Filer</h5> <!-- Checkbox labels are not placed above -->
-                      <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.filer"
-                                 help-class="text-muted"
-                                 input-class="form-check-input"
-                                 messages-class="text-danger"
-                                 outer-class="mb-4"
-                                 type="checkbox"/>
-                      </label>
-                      <h5>Zippyshare</h5> <!-- Checkbox labels are not placed above -->
-                      <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.zippyshare"
-                                 help-class="text-muted"
-                                 input-class="form-check-input"
-                                 messages-class="text-danger"
-                                 outer-class="mb-4"
-                                 type="checkbox"/>
-                      </label>
-                    </div>
-                    <div class="col-sm">
                       <h5>Nitroflare</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
                         <FormKit v-model="store.state.settings.hosters.nitroflare"
