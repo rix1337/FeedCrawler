@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **17.0.12** Verbesserte Hoster-Erkennung (#727), Danke @PlanetDyna
+- **17.0.12** Nicht mehr existierende Hoster aus den Einstellungen entfernt (Zippyshare, Uploaded, Oboom)
 - **17.0.11** Performance-Optimierung in der SF-Websuche
 - **17.0.11** Erkenne unvollständige Staffeln in der SF-Websuche, um diese nicht vorzeitig als hinzugefügt zu markieren.
 - **17.0.11** Update der Formkit-Abhängigkeit
