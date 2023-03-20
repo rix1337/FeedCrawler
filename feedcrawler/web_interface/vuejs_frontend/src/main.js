@@ -74,16 +74,13 @@ const store = createStore({
                 }, dd: {
                     hoster_fallback: false
                 }, hosters: {
-                    rapidgator: true,
-                    turbobit: true,
-                    uploaded: true,
-                    zippyshare: true,
-                    oboom: true,
                     ddl: true,
-                    filefactory: true,
-                    uptobox: true,
+                    rapidgator: true,
                     onefichier: true,
                     filer: true,
+                    turbobit: true,
+                    filefactory: true,
+                    uptobox: true,
                     nitroflare: true,
                     k2s: true,
                     katfile: true,

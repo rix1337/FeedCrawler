@@ -339,16 +339,13 @@ def app_container():
                         "force_ignore_in_web_search": general_conf.get("force_ignore_in_web_search"),
                     },
                     "hosters": {
-                        "rapidgator": hosters.get("rapidgator"),
-                        "turbobit": hosters.get("turbobit"),
-                        "uploaded": hosters.get("uploaded"),
-                        "zippyshare": hosters.get("zippyshare"),
-                        "oboom": hosters.get("oboom"),
                         "ddl": hosters.get("ddl"),
-                        "filefactory": hosters.get("filefactory"),
-                        "uptobox": hosters.get("uptobox"),
+                        "rapidgator": hosters.get("rapidgator"),
                         "onefichier": hosters.get("1fichier"),
                         "filer": hosters.get("filer"),
+                        "turbobit": hosters.get("turbobit"),
+                        "filefactory": hosters.get("filefactory"),
+                        "uptobox": hosters.get("uptobox"),
                         "nitroflare": hosters.get("nitroflare"),
                         "k2s": hosters.get("k2s"),
                         "katfile": hosters.get("katfile"),
@@ -499,16 +496,13 @@ def app_container():
             section.save("homeassistant", to_str(data['alerts']['homeassistant']))
 
             section = CrawlerConfig("Hosters")
-            section.save("rapidgator", to_str(data['hosters']['rapidgator']))
-            section.save("turbobit", to_str(data['hosters']['turbobit']))
-            section.save("uploaded", to_str(data['hosters']['uploaded']))
-            section.save("zippyshare", to_str(data['hosters']['zippyshare']))
-            section.save("oboom", to_str(data['hosters']['oboom']))
             section.save("ddl", to_str(data['hosters']['ddl']))
-            section.save("filefactory", to_str(data['hosters']['filefactory']))
-            section.save("uptobox", to_str(data['hosters']['uptobox']))
+            section.save("rapidgator", to_str(data['hosters']['rapidgator']))
             section.save("1fichier", to_str(data['hosters']['onefichier']))
             section.save("filer", to_str(data['hosters']['filer']))
+            section.save("turbobit", to_str(data['hosters']['turbobit']))
+            section.save("filefactory", to_str(data['hosters']['filefactory']))
+            section.save("uptobox", to_str(data['hosters']['uptobox']))
             section.save("nitroflare", to_str(data['hosters']['nitroflare']))
             section.save("k2s", to_str(data['hosters']['k2s']))
             section.save("katfile", to_str(data['hosters']['katfile']))
