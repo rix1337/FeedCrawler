@@ -13,13 +13,17 @@ def get_version():
 
 
 def create_version_file():
-    version_clean = re.sub('[^\d\.]', '', get_version())
-    version_split = version_clean.split(".")
+    version = get_version()
+    version_clean = re.sub('[^\d\.]', '', version)
+    if "a" in version:
+        suffix = version.split("a")[1]
+    else:
+        suffix = 0
     version_info = [
         "VSVersionInfo(",
         "  ffi=FixedFileInfo(",
-        "    filevers=(" + version_split[0] + ", " + version_split[1] + ", " + version_split[2] + ", 0),",
-        "    prodvers=(" + version_split[0] + ", " + version_split[1] + ", " + version_split[2] + ", 0),",
+        "    filevers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(int(version_split[2])) + ", " + str(int(suffix)) + "),",
+        "    prodvers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(int(version_split[2])) + ", " + str(int(suffix)) + "),",
         "    mask=0x3f,",
         "    flags=0x0,",
         "    OS=0x4,",
