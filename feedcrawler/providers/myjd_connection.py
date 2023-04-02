@@ -22,6 +22,7 @@ from feedcrawler.providers.common_functions import simplified_search_term_in_tit
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.url_functions import get_redirected_url
+from feedcrawler.providers import gui
 from feedcrawler.providers.url_functions import get_url
 
 
@@ -78,7 +79,7 @@ def get_device():
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
             if not shared_state.synchronize_device():
-                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e.replace("\n", " ")))
+                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
@@ -121,6 +122,18 @@ def get_if_one_device(myjd_user, myjd_pass):
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
         print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
         return False
+
+def get_devices(myjd_user, myjd_pass):
+    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
+    jd.set_app_key('FeedCrawler')
+    try:
+        jd.connect(myjd_user, myjd_pass)
+        jd.update_devices()
+        devices = jd.list_devices()
+        return devices
+    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
+        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        return []
 
 
 def get_packages_in_downloader():
@@ -1060,14 +1073,18 @@ def myjd_input(port, user, password, device):
         if one_device:
             print(u"Gerätename " + one_device + " automatisch ermittelt.")
     else:
-        print(u"Bitte die Zugangsdaten für My JDownloader angeben:")
-        user = input("Nutzername/Email:")
-        password = input("Passwort:")
-        one_device = get_if_one_device(user, password)
-        if one_device:
-            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+        if gui.enabled:
+            user, password, device = gui.myjd_credentials_gui()
         else:
-            device = input(u"Gerätename:")
+            print(u"Bitte die Zugangsdaten für My JDownloader angeben:")
+            user = input("Nutzername/Email:")
+            password = input("Passwort:")
+            one_device = get_if_one_device(user, password)
+            if one_device:
+                print(u"Gerätename " + one_device + " automatisch ermittelt.")
+            else:
+                device = input(u"Gerätename:")
+
     if not port:
         port = '9090'
 

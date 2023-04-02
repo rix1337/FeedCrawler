@@ -4,6 +4,7 @@
 # Dieses Modul initialisiert die globalen Parameter und starte alle parallel laufenden Threads des FeedCrawlers.
 
 import argparse
+import ctypes
 import logging
 import multiprocessing
 import os
@@ -14,14 +15,12 @@ import time
 
 from feedcrawler.jobs.feed_search import crawler
 from feedcrawler.jobs.package_watcher import watch_packages
+from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers import version
-from feedcrawler.providers.common_functions import check_ip
-from feedcrawler.providers.common_functions import configpath
+from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import get_device
-from feedcrawler.providers.myjd_connection import get_if_one_device
-from feedcrawler.providers.myjd_connection import myjd_input
+from feedcrawler.providers.myjd_connection import get_device, get_if_one_device, myjd_input
 from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.web_interface.web_server import web_server
 
@@ -45,6 +44,15 @@ def start_feedcrawler():
     parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
     arguments = parser.parse_args()
 
+    if gui.enabled:
+        mem_size = 1024 * 1024  # 1 MB
+        shared_print_mem = multiprocessing.Array(ctypes.c_char, mem_size)
+        window = gui.create_main_window()
+        sys.stdout = gui.PrintToConsoleAndGui(window)
+    else:
+        shared_print_mem = False
+        sys.stdout = Unbuffered(sys.stdout)
+
     print(u"┌──────────────────────────────────────────────┐")
     print(u"  FeedCrawler " + version + " von RiX")
     print(u"  https://github.com/rix1337/FeedCrawler")
@@ -57,7 +65,7 @@ def start_feedcrawler():
 
     shared_state.set_files(config_path)
 
-    print(u"Nutze das Verzeichnis " + config_path + u" für Einstellungen/Logs")
+    print(u'Nutze das Verzeichnis "' + config_path + u'" für Einstellungen/Logs')
 
     log_level = logging.__dict__[
         arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
@@ -76,7 +84,7 @@ def start_feedcrawler():
         if string:
             print(u'Hostname für ' + host.upper() + ": " + string)
         else:
-            print(u'Hostname für ' + host.upper() + ': Nicht gesetzt!')
+            print(u'Hostname für ' + host.upper() + ': -')
         return string
 
     set_hostnames = {}
@@ -111,7 +119,7 @@ def start_feedcrawler():
                     if not device_set:
                         one_device = get_if_one_device(user, password)
                         if one_device:
-                            print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                            print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
                             feedcrawler.save('myjd_device', one_device)
                             get_device()
             else:
@@ -131,7 +139,7 @@ def start_feedcrawler():
                 password = feedcrawler.get('myjd_pass')
                 one_device = get_if_one_device(user, password)
                 if one_device:
-                    print(u"Gerätename " + one_device + " automatisch ermittelt.")
+                    print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
                     feedcrawler.save('myjd_device', one_device)
                     get_device()
                     success = shared_state.device and shared_state.device.name
@@ -140,14 +148,14 @@ def start_feedcrawler():
                 while i < 10:
                     i += 1
                     print(
-                        u"Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: %s" % (i, device_name))
+                        u'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (i, device_name))
                     time.sleep(60)
                     get_device()
                     success = shared_state.device and shared_state.device.name
                     if success:
                         break
         if success:
-            print(u"Erfolgreich mit My JDownloader verbunden. Gerätename: " + shared_state.device.name)
+            print(u'Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
         else:
             print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
             sys.exit(1)
@@ -167,7 +175,7 @@ def start_feedcrawler():
         prefix = ''
     local_address = 'http://' + check_ip() + ':' + str(port) + prefix
     if not arguments.docker:
-        print(u'Der Webserver ist erreichbar unter ' + local_address)
+        print(u'Der Webserver ist erreichbar unter "' + local_address + u'"')
 
     shared_state.set_connection_info(local_address, port, prefix, docker)
 
@@ -178,7 +186,7 @@ def start_feedcrawler():
 
     global_variables = shared_state.get_globals()
 
-    p = multiprocessing.Process(target=web_server, args=(global_variables,))
+    p = multiprocessing.Process(target=web_server, args=(shared_print_mem, global_variables,))
     p.start()
 
     if arguments.delay:
@@ -188,29 +196,38 @@ def start_feedcrawler():
 
     if not arguments.test_run:
         c = multiprocessing.Process(target=crawler,
-                                    args=(global_variables, arguments.remove_cloudflare_time, False,))
+                                    args=(shared_print_mem, global_variables, arguments.remove_cloudflare_time, False,))
         c.start()
 
-        w = multiprocessing.Process(target=watch_packages, args=(global_variables,))
+        w = multiprocessing.Process(target=watch_packages, args=(shared_print_mem, global_variables,))
         w.start()
 
-        def signal_handler(sig, frame):
-            print(u'Beende FeedCrawler...')
+        if not arguments.docker and gui.enabled:  # replace true with check if we are a frozen windows exe
+            gui.main_gui(window, shared_print_mem)
+
+            sys.stdout = sys.__stdout__
             p.terminate()
             c.terminate()
             w.terminate()
             sys.exit(0)
 
-        signal.signal(signal.SIGINT, signal_handler)
-        print(u'Drücke [Strg] + [C] zum Beenden')
-        try:
-            while True:
-                signal.pause()
-        except AttributeError:
-            while True:
-                time.sleep(1)
+        else:  # regular console
+            def signal_handler(sig, frame):
+                p.terminate()
+                c.terminate()
+                w.terminate()
+                sys.exit(0)
+
+            signal.signal(signal.SIGINT, signal_handler)
+            print(u'Drücke [Strg] + [C] zum Beenden')
+            try:
+                while True:
+                    signal.pause()
+            except AttributeError:
+                while True:
+                    time.sleep(1)
     else:
-        crawler(global_variables, arguments.remove_cloudflare_time, True)
+        crawler(shared_print_mem, global_variables, arguments.remove_cloudflare_time, True)
         p.terminate()
         sys.exit(0)
 

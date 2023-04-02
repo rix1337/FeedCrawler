@@ -11,13 +11,10 @@ from xml.etree import ElementTree
 
 import feedcrawler.external_sites.web_search.content_all
 import feedcrawler.external_sites.web_search.content_shows
-from feedcrawler.external_sites.metadata.imdb import get_episodes
 from feedcrawler.external_sites.metadata.imdb import get_imdb_id_from_title
 from feedcrawler.external_sites.metadata.imdb import get_localized_title
 from feedcrawler.external_sites.metadata.imdb import get_year
 from feedcrawler.providers import shared_state
-from feedcrawler.providers.common_functions import decode_base64
-from feedcrawler.providers.common_functions import encode_base64
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.sqlite_database import FeedDb
