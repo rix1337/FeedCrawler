@@ -19,11 +19,14 @@ def create_version_file():
         suffix = version.split("a")[1]
     else:
         suffix = 0
+    version_split = version_clean.split(".")
     version_info = [
         "VSVersionInfo(",
         "  ffi=FixedFileInfo(",
-        "    filevers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(int(version_split[2])) + ", " + str(int(suffix)) + "),",
-        "    prodvers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(int(version_split[2])) + ", " + str(int(suffix)) + "),",
+        "    filevers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(
+            int(version_split[2])) + ", " + str(int(suffix)) + "),",
+        "    prodvers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(
+            int(version_split[2])) + ", " + str(int(suffix)) + "),",
         "    mask=0x3f,",
         "    flags=0x0,",
         "    OS=0x4,",
@@ -38,12 +41,14 @@ def create_version_file():
         "        u'040704b0',",
         "        [StringStruct(u'CompanyName', u'RiX'),",
         "        StringStruct(u'FileDescription', u'FeedCrawler'),",
-        "        StringStruct(u'FileVersion', u'" + version_clean + ".0'),",
+        "        StringStruct(u'FileVersion', u'" + str(int(version_split[0])) + "." + str(
+            int(version_split[1])) + "." + str(int(version_split[2])) + "." + suffix + "'),",
         "        StringStruct(u'InternalName', u'FeedCrawler'),",
         "        StringStruct(u'LegalCopyright', u'Copyright © RiX'),",
         "        StringStruct(u'OriginalFilename', u'FeedCrawler.exe'),",
         "        StringStruct(u'ProductName', u'FeedCrawler'),",
-        "        StringStruct(u'ProductVersion', u'" + version_clean + ".0')])",
+        "        StringStruct(u'ProductVersion', u'" + str(int(version_split[0])) + "." + str(
+            int(version_split[1])) + "." + str(int(version_split[2])) + "." + suffix + "')])",
         "      ]),",
         "    VarFileInfo([VarStruct(u'Translation', [1031, 1200])])",
         "  ]",
