@@ -74,7 +74,7 @@ jobs:
       - name: Compile Windows Exe
         run: |
           $version = python feedcrawler/providers/version.py
-          pyinstaller --onefile -y -i "feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" --version-file "file_version_info.txt" --add-data "feedcrawler/web_interface/vuejs_frontend;web_interface/vuejs_frontend" "FeedCrawler.py" -n "feedcrawler-$version-standalone-win64"
+          pyinstaller --onefile -y -i "feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" --noconsole --version-file "file_version_info.txt" --add-data "feedcrawler/web_interface/vuejs_frontend;web_interface/vuejs_frontend" "FeedCrawler.py" -n "feedcrawler-$version-standalone-win64"
       - name: Upload Windows Exe
         uses: actions/upload-artifact@v3
         with:
