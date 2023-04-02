@@ -12,6 +12,7 @@ import sys
 from urllib.parse import urlparse
 
 from feedcrawler.external_tools import myjd_api
+from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -494,6 +495,7 @@ def rreplace(s, old, new, occurrence):
 
 def configpath(configpath):
     pathfile = "FeedCrawler.conf"
+    current_path = os.path.dirname(sys.argv[0])
     if configpath:
         f = open(pathfile, "w")
         f.write(configpath)
@@ -502,14 +504,17 @@ def configpath(configpath):
         f = open(pathfile, "r")
         configpath = f.readline()
     else:
-        print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-        configpath = input("Pfad angeben:")
+        if gui.enabled:
+            configpath = gui.configpath_gui(current_path)
+        else:
+            print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+            configpath = input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(pathfile, "w")
             f.write(configpath)
             f.close()
     if len(configpath) == 0:
-        configpath = os.path.dirname(sys.argv[0])
+        configpath = current_path
         configpath = configpath.replace("\\", "/")
         configpath = configpath[:-1] if configpath.endswith('/') else configpath
         f = open(pathfile, "w")

@@ -43,6 +43,12 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
 
+### GUI aktivieren
+
+```pip install -U PySimpleGUI psgtray```
+
+Dieser Schritt ist optional und ist nur auf Desktop-Systemen sinnvoll. Windows-Builds beinhalten die GUI bereits.
+
 ### Lokaler Build
 Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
 

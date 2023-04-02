@@ -3,12 +3,19 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt den Webserver und sämtliche APIs des FeedCrawlers bereit.
 
+import sys
+from io import StringIO
+
+if sys.stdout is None:  # required to allow pyinstaller --noconsole to work
+    sys.stdout = StringIO()
+if sys.stderr is None:  # required to allow pyinstaller --noconsole to work
+    sys.stderr = StringIO()
+
 import ast
 import json
 import os
 import re
 import site
-import sys
 import time
 from functools import wraps
 from socketserver import ThreadingMixIn
@@ -27,6 +34,7 @@ from feedcrawler.external_sites.web_search.shared import search_web
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.external_tools.plex_api import get_client_id
 from feedcrawler.external_tools.plex_api import get_plex_headers
+from feedcrawler.providers import gui
 from feedcrawler.providers import version, shared_state
 from feedcrawler.providers.common_functions import Unbuffered
 from feedcrawler.providers.common_functions import check_is_site
@@ -81,7 +89,11 @@ class Server:
                                   ThreadingWSGIServer, handler_class=NoLoggingWSGIRequestHandler)
 
     def serve_forever(self):
-        self.server.serve_forever()
+        try:
+            self.server.serve_forever()
+        except KeyboardInterrupt:
+            self.server.shutdown()
+            self.server.server_close()
 
 
 helper_active = False
@@ -2000,8 +2012,6 @@ def attempt_download(package_name, links, password, ids):
 
 
 def start():
-    sys.stdout = Unbuffered(sys.stdout)
-
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
         print(u'Update steht bereit (' + updateversion +
@@ -2010,6 +2020,11 @@ def start():
     app_container()
 
 
-def web_server(global_variables):
+def web_server(shared_print_mem, global_variables):
+    if gui.enabled and shared_print_mem:
+        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+    else:
+        sys.stdout = Unbuffered(sys.stdout)
     shared_state.set_globals(global_variables)
+
     start()

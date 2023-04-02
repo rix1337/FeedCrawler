@@ -8,6 +8,7 @@ import sys
 import time
 import traceback
 
+from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered
 from feedcrawler.providers.common_functions import is_device
@@ -27,10 +28,12 @@ from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def watch_packages(global_variables):
+def watch_packages(shared_print_mem, global_variables):
+    if gui.enabled and shared_print_mem:
+        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+    else:
+        sys.stdout = Unbuffered(sys.stdout)
     shared_state.set_globals(global_variables)
-
-    sys.stdout = Unbuffered(sys.stdout)
 
     crawljobs = CrawlerConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
@@ -291,9 +294,15 @@ def watch_packages(global_variables):
                     if notify_list:
                         notify(notify_list)
 
-                time.sleep(30)
+                try:
+                    time.sleep(30)
+                except KeyboardInterrupt:
+                    break
             else:
-                time.sleep(30)
+                try:
+                    time.sleep(30)
+                except KeyboardInterrupt:
+                    break
                 if not get_device():
                     print(u"Scheinbar ist der JDownloader nicht erreichbar.")
         except Exception:
