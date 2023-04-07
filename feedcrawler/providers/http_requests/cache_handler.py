@@ -6,6 +6,7 @@
 import codecs
 import hashlib
 import pickle
+import sys
 from functools import wraps
 from urllib.error import URLError
 
@@ -36,15 +37,20 @@ def cache(func):
         # This hash is based on all arguments of the request
         hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
 
-        cached = FeedDb('cached_requests').retrieve(hashed)
+        try:
+            cached = shared_state.request_dict[hashed]
+        except KeyError:
+            cached = None
         if cached:
             # Unpack and return the cached result instead of processing the request
-            return pickle.loads(codecs.decode(cached.encode(), "base64"))
+            cached_response = pickle.loads(codecs.decode(cached.encode(), "base64"))
+            return cached_response
         else:
             #
             value = func(*args, **kwargs)
             if not dont_cache:
-                FeedDb('cached_requests').store(hashed, codecs.encode(pickle.dumps(value), "base64").decode())
+                cached_response = codecs.encode(pickle.dumps(value), "base64").decode()
+                shared_state.request_dict[hashed] = cached_response
             return value
 
     return cache_returned_values

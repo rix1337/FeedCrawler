@@ -180,3 +180,17 @@ class CrawlerConfig(object):
 
     def get_section(self):
         return self._config._sections[self._section]
+
+    def remove_redundant_entries(self):
+        for section in self._config.sections():
+            if section not in self._DEFAULT_CONFIG:
+                self._config.remove_section(section)
+                print(f"Entferne überflüssige Sektion '{section}' aus der Konfigurationsdatei.")
+            else:
+                for option in self._config.options(section):
+                    if option not in [param[0] for param in self._DEFAULT_CONFIG[section]]:
+                        self._config.remove_option(section, option)
+                        print(
+                            f"Entferne überflüssige Option '{option}' der Sektion '{section}' aus der Konfigurationsdatei.")
+        with open(self._configfile, 'w') as configfile:
+            self._config.write(configfile)

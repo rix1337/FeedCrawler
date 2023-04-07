@@ -21,7 +21,7 @@ from feedcrawler.providers import version
 from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import get_device, get_if_one_device, myjd_input
-from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.sqlite_database import FeedDb, remove_redundant_db_tables
 from feedcrawler.web_interface.web_server import web_server
 
 version = "v." + version.get_version()
@@ -45,12 +45,13 @@ def start_feedcrawler():
     arguments = parser.parse_args()
 
     if gui.enabled:
-        mem_size = 1024 * 1024  # 1 MB
-        shared_print_mem = multiprocessing.Array(ctypes.c_char, mem_size)
+        print_mem_size = 1024 * 1024  # 1 MB should handle very large print statements
+        shared_print_mem = multiprocessing.Array(ctypes.c_char, print_mem_size)
         window = gui.create_main_window()
         sys.stdout = gui.PrintToConsoleAndGui(window)
     else:
         shared_print_mem = False
+        window = False
         sys.stdout = Unbuffered(sys.stdout)
 
     print(u"┌──────────────────────────────────────────────┐")
@@ -103,136 +104,154 @@ def start_feedcrawler():
             time.sleep(10)
         sys.exit(1)
 
-    FeedDb('cached_internals').delete("device")
+    device_mem_size = 8 * 1024  # 0.008 MB is eight times the size of pickled device objects
+    shared_device_mem = multiprocessing.Array(ctypes.c_char, device_mem_size)
+    shared_state.set_device_memory(shared_device_mem)
 
-    if not arguments.test_run:
-        if not os.path.exists(shared_state.configfile):
-            if arguments.docker:
-                if arguments.jd_user and arguments.jd_pass:
+    with multiprocessing.Manager() as manager:
+        shared_request_dict = manager.dict()
+
+        if not arguments.test_run:
+            if not os.path.exists(shared_state.configfile):
+                if arguments.docker:
+                    if arguments.jd_user and arguments.jd_pass:
+                        myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
+                else:
                     myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
             else:
-                myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
-        else:
-            feedcrawler = CrawlerConfig('FeedCrawler')
-            user = feedcrawler.get('myjd_user')
-            password = feedcrawler.get('myjd_pass')
-            if user and password:
-                if not get_device():
-                    device_set = feedcrawler.get('myjd_device')
-                    if not device_set:
-                        one_device = get_if_one_device(user, password)
-                        if one_device:
-                            print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
-                            feedcrawler.save('myjd_device', one_device)
-                            get_device()
-            else:
-                myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
-                           arguments.jd_device)
-
-    if not arguments.test_run:
-        if shared_state.device and shared_state.device.name:
-            success = True
-        else:
-            success = False
-            feedcrawler = CrawlerConfig('FeedCrawler')
-
-            device_name = feedcrawler.get('myjd_device')
-            if not device_name:
+                feedcrawler = CrawlerConfig('FeedCrawler')
                 user = feedcrawler.get('myjd_user')
                 password = feedcrawler.get('myjd_pass')
-                one_device = get_if_one_device(user, password)
-                if one_device:
-                    print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
-                    feedcrawler.save('myjd_device', one_device)
-                    get_device()
-                    success = shared_state.device and shared_state.device.name
-            if not success:
-                i = 0
-                while i < 10:
-                    i += 1
-                    print(
-                        u'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (i, device_name))
-                    time.sleep(60)
-                    get_device()
-                    success = shared_state.device and shared_state.device.name
-                    if success:
-                        break
-        if success:
-            print(u'Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
+                if user and password:
+                    if not get_device():
+                        device_set = feedcrawler.get('myjd_device')
+                        if not device_set:
+                            one_device = get_if_one_device(user, password)
+                            if one_device:
+                                print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
+                                feedcrawler.save('myjd_device', one_device)
+                                get_device()
+                else:
+                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
+                               arguments.jd_device)
+
+        if not arguments.test_run:
+            if shared_state.device and shared_state.device.name:
+                success = True
+            else:
+                success = False
+                feedcrawler = CrawlerConfig('FeedCrawler')
+
+                device_name = feedcrawler.get('myjd_device')
+                if not device_name:
+                    user = feedcrawler.get('myjd_user')
+                    password = feedcrawler.get('myjd_pass')
+                    one_device = get_if_one_device(user, password)
+                    if one_device:
+                        print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
+                        feedcrawler.save('myjd_device', one_device)
+                        get_device()
+                        success = shared_state.device and shared_state.device.name
+                if not success:
+                    i = 0
+                    while i < 10:
+                        i += 1
+                        print(
+                            u'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
+                                i, device_name))
+                        time.sleep(60)
+                        get_device()
+                        success = shared_state.device and shared_state.device.name
+                        if success:
+                            break
+            if success:
+                print(u'Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
+            else:
+                print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
+                sys.exit(1)
+
+        feedcrawler = CrawlerConfig('FeedCrawler')
+        port = int(feedcrawler.get("port"))
+        docker = False
+        if arguments.docker:
+            port = int('9090')
+            docker = True
+        elif arguments.port:
+            port = int(arguments.port)
+
+        if feedcrawler.get("prefix"):
+            prefix = '/' + feedcrawler.get("prefix")
         else:
-            print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
-            sys.exit(1)
+            prefix = ''
+        local_address = 'http://' + check_ip() + ':' + str(port) + prefix
+        if not arguments.docker:
+            print(u'Der Webserver ist erreichbar unter "' + local_address + u'"')
 
-    feedcrawler = CrawlerConfig('FeedCrawler')
-    port = int(feedcrawler.get("port"))
-    docker = False
-    if arguments.docker:
-        port = int('9090')
-        docker = True
-    elif arguments.port:
-        port = int(arguments.port)
+        shared_state.set_connection_info(local_address, port, prefix, docker)
 
-    if feedcrawler.get("prefix"):
-        prefix = '/' + feedcrawler.get("prefix")
-    else:
-        prefix = ''
-    local_address = 'http://' + check_ip() + ':' + str(port) + prefix
-    if not arguments.docker:
-        print(u'Der Webserver ist erreichbar unter "' + local_address + u'"')
+        CrawlerConfig("FeedCrawler").remove_redundant_entries()
+        remove_redundant_db_tables(shared_state.dbfile)
 
-    shared_state.set_connection_info(local_address, port, prefix, docker)
+        if arguments.keep_cdc:
+            print(u"CDC-Tabelle nicht geleert!")
+        else:
+            FeedDb('cdc').reset()
 
-    if arguments.keep_cdc:
-        print(u"CDC-Tabelle nicht geleert!")
-    else:
-        FeedDb('cdc').reset()
+        global_variables = shared_state.get_globals()
 
-    global_variables = shared_state.get_globals()
+        process_web_server = multiprocessing.Process(target=web_server,
+                                                     args=(shared_print_mem, global_variables, shared_request_dict,
+                                                           shared_device_mem,))
+        process_web_server.start()
 
-    p = multiprocessing.Process(target=web_server, args=(shared_print_mem, global_variables,))
-    p.start()
+        if arguments.delay:
+            delay = int(arguments.delay)
+            print(u"Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
+            time.sleep(delay)
 
-    if arguments.delay:
-        delay = int(arguments.delay)
-        print(u"Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
-        time.sleep(delay)
+        if not arguments.test_run:
+            process_crawler = multiprocessing.Process(target=crawler,
+                                                      args=(shared_print_mem, global_variables, shared_request_dict,
+                                                            shared_device_mem,
+                                                            arguments.remove_cloudflare_time, False,))
+            process_crawler.start()
 
-    if not arguments.test_run:
-        c = multiprocessing.Process(target=crawler,
-                                    args=(shared_print_mem, global_variables, arguments.remove_cloudflare_time, False,))
-        c.start()
+            process_watch_packages = multiprocessing.Process(target=watch_packages,
+                                                             args=(
+                                                                 shared_print_mem, global_variables,
+                                                                 shared_request_dict,
+                                                                 shared_device_mem,))
+            process_watch_packages.start()
 
-        w = multiprocessing.Process(target=watch_packages, args=(shared_print_mem, global_variables,))
-        w.start()
+            if not arguments.docker and gui.enabled:
+                gui.main_gui(window, shared_print_mem)
 
-        if not arguments.docker and gui.enabled:  # replace true with check if we are a frozen windows exe
-            gui.main_gui(window, shared_print_mem)
-
-            sys.stdout = sys.__stdout__
-            p.terminate()
-            c.terminate()
-            w.terminate()
-            sys.exit(0)
-
-        else:  # regular console
-            def signal_handler(sig, frame):
-                p.terminate()
-                c.terminate()
-                w.terminate()
+                sys.stdout = sys.__stdout__
+                process_web_server.terminate()
+                process_crawler.terminate()
+                process_watch_packages.terminate()
                 sys.exit(0)
 
-            signal.signal(signal.SIGINT, signal_handler)
-            print(u'Drücke [Strg] + [C] zum Beenden')
-            try:
-                while True:
-                    signal.pause()
-            except AttributeError:
-                while True:
-                    time.sleep(1)
-    else:
-        crawler(shared_print_mem, global_variables, arguments.remove_cloudflare_time, True)
-        p.terminate()
-        sys.exit(0)
+            else:  # regular console
+                def signal_handler(sig, frame):
+                    process_web_server.terminate()
+                    process_crawler.terminate()
+                    process_watch_packages.terminate()
+                    sys.exit(0)
+
+                signal.signal(signal.SIGINT, signal_handler)
+                print(u'Drücke [Strg] + [C] zum Beenden')
+                try:
+                    while True:
+                        signal.pause()
+                except AttributeError:
+                    while True:
+                        time.sleep(1)
+        else:
+            crawler(shared_print_mem, global_variables, shared_request_dict, shared_device_mem,
+                    arguments.remove_cloudflare_time, True)
+            process_web_server.terminate()
+            sys.exit(0)
 
 
 if __name__ == "__main__":

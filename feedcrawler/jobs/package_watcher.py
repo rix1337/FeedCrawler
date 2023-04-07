@@ -28,11 +28,14 @@ from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def watch_packages(shared_print_mem, global_variables):
+def watch_packages(shared_print_mem, global_variables, shared_request_dict, shared_device_mem):
     if gui.enabled and shared_print_mem:
         sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
     else:
         sys.stdout = Unbuffered(sys.stdout)
+
+    shared_state.set_request_dict(shared_request_dict)
+    shared_state.set_device_memory(shared_device_mem)
     shared_state.set_globals(global_variables)
 
     crawljobs = CrawlerConfig('Crawljobs')

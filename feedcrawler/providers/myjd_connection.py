@@ -10,6 +10,7 @@ from bs4 import BeautifulSoup
 
 import feedcrawler.external_tools.myjd_api
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
 from feedcrawler.providers.common_functions import check_is_site
@@ -22,7 +23,6 @@ from feedcrawler.providers.common_functions import simplified_search_term_in_tit
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.sqlite_database import FeedDb
 from feedcrawler.providers.url_functions import get_redirected_url
-from feedcrawler.providers import gui
 from feedcrawler.providers.url_functions import get_url
 
 
@@ -62,14 +62,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not shared_state.synchronize_device():
-                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e).replace("\n", " "))
+            if not shared_state.set_device_from_memory_to_state():
+                print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not shared_state.synchronize_device():
-            shared_state.set_device(device)
+        if not shared_state.set_device_from_memory_to_state():
+            shared_state.set_device_to_memory_and_state(device)
         return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -78,14 +78,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not shared_state.synchronize_device():
-                print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e).replace("\n", " "))
+            if not shared_state.set_device_from_memory_to_state():
+                print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not shared_state.synchronize_device():
-            shared_state.set_device(device)
+        if not shared_state.set_device_from_memory_to_state():
+            shared_state.set_device_to_memory_and_state(device)
         return True
     else:
         return False
@@ -99,12 +99,12 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        if not shared_state.synchronize_device():
-            print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        if not shared_state.set_device_from_memory_to_state():
+            print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
             return False
         return True
-    if not shared_state.synchronize_device():
-        shared_state.set_device(device)
+    if not shared_state.set_device_from_memory_to_state():
+        shared_state.set_device_to_memory_and_state(device)
     return True
 
 
@@ -120,8 +120,9 @@ def get_if_one_device(myjd_user, myjd_pass):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
+
 
 def get_devices(myjd_user, myjd_pass):
     jd = feedcrawler.external_tools.myjd_api.Myjdapi()
@@ -132,7 +133,7 @@ def get_devices(myjd_user, myjd_pass):
         devices = jd.list_devices()
         return devices
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return []
 
 
@@ -352,7 +353,7 @@ def get_state():
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -447,7 +448,7 @@ def get_info():
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -474,7 +475,7 @@ def set_enabled(enable, linkids, uuid):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -494,7 +495,7 @@ def move_to_downloads(linkids, uuid):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -514,7 +515,7 @@ def reset_in_downloads(linkids, uuid):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -536,7 +537,7 @@ def remove_from_linkgrabber(linkids, uuid):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -556,7 +557,7 @@ def rename_package_in_linkgrabber(package_id, new_name):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -578,7 +579,7 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -654,7 +655,7 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
             db.store(title, 'added')
         return True
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -759,7 +760,7 @@ def retry_decrypt(linkids, uuid, links):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -779,7 +780,7 @@ def jdownloader_update():
         else:
             return False
     except feedcrawler.external_tools.myjd_api.MYJDException as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -799,7 +800,7 @@ def jdownloader_start():
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -819,7 +820,7 @@ def jdownloader_pause(bl):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -839,7 +840,7 @@ def jdownloader_stop():
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
@@ -1040,7 +1041,7 @@ def do_package_merge(title, uuids, linkids):
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return False
 
 
