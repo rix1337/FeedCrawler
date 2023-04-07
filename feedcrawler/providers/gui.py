@@ -4,6 +4,7 @@
 # Dieses Modul stellt eine GUI für den FeedCrawler bereit. Diese setzt die Dependencies PySimpleGUI und psgtray voraus.
 
 import base64
+import ctypes
 import os
 import platform
 import sys
@@ -21,6 +22,8 @@ except ImportError:
 
 if platform.system() == 'Windows':
     font = ('Consolas', 12)
+    myappid = 'feedcrawler'  # arbitrary string
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
 elif platform.system() == 'Linux':
     font = ('Monospace', 12)
 else:
@@ -29,12 +32,17 @@ else:
 title = 'FeedCrawler v.' + get_version()
 
 
-def get_icon():
+def get_icon_path():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
 
     icon_path = base_dir + '/web_interface/vuejs_frontend/dist/favicon.ico'
+    return icon_path
+
+
+def get_icon():
+    icon_path = get_icon_path()
     with open(icon_path, 'rb') as f:
         icon_data = f.read()
     icon_base64 = base64.b64encode(icon_data)
@@ -55,7 +63,8 @@ def create_main_window():
                        layout,
                        finalize=True,
                        enable_close_attempted_event=True,
-                       element_justification='c')
+                       element_justification='c',
+                       icon=get_icon_path())
 
     window.hide()
 
@@ -129,7 +138,7 @@ def no_hostnames_gui(configfile):
         [sg.Button('OK', bind_return_key=True)]
     ]
 
-    window = sg.Window('Warnung', layout, finalize=True, element_justification='c')
+    window = sg.Window('Warnung', layout, finalize=True, element_justification='c', icon=get_icon_path())
     webbrowser.open(configfile)
 
     while True:
@@ -149,7 +158,7 @@ def configpath_gui(current_path):
          sg.FolderBrowse('Anderen Pfad wählen', target='-FOLDER-', initial_folder=current_path)]
     ]
 
-    window = sg.Window('Wo sollen Einstellungen und Logs abgelegt werden?', layout)
+    window = sg.Window('Wo sollen Einstellungen und Logs abgelegt werden?', layout, icon=get_icon_path())
 
     while True:
         event, values = window.read()
@@ -176,7 +185,7 @@ def myjd_credentials_gui():
         [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
     ]
 
-    window = sg.Window('My JDownloader Login', layout, finalize=True, element_justification='c')
+    window = sg.Window('My JDownloader Login', layout, finalize=True, element_justification='c', icon=get_icon_path())
 
     while True:
         event, values = window.read()
@@ -207,7 +216,8 @@ def myjd_credentials_gui():
                         [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
                     ]
                     device_selection = sg.Window('My JDownloader Gerät', layout, finalize=True,
-                                                 element_justification='c')
+                                                 element_justification='c',
+                                                 icon=get_icon_path())
                     while True:
                         event, values = device_selection.read()
 
@@ -255,6 +265,8 @@ class PrintToConsoleAndGui(object):
                 self.stream = stream
 
             def write(self, data):
+                if data != '\n' and data.endswith('\n'):
+                    data = data[:-1]
                 self.stream.write(data)
                 self.stream.flush()
 
