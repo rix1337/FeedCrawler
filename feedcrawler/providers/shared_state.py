@@ -12,7 +12,8 @@ from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 
-shared_device_memory = False
+device_memory = False
+request_dict = False
 configpath = False
 log_level = False
 sites = False
@@ -71,16 +72,21 @@ def set_sites():
     sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
 
 
+def set_request_dict(dict):
+    global request_dict
+    request_dict = dict
+
+
 def set_device_memory(memory):
-    global shared_device_memory
-    shared_device_memory = memory
+    global device_memory
+    device_memory = memory
 
 
 def set_device_from_memory_to_state():
     global device
-    cached_device = shared_device_memory
+    cached_device = device_memory
     if not device and cached_device and cached_device.value:
-        untested_device = pickle.loads(codecs.decode(shared_device_memory.value, "base64"))
+        untested_device = pickle.loads(codecs.decode(device_memory.value, "base64"))
         try:
             test_device = untested_device.toolbar.get_status()
             if test_device:
@@ -95,7 +101,7 @@ def set_device_to_memory_and_state(set_device):
     global device
     if not set_device_from_memory_to_state():
         device = set_device
-        shared_device_memory.value = codecs.encode(pickle.dumps(device), "base64")
+        device_memory.value = codecs.encode(pickle.dumps(device), "base64")
 
 
 def set_logger(set_log_level):

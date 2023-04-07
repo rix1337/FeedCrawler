@@ -83,12 +83,13 @@ def search_pool():
     ]
 
 
-def crawler(shared_print_mem, global_variables, shared_device_mem, remove_cloudflare_time, test_run):
+def crawler(shared_print_mem, global_variables, shared_request_dict, shared_device_mem, remove_cloudflare_time, test_run):
     if gui.enabled and shared_print_mem:
         sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
+    shared_state.set_request_dict(shared_request_dict)
     shared_state.set_device_memory(shared_device_mem)
     shared_state.set_globals(global_variables)
     logger = shared_state.logger
@@ -106,8 +107,7 @@ def crawler(shared_print_mem, global_variables, shared_device_mem, remove_cloudf
         try:
             if not shared_state.device or not is_device(shared_state.device):
                 get_device()
-            FeedDb('cached_requests').reset()
-            FeedDb('cached_requests').cleanup()
+            shared_state.request_dict.clear()
             start_time = time.time()
             check_url(start_time)
             crawltimes.update_store("active", "True")
@@ -202,7 +202,7 @@ def crawler(shared_print_mem, global_variables, shared_device_mem, remove_cloudf
             # Finish feed search and log results
             if current_cloudflare_run:
                 crawltimes.update_store("last_cloudflare_run", current_cloudflare_run * 1000)
-            cached_requests = FeedDb('cached_requests').count()
+            cached_requests = len(shared_state.request_dict)
             request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
             end_time = time.time()
             total_time = end_time - start_time
@@ -234,8 +234,7 @@ def crawler(shared_print_mem, global_variables, shared_device_mem, remove_cloudf
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
-            FeedDb('cached_requests').reset()
-            FeedDb('cached_requests').cleanup()
+            shared_state.request_dict.clear()
 
             myjd_auto_update = feedcrawler.get("myjd_auto_update")
             if myjd_auto_update:
