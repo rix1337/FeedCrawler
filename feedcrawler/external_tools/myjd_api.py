@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt die API von MyJDownloader in Form eines Python-Moduls zur Verfügung.
+# Dieses Modul stellt die API von My JDownloader in Form eines Python-Moduls zur Verfügung.
 #
 # Enthält Code von:
 # https://github.com/mmarquezs/My.Jdownloader-API-Python-Library/
@@ -1148,7 +1148,7 @@ class Myjdapi:
                 encrypted_response = request(api + query, timeout=timeout, output_errors=output_errors)
             except URLError:
                 encrypted_response = request(api + query, timeout=timeout, output_errors=output_errors, verify=False)
-                print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
+                print(u"Die sichere Verbindung zu My JDownloader konnte nicht verifiziert werden.")
         else:
             params_request = []
             if params is not None:
@@ -1195,7 +1195,7 @@ class Myjdapi:
                         timeout=timeout,
                         output_errors=output_errors,
                         verify=False)
-                    print(u"Die sichere Verbindung zu MyJDownloader konnte nicht verifiziert werden.")
+                    print(u"Die sichere Verbindung zu My JDownloader konnte nicht verifiziert werden.")
                 except URLError:
                     return None
         if encrypted_response.status_code == 403:

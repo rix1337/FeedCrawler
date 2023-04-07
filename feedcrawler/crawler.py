@@ -45,12 +45,13 @@ def start_feedcrawler():
     arguments = parser.parse_args()
 
     if gui.enabled:
-        mem_size = 1024 * 1024  # 1 MB
-        shared_print_mem = multiprocessing.Array(ctypes.c_char, mem_size)
+        print_mem_size = 1024 * 1024  # 1 MB should handle very large print statements
+        shared_print_mem = multiprocessing.Array(ctypes.c_char, print_mem_size)
         window = gui.create_main_window()
         sys.stdout = gui.PrintToConsoleAndGui(window)
     else:
         shared_print_mem = False
+        window = False
         sys.stdout = Unbuffered(sys.stdout)
 
     print(u"┌──────────────────────────────────────────────┐")
@@ -103,7 +104,9 @@ def start_feedcrawler():
             time.sleep(10)
         sys.exit(1)
 
-    FeedDb('cached_internals').delete("device")
+    device_mem_size = 8 * 1024  # 0.008 MB is eight times the size of pickled device objects
+    shared_device_mem = multiprocessing.Array(ctypes.c_char, device_mem_size)
+    shared_state.set_device_memory(shared_device_mem)
 
     if not arguments.test_run:
         if not os.path.exists(shared_state.configfile):
@@ -189,8 +192,9 @@ def start_feedcrawler():
 
     global_variables = shared_state.get_globals()
 
-    p = multiprocessing.Process(target=web_server, args=(shared_print_mem, global_variables,))
-    p.start()
+    process_web_server = multiprocessing.Process(target=web_server,
+                                                 args=(shared_print_mem, global_variables, shared_device_mem,))
+    process_web_server.start()
 
     if arguments.delay:
         delay = int(arguments.delay)
@@ -198,27 +202,29 @@ def start_feedcrawler():
         time.sleep(delay)
 
     if not arguments.test_run:
-        c = multiprocessing.Process(target=crawler,
-                                    args=(shared_print_mem, global_variables, arguments.remove_cloudflare_time, False,))
-        c.start()
+        process_crawler = multiprocessing.Process(target=crawler,
+                                                  args=(shared_print_mem, global_variables, shared_device_mem,
+                                                        arguments.remove_cloudflare_time, False,))
+        process_crawler.start()
 
-        w = multiprocessing.Process(target=watch_packages, args=(shared_print_mem, global_variables,))
-        w.start()
+        process_watch_packages = multiprocessing.Process(target=watch_packages,
+                                                         args=(shared_print_mem, global_variables, shared_device_mem,))
+        process_watch_packages.start()
 
         if not arguments.docker and gui.enabled:  # replace true with check if we are a frozen windows exe
             gui.main_gui(window, shared_print_mem)
 
             sys.stdout = sys.__stdout__
-            p.terminate()
-            c.terminate()
-            w.terminate()
+            process_web_server.terminate()
+            process_crawler.terminate()
+            process_watch_packages.terminate()
             sys.exit(0)
 
         else:  # regular console
             def signal_handler(sig, frame):
-                p.terminate()
-                c.terminate()
-                w.terminate()
+                process_web_server.terminate()
+                process_crawler.terminate()
+                process_watch_packages.terminate()
                 sys.exit(0)
 
             signal.signal(signal.SIGINT, signal_handler)
@@ -230,8 +236,8 @@ def start_feedcrawler():
                 while True:
                     time.sleep(1)
     else:
-        crawler(shared_print_mem, global_variables, arguments.remove_cloudflare_time, True)
-        p.terminate()
+        crawler(shared_print_mem, global_variables, shared_device_mem, arguments.remove_cloudflare_time, True)
+        process_web_server.terminate()
         sys.exit(0)
 
 

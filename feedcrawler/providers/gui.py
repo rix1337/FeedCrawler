@@ -17,7 +17,6 @@ try:
 
     enabled = True
 except ImportError:
-    print("GUI-Module sind nicht installiert.")
     enabled = False
 
 if platform.system() == 'Windows':
@@ -64,6 +63,9 @@ def create_main_window():
 
 
 def main_gui(window, shared_mem):
+    if not window:
+        print("GUI-Fenster falsch initialisiert.")
+        window = create_main_window()
     try:
         menu = ['', [title,
                      '---',
@@ -115,7 +117,7 @@ def get_devices(myjd_user, myjd_pass):
         devices = jd.list_devices()
         return devices
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit MyJDownloader: " + str(e))
+        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return []
 
 
@@ -135,7 +137,6 @@ def no_hostnames_gui(configfile):
         if event == sg.WIN_CLOSED:
             break
         window.close()
-
 
 
 def configpath_gui(current_path):
@@ -175,7 +176,7 @@ def myjd_credentials_gui():
         [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
     ]
 
-    window = sg.Window('MyJDownloader Login', layout, finalize=True, element_justification='c')
+    window = sg.Window('My JDownloader Login', layout, finalize=True, element_justification='c')
 
     while True:
         event, values = window.read()
@@ -205,7 +206,7 @@ def myjd_credentials_gui():
                         [sg.Listbox(values=device_list, size=(20, 5), key='device')],
                         [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
                     ]
-                    device_selection = sg.Window('MyJDownloader Gerät', layout, finalize=True,
+                    device_selection = sg.Window('My JDownloader Gerät', layout, finalize=True,
                                                  element_justification='c')
                     while True:
                         event, values = device_selection.read()
