@@ -14,6 +14,49 @@ def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
 
 
+def clean_up(file):
+    conn = sqlite3.connect(file)
+    cursor = conn.cursor()
+
+    keep_tables = [
+        'FeedCrawler',
+        'List_ContentAll_Movies',
+        'List_ContentAll_Movies_Regex',
+        'List_ContentAll_Seasons',
+        'List_ContentShows_Seasons_Regex',
+        'List_ContentShows_Shows',
+        'List_ContentShows_Shows_Regex',
+        'List_CustomDD_Feeds',
+        'List_CustomDJ_Documentaries',
+        'List_CustomDJ_Documentaries_Regex',
+        'Ombi',
+        'Overseerr',
+        'Plex',
+        'cdc',
+        'crawldog',
+        'crawltimes',
+        'episode_remover',
+        'site_status',
+        'flaresolverr',
+        'sponsors_helper',
+        'to_decrypt',
+    ]
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+    table_names = [row[0] for row in cursor.fetchall()]
+
+    tables_to_drop = set(table_names) - set(keep_tables)
+
+    for table in tables_to_drop:
+        cursor.execute(f"DROP TABLE IF EXISTS {table}")
+        print(f"Entferne überflüssige Tabelle '{table}' aus der Datenbank.")
+
+
+    conn.commit()
+    cursor.execute("VACUUM")
+    conn.close()
+
+
 class FeedDb(object):
     def __init__(self, table):
         try:
@@ -37,10 +80,6 @@ class FeedDb(object):
                     shared_state.logger.debug("Zugriff auf FeedCrawler.db nach Wartezeit war erfolgreich.")
             except sqlite3.OperationalError as e:
                 print("Fehler bei Zugriff auf FeedCrawler.db: ", str(e))
-
-    def cleanup(self):
-        self._conn.execute("VACUUM")
-        return
 
     def count(self):
         res = self._conn.execute("SELECT Count() FROM %s" % self._table).fetchone()

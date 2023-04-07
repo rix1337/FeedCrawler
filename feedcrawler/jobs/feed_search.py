@@ -83,7 +83,8 @@ def search_pool():
     ]
 
 
-def crawler(shared_print_mem, global_variables, shared_request_dict, shared_device_mem, remove_cloudflare_time, test_run):
+def crawler(shared_print_mem, global_variables, shared_request_dict, shared_device_mem, remove_cloudflare_time,
+            test_run):
     if gui.enabled and shared_print_mem:
         sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
     else:

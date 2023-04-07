@@ -22,6 +22,7 @@ from feedcrawler.providers.common_functions import Unbuffered, check_ip, configp
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import get_device, get_if_one_device, myjd_input
 from feedcrawler.providers.sqlite_database import FeedDb
+from feedcrawler.providers.sqlite_database import clean_up
 from feedcrawler.web_interface.web_server import web_server
 
 version = "v." + version.get_version()
@@ -158,7 +159,7 @@ def start_feedcrawler():
                         i += 1
                         print(
                             u'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
-                            i, device_name))
+                                i, device_name))
                         time.sleep(60)
                         get_device()
                         success = shared_state.device and shared_state.device.name
@@ -189,6 +190,8 @@ def start_feedcrawler():
 
         shared_state.set_connection_info(local_address, port, prefix, docker)
 
+        clean_up(shared_state.dbfile)
+
         if arguments.keep_cdc:
             print(u"CDC-Tabelle nicht geleert!")
         else:
@@ -215,8 +218,9 @@ def start_feedcrawler():
 
             process_watch_packages = multiprocessing.Process(target=watch_packages,
                                                              args=(
-                                                             shared_print_mem, global_variables, shared_request_dict,
-                                                             shared_device_mem,))
+                                                                 shared_print_mem, global_variables,
+                                                                 shared_request_dict,
+                                                                 shared_device_mem,))
             process_watch_packages.start()
 
             if not arguments.docker and gui.enabled:  # replace true with check if we are a frozen windows exe
