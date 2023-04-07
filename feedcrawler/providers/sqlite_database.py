@@ -14,7 +14,7 @@ def get_first(iterable):
     return iterable and list(iterable[:1]).pop() or None
 
 
-def clean_up(file):
+def remove_redundant_db_tables(file):
     conn = sqlite3.connect(file)
     cursor = conn.cursor()
 

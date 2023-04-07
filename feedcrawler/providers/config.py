@@ -138,7 +138,6 @@ class CrawlerConfig(object):
             self._config.read(self._configfile)
             self._config.has_section(
                 self._section) or self._set_default_config(self._section)
-            self._remove_redundant_sections()
             self.__config__ = self._read_config(self._section)
         except configparser.DuplicateSectionError:
             print(u'Doppelte Sektion in der Konfigurationsdatei.')
@@ -162,20 +161,6 @@ class CrawlerConfig(object):
     def _read_config(self, section):
         return [(key, '', self._config.get(section, key)) for key in self._config.options(section)]
 
-    def _remove_redundant_sections(self):
-        for section in self._config.sections():
-            if section not in self._DEFAULT_CONFIG:
-                self._config.remove_section(section)
-                print(f"Entferne überflüssige Sektion '{section}' aus der Konfigurationsdatei.")
-            else:
-                for option in self._config.options(section):
-                    if option not in [param[0] for param in self._DEFAULT_CONFIG[section]]:
-                        self._config.remove_option(section, option)
-                        print(
-                            f"Entferne überflüssige Option '{option}' der Sektion '{section}' aus der Konfigurationsdatei.")
-        with open(self._configfile, 'w') as configfile:
-            self._config.write(configfile)
-
     def _get_from_config(self, scope, key):
         res = [param[2] for param in scope if param[0] == key]
         if not res:
@@ -195,3 +180,17 @@ class CrawlerConfig(object):
 
     def get_section(self):
         return self._config._sections[self._section]
+
+    def remove_redundant_entries(self):
+        for section in self._config.sections():
+            if section not in self._DEFAULT_CONFIG:
+                self._config.remove_section(section)
+                print(f"Entferne überflüssige Sektion '{section}' aus der Konfigurationsdatei.")
+            else:
+                for option in self._config.options(section):
+                    if option not in [param[0] for param in self._DEFAULT_CONFIG[section]]:
+                        self._config.remove_option(section, option)
+                        print(
+                            f"Entferne überflüssige Option '{option}' der Sektion '{section}' aus der Konfigurationsdatei.")
+        with open(self._configfile, 'w') as configfile:
+            self._config.write(configfile)

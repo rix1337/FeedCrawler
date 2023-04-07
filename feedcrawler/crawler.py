@@ -21,8 +21,7 @@ from feedcrawler.providers import version
 from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import get_device, get_if_one_device, myjd_input
-from feedcrawler.providers.sqlite_database import FeedDb
-from feedcrawler.providers.sqlite_database import clean_up
+from feedcrawler.providers.sqlite_database import FeedDb, remove_redundant_db_tables
 from feedcrawler.web_interface.web_server import web_server
 
 version = "v." + version.get_version()
@@ -190,7 +189,8 @@ def start_feedcrawler():
 
         shared_state.set_connection_info(local_address, port, prefix, docker)
 
-        clean_up(shared_state.dbfile)
+        CrawlerConfig("FeedCrawler").remove_redundant_entries()
+        remove_redundant_db_tables(shared_state.dbfile)
 
         if arguments.keep_cdc:
             print(u"CDC-Tabelle nicht geleert!")
@@ -223,7 +223,7 @@ def start_feedcrawler():
                                                                  shared_device_mem,))
             process_watch_packages.start()
 
-            if not arguments.docker and gui.enabled:  # replace true with check if we are a frozen windows exe
+            if not arguments.docker and gui.enabled:
                 gui.main_gui(window, shared_print_mem)
 
                 sys.stdout = sys.__stdout__
