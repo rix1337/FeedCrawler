@@ -35,7 +35,7 @@ def check_url(start_time):
             db_status.delete(site + "_advanced")
             sponsors_helper_url = get_solver_url("sponsors_helper")
             flaresolverr_url = get_solver_url("flaresolverr")
-            skip_sites = ["SF", "FF", "HW", "WW", ]  # SJ/DJ not listed, because they rarely block scraping attempts
+            skip_sites = ["HW", "WW", ]  # SJ/DJ not listed, because they rarely block scraping attempts
             skip_normal_ip = (sponsors_helper_url or flaresolverr_url) and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True

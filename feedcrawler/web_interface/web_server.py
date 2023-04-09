@@ -789,7 +789,7 @@ def app_container():
                 site_shorthand = check_is_site(site_name)
                 if site_shorthand:
                     cloudflare_shorthands.append(site_shorthand)
-            cloudflare_shorthands = " / ".join(cloudflare_shorthands)
+            cloudflare_shorthands = "/".join(cloudflare_shorthands)
 
             return {
                 "hostnames": {
