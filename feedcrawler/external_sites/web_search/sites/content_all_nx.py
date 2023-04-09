@@ -33,7 +33,7 @@ def nx_search_results(content, resolution, search_term):
                         results.append([title, link])
 
         except:
-            print(u"NX hat die Suche angepasst. Parsen teilweise nicht möglich!")
+            print("NX hat die Suche angepasst. Parsen teilweise nicht möglich!")
             continue
 
     return results

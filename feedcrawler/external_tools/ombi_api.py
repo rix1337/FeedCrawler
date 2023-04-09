@@ -28,7 +28,7 @@ def imdb_movie(imdb_id):
         if imdb_id is None:
             shared_state.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print("[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
@@ -42,7 +42,7 @@ def imdb_show(imdb_id):
         if imdb_id is None:
             shared_state.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print("[Ombi] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
@@ -70,10 +70,10 @@ def ombi_search(first_launch):
         len_shows = len(requested_shows)
         if first_launch:
             shared_state.logger.debug("Erfolgreich mit Ombi verbunden.")
-            print(u"Erfolgreich mit Ombi verbunden.")
+            print("Erfolgreich mit Ombi verbunden.")
     except:
         shared_state.logger.debug("Ombi ist nicht erreichbar!")
-        print(u"Ombi ist nicht erreichbar!")
+        print("Ombi ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
@@ -88,13 +88,13 @@ def ombi_search(first_launch):
                         title = imdb_movie(imdb_id)
                         if title:
                             best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                            print(u"Film: " + title + u" durch Ombi hinzugefügt.")
+                            print("Film: " + title + u" durch Ombi hinzugefügt.")
                             if best_result:
                                 feedcrawler.external_sites.web_search.content_all.download(best_result)
                             if english:
                                 title = r.get('title')
                                 best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                                print(u"Film: " + title + u"durch Ombi hinzugefügt.")
+                                print("Film: " + title + u"durch Ombi hinzugefügt.")
                                 if best_result:
                                     feedcrawler.external_sites.web_search.content_all.download(best_result)
                             db.store('movie_' + str(imdb_id), 'added')
@@ -183,7 +183,7 @@ def ombi_search(first_launch):
                                                     e = "0" + e
                                                 se = s + "E" + e
                                                 db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                        print(u"Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
+                                        print("Serie/Staffel/Episode: " + title + u" durch Ombi hinzugefügt.")
         else:
             print("Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
             shared_state.logger.debug(

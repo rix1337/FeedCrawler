@@ -507,7 +507,7 @@ def configpath(configpath):
         if gui.enabled:
             configpath = gui.configpath_gui(current_path)
         else:
-            print(u"Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+            print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
             configpath = input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(pathfile, "w")

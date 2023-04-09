@@ -101,7 +101,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
 
     if remove_cloudflare_time:
         logger.debug(u"-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
-        print(u"-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
+        print("-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
         FeedDb('crawltimes').delete("last_cloudflare_run")
 
     while True:
@@ -132,7 +132,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
                     if requested_shows:
                         plex_string = plex_string + str(requested_shows) + " Serien"
             except Exception as e:
-                print(u"Fehler bei der Plex-Suche: " + str(e))
+                print("Fehler bei der Plex-Suche: " + str(e))
 
             overseerr_string = ""
             try:
@@ -149,7 +149,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
                     if requested_shows:
                         overseerr_string = overseerr_string + str(requested_shows) + " Serien"
             except Exception as e:
-                print(u"Fehler bei der Overseerr-Suche: " + str(e))
+                print("Fehler bei der Overseerr-Suche: " + str(e))
             ombi_string = ""
 
             try:
@@ -166,7 +166,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
                     if requested_shows:
                         ombi_string = ombi_string + str(requested_shows) + " Serien"
             except Exception as e:
-                print(u"Fehler bei der Ombi-Suche: " + str(e))
+                print("Fehler bei der Ombi-Suche: " + str(e))
 
             # Start feed search
             current_cloudflare_run = False
@@ -197,7 +197,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
                 try:
                     task.periodical_task()
                 except Exception as e:
-                    print(u"Fehler bei der Feed-Suche: " + str(e))
+                    print("Fehler bei der Feed-Suche: " + str(e))
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
 
             # Finish feed search and log results
@@ -230,7 +230,8 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
 
             logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
             logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
-            print(u"-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            print("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
             crawltimes.update_store("end_time", end_time * 1000)
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
@@ -267,7 +268,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_devi
             # Clean exit if test run active
             if test_run:
                 logger.debug(u"-----------test_run beendet!-----------")
-                print(u"-----------test_run beendet!-----------")
+                print("-----------test_run beendet!-----------")
                 return
 
             # Wait until next start

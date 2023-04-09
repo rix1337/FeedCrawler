@@ -31,7 +31,7 @@ def imdb_movie(imdb_id):
         if imdb_id is None:
             shared_state.logger.debug("Ein Film ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Plex] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print("[Plex] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
@@ -44,7 +44,7 @@ def imdb_show(imdb_id):
         if imdb_id is None:
             shared_state.logger.debug("Eine Serie ohne IMDb-ID wurde angefordert.")
         else:
-            print(u"[Plex] - Fehler beim Abruf der IMDb für: " + imdb_id)
+            print("[Plex] - Fehler beim Abruf der IMDb für: " + imdb_id)
         return False
 
 
@@ -55,7 +55,7 @@ def get_imdb_id_from_plex_metadata(element, plex_headers):
     if len(imdb) > 0:
         return imdb[0]
     else:
-        print(u"[Plex] - Metadaten enthalten keine IMDb-ID für: " + element.attrib["title"])
+        print("[Plex] - Metadaten enthalten keine IMDb-ID für: " + element.attrib["title"])
         return None
 
 
@@ -110,7 +110,7 @@ def plex_search(first_launch):
         watchlist_content = get_url_headers(metadata_url, headers=plex_headers)
 
         if not watchlist_content["status_code"] == 200:
-            print(u"[Plex] - Fehler beim Abruf der Plex Watchlist: " + watchlist_content["text"])
+            print("[Plex] - Fehler beim Abruf der Plex Watchlist: " + watchlist_content["text"])
             return [0, 0]
 
         watchlist = ElementTree.fromstring(watchlist_content["text"])
@@ -146,16 +146,16 @@ def plex_search(first_launch):
                             "imdb_id": imdb_id
                         })
                 else:
-                    print(u"[Plex] - Unbekannter Typ: " + element.attrib["type"] + " - " + element.attrib["title"])
+                    print("[Plex] - Unbekannter Typ: " + element.attrib["type"] + " - " + element.attrib["title"])
 
         len_movies = len(requested_movies)
         len_shows = len(requested_shows)
         if first_launch:
             shared_state.logger.debug("Erfolgreich mit Plex verbunden.")
-            print(u"Erfolgreich mit Plex verbunden.")
+            print("Erfolgreich mit Plex verbunden.")
     except:
         shared_state.logger.debug("Plex ist nicht erreichbar!")
-        print(u"Plex ist nicht erreichbar!")
+        print("Plex ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
@@ -168,13 +168,13 @@ def plex_search(first_launch):
                 title = imdb_movie(imdb_id)
                 if title:
                     best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                    print(u"Film: " + title + u" durch Plex hinzugefügt.")
+                    print("Film: " + title + u" durch Plex hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_all.download(best_result)
                     if english:
                         title = r.get('title')
                         best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                        print(u"Film: " + title + u"durch Plex hinzugefügt.")
+                        print("Film: " + title + u"durch Plex hinzugefügt.")
                         if best_result:
                             feedcrawler.external_sites.web_search.content_all.download(best_result)
                     db.store('movie_' + str(imdb_id), 'added')
@@ -192,13 +192,13 @@ def plex_search(first_launch):
                 title = imdb_show(imdb_id)
                 if title:
                     best_result = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
-                    print(u"Serie: " + title + u" durch Plex hinzugefügt.")
+                    print("Serie: " + title + u" durch Plex hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_shows.download(best_result)
                     if english:
                         title = r.get('title')
                         best_result = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
-                        print(u"Serie: " + title + u"durch Plex hinzugefügt.")
+                        print("Serie: " + title + u"durch Plex hinzugefügt.")
                         if best_result:
                             feedcrawler.external_sites.web_search.content_shows.download(best_result)
                     db.store('show_' + str(imdb_id), 'added')

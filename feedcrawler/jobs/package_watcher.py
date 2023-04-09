@@ -278,14 +278,14 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                                                 remove_from_linkgrabber(package['linkids'],
                                                                         [package['uuid']])
                                                 notify_list.append({"text": "[CAPTCHA zu lösen] - " + title[0]})
-                                                print(u"[CAPTCHA zu lösen] - " + title[0])
+                                                print("[CAPTCHA zu lösen] - " + title[0])
                                                 db.delete(title[0])
 
                         if encrypted_packages:
                             for package in encrypted_packages:
                                 if package['zero_byte_files']:
                                     reset_in_downloads(package['zero_byte_files'], [package['uuid']])
-                                    print(u'Falsch als "Fertig" markierte Dateien mit 0 Byte Größe in ' + package[
+                                    print('Falsch als "Fertig" markierte Dateien mit 0 Byte Größe in ' + package[
                                         'name'] + " wurden zurückgesetzt.")
                                     if autostart:
                                         time.sleep(5)
@@ -307,7 +307,7 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                 except KeyboardInterrupt:
                     break
                 if not get_device():
-                    print(u"Scheinbar ist der JDownloader nicht erreichbar.")
+                    print("Scheinbar ist der JDownloader nicht erreichbar.")
         except Exception:
             traceback.print_exc()
             time.sleep(30)

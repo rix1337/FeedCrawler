@@ -54,10 +54,10 @@ def start_feedcrawler():
         window = False
         sys.stdout = Unbuffered(sys.stdout)
 
-    print(u"┌──────────────────────────────────────────────┐")
-    print(u"  FeedCrawler " + version + " von RiX")
-    print(u"  https://github.com/rix1337/FeedCrawler")
-    print(u"└──────────────────────────────────────────────┘")
+    print("┌──────────────────────────────────────────────┐")
+    print("  FeedCrawler " + version + " von RiX")
+    print("  https://github.com/rix1337/FeedCrawler")
+    print("└──────────────────────────────────────────────┘")
 
     if arguments.docker:
         config_path = "/config"
@@ -66,7 +66,7 @@ def start_feedcrawler():
 
     shared_state.set_files(config_path)
 
-    print(u'Nutze das Verzeichnis "' + config_path + u'" für Einstellungen/Logs')
+    print('Nutze das Verzeichnis "' + config_path + '" für Einstellungen/Logs')
 
     log_level = logging.__dict__[
         arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
@@ -83,9 +83,9 @@ def start_feedcrawler():
         if string and re.match(r'.*[A-Z].*', string):
             hostnames.save(host, string.lower())
         if string:
-            print(u'Hostname für ' + host.upper() + ": " + string)
+            print('Hostname für ' + host.upper() + ": " + string)
         else:
-            print(u'Hostname für ' + host.upper() + ': -')
+            print('Hostname für ' + host.upper() + ': -')
         return string
 
     set_hostnames = {}
@@ -100,7 +100,7 @@ def start_feedcrawler():
         if gui.enabled:
             gui.no_hostnames_gui(shared_state.configfile)
         else:
-            print(u'Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
+            print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
             time.sleep(10)
         sys.exit(1)
 
@@ -128,7 +128,7 @@ def start_feedcrawler():
                         if not device_set:
                             one_device = get_if_one_device(user, password)
                             if one_device:
-                                print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
+                                print('Gerätename "' + one_device + '" automatisch ermittelt.')
                                 feedcrawler.save('myjd_device', one_device)
                                 get_device()
                 else:
@@ -148,7 +148,7 @@ def start_feedcrawler():
                     password = feedcrawler.get('myjd_pass')
                     one_device = get_if_one_device(user, password)
                     if one_device:
-                        print(u'Gerätename "' + one_device + '" automatisch ermittelt.')
+                        print('Gerätename "' + one_device + '" automatisch ermittelt.')
                         feedcrawler.save('myjd_device', one_device)
                         get_device()
                         success = shared_state.device and shared_state.device.name
@@ -157,7 +157,7 @@ def start_feedcrawler():
                     while i < 10:
                         i += 1
                         print(
-                            u'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
+                            'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
                                 i, device_name))
                         time.sleep(60)
                         get_device()
@@ -165,9 +165,9 @@ def start_feedcrawler():
                         if success:
                             break
             if success:
-                print(u'Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
+                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
             else:
-                print(u'My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
+                print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
                 sys.exit(1)
 
         feedcrawler = CrawlerConfig('FeedCrawler')
@@ -185,7 +185,7 @@ def start_feedcrawler():
             prefix = ''
         local_address = 'http://' + check_ip() + ':' + str(port) + prefix
         if not arguments.docker:
-            print(u'Der Webserver ist erreichbar unter "' + local_address + u'"')
+            print('Der Webserver ist erreichbar unter "' + local_address + '"')
 
         shared_state.set_connection_info(local_address, port, prefix, docker)
 
@@ -193,7 +193,7 @@ def start_feedcrawler():
         remove_redundant_db_tables(shared_state.dbfile)
 
         if arguments.keep_cdc:
-            print(u"CDC-Tabelle nicht geleert!")
+            print("CDC-Tabelle nicht geleert!")
         else:
             FeedDb('cdc').reset()
 
@@ -206,7 +206,7 @@ def start_feedcrawler():
 
         if arguments.delay:
             delay = int(arguments.delay)
-            print(u"Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
+            print("Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
             time.sleep(delay)
 
         if not arguments.test_run:
@@ -240,7 +240,7 @@ def start_feedcrawler():
                     sys.exit(0)
 
                 signal.signal(signal.SIGINT, signal_handler)
-                print(u'Drücke [Strg] + [C] zum Beenden')
+                print('Drücke [Strg] + [C] zum Beenden')
                 try:
                     while True:
                         signal.pause()

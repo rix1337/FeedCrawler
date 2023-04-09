@@ -260,5 +260,5 @@ def sf_parse_download(self, series_url, title, language_id):
                 "imdb_id": imdb_id
             }
     except:
-        print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+        print("SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False

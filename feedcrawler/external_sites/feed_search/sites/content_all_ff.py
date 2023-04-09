@@ -97,7 +97,7 @@ def ff_get_download_links(self, content, title):
                 download_link = "https://" + self.url + link['href']
                 break
     except:
-        print(u"FF hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        print("FF hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
         return False
 
     return [download_link]

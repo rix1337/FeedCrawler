@@ -89,7 +89,7 @@ def dw_get_download_links(self, content, title):
             content = BeautifulSoup(str(content), "html.parser")
         download_buttons = content.findAll("button", {"class": "show_link"})
     except:
-        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links für " + title + " nicht möglich!")
+        print("DW hat die Detail-Seite angepasst. Parsen von Download-Links für " + title + " nicht möglich!")
         return False
 
     dw = CrawlerConfig('Hostnames').get('dw')
@@ -105,7 +105,7 @@ def dw_get_download_links(self, content, title):
                 hoster = button.nextSibling.img["src"].split("/")[-1].replace(".png", "")
                 download_links.append([link, hoster])
     except:
-        print(u"DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        print("DW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
         pass
 
     return check_download_links(self, download_links)
@@ -167,7 +167,7 @@ def dw_feed_enricher(feed):
                     "imdb_id": imdb_id
                 }))
         except:
-            print(u"DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            print("DW hat den Feed angepasst. Parsen teilweise nicht möglich!")
             continue
 
     feed = {"entries": entries}

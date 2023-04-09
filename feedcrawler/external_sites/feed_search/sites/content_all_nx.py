@@ -138,7 +138,7 @@ def nx_feed_enricher(feed):
                 }))
 
         except:
-            print(u"NX hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            print("NX hat den Feed angepasst. Parsen teilweise nicht möglich!")
             continue
 
     feed = {"entries": entries}

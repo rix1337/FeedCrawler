@@ -42,12 +42,12 @@ def check_url(start_time):
             else:
                 blocked_with_normal_ip = check_if_blocked(site, "https://" + hostname)
             if not blocked_with_normal_ip:
-                print(u"Der Zugriff auf " + site + " funktioniert!")
+                print("Der Zugriff auf " + site + " funktioniert!")
             else:
                 if skip_normal_ip:
-                    print(u"Der Zugriff auf " + site + " ist nur mit FlareSolverr bzw. Sponsors Helper möglich!")
+                    print("Der Zugriff auf " + site + " ist nur mit FlareSolverr bzw. Sponsors Helper möglich!")
                 else:
-                    print(u"Der Zugriff auf " + site + " ist gesperrt!")
+                    print("Der Zugriff auf " + site + " ist gesperrt!")
                 db_status.update_store(site + "_normal", "Blocked")
                 if not sponsors_helper_url and not flaresolverr_url:
                     print(
@@ -57,9 +57,9 @@ def check_url(start_time):
                     # Since we are aware this site is blocked Sponsors Helper/FlareSolverr will be used for subsequent requests
                     still_blocked = check_if_blocked(site, "https://" + hostname)
                     if not still_blocked:
-                        print(u"Die Cloudflare-Blockade auf " + site + " wurde erfolgreich umgangen!")
+                        print("Die Cloudflare-Blockade auf " + site + " wurde erfolgreich umgangen!")
                     else:
-                        print(u"Die Cloudflare-Blockade auf " + site + " konnte nicht umgangen werden!")
+                        print("Die Cloudflare-Blockade auf " + site + " konnte nicht umgangen werden!")
                         db_status.update_store(site + "_advanced", "Blocked")
 
 
@@ -97,7 +97,7 @@ def check_if_blocked(site, url):
             if status is not (200 or 304):
                 return True
         else:
-            print(u"Keine Prüfung für " + site + " implementiert.")
+            print("Keine Prüfung für " + site + " implementiert.")
     except:
         return True
     return False
@@ -109,7 +109,7 @@ def get_url(url):
             response = cached_request(url)["text"]
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + str(url) + " " + str(e))
+            print("Fehler beim Abruf von: " + str(url) + " " + str(e))
             pass
     return ""
 
@@ -120,7 +120,7 @@ def get_url_headers(url, headers=False):
             response = cached_request(url, headers=headers)
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            print("Fehler beim Abruf von: " + url + " " + str(e))
     return ""
 
 
@@ -130,7 +130,7 @@ def get_redirected_url(url):
             redirect_url = cached_request(url, redirect_url=True)["url"]
             return redirect_url
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            print("Fehler beim Abruf von: " + url + " " + str(e))
     return url
 
 
@@ -140,7 +140,7 @@ def post_url(url, data=False):
             response = cached_request(url, method='post', params=data)["text"]
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            print("Fehler beim Abruf von: " + url + " " + str(e))
     return ""
 
 
@@ -150,7 +150,7 @@ def post_url_headers(url, headers, data=False):
             response = cached_request(url, method='post', params=data, headers=headers)
             return response
         except Exception as e:
-            print(u"Fehler beim Abruf von: " + url + " " + str(e))
+            print("Fehler beim Abruf von: " + url + " " + str(e))
     return ""
 
 

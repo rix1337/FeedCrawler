@@ -377,10 +377,10 @@ def download(payload):
             if add_decrypt(title, url, password):
                 if incomplete:
                     db.store(title, 'incomplete')
-                    log_entry = u'[Suche/Serie/Unvollständig] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                    log_entry = '[Suche/Serie/Unvollständig] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 else:
                     db.store(title, 'added')
-                    log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                    log_entry = '[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 shared_state.logger.info(log_entry)
                 notify_array.append({"text": log_entry})
 

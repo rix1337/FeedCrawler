@@ -463,16 +463,16 @@ def app_container():
             if myjd_user and myjd_pass and not myjd_device:
                 myjd_device = get_if_one_device(myjd_user, myjd_pass)
                 if myjd_device:
-                    print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                    print("Gerätename " + myjd_device + " automatisch ermittelt.")
 
             if myjd_user and myjd_pass and myjd_device:
                 device_check = check_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
-                        print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                        print("Gerätename " + myjd_device + " automatisch ermittelt.")
                     else:
-                        print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                        print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return abort(400, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
@@ -710,7 +710,7 @@ def app_container():
             if version.update_check()[0]:
                 updateready = True
                 updateversion = version.update_check()[1]
-                print(u'Update steht bereit (' + updateversion +
+                print('Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
             else:
                 updateready = False
@@ -1746,7 +1746,7 @@ if (title) {
                         notify([{
                             "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"}])
                     except:
-                        print(u"Benachrichtigung konnte nicht versendet werden!")
+                        print("Benachrichtigung konnte nicht versendet werden!")
                     print(
                         u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
@@ -2000,8 +2000,8 @@ def attempt_download(package_name, links, password, ids):
             try:
                 notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
             except:
-                print(u"Benachrichtigung konnte nicht versendet werden!")
-            print(u"[CAPTCHA gelöst] - " + package_name)
+                print("Benachrichtigung konnte nicht versendet werden!")
+            print("[CAPTCHA gelöst] - " + package_name)
             already_added.append([package_name, str(epoch)])
             return "<script type='text/javascript'>" \
                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
@@ -2014,7 +2014,7 @@ def attempt_download(package_name, links, password, ids):
 def start():
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
-        print(u'Update steht bereit (' + updateversion +
+        print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
 
     app_container()

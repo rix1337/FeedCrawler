@@ -146,7 +146,7 @@ def original_language_not_german(imdb_id):
         return False
 
     if not original_language:
-        print(u"[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
+        print("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
 
     return original_language
@@ -177,7 +177,7 @@ def get_episodes(imdb_id):
         pass
 
     if not episodes:
-        print(u"[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
+        print("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
 
     return episodes
@@ -199,7 +199,7 @@ def get_localized_title(imdb_id):
             pass
 
     if not localized_title:
-        print(u"[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
+        print("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
 
     return localized_title
@@ -219,7 +219,7 @@ def get_rating(imdb_id):
         pass
 
     if not rating:
-        print(u"[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
+        print("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
 
     return rating
@@ -239,7 +239,7 @@ def get_votes(imdb_id):
         pass
 
     if not votes:
-        print(u"[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
+        print("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
 
     return votes
@@ -257,7 +257,7 @@ def get_year(imdb_id):
         pass
 
     if not year:
-        print(u"[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
+        print("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
         shared_state.logger.debug("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
 
     return year
