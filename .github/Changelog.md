@@ -6,12 +6,14 @@
 
 ### Changelog FeedCrawler:
 
+- **18.0.2** Die Konsole der Desktop-GUI behält aus Performancegründen nur die letzten 999 ausgegebenen Zeilen.
+- **18.0.1** Der FeedCrawler-Cache (HTTP-Aufrufe eines Suchlaufes) nutzt nun den RAM, anstelle der `FeedCrawler.db` 
 - **18.0.1** Entferne überflüssige Tabellen automatisch aus der `FeedCrawler.db`
 - **18.0.1** Entferne überflüssige Sektionen und Optionen automatisch aus der `FeedCrawler.ini`
 - **18.0.1** Aktive My JDownloader Geräteverbindungen werden nun im RAM, anstelle der `FeedCrawler.db` gespeichert 
 - **18.0.1** Verhindere doppelte Zeilenumbrüche in der Standard-Konsole bei aktiver Desktop-GUI
 - **18.0.1** Setze das Icon aller Fenster der Desktop-GUI auf das FeedCrawler-Logo
-- **18.0.0** Eigene Desktop-GUI, die anstelle der Konsole verwendet werden kann
+- **18.0.0** Eigene [Desktop-GUI](https://github.com/rix1337/FeedCrawler/wiki/7.-Desktop-GUI), die anstelle der Konsole verwendet werden kann
   - Wird automatisch genutzt, wenn `PySimpleGUI` und `psgtray` installiert sind
   - Wird für die Windows-Exe verwendet
   - Bei Erstinstallation werden My JDownloader Zugangsdaten in der GUI abgefragt (inklusive Auswahl des JDownloaders)

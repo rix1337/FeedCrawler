@@ -253,19 +253,33 @@ def myjd_credentials_gui():
 
 
 class PrintToGui(object):
-    def __init__(self, widget):
+    def __init__(self, widget, max_lines=999):
         self.widget = widget
+        self.max_lines = max_lines
+        self.line_count = 0
 
     def write(self, text):
         try:
             output = self.widget.get()
         except:
             output = ''
-        if len(output) > 0:
-            output += '\n'
+
+        # Split text into individual lines
+        lines = text.split('\n')
+
+        # Add each line to the output
+        for line in lines:
+            if len(line) > 0:
+                if self.line_count >= self.max_lines:
+                    # Remove oldest line
+                    output_lines = output.split('\n')
+                    output = '\n'.join(output_lines[1:])
+                else:
+                    self.line_count += 1
+                output += '\n' + line
 
         try:
-            self.widget.update(value=output + text)
+            self.widget.update(value=output)
         except:
             pass
 
