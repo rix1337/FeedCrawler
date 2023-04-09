@@ -12,8 +12,8 @@ from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 
-device_memory = False
-request_dict = False
+request_dict = {}
+device_dict = {}
 configpath = False
 log_level = False
 sites = False
@@ -72,36 +72,39 @@ def set_sites():
     sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
 
 
-def set_request_dict(dict):
+def set_request_dict(manager_dict):
     global request_dict
-    request_dict = dict
+    request_dict = manager_dict
 
 
-def set_device_memory(memory):
-    global device_memory
-    device_memory = memory
+def set_device_dict(manager_dict):
+    global device_dict
+    device_dict = manager_dict
 
 
 def set_device_from_memory_to_state():
     global device
-    cached_device = device_memory
-    if not device and cached_device and cached_device.value:
-        untested_device = pickle.loads(codecs.decode(device_memory.value, "base64"))
-        try:
-            test_device = untested_device.toolbar.get_status()
-            if test_device:
-                device = untested_device
-                return True
-        except (TokenExpiredException, RequestTimeoutException, MYJDException):
-            pass
+    try:
+        if not device and device_dict["device"]:
+            untested_device = pickle.loads(codecs.decode(device_dict["device"], "base64"))
+            try:
+                test_device = untested_device.toolbar.get_status()
+                if test_device:
+                    device = untested_device
+                    return True
+            except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                pass
+    except KeyError:
+        pass
     return False
 
 
 def set_device_to_memory_and_state(set_device):
     global device
+    global device_dict
     if not set_device_from_memory_to_state():
         device = set_device
-        device_memory.value = codecs.encode(pickle.dumps(device), "base64")
+        device_dict["device"] = codecs.encode(pickle.dumps(device), "base64")
 
 
 def set_logger(set_log_level):

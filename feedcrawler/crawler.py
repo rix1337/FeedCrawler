@@ -104,11 +104,8 @@ def start_feedcrawler():
             time.sleep(10)
         sys.exit(1)
 
-    device_mem_size = 8 * 1024  # 0.008 MB is eight times the size of pickled device objects
-    shared_device_mem = multiprocessing.Array(ctypes.c_char, device_mem_size)
-    shared_state.set_device_memory(shared_device_mem)
-
     with multiprocessing.Manager() as manager:
+        shared_state_dict = manager.dict()
         shared_request_dict = manager.dict()
 
         if not arguments.test_run:
@@ -201,7 +198,7 @@ def start_feedcrawler():
 
         process_web_server = multiprocessing.Process(target=web_server,
                                                      args=(shared_print_mem, global_variables, shared_request_dict,
-                                                           shared_device_mem,))
+                                                           shared_state_dict,))
         process_web_server.start()
 
         if arguments.delay:
@@ -212,7 +209,7 @@ def start_feedcrawler():
         if not arguments.test_run:
             process_crawler = multiprocessing.Process(target=crawler,
                                                       args=(shared_print_mem, global_variables, shared_request_dict,
-                                                            shared_device_mem,
+                                                            shared_state_dict,
                                                             arguments.remove_cloudflare_time, False,))
             process_crawler.start()
 
@@ -220,7 +217,7 @@ def start_feedcrawler():
                                                              args=(
                                                                  shared_print_mem, global_variables,
                                                                  shared_request_dict,
-                                                                 shared_device_mem,))
+                                                                 shared_state_dict,))
             process_watch_packages.start()
 
             if not arguments.docker and gui.enabled:
@@ -248,7 +245,7 @@ def start_feedcrawler():
                     while True:
                         time.sleep(1)
         else:
-            crawler(shared_print_mem, global_variables, shared_request_dict, shared_device_mem,
+            crawler(shared_print_mem, global_variables, shared_request_dict, shared_state_dict,
                     arguments.remove_cloudflare_time, True)
             process_web_server.terminate()
             sys.exit(0)
