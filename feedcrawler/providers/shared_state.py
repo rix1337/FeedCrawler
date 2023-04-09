@@ -3,33 +3,30 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt alle globalen Parameter für die verschiedenen parallel laufenden Threads bereit.
 
-import codecs
 import logging
 import os
-import pickle
 import sys
 from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 
-request_dict = {}
-device_dict = {}
-configpath = False
-log_level = False
-sites = False
-device = False
-configfile = False
-dbfile = False
-log_file = False
-log_file_debug = False
-local_address = False
-port = False
-prefix = False
-docker = False
-logger = False
-ww_blocked = False
-sf_blocked = False
-user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'
+values = {}
+configpath = False  # todo move to values
+log_level = False  # todo move to values
+sites = False  # todo move to values
+device = False  # todo move to values
+configfile = False  # todo move to values
+dbfile = False  # todo move to values
+log_file = False  # todo move to values
+log_file_debug = False  # todo move to values
+local_address = False  # todo move to values
+port = False  # todo move to values
+prefix = False  # todo move to values
+docker = False  # todo move to values
+logger = False  # todo move to values
+ww_blocked = False  # todo move to values
+sf_blocked = False  # todo move to values
+user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'  # todo move to values
 
 
 def get_globals():
@@ -49,7 +46,7 @@ def set_globals(global_variables):
     set_files(global_variables["configpath"])
     set_sites()
     set_logger(global_variables["log_level"])
-    set_device_to_memory_and_state(global_variables["device"])
+    set_device_to_values_and_state(global_variables["device"])
     set_connection_info(global_variables["local_address"], global_variables["port"], global_variables["prefix"],
                         global_variables["docker"])
 
@@ -72,21 +69,16 @@ def set_sites():
     sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
 
 
-def set_request_dict(manager_dict):
-    global request_dict
-    request_dict = manager_dict
+def set_shared_dict(manager_dict):
+    global values
+    values = manager_dict
 
 
-def set_device_dict(manager_dict):
-    global device_dict
-    device_dict = manager_dict
-
-
-def set_device_from_memory_to_state():
+def set_device_from_values_to_state():
     global device
     try:
-        if not device and device_dict["device"]:
-            untested_device = pickle.loads(codecs.decode(device_dict["device"], "base64"))
+        if not device and values["device"]:
+            untested_device = values["device"]
             try:
                 test_device = untested_device.toolbar.get_status()
                 if test_device:
@@ -99,12 +91,12 @@ def set_device_from_memory_to_state():
     return False
 
 
-def set_device_to_memory_and_state(set_device):
+def set_device_to_values_and_state(set_device):
     global device
-    global device_dict
-    if not set_device_from_memory_to_state():
+    global values
+    if not set_device_from_values_to_state():
         device = set_device
-        device_dict["device"] = codecs.encode(pickle.dumps(device), "base64")
+        values["device"] = device
 
 
 def set_logger(set_log_level):
@@ -145,3 +137,10 @@ def set_connection_info(set_local_address, set_port, set_prefix, set_docker):
     port = set_port
     prefix = set_prefix
     docker = set_docker
+
+
+def clear_request_cache():
+    global values
+    for key in list(values.keys()):
+        if key.startswith('request_'):
+            values.pop(key)

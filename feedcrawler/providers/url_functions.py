@@ -51,7 +51,7 @@ def check_url(start_time):
                 db_status.update_store(site + "_normal", "Blocked")
                 if not sponsors_helper_url and not flaresolverr_url:
                     print(
-                        u"Der Zugriff auf " + site + " ist ohne FlareSolverr bzw. Sponsors Helper derzeit nicht möglich!")
+                        "Der Zugriff auf " + site + " ist ohne FlareSolverr bzw. Sponsors Helper derzeit nicht möglich!")
                     db_status.update_store(site + "_advanced", "Blocked")
                 else:
                     # Since we are aware this site is blocked Sponsors Helper/FlareSolverr will be used for subsequent requests

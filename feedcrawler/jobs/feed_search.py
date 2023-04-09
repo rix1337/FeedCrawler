@@ -83,15 +83,13 @@ def search_pool():
     ]
 
 
-def crawler(shared_print_mem, global_variables, shared_request_dict, shared_state_dict, remove_cloudflare_time,
-            test_run):
-    if gui.enabled and shared_print_mem:
-        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+def feed_crawler(global_variables, shared_state_dict, remove_cloudflare_time, test_run):
+    if gui.enabled:
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_request_dict(shared_request_dict)
-    shared_state.set_device_dict(shared_state_dict)
+    shared_state.set_shared_dict(shared_state_dict)
     shared_state.set_globals(global_variables)
     logger = shared_state.logger
 
@@ -100,7 +98,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
     feedcrawler = CrawlerConfig('FeedCrawler')
 
     if remove_cloudflare_time:
-        logger.debug(u"-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
+        logger.debug("-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
         print("-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
         FeedDb('crawltimes').delete("last_cloudflare_run")
 
@@ -108,7 +106,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
         try:
             if not shared_state.device or not is_device(shared_state.device):
                 get_device()
-            shared_state.request_dict.clear()
+            shared_state.clear_request_cache()
             start_time = time.time()
             check_url(start_time)
             crawltimes.update_store("active", "True")
@@ -124,7 +122,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
                 requested_shows = plex_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    plex_string = u"Die Plex-Suche lief für: "
+                    plex_string = "Die Plex-Suche lief für: "
                     if requested_movies:
                         plex_string = plex_string + str(requested_movies) + " Filme"
                         if requested_shows:
@@ -141,7 +139,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
                 requested_shows = overseerr_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    overseerr_string = u"Die Overseerr-Suche lief für: "
+                    overseerr_string = "Die Overseerr-Suche lief für: "
                     if requested_movies:
                         overseerr_string = overseerr_string + str(requested_movies) + " Filme"
                         if requested_shows:
@@ -158,7 +156,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
                 requested_shows = ombi_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    ombi_string = u"Die Ombi-Suche lief für: "
+                    ombi_string = "Die Ombi-Suche lief für: "
                     if requested_movies:
                         ombi_string = ombi_string + str(requested_movies) + " Filme"
                         if requested_shows:
@@ -203,8 +201,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
             # Finish feed search and log results
             if current_cloudflare_run:
                 crawltimes.update_store("last_cloudflare_run", current_cloudflare_run * 1000)
-            cached_requests = len(shared_state.request_dict)
-            request_cache_string = u"Der FeedCrawler-Cache hat " + str(cached_requests) + " HTTP-Requests gespart!"
+
             end_time = time.time()
             total_time = end_time - start_time
             interval = int(feedcrawler.get('interval')) * 60
@@ -213,30 +210,38 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
             next_start = end_time + wait
             logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") +
                          " - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!")
+                total_time) + ")!")
             print(time.strftime("%Y-%m-%d %H:%M:%S") +
-                  u" - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
-                total_time) + u")!")
+                  " - Alle Suchläufe ausgeführt (Dauer: " + readable_time(
+                total_time) + ")!")
 
             if plex_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + plex_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + plex_string)
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + plex_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + plex_string)
             if overseerr_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + overseerr_string)
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + overseerr_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + overseerr_string)
             if ombi_string:
-                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
-                print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + ombi_string)
+                logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + ombi_string)
+                print(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + ombi_string)
 
-            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            try:
+                cache_hits = str(shared_state.values["request_cache_hits"])
+                request_cache_string = "Der FeedCrawler-Cache hat " + str(cache_hits) + " HTTP-Requests gespart!"
+            except KeyError:
+                request_cache_string = "Der FeedCrawler-Cache hat keine HTTP-Requests gespart!"
+
+            logger.debug(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + request_cache_string)
             logger.debug("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
-            print(time.strftime("%Y-%m-%d %H:%M:%S") + u" - " + request_cache_string)
+            print(time.strftime("%Y-%m-%d %H:%M:%S") + " - " + request_cache_string)
             print("-----------Wartezeit bis zum nächsten Suchlauf: " + readable_time(wait) + '-----------')
+
             crawltimes.update_store("end_time", end_time * 1000)
             crawltimes.update_store("total_time", readable_time(total_time))
             crawltimes.update_store("next_start", next_start * 1000)
             crawltimes.update_store("active", "False")
-            shared_state.request_dict.clear()
+
+            shared_state.clear_request_cache()
 
             myjd_auto_update = feedcrawler.get("myjd_auto_update")
             if myjd_auto_update:
@@ -267,7 +272,7 @@ def crawler(shared_print_mem, global_variables, shared_request_dict, shared_stat
 
             # Clean exit if test run active
             if test_run:
-                logger.debug(u"-----------test_run beendet!-----------")
+                logger.debug("-----------test_run beendet!-----------")
                 print("-----------test_run beendet!-----------")
                 return
 

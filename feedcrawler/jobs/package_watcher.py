@@ -28,14 +28,13 @@ from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def watch_packages(shared_print_mem, global_variables, shared_request_dict, shared_state_dict):
-    if gui.enabled and shared_print_mem:
-        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+def watch_packages(global_variables, shared_state_dict):
+    if gui.enabled:
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_request_dict(shared_request_dict)
-    shared_state.set_device_dict(shared_state_dict)
+    shared_state.set_shared_dict(shared_state_dict)
     shared_state.set_globals(global_variables)
 
     crawljobs = CrawlerConfig('Crawljobs')
@@ -261,7 +260,7 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                                     for package in offline_packages:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                             notify_list.append({"text": "[Offline] - " + title[0]})
-                                            print((u"[Offline] - " + title[0]))
+                                            print(("[Offline] - " + title[0]))
                                             db.delete(title[0])
 
                                 if encrypted_packages:

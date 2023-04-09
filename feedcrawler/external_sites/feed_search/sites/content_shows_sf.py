@@ -117,7 +117,7 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
 
 def sf_parse_download(self, series_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail):
-        shared_state.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        shared_state.logger.debug(title + " - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):

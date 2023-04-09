@@ -4,7 +4,6 @@
 # Dieses Modul initialisiert die globalen Parameter und starte alle parallel laufenden Threads des FeedCrawlers.
 
 import argparse
-import ctypes
 import logging
 import multiprocessing
 import os
@@ -13,7 +12,7 @@ import signal
 import sys
 import time
 
-from feedcrawler.jobs.feed_search import crawler
+from feedcrawler.jobs.feed_search import feed_crawler
 from feedcrawler.jobs.package_watcher import watch_packages
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
@@ -28,85 +27,82 @@ version = "v." + version.get_version()
 
 
 def start_feedcrawler():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
-    parser.add_argument("--config", help="Legt den Ablageort für Einstellungen und Logs fest")
-    parser.add_argument("--port", help="Legt den Port des Webservers fest")
-    parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
-    parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
-    parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
-    parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
-    parser.add_argument("--keep-cdc", action='store_true',
-                        help="Intern: Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
-    parser.add_argument("--remove_cloudflare_time", action='store_true',
-                        help="Intern: Leere die Zeit des letzten Cloudflare-Umgehungs-Laufes vor dem ersten Suchlauf")
-    parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
-    parser.add_argument("--docker", action='store_true', help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
-    arguments = parser.parse_args()
-
-    if gui.enabled:
-        print_mem_size = 1024 * 1024  # 1 MB should handle very large print statements
-        shared_print_mem = multiprocessing.Array(ctypes.c_char, print_mem_size)
-        window = gui.create_main_window()
-        sys.stdout = gui.PrintToConsoleAndGui(window)
-    else:
-        shared_print_mem = False
-        window = False
-        sys.stdout = Unbuffered(sys.stdout)
-
-    print("┌──────────────────────────────────────────────┐")
-    print("  FeedCrawler " + version + " von RiX")
-    print("  https://github.com/rix1337/FeedCrawler")
-    print("└──────────────────────────────────────────────┘")
-
-    if arguments.docker:
-        config_path = "/config"
-    else:
-        config_path = configpath(arguments.config)
-
-    shared_state.set_files(config_path)
-
-    print('Nutze das Verzeichnis "' + config_path + '" für Einstellungen/Logs')
-
-    log_level = logging.__dict__[
-        arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
-
-    shared_state.set_logger(log_level)
-
-    hostnames = CrawlerConfig('Hostnames')
-
-    def clean_up_hostname(host, string):
-        if string and '/' in string:
-            string = string.replace('https://', '').replace('http://', '')
-            string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
-            hostnames.save(host, string)
-        if string and re.match(r'.*[A-Z].*', string):
-            hostnames.save(host, string.lower())
-        if string:
-            print('Hostname für ' + host.upper() + ": " + string)
-        else:
-            print('Hostname für ' + host.upper() + ': -')
-        return string
-
-    set_hostnames = {}
-    shared_state.set_sites()
-    for name in shared_state.sites:
-        name = name.lower()
-        hostname = clean_up_hostname(name, hostnames.get(name))
-        if hostname:
-            set_hostnames[name] = hostname
-
-    if not arguments.test_run and not set_hostnames:
-        if gui.enabled:
-            gui.no_hostnames_gui(shared_state.configfile)
-        else:
-            print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
-            time.sleep(10)
-        sys.exit(1)
-
     with multiprocessing.Manager() as manager:
         shared_state_dict = manager.dict()
-        shared_request_dict = manager.dict()
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
+        parser.add_argument("--config", help="Legt den Ablageort für Einstellungen und Logs fest")
+        parser.add_argument("--port", help="Legt den Port des Webservers fest")
+        parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
+        parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
+        parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
+        parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
+        parser.add_argument("--keep-cdc", action='store_true',
+                            help="Intern: Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
+        parser.add_argument("--remove_cloudflare_time", action='store_true',
+                            help="Intern: Leere die Zeit des letzten Cloudflare-Umgehungs-Laufes vor dem ersten Suchlauf")
+        parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
+        parser.add_argument("--docker", action='store_true',
+                            help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
+        arguments = parser.parse_args()
+
+        if gui.enabled:
+            window = gui.create_main_window()
+            sys.stdout = gui.PrintToConsoleAndGui(window)
+        else:
+            window = False
+            sys.stdout = Unbuffered(sys.stdout)
+
+        print("┌──────────────────────────────────────────────┐")
+        print("  FeedCrawler " + version + " von RiX")
+        print("  https://github.com/rix1337/FeedCrawler")
+        print("└──────────────────────────────────────────────┘")
+
+        if arguments.docker:
+            config_path = "/config"
+        else:
+            config_path = configpath(arguments.config)
+
+        shared_state.set_files(config_path)
+
+        print('Nutze das Verzeichnis "' + config_path + '" für Einstellungen/Logs')
+
+        log_level = logging.__dict__[
+            arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
+
+        shared_state.set_logger(log_level)
+
+        hostnames = CrawlerConfig('Hostnames')
+
+        def clean_up_hostname(host, string):
+            if string and '/' in string:
+                string = string.replace('https://', '').replace('http://', '')
+                string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
+                hostnames.save(host, string)
+            if string and re.match(r'.*[A-Z].*', string):
+                hostnames.save(host, string.lower())
+            if string:
+                print('Hostname für ' + host.upper() + ": " + string)
+            else:
+                print('Hostname für ' + host.upper() + ': -')
+            return string
+
+        set_hostnames = {}
+        shared_state.set_sites()
+        for name in shared_state.sites:
+            name = name.lower()
+            hostname = clean_up_hostname(name, hostnames.get(name))
+            if hostname:
+                set_hostnames[name] = hostname
+
+        if not arguments.test_run and not set_hostnames:
+            if gui.enabled:
+                gui.no_hostnames_gui(shared_state.configfile)
+            else:
+                print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
+                time.sleep(10)
+            sys.exit(1)
 
         if not arguments.test_run:
             if not os.path.exists(shared_state.configfile):
@@ -196,43 +192,37 @@ def start_feedcrawler():
 
         global_variables = shared_state.get_globals()
 
-        process_web_server = multiprocessing.Process(target=web_server,
-                                                     args=(shared_print_mem, global_variables, shared_request_dict,
-                                                           shared_state_dict,))
+        process_web_server = multiprocessing.Process(target=web_server, args=(global_variables, shared_state_dict,))
         process_web_server.start()
 
         if arguments.delay:
             delay = int(arguments.delay)
-            print("Verzögere den ersten Suchlauf um " + str(delay) + u" Sekunden")
+            print("Verzögere den ersten Suchlauf um " + str(delay) + " Sekunden")
             time.sleep(delay)
 
         if not arguments.test_run:
-            process_crawler = multiprocessing.Process(target=crawler,
-                                                      args=(shared_print_mem, global_variables, shared_request_dict,
-                                                            shared_state_dict,
-                                                            arguments.remove_cloudflare_time, False,))
-            process_crawler.start()
+            process_feed_crawler = multiprocessing.Process(target=feed_crawler,
+                                                           args=(global_variables, shared_state_dict,
+                                                                 arguments.remove_cloudflare_time, False,))
+            process_feed_crawler.start()
 
             process_watch_packages = multiprocessing.Process(target=watch_packages,
-                                                             args=(
-                                                                 shared_print_mem, global_variables,
-                                                                 shared_request_dict,
-                                                                 shared_state_dict,))
+                                                             args=(global_variables, shared_state_dict,))
             process_watch_packages.start()
 
             if not arguments.docker and gui.enabled:
-                gui.main_gui(window, shared_print_mem)
+                gui.main_gui(window, shared_state_dict)
 
                 sys.stdout = sys.__stdout__
                 process_web_server.terminate()
-                process_crawler.terminate()
+                process_feed_crawler.terminate()
                 process_watch_packages.terminate()
                 sys.exit(0)
 
             else:  # regular console
                 def signal_handler(sig, frame):
                     process_web_server.terminate()
-                    process_crawler.terminate()
+                    process_feed_crawler.terminate()
                     process_watch_packages.terminate()
                     sys.exit(0)
 
@@ -245,8 +235,7 @@ def start_feedcrawler():
                     while True:
                         time.sleep(1)
         else:
-            crawler(shared_print_mem, global_variables, shared_request_dict, shared_state_dict,
-                    arguments.remove_cloudflare_time, True)
+            feed_crawler(global_variables, shared_state_dict, arguments.remove_cloudflare_time, True)
             process_web_server.terminate()
             sys.exit(0)
 

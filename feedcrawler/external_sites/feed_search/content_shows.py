@@ -141,7 +141,7 @@ def periodical_task(self):
                 else:
                     feed = False
             except:
-                print(self._SITE + u" hat die Feed-API angepasst. Breche Suche ab!")
+                print(self._SITE + " hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
             if response:
@@ -162,7 +162,7 @@ def periodical_task(self):
                 else:
                     feed = False
             except:
-                print(self._SITE + u" hat die Feed-API angepasst. Breche Suche ab!")
+                print(self._SITE + " hat die Feed-API angepasst. Breche Suche ab!")
                 feed = False
 
         self.day += 1

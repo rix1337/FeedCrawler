@@ -1748,7 +1748,7 @@ if (title) {
                     except:
                         print("Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
+                        "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                            "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
@@ -1988,8 +1988,8 @@ def attempt_download(package_name, links, password, ids):
             for item in already_added:
                 if item[0] == package_name:
                     if int(item[1]) + 5 > epoch:
-                        print(package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                        return abort(500, package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
                     else:
                         already_added.remove(item)
 
@@ -2007,8 +2007,8 @@ def attempt_download(package_name, links, password, ids):
                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                    "[CAPTCHA gelöst] - " + package_name
         except:
-            print(package_name + u" konnte nicht hinzugefügt werden!")
-            return abort(500, package_name + u" konnte nicht hinzugefügt werden!")
+            print(package_name + " konnte nicht hinzugefügt werden!")
+            return abort(500, package_name + " konnte nicht hinzugefügt werden!")
 
 
 def start():
@@ -2020,14 +2020,13 @@ def start():
     app_container()
 
 
-def web_server(shared_print_mem, global_variables, shared_request_dict, shared_state_dict):
-    if gui.enabled and shared_print_mem:
-        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+def web_server(global_variables, shared_state_dict):
+    if gui.enabled:
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_request_dict(shared_request_dict)
-    shared_state.set_device_dict(shared_state_dict)
+    shared_state.set_shared_dict(shared_state_dict)
     shared_state.set_globals(global_variables)
 
     start()

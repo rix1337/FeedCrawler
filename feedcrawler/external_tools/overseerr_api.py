@@ -87,13 +87,13 @@ def overseerr_search(first_launch):
             title = r["title"]
             if title:
                 best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                print("Film: " + title + u" durch Overseerr hinzugefügt.")
+                print("Film: " + title + " durch Overseerr hinzugefügt.")
                 if best_result:
                     feedcrawler.external_sites.web_search.content_all.download(best_result)
                 if english:
                     title = r.get('title')
                     best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                    print("Film: " + title + u"durch Overseerr hinzugefügt.")
+                    print("Film: " + title + "durch Overseerr hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_all.download(best_result)
                 db.store('movie_' + str(item_id), 'added')
@@ -116,6 +116,6 @@ def overseerr_search(first_launch):
                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + season)
                         if feedcrawler.external_sites.web_search.content_shows.download(payload):
                             db.store('show_' + str(item_id) + "_" + str(season), 'added')
-                            print("Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
+                            print("Serie/Staffel/Episode: " + title + " durch Overseerr hinzugefügt.")
 
     return [len_movies, len_shows]

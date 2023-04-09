@@ -82,7 +82,7 @@ def create_main_window():
 
 
 @check_gui_enabled
-def main_gui(window, shared_mem):
+def main_gui(window, shared_state_dict):
     if not window:
         print("GUI-Fenster falsch initialisiert.")
         window = create_main_window()
@@ -100,7 +100,7 @@ def main_gui(window, shared_mem):
         while True:
             event, values = window.read(timeout=500)
 
-            print_from_queue(shared_mem)
+            print_from_queue(shared_state_dict)
 
             if event == tray.key:
                 event = values[event]  # use the System Tray's event as if was from the window
@@ -277,6 +277,8 @@ class PrintToGui(object):
                 else:
                     self.line_count += 1
                 output += '\n' + line
+                if output.startswith('\n'):
+                    output = output[1:]
 
         try:
             self.widget.update(value=output)
@@ -318,18 +320,25 @@ class PrintToConsoleAndGui(object):
 
 
 class AppendToPrintQueue(object):
-    def __init__(self, shared_mem):
-        self.shared_mem = shared_mem
+    def __init__(self, shared_state_dict):
+        self.shared_state_dict = shared_state_dict
+        try:
+            self.shared_state_dict["print_queue"]
+        except KeyError:
+            self.shared_state_dict["print_queue"] = ''
 
     def write(self, s):
-        self.shared_mem.value += s.encode('utf-8')
+        self.shared_state_dict["print_queue"] += s
 
     def flush(self):
-        self.shared_mem.value += b''
+        self.shared_state_dict["print_queue"] += ''
 
 
-def print_from_queue(shared_mem):
-    output = shared_mem.value.decode('utf-8')
-    if len(output) > 0:
-        print(output)
-        shared_mem.value = b''
+def print_from_queue(shared_state_dict):
+    try:
+        output = shared_state_dict["print_queue"]
+        if len(output) > 0:
+            print(output)
+            shared_state_dict["print_queue"] = ''
+    except KeyError:
+        pass

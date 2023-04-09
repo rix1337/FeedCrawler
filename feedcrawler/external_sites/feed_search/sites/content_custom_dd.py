@@ -61,7 +61,7 @@ class DD:
                             links = post.links
                         storage = self.db.retrieve_all(post.title)
                         if not links:
-                            shared_state.logger.debug(u"Release ignoriert - keine Links gefunden")
+                            shared_state.logger.debug("Release ignoriert - keine Links gefunden")
                         elif 'added' in storage:
                             shared_state.logger.debug(post.title + " - Release ignoriert (bereits gefunden)")
                         else:

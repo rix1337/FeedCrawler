@@ -292,7 +292,7 @@ def download(payload):
                 pass
 
         if success:
-            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug("Web-Suche erfolgreich für " + title + " - " + season)
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
@@ -337,7 +337,7 @@ def download(payload):
                     del result_episodes[season]
             except:
                 pass
-            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug("Web-Suche erfolgreich für " + title + " - " + season)
 
     matches = []
 

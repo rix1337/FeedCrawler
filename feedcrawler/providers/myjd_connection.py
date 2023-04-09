@@ -62,14 +62,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not shared_state.set_device_from_memory_to_state():
+            if not shared_state.set_device_from_values_to_state():
                 print("Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not shared_state.set_device_from_memory_to_state():
-            shared_state.set_device_to_memory_and_state(device)
+        if not shared_state.set_device_from_values_to_state():
+            shared_state.set_device_to_values_and_state(device)
         return True
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
@@ -78,14 +78,14 @@ def get_device():
             jd.update_devices()
             device = jd.get_device(myjd_device)
         except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            if not shared_state.set_device_from_memory_to_state():
+            if not shared_state.set_device_from_values_to_state():
                 print("Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
                 return False
             return True
         if not device or not is_device(device):
             return False
-        if not shared_state.set_device_from_memory_to_state():
-            shared_state.set_device_to_memory_and_state(device)
+        if not shared_state.set_device_from_values_to_state():
+            shared_state.set_device_to_values_and_state(device)
         return True
     else:
         return False
@@ -99,12 +99,12 @@ def check_device(myjd_user, myjd_pass, myjd_device):
         jd.update_devices()
         device = jd.get_device(myjd_device)
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        if not shared_state.set_device_from_memory_to_state():
+        if not shared_state.set_device_from_values_to_state():
             print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
             return False
         return True
-    if not shared_state.set_device_from_memory_to_state():
-        shared_state.set_device_to_memory_and_state(device)
+    if not shared_state.set_device_from_values_to_state():
+        shared_state.set_device_to_values_and_state(device)
     return True
 
 
@@ -1084,7 +1084,7 @@ def myjd_input(port, user, password, device):
             if one_device:
                 print("Gerätename " + one_device + " automatisch ermittelt.")
             else:
-                device = input(u"Gerätename:")
+                device = input("Gerätename:")
 
     if not port:
         port = '9090'

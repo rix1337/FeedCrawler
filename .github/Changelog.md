@@ -7,6 +7,7 @@
 ### Changelog FeedCrawler:
 
 - **18.0.2** Die Konsole der Desktop-GUI behält aus Performancegründen nur die letzten 999 ausgegebenen Zeilen.
+- **18.0.2** Nutze ausschließlich manager.dict() um Objekte zwischen Prozessen zu teilen.
 - **18.0.2** SF/FF werden nicht mehr als dauerhaft von Cloudflare blockierte Seiten behandelt.
 - **18.0.1** Der FeedCrawler-Cache (HTTP-Aufrufe eines Suchlaufes) nutzt nun den RAM, anstelle der `FeedCrawler.db` 
 - **18.0.1** Entferne überflüssige Tabellen automatisch aus der `FeedCrawler.db`

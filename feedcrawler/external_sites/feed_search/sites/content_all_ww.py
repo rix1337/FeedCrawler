@@ -120,7 +120,7 @@ def ww_get_download_links(self, content, title):
         if not response or "NinjaFirewall 429" in response:
             if not shared_state.ww_blocked:
                 print(
-                    u"WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
+                    "WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
                 shared_state.ww_blocked = True
             return False
         links = BeautifulSoup(response, "html.parser").findAll("div", {"id": "download-links"})

@@ -168,13 +168,13 @@ def plex_search(first_launch):
                 title = imdb_movie(imdb_id)
                 if title:
                     best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                    print("Film: " + title + u" durch Plex hinzugefügt.")
+                    print("Film: " + title + " durch Plex hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_all.download(best_result)
                     if english:
                         title = r.get('title')
                         best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                        print("Film: " + title + u"durch Plex hinzugefügt.")
+                        print("Film: " + title + "durch Plex hinzugefügt.")
                         if best_result:
                             feedcrawler.external_sites.web_search.content_all.download(best_result)
                     db.store('movie_' + str(imdb_id), 'added')
@@ -192,13 +192,13 @@ def plex_search(first_launch):
                 title = imdb_show(imdb_id)
                 if title:
                     best_result = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
-                    print("Serie: " + title + u" durch Plex hinzugefügt.")
+                    print("Serie: " + title + " durch Plex hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_shows.download(best_result)
                     if english:
                         title = r.get('title')
                         best_result = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
-                        print("Serie: " + title + u"durch Plex hinzugefügt.")
+                        print("Serie: " + title + "durch Plex hinzugefügt.")
                         if best_result:
                             feedcrawler.external_sites.web_search.content_shows.download(best_result)
                     db.store('show_' + str(imdb_id), 'added')
