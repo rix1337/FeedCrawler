@@ -22,14 +22,23 @@ except ImportError:
 
 if platform.system() == 'Windows':
     font = ('Consolas', 12)
-    myappid = 'feedcrawler'  # arbitrary string
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('FeedCrawler')
 elif platform.system() == 'Linux':
     font = ('Monospace', 12)
 else:
     font = ('Monaco', 12)
 
 title = 'FeedCrawler v.' + get_version()
+
+
+def check_gui_enabled(func):
+    def wrapper(*args, **kwargs):
+        if enabled:
+            return func(*args, **kwargs)
+        else:
+            return False
+
+    return wrapper
 
 
 def get_icon_path():
@@ -49,6 +58,7 @@ def get_icon():
     return icon_base64
 
 
+@check_gui_enabled
 def create_main_window():
     sg.theme('dark grey 9')
     sg.set_options(font=font)
@@ -71,6 +81,7 @@ def create_main_window():
     return window
 
 
+@check_gui_enabled
 def main_gui(window, shared_mem):
     if not window:
         print("GUI-Fenster falsch initialisiert.")
@@ -114,6 +125,7 @@ def main_gui(window, shared_mem):
         pass
 
 
+@check_gui_enabled
 def get_devices(myjd_user, myjd_pass):
     import feedcrawler.external_tools.myjd_api
     from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
@@ -126,10 +138,11 @@ def get_devices(myjd_user, myjd_pass):
         devices = jd.list_devices()
         return devices
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return []
 
 
+@check_gui_enabled
 def no_hostnames_gui(configfile):
     # warn user if no hostnames are configured
     sg.theme('dark grey 9')
@@ -148,6 +161,7 @@ def no_hostnames_gui(configfile):
         window.close()
 
 
+@check_gui_enabled
 def configpath_gui(current_path):
     configpath = ''
 
@@ -172,6 +186,7 @@ def configpath_gui(current_path):
     return configpath
 
 
+@check_gui_enabled
 def myjd_credentials_gui():
     user = ''
     password = ''
