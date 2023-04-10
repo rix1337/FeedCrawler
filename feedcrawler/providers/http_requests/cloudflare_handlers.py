@@ -160,7 +160,8 @@ def sponsors_helper_task(solver_url, url):
             pass
 
     if test_solver_url("sponsors_helper", solver_url + "/status"):
-        shared_state.logger.debug("Versuche Cloudflare auf der Seite %s mit Sponsors Helper zu umgehen..." % url)
+        shared_state.logger.debug(
+            "Versuche Cloudflare auf der Seite %s mit Sponsors Helper zu umgehen..." % url)
 
         solver_endpoint = "/cloudflare_cookie/"
         solver_payload = {
@@ -212,7 +213,8 @@ def flaresolverr_task(solver_url, url):
                 cookiejar = cookie_dict_to_cookiejar(last_solution["cookies"])
                 user_agent = last_solution["user_agent"]
                 if cookiejar:
-                    shared_state.logger.debug("Bestehende Cloudflare-Cookies werden für " + url + " verwendet.")
+                    shared_state.logger.debug(
+                        "Bestehende Cloudflare-Cookies werden für " + url + " verwendet.")
                     return cookiejar, user_agent
             else:
                 clean_db("flaresolverr", base_domain)
@@ -220,7 +222,8 @@ def flaresolverr_task(solver_url, url):
             pass
 
     if test_solver_url("flaresolverr", solver_url):
-        shared_state.logger.debug("Versuche Cloudflare auf der Seite %s mit  FlareSolverr zu umgehen..." % url)
+        shared_state.logger.debug(
+            "Versuche Cloudflare auf der Seite %s mit  FlareSolverr zu umgehen..." % url)
 
         solver_endpoint = "/v1"
         solver_payload = {

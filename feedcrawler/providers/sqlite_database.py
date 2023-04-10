@@ -51,7 +51,6 @@ def remove_redundant_db_tables(file):
         cursor.execute(f"DROP TABLE IF EXISTS {table}")
         print(f"Entferne überflüssige Tabelle '{table}' aus der Datenbank.")
 
-
     conn.commit()
     cursor.execute("VACUUM")
     conn.close()
@@ -60,7 +59,7 @@ def remove_redundant_db_tables(file):
 class FeedDb(object):
     def __init__(self, table):
         try:
-            self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=5)
+            self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=5)
             self._table = table
             if not self._conn.execute(
                     "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
@@ -71,7 +70,7 @@ class FeedDb(object):
                 shared_state.logger.debug(
                     "Fehler bei Zugriff auf FeedCrawler.db: " + str(e) + " (neuer Versuch in 5 Sekunden).")
                 time.sleep(5)
-                self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
+                self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=10)
                 self._table = table
                 if not self._conn.execute(
                         "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
@@ -151,7 +150,7 @@ class FeedDb(object):
 
 class ListDb(object):
     def __init__(self, table):
-        self._conn = sqlite3.connect(shared_state.dbfile, check_same_thread=False, timeout=10)
+        self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
                 "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():

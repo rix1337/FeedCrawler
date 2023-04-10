@@ -194,7 +194,7 @@ def fx_feed_enricher(feed):
                     }))
                     i += 1
         except:
-            print(u"FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            print("FX hat den Feed angepasst. Parsen teilweise nicht möglich!")
             continue
 
     feed = {"entries": entries}

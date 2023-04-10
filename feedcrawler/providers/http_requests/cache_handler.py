@@ -3,10 +3,6 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul sorgt durch Caching dafür, dass derselbe Request nur einmal pro Suchlauf an den Server geht.
 
-import codecs
-import hashlib
-import pickle
-import sys
 from functools import wraps
 from urllib.error import URLError
 
@@ -25,32 +21,28 @@ def cache(func):
 
     @wraps(func)
     def cache_returned_values(*args, **kwargs):
-        to_hash = ""
-        dont_cache = False
-        for a in args:
-            to_hash += codecs.encode(pickle.dumps(a), "base64").decode()
-        for k in kwargs:
-            to_hash += codecs.encode(pickle.dumps(k), "base64").decode()
-            to_hash += codecs.encode(pickle.dumps(kwargs[k]), "base64").decode()
-            if k == "dont_cache" and k:
-                dont_cache = True
-        # This hash is based on all arguments of the request
-        hashed = hashlib.sha256(to_hash.encode('ascii', 'ignore')).hexdigest()
+        if "dont_cache" in kwargs and kwargs["dont_cache"]:
+            caching_allowed = False
+        else:
+            caching_allowed = True
+
+        function_arguments_hash = str(hash(str(args) + str(kwargs)))
 
         try:
-            cached = shared_state.request_dict[hashed]
+            cached_response = shared_state.values["request_" + function_arguments_hash]
         except KeyError:
-            cached = None
-        if cached:
-            # Unpack and return the cached result instead of processing the request
-            cached_response = pickle.loads(codecs.decode(cached.encode(), "base64"))
+            cached_response = None
+        if cached_response:
+            try:
+                shared_state.values["request_cache_hits"] += 1
+            except KeyError:
+                shared_state.values["request_cache_hits"] = 1
             return cached_response
         else:
             #
             value = func(*args, **kwargs)
-            if not dont_cache:
-                cached_response = codecs.encode(pickle.dumps(value), "base64").decode()
-                shared_state.request_dict[hashed] = cached_response
+            if caching_allowed:
+                shared_state.values["request_" + function_arguments_hash] = value
             return value
 
     return cache_returned_values
@@ -79,7 +71,7 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     text = ""
     response_headers = {}
 
-    headers['User-Agent'] = shared_state.user_agent
+    headers['User-Agent'] = shared_state.values["user_agent"]
     cookiejar = None
     proxies = {}
     force_ipv4 = False

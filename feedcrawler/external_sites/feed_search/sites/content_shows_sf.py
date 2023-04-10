@@ -117,14 +117,13 @@ def sf_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
 
 def sf_parse_download(self, series_url, title, language_id):
     if not check_valid_release(title, self.retail_only, self.hevc_retail):
-        shared_state.logger.debug(title + u" - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
+        shared_state.logger.debug(title + " - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
         return False
     if self.filename == 'List_ContentAll_Seasons':
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                shared_state.logger.debug(
-                    "%s - Release ignoriert (Staffelpaket)" % title)
+                shared_state.logger.debug("%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
             shared_state.logger.debug(title + " - Release hat falsche Quelle")
@@ -260,5 +259,5 @@ def sf_parse_download(self, series_url, title, language_id):
                 "imdb_id": imdb_id
             }
     except:
-        print(u"SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
+        print("SF hat die Serien-API angepasst. Breche Download-Prüfung ab!")
         return False

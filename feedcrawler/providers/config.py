@@ -131,7 +131,7 @@ class CrawlerConfig(object):
     __config__ = []
 
     def __init__(self, section):
-        self._configfile = shared_state.configfile
+        self._configfile = shared_state.values["configfile"]
         self._section = section
         self._config = configparser.RawConfigParser()
         try:
@@ -140,10 +140,10 @@ class CrawlerConfig(object):
                 self._section) or self._set_default_config(self._section)
             self.__config__ = self._read_config(self._section)
         except configparser.DuplicateSectionError:
-            print(u'Doppelte Sektion in der Konfigurationsdatei.')
+            print('Doppelte Sektion in der Konfigurationsdatei.')
             raise
         except:
-            print(u'Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
+            print('Ein unbekannter Fehler in der Konfigurationsdatei ist aufgetreten.')
             raise
 
     def _set_default_config(self, section):

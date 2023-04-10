@@ -15,7 +15,6 @@ from feedcrawler.providers.common_functions import is_device
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import add_decrypt
-from feedcrawler.providers.myjd_connection import get_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import hoster_check
 from feedcrawler.providers.myjd_connection import jdownloader_start
@@ -24,19 +23,19 @@ from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
 from feedcrawler.providers.myjd_connection import rename_package_in_linkgrabber
 from feedcrawler.providers.myjd_connection import reset_in_downloads
 from feedcrawler.providers.myjd_connection import retry_decrypt
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def watch_packages(shared_print_mem, global_variables, shared_request_dict, shared_device_mem):
-    if gui.enabled and shared_print_mem:
-        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+def watch_packages(shared_state_dict):
+    if gui.enabled:
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_request_dict(shared_request_dict)
-    shared_state.set_device_memory(shared_device_mem)
-    shared_state.set_globals(global_variables)
+    shared_state.set_shared_dict(shared_state_dict)
+    shared_state.set_logger()
 
     crawljobs = CrawlerConfig('Crawljobs')
     autostart = crawljobs.get("autostart")
@@ -46,8 +45,8 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
 
     while True:
         try:
-            if not shared_state.device or not is_device(shared_state.device):
-                get_device()
+            if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                set_device_from_config()
 
             myjd_packages = get_info()
             if myjd_packages:
@@ -261,7 +260,7 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                                     for package in offline_packages:
                                         if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
                                             notify_list.append({"text": "[Offline] - " + title[0]})
-                                            print((u"[Offline] - " + title[0]))
+                                            print(("[Offline] - " + title[0]))
                                             db.delete(title[0])
 
                                 if encrypted_packages:
@@ -278,14 +277,14 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                                                 remove_from_linkgrabber(package['linkids'],
                                                                         [package['uuid']])
                                                 notify_list.append({"text": "[CAPTCHA zu lösen] - " + title[0]})
-                                                print(u"[CAPTCHA zu lösen] - " + title[0])
+                                                print("[CAPTCHA zu lösen] - " + title[0])
                                                 db.delete(title[0])
 
                         if encrypted_packages:
                             for package in encrypted_packages:
                                 if package['zero_byte_files']:
                                     reset_in_downloads(package['zero_byte_files'], [package['uuid']])
-                                    print(u'Falsch als "Fertig" markierte Dateien mit 0 Byte Größe in ' + package[
+                                    print('Falsch als "Fertig" markierte Dateien mit 0 Byte Größe in ' + package[
                                         'name'] + " wurden zurückgesetzt.")
                                     if autostart:
                                         time.sleep(5)
@@ -306,8 +305,8 @@ def watch_packages(shared_print_mem, global_variables, shared_request_dict, shar
                     time.sleep(30)
                 except KeyboardInterrupt:
                     break
-                if not get_device():
-                    print(u"Scheinbar ist der JDownloader nicht erreichbar.")
+                if not set_device_from_config():
+                    print("Scheinbar ist der JDownloader nicht erreichbar.")
         except Exception:
             traceback.print_exc()
             time.sleep(30)

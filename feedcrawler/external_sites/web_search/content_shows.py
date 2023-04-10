@@ -292,7 +292,7 @@ def download(payload):
                 pass
 
         if success:
-            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug("Web-Suche erfolgreich für " + title + " - " + season)
         else:
             for release in releases['items']:
                 name = release['name'].encode('ascii', errors='ignore').decode('utf-8')
@@ -337,7 +337,7 @@ def download(payload):
                     del result_episodes[season]
             except:
                 pass
-            shared_state.logger.debug(u"Web-Suche erfolgreich für " + title + " - " + season)
+            shared_state.logger.debug("Web-Suche erfolgreich für " + title + " - " + season)
 
     matches = []
 
@@ -377,10 +377,10 @@ def download(payload):
             if add_decrypt(title, url, password):
                 if incomplete:
                     db.store(title, 'incomplete')
-                    log_entry = u'[Suche/Serie/Unvollständig] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                    log_entry = '[Suche/Serie/Unvollständig] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 else:
                     db.store(title, 'added')
-                    log_entry = u'[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
+                    log_entry = '[Suche/Serie] - ' + title + ' - [' + site + '] - ' + size + ' - ' + source
                 shared_state.logger.info(log_entry)
                 notify_array.append({"text": log_entry})
 

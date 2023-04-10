@@ -54,7 +54,7 @@ def get_best_result(title):
                 best_payload = payload
 
     if not best_match or not best_payload:
-        shared_state.logger.debug(u'Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
+        shared_state.logger.debug('Kein Treffer für die Suche nach ' + title + '! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:
@@ -63,7 +63,7 @@ def get_best_result(title):
             ListDb(liste).store(title)
         return False
     if not is_retail(best_match, True):
-        shared_state.logger.debug(u'Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
+        shared_state.logger.debug('Kein Retail-Release für die Suche nach ' + title + ' gefunden! Suchliste ergänzt.')
         liste = "List_ContentAll_Movies"
         cont = ListDb(liste).retrieve()
         if not cont:

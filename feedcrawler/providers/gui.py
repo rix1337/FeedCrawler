@@ -22,14 +22,23 @@ except ImportError:
 
 if platform.system() == 'Windows':
     font = ('Consolas', 12)
-    myappid = 'feedcrawler'  # arbitrary string
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(myappid)
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('FeedCrawler')
 elif platform.system() == 'Linux':
     font = ('Monospace', 12)
 else:
     font = ('Monaco', 12)
 
 title = 'FeedCrawler v.' + get_version()
+
+
+def check_gui_enabled(func):
+    def wrapper(*args, **kwargs):
+        if enabled:
+            return func(*args, **kwargs)
+        else:
+            return False
+
+    return wrapper
 
 
 def get_icon_path():
@@ -49,6 +58,7 @@ def get_icon():
     return icon_base64
 
 
+@check_gui_enabled
 def create_main_window():
     sg.theme('dark grey 9')
     sg.set_options(font=font)
@@ -71,7 +81,8 @@ def create_main_window():
     return window
 
 
-def main_gui(window, shared_mem):
+@check_gui_enabled
+def main_gui(window, shared_state_dict):
     if not window:
         print("GUI-Fenster falsch initialisiert.")
         window = create_main_window()
@@ -89,7 +100,7 @@ def main_gui(window, shared_mem):
         while True:
             event, values = window.read(timeout=500)
 
-            print_from_queue(shared_mem)
+            print_from_queue(shared_state_dict)
 
             if event == tray.key:
                 event = values[event]  # use the System Tray's event as if was from the window
@@ -114,6 +125,7 @@ def main_gui(window, shared_mem):
         pass
 
 
+@check_gui_enabled
 def get_devices(myjd_user, myjd_pass):
     import feedcrawler.external_tools.myjd_api
     from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
@@ -126,10 +138,11 @@ def get_devices(myjd_user, myjd_pass):
         devices = jd.list_devices()
         return devices
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print(u"Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
         return []
 
 
+@check_gui_enabled
 def no_hostnames_gui(configfile):
     # warn user if no hostnames are configured
     sg.theme('dark grey 9')
@@ -148,6 +161,7 @@ def no_hostnames_gui(configfile):
         window.close()
 
 
+@check_gui_enabled
 def configpath_gui(current_path):
     configpath = ''
 
@@ -172,6 +186,7 @@ def configpath_gui(current_path):
     return configpath
 
 
+@check_gui_enabled
 def myjd_credentials_gui():
     user = ''
     password = ''
@@ -238,19 +253,35 @@ def myjd_credentials_gui():
 
 
 class PrintToGui(object):
-    def __init__(self, widget):
+    def __init__(self, widget, max_lines=999):
         self.widget = widget
+        self.max_lines = max_lines
+        self.line_count = 0
 
     def write(self, text):
         try:
             output = self.widget.get()
         except:
             output = ''
-        if len(output) > 0:
-            output += '\n'
+
+        # Split text into individual lines
+        lines = text.split('\n')
+
+        # Add each line to the output
+        for line in lines:
+            if len(line) > 0:
+                if self.line_count >= self.max_lines:
+                    # Remove oldest line
+                    output_lines = output.split('\n')
+                    output = '\n'.join(output_lines[1:])
+                else:
+                    self.line_count += 1
+                output += '\n' + line
+                if output.startswith('\n'):
+                    output = output[1:]
 
         try:
-            self.widget.update(value=output + text)
+            self.widget.update(value=output)
         except:
             pass
 
@@ -289,18 +320,25 @@ class PrintToConsoleAndGui(object):
 
 
 class AppendToPrintQueue(object):
-    def __init__(self, shared_mem):
-        self.shared_mem = shared_mem
+    def __init__(self, shared_state_dict):
+        self.shared_state_dict = shared_state_dict
+        try:
+            self.shared_state_dict["print_queue"]
+        except KeyError:
+            self.shared_state_dict["print_queue"] = ''
 
     def write(self, s):
-        self.shared_mem.value += s.encode('utf-8')
+        self.shared_state_dict["print_queue"] += s
 
     def flush(self):
-        self.shared_mem.value += b''
+        self.shared_state_dict["print_queue"] += ''
 
 
-def print_from_queue(shared_mem):
-    output = shared_mem.value.decode('utf-8')
-    if len(output) > 0:
-        print(output)
-        shared_mem.value = b''
+def print_from_queue(shared_state_dict):
+    try:
+        output = shared_state_dict["print_queue"]
+        if len(output) > 0:
+            print(output)
+            shared_state_dict["print_queue"] = ''
+    except KeyError:
+        pass

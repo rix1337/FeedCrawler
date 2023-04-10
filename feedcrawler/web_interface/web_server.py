@@ -47,10 +47,10 @@ from feedcrawler.providers.common_functions import keep_numbers
 from feedcrawler.providers.common_functions import remove_decrypt
 from feedcrawler.providers.common_functions import rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import check_device
+from feedcrawler.providers.myjd_connection import set_device
 from feedcrawler.providers.myjd_connection import do_add_decrypted
 from feedcrawler.providers.myjd_connection import download
-from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.myjd_connection import get_if_one_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
@@ -113,7 +113,7 @@ def app_container():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
-    elif shared_state.docker:
+    elif shared_state.values["docker"]:
         static_location = site.getsitepackages()[0]
         base_dir = static_location + "/feedcrawler"
 
@@ -263,8 +263,8 @@ def app_container():
     def get_log():
         try:
             log = []
-            if os.path.isfile(shared_state.log_file):
-                logfile = open(shared_state.log_file)
+            if os.path.isfile(shared_state.values["log_file"]):
+                logfile = open(shared_state.values["log_file"])
                 i = 0
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
@@ -288,7 +288,7 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def delete_log():
         try:
-            open(shared_state.log_file, 'w').close()
+            open(shared_state.values["log_file"], 'w').close()
             return "Success"
         except:
             return abort(400, "Failed")
@@ -299,14 +299,14 @@ def app_container():
         try:
             entry = decode_base64(b64_entry)
             log = []
-            if os.path.isfile(shared_state.log_file):
-                logfile = open(shared_state.log_file)
+            if os.path.isfile(shared_state.values["log_file"]):
+                logfile = open(shared_state.values["log_file"])
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
                         if entry not in line:
                             log.append(line)
                 log = "".join(reversed(log))
-                with open(shared_state.log_file, 'w') as file:
+                with open(shared_state.values["log_file"], 'w') as file:
                     file.write(log)
             return "Success"
         except:
@@ -463,16 +463,16 @@ def app_container():
             if myjd_user and myjd_pass and not myjd_device:
                 myjd_device = get_if_one_device(myjd_user, myjd_pass)
                 if myjd_device:
-                    print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                    print("Gerätename " + myjd_device + " automatisch ermittelt.")
 
             if myjd_user and myjd_pass and myjd_device:
-                device_check = check_device(myjd_user, myjd_pass, myjd_device)
+                device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
-                        print(u"Gerätename " + myjd_device + " automatisch ermittelt.")
+                        print("Gerätename " + myjd_device + " automatisch ermittelt.")
                     else:
-                        print(u"Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                        print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
                         return abort(400, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
@@ -710,7 +710,7 @@ def app_container():
             if version.update_check()[0]:
                 updateready = True
                 updateversion = version.update_check()[1]
-                print(u'Update steht bereit (' + updateversion +
+                print('Update steht bereit (' + updateversion +
                       ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
             else:
                 updateready = False
@@ -718,7 +718,7 @@ def app_container():
                 "version": {
                     "ver": ver,
                     "update_ready": updateready,
-                    "docker": shared_state.docker,
+                    "docker": shared_state.values["docker"],
                     "helper_active": helper_active
                 }
             }
@@ -789,7 +789,7 @@ def app_container():
                 site_shorthand = check_is_site(site_name)
                 if site_shorthand:
                     cloudflare_shorthands.append(site_shorthand)
-            cloudflare_shorthands = " / ".join(cloudflare_shorthands)
+            cloudflare_shorthands = "/".join(cloudflare_shorthands)
 
             return {
                 "hostnames": {
@@ -952,8 +952,8 @@ def app_container():
                 general_conf = CrawlerConfig('FeedCrawler')
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
@@ -983,8 +983,8 @@ def app_container():
             try:
                 myjd = get_state()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 myjd = get_state()
             if myjd:
@@ -1163,8 +1163,8 @@ def app_container():
             try:
                 started = jdownloader_start()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 started = jdownloader_start()
             if started:
@@ -1181,8 +1181,8 @@ def app_container():
             try:
                 paused = jdownloader_pause(bl)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 paused = jdownloader_pause(bl)
             if paused:
@@ -1198,8 +1198,8 @@ def app_container():
             try:
                 stopped = jdownloader_stop()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
@@ -1215,8 +1215,8 @@ def app_container():
             try:
                 updated = jdownloader_update()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 updated = jdownloader_update()
             if updated:
@@ -1425,7 +1425,7 @@ var checkExist = setInterval(async function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1534,7 +1534,7 @@ const dlExists = setInterval(function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1663,7 +1663,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
 // @grant           window.close
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 
 function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -1746,9 +1746,9 @@ if (title) {
                         notify([{
                             "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"}])
                     except:
-                        print(u"Benachrichtigung konnte nicht versendet werden!")
+                        print("Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        u"[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
+                        "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                            "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
@@ -1860,14 +1860,14 @@ if (title) {
             pass
         return abort(400, "Failed")
 
-    Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
+    Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()
 
 
 def attempt_download(package_name, links, password, ids):
     global already_added
 
     FeedDb('crawldog').store(package_name, 'added')
-    if shared_state.device:
+    if shared_state.values["device"]:
         if ids:
             try:
                 ids = ids.replace("%20", "").split(";")
@@ -1923,8 +1923,8 @@ def attempt_download(package_name, links, password, ids):
             try:
                 packages = get_packages_in_linkgrabber()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 packages = get_packages_in_linkgrabber()
 
@@ -1988,8 +1988,8 @@ def attempt_download(package_name, links, password, ids):
             for item in already_added:
                 if item[0] == package_name:
                     if int(item[1]) + 5 > epoch:
-                        print(package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                        return abort(500, package_name + u" wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
                     else:
                         already_added.remove(item)
 
@@ -2000,34 +2000,33 @@ def attempt_download(package_name, links, password, ids):
             try:
                 notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
             except:
-                print(u"Benachrichtigung konnte nicht versendet werden!")
-            print(u"[CAPTCHA gelöst] - " + package_name)
+                print("Benachrichtigung konnte nicht versendet werden!")
+            print("[CAPTCHA gelöst] - " + package_name)
             already_added.append([package_name, str(epoch)])
             return "<script type='text/javascript'>" \
                    "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                    "[CAPTCHA gelöst] - " + package_name
         except:
-            print(package_name + u" konnte nicht hinzugefügt werden!")
-            return abort(500, package_name + u" konnte nicht hinzugefügt werden!")
+            print(package_name + " konnte nicht hinzugefügt werden!")
+            return abort(500, package_name + " konnte nicht hinzugefügt werden!")
 
 
 def start():
     if version.update_check()[0]:
         updateversion = version.update_check()[1]
-        print(u'Update steht bereit (' + updateversion +
+        print('Update steht bereit (' + updateversion +
               ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
 
     app_container()
 
 
-def web_server(shared_print_mem, global_variables, shared_request_dict, shared_device_mem):
-    if gui.enabled and shared_print_mem:
-        sys.stdout = gui.AppendToPrintQueue(shared_print_mem)
+def web_server(shared_state_dict):
+    if gui.enabled:
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_request_dict(shared_request_dict)
-    shared_state.set_device_memory(shared_device_mem)
-    shared_state.set_globals(global_variables)
+    shared_state.set_shared_dict(shared_state_dict)
+    shared_state.set_logger()
 
     start()

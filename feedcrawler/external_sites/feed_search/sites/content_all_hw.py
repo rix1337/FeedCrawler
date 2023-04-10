@@ -88,7 +88,7 @@ def hw_get_download_links(self, content, title):
             content = BeautifulSoup(str(content), "html.parser")
         download_links = content.findAll("a", href=re.compile('filecrypt'))
     except:
-        print(u"HW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
+        print("HW hat die Detail-Seite angepasst. Parsen von Download-Links nicht möglich!")
         return False
 
     links_string = ""
@@ -141,7 +141,7 @@ def hw_feed_enricher(feed):
                     "imdb_id": imdb_id
                 }))
         except:
-            print(u"HW hat den Feed angepasst. Parsen teilweise nicht möglich!")
+            print("HW hat den Feed angepasst. Parsen teilweise nicht möglich!")
             continue
 
     feed = {"entries": entries}

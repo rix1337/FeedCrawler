@@ -34,7 +34,7 @@ def overseerr_search(first_launch):
         requested_titles_raw = request(url + '/api/v1/request?take=999', headers={'X-Api-Key': api})
         if requested_titles_raw.status_code != 200:
             shared_state.logger.debug("Overseerr API-Key ungültig!")
-            print(u"Overseerr API-Key ungültig!")
+            print("Overseerr API-Key ungültig!")
             return [0, 0]
 
         requested_titles = json.loads(requested_titles_raw.text)
@@ -51,7 +51,7 @@ def overseerr_search(first_launch):
                     if details_raw.status_code != 200:
                         shared_state.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
-                        print(u"Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
+                        print("Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                     else:
                         details = json.loads(details_raw.text)
                         requested_movies.append(details)
@@ -61,7 +61,7 @@ def overseerr_search(first_launch):
                     if details_raw.status_code != 200:
                         shared_state.logger.debug(
                             "Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
-                        print(u"Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
+                        print("Overseerr fehlen die notwendigen Details für tmbbId: " + str(item['media']['tmdbId']))
                     else:
                         details = json.loads(details_raw.text)
                         requested_shows.append(details)
@@ -72,10 +72,10 @@ def overseerr_search(first_launch):
         len_shows = len(requested_shows)
         if first_launch:
             shared_state.logger.debug("Erfolgreich mit Overseerr verbunden.")
-            print(u"Erfolgreich mit Overseerr verbunden.")
+            print("Erfolgreich mit Overseerr verbunden.")
     except:
         shared_state.logger.debug("Overseerr ist nicht erreichbar!")
-        print(u"Overseerr ist nicht erreichbar!")
+        print("Overseerr ist nicht erreichbar!")
         return [0, 0]
 
     if requested_movies:
@@ -87,13 +87,13 @@ def overseerr_search(first_launch):
             title = r["title"]
             if title:
                 best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                print(u"Film: " + title + u" durch Overseerr hinzugefügt.")
+                print("Film: " + title + " durch Overseerr hinzugefügt.")
                 if best_result:
                     feedcrawler.external_sites.web_search.content_all.download(best_result)
                 if english:
                     title = r.get('title')
                     best_result = feedcrawler.external_sites.web_search.content_all.get_best_result(title)
-                    print(u"Film: " + title + u"durch Overseerr hinzugefügt.")
+                    print("Film: " + title + "durch Overseerr hinzugefügt.")
                     if best_result:
                         feedcrawler.external_sites.web_search.content_all.download(best_result)
                 db.store('movie_' + str(item_id), 'added')
@@ -116,6 +116,6 @@ def overseerr_search(first_launch):
                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + season)
                         if feedcrawler.external_sites.web_search.content_shows.download(payload):
                             db.store('show_' + str(item_id) + "_" + str(season), 'added')
-                            print(u"Serie/Staffel/Episode: " + title + u" durch Overseerr hinzugefügt.")
+                            print("Serie/Staffel/Episode: " + title + " durch Overseerr hinzugefügt.")
 
     return [len_movies, len_shows]
