@@ -77,8 +77,7 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
-        shared_state.logger.debug(
-            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+        shared_state.logger.debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
 
     if 'added' in storage or 'notdl' in storage:
         shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
@@ -173,12 +172,11 @@ def periodical_task(self):
             sha = hashlib.sha256(concat.encode(
                 'ascii', 'ignore')).hexdigest()
         else:
-            if self._SITE == "SF" and not shared_state.sf_blocked:
+            if self._SITE == "SF" and not shared_state.values["sf_blocked"]:
                 print("SF hat den Feed-Anruf während der Feed-Suche blockiert.")
-                shared_state.sf_blocked = True
+                shared_state.values["sf_blocked"] = True
             else:
-                shared_state.logger.debug(
-                    "Feed ist leer - breche die Suche für diesen Feed ab!")
+                shared_state.logger.debug("Feed ist leer - breche die Suche für diesen Feed ab!")
 
         if feed:
             for post in feed.entries:
@@ -187,8 +185,7 @@ def periodical_task(self):
                 sha = hashlib.sha256(concat.encode(
                     'ascii', 'ignore')).hexdigest()
                 if sha == self.last_sha:
-                    shared_state.logger.debug(
-                        "Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
+                    shared_state.logger.debug("Feed ab hier bereits gecrawlt (" + post.title + ") - breche  Suche ab!")
                     break
 
                 series_url = post.series_url
@@ -233,8 +230,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            shared_state.logger.debug(
-                                "%s - Englische Releases deaktiviert" % title)
+                            shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
 
                     else:
                         continue
@@ -277,8 +273,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            shared_state.logger.debug(
-                                "%s - Englische Releases deaktiviert" % title)
+                            shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
 
                     else:
                         continue
@@ -312,8 +307,7 @@ def periodical_task(self):
                                             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                         return
                                     if 'added' in storage:
-                                        shared_state.logger.debug(
-                                            title + " - Release ignoriert (bereits gefunden)")
+                                        shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
                                     if package:
@@ -328,8 +322,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                             else:
-                                shared_state.logger.debug(
-                                    "%s - Englische Releases deaktiviert" % title)
+                                shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
 
                         else:
                             match = re.search(self.pattern, title.lower())
@@ -361,8 +354,7 @@ def periodical_task(self):
                                             "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
                                         return
                                     if 'added' in storage:
-                                        shared_state.logger.debug(
-                                            title + " - Release ignoriert (bereits gefunden)")
+                                        shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
                                         continue
                                     package = self.parse_download_method(self, series_url, title, language_id)
                                     if package:
@@ -377,8 +369,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                                 else:
-                                    shared_state.logger.debug(
-                                        "%s - Englische Releases deaktiviert" % title)
+                                    shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
 
     if current_set and sha:
         new_set = settings_hash(self, True)

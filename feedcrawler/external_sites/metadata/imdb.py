@@ -103,8 +103,7 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
                     break
     else:
         print("IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
-        shared_state.logger.debug(
-            "IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
+        shared_state.logger.debug("IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
 
     if not imdb_id:
         shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title.replace("+", " "))

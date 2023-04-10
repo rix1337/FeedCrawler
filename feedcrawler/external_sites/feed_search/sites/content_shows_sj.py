@@ -114,8 +114,7 @@ def sj_parse_download(self, series_url, title, language_id):
         if not self.config.get("seasonpacks"):
             staffelpack = re.search(r"s\d.*(-|\.).*s\d", title.lower())
             if staffelpack:
-                shared_state.logger.debug(
-                    "%s - Release ignoriert (Staffelpaket)" % title)
+                shared_state.logger.debug("%s - Release ignoriert (Staffelpaket)" % title)
                 return False
         if not re.search(self.seasonssource, title.lower()):
             shared_state.logger.debug(title + " - Release hat falsche Quelle")

@@ -15,7 +15,6 @@ from feedcrawler.providers.common_functions import is_device
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import add_decrypt
-from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import hoster_check
 from feedcrawler.providers.myjd_connection import jdownloader_start
@@ -24,18 +23,19 @@ from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
 from feedcrawler.providers.myjd_connection import rename_package_in_linkgrabber
 from feedcrawler.providers.myjd_connection import reset_in_downloads
 from feedcrawler.providers.myjd_connection import retry_decrypt
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
-def watch_packages(global_variables, shared_state_dict):
+def watch_packages(shared_state_dict):
     if gui.enabled:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
     shared_state.set_shared_dict(shared_state_dict)
-    shared_state.set_globals(global_variables)
+    shared_state.set_logger()
 
     crawljobs = CrawlerConfig('Crawljobs')
     autostart = crawljobs.get("autostart")

@@ -131,7 +131,7 @@ class CrawlerConfig(object):
     __config__ = []
 
     def __init__(self, section):
-        self._configfile = shared_state.configfile
+        self._configfile = shared_state.values["configfile"]
         self._section = section
         self._config = configparser.RawConfigParser()
         try:

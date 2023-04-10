@@ -71,7 +71,7 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     text = ""
     response_headers = {}
 
-    headers['User-Agent'] = shared_state.user_agent
+    headers['User-Agent'] = shared_state.values["user_agent"]
     cookiejar = None
     proxies = {}
     force_ipv4 = False

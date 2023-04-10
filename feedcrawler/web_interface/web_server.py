@@ -113,7 +113,7 @@ def app_container():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
-    elif shared_state.docker:
+    elif shared_state.values["docker"]:
         static_location = site.getsitepackages()[0]
         base_dir = static_location + "/feedcrawler"
 
@@ -263,8 +263,8 @@ def app_container():
     def get_log():
         try:
             log = []
-            if os.path.isfile(shared_state.log_file):
-                logfile = open(shared_state.log_file)
+            if os.path.isfile(shared_state.values["log_file"]):
+                logfile = open(shared_state.values["log_file"])
                 i = 0
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
@@ -288,7 +288,7 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def delete_log():
         try:
-            open(shared_state.log_file, 'w').close()
+            open(shared_state.values["log_file"], 'w').close()
             return "Success"
         except:
             return abort(400, "Failed")
@@ -299,14 +299,14 @@ def app_container():
         try:
             entry = decode_base64(b64_entry)
             log = []
-            if os.path.isfile(shared_state.log_file):
-                logfile = open(shared_state.log_file)
+            if os.path.isfile(shared_state.values["log_file"]):
+                logfile = open(shared_state.values["log_file"])
                 for line in reversed(logfile.readlines()):
                     if line and line != "\n":
                         if entry not in line:
                             log.append(line)
                 log = "".join(reversed(log))
-                with open(shared_state.log_file, 'w') as file:
+                with open(shared_state.values["log_file"], 'w') as file:
                     file.write(log)
             return "Success"
         except:
@@ -718,7 +718,7 @@ def app_container():
                 "version": {
                     "ver": ver,
                     "update_ready": updateready,
-                    "docker": shared_state.docker,
+                    "docker": shared_state.values["docker"],
                     "helper_active": helper_active
                 }
             }
@@ -1425,7 +1425,7 @@ var checkExist = setInterval(async function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1534,7 +1534,7 @@ const dlExists = setInterval(function () {
 // ==/UserScript==
 
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
 const sponsorsHoster = '';
 
@@ -1663,7 +1663,7 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
 // @grant           window.close
 // ==/UserScript==
 // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.local_address + """';
+const sponsorsURL = '""" + shared_state.values["local_address"] + """';
 
 function Sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
@@ -1860,7 +1860,7 @@ if (title) {
             pass
         return abort(400, "Failed")
 
-    Server(app, listen='0.0.0.0', port=shared_state.port).serve_forever()
+    Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()
 
 
 def attempt_download(package_name, links, password, ids):
@@ -2020,13 +2020,13 @@ def start():
     app_container()
 
 
-def web_server(global_variables, shared_state_dict):
+def web_server(shared_state_dict):
     if gui.enabled:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
     shared_state.set_shared_dict(shared_state_dict)
-    shared_state.set_globals(global_variables)
+    shared_state.set_logger()
 
     start()

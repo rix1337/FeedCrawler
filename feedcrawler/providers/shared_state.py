@@ -9,60 +9,7 @@ import sys
 from logging import handlers
 
 values = {}
-configpath = False  # todo move to values
-log_level = False  # todo move to values
-sites = False  # todo move to values
-configfile = False  # todo move to values
-dbfile = False  # todo move to values
-log_file = False  # todo move to values
-log_file_debug = False  # todo move to values
-local_address = False  # todo move to values
-port = False  # todo move to values
-prefix = False  # todo move to values
-docker = False  # todo move to values
-logger = False  # todo move to values
-ww_blocked = False  # todo move to values
-sf_blocked = False  # todo move to values
-user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36'  # todo move to values
-
-
-def get_globals():
-    return {
-        "configpath": configpath,
-        "log_level": log_level,
-        "external_sites": sites,
-        "local_address": local_address,
-        "port": port,
-        "prefix": prefix,
-        "docker": docker
-    }
-
-
-def set_globals(global_variables):
-    set_files(global_variables["configpath"])
-    set_sites()
-    set_logger(global_variables["log_level"])
-    set_device(global_variables["device"])
-    set_connection_info(global_variables["local_address"], global_variables["port"], global_variables["prefix"],
-                        global_variables["docker"])
-
-
-def set_files(set_configpath):
-    global configpath
-    global configfile
-    global dbfile
-    global log_file
-    global log_file_debug
-    configpath = set_configpath
-    configfile = os.path.join(configpath, "FeedCrawler.ini")
-    dbfile = os.path.join(configpath, "FeedCrawler.db")
-    log_file = os.path.join(configpath, 'FeedCrawler.log')
-    log_file_debug = os.path.join(configpath, 'FeedCrawler_DEBUG.log')
-
-
-def set_sites():
-    global sites
-    sites = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
+logger = None
 
 
 def set_shared_dict(manager_dict):
@@ -70,49 +17,73 @@ def set_shared_dict(manager_dict):
     values = manager_dict
 
 
+def set_initial_values(test_run, remove_cloudflare_time):
+    global values
+    values["test_run"] = test_run
+    values["remove_cloudflare_time"] = remove_cloudflare_time
+    values["ww_blocked"] = False
+    values["sf_blocked"] = False
+    values["user_agent"] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                           'Chrome/111.0.0.0 Safari/537.36'
+
+
+def set_files(configpath):
+    global values
+    values["configfile"] = os.path.join(configpath, "FeedCrawler.ini")
+    values["dbfile"] = os.path.join(configpath, "FeedCrawler.db")
+    values["log_file"] = os.path.join(configpath, 'FeedCrawler.log')
+    values["log_file_debug"] = os.path.join(configpath, 'FeedCrawler_DEBUG.log')
+
+
+def set_log_level(log_level):
+    global values
+    values["log_level"] = log_level
+
+
+def set_logger():
+    global logger
+
+    log_level = values["log_level"]
+
+    logger = logging.getLogger('feedcrawler')
+    logger.setLevel(log_level)
+
+    console = logging.StreamHandler(stream=sys.stdout)
+    log_format = '%(asctime)s - %(message)s'
+    formatter = logging.Formatter(log_format)
+    console.setLevel(log_level)
+
+    logfile = logging.handlers.RotatingFileHandler(values["log_file"])
+    logfile.setFormatter(formatter)
+    logfile.setLevel(logging.INFO)
+
+    if not len(logger.handlers):
+        logger.addHandler(logfile)
+        logger.addHandler(console)
+
+        if log_level == 10:
+            logfile_debug = logging.handlers.RotatingFileHandler(values["log_file_debug"])
+            logfile_debug.setFormatter(formatter)
+            logfile_debug.setLevel(10)
+            logger.addHandler(logfile_debug)
+
+
+def set_sites():
+    global values
+    values["sites"] = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
+
+
 def set_device(new_device):
     global values
     values["device"] = new_device
 
 
-def set_logger(set_log_level):
-    global log_level
-    global logger
-    log_level = set_log_level
-
-    if log_file and log_file_debug:
-        logger = logging.getLogger('feedcrawler')
-        logger.setLevel(set_log_level)
-
-        console = logging.StreamHandler(stream=sys.stdout)
-        log_format = '%(asctime)s - %(message)s'
-        formatter = logging.Formatter(log_format)
-        console.setLevel(set_log_level)
-
-        logfile = logging.handlers.RotatingFileHandler(log_file)
-        logfile.setFormatter(formatter)
-        logfile.setLevel(logging.INFO)
-
-        if not len(logger.handlers):
-            logger.addHandler(logfile)
-            logger.addHandler(console)
-
-            if set_log_level == 10:
-                logfile_debug = logging.handlers.RotatingFileHandler(log_file_debug)
-                logfile_debug.setFormatter(formatter)
-                logfile_debug.setLevel(10)
-                logger.addHandler(logfile_debug)
-
-
-def set_connection_info(set_local_address, set_port, set_prefix, set_docker):
-    global local_address
-    global port
-    global prefix
-    global docker
-    local_address = set_local_address
-    port = set_port
-    prefix = set_prefix
-    docker = set_docker
+def set_connection_info(local_address, port, prefix, docker):
+    global values
+    values["local_address"] = local_address
+    values["port"] = port
+    values["prefix"] = prefix
+    values["docker"] = docker
 
 
 def clear_request_cache():
@@ -120,3 +91,4 @@ def clear_request_cache():
     for key in list(values.keys()):
         if key.startswith('request_'):
             values.pop(key)
+    values["request_cache_hits"] = 0

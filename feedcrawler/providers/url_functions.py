@@ -17,7 +17,7 @@ def check_url(start_time):
     hostnames = CrawlerConfig('Hostnames')
     db_status = FeedDb('site_status')
 
-    for site in shared_state.sites:
+    for site in shared_state.values["sites"]:
         if site in ["SJ", "DJ", "SF", "FF", "HW", "WW"]:  # all sites know to use cloudflare
             last_cloudflare_run = FeedDb('crawltimes').retrieve("last_cloudflare_run")
             cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))

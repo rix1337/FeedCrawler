@@ -29,6 +29,14 @@ version = "v." + version.get_version()
 def start_feedcrawler():
     with multiprocessing.Manager() as manager:
         shared_state_dict = manager.dict()
+        shared_state.set_shared_dict(shared_state_dict)
+
+        if gui.enabled:
+            window = gui.create_main_window()
+            sys.stdout = gui.PrintToConsoleAndGui(window)
+        else:
+            window = False
+            sys.stdout = Unbuffered(sys.stdout)
 
         parser = argparse.ArgumentParser()
         parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
@@ -47,12 +55,7 @@ def start_feedcrawler():
                             help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
         arguments = parser.parse_args()
 
-        if gui.enabled:
-            window = gui.create_main_window()
-            sys.stdout = gui.PrintToConsoleAndGui(window)
-        else:
-            window = False
-            sys.stdout = Unbuffered(sys.stdout)
+        shared_state.set_initial_values(arguments.test_run, arguments.remove_cloudflare_time)
 
         print("┌──────────────────────────────────────────────┐")
         print("  FeedCrawler " + version + " von RiX")
@@ -71,7 +74,8 @@ def start_feedcrawler():
         log_level = logging.__dict__[
             arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
 
-        shared_state.set_logger(log_level)
+        shared_state.set_log_level(log_level)
+        shared_state.set_logger()
 
         hostnames = CrawlerConfig('Hostnames')
 
@@ -90,22 +94,22 @@ def start_feedcrawler():
 
         set_hostnames = {}
         shared_state.set_sites()
-        for name in shared_state.sites:
+        for name in shared_state.values["sites"]:
             name = name.lower()
             hostname = clean_up_hostname(name, hostnames.get(name))
             if hostname:
                 set_hostnames[name] = hostname
 
-        if not arguments.test_run and not set_hostnames:
+        if not shared_state.values["test_run"] and not set_hostnames:
             if gui.enabled:
-                gui.no_hostnames_gui(shared_state.configfile)
+                gui.no_hostnames_gui(shared_state.values["configfile"])
             else:
                 print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
                 time.sleep(10)
             sys.exit(1)
 
-        if not arguments.test_run:
-            if not os.path.exists(shared_state.configfile):
+        if not shared_state.values["test_run"]:
+            if not os.path.exists(shared_state.values["configfile"]):
                 if arguments.docker:
                     if arguments.jd_user and arguments.jd_pass:
                         myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
@@ -128,7 +132,7 @@ def start_feedcrawler():
                     myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
                                arguments.jd_device)
 
-        if not arguments.test_run:
+        if not shared_state.values["test_run"]:
             if shared_state.values["device"] and shared_state.values["device"].name:
                 success = True
             else:
@@ -158,7 +162,8 @@ def start_feedcrawler():
                         if success:
                             break
             if success:
-                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.values["device"].name + '"')
+                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.values[
+                    "device"].name + '"')
             else:
                 print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
                 sys.exit(1)
@@ -183,16 +188,14 @@ def start_feedcrawler():
         shared_state.set_connection_info(local_address, port, prefix, docker)
 
         CrawlerConfig("FeedCrawler").remove_redundant_entries()
-        remove_redundant_db_tables(shared_state.dbfile)
+        remove_redundant_db_tables(shared_state.values["dbfile"])
 
         if arguments.keep_cdc:
             print("CDC-Tabelle nicht geleert!")
         else:
             FeedDb('cdc').reset()
 
-        global_variables = shared_state.get_globals()
-
-        process_web_server = multiprocessing.Process(target=web_server, args=(global_variables, shared_state_dict,))
+        process_web_server = multiprocessing.Process(target=web_server, args=(shared_state_dict,))
         process_web_server.start()
 
         if arguments.delay:
@@ -200,14 +203,11 @@ def start_feedcrawler():
             print("Verzögere den ersten Suchlauf um " + str(delay) + " Sekunden")
             time.sleep(delay)
 
-        if not arguments.test_run:
-            process_feed_crawler = multiprocessing.Process(target=feed_crawler,
-                                                           args=(global_variables, shared_state_dict,
-                                                                 arguments.remove_cloudflare_time, False,))
+        if not shared_state.values["test_run"]:
+            process_feed_crawler = multiprocessing.Process(target=feed_crawler, args=(shared_state_dict,))
             process_feed_crawler.start()
 
-            process_watch_packages = multiprocessing.Process(target=watch_packages,
-                                                             args=(global_variables, shared_state_dict,))
+            process_watch_packages = multiprocessing.Process(target=watch_packages, args=(shared_state_dict,))
             process_watch_packages.start()
 
             if not arguments.docker and gui.enabled:
@@ -235,7 +235,7 @@ def start_feedcrawler():
                     while True:
                         time.sleep(1)
         else:
-            feed_crawler(global_variables, shared_state_dict, arguments.remove_cloudflare_time, True)
+            feed_crawler(shared_state_dict)
             process_web_server.terminate()
             sys.exit(0)
 

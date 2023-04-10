@@ -530,7 +530,7 @@ def configpath(configpath):
 def site_blocked(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    for check_against in shared_state.sites:
+    for check_against in shared_state.values["sites"]:
         if site and check_against == site and db_status.retrieve(check_against + "_normal"):
             return True
     return False
@@ -539,7 +539,7 @@ def site_blocked(url):
 def site_blocked_with_advanced_methods(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
-    for check_against in shared_state.sites:
+    for check_against in shared_state.values["sites"]:
         if site and check_against == site and db_status.retrieve(check_against + "_advanced"):
             return True
     return False
