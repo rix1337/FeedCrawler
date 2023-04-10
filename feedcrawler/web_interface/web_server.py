@@ -47,10 +47,10 @@ from feedcrawler.providers.common_functions import keep_numbers
 from feedcrawler.providers.common_functions import remove_decrypt
 from feedcrawler.providers.common_functions import rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import check_device
+from feedcrawler.providers.myjd_connection import set_device
 from feedcrawler.providers.myjd_connection import do_add_decrypted
 from feedcrawler.providers.myjd_connection import download
-from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.myjd_connection import get_if_one_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
@@ -466,7 +466,7 @@ def app_container():
                     print("Gerätename " + myjd_device + " automatisch ermittelt.")
 
             if myjd_user and myjd_pass and myjd_device:
-                device_check = check_device(myjd_user, myjd_pass, myjd_device)
+                device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
                     myjd_device = get_if_one_device(myjd_user, myjd_pass)
                     if myjd_device:
@@ -952,8 +952,8 @@ def app_container():
                 general_conf = CrawlerConfig('FeedCrawler')
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
@@ -983,8 +983,8 @@ def app_container():
             try:
                 myjd = get_state()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 myjd = get_state()
             if myjd:
@@ -1163,8 +1163,8 @@ def app_container():
             try:
                 started = jdownloader_start()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 started = jdownloader_start()
             if started:
@@ -1181,8 +1181,8 @@ def app_container():
             try:
                 paused = jdownloader_pause(bl)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 paused = jdownloader_pause(bl)
             if paused:
@@ -1198,8 +1198,8 @@ def app_container():
             try:
                 stopped = jdownloader_stop()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
@@ -1215,8 +1215,8 @@ def app_container():
             try:
                 updated = jdownloader_update()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 updated = jdownloader_update()
             if updated:
@@ -1867,7 +1867,7 @@ def attempt_download(package_name, links, password, ids):
     global already_added
 
     FeedDb('crawldog').store(package_name, 'added')
-    if shared_state.device:
+    if shared_state.values["device"]:
         if ids:
             try:
                 ids = ids.replace("%20", "").split(";")
@@ -1923,8 +1923,8 @@ def attempt_download(package_name, links, password, ids):
             try:
                 packages = get_packages_in_linkgrabber()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                get_device()
-                if not shared_state.device or not is_device(shared_state.device):
+                set_device_from_config()
+                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
                     return abort(500, "Failed")
                 packages = get_packages_in_linkgrabber()
 

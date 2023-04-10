@@ -28,7 +28,7 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered, is_device, readable_time
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
-from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import jdownloader_update
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -104,8 +104,8 @@ def feed_crawler(global_variables, shared_state_dict, remove_cloudflare_time, te
 
     while True:
         try:
-            if not shared_state.device or not is_device(shared_state.device):
-                get_device()
+            if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                set_device_from_config()
             shared_state.clear_request_cache()
             start_time = time.time()
             check_url(start_time)
@@ -260,13 +260,13 @@ def feed_crawler(global_variables, shared_state_dict, remove_cloudflare_time, te
                         "JDownloader Update steht bereit, aber JDownloader ist aktiv.\nFühre das Update nicht automatisch durch.")
             hide_donation_banner = CrawlerConfig('SponsorsHelper').get('hide_donation_banner')
             if hide_donation_banner:
-                current_donation_banner_setting = shared_state.device.config.get(
+                current_donation_banner_setting = shared_state.values["device"].config.get(
                     'org.jdownloader.settings.GraphicalUserInterfaceSettings',
                     'null',
                     'DonateButtonState')
                 if current_donation_banner_setting != "CUSTOM_HIDDEN":
                     print("Blende das Spenden-Banner im JDownloader aus.")
-                    shared_state.device.config.set('org.jdownloader.settings.GraphicalUserInterfaceSettings',
+                    shared_state.values["device"].config.set('org.jdownloader.settings.GraphicalUserInterfaceSettings',
                                                    'null',
                                                    'DonateButtonState', "CUSTOM_HIDDEN")
 

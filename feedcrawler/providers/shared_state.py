@@ -8,13 +8,10 @@ import os
 import sys
 from logging import handlers
 
-from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-
 values = {}
 configpath = False  # todo move to values
 log_level = False  # todo move to values
 sites = False  # todo move to values
-device = False  # todo move to values
 configfile = False  # todo move to values
 dbfile = False  # todo move to values
 log_file = False  # todo move to values
@@ -34,7 +31,6 @@ def get_globals():
         "configpath": configpath,
         "log_level": log_level,
         "external_sites": sites,
-        "device": device,
         "local_address": local_address,
         "port": port,
         "prefix": prefix,
@@ -46,7 +42,7 @@ def set_globals(global_variables):
     set_files(global_variables["configpath"])
     set_sites()
     set_logger(global_variables["log_level"])
-    set_device_to_values_and_state(global_variables["device"])
+    set_device(global_variables["device"])
     set_connection_info(global_variables["local_address"], global_variables["port"], global_variables["prefix"],
                         global_variables["docker"])
 
@@ -74,29 +70,9 @@ def set_shared_dict(manager_dict):
     values = manager_dict
 
 
-def set_device_from_values_to_state():
-    global device
-    try:
-        if not device and values["device"]:
-            untested_device = values["device"]
-            try:
-                test_device = untested_device.toolbar.get_status()
-                if test_device:
-                    device = untested_device
-                    return True
-            except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                pass
-    except KeyError:
-        pass
-    return False
-
-
-def set_device_to_values_and_state(set_device):
-    global device
+def set_device(new_device):
     global values
-    if not set_device_from_values_to_state():
-        device = set_device
-        values["device"] = device
+    values["device"] = new_device
 
 
 def set_logger(set_log_level):

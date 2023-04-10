@@ -19,7 +19,7 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers import version
 from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import get_device, get_if_one_device, myjd_input
+from feedcrawler.providers.myjd_connection import set_device_from_config, get_if_one_device, myjd_input
 from feedcrawler.providers.sqlite_database import FeedDb, remove_redundant_db_tables
 from feedcrawler.web_interface.web_server import web_server
 
@@ -116,20 +116,20 @@ def start_feedcrawler():
                 user = feedcrawler.get('myjd_user')
                 password = feedcrawler.get('myjd_pass')
                 if user and password:
-                    if not get_device():
+                    if not set_device_from_config():
                         device_set = feedcrawler.get('myjd_device')
                         if not device_set:
                             one_device = get_if_one_device(user, password)
                             if one_device:
                                 print('Gerätename "' + one_device + '" automatisch ermittelt.')
                                 feedcrawler.save('myjd_device', one_device)
-                                get_device()
+                                set_device_from_config()
                 else:
                     myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
                                arguments.jd_device)
 
         if not arguments.test_run:
-            if shared_state.device and shared_state.device.name:
+            if shared_state.values["device"] and shared_state.values["device"].name:
                 success = True
             else:
                 success = False
@@ -143,8 +143,8 @@ def start_feedcrawler():
                     if one_device:
                         print('Gerätename "' + one_device + '" automatisch ermittelt.')
                         feedcrawler.save('myjd_device', one_device)
-                        get_device()
-                        success = shared_state.device and shared_state.device.name
+                        set_device_from_config()
+                        success = shared_state.values["device"] and shared_state.values["device"].name
                 if not success:
                     i = 0
                     while i < 10:
@@ -153,12 +153,12 @@ def start_feedcrawler():
                             'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
                                 i, device_name))
                         time.sleep(60)
-                        get_device()
-                        success = shared_state.device and shared_state.device.name
+                        set_device_from_config()
+                        success = shared_state.values["device"] and shared_state.values["device"].name
                         if success:
                             break
             if success:
-                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.device.name + '"')
+                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.values["device"].name + '"')
             else:
                 print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
                 sys.exit(1)

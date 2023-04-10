@@ -15,7 +15,7 @@ from feedcrawler.providers.common_functions import is_device
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import add_decrypt
-from feedcrawler.providers.myjd_connection import get_device
+from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import hoster_check
 from feedcrawler.providers.myjd_connection import jdownloader_start
@@ -45,8 +45,8 @@ def watch_packages(global_variables, shared_state_dict):
 
     while True:
         try:
-            if not shared_state.device or not is_device(shared_state.device):
-                get_device()
+            if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                set_device_from_config()
 
             myjd_packages = get_info()
             if myjd_packages:
@@ -305,7 +305,7 @@ def watch_packages(global_variables, shared_state_dict):
                     time.sleep(30)
                 except KeyboardInterrupt:
                     break
-                if not get_device():
+                if not set_device_from_config():
                     print("Scheinbar ist der JDownloader nicht erreichbar.")
         except Exception:
             traceback.print_exc()
