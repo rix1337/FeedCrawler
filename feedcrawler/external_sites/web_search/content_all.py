@@ -33,10 +33,10 @@ from feedcrawler.providers.sqlite_database import ListDb, FeedDb
 from feedcrawler.providers.url_functions import get_redirected_url, get_url, get_urls_async, post_url
 
 
-def get_best_result(title, only_content_movies=True):
+def get_best_result(title):
     title = keep_alphanumeric_with_special_characters(title)
     try:
-        bl_results = search_web(title, only_content_movies)[0]
+        bl_results = search_web(title, only_content_movies=True)[0]
     except:
         return False
 

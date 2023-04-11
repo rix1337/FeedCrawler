@@ -28,6 +28,7 @@ from feedcrawler.providers.url_functions import get_url, get_redirected_url
 def get_best_result(title):
     try:
         results = search_web(title, only_content_shows=True)
+        shared_state.logger.info('Folgende ' + results + ' gibt es!')
         sj_results = results[1]
         sf_results = results[2]
     except:
