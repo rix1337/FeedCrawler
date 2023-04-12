@@ -912,8 +912,10 @@ def app_container():
     @app.post(prefix + "/api/download_show/<title>")
     @auth_basic(is_authenticated_user)
     def download_show(title):
+        shared_state.logger.debug('download_show ' + title + ' gibt es!')
         try:
-            payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title, only_content_movies=False)
+            payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
+            shared_state.logger.debug('payload ' + payload + ' gibt es!')
             if payload:
                 matches = feedcrawler.external_sites.web_search.content_shows.download(payload)
                 if matches:

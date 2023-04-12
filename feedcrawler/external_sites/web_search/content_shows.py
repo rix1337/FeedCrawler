@@ -27,11 +27,13 @@ from feedcrawler.providers.url_functions import get_url, get_redirected_url
 
 def get_best_result(title):
     try:
+        shared_state.logger.debug('get_best_result ' + title + ' gibt es!')
         results = search_web(title, only_content_shows=True)
-        shared_state.logger.info('Folgende ' + results + ' gibt es!')
+        shared_state.logger.debug('results ' + results + ' gibt es!')
         sj_results = results[1]
         sf_results = results[2]
     except:
+        shared_state.logger.debug('Try got catched ' + results + ' gibt es!')
         return False
 
     preferred_results = []
