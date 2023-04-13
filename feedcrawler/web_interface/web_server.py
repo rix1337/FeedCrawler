@@ -906,21 +906,23 @@ def app_container():
                 matches = feedcrawler.external_sites.web_search.content_all.download(payload)
                 return "Success: " + str(matches)
         except:
+            shared_state.logger.exception("An exception was thrown!")
             pass
         return abort(400, "Failed")
 
     @app.post(prefix + "/api/download_show/<title>")
     @auth_basic(is_authenticated_user)
     def download_show(title):
-        shared_state.logger.debug('download_show ' + title + ' gibt es!')
+        shared_state.logger.debug(f'Recieved API-Request for: {title}')
         try:
             payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
-            shared_state.logger.debug('payload ' + payload + ' gibt es!')
+            shared_state.logger.debug(f'Found payload is: {payload}')
             if payload:
                 matches = feedcrawler.external_sites.web_search.content_shows.download(payload)
                 if matches:
                     return "Success: " + str(matches)
         except:
+            shared_state.logger.exception("An exception was thrown!")
             pass
         return abort(400, "Failed")
 
