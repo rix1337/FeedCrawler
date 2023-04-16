@@ -11,7 +11,6 @@ import socket
 import sys
 from urllib.parse import urlparse
 
-from feedcrawler.external_tools import myjd_api
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
@@ -156,7 +155,7 @@ def check_valid_release(title, retail_only, hevc_retail):
                                 if ep == int(episode_in_title):
                                     results = results + [result]
             except:
-                print("Fehler in Episodenerkennung. Bitte Issue auf Github öffnen: " + title)
+                print("Fehler in Folgen-Erkennung. Bitte Issue auf Github öffnen: " + title)
 
             season_search_title = search_title.replace(title_with_episodes[0], "") + "."
             season_results = db.retrieve_all_beginning_with(season_search_title)
@@ -335,10 +334,6 @@ def get_to_decrypt():
             return False
     except:
         return False
-
-
-def is_device(device):
-    return isinstance(device, (type, myjd_api.Jddevice))
 
 
 def is_hevc(key):
@@ -552,7 +547,7 @@ def simplified_search_term_in_title(search_term, release_title, no_numbers=False
         match_regex = r'[^a-zA-Z0-9\s\-\.]'
 
     def unify(string):
-        return string.lower().replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace(
+        return string.lower().replace(" (", "(").replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace(
             "ü", "ue").replace(". ", " ").replace("+", ".").replace(" ", ".").replace("-.", "").strip()
 
     search_term = re.sub(match_regex, '', unify(search_term))

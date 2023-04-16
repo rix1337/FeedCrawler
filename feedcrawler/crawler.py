@@ -88,8 +88,6 @@ def start_feedcrawler():
                 hostnames.save(host, string.lower())
             if string:
                 print('Hostname für ' + host.upper() + ": " + string)
-            else:
-                print('Hostname für ' + host.upper() + ': -')
             return string
 
         set_hostnames = {}
@@ -133,7 +131,7 @@ def start_feedcrawler():
                                arguments.jd_device)
 
         if not shared_state.values["test_run"]:
-            if shared_state.values["device"] and shared_state.values["device"].name:
+            if shared_state.get_device() and shared_state.get_device().name:
                 success = True
             else:
                 success = False
@@ -148,7 +146,7 @@ def start_feedcrawler():
                         print('Gerätename "' + one_device + '" automatisch ermittelt.')
                         feedcrawler.save('myjd_device', one_device)
                         set_device_from_config()
-                        success = shared_state.values["device"] and shared_state.values["device"].name
+                        success = shared_state.get_device() and shared_state.get_device().name
                 if not success:
                     i = 0
                     while i < 10:
@@ -158,12 +156,11 @@ def start_feedcrawler():
                                 i, device_name))
                         time.sleep(60)
                         set_device_from_config()
-                        success = shared_state.values["device"] and shared_state.values["device"].name
+                        success = shared_state.get_device() and shared_state.get_device().name
                         if success:
                             break
             if success:
-                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.values[
-                    "device"].name + '"')
+                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.get_device().name + '"')
             else:
                 print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
                 sys.exit(1)

@@ -27,10 +27,13 @@ from feedcrawler.providers.url_functions import get_url, get_redirected_url
 
 def get_best_result(title):
     try:
+        shared_state.logger.debug(f'Pushed search for: {title}')
         results = search_web(title, only_content_shows=True)
         sj_results = results[1]
         sf_results = results[2]
-    except:
+        shared_state.logger.debug(f'Got result for: {str(results)}')
+    except Exception as e:
+        shared_state.logger.debug("An exception was thrown: " + str(e))
         return False
 
     preferred_results = []
@@ -46,17 +49,17 @@ def get_best_result(title):
     best_payload = False
     for result in preferred_results:
         payload = result['payload']
-        result = result['title']
+        res_tit = result['title']
 
         len_search_term = len(title)
-        len_result = len(result)
+        len_result = len(res_tit)
 
         difference = abs(len_search_term - len_result)
 
-        if simplified_search_term_in_title(title, result):
+        if simplified_search_term_in_title(title, res_tit):
             if difference < best_difference:
                 best_difference = difference
-                best_match = result
+                best_match = res_tit
                 best_payload = payload
 
     if not best_match or not best_payload:

@@ -43,7 +43,7 @@ class DD:
 
     def periodical_task(self):
         if not self.url:
-            shared_state.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Episoden! (" + self.filename + ")")
+            shared_state.logger.debug("Kein Hostname gesetzt. Stoppe Suche für Folgen! (" + self.filename + ")")
             return
         else:
             for feed_id in self.feed_ids:
@@ -67,7 +67,7 @@ class DD:
                         else:
                             if myjd_download(post.title, "FeedCrawler", links, self.url):
                                 self.db.store(post.title, 'added')
-                                log_entry = '[Episode/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' \
+                                log_entry = '[Folge/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' \
                                             + post.size + ' - ' + post.source
                                 shared_state.logger.info(log_entry)
                                 notify([{"text": log_entry, 'imdb_id': post.imdb_id}])

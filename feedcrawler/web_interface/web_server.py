@@ -40,7 +40,6 @@ from feedcrawler.providers.common_functions import Unbuffered
 from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import decode_base64
 from feedcrawler.providers.common_functions import get_to_decrypt
-from feedcrawler.providers.common_functions import is_device
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_characters
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import keep_numbers
@@ -905,20 +904,24 @@ def app_container():
             if payload:
                 matches = feedcrawler.external_sites.web_search.content_all.download(payload)
                 return "Success: " + str(matches)
-        except:
+        except Exception as e:
+            shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
         return abort(400, "Failed")
 
     @app.post(prefix + "/api/download_show/<title>")
     @auth_basic(is_authenticated_user)
     def download_show(title):
+        shared_state.logger.debug(f'Recieved API-Request for: {title}')
         try:
             payload = feedcrawler.external_sites.web_search.content_shows.get_best_result(title)
+            shared_state.logger.debug(f'Found payload is: {payload}')
             if payload:
                 matches = feedcrawler.external_sites.web_search.content_shows.download(payload)
                 if matches:
                     return "Success: " + str(matches)
-        except:
+        except Exception as e:
+            shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
         return abort(400, "Failed")
 
@@ -953,7 +956,7 @@ def app_container():
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
@@ -984,7 +987,7 @@ def app_container():
                 myjd = get_state()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 myjd = get_state()
             if myjd:
@@ -1164,7 +1167,7 @@ def app_container():
                 started = jdownloader_start()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 started = jdownloader_start()
             if started:
@@ -1182,7 +1185,7 @@ def app_container():
                 paused = jdownloader_pause(bl)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 paused = jdownloader_pause(bl)
             if paused:
@@ -1199,7 +1202,7 @@ def app_container():
                 stopped = jdownloader_stop()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 stopped = jdownloader_stop()
             if stopped:
@@ -1216,7 +1219,7 @@ def app_container():
                 updated = jdownloader_update()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 updated = jdownloader_update()
             if updated:
@@ -1867,7 +1870,7 @@ def attempt_download(package_name, links, password, ids):
     global already_added
 
     FeedDb('crawldog').store(package_name, 'added')
-    if shared_state.values["device"]:
+    if shared_state.get_device():
         if ids:
             try:
                 ids = ids.replace("%20", "").split(";")
@@ -1924,7 +1927,7 @@ def attempt_download(package_name, links, password, ids):
                 packages = get_packages_in_linkgrabber()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
-                if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+                if not shared_state.get_device():
                     return abort(500, "Failed")
                 packages = get_packages_in_linkgrabber()
 

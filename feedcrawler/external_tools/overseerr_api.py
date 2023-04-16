@@ -116,6 +116,6 @@ def overseerr_search(first_launch):
                         payload = encode_base64(payload[0] + "|" + payload[1] + "|" + season)
                         if feedcrawler.external_sites.web_search.content_shows.download(payload):
                             db.store('show_' + str(item_id) + "_" + str(season), 'added')
-                            print("Serie/Staffel/Episode: " + title + " durch Overseerr hinzugefügt.")
+                            print("Serie/Staffel/Folge: " + title + " durch Overseerr hinzugefügt.")
 
     return [len_movies, len_shows]

@@ -169,9 +169,7 @@ def sf_parse_download(self, series_url, title, language_id):
         if is_episode:
             episode_string = re.findall(r'.*S\d{1,3}(E\d{1,3}).*', is_episode[0])[0].lower()
             season_string = re.findall(r'.*(S\d{1,3})E\d{1,3}.*', is_episode[0])[0].lower()
-            season_title = rreplace(title.lower().replace(episode_string, ''), "-", ".*", 1).lower().replace(
-                ".repack", "")
-            season_title = season_title.replace(".untouched", ".*").replace(".dd+51", ".dd.51")
+            season_title = rreplace(title.lower().replace(episode_string, ''), "-", ".*", 1).lower()
             episode = str(int(episode_string.replace("e", "")))
             season = str(int(season_string.replace("s", "")))
             episode_name = re.findall(r'.*\.s\d{1,3}(\..*).german', season_title, re.IGNORECASE)
@@ -190,6 +188,19 @@ def sf_parse_download(self, series_url, title, language_id):
             multiple_episodes = re.findall(r'(e\d{1,3}-e*\d{1,3}\.)', season_title, re.IGNORECASE)
             if multiple_episodes:
                 season_title = season_title.replace(multiple_episodes[0], '.*')
+
+        season_title = season_title. \
+            replace(".internal", ""). \
+            replace(".extended", ""). \
+            replace(".uncut", ""). \
+            replace(".remastered", ""). \
+            replace(".remux", ""). \
+            replace(".repack", ""). \
+            replace(".dc", ""). \
+            replace(".untouched", ""). \
+            replace(".dd+51", ".dd.51")
+
+        season_title += ".*"
 
         content = BeautifulSoup(info['html'], "html.parser")
         try:

@@ -11,7 +11,6 @@ import traceback
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered
-from feedcrawler.providers.common_functions import is_device
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import add_decrypt
@@ -45,7 +44,7 @@ def watch_packages(shared_state_dict):
 
     while True:
         try:
-            if not shared_state.values["device"] or not is_device(shared_state.values["device"]):
+            if not shared_state.get_device():
                 set_device_from_config()
 
             myjd_packages = get_info()
@@ -104,7 +103,7 @@ def watch_packages(shared_state_dict):
                                                     for ep in more_episodes:
                                                         if title[0] not in ep:
                                                             additional_eps = FeedDb('episode_remover').retrieve(ep)
-                                                            # This happens if multiple Episodes are waiting for decryption
+                                                            # This happens if multiple Folges are waiting for decryption
                                                             if additional_eps:
                                                                 try:
                                                                     additional_eps = additional_eps.split("|")
