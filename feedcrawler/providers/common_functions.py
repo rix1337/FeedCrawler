@@ -547,7 +547,7 @@ def simplified_search_term_in_title(search_term, release_title, no_numbers=False
         match_regex = r'[^a-zA-Z0-9\s\-\.]'
 
     def unify(string):
-        return string.lower().replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace(
+        return string.lower().replace(" (", "(").replace("ß", "ss").replace("ä", "ae").replace("ö", "oe").replace(
             "ü", "ue").replace(". ", " ").replace("+", ".").replace(" ", ".").replace("-.", "").strip()
 
     search_term = re.sub(match_regex, '', unify(search_term))

@@ -185,7 +185,7 @@ def search_web(title, only_content_movies=False, only_content_shows=False):
             sj_results = []
 
         if special:
-            append = "(" + special + ")" #While " ("good for reading this breaks the unify compare test
+            append = " (" + special + ")"
         else:
             append = ""
         i = 0
@@ -214,7 +214,7 @@ def search_web(title, only_content_movies=False, only_content_shows=False):
             sf_results = []
 
         if special:
-            append = "(" + special + ")" #While " ("good for reading this breaks the unify compare test
+            append = " (" + special + ")"
         else:
             append = ""
         i = 0

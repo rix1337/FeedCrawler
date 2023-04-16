@@ -904,8 +904,8 @@ def app_container():
             if payload:
                 matches = feedcrawler.external_sites.web_search.content_all.download(payload)
                 return "Success: " + str(matches)
-        except:
-            shared_state.logger.exception("An exception was thrown!")
+        except Exception as e:
+            shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
         return abort(400, "Failed")
 
@@ -920,8 +920,8 @@ def app_container():
                 matches = feedcrawler.external_sites.web_search.content_shows.download(payload)
                 if matches:
                     return "Success: " + str(matches)
-        except:
-            shared_state.logger.exception("An exception was thrown!")
+        except Exception as e:
+            shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
         return abort(400, "Failed")
 
