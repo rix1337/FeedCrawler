@@ -6,7 +6,12 @@
 import logging
 import os
 import sys
+import time
 from logging import handlers
+
+from feedcrawler.external_tools.myjd_api import Jddevice, Myjdapi
+from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+from feedcrawler.providers.config import CrawlerConfig
 
 values = {}
 logger = None
@@ -76,6 +81,66 @@ def set_sites():
 def set_device(new_device):
     global values
     values["device"] = new_device
+
+
+def check_device(device):
+    try:
+        valid = isinstance(device, (type, Jddevice)) and device.downloadcontroller.get_current_state()
+    except (AttributeError, KeyError, TokenExpiredException, RequestTimeoutException, MYJDException):
+        valid = False
+    return valid
+
+
+def connect_device():
+    global values
+
+    device = False
+    conf = CrawlerConfig('FeedCrawler')
+    myjd_user = str(conf.get('myjd_user'))
+    myjd_pass = str(conf.get('myjd_pass'))
+    myjd_device = str(conf.get('myjd_device'))
+
+    jd = Myjdapi()
+    jd.set_app_key('FeedCrawler')
+
+    if myjd_user and myjd_pass and myjd_device:
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            device = jd.get_device(myjd_device)
+        except (TokenExpiredException, RequestTimeoutException, MYJDException):
+            pass
+
+    if check_device(device):
+        values["device"] = device
+        return True
+    else:
+        return False
+
+
+def get_device():
+    global values
+    attempts = 0
+
+    while True:
+        try:
+            if check_device(values["device"]):
+                break
+        except (AttributeError, KeyError, TokenExpiredException, RequestTimeoutException, MYJDException):
+            pass
+        attempts += 1
+
+        values["device"] = False
+
+        if attempts % 10 == 0:
+            print(
+                f"WARNUNG: {attempts} aufeinanderfolgende My JDownloader Verbindungsfehler. Bitte prüfen und ggf. neu starten!")
+        time.sleep(3)
+
+        if connect_device():
+            break
+
+    return values["device"]
 
 
 def set_connection_info(local_address, port, prefix, docker):

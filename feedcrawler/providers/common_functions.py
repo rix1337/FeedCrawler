@@ -11,7 +11,6 @@ import socket
 import sys
 from urllib.parse import urlparse
 
-from feedcrawler.external_tools import myjd_api
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
@@ -335,10 +334,6 @@ def get_to_decrypt():
             return False
     except:
         return False
-
-
-def is_device(device):
-    return isinstance(device, (type, myjd_api.Jddevice))
 
 
 def is_hevc(key):
