@@ -103,7 +103,7 @@ def watch_packages(shared_state_dict):
                                                     for ep in more_episodes:
                                                         if title[0] not in ep:
                                                             additional_eps = FeedDb('episode_remover').retrieve(ep)
-                                                            # This happens if multiple Episodes are waiting for decryption
+                                                            # This happens if multiple Folges are waiting for decryption
                                                             if additional_eps:
                                                                 try:
                                                                     additional_eps = additional_eps.split("|")

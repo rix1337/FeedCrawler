@@ -183,7 +183,7 @@ def ombi_search(first_launch):
                                                     e = "0" + e
                                                 se = s + "E" + e
                                                 db.store('show_' + str(imdb_id) + '_' + se, 'added')
-                                        print("Serie/Staffel/Episode: " + title + " durch Ombi hinzugefügt.")
+                                        print("Serie/Staffel/Folge: " + title + " durch Ombi hinzugefügt.")
         else:
             print("Eine Serie ohne IMDb-ID wurde in Ombi angefordert und kann nicht verarbeitet werden.")
             shared_state.logger.debug(

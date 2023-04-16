@@ -155,7 +155,7 @@ def check_valid_release(title, retail_only, hevc_retail):
                                 if ep == int(episode_in_title):
                                     results = results + [result]
             except:
-                print("Fehler in Episodenerkennung. Bitte Issue auf Github öffnen: " + title)
+                print("Fehler in Folgen-Erkennung. Bitte Issue auf Github öffnen: " + title)
 
             season_search_title = search_title.replace(title_with_episodes[0], "") + "."
             season_results = db.retrieve_all_beginning_with(season_search_title)

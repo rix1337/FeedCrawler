@@ -176,8 +176,8 @@ def get_episodes(imdb_id):
         pass
 
     if not episodes:
-        print("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Keine Episoden gefunden" % imdb_id)
+        print("[IMDb] - %s - Keine Folgen gefunden" % imdb_id)
+        shared_state.logger.debug("[IMDb] - %s - Keine Folgen gefunden" % imdb_id)
 
     return episodes
 

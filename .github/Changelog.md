@@ -6,6 +6,9 @@
 
 ### Changelog FeedCrawler:
 
+- **18.0.3** Verbessertes Wording
+  - Die Titel der Suchlisten im Web-Interface beschreiben nun besser, welchen Inhalt sie berücksichtigen.
+  - Folgen werden nun als "Folge" und nicht mehr als "Episode" bezeichnet.
 - **18.0.3** Verbesserte Zuordnung von Feed-Einträgen zur Downloadseite bei SF.
 - **18.0.3** Erzwinge erfolgreiche Verbindung zum JDownloader bei jedem Aufruf über My JDownloader (#735).
 - **18.0.2** Die Konsole der Desktop-GUI behält aus Performancegründen nur die letzten 999 ausgegebenen Zeilen.

@@ -88,8 +88,6 @@ def start_feedcrawler():
                 hostnames.save(host, string.lower())
             if string:
                 print('Hostname für ' + host.upper() + ": " + string)
-            else:
-                print('Hostname für ' + host.upper() + ': -')
             return string
 
         set_hostnames = {}
