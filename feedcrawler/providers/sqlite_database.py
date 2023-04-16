@@ -39,6 +39,7 @@ def remove_redundant_db_tables(file):
         'site_status',
         'flaresolverr',
         'sponsors_helper',
+        'secrets',
         'to_decrypt',
     ]
 

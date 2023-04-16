@@ -31,6 +31,7 @@ def check_url(start_time):
             db_status.update_store(site + "_normal", "Blocked")
             db_status.update_store(site + "_advanced", "Blocked")
         else:
+            hostnames.save(site.lower(), hostname)
             db_status.delete(site + "_normal")
             db_status.delete(site + "_advanced")
             sponsors_helper_url = get_solver_url("sponsors_helper")

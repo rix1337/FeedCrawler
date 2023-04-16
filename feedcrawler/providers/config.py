@@ -3,18 +3,25 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul stellt die Konfiguration für den FeedCrawler bereit.
 
+import base64
 import configparser
+import string
+
+from Cryptodome.Cipher import AES
+from Cryptodome.Random import get_random_bytes
+from Cryptodome.Util.Padding import pad
 
 from feedcrawler.providers import shared_state
+from feedcrawler.providers.sqlite_database import FeedDb
 
 
 class CrawlerConfig(object):
     _DEFAULT_CONFIG = {
         'FeedCrawler': [
             ("auth_user", "str", ""),
-            ("auth_hash", "str", ""),
+            ("auth_hash", "secret", ""),
             ("myjd_user", "str", ""),
-            ("myjd_pass", "str", ""),
+            ("myjd_pass", "secret", ""),
             ("myjd_device", "str", ""),
             ("myjd_auto_update", "bool", "False"),
             ("port", "int", "9090"),
@@ -29,18 +36,18 @@ class CrawlerConfig(object):
             ("force_ignore_in_web_search", "bool", "False"),
         ],
         'Hostnames': [
-            ("fx", "str", ""),
-            ("sf", "str", ""),
-            ("dw", "str", ""),
-            ("hw", "str", ""),
-            ("ff", "str", ""),
-            ("by", "str", ""),
-            ("nk", "str", ""),
-            ("nx", "str", ""),
-            ("ww", "str", ""),
-            ("sj", "str", ""),
-            ("dj", "str", ""),
-            ("dd", "str", "")
+            ("fx", "secret", ""),
+            ("sf", "secret", ""),
+            ("dw", "secret", ""),
+            ("hw", "secret", ""),
+            ("ff", "secret", ""),
+            ("by", "secret", ""),
+            ("nk", "secret", ""),
+            ("nx", "secret", ""),
+            ("ww", "secret", ""),
+            ("sj", "secret", ""),
+            ("dj", "secret", ""),
+            ("dd", "secret", "")
         ],
         "Cloudflare": [
             ("wait_time", "int", "12"),
@@ -55,11 +62,11 @@ class CrawlerConfig(object):
             ("subdir_by_type", "bool", "False"),
         ],
         'Notifications': [
-            ("discord", "str", ""),
-            ("telegram", "str", ""),
-            ("pushbullet", "str", ""),
-            ("pushover", "str", ""),
-            ("homeassistant", "str", ""),
+            ("discord", "secret", ""),
+            ("telegram", "secret", ""),
+            ("pushbullet", "secret", ""),
+            ("pushover", "secret", ""),
+            ("homeassistant", "secret", ""),
         ],
         'Hosters': [
             ("ddl", "bool", "True"),
@@ -76,18 +83,18 @@ class CrawlerConfig(object):
         ],
         'Plex': [
             ("url", "str", ""),
-            ("api", "str", ""),
-            ("client_id", "str", ""),
-            ("pin_code", "str", ""),
-            ("pin_id", "str", ""),
+            ("api", "secret", ""),
+            ("client_id", "secret", ""),
+            ("pin_code", "secret", ""),
+            ("pin_id", "secret", ""),
         ],
         'Overseerr': [
             ("url", "str", ""),
-            ("api", "str", ""),
+            ("api", "secret", ""),
         ],
         'Ombi': [
             ("url", "str", ""),
-            ("api", "str", ""),
+            ("api", "secret", ""),
         ],
         'ContentAll': [
             ("quality", "str", "1080p"),
@@ -153,7 +160,25 @@ class CrawlerConfig(object):
         with open(self._configfile, 'w') as configfile:
             self._config.write(configfile)
 
+    def _get_encryption_params(self):
+        crypt_key = FeedDb('secrets').retrieve("key")
+        crypt_iv = FeedDb('secrets').retrieve("iv")
+        if crypt_iv and crypt_key:
+            return base64.b64decode(crypt_key), base64.b64decode(crypt_iv)
+        else:
+            crypt_key = get_random_bytes(32)
+            crypt_iv = get_random_bytes(16)
+            FeedDb('secrets').update_store("key", base64.b64encode(crypt_key).decode())
+            FeedDb('secrets').update_store("iv", base64.b64encode(crypt_iv).decode())
+            return crypt_key, crypt_iv
+
     def _set_to_config(self, section, key, value):
+        default_value_type = [param[1] for param in self._DEFAULT_CONFIG[section] if param[0] == key]
+        if default_value_type and default_value_type[0] == 'secret' and len(value):
+            crypt_key, crypt_iv = self._get_encryption_params()
+            cipher = AES.new(crypt_key, AES.MODE_CBC, crypt_iv)
+            value = base64.b64encode(cipher.encrypt(pad(value.encode(), AES.block_size)))
+            value = 'secret|' + value.decode()
         self._config.set(section, key, value)
         with open(self._configfile, 'w') as configfile:
             self._config.write(configfile)
@@ -166,7 +191,17 @@ class CrawlerConfig(object):
         if not res:
             res = [param[2]
                    for param in self._DEFAULT_CONFIG[self._section] if param[0] == key]
-        if [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
+        if [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'secret']:
+            value = res[0].strip('\'"')
+            if value.startswith("secret|"):
+                crypt_key, crypt_iv = self._get_encryption_params()
+                cipher = AES.new(crypt_key, AES.MODE_CBC, crypt_iv)
+                decrypted_payload = cipher.decrypt(base64.b64decode(value[7:])).decode("utf-8").strip()
+                final_payload = "".join(filter(lambda c: c in string.printable, decrypted_payload))
+                return final_payload
+            else:  ## Loaded value is not encrypted, return as is
+                return value
+        elif [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
             return True if len(res) and res[0].strip('\'"').lower() == 'true' else False
         else:
             return res[0].strip('\'"') if len(res) > 0 else False
