@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **18.0.3** Verbesserte Zuordnung von Feed-Einträgen zur Downloadseite bei SF.
 - **18.0.3** Erzwinge erfolgreiche Verbindung zum JDownloader bei jedem Aufruf über My JDownloader (#735).
 - **18.0.2** Die Konsole der Desktop-GUI behält aus Performancegründen nur die letzten 999 ausgegebenen Zeilen.
 - **18.0.2** Nutze ausschließlich manager.dict() um Objekte zwischen Prozessen zu teilen.
