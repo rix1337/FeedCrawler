@@ -34,15 +34,15 @@ def cache(func):
             cached_response = None
         if cached_response:
             try:
-                shared_state.values["request_cache_hits"] += 1
+                shared_state.update("request_cache_hits", shared_state.values["request_cache_hits"] + 1)
             except KeyError:
-                shared_state.values["request_cache_hits"] = 1
+                shared_state.update("request_cache_hits", 1)
             return cached_response
         else:
             #
             value = func(*args, **kwargs)
             if caching_allowed:
-                shared_state.values["request_" + function_arguments_hash] = value
+                shared_state.update("request_" + function_arguments_hash, value)
             return value
 
     return cache_returned_values

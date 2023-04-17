@@ -82,7 +82,7 @@ def create_main_window():
 
 
 @check_gui_enabled
-def main_gui(window, shared_state_dict):
+def main_gui(window, shared_state_dict, shared_state_lock):
     if not window:
         print("GUI-Fenster falsch initialisiert.")
         window = create_main_window()
@@ -100,7 +100,7 @@ def main_gui(window, shared_state_dict):
         while True:
             event, values = window.read(timeout=500)
 
-            print_from_queue(shared_state_dict)
+            print_from_queue(shared_state_dict, shared_state_lock)
 
             if event == tray.key:
                 event = values[event]  # use the System Tray's event as if was from the window
@@ -319,26 +319,37 @@ class PrintToConsoleAndGui(object):
         pass
 
 
+def update_shared_dict_with_lock(shared_dict, shared_lock, key, value):
+    shared_lock.acquire()
+    try:
+        shared_dict[key] = value
+    finally:
+        shared_lock.release()
+
+
 class AppendToPrintQueue(object):
-    def __init__(self, shared_state_dict):
+    def __init__(self, shared_state_dict, shared_state_lock):
         self.shared_state_dict = shared_state_dict
+        self.shared_state_lock = shared_state_lock
         try:
             self.shared_state_dict["print_queue"]
         except KeyError:
-            self.shared_state_dict["print_queue"] = ''
+            update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue", '')
 
     def write(self, s):
-        self.shared_state_dict["print_queue"] += s
+        update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
+                                     self.shared_state_dict["print_queue"] + s)
 
     def flush(self):
-        self.shared_state_dict["print_queue"] += ''
+        update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
+                                     self.shared_state_dict["print_queue"] + '')
 
 
-def print_from_queue(shared_state_dict):
+def print_from_queue(shared_state_dict, shared_state_lock):
     try:
         output = shared_state_dict["print_queue"]
         if len(output) > 0:
             print(output)
-            shared_state_dict["print_queue"] = ''
+            update_shared_dict_with_lock(shared_state_dict, shared_state_lock, "print_queue", '')
     except KeyError:
         pass

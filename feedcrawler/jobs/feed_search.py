@@ -83,13 +83,13 @@ def search_pool():
     ]
 
 
-def feed_crawler(shared_state_dict):
+def feed_crawler(shared_state_dict, shared_state_lock):
     if gui.enabled:
-        sys.stdout = gui.AppendToPrintQueue(shared_state_dict)
+        sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
     else:
         sys.stdout = Unbuffered(sys.stdout)
 
-    shared_state.set_shared_dict(shared_state_dict)
+    shared_state.set_state(shared_state_dict, shared_state_lock)
     shared_state.set_logger()
     logger = shared_state.logger
 

@@ -14,35 +14,41 @@ from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTi
 from feedcrawler.providers.config import CrawlerConfig
 
 values = {}
+lock = None
 logger = None
 
 
-def set_shared_dict(manager_dict):
+def set_state(manager_dict, manager_lock):
     global values
+    global lock
     values = manager_dict
+    lock = manager_lock
+
+
+def update(key, value):
+    global values
+    global lock
+    lock.acquire()
+    try:
+        values[key] = value
+    finally:
+        lock.release()
 
 
 def set_initial_values(test_run, remove_cloudflare_time):
-    global values
-    values["test_run"] = test_run
-    values["remove_cloudflare_time"] = remove_cloudflare_time
-    values["ww_blocked"] = False
-    values["sf_blocked"] = False
-    values["user_agent"] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                           'Chrome/111.0.0.0 Safari/537.36'
+    update("test_run", test_run)
+    update("remove_cloudflare_time", remove_cloudflare_time)
+    update("ww_blocked", False)
+    update("sf_blocked", False)
+    update("user_agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
+                         'Chrome/111.0.0.0 Safari/537.36')
 
 
-def set_files(configpath):
-    global values
-    values["configfile"] = os.path.join(configpath, "FeedCrawler.ini")
-    values["dbfile"] = os.path.join(configpath, "FeedCrawler.db")
-    values["log_file"] = os.path.join(configpath, 'FeedCrawler.log')
-    values["log_file_debug"] = os.path.join(configpath, 'FeedCrawler_DEBUG.log')
-
-
-def set_log_level(log_level):
-    global values
-    values["log_level"] = log_level
+def set_files(config_path):
+    update("configfile", os.path.join(config_path, "FeedCrawler.ini"))
+    update("dbfile", os.path.join(config_path, "FeedCrawler.db"))
+    update("log_file", os.path.join(config_path, 'FeedCrawler.log'))
+    update("log_file_debug", os.path.join(config_path, 'FeedCrawler_DEBUG.log'))
 
 
 def set_logger():
@@ -74,13 +80,11 @@ def set_logger():
 
 
 def set_sites():
-    global values
-    values["sites"] = ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"]
+    update("sites", ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"])
 
 
 def set_device(new_device):
-    global values
-    values["device"] = new_device
+    update("device", new_device)
 
 
 def check_device(device):
@@ -92,8 +96,6 @@ def check_device(device):
 
 
 def connect_device():
-    global values
-
     device = False
     conf = CrawlerConfig('FeedCrawler')
     myjd_user = str(conf.get('myjd_user'))
@@ -112,14 +114,13 @@ def connect_device():
             pass
 
     if check_device(device):
-        values["device"] = device
+        update("device", device)
         return True
     else:
         return False
 
 
 def get_device():
-    global values
     attempts = 0
 
     while True:
@@ -130,7 +131,7 @@ def get_device():
             pass
         attempts += 1
 
-        values["device"] = False
+        update("device", False)
 
         if attempts % 10 == 0:
             print(
@@ -144,16 +145,20 @@ def get_device():
 
 
 def set_connection_info(local_address, port, prefix, docker):
-    global values
-    values["local_address"] = local_address
-    values["port"] = port
-    values["prefix"] = prefix
-    values["docker"] = docker
+    update("local_address", local_address)
+    update("port", port)
+    update("prefix", prefix)
+    update("docker", docker)
 
 
 def clear_request_cache():
     global values
-    for key in list(values.keys()):
-        if key.startswith('request_'):
-            values.pop(key)
-    values["request_cache_hits"] = 0
+    global lock
+    lock.acquire()
+    try:
+        for key in list(values.keys()):
+            if key.startswith('request_'):
+                values.pop(key)
+    finally:
+        lock.release()
+    update("request_cache_hits", 0)

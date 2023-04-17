@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **18.0.5** Verwende Locks, um die das geteilte manager.dict() bei parallelen Zugriffen sicher zu verändern (#738).
 - **18.0.5** Werte, die verschlüsselt sein sollen, aber es noch nicht sind, werden nun beim Lesen verschlüsselt.
 - **18.0.4** Hostnamen, Passwörter, Hashes und API-Keys werden nun verschlüsselt in der `FeedCrawler.ini` gespeichert
   - Dadurch kann die `FeedCrawler.ini` nun öffentlich geteilt werden

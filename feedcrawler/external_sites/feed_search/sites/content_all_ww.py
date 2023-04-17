@@ -104,7 +104,7 @@ def ww_post_url_headers(url, headers=False):
                                                                                       response["text"]:
             if not shared_state.values["ww_blocked"]:
                 print("WW hat den Feed-Anruf während der Feed-Suche blockiert.")
-                shared_state.values["ww_blocked"] = True
+                shared_state.update("ww_blocked", True)
             return ""
         return response
     except:
@@ -121,7 +121,7 @@ def ww_get_download_links(self, content, title):
             if not shared_state.values["ww_blocked"]:
                 print(
                     "WW hat den Link-Abruf für " + title + " blockiert. Eine spätere Anfrage hat möglicherweise Erfolg!")
-                shared_state.values["ww_blocked"] = True
+                shared_state.update("ww_blocked", True)
             return False
         links = BeautifulSoup(response, "html.parser").findAll("div", {"id": "download-links"})
         for link in links:
