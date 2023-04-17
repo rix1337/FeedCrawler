@@ -60,7 +60,8 @@ function submitLists() {
         <div id="offcanvasBottomLists" aria-labelledby="offcanvasBottomListsLabel" class="offcanvas offcanvas-bottom"
              tabindex="-1">
             <div class="offcanvas-header">
-                <h3 id="offcanvasBottomListsLabel" class="offcanvas-title"><i class="bi bi-text-left"></i> Suchlisten
+                <h3 id="offcanvasBottomListsLabel" class="offcanvas-title"><i class="bi bi-text-left"></i> Listen für
+                    die Feed-Suche
                 </h3>
                 <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas"
                         type="button"></button>
@@ -73,7 +74,7 @@ function submitLists() {
                          type="form"
                          @submit="saveLists()"
                 >
-                    <h4 v-if="!store.state.misc.loaded_lists">Suchlisten werden geladen...</h4>
+                    <h4 v-if="!store.state.misc.loaded_lists">Listen werden geladen...</h4>
                     <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
                         <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
                             <h2 id="headingHostnamesBl" class="accordion-header">

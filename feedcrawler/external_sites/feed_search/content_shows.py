@@ -174,7 +174,7 @@ def periodical_task(self):
         else:
             if self._SITE == "SF" and not shared_state.values["sf_blocked"]:
                 print("SF hat den Feed-Anruf während der Feed-Suche blockiert.")
-                shared_state.values["sf_blocked"] = True
+                shared_state.update("sf_blocked", True)
             else:
                 shared_state.logger.debug("Feed ist leer - breche die Suche für diesen Feed ab!")
 

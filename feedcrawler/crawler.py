@@ -29,7 +29,8 @@ version = "v." + version.get_version()
 def start_feedcrawler():
     with multiprocessing.Manager() as manager:
         shared_state_dict = manager.dict()
-        shared_state.set_shared_dict(shared_state_dict)
+        shared_state_lock = manager.Lock()
+        shared_state.set_state(shared_state_dict, shared_state_lock)
 
         if gui.enabled:
             window = gui.create_main_window()
@@ -74,7 +75,7 @@ def start_feedcrawler():
         log_level = logging.__dict__[
             arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
 
-        shared_state.set_log_level(log_level)
+        shared_state.update("log_level", log_level)
         shared_state.set_logger()
 
         hostnames = CrawlerConfig('Hostnames')
@@ -192,7 +193,7 @@ def start_feedcrawler():
         else:
             FeedDb('cdc').reset()
 
-        process_web_server = multiprocessing.Process(target=web_server, args=(shared_state_dict,))
+        process_web_server = multiprocessing.Process(target=web_server, args=(shared_state_dict, shared_state_lock,))
         process_web_server.start()
 
         if arguments.delay:
@@ -201,14 +202,16 @@ def start_feedcrawler():
             time.sleep(delay)
 
         if not shared_state.values["test_run"]:
-            process_feed_crawler = multiprocessing.Process(target=feed_crawler, args=(shared_state_dict,))
+            process_feed_crawler = multiprocessing.Process(target=feed_crawler,
+                                                           args=(shared_state_dict, shared_state_lock,))
             process_feed_crawler.start()
 
-            process_watch_packages = multiprocessing.Process(target=watch_packages, args=(shared_state_dict,))
+            process_watch_packages = multiprocessing.Process(target=watch_packages,
+                                                             args=(shared_state_dict, shared_state_lock,))
             process_watch_packages.start()
 
             if not arguments.docker and gui.enabled:
-                gui.main_gui(window, shared_state_dict)
+                gui.main_gui(window, shared_state_dict, shared_state_lock)
 
                 sys.stdout = sys.__stdout__
                 process_web_server.terminate()
@@ -232,7 +235,7 @@ def start_feedcrawler():
                     while True:
                         time.sleep(1)
         else:
-            feed_crawler(shared_state_dict)
+            feed_crawler(shared_state_dict, shared_state_lock)
             process_web_server.terminate()
             sys.exit(0)
 

@@ -6,16 +6,20 @@
 
 ### Changelog FeedCrawler:
 
+- **18.0.5** Verwende Locks, um die das geteilte manager.dict() bei parallelen Zugriffen sicher zu verändern (#738).
+- **18.0.5** Werte, die verschlüsselt sein sollen, aber es noch nicht sind, werden nun beim Lesen verschlüsselt.
+- **18.0.5** Weitere Wording-Verbesserungen im Web-Interface.
 - **18.0.4** Hostnamen, Passwörter, Hashes und API-Keys werden nun verschlüsselt in der `FeedCrawler.ini` gespeichert
   - Dadurch kann die `FeedCrawler.ini` nun öffentlich geteilt werden
   - Ab sofort müssen Fehlermeldungen immer die komplette `FeedCrawler.ini` enthalten.
   - Da Key und IV des Verschlüsselungsverfahrens in der `FeedCrawler.db` gespeichert werden, sollte diese Datei nicht
     gemeinsam mit der `FeedCrawler.ini` geteilt werden.
 - **18.0.3** Verbessertes Wording
-  - Die Titel der Suchlisten im Web-Interface beschreiben nun besser, welchen Inhalt sie berücksichtigen.
+  - Die Titel der Listen für die Feed-Suche im Web-Interface beschreiben nun besser, welchen Inhalt sie berücksichtigen.
   - Folgen werden nun als "Folge" und nicht mehr als "Episode" bezeichnet.
 - **18.0.3** Verbesserte Zuordnung von Feed-Einträgen zur Downloadseite bei SF.
-- **18.0.3** Erzwinge erfolgreiche Verbindung zum JDownloader bei jedem Aufruf über My JDownloader (#735).
+- **18.0.3** Fehlerbehebung im Abruf der Serien-API (#732, Danke @9Mad-Max5)
+- **18.0.3** Erzwinge erfolgreiche Verbindung zum JDownloader bei jedem Aufruf über My JDownloader (#735, Danke @jankete)
 - **18.0.2** Die Konsole der Desktop-GUI behält aus Performancegründen nur die letzten 999 ausgegebenen Zeilen.
 - **18.0.2** Nutze ausschließlich manager.dict() um Objekte zwischen Prozessen zu teilen.
 - **18.0.2** SF/FF werden nicht mehr als dauerhaft von Cloudflare blockierte Seiten behandelt.
