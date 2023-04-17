@@ -187,7 +187,7 @@ function showSiteStatusHelp() {
                         data-bs-toggle="offcanvas"
                         type="button"
                         @click='getLists'><i class="bi bi-text-left"></i>
-                  Suchlisten
+                  Feed-Suche
                 </button>
               </div>
 
