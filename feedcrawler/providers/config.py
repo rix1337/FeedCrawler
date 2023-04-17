@@ -18,9 +18,9 @@ from feedcrawler.providers.sqlite_database import FeedDb
 class CrawlerConfig(object):
     _DEFAULT_CONFIG = {
         'FeedCrawler': [
-            ("auth_user", "str", ""),
+            ("auth_user", "secret", ""),
             ("auth_hash", "secret", ""),
-            ("myjd_user", "str", ""),
+            ("myjd_user", "secret", ""),
             ("myjd_pass", "secret", ""),
             ("myjd_device", "str", ""),
             ("myjd_auto_update", "bool", "False"),
@@ -200,6 +200,8 @@ class CrawlerConfig(object):
                 final_payload = "".join(filter(lambda c: c in string.printable, decrypted_payload))
                 return final_payload
             else:  ## Loaded value is not encrypted, return as is
+                if len(value) > 0:
+                    self.save(key, value)
                 return value
         elif [param for param in self._DEFAULT_CONFIG[self._section] if param[0] == key and param[1] == 'bool']:
             return True if len(res) and res[0].strip('\'"').lower() == 'true' else False
