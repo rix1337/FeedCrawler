@@ -33,7 +33,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ### Voraussetzungen
 
-* [Python 3.8](https://www.python.org/downloads/) oder neuer (nur 3 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
+* [Python 3.8](https://www.python.org/downloads/) oder neuer (nur 4 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit aktivem [My JDownloader-Konto](https://my.jdownloader.org)
 * _optional: [FlareSolverr 3](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen_
 
@@ -42,12 +42,6 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ```pip install -U feedcrawler```
 
 Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
-
-### GUI aktivieren
-
-```pip install -U PySimpleGUI psgtray```
-
-Dieser Schritt ist optional und ist nur auf Desktop-Systemen sinnvoll. Windows-Builds beinhalten die GUI bereits.
 
 ### Lokaler Build
 Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
@@ -99,6 +93,7 @@ Befüllen der _FeedCrawler.ini_ in der Kategorie _[Hostnames]_. Eingetragen werd
 | ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
 | ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ```--delay=<SEKUNDEN>``` | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional) |
+| ```--no-gui``` | Startet FeedCrawler ohne GUI (optional) |
 
 ## Sicherheitshinweis
 

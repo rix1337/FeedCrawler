@@ -28,7 +28,7 @@ from feedcrawler.providers.sqlite_database import FeedDb
 
 
 def watch_packages(shared_state_dict, shared_state_lock):
-    if gui.enabled:
+    if shared_state_dict["gui"]:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
     else:
         sys.stdout = Unbuffered(sys.stdout)

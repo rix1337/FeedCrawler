@@ -1,44 +1,25 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt eine GUI für den FeedCrawler bereit. Diese setzt die Dependencies PySimpleGUI und psgtray voraus.
+# Dieses Modul stellt eine GUI für den FeedCrawler bereit.
 
-import base64
-import ctypes
 import os
 import platform
 import sys
+import tkinter as tk
 import webbrowser
+from tkinter import filedialog, messagebox
 
 from feedcrawler.providers.version import get_version
 
-try:
-    import PySimpleGUI as sg  # not in requirements.txt as we don't want to force users to install it
-    from psgtray import SystemTray  # not in requirements.txt as we don't want to force users to install it
-
-    enabled = True
-except ImportError:
-    enabled = False
-
 if platform.system() == 'Windows':
     font = ('Consolas', 12)
-    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('FeedCrawler')
 elif platform.system() == 'Linux':
     font = ('Monospace', 12)
 else:
     font = ('Monaco', 12)
 
 title = 'FeedCrawler v.' + get_version()
-
-
-def check_gui_enabled(func):
-    def wrapper(*args, **kwargs):
-        if enabled:
-            return func(*args, **kwargs)
-        else:
-            return False
-
-    return wrapper
 
 
 def get_icon_path():
@@ -50,82 +31,161 @@ def get_icon_path():
     return icon_path
 
 
-def get_icon():
-    icon_path = get_icon_path()
-    with open(icon_path, 'rb') as f:
-        icon_data = f.read()
-    icon_base64 = base64.b64encode(icon_data)
-    return icon_base64
+def get_tray_icon(show_function, quit_function):
+    import pystray  # imported here to avoid crash on headless systems
+    from PIL import Image  # transitive dependency of pystray not in requirements.txt
+
+    image = Image.open(get_icon_path())
+    menu = (
+        pystray.MenuItem('Öffnen/Verstecken', show_function, default=True),
+        pystray.MenuItem('Web-Interface', lambda: webbrowser.open("http://localhost:9090")),
+        pystray.Menu.SEPARATOR,
+        pystray.MenuItem('Beenden', quit_function)
+    )
+
+    return pystray.Icon("name", image, "FeedCrawler " + get_version(), menu)
 
 
-@check_gui_enabled
+def set_up_window(window):
+    window.iconbitmap(get_icon_path())
+    window.resizable(False, False)
+    window.configure(bg='grey20')
+    window.option_add('*foreground', 'white')
+    window.option_add('*Button.foreground', 'black')
+    window.option_add('*Entry.foreground', 'white')
+    window.option_add('*Entry.background', 'grey30')
+    window.option_add('*Listbox.foreground', 'white')
+    window.option_add('*Listbox.background', 'grey30')
+    window.option_add('*Label.foreground', 'white')
+    window.option_add('*Label.background', 'grey20')
+    window.option_add('*Frame.background', 'grey20')
+    window.option_add('*Text.background', 'grey30')
+    window.option_add("*Font", font)
+
+
+def center_window(window):
+    window.update_idletasks()
+    width = window.winfo_reqwidth()
+    height = window.winfo_reqheight()
+    x = (window.winfo_screenwidth() // 2) - (width // 2)
+    y = (window.winfo_screenheight() // 2) - (height // 2)
+    window.geometry(f"+{x}+{y}")
+
+
 def create_main_window():
-    sg.theme('dark grey 9')
-    sg.set_options(font=font)
+    root = tk.Tk()
+    root.withdraw()
 
-    layout = [
-        [sg.Multiline(size=(100, 20), key="-OUTPUT-", background_color="grey20", text_color="white", font=font,
-                      autoscroll=True, )],
-        [sg.Button('Web-Interface'), sg.Button('Beenden')],
-    ]
+    root.title(title)
+    set_up_window(root)
 
-    window = sg.Window(title,
-                       layout,
-                       finalize=True,
-                       enable_close_attempted_event=True,
-                       element_justification='c',
-                       icon=get_icon_path())
+    frame = tk.Frame(root, name='frame')
+    frame.pack(fill='both', expand=True)
+    output_text = tk.Text(frame, wrap='char', width=100, height=20, name='log')
+    output_text.pack(side='left', fill='both', expand=True)
+    scrollbar = tk.Scrollbar(frame, orient='vertical', command=output_text.yview)
+    scrollbar.pack(side='right', fill='y')
+    output_text.config(yscrollcommand=scrollbar.set)
 
-    window.hide()
+    web_interface_button = tk.Button(root, text="Web-Interface",
+                                     command=lambda: webbrowser.open("http://localhost:9090"))
+    web_interface_button.pack(side="left", padx=10, pady=10)
 
-    return window
+    exit_button = tk.Button(root, text="Beenden", command=lambda: quit_window())
+    exit_button.pack(side="right", padx=10, pady=10)
+
+    def quit_window(*args):
+        if messagebox.askokcancel("Beenden", "FeedCrawler wirklich beenden?"):
+            icon.stop()
+            root.quit()
+
+    def show_window(*args):
+        if root.state() == "normal":
+            root.withdraw()
+        else:
+            root.deiconify()
+            root.lift()
+
+    icon = get_tray_icon(show_window, quit_window)
+
+    return root, icon
 
 
-@check_gui_enabled
-def main_gui(window, shared_state_dict, shared_state_lock):
-    if not window:
-        print("GUI-Fenster falsch initialisiert.")
-        window = create_main_window()
+def main_gui(root, icon, shared_state_dict, shared_state_lock):
+    def to_tray():
+        root.withdraw()
+
     try:
-        menu = ['', [title,
-                     '---',
-                     'GUI',
-                     'Web-Interface',
-                     '---',
-                     'Beenden']
-                ]
-        tray = SystemTray(menu, single_click_events=False, window=window, tooltip='Tooltip', icon=get_icon())
-        tray.show_message(title, 'Gestartet und im Tray verfügbar.')
+        root.deiconify()
+        root.protocol("WM_DELETE_WINDOW", to_tray)
 
-        while True:
-            event, values = window.read(timeout=500)
+        to_tray()
+        icon.run_detached()
 
+        def print_from_queue_periodically(shared_state_dict, shared_state_lock):
             print_from_queue(shared_state_dict, shared_state_lock)
+            root.after(500, lambda: print_from_queue_periodically(shared_state_dict, shared_state_lock))
 
-            if event == tray.key:
-                event = values[event]  # use the System Tray's event as if was from the window
-
-            if event in 'Beenden':
-                break
-
-            if event in (sg.EVENT_SYSTEM_TRAY_ICON_DOUBLE_CLICKED, 'GUI'):
-                window.un_hide()
-                window.bring_to_front()
-            elif event in title:
-                webbrowser.open("https://github.com/rix1337/FeedCrawler")
-            elif event in 'Web-Interface':
-                webbrowser.open("http://localhost:9090")
-            elif event in sg.WIN_CLOSE_ATTEMPTED_EVENT:
-                window.hide()
-
-        tray.close()
-        window.close()
+        print_from_queue_periodically(shared_state_dict, shared_state_lock)
+        center_window(root)
+        root.mainloop()
 
     except KeyboardInterrupt:
         pass
 
 
-@check_gui_enabled
+def no_hostnames_gui(configfile):
+    root = tk.Tk()
+    root.title("Warnung")
+    set_up_window(root)
+
+    text_label = tk.Label(root, text="Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!")
+    text_label.pack(padx=10, pady=10)
+
+    ok_button = tk.Button(root, text="OK", command=lambda: root.quit())
+    ok_button.pack(padx=10, pady=10)
+
+    root.protocol("WM_DELETE_WINDOW", lambda: root.quit())
+
+    webbrowser.open(configfile)
+
+    center_window(root)
+    root.mainloop()
+
+
+def configpath_gui(current_path):
+    root = tk.Tk()
+    root.title('Wo sollen Einstellungen und Logs abgelegt werden?')
+    set_up_window(root)
+
+    configpath = ""
+
+    def use_current_path():
+        nonlocal configpath
+        configpath = current_path
+        root.quit()
+
+    current_path_button = tk.Button(root, text='Aktuellen Pfad "' + current_path + '" verwenden',
+                                    command=use_current_path, padx=10, pady=10)
+    current_path_button.pack()
+
+    def select_path():
+        nonlocal configpath
+        folder_selected = filedialog.askdirectory(initialdir=current_path)
+        if folder_selected:
+            configpath = folder_selected
+            root.quit()
+
+    select_path_button = tk.Button(root, text='Anderen Pfad wählen', command=select_path, padx=10, pady=10)
+    select_path_button.pack()
+
+    center_window(root)
+    root.mainloop()
+    root.destroy()
+
+    return configpath
+
+
 def get_devices(myjd_user, myjd_pass):
     import feedcrawler.external_tools.myjd_api
     from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
@@ -142,108 +202,89 @@ def get_devices(myjd_user, myjd_pass):
         return []
 
 
-@check_gui_enabled
-def no_hostnames_gui(configfile):
-    # warn user if no hostnames are configured
-    sg.theme('dark grey 9')
-    layout = [
-        [sg.Text('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')],
-        [sg.Button('OK', bind_return_key=True)]
-    ]
-
-    window = sg.Window('Warnung', layout, finalize=True, element_justification='c', icon=get_icon_path())
-    webbrowser.open(configfile)
-
-    while True:
-        event, values = window.read()
-        if event == sg.WIN_CLOSED:
-            break
-        window.close()
-
-
-@check_gui_enabled
-def configpath_gui(current_path):
-    configpath = ''
-
-    sg.theme('dark grey 9')
-    layout = [
-        [sg.Button('"' + current_path + '" verwenden', bind_return_key=True)],
-        [sg.Input(key='-FOLDER-', enable_events=True, visible=False),
-         sg.FolderBrowse('Anderen Pfad wählen', target='-FOLDER-', initial_folder=current_path)]
-    ]
-
-    window = sg.Window('Wo sollen Einstellungen und Logs abgelegt werden?', layout, icon=get_icon_path())
-
-    while True:
-        event, values = window.read()
-        if event == sg.WIN_CLOSED:
-            break
-        configpath = values['-FOLDER-']
-        window.close()
-
-    if not configpath:
-        configpath = ''
-    return configpath
-
-
-@check_gui_enabled
 def myjd_credentials_gui():
     user = ''
     password = ''
     device = ''
 
-    sg.theme('dark grey 9')
-    layout = [
-        [sg.Text('Bitte die Zugangsdaten für My JDownloader angeben:')],
-        [sg.Text('Benutzername', size=(15, 1)), sg.InputText(key='username')],
-        [sg.Text('Passwort', size=(15, 1)), sg.InputText(key='password', password_char='*')],
-        [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
-    ]
+    def on_ok_clicked():
+        nonlocal user, password, device
 
-    window = sg.Window('My JDownloader Login', layout, finalize=True, element_justification='c', icon=get_icon_path())
+        user = user_entry.get()
+        password = password_entry.get()
+        if not user or not password:
+            messagebox.showerror('Fehler', 'Bitte sowohl Benutzername als auch Passwort angeben.')
+            return
+        devices = get_devices(user, password)
+        if not devices:
+            messagebox.showerror('Fehler', 'Keine Geräte gefunden. Bitte überprüfe deine Zugangsdaten.')
+            return
 
-    while True:
-        event, values = window.read()
+        device_list = [dv['name'] for dv in devices]
 
-        if event in (sg.WIN_CLOSED, 'Abbrechen'):
-            window.close()
-            break
-        elif event in 'OK':
-            user = values['username']
-            password = values['password']
-            if not user or not password:
-                sg.popup('Bitte Benutzername und Passwort angeben.')
-                continue
-            elif user and password:
-                devices = get_devices(user, password)
-                if not devices:
-                    sg.popup('Keine Geräte gefunden. Bitte überprüfe deine Zugangsdaten.')
-                    continue
-                else:
-                    window.hide()
-                    device_list = []
-                    for dv in devices:
-                        device_list.append(dv['name'])
+        device_selection_window = tk.Toplevel(root)
+        device_selection_window.title('My JDownloader Gerät')
+        set_up_window(device_selection_window)
 
-                    layout = [
-                        [sg.Text('Bitte den gewünschten JDownloader auswählen:')],
-                        [sg.Listbox(values=device_list, size=(20, 5), key='device')],
-                        [sg.Button('OK', bind_return_key=True), sg.Button('Abbrechen')]
-                    ]
-                    device_selection = sg.Window('My JDownloader Gerät', layout, finalize=True,
-                                                 element_justification='c',
-                                                 icon=get_icon_path())
-                    while True:
-                        event, values = device_selection.read()
+        tk.Label(device_selection_window, text='Bitte den gewünschten JDownloader auswählen:').pack(pady=10)
+        device_listbox = tk.Listbox(device_selection_window, height=5, width=20, activestyle='none')
+        for dv in device_list:
+            device_listbox.insert(tk.END, dv)
+        device_listbox.pack(pady=10)
 
-                        if event in (sg.WIN_CLOSED, 'Abbrechen'):
-                            device_selection.close()
-                            break
-                        elif event in 'OK':
-                            device = values['device'][0]
+        def on_device_selected():
+            nonlocal device
+            selection = device_listbox.curselection()
+            if selection:
+                device = device_list[selection[0]]
+            device_selection_window.quit()
+            root.quit()
 
-                        device_selection.close()
-        window.close()
+        def on_device_cancel():
+            messagebox.showerror('Fehler', 'My JDownloader Geräteauswahl abgebrochen.')
+            print("My JDownloader Geräteauswahl abgebrochen.")
+            sys.exit(1)
+
+        ok_button = tk.Button(device_selection_window, text='OK', command=on_device_selected)
+        ok_button.pack(side=tk.LEFT, padx=10, pady=10)
+        cancel_button = tk.Button(device_selection_window, text='Abbrechen', command=on_device_cancel)
+        cancel_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        root.withdraw()
+        center_window(device_selection_window)
+
+    def on_cancel_clicked():
+        messagebox.showerror('Fehler', 'My JDownloader Login abgebrochen.')
+        print("My JDownloader Login abgebrochen.")
+        sys.exit(1)
+
+    root = tk.Tk()
+    root.title('My JDownloader Login')
+    set_up_window(root)
+
+    tk.Label(root, text='Bitte die Zugangsdaten für My JDownloader angeben:').pack(pady=10)
+
+    user_label = tk.Label(root, text='Benutzername', width=15)
+    user_label.pack(side=tk.TOP, padx=10, pady=5)
+    user_entry = tk.Entry(root, width=30)
+    user_entry.pack(side=tk.TOP, padx=10, pady=5)
+
+    password_label = tk.Label(root, text='Passwort', width=15)
+    password_label.pack(side=tk.TOP, padx=10, pady=5)
+    password_entry = tk.Entry(root, show='●', width=30)
+    password_entry.pack(side=tk.TOP, padx=10, pady=5)
+
+    button_frame = tk.Frame(root)
+    button_frame.pack(side=tk.BOTTOM, pady=10)
+
+    ok_button = tk.Button(button_frame, text='OK', command=on_ok_clicked)
+    ok_button.pack(side=tk.LEFT, padx=20)
+
+    cancel_button = tk.Button(button_frame, text='Abbrechen', command=on_cancel_clicked)
+    cancel_button.pack(side=tk.LEFT, padx=20)
+
+    center_window(root)
+    root.mainloop()
+    root.destroy()
 
     if not user or not password or not device:
         user = ""
@@ -253,35 +294,27 @@ def myjd_credentials_gui():
 
 
 class PrintToGui(object):
-    def __init__(self, widget, max_lines=999):
-        self.widget = widget
+    def __init__(self, window, max_lines=1024):
+        self.widget = window.nametowidget('frame').nametowidget('log')
         self.max_lines = max_lines
         self.line_count = 0
 
     def write(self, text):
         try:
-            output = self.widget.get()
-        except:
-            output = ''
+            self.widget.config(state="normal")
 
-        # Split text into individual lines
-        lines = text.split('\n')
+            actual_line_count = int(self.widget.index('end-1c linestart').split('.')[0])
+            if actual_line_count > self.max_lines:
+                lines_to_remove = actual_line_count - self.max_lines
+                self.widget.delete(1.0, f"{lines_to_remove}.0")
 
-        # Add each line to the output
-        for line in lines:
-            if len(line) > 0:
-                if self.line_count >= self.max_lines:
-                    # Remove oldest line
-                    output_lines = output.split('\n')
-                    output = '\n'.join(output_lines[1:])
-                else:
-                    self.line_count += 1
-                output += '\n' + line
-                if output.startswith('\n'):
-                    output = output[1:]
+            if text.endswith('\n') and len(text) > 1:
+                text = text[:-1]
 
-        try:
-            self.widget.update(value=output)
+            self.widget.insert("end", text)
+            self.widget.see("end")
+            self.widget.update()
+            self.widget.config(state="disabled")
         except:
             pass
 
@@ -296,8 +329,9 @@ class PrintToConsoleAndGui(object):
                 self.stream = stream
 
             def write(self, data):
-                if data != '\n' and data.endswith('\n'):
-                    data = data[:-1]
+                if data != '\n':
+                    if data.endswith('\n'):
+                        data = data[:-1]
                 self.stream.write(data)
                 self.stream.flush()
 
@@ -309,7 +343,7 @@ class PrintToConsoleAndGui(object):
                 return getattr(self.stream, attr)
 
         self.terminal = Unbuffered(sys.stdout)
-        self.gui = PrintToGui(window['-OUTPUT-'])
+        self.gui = PrintToGui(window)
 
     def write(self, message):
         self.terminal.write(message)
@@ -329,20 +363,31 @@ def update_shared_dict_with_lock(shared_dict, shared_lock, key, value):
 
 class AppendToPrintQueue(object):
     def __init__(self, shared_state_dict, shared_state_lock):
-        self.shared_state_dict = shared_state_dict
-        self.shared_state_lock = shared_state_lock
         try:
-            self.shared_state_dict["print_queue"]
-        except KeyError:
-            update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue", '')
+            self.shared_state_dict = shared_state_dict
+            self.shared_state_lock = shared_state_lock
+            try:
+                self.shared_state_dict["print_queue"]
+            except (KeyboardInterrupt, BrokenPipeError):
+                pass
+            except KeyError:
+                update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue", '')
+        except (KeyboardInterrupt, BrokenPipeError):
+            pass
 
     def write(self, s):
-        update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
-                                     self.shared_state_dict["print_queue"] + s)
+        try:
+            update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
+                                         self.shared_state_dict["print_queue"] + s)
+        except (KeyboardInterrupt, BrokenPipeError):
+            pass
 
     def flush(self):
-        update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
-                                     self.shared_state_dict["print_queue"] + '')
+        try:
+            update_shared_dict_with_lock(self.shared_state_dict, self.shared_state_lock, "print_queue",
+                                         self.shared_state_dict["print_queue"] + '')
+        except (KeyboardInterrupt, BrokenPipeError):
+            pass
 
 
 def print_from_queue(shared_state_dict, shared_state_lock):

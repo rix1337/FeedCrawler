@@ -84,7 +84,7 @@ def search_pool():
 
 
 def feed_crawler(shared_state_dict, shared_state_lock):
-    if gui.enabled:
+    if shared_state_dict["gui"]:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
     else:
         sys.stdout = Unbuffered(sys.stdout)

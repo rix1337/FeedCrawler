@@ -2024,7 +2024,7 @@ def start():
 
 
 def web_server(shared_state_dict, shared_state_lock):
-    if gui.enabled:
+    if shared_state_dict["gui"]:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
     else:
         sys.stdout = Unbuffered(sys.stdout)
