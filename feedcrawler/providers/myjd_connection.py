@@ -1068,7 +1068,7 @@ def myjd_input(port, user, password, device):
         if one_device:
             print("Gerätename " + one_device + " automatisch ermittelt.")
     else:
-        if gui.enabled:
+        if shared_state.values["gui"]:
             user, password, device = gui.myjd_credentials_gui()
         else:
             print("Bitte die Zugangsdaten für My JDownloader angeben:")

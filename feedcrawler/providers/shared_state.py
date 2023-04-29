@@ -5,6 +5,7 @@
 
 import logging
 import os
+import platform
 import sys
 import time
 from logging import handlers
@@ -35,7 +36,13 @@ def update(key, value):
         lock.release()
 
 
-def set_initial_values(test_run, remove_cloudflare_time):
+def set_initial_values(docker, no_gui, test_run, remove_cloudflare_time):
+    update("docker", docker)
+    if docker or no_gui or (not platform.system() == 'Windows' and not os.environ.get('DISPLAY')):
+        gui_enabled = False
+    else:
+        gui_enabled = True
+    update("gui", gui_enabled)
     update("test_run", test_run)
     update("remove_cloudflare_time", remove_cloudflare_time)
     update("ww_blocked", False)

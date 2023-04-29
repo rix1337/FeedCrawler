@@ -1,3 +1,4 @@
-beautifulsoup4==4.12.2
-bottle==0.12.25
-pycryptodomex==3.17
+beautifulsoup4==4.12.2 # web scraping
+bottle==0.12.25 # web ui
+pycryptodomex==3.17 # encryption
+pystray==0.19.4 # system tray for gui

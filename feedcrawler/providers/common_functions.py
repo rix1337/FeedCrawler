@@ -499,7 +499,7 @@ def configpath(configpath):
         f = open(pathfile, "r")
         configpath = f.readline()
     else:
-        if gui.enabled:
+        if shared_state.values["gui"]:
             configpath = gui.configpath_gui(current_path)
         else:
             print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
