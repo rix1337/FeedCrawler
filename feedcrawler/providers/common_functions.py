@@ -35,12 +35,13 @@ class Unbuffered(object):
 
 
 def check_hoster(to_check):
-    to_check = to_check.replace("ddownload", "ddl")
-    hosters = CrawlerConfig("Hosters").get_section()
-    for hoster in hosters:
-        if hosters[hoster] == "True":
-            if hoster in to_check.lower() or to_check.lower() in hoster:
-                return True
+    if to_check:
+        to_check = to_check.replace("ddownload", "ddl")
+        hosters = CrawlerConfig("Hosters").get_section()
+        for hoster in hosters:
+            if hosters[hoster] == "True":
+                if hoster in to_check.lower() or to_check.lower() in hoster:
+                    return True
     return False
 
 
@@ -264,6 +265,10 @@ def check_is_ignored(title, ignore):
         title = title.replace(" ", ".").lower()
         ignore_list = ignore.replace(" ", ".").lower().split(",")
         for i in ignore_list:
+            if not i.startswith("."):
+                i = "." + i
+            if not i.endswith("."):
+                i = i + "."
             if i in title:
                 return True
     return False

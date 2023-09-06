@@ -6,6 +6,8 @@
 
 ### Changelog FeedCrawler:
 
+- **18.1.1** Bugfix im Abruf von Download-Links, bspw. für NK
+- **18.1.1** Bugfix im Match der Ignore-Liste während der Feedsuche 
 - **18.1.0** Die [Desktop-GUI](https://github.com/rix1337/FeedCrawler/wiki/7.-Desktop-GUI) nutzt nun `tkinter`
   - Diese Bibliothek ist in Python enthalten und muss nicht mehr separat installiert werden.
   - Ab sofort ist die GUI (außer im Docker-Container) standardmäßig aktiviert.

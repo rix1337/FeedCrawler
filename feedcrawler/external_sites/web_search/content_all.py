@@ -240,7 +240,7 @@ def download(payload):
                         "ddownload", "ddl")
                     if check_hoster(link_hoster):
                         link = url_hoster[0]
-                        if by in link:
+                        if (by and by in link) or (nk and nk in link):
                             demasked_link = get_redirected_url(link)
                             if demasked_link:
                                 link = demasked_link
