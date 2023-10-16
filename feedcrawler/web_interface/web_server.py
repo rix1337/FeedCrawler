@@ -177,7 +177,6 @@ def app_container():
             return True
 
     @app.get(prefix + '/')
-    @app.get(prefix + '/sponsors_helper/')
     @auth_basic(is_authenticated_user)
     def catch_all():
         return static_file('index.html', root=base_dir + "/web_interface/vuejs_frontend/dist")
@@ -223,18 +222,11 @@ def app_container():
         def index_prefix():
             return redirect(prefix)
 
-    @app.get(prefix + '/sponsors_helper')
-    @auth_basic(is_authenticated_user)
-    def redirect_helper_to_slash():
-        return redirect(prefix + '/sponsors_helper/')
-
     @app.get(prefix + '/assets/<filename>')
-    @app.get(prefix + '/sponsors_helper/assets/<filename>')
     def static_files(filename):
         return static_file(filename, root=base_dir + "/web_interface/vuejs_frontend/dist/assets")
 
     @app.get(prefix + '/favicon.ico')
-    @app.get(prefix + '/sponsors_helper/favicon.ico')
     def static_favicon():
         return static_file('favicon.ico', root=base_dir + "/web_interface/vuejs_frontend/dist/")
 
@@ -1755,6 +1747,19 @@ if (title) {
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                            "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
+        except:
+            pass
+        return abort(400, "Failed")
+
+    @app.put(prefix + "/sponsors_helper/api/activate_sponsor_status/")
+    def activate_sponsor_status():
+        global helper_active
+        try:
+            data = request.body.read().decode("utf-8")
+            payload = json.loads(data)
+            if payload["activate"]:
+                helper_active = True
+                return "Sponsor status activated successfully!"
         except:
             pass
         return abort(400, "Failed")
