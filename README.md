@@ -106,4 +106,3 @@ bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 ## Credits
 
 * [mmarquezs](https://github.com/mmarquezs/) (My JDownloader-API für Python)
-* [JetBrains PyCharm](https://www.jetbrains.com/?from=FeedCrawler) (Open-Source-Lizenz für dieses Projekt)
