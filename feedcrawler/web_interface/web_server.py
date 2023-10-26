@@ -1814,7 +1814,9 @@ if (title) {
 
             result = add_decrypt_instead_of_download(package_name, 'unused', [links], password, replace=True)
             if result:
-                return "Link replaced for " + package_name
+                return "<script type='text/javascript'>" \
+                                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                       "[Link ersetzt] - " + package_name
         return abort(400, "Failed")
 
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
