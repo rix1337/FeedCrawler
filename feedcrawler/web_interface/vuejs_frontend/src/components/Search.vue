@@ -191,7 +191,7 @@ function submitSearch() {
           </div>
         </div>
         <div class="row justify-content-center">
-          <div class="col-sm-1">
+          <div class="col-sm-2">
             <button class="btn btn-primary mb-2" type="submit"
                     @click="submitSearch">
               <span v-if="spin_search" id="spinner-search" class="spinner-border spinner-border-sm"

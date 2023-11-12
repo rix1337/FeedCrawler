@@ -4,7 +4,7 @@
 # Dieses Modul stellt alle Funktionen für die Prüfung und Interaktion mit URLs zur Verfügung.
 
 import concurrent.futures
-import datetime
+from datetime import datetime, timedelta
 
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
@@ -36,7 +36,7 @@ def check_url(start_time):
             db_status.delete(site + "_advanced")
             sponsors_helper_url = get_solver_url("sponsors_helper")
             flaresolverr_url = get_solver_url("flaresolverr")
-            skip_sites = ["HW", "WW", ]  # SJ/DJ not listed, because they rarely block scraping attempts
+            skip_sites = ["HW", "WW", ]
             skip_normal_ip = (sponsors_helper_url or flaresolverr_url) and (site in skip_sites)
             if skip_normal_ip:
                 blocked_with_normal_ip = True
@@ -73,13 +73,13 @@ def check_if_blocked(site, url):
                 return True
         # Custom checks required
         elif site in ["SF"]:
-            delta = datetime.datetime.now().strftime("%Y-%m-%d")
+            delta = (datetime.now() - timedelta(days=3)).strftime("%Y-%m-%d")
             sf_test = cached_request(url + '/updates/' + delta, dont_cache=True)
             if not sf_test["text"] or sf_test["status_code"] is not (
                     200 or 304) or '<h3><a href="/' not in sf_test["text"]:
                 return True
         elif site in ["FF"]:
-            delta = datetime.datetime.now().strftime("%Y-%m-%d")
+            delta = (datetime.now() - timedelta(days=3)).strftime("%Y-%m-%d")
             ff_test = cached_request(url + '/updates/' + delta, dont_cache=True)
             if not ff_test["text"] or ff_test["status_code"] is not (
                     200 or 304) or '<div class="list blog"' not in ff_test["text"]:
