@@ -44,6 +44,7 @@ from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import keep_numbers
 from feedcrawler.providers.common_functions import remove_decrypt
+from feedcrawler.providers.common_functions import disable_decrypt
 from feedcrawler.providers.common_functions import rreplace
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import set_device
@@ -210,6 +211,7 @@ def app_container():
             "/api/myjd_pause/",
             "/api/internal_cnl/",
             "/sponsors_helper/api/to_decrypt/",
+            "/sponsors_helper/api/to_decrypt_disable/",
             "/sponsors_helper/replace_decrypt/",
             "/sponsors_helper/to_download/"
         ]
@@ -944,6 +946,7 @@ def app_container():
             try:
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
+                packages_to_decrypt_disabled = get_to_decrypt(disabled=True)
                 general_conf = CrawlerConfig('FeedCrawler')
                 packages_per_myjd_page = to_int(general_conf.get("packages_per_myjd_page"))
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
@@ -952,6 +955,7 @@ def app_container():
                     return abort(500, "Failed")
                 myjd = get_info()
                 packages_to_decrypt = get_to_decrypt()
+                packages_to_decrypt_disabled = get_to_decrypt(disabled=True)
                 packages_per_myjd_page = 3
             if myjd:
                 return {
@@ -963,7 +967,8 @@ def app_container():
                         "linkgrabber_decrypted": myjd[4][1],
                         "linkgrabber_offline": myjd[4][2],
                         "linkgrabber_failed": myjd[4][3],
-                        "to_decrypt": packages_to_decrypt
+                        "to_decrypt": packages_to_decrypt,
+                        "to_decrypt_disabled": packages_to_decrypt_disabled
                     },
                     "packages_per_myjd_page": packages_per_myjd_page
                 }
@@ -1119,7 +1124,8 @@ def app_container():
             payload = json.loads(data)
             name = payload["name"]
             delete = remove_decrypt(name)
-            if delete:
+            delete_disabled = remove_decrypt(name, disabled=True)
+            if delete or delete_disabled:
                 return "Success"
         except:
             pass
@@ -1730,23 +1736,23 @@ if (title) {
         except:
             return abort(400, "Failed")
 
-    @app.delete(prefix + "/sponsors_helper/api/to_decrypt/<name>")
-    def to_download(name):
+    @app.post(prefix + "/sponsors_helper/api/to_decrypt_disable/<name>")
+    def to_decrypt_disable(name):
         try:
             if name:
                 name.encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
                 max_attempts = str(CrawlerConfig('SponsorsHelper').get("max_attempts"))
-                if remove_decrypt(name):
+                if disable_decrypt(name):
                     try:
                         notify([{
-                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"}])
+                            "text": "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen deaktiviert)"}])
                     except:
                         print("Benachrichtigung konnte nicht versendet werden!")
                     print(
-                        "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)")
+                        "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen deaktiviert)")
                     return "<script type='text/javascript'>" \
                            "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen gelöscht)"
+                           "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen deaktiviert)"
         except:
             pass
         return abort(400, "Failed")
@@ -1815,8 +1821,8 @@ if (title) {
             result = add_decrypt_instead_of_download(package_name, 'unused', [links], password, replace=True)
             if result:
                 return "<script type='text/javascript'>" \
-                                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                       "[Link ersetzt] - " + package_name
+                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                       "[Link ersetzt] - " + package_name
         return abort(400, "Failed")
 
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")

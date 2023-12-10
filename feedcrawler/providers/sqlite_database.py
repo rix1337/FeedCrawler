@@ -41,6 +41,7 @@ def remove_redundant_db_tables(file):
         'sponsors_helper',
         'secrets',
         'to_decrypt',
+        'to_decrypt_disabled'
     ]
 
     cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
