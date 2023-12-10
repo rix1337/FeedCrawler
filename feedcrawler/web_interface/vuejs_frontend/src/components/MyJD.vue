@@ -31,6 +31,7 @@ const myjd_offline = ref([])
 const myjd_failed = ref([])
 const myjd_grabbing = ref(false)
 const to_decrypt = ref([])
+const to_decrypt_disabled = ref([])
 const update_ready = ref(false)
 
 function getMyJD() {
@@ -44,6 +45,7 @@ function getMyJD() {
         myjd_offline.value = res.data.packages.linkgrabber_offline
         myjd_failed.value = res.data.packages.linkgrabber_failed
         to_decrypt.value = res.data.packages.to_decrypt
+        to_decrypt_disabled.value = res.data.packages.to_decrypt_disabled
 
         let uuids = []
         if (myjd_failed.value) {
@@ -73,6 +75,19 @@ function getMyJD() {
             }
           }
         }
+        if (to_decrypt_disabled.value) {
+          for (let existing_package of to_decrypt_disabled.value) {
+            let name = existing_package['name']
+            names.push(name)
+          }
+          to_decrypt_disabled.value = Object.entries(res.data.packages.to_decrypt_disabled)
+          for (let failed_package of to_decrypt_disabled.value) {
+            let name = failed_package[1]['name']
+            if (!names.includes(name)) {
+              to_decrypt_disabled.value.push(failed_package[1])
+            }
+          }
+        }
         myjd_grabbing.value = res.data.grabber_collecting
         update_ready.value = res.data.update_ready
 
@@ -89,6 +104,12 @@ function getMyJD() {
             p.type = "to_decrypt"
             p.first = first
             first = false
+            myjd_packages.value.push(p)
+          }
+        }
+        if (to_decrypt_disabled.value) {
+          for (let p of to_decrypt_disabled.value) {
+            p.type = "to_decrypt_disabled"
             myjd_packages.value.push(p)
           }
         }
@@ -347,6 +368,15 @@ function internalRemove(name) {
             if (name === existing_name) {
               let index = to_decrypt.value.indexOf(failed_package)
               to_decrypt.value.splice(index, 1)
+            }
+          }
+        }
+        if (to_decrypt_disabled.value) {
+          for (let failed_package of to_decrypt_disabled.value) {
+            let existing_name = failed_package['name']
+            if (name === existing_name) {
+              let index = to_decrypt_disabled.value.indexOf(failed_package)
+              to_decrypt_disabled.value.splice(index, 1)
             }
           }
         }
@@ -623,6 +653,98 @@ function showSponsorsHelp() {
                               </div>
                               <ul class="list-group list-group-flush">
                                 <li v-if="x[1].url" class="list-group-item">
+                                  <div class="row m-1">
+                                    <a v-if="store.state.misc.helper_active && store.state.misc.helper_available && x.first && !cnl_active"
+                                       v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"
+                                       :href="x[1].url + '#' + x[1].name"
+                                       class="cnl-button btn btn-outline-success"
+                                       target="_blank"
+                                       type="submit">Sponsors Helper Click'n'Load
+                                    </a>
+                                  </div>
+                                  <span
+                                      v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                           target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
+                                    </span>
+                                  <span
+                                      v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                           target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
+                                    </span>
+                                  <span
+                                      v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
+                                           target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
+                                    </span>
+                                  <span
+                                      v-if="( store.state.hostnames.nx && x[1].url.includes(store.state.hostnames.nx.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_nx.user.js'"
+                                           target="_blank">FeedCrawler Sponsors Helper (NX)</a> installieren!
+                                    </span>
+                                  <div class="row m-1">
+                                    <a v-if="!myjd_grabbing && !cnl_active"
+                                       v-tippy="'Click\'n\'Load innerhalb einer Minute auslösen!'"
+                                       :href="x[1].url + '#' + x[1].name"
+                                       class="cnl-button btn btn-outline-secondary"
+                                       target="_blank"
+                                       type="submit"
+                                       @click="internalCnl(x[1].name, x[1].password)">Click'n'Load-Automatik
+                                    </a>
+                                  </div>
+                                  <span v-if="!myjd_grabbing">Setzt voraus, dass Port 9666 des JDownloaders durch diese Browsersitzung erreichbar ist.</span>
+                                  <span
+                                      v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                           target="_blank">FeedCrawler Helper (SJ)</a> installieren!
+                                    </span>
+                                  <span
+                                      v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
+                                        <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
+                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                           target="_blank">FeedCrawler Helper (DJ)</a> installieren!
+                                    </span>
+                                  <span v-if="!store.state.misc.helper_active"><br>
+                                        <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
+                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                                            href="https://github.com/users/rix1337/sponsorship"
+                                            target="_blank">Sponsor werden</a> und den <a
+                                            href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</div>
+                                    </span>
+                                  <span v-if="myjd_grabbing"><br>Die Click'n'Load-Automatik funktioniert nicht bei aktivem Linkgrabber.</span>
+                                  <span v-if="cnl_active" class="cnl-spinner"><br>
+                                        <span class="spinner-border spinner-border-sm" role="status"></span> <strong>Warte noch {{
+                                        time
+                                      }} {{ time == 1 ? 'Sekunde' : 'Sekunden' }} auf hinzugefügte Links!</strong>
+                                    </span>
+                                </li>
+                                <li v-if="!cnl_active" class="list-group-item cnl-blockers">
+                                  <button v-if="!cnl_active" class="btn btn-outline-danger"
+                                          @click="internalRemove(x[1].name)"><i class="bi bi-trash3"></i>
+                                    Löschen
+                                  </button>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+
+
+                          <div class="myjd-to-decrypt-disabled">
+                            <div v-if="x.type==='to_decrypt_disabled'" class="card bg-secondary">
+                              <div class="card-header">
+                                <strong>{{ x[1].name }}</strong>
+                              </div>
+                              <ul class="list-group list-group-flush">
+                                <li v-if="x[1].url" class="list-group-item">
+                                  <span>
+                                    Für dieses Paket wurde die maximale Anzahl CAPTCHA-Lösungsversuche erreicht.
+                                    Eine manuelle Lösung ist erforderlich.
+                                  </span>
                                   <div class="row m-1">
                                     <a v-if="store.state.misc.helper_active && store.state.misc.helper_available && x.first && !cnl_active"
                                        v-tippy="'Da der Click\'n\'Load des FeedCrawler Sponsors Helper verfügbar ist, kann die Click\'n\'Load Automatik hiermit umgangen werden.'"

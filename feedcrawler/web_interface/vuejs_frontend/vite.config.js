@@ -10,11 +10,11 @@ export default defineConfig({
     server: {
         proxy: {
             '/api': {
-                target: 'http://localhost:9090/feedcrawler',
+                target: 'http://127.0.0.1:9090',
                 changeOrigin: true
             },
             '/sponsors_helper/api': {
-                target: 'http://localhost:9090/feedcrawler',
+                target: 'http://127.0.0.1:9090',
                 changeOrigin: true
             },
         },

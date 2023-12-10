@@ -287,9 +287,13 @@ def fullhd_title(key):
     return key.replace("720p", "DL.1080p")
 
 
-def get_to_decrypt():
+def get_to_decrypt(disabled=False):
     try:
-        to_decrypt = FeedDb('to_decrypt').retrieve_all_titles_unordered()
+        if disabled:
+            to_decrypt = FeedDb('to_decrypt_disabled').retrieve_all_titles_unordered()
+        else:
+            to_decrypt = FeedDb('to_decrypt').retrieve_all_titles_unordered()
+
         if to_decrypt:
             hostnames = CrawlerConfig('Hostnames')
             sj = hostnames.get('sj')
@@ -452,11 +456,41 @@ def remove(retailtitel):
         print('Fehler beim Entfernen des Eintrages für ' + retailtitel + ' aus der Liste "Filme"!')
 
 
-def remove_decrypt(title):
+def remove_decrypt(title, disabled=False):
+    try:
+        if disabled:
+            db = FeedDb('to_decrypt_disabled')
+        else:
+            db = FeedDb('to_decrypt')
+        all_titles = db.retrieve_all_titles()
+        for t in all_titles:
+            if t[0].strip() == title.strip():
+                db.delete(t[0])
+                return True
+
+            try:
+                season_in_title = re.findall(r"s(\d{1,3})", t[0], re.IGNORECASE)
+                season_package = re.findall(r"s\d{1,3}\.*-\.*s\d{1,3}", title.strip(), re.IGNORECASE)
+                if season_in_title and season_package:
+                    seasons_in_package = re.findall(r"s(\d{1,3})", season_package[0], re.IGNORECASE)
+                    if int(season_in_title[0]) in range(int(seasons_in_package[0]), int(seasons_in_package[1]) + 1):
+                        check_title = t[0].strip().lower().split('s' + season_in_title[0])[0]
+                        if check_title in title.strip().lower():
+                            db.delete(t[0])
+                            return True
+            except:
+                pass
+    except:
+        pass
+    return False
+
+
+def disable_decrypt(title):
     try:
         all_titles = FeedDb('to_decrypt').retrieve_all_titles()
         for t in all_titles:
             if t[0].strip() == title.strip():
+                FeedDb('to_decrypt_disabled').store(t[0], t[1])
                 FeedDb('to_decrypt').delete(t[0])
                 return True
 
@@ -468,6 +502,7 @@ def remove_decrypt(title):
                     if int(season_in_title[0]) in range(int(seasons_in_package[0]), int(seasons_in_package[1]) + 1):
                         check_title = t[0].strip().lower().split('s' + season_in_title[0])[0]
                         if check_title in title.strip().lower():
+                            FeedDb('to_decrypt_disabled').store(t[0], t[1])
                             FeedDb('to_decrypt').delete(t[0])
                             return True
             except:

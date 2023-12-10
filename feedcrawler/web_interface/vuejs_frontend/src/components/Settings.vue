@@ -1218,7 +1218,7 @@ function showWikiHelp() {
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
                   <FormKit v-model="store.state.settings.sponsors_helper.max_attempts"
-                           help="Um keine CAPTCHA-Credits zu verschwenden, löscht der FeedCrawler Sponsor Helper ein Paket, nachdem dieser Schwellwert erreicht wurde."
+                           help="Um keine CAPTCHA-Credits zu verschwenden, überspringt der FeedCrawler Sponsor Helper ein Paket, nachdem dieser Schwellwert erreicht wurde."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
                            label="Erlaubte Fehlversuche"
