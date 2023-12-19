@@ -328,10 +328,9 @@ const waitTimeActive = computed(() => {
                   der
                   Name).<br>
                   Die Freischaltung erfolgt automatisch für aktive Sponsoren im dafür eingerichteten
-                  Github-Repo.
+                  GitHub-Repo.
                 </p>
-                <p>Benötigt wird ein Docker-Host mit mindestens 1 GB verfügbarem Arbeitsspeicher und ein Account
-                  beim
+                <p>Benötigt wird ein Account beim
                   unter <a href="#" @click="showCaptchasHelp()">CAPTCHAs</a> beworbenen Captcha-Solver.</p>
                 <span>
               <br>
