@@ -387,6 +387,35 @@ function internalRemove(name) {
       })
 }
 
+function internalRetry(name) {
+  axios.post('api/internal_retry/', {"name": name})
+      .then(function () {
+        toast.success('Paket ' + name + ' reaktiviert!')
+        if (to_decrypt.value) {
+          for (let failed_package of to_decrypt.value) {
+            let existing_name = failed_package['name']
+            if (name === existing_name) {
+              let index = to_decrypt.value.indexOf(failed_package)
+              to_decrypt.value.splice(index, 1)
+            }
+          }
+        }
+        if (to_decrypt_disabled.value) {
+          for (let failed_package of to_decrypt_disabled.value) {
+            let existing_name = failed_package['name']
+            if (name === existing_name) {
+              let index = to_decrypt_disabled.value.indexOf(failed_package)
+              to_decrypt_disabled.value.splice(index, 1)
+            }
+          }
+        }
+        getMyJD()
+      }, function () {
+        console.log('Konnte Download ' + name + ' nicht reaktivieren!')
+        toast.error('Konnte Download ' + name + ' nicht reaktivieren!')
+      })
+}
+
 function myJDretry(linkids, uuid, links, name) {
   links = btoa(links)
   axios.post('api/myjd_retry/' + linkids + "&" + uuid + "&" + links)
@@ -711,7 +740,7 @@ function showSponsorsHelp() {
                                     </span>
                                   <span v-if="!store.state.misc.helper_active"><br>
                                         <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
-                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
                                             href="https://github.com/users/rix1337/sponsorship"
                                             target="_blank">Sponsor werden</a> und den <a
                                             href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</div>
@@ -803,7 +832,7 @@ function showSponsorsHelp() {
                                     </span>
                                   <span v-if="!store.state.misc.helper_active"><br>
                                         <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
-                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
                                             href="https://github.com/users/rix1337/sponsorship"
                                             target="_blank">Sponsor werden</a> und den <a
                                             href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</div>
@@ -816,7 +845,14 @@ function showSponsorsHelp() {
                                     </span>
                                 </li>
                                 <li v-if="!cnl_active" class="list-group-item cnl-blockers">
-                                  <button v-if="!cnl_active" class="btn btn-outline-danger"
+                                  <button v-if="!cnl_active" v-tippy="'Erneut hinzufügen'"
+                                          class="btn btn-outline-info m-1"
+                                          @click="internalRetry(x[1].name)"><i
+                                      class="bi bi-arrow-counterclockwise"></i>
+                                    Erneut
+                                    hinzufügen
+                                  </button>
+                                  <button v-if="!cnl_active" class="btn btn-outline-danger m-1"
                                           @click="internalRemove(x[1].name)"><i class="bi bi-trash3"></i>
                                     Löschen
                                   </button>

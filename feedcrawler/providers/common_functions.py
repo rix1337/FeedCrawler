@@ -156,7 +156,7 @@ def check_valid_release(title, retail_only, hevc_retail):
                                 if ep == int(episode_in_title):
                                     results = results + [result]
             except:
-                print("Fehler in Folgen-Erkennung. Bitte Issue auf Github öffnen: " + title)
+                print("Fehler in Folgen-Erkennung. Bitte Issue auf GitHub öffnen: " + title)
 
             season_search_title = search_title.replace(title_with_episodes[0], "") + "."
             season_results = db.retrieve_all_beginning_with(season_search_title)
@@ -511,6 +511,32 @@ def disable_decrypt(title):
         pass
     return False
 
+
+def enable_decrypt(title):
+    try:
+        all_titles = FeedDb('to_decrypt_disabled').retrieve_all_titles()
+        for t in all_titles:
+            if t[0].strip() == title.strip():
+                FeedDb('to_decrypt').store(t[0], t[1])
+                FeedDb('to_decrypt_disabled').delete(t[0])
+                return True
+
+            try:
+                season_in_title = re.findall(r"s(\d{1,3})", t[0], re.IGNORECASE)
+                season_package = re.findall(r"s\d{1,3}\.*-\.*s\d{1,3}", title.strip(), re.IGNORECASE)
+                if season_in_title and season_package:
+                    seasons_in_package = re.findall(r"s(\d{1,3})", season_package[0], re.IGNORECASE)
+                    if int(season_in_title[0]) in range(int(seasons_in_package[0]), int(seasons_in_package[1]) + 1):
+                        check_title = t[0].strip().lower().split('s' + season_in_title[0])[0]
+                        if check_title in title.strip().lower():
+                            FeedDb('to_decrypt').store(t[0], t[1])
+                            FeedDb('to_decrypt_disabled').delete(t[0])
+                            return True
+            except:
+                pass
+    except:
+        pass
+    return False
 
 def retail_sub(title):
     simplified = title.replace(".", " ")

@@ -44,6 +44,7 @@ from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_
 from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
 from feedcrawler.providers.common_functions import keep_numbers
 from feedcrawler.providers.common_functions import remove_decrypt
+from feedcrawler.providers.common_functions import enable_decrypt
 from feedcrawler.providers.common_functions import disable_decrypt
 from feedcrawler.providers.common_functions import rreplace
 from feedcrawler.providers.config import CrawlerConfig
@@ -1131,6 +1132,20 @@ def app_container():
             pass
         return abort(400, "Failed")
 
+    @app.post(prefix + "/api/internal_retry/")
+    @auth_basic(is_authenticated_user)
+    def internal_remove():
+        try:
+            data = request.body.read().decode("utf-8")
+            payload = json.loads(data)
+            name = payload["name"]
+            reactivated_disabled = enable_decrypt(name)
+            if reactivated_disabled:
+                return "Success"
+        except:
+            pass
+        return abort(400, "Failed")
+
     @app.post(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>")
     @auth_basic(is_authenticated_user)
     def myjd_retry(linkids, uuids, b64_links):
@@ -1279,6 +1294,7 @@ def app_container():
 
             if do_add_decrypted(name, password, cnl_packages):
                 remove_decrypt(name)
+                remove_decrypt(name, disabled=True)
                 return "Success"
         except:
             pass
@@ -1910,6 +1926,7 @@ def attempt_download(package_name, links, password, ids):
 
                 remove_from_linkgrabber(linkids, uuids)
                 remove_decrypt(package_name)
+                remove_decrypt(package_name, disabled=True)
         else:
             is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
             if not is_episode:
@@ -1961,6 +1978,7 @@ def attempt_download(package_name, links, password, ids):
                                 uuids = [check_package['uuid']]
                                 remove_from_linkgrabber(linkids, uuids)
                                 remove_decrypt(package_name)
+                                remove_decrypt(package_name, disabled=True)
                                 return "<script type='text/javascript'>" \
                                        "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                                        "[CAPTCHA gelöst] - " + package_name
@@ -1983,6 +2001,7 @@ def attempt_download(package_name, links, password, ids):
                                       "dd.51")):
                         episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
                         remove_decrypt(package['name'])
+                        remove_decrypt(package['name'], disabled=True)
                         if episode:
                             episode_to_keep = str(int(episode[0]))
                             episode = str(episode[0])
@@ -1999,6 +2018,7 @@ def attempt_download(package_name, links, password, ids):
                             break
             time.sleep(1)
             remove_decrypt(package_name)
+            remove_decrypt(package_name, disabled=True)
         try:
             epoch = int(time.time())
             for item in already_added:

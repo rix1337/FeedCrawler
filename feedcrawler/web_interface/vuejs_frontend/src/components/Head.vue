@@ -226,13 +226,13 @@ function showSiteStatusHelp() {
 
               <div class="col-md-auto p-1">
                 <a v-if="!store.state.misc.helper_active"
-                   v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive Github Sponsorship!'"
+                   v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
                    class="btn btn-outline-danger"
                    href="https://github.com/users/rix1337/sponsorship"
                    target="_blank"><i id="no-heart" class="bi bi-emoji-frown"></i> Kein
                   aktiver
                   Sponsor</a>
-                <a v-else v-tippy="'Vielen Dank für die aktive Github Sponsorship!'" class="btn btn-outline-success"
+                <a v-else v-tippy="'Vielen Dank für die aktive GitHub Sponsorship!'" class="btn btn-outline-success"
                    href="https://github.com/users/rix1337/sponsorship"
                    target="_blank"><i id="heart" class="bi bi-heart"></i> Aktiver
                   Sponsor</a>
