@@ -10,6 +10,7 @@ Für die intensive Arbeit der letzten Wochen freut sich dieses Projekt über jed
 
 ### Changelog FeedCrawler:
 
+- **19.0.5** Security Updates
 - **19.0.4** "Erneut automatisch lösen"-Button für deaktivierte Pakete 
 - **19.0.4** Lösche deaktivierte Pakete bei manuellem Lösen von CAPTCHAs
 - **19.0.3** Deaktiviere Pakete nach Erreichen der maximalen CAPTCHA-Lösungsversuche, statt diese zu löschen.
