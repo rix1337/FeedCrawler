@@ -14,8 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
+        uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('setup.py') }}
@@ -27,7 +27,7 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 16.x
       - name: Install Node dependencies
@@ -39,7 +39,7 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
       - name: Upload Linux wheel
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-wheel
           path: ./dist/*
@@ -49,8 +49,8 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-      - uses: actions/cache@v3
+        uses: actions/checkout@v4
+      - uses: actions/cache@v4
         with:
           path: ~\AppData\Local\pip\Cache
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('setup.py') }}
@@ -62,7 +62,7 @@ jobs:
           pip install pyinstaller
           pip install -r requirements.txt
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 16.x
       - name: Install Node dependencies
@@ -75,7 +75,7 @@ jobs:
           $version = python feedcrawler/providers/version.py
           pyinstaller --onefile -y -i "feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" --noconsole --version-file "file_version_info.txt" --add-data "feedcrawler/web_interface/vuejs_frontend;web_interface/vuejs_frontend" "FeedCrawler.py" -n "feedcrawler-$version-standalone-win64"
       - name: Upload Windows Exe
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: artifact-exe
           path: ./dist/*.exe
@@ -86,9 +86,9 @@ jobs:
     needs: [ build_wheel, build_exe ]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - uses: actions/download-artifact@v3
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}-${{ hashFiles('setup.py') }}
