@@ -4,10 +4,6 @@
 
 ---
 
-### 🎄🎁 Frohe Weihnachten und ein gesundes neues Jahr! 🌟✨🎉
-
-Für die intensive Arbeit der letzten Wochen freut sich dieses Projekt über jede Unterstützung. Über [diesen Link](https://github.com/sponsors/rix1337?frequency=one-time&sponsor=rix1337) sind einmalige Beiträge möglich. Vielen Dank für die Unterstützung! 🙏
-
 ### Changelog FeedCrawler:
 
 - **19.0.6** Fix #770, danke @9Mad-Max5
