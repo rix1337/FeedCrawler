@@ -962,11 +962,32 @@ class Myjdapi:
         :param secret_token:
         :param data:
         """
-        init_vector = secret_token[:len(secret_token) // 2]
+        init_vector = secret_token[: len(secret_token) // 2]
         key = secret_token[len(secret_token) // 2:]
         decryptor = AES.new(key, AES.MODE_CBC, init_vector)
-        decrypted_data = unpad(decryptor.decrypt(base64.b64decode(data)))
+        try:
+            decrypted_data = unpad(decryptor.decrypt(self.__base64_decode(data)))
+        except:
+            raise MYJDException(
+                "Failed to decode response: {}", data
+            )
+
         return decrypted_data
+
+    def __base64_decode(self, s):
+        """Add missing padding to string and return the decoded base64 string."""
+        s = str(s).strip()
+        try:
+            return base64.b64decode(s)
+        except TypeError:
+            padding = len(s) % 4
+            if padding == 1:
+                return ""
+            elif padding == 2:
+                s += b"=="
+            elif padding == 3:
+                s += b"="
+            return base64.b64decode(s)
 
     def __encrypt(self, secret_token, data):
         """
