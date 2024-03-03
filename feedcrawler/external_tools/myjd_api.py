@@ -963,18 +963,15 @@ class Myjdapi:
         :param data:
         """
         init_vector = secret_token[: len(secret_token) // 2]
-        key = secret_token[len(secret_token) // 2 :]
+        key = secret_token[len(secret_token) // 2:]
         decryptor = AES.new(key, AES.MODE_CBC, init_vector)
-        # data = self.__base64_decode(data)
-        # padded_decrypt = decryptor.decrypt(data)
-        # padded_decrypt = decryptor.decrypt(base64.b64decode(data))
         try:
             decrypted_data = unpad(decryptor.decrypt(self.__base64_decode(data)))
         except:
             raise MYJDException(
                 "Failed to decode response: {}", data
             )
-        
+
         return decrypted_data
 
     def __base64_decode(self, s):
@@ -991,7 +988,7 @@ class Myjdapi:
             elif padding == 3:
                 s += b"="
             return base64.b64decode(s)
-        
+
     def __encrypt(self, secret_token, data):
         """
         Encrypts the data from the server using the provided token
