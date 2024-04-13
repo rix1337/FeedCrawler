@@ -1,13 +1,12 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, ref} from 'vue'
-import {useToast} from "vue-toastification"
+import {computed, inject, ref} from 'vue'
 import {submitForm} from '@formkit/vue'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 
 const store = useStore()
-const toast = useToast()
+const toast = inject('toast')
 
 const mb_search = [
   {value: '1', label: '1 Seite'},
@@ -713,7 +712,7 @@ function showWikiHelp() {
                 <button aria-controls="collapseSettingsBl" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsBl"
                         data-bs-toggle="collapse" type="button">
-                    Filme ({{ store.state.hostnames.bl }})
+                  Filme ({{ store.state.hostnames.bl }})
                 </button>
               </h2>
               <div id="collapseSettingsBl" aria-labelledby="headingSettingsBl" class="accordion-collapse collapse"
@@ -890,7 +889,7 @@ function showWikiHelp() {
                 <button aria-controls="collapseSettingsS" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsS"
                         data-bs-toggle="collapse" type="button">
-                    Folgen ({{ store.state.hostnames.s }})
+                  Folgen ({{ store.state.hostnames.s }})
                 </button>
               </h2>
               <div id="collapseSettingsS" aria-labelledby="headingSettingsS" class="accordion-collapse collapse"
@@ -1028,7 +1027,7 @@ function showWikiHelp() {
                         class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsSjBl"
                         data-bs-toggle="collapse" type="button">
-                    Staffeln ({{ store.state.hostnames.sjbl }})
+                  Staffeln ({{ store.state.hostnames.sjbl }})
                 </button>
               </h2>
               <div id="collapseSettingsSjBl" aria-labelledby="headingSettingsSjBl"
@@ -1101,7 +1100,7 @@ function showWikiHelp() {
                 <button aria-controls="collapseSettingsDj" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsDj"
                         data-bs-toggle="collapse" type="button">
-                    Dokus ({{ store.state.hostnames.dj }})
+                  Dokus ({{ store.state.hostnames.dj }})
                 </button>
               </h2>
               <div id="collapseSettingsDj" aria-labelledby="headingSettingsDj" class="accordion-collapse collapse"
@@ -1156,7 +1155,7 @@ function showWikiHelp() {
                 <button aria-controls="collapseSettingsDd" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsDd"
                         data-bs-toggle="collapse" type="button">
-                    Folgen ({{ store.state.hostnames.dd }})
+                  Folgen ({{ store.state.hostnames.dd }})
                 </button>
               </h2>
               <div id="collapseSettingsDd" aria-labelledby="headingSettingsDd" class="accordion-collapse collapse"
@@ -1182,7 +1181,7 @@ function showWikiHelp() {
                 <button aria-controls="collapseSettingsF" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsF"
                         data-bs-toggle="collapse" type="button">
-                    Sonstiges ({{ store.state.hostnames.f }})
+                  Sonstiges ({{ store.state.hostnames.f }})
                 </button>
               </h2>
               <div id="collapseSettingsF" aria-labelledby="headingSettingsF" class="accordion-collapse collapse"

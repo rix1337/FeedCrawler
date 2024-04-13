@@ -2,15 +2,19 @@ import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
 import router from './router'
-import Toast, {TYPE, useToast} from "vue-toastification"
-import "vue-toastification/dist/index.css"
+import {createToaster, Toaster} from "@meforma/vue-toaster"
 import VueTippy from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
 import {defaultConfig, plugin} from '@formkit/vue'
 import {de} from '@formkit/i18n'
 import App from './App.vue'
 
-const toast = useToast()
+const toast = createToaster({
+    duration: 3000,
+    max: 1,
+    pauseOnHover: false,
+    position: 'top',
+})
 
 // The store is created here, and then passed to the Vue instance
 // It contains the state of the application and is updated through calls to the FeedCrawler API
@@ -205,24 +209,12 @@ const store = createStore({
 const app = createApp(App)
 app.use(store)
 app.use(router)
-app.use(Toast, {
-    position: "top-center", draggable: false, maxToasts: 1, bodyClassName: ["toast-body"], toastDefaults: {
-        [TYPE.ERROR]: {
-            icon: 'bi bi-exclamation-triangle',
-        }, [TYPE.WARNING]: {
-            icon: 'bi bi-exclamation-circle',
-        }, [TYPE.INFO]: {
-            icon: 'bi bi-info-circle',
-        }, [TYPE.SUCCESS]: {
-            icon: 'bi bi-check-circle-fill', timeout: 3000,
-        }
-    }
-})
 app.use(VueTippy)
 
 app.use(plugin, defaultConfig({
-    // Define additional locales
-    locales: {de}, // Define the active locale
+    locales: {de},
     locale: 'de'
 }))
+
+app.use(Toaster).provide('toast', toast);
 app.mount('#app')

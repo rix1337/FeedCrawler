@@ -1,14 +1,13 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, onMounted, ref, watch} from 'vue'
-import {useToast} from "vue-toastification"
+import {computed, inject, onMounted, ref, watch} from 'vue'
 import Paginate from "vuejs-paginate-next"
 import {submitForm} from '@formkit/vue'
 import axios from 'axios'
 
 
 const store = useStore()
-const toast = useToast()
+const toast = inject('toast')
 
 const search_movies = ref(true)
 const search_shows = ref(true)
@@ -134,7 +133,7 @@ function downloadBL(payload, title) {
 
 function downloadS(payload, title) {
   toast.info("Starte Download: " + title + " Dieser Vorgang kann etwas dauern!", {
-    timeout: 10000
+    duration: 10000
   })
   axios.post('api/download_s/' + payload)
       .then(function () {
@@ -162,8 +161,8 @@ function submitSearch() {
       </div>
       <div class="offcanvas-body">
         <div
-                v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Folgen hinzugefügt. Komplette Serien landen auch in der Suchliste für die Feed-Suche. Alternativ kann eine einzelne Staffel/Folge per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die für die Feed-Suche gesetzte Auflösung und Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
-                class="row">
+            v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Folgen hinzugefügt. Komplette Serien landen auch in der Suchliste für die Feed-Suche. Alternativ kann eine einzelne Staffel/Folge per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die für die Feed-Suche gesetzte Auflösung und Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
+            class="row">
           <FormKit id="search" #default="{ value }"
                    :actions="false"
                    incomplete-message="Das Suchfeld muss korrekt befüllt werden!"
