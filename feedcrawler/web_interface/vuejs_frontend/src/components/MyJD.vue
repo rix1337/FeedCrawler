@@ -218,7 +218,7 @@ const myjd_pausing = ref(false)
 
 function myJDpause(pause) {
   myjd_pausing.value = true
-  axios.post('api/myjd_pause/' + pause)
+  axios.post('api/myjd_pause/' + pause + "/")
       .then(function () {
         getMyJDstate()
         if (pause) {
@@ -258,6 +258,7 @@ function myJDupdate() {
       .then(function () {
         getMyJDstate()
         console.log('JDownloader geupdatet!')
+        myjd_state.value='STOPPED_STATE'
       }, function () {
         console.log('Konnte JDownloader nicht updaten!')
         toast.error('Konnte JDownloader nicht updaten!')

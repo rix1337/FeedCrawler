@@ -6,7 +6,9 @@
 
 ### Changelog FeedCrawler:
 
-- **19.1.0** Depedency `vue-toastification` ersetzt
+- **19.1.0** Fix: Fehler in der Pause-Funktion behoben
+- **19.1.0** Fix: Zeige Start-Button nach JDownloader Update
+- **19.1.0** Depedency `vue-toastification` ersetzt durch `vue-toaster`
 - **19.0.6** Fix #770, danke @9Mad-Max5
 - **19.0.5** Security Updates
 - **19.0.4** "Erneut automatisch lösen"-Button für deaktivierte Pakete 
