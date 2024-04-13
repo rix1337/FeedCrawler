@@ -1,30 +1,34 @@
-// Set Vue-Toastification variables to bootstrap SCSS variables
+// Import Bootstrap SCSS
 @import "../node_modules/bootstrap/scss/functions";
 @import "../node_modules/bootstrap/scss/variables";
 
-$vt-color-default: $primary !default;
-$vt-text-color-default: #fff !default;
-$vt-color-info: $primary !default;
-$vt-text-color-info: #fff !default;
-$vt-color-success: $success !default;
-$vt-text-color-success: #fff !default;
-$vt-color-warning: $warning !default;
-$vt-text-color-warning: #fff !default;
-$vt-color-error: $danger !default;
-$vt-text-color-error: #fff !default;
-$vt-font-family: $font-family-sans-serif !default;
-$vt-toast-max-width: 1200px !default;
+// Toast styles
+.c-toast-container .c-toast--success {
+  background-color: $success;
+  font-family: $font-family-sans-serif;
+}
 
-// Vue Toastification imports for variables.scss
-@import "vue-toastification/src/scss/_variables";
-@import "vue-toastification/src/scss/_toastContainer";
-@import "vue-toastification/src/scss/_toast";
-@import "vue-toastification/src/scss/_closeButton";
-@import "vue-toastification/src/scss/_progressBar";
-@import "vue-toastification/src/scss/_icon";
-@import "vue-toastification/src/scss/animations/_bounce";
+.c-toast-container .c-toast--info {
+  background-color: $primary;
+  font-family: $font-family-sans-serif;
+}
 
-// Formkit Validation Styles
+.c-toast-container .c-toast--warning {
+  background-color: $warning;
+  font-family: $font-family-sans-serif;
+}
+
+.c-toast-container .c-toast--error {
+  background-color: $danger;
+  font-family: $font-family-sans-serif;
+}
+
+.c-toast-container .c-toast--default {
+  background-color: $secondary;
+  font-family: $font-family-sans-serif;
+}
+
+// Formkit Validation styles
 [data-invalid] .formkit-inner {
   border-color: $danger !important;
   border-radius: .25rem;

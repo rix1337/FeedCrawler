@@ -1,12 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, onMounted, ref} from 'vue'
-import {useToast} from 'vue-toastification'
+import {computed, inject, onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from "bootstrap"
 import axios from 'axios'
 
 const store = useStore()
-const toast = useToast()
+const toast = inject('toast')
 
 onMounted(() => {
   getVersion()
@@ -48,8 +47,8 @@ function getVersion() {
         if (update.value) {
           scrollingTitle("FeedCrawler - Update verfügbar! - ")
           console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-          toast.info("Update steht bereit! Weitere Informationen unter:\nhttps://github.com/rix1337/FeedCrawler/releases/latest", {
-            timeout: 15000,
+          toast.info("Update steht bereit! Hier klicken für weitere Informationen...", {
+            duration: 15000,
             onClick: openReleaseNotes,
           })
         }

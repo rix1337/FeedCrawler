@@ -1,12 +1,11 @@
 <script setup>
 import {useStore} from 'vuex'
-import {computed, onMounted, ref} from 'vue'
-import {useToast} from 'vue-toastification'
+import {computed, inject, onMounted, ref} from 'vue'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
 
 const store = useStore()
-const toast = useToast()
+const toast = inject('toast')
 
 onMounted(() => {
   getLog()

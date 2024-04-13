@@ -1,15 +1,15 @@
 <script setup xmlns="http://www.w3.org/1999/html">
 import {useStore} from 'vuex'
-import {computed, onMounted, ref} from 'vue'
+import {computed, inject, onMounted, ref} from 'vue'
 import {useRoute} from "vue-router"
-import {useToast} from 'vue-toastification'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
+import {fa} from "@formkit/i18n";
 
 const route = useRoute()
 const store = useStore()
-const toast = useToast()
+const toast = inject('toast')
 
 onMounted(() => {
   getContext()
@@ -218,7 +218,7 @@ const myjd_pausing = ref(false)
 
 function myJDpause(pause) {
   myjd_pausing.value = true
-  axios.post('api/myjd_pause/' + pause)
+  axios.post('api/myjd_pause/' + pause + "/")
       .then(function () {
         getMyJDstate()
         if (pause) {
@@ -258,6 +258,7 @@ function myJDupdate() {
       .then(function () {
         getMyJDstate()
         console.log('JDownloader geupdatet!')
+        myjd_state.value='STOPPED_STATE'
       }, function () {
         console.log('Konnte JDownloader nicht updaten!')
         toast.error('Konnte JDownloader nicht updaten!')
@@ -442,11 +443,8 @@ const time = ref(0)
 
 function internalCnl(name, password) {
   toast.warning("Warte auf Click'n'Load für " + name, {
-    timeout: 60000,
-    closeOnClick: false,
-    closeButton: false,
-    pauseOnFocusLoss: false,
-    pauseOnHover: false,
+    duration: 60000,
+    dismissible: false
   })
   cnl_active.value = true
   time.value = 60
