@@ -1,0 +1,3 @@
+#!/usr/bin/with-contenv bash
+
+ exec feedcrawler --docker --log-level=$LOGLEVEL --jd-user=$USER --jd-pass=$PASS --jd-device=$DEVICE --delay=$DELAY

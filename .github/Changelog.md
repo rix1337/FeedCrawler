@@ -6,6 +6,7 @@
 
 ### Changelog FeedCrawler:
 
+- **19.2.0** Vereinheitlichte Repo-Struktur / Docker-Umgebung in Haupt-Repo überführt
 - **19.1.0** Fix: Fehler in der Pause-Funktion behoben
 - **19.1.0** Fix: Zeige Start-Button nach JDownloader Update
 - **19.1.0** Depedency `vue-toastification` ersetzt durch `vue-toaster`
