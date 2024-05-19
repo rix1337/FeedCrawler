@@ -1,0 +1,23 @@
+name: Regular base image update check
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+    
+env:
+  IMAGE_BASE: lsiobase/alpine.python3
+  IMAGE: rix1337/docker-feedcrawler
+
+jobs:
+  check-base-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Docker Image Update Checker
+        id: baseupdatecheck
+        uses: lucacome/docker-image-update-checker@v1.2.1
+        with:
+          base-image: ${{ env.IMAGE_BASE }}
+          image: ${{ env.IMAGE }}
+      - name: Trigger Docker Image build
+        run: |
+          curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/FeedCrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "main"}'
+        if: steps.baseupdatecheck.outputs.needs-updating == 'true'

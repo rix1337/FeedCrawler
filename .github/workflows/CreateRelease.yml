@@ -3,8 +3,8 @@ name: Release Artifacts
 on:
   push:
     paths-ignore:
-      - '.github/ISSUE_TEMPLATE/**'
-      - '.github/workflows/**'
+      - '.github/**'
+      - 'docker/**'
     branches:
       - main
 
@@ -110,4 +110,4 @@ jobs:
           python -m twine upload ./artifact-wheel/* -u __token__ -p ${{ secrets.PYPI_TOKEN }}
       - name: Trigger Docker Image build
         run: |
-          curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/docker-feedcrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "main", "inputs": {"version": "${{ steps.version.outputs.version }}"}"}'
+          curl -XPOST -u "${{ secrets.CR_USER }}:${{secrets.CR_PAT}}" -H "Accept: application/vnd.github.v3+json" -H "Content-Type: application/json" https://api.github.com/repos/rix1337/FeedCrawler/actions/workflows/BuildImage.yml/dispatches --data '{"ref": "main", "inputs": {"version": "${{ steps.version.outputs.version }}"}"}'

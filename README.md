@@ -58,6 +58,20 @@ Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.c
 
 ### [Docker Image](https://hub.docker.com/r/rix1337/docker-feedcrawler/)
 
+```
+docker run -d \
+  --name="FeedCrawler" \
+  -p port:9090 \
+  -v /path/to/config/:/config:rw \
+  -e USER=NUTZERNAME \ 
+  -e PASS=PASSWORT \
+  -e DEVICE=GERÄTENAME \
+  -e DELAY=30 \
+  -e LOGLEVEL=[INFO/DEBUG/WARNING/ERROR/CRITICAL/NOTSET] \
+  --log-opt max-size=50m \
+  rix1337/docker-feedcrawler
+  ```
+
 * Der Betrieb als Docker-Container empfiehlt sich als Standardinstallation - vor allem für NAS-Systeme, Homeserver und
   sonstige Geräte die dauerhaft und möglichst wartungsfrei (headless) betrieben werden sollen.
 * Bei jedem Release wird ein getaggtes Image erstellt. Damit kann man auf der Wunschversion verbleiben oder im Falle
@@ -65,6 +79,20 @@ Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.c
 * Um immer auf dem aktuellen Stand zu sein, einfach das mit `latest` getaggte Image nutzen.
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
   werden.
+
+##### Optionale Parameter
+ - `-e USER` (ab dem ersten Start, sofern unverändert)
+ - `-e PASS` (ab dem ersten Start, sofern unverändert)
+ - `-e DEVICE` (immer, sofern nur ein Gerät im MyJD-Konto vorhanden ist, sonst ab dem ersten Start, sofern unverändert)
+ - `-e DELAY` (immer, sofern der erste Suchlauf nach Start nicht um diese ganze Zahl in Sekunden verzögert werden soll)
+
+##### Spezifische Version nutzen
+
+Das Image `rix1377/docker-feedcrawler` wird standardmäßig auf das `:latest`-Tag aufgelöst. Dieses wird mit jedem Release auf die neue Version aktualisiert. Mit jedem Release wird ebenfalls eine getaggte Version des Images erzeugt. Auf letztere kann man wechseln, um beispielsweise bei Fehlern in der neuen Version auf einen funktionierenden Stand zurück zu kehren.
+
+Beispiel:
+
+`docker pull rix1337/docker-feedcrawler:13.0.3`
 
 ### Windows Build
 

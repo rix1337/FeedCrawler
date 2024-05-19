@@ -26,7 +26,7 @@ from feedcrawler.web_interface.web_server import web_server
 version = "v." + version.get_version()
 
 
-def start_feedcrawler():
+def main():
     with multiprocessing.Manager() as manager:
         shared_state_dict = manager.dict()
         shared_state_lock = manager.Lock()
@@ -245,4 +245,4 @@ def start_feedcrawler():
 
 
 if __name__ == "__main__":
-    start_feedcrawler()
+    main()
