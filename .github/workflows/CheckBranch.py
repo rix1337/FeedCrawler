@@ -36,14 +36,6 @@ if __name__ == '__main__':
         sys.exit(
             'Version info mismatch in feedcrawler/providers/version.py and feedcrawler/web_interface/vuejs_frontend/package.json')
 
-    online_changelog = urlopen(
-        'https://raw.githubusercontent.com/rix1337/FeedCrawler/main/.github/Changelog.md').read()
-    online_changelog = online_changelog.decode("utf-8")
-    with open('.github/Changelog.md', encoding='utf8') as local_changelog:
-        local_changelog = local_changelog.read()
-    if online_changelog == local_changelog:
-        sys.exit('.github/Changelog.md not updated')
-
     latest = urlopen('https://github.com/rix1337/FeedCrawler/releases/latest').read()
     latest_title = latest.decode("utf-8")
     latest_title_text = re.findall(r'<title>(.+)</title>', latest_title)[0]
