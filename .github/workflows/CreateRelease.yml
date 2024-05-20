@@ -63,8 +63,6 @@ jobs:
           pip install -r requirements.txt
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with:
-          node-version: 16.x
       - name: Install Node dependencies
         run: npm ci
         working-directory: feedcrawler/web_interface/vuejs_frontend
