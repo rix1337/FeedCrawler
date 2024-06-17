@@ -1,4 +1,4 @@
-FROM ghcr.io/linuxserver/baseimage-alpine:3.18
+FROM ghcr.io/linuxserver/baseimage-alpine:3.20
 MAINTAINER rix1337
 
 # Define package name
@@ -12,7 +12,8 @@ ARG VS="false"
 RUN echo "VS: ${VS}"
 
 # setup
-RUN pip3 install --upgrade pip \
+RUN mkdir -p ~/.config/pip && echo -e "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf \
+  && pip3 install --upgrade pip \
   && pip3 install wheel
 
 # Install specified package version and clean up unneeded packages
