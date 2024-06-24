@@ -97,7 +97,10 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
             for result in search_results:
                 year = ""
                 if year_in_title:
-                    year = ' ' + result['titleReleaseText']
+                    try:
+                        year = ' ' + result['titleReleaseText']
+                    except KeyError:
+                        year = " 9999"
                 if simplified_search_term_in_title(title, result['titleNameText'] + year):
                     imdb_id = result['id']
                     break

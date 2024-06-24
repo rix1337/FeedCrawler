@@ -610,10 +610,6 @@ def app_container():
         try:
             plex_config = CrawlerConfig('Plex')
 
-            if not plex_config.get('url'):
-                return (
-                    "Bitte zuerst eine valide Plex URL eintragen und <strong>speichern</strong>! <a href='../..'>Zurück</a>")
-
             plex_config.save('pin_id', '')
             plex_config.save('pin_code', '')
 
@@ -642,8 +638,8 @@ def app_container():
                 response = json.loads(generate_pin["text"])
                 pin_id = response['id']
                 pin_code = response['code']
-                plex_config.save('pin_id', pin_id)
-                plex_config.save('pin_code', pin_code)
+                plex_config.save('pin_id', str(pin_id))
+                plex_config.save('pin_code', str(pin_code))
             else:
                 return abort(400, "Plex-API reagiert nicht. PIN konnte nicht erzeugt werden.")
 
@@ -695,6 +691,35 @@ def app_container():
             return ("Plex-Token wurde erfolgreich gespeichert! <a href='../..'>Zurück</a>")
         else:
             return abort(400, "Die Authentifizierung war nicht erfolgreich. Bitte erneut versuchen.")
+
+    @app.get(prefix + "/api/plex_server_urls/")
+    @auth_basic(is_authenticated_user)
+    def get_plex_server_urls():
+        plex_servers = []
+        try:
+            plex_config = CrawlerConfig('Plex')
+            token = plex_config.get('api')
+            plex_headers = get_plex_headers(token)
+
+            servers = get_url_headers('https://plex.tv/api/v2/resources?includeHttps=1', headers=plex_headers)
+            root = ElementTree.fromstring(servers["text"])
+
+            for resource in root.findall('resource'):
+                if resource.get('product') == 'Plex Media Server':
+                    for connection in resource.findall('connections/connection'):
+                        is_local = connection.get('local') == '1'
+                        plex_servers.append({
+                            'url': connection.get('uri'),
+                            'is_local': is_local
+                        })
+        except:
+            shared_state.logger.debug("Fehler beim Abruf der Plex-Server.")
+            pass
+
+        if plex_servers:
+            return json.dumps(plex_servers)
+        else:
+            return abort(400, "Abruf der Plex-Server-IPs fehlgeschlagen.")
 
     @app.get(prefix + "/api/version/")
     @auth_basic(is_authenticated_user)
