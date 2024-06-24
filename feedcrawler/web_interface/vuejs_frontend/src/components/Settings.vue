@@ -77,6 +77,32 @@ function showWikiHelp() {
     toggle: true
   })
 }
+
+const plexServers = ref([])
+const selectedPlexServer = ref('')
+const placeholderText = ref('')
+const plexServersRequestMade = ref(false)
+
+function getPlexServersInfo() {
+  axios.get('api/plex_server_urls/')
+      .then(function (res) {
+        plexServers.value = res.data
+
+        const localCount = res.data.filter(server => server.is_local).length
+        const remoteCount = res.data.length - localCount
+
+        placeholderText.value = `${localCount} Lokal / ${remoteCount} Remote`
+        plexServersRequestMade.value = true
+        toast.info("Bitte die gewünschte Plex-Direct-URL auswählen!")
+      }, function () {
+        console.error('Konnte Plex-Direct-URLs nicht abrufen!');
+        toast.error('Konnte Plex-Direct-URLs nicht abrufen!')
+      })
+}
+
+function updatePlexUrl() {
+  store.state.settings.plex.url = selectedPlexServer.value
+}
 </script>
 
 
@@ -610,6 +636,19 @@ function showWikiHelp() {
                    class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
+                  <h5>Plex-API freischalten</h5>
+                  <div class="mb-4">
+                    <div v-if="!store.state.settings.plex.api">
+                      <mark>
+                        <a href="./api/plex_auth/">Hier</a> freischalten.
+                      </mark>
+                    </div>
+                    <div v-else>
+                        <span class="text-success">
+                          Erfolgreich freigeschaltet.
+                        </span>
+                    </div>
+                  </div>
                   <FormKit v-model="store.state.settings.plex.url"
                            :validation="[['matches', /^https:\/\/.*\.plex.direct:\d{1,6}$/]]"
                            :validation-messages="{
@@ -620,35 +659,20 @@ function showWikiHelp() {
                            input-class="form-control bg-light mb-2"
                            label="Plex-Direct-URL"
                            messages-class="text-danger"
-                           outer-class="mb-4"
+                           outer-class="mb-2"
                            placeholder="Bspw. https://192-168-0-1.a1bcd234abc123456c7891011def12g9.plex.direct:32400"
                            type="url"
                            validation="url"
                            validation-visibility="live"/>
-                  <div class="mb-4">
-                    <span>Wie eine Plex-Direct-URL ermittelt wird, ist im <a href="#" @click="showWikiHelp()">Wiki</a>
-                      beschrieben.
-                    </span>
-                  </div>
-                  <h5>Plex Integration</h5>
-                  <div class="mb-4">
-                    <div v-if="store.state.settings.plex.url !== ''">
-                      <div v-if="!store.state.settings.plex.api">
-                        <mark>
-                          <a href="./api/plex_auth/">Hier</a> authentifizieren.
-                        </mark>
-                      </div>
-                      <div v-else>
-                        <span class="text-success">
-                          Erfolgreich authentifiziert.
-                        </span>
-                      </div>
-                    </div>
-                    <div v-else>
-                      <span class="text-danger">
-                        Bitte zuerst eine valide Plex URL eintragen und <strong>speichern</strong>!
-                      </span>
-                    </div>
+                  <div class="mt-2 mb-4">
+                    <div @click="getPlexServersInfo" class="btn btn-primary mb-2">Plex-Direct-URLs abrufen</div>
+                    <select v-if="plexServers.length" v-model="selectedPlexServer" @change="updatePlexUrl"
+                            class="form-control border-info border-2 mt-2">
+                      <option disabled value="">{{ placeholderText }}</option>
+                      <option v-for="server in plexServers" :key="server.url" :value="server.url">{{ server.url }}
+                        ({{ server.is_local ? 'Lokal' : 'Remote' }})
+                      </option>
+                    </select>
                   </div>
                   <FormKit v-model="store.state.settings.overseerr.url"
                            :validation="value.overseerr_api ? 'required|url' : 'url'"

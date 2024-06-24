@@ -97,6 +97,13 @@ def plex_search(first_launch):
         return [0, 0]
 
     plex_headers = get_plex_headers(token)
+    token_valid = get_url_headers('https://plex.tv/api/v2/user', headers=plex_headers)
+    if token_valid["status_code"] == 401:
+        shared_state.logger.debug("Plex-Token ungültig. Bitte erneuern.")
+        print("Plex-Token ungültig. Bitte erneuern.")
+        token = ''
+        config.save('api', token)
+
     english = CrawlerConfig('FeedCrawler').get('english')
 
     try:
@@ -120,6 +127,10 @@ def plex_search(first_launch):
 
         for element in watchlist:
             title = element.attrib["title"]
+            try:
+                original_title = element.attrib.get("originalTitle")
+            except:
+                original_title = None
 
             library_tag = '&type=2' if element.attrib["type"] == "show" else '&type=1'
             library_item_url = '/library/all?guid=' + parse.quote(element.attrib["guid"], safe='') + library_tag
@@ -140,6 +151,11 @@ def plex_search(first_launch):
                     year = element.attrib["year"]
                     imdb_id = get_imdb_id_from_title(title + " " + year, current_list="List_ContentAll_Seasons",
                                                      language="en", year_in_title=True)
+                    if not imdb_id and original_title:
+                        imdb_id = get_imdb_id_from_title(original_title + " " + year,
+                                                         current_list="List_ContentAll_Seasons",
+                                                         language="de", year_in_title=True)
+
                     if imdb_id:
                         requested_shows.append({
                             "title": title,

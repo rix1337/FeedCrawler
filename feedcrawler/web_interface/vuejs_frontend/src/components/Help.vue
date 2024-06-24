@@ -452,34 +452,6 @@ const waitTimeActive = computed(() => {
               </div>
             </div>
           </div>
-          <div class="accordion-item">
-            <h2 id="headingPlexDirect" class="accordion-header">
-              <button aria-controls="collapsePlexDirect" aria-expanded="false" class="accordion-button collapsed"
-                      data-bs-target="#collapsePlexDirect"
-                      data-bs-toggle="collapse" type="button">
-                Plex-Direct-URL
-              </button>
-            </h2>
-            <div id="collapsePlexDirect" aria-labelledby="headingPlexDirect" class="accordion-collapse collapse"
-                 data-bs-parent="#accordionHelp">
-              <div class="accordion-body">
-                <p>Um die Plex-Integration zu nutzen, ist eine valide Plex-Direct-URL notwendig.
-                  Wenn am Plex-Server <code>Netzwerk</code> / <code>Sichere Verbindung</code> auf
-                  <code>Erforderlich</code> gesetzt wurde, ist dabei zwingend eine <code>https://</code> Verbindung im
-                  FeedCrawler anzugeben. Auch generell ist es empfehlenswert Sichere Verbindungen für die Kommunikation
-                  mit Anwendungen zu nutzen.</p>
-                <p>HTTPS-Verbindungen nutzen Zertifikate, die bestätigen, dass die Verbindung sicher ist.</p>
-                <p><strong>Es ist daher nicht ausreichend,
-                  <ins>nur die IP-Adresse des Servers</ins>
-                  anzugeben</strong>.
-                </p>
-                <p>Der FeedCrawler benötigt stattdessen, wie Plex auch, die Plex-Direct-URL des Servers.</p>
-                <a class="btn btn-outline-success"
-                   href="https://github.com/rix1337/FeedCrawler/wiki/6.-Plex-Direct-URL-ermitteln"
-                   target="_blank">Weitere Hinweise gibt es im Wiki.</a>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </div>
