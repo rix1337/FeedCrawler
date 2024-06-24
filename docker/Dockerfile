@@ -36,4 +36,4 @@ ENV VERSION=""
 ENV DELAY=""
 
 # Run command
-ENTRYPOINT ["feedcrawler", "--docker", "--log-level", "$LOGLEVEL", "--jd-user", "$USER", "--jd-pass", "$PASS", "--jd-device", "$DEVICE", "--delay", "$DELAY"]
+ENTRYPOINT ["sh", "-c", "feedcrawler --docker --log-level=$LOGLEVEL --jd-user=$USER --jd-pass=$PASS --jd-device=$DEVICE --delay=$DELAY"]
