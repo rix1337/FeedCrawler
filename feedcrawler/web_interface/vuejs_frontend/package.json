@@ -1,6 +1,6 @@
 {
   "name": "feedcrawler-web",
-  "version": "19.2.3",
+  "version": "19.2.4",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -14,9 +14,9 @@
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "sass": "^1.77.5",
-    "vue": "^3.4.29",
-    "vue-router": "^4.3.3",
+    "sass": "^1.77.6",
+    "vue": "^3.4.30",
+    "vue-router": "^4.4.0",
     "vue-tippy": "^6.4.1",
     "vuejs-paginate-next": "^1.0.2",
     "vuex": "^4.1.0"
