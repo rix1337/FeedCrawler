@@ -1,27 +1,17 @@
 <script setup xmlns="http://www.w3.org/1999/html">
 import {useStore} from 'vuex'
 import {computed, inject, onMounted, ref} from 'vue'
-import {useRoute} from "vue-router"
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
-import {fa} from "@formkit/i18n";
 
-const route = useRoute()
 const store = useStore()
 const toast = inject('toast')
 
 onMounted(() => {
-  getContext()
   getMyJD()
   setInterval(getMyJD, 10 * 1000)
 })
-
-const context = ref('')
-
-function getContext() {
-  context.value = route.path.split('/').slice(-1)[0]
-}
 
 const myjd_state = ref(false)
 const myjd_packages = ref([])
@@ -258,7 +248,7 @@ function myJDupdate() {
       .then(function () {
         getMyJDstate()
         console.log('JDownloader geupdatet!')
-        myjd_state.value='STOPPED_STATE'
+        myjd_state.value = 'STOPPED_STATE'
       }, function () {
         console.log('Konnte JDownloader nicht updaten!')
         toast.error('Konnte JDownloader nicht updaten!')
@@ -692,25 +682,25 @@ function showSponsorsHelp() {
                                   <span
                                       v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_fc.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( store.state.hostnames.nx && x[1].url.includes(store.state.hostnames.nx.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_nx.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (NX)</a> installieren!
                                     </span>
                                   <div class="row m-1">
@@ -727,13 +717,13 @@ function showSponsorsHelp() {
                                   <span
                                       v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
                                   <span v-if="!store.state.misc.helper_active"><br>
@@ -784,25 +774,25 @@ function showSponsorsHelp() {
                                   <span
                                       v-if="( store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (SJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_sj.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (DJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( x[1].url.includes('filecrypt') || ( store.state.hostnames.ww && x[1].url.includes(store.state.hostnames.ww.toLowerCase().replace('www.', '')) ) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_fc.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_fc.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (FC)</a> installieren!
                                     </span>
                                   <span
                                       v-if="( store.state.hostnames.nx && x[1].url.includes(store.state.hostnames.nx.toLowerCase().replace('www.', '')) ) && store.state.misc.helper_active && store.state.misc.helper_available && x.first">Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_sponsors_helper_nx.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Sponsors Helper (NX)</a> installieren!
                                     </span>
                                   <div class="row m-1">
@@ -819,13 +809,13 @@ function showSponsorsHelp() {
                                   <span
                                       v-if="store.state.hostnames.sj && x[1].url.includes(store.state.hostnames.sj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Helper (SJ)</a> installieren!
                                     </span>
                                   <span
                                       v-if="store.state.hostnames.dj && x[1].url.includes(store.state.hostnames.dj.toLowerCase())"><br>Bitte zuerst
                                         <a href="https://www.tampermonkey.net/" target="_blank">Tampermonkey</a> und dann
-                                        <a :href="context + './sponsors_helper/feedcrawler_helper_sj.user.js'"
+                                        <a href="/sponsors_helper/feedcrawler_sponsors_helper_nx.user.js"
                                            target="_blank">FeedCrawler Helper (DJ)</a> installieren!
                                     </span>
                                   <span v-if="!store.state.misc.helper_active"><br>

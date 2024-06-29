@@ -1,7 +1,6 @@
 import {createApp} from 'vue'
 import {createStore} from 'vuex'
 import axios from 'axios'
-import router from './router'
 import {createToaster, Toaster} from "@meforma/vue-toaster"
 import VueTippy from 'vue-tippy'
 import 'tippy.js/dist/tippy.css'
@@ -208,7 +207,6 @@ const store = createStore({
 
 const app = createApp(App)
 app.use(store)
-app.use(router)
 app.use(VueTippy)
 
 app.use(plugin, defaultConfig({
@@ -216,5 +214,5 @@ app.use(plugin, defaultConfig({
     locale: 'de'
 }))
 
-app.use(Toaster).provide('toast', toast);
+app.use(Toaster).provide('toast', toast)
 app.mount('#app')
