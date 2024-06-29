@@ -22,6 +22,7 @@ from feedcrawler.providers.common_functions import check_valid_release
 from feedcrawler.providers.common_functions import fullhd_title
 from feedcrawler.providers.common_functions import is_hevc
 from feedcrawler.providers.common_functions import is_retail
+from feedcrawler.providers.common_functions import replace_with_stripped_ascii
 from feedcrawler.providers.myjd_connection import myjd_download
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import ListDb
@@ -76,7 +77,7 @@ def search_imdb(self, desired_rating, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = post.title.strip(u'\u200b')
+            post.title = replace_with_stripped_ascii(post.title)
 
         if self.search_imdb_done:
             shared_state.logger.debug(
@@ -207,7 +208,7 @@ def search_feed(self, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = post.title.strip(u'\u200b')
+            post.title = replace_with_stripped_ascii(post.title)
 
         if self.search_regular_done:
             shared_state.logger.debug(
@@ -420,8 +421,8 @@ def download_hevc(self, title, original_imdb_id):
                                     key,
                                     'added'
                                 )
-                                log_entry = '[Film' + (
-                                    '/Retail' if retail else "") + '/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                                log_entry = (f"[Film{'/Retail' if retail else ''}/HEVC] - {key} - "
+                                             f"[{site}] - {size} - {source}")
                                 shared_state.logger.info(log_entry)
                                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                                 return True
@@ -431,7 +432,8 @@ def download_hevc(self, title, original_imdb_id):
                                 key,
                                 'added'
                             )
-                            log_entry = '[Film/Serie/RegEx/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                            log_entry = (f"[Film/Serie/RegEx/HEVC] - {key} - "
+                                         f"[{site}] - {size} - {source}")
                             shared_state.logger.info(log_entry)
                             notify([{"text": log_entry, "imdb_id": imdb_id}])
                             return True
@@ -441,7 +443,8 @@ def download_hevc(self, title, original_imdb_id):
                                 key,
                                 'added'
                             )
-                            log_entry = '[Staffel/HEVC] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                            log_entry = (f"[Staffel/HEVC] - {key} - "
+                                         f"[{site}] - {size} - {source}")
                             shared_state.logger.info(log_entry)
                             notify([{"text": log_entry, "imdb_id": imdb_id}])
                             return True
@@ -539,8 +542,8 @@ def download_dual_language(self, title, original_imdb_id):
                             key,
                             'added'
                         )
-                        log_entry = '[Film' + (
-                            '/Retail' if retail else "") + '/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                        log_entry = (f"[Film{'/Retail' if retail else ''}/Zweisprachig] - {key} - "
+                                     f"[{site}] - {size} - {source}")
                         shared_state.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return True
@@ -550,7 +553,8 @@ def download_dual_language(self, title, original_imdb_id):
                             key,
                             'added'
                         )
-                        log_entry = '[Film/Serie/RegEx/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                        log_entry = (f"[Film/Serie/RegEx/Zweisprachig] - {key} - "
+                                     f"[{site}] - {size} - {source}")
                         shared_state.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return True
@@ -560,7 +564,8 @@ def download_dual_language(self, title, original_imdb_id):
                             key,
                             'added'
                         )
-                        log_entry = '[Staffel/Zweisprachig] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                        log_entry = (f"[Staffel/Zweisprachig] - {key} - "
+                                     f"[{site}] - {size} - {source}")
                         shared_state.logger.info(log_entry)
                         notify([{"text": log_entry, "imdb_id": imdb_id}])
                         return True
@@ -579,7 +584,6 @@ def download_dual_language(self, title, original_imdb_id):
 
 def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail, score, download_method):
     site = self._SITE
-    key = key.replace(" ", ".")
 
     added_items = []
     if not hevc_retail:
@@ -631,11 +635,15 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
                     score = str(float(score))
                 except:
                     pass
-                log_entry = '[IMDb ' + score + '/Film' + (
-                    '/Englisch - ' if englisch and not retail else "") + (
-                                '/Englisch/Retail' if englisch and retail else "") + (
-                                '/Retail' if not englisch and retail else "") + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                log_entry = (
+                    f"[IMDb {score}/Film"
+                    f"{'/Englisch - ' if englisch and not retail else ''}"
+                    f"{'/Englisch/Retail' if englisch and retail else ''}"
+                    f"{'/Retail' if not englisch and retail else ''}"
+                    f"{'/HEVC' if hevc_retail else ''}"
+                    f"] - {key} -"
+                    f"[{site}] - {size} - {source}"
+                )
                 shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
@@ -654,7 +662,6 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
 
 def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
     site = self._SITE
-    key = key.replace(" ", ".")
 
     added_items = []
     if not hevc_retail:
@@ -723,10 +730,15 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film' + ('/Englisch' if englisch and not retail else '') + (
-                    '/Englisch/Retail' if englisch and retail else '') + (
-                                '/Retail' if not englisch and retail else '') + (
-                                '/HEVC' if hevc_retail else '') + '] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                log_entry = (
+                    f"[Film"
+                    f"{'/Englisch' if englisch and not retail else ''}"
+                    f"{'/Englisch/Retail' if englisch and retail else ''}"
+                    f"{'/Retail' if not englisch and retail else ''}"
+                    f"{'/HEVC' if hevc_retail else ''}"
+                    f"] - {key} - "
+                    f"[{site}] - {size} - {source}"
+                )
                 shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
@@ -737,8 +749,8 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Staffel] - ' + key.replace(".COMPLETE", "").replace(".Complete",
-                                                                                  "") + ' - [' + site + '] - ' + size + ' - ' + source
+                log_entry = (f"[Staffel] - {key.replace('.COMPLETE', '').replace('.Complete', '')} - "
+                             f"[{site}] - {size} - {source}")
                 shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
@@ -749,7 +761,8 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                     'notdl' if self.config.get(
                         'enforcedl') and '.dl.' not in key.lower() else 'added'
                 )
-                log_entry = '[Film/Serie/RegEx] - ' + key + ' - [' + site + '] - ' + size + ' - ' + source
+                log_entry = (f"[Film/Serie/RegEx] - {key} - "
+                             f"[{site}] - {size} - {source}")
                 shared_state.logger.info(log_entry)
                 notify([{"text": log_entry, "imdb_id": imdb_id}])
                 added_items.append(log_entry)
