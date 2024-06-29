@@ -538,6 +538,7 @@ def enable_decrypt(title):
         pass
     return False
 
+
 def retail_sub(title):
     simplified = title.replace(".", " ")
     retail = re.sub(
@@ -622,18 +623,35 @@ def simplified_search_term_in_title(search_term, release_title, no_numbers=False
     return search_term in release_title
 
 
-def replace_umlauts(string):
-    return string.replace("Ä", "Ae").replace("Ö", "Oe").replace("Ü", "Ue"). \
-        replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")
+def replace_with_stripped_ascii(string):
+    string = string.strip()
+
+    replacements = {
+        " ": ".",
+        "Ä": "Ae",
+        "Ö": "Oe",
+        "Ü": "Ue",
+        "ä": "ae",
+        "ö": "oe",
+        "ü": "ue",
+        "ß": "ss"
+    }
+
+    for old, new in replacements.items():
+        string = re.sub(old, new, string)
+
+    string = string.encode('ascii', 'ignore').decode()
+
+    return string
 
 
 def keep_alphanumeric_with_special_characters(string):
-    string = replace_umlauts(string)
+    string = replace_with_stripped_ascii(string)
     return re.sub('[^0-9a-zA-Z\s\-+&]', '', string)
 
 
 def keep_alphanumeric_with_regex_characters(string):
-    string = replace_umlauts(string)
+    string = replace_with_stripped_ascii(string)
     return re.sub('[^0-9a-zA-Z\s\-.*+()|\[\]?!]', '', string)
 
 

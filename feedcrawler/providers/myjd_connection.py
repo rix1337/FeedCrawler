@@ -59,6 +59,12 @@ def set_device(myjd_user, myjd_pass, myjd_device):
     if not device or not isinstance(device, (type, Jddevice)):
         return False
     else:
+        device.downloadcontroller.get_current_state()  # request forces direct_connection info update
+        connection_info = device.check_direct_connection()
+        if connection_info["status"]:
+            print("Nutze direkte Verbindung zu JDownloader: " + connection_info["ip"])
+        else:
+            print("Keine direkte Verbindung zu JDownloader möglich")
         shared_state.set_device(device)
         return True
 
@@ -69,38 +75,13 @@ def set_device_from_config():
     myjd_pass = str(conf.get('myjd_pass'))
     myjd_device = str(conf.get('myjd_device'))
 
-    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
-    jd.set_app_key('FeedCrawler')
-
     if myjd_user and myjd_pass and myjd_device:
-        try:
-            jd.connect(myjd_user, myjd_pass)
-            jd.update_devices()
-            device = jd.get_device(myjd_device)
-        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print("Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
-            return False
-        if not device or not isinstance(device, (type, Jddevice)):
-            return False
-        else:
-            shared_state.set_device(device)
-            return True
+        return set_device(myjd_user, myjd_pass, myjd_device)
     elif myjd_user and myjd_pass:
         myjd_device = get_if_one_device(myjd_user, myjd_pass)
-        try:
-            jd.connect(myjd_user, myjd_pass)
-            jd.update_devices()
-            device = jd.get_device(myjd_device)
-        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print("Fehler bei der Verbindung mit My JDownloader: " + str(e).replace("\n", " "))
-            return False
-        if not device or not isinstance(device, (type, Jddevice)):
-            return False
-        else:
-            shared_state.set_device(device)
-            return True
-    else:
-        return False
+        if myjd_device:
+            return set_device(myjd_user, myjd_pass, myjd_device)
+    return False
 
 
 def get_if_one_device(myjd_user, myjd_pass):

@@ -95,7 +95,7 @@ function getPlexServersInfo() {
         plexServersRequestMade.value = true
         toast.info("Bitte die gewünschte Plex-Direct-URL auswählen!")
       }, function () {
-        console.error('Konnte Plex-Direct-URLs nicht abrufen!');
+        console.error('Konnte Plex-Direct-URLs nicht abrufen!')
         toast.error('Konnte Plex-Direct-URLs nicht abrufen!')
       })
 }

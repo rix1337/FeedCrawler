@@ -805,6 +805,12 @@ class Jddevice:
         self.__direct_connection_enabled = False
         self.__direct_connection_info = None
 
+    def check_direct_connection(self):
+        if self.__direct_connection_enabled and self.__direct_connection_cooldown == 0 and self.__direct_connection_consecutive_failures == 0:
+            if self.__direct_connection_info:
+                return {"status": True, "ip": self.__direct_connection_info[0]['conn']['ip']}
+        return {"status": False, "ip": None}
+
     def action(self, path, params=(), http_action="POST"):
         """Execute any action in the device using the postparams and params.
         All the info of which params are required and what are they default value, type,etc
@@ -853,8 +859,10 @@ class Jddevice:
                         self.__direct_connection_consecutive_failures = 0
                         return response['data']
                     else:
-                        # We don't try to use this connection for a minute.
-                        conn['cooldown'] = time.time() + 60
+                        # We don't try to use this connection for a decade.
+                        conn['cooldown'] = time.time() + 315360000
+                        self.__direct_connection_info.remove(conn)
+                        self.__direct_connection_info.append(conn)
             # None of the direct connections worked, we set a cooldown for direct connections
             self.__direct_connection_consecutive_failures += 1
             self.__direct_connection_cooldown = time.time() + (60 * self.__direct_connection_consecutive_failures)
