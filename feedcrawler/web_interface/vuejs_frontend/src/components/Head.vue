@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {computed, inject, onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from "bootstrap"
 import axios from 'axios'
@@ -14,7 +14,7 @@ onMounted(() => {
 })
 
 function updateCrawlTimes() {
-  store.commit("getCrawlTimes")
+  store.getCrawlTimes()
 }
 
 const version = ref("")
@@ -31,15 +31,15 @@ function getVersion() {
         console.info("%c FeedCrawler %c ".concat(version.value, " "), "color: white; background: #303030; font-weight: 700; font-size: 24px; font-family: Monospace;", "color: #303030; background: white; font-weight: 700; font-size: 24px; font-family: Monospace;");
         console.info("%c ❤ Projekt unterstützen %c ".concat("https://github.com/sponsors/rix1337 ❤", " "), "color: white; background: #dc3545; font-weight: 700;", "color: #dc3545; background: white; font-weight: 700;")
         update.value = res.data.version.update_ready
-        store.commit('setDocker', res.data.version.docker)
+        store.setDocker(res.data.version.docker)
         let helper_active = res.data.version.helper_active
         if (helper_active) {
-          store.commit('setHelperActive', true)
+          store.setHelperActive(true)
           axios.get("http://127.0.0.1:9666/")
               .then(function (res) {
                 let jd_cnl_available = (res.data === 'JDownloader')
                 if (jd_cnl_available) {
-                  store.commit('setHelperAvailable', true)
+                  store.setHelperAvailable(true)
                   console.log("Click'n'Load des FeedCrawler Sponsors Helper ist verfügbar!")
                 }
               })
@@ -73,9 +73,9 @@ function getTimestamp(ms) {
 }
 
 function countUp() {
-  if (store.state.crawltimes.active) {
+  if (store.crawltimes.active) {
     setTimeout(() => {
-      store.commit("setNow", Date.now())
+      store.setNow(Date.now())
       countUp()
     }, 1000)
   }
@@ -83,7 +83,7 @@ function countUp() {
 
 const currentDuration = computed(() => {
   countUp()
-  let duration = store.state.misc.now - store.state.crawltimes.start_time
+  let duration = store.misc.now - store.crawltimes.start_time
   if (duration < 0) {
     duration = 0
   }
@@ -92,30 +92,30 @@ const currentDuration = computed(() => {
 
 function startNow() {
   toast.info('Starte Suchlauf...')
-  store.commit('setStarting', true)
+  store.setStarting(true)
   axios.post('api/start_now/')
       .then(function () {
-        store.commit('setStarting', false)
+        store.setStarting(false)
         toast.success('Suchlauf gestartet!')
         console.log('Suchlauf gestartet!')
       }, function () {
-        store.commit('setStarting', false)
+        store.setStarting(false)
         console.log('Konnte Suchlauf nicht starten!')
         toast.error('Konnte Suchlauf nicht starten!')
       })
 }
 
 function getBlockedSites() {
-  store.commit("getBlockedSites")
+  store.getBlockedSites()
 }
 
 function getLists() {
   getSettings()
-  store.commit("getLists")
+  store.getLists()
 }
 
 function getSettings() {
-  store.commit("getSettings")
+  store.getSettings()
 }
 
 function showSiteStatusHelp() {
@@ -143,26 +143,26 @@ function showSiteStatusHelp() {
             </p>
           </div>
           <div class="card-body">
-            <div v-if="Object.keys(store.state.crawltimes).length !== 0">
-              <div v-if="store.state.crawltimes.active&& !isNaN(store.state.crawltimes.start_time)">
-                Suchlauf gestartet: {{ getTimestamp(store.state.crawltimes.start_time) }} (Dauer:
+            <div v-if="Object.keys(store.crawltimes).length !== 0">
+              <div v-if="store.crawltimes.active&& !isNaN(store.crawltimes.start_time)">
+                Suchlauf gestartet: {{ getTimestamp(store.crawltimes.start_time) }} (Dauer:
                 {{ currentDuration }})
               </div>
-              <div v-if="!store.state.crawltimes.active&& !isNaN(store.state.crawltimes.next_start)">
-                Start des nächsten Suchlaufs: {{ getTimestamp(store.state.crawltimes.next_start) }}
-                <i v-if="!store.state.misc.starting" v-tippy="'Suchlauf direkt starten'"
+              <div v-if="!store.crawltimes.active&& !isNaN(store.crawltimes.next_start)">
+                Start des nächsten Suchlaufs: {{ getTimestamp(store.crawltimes.next_start) }}
+                <i v-if="!store.misc.starting" v-tippy="'Suchlauf direkt starten'"
                    class="bi bi-skip-end-fill text-primary"
                    @click="startNow()"></i>
-                <div v-if="store.state.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
+                <div v-if="store.misc.starting" class="spinner-border spinner-border-sm" role="status"></div>
               </div>
               <div
-                  v-if="store.state.crawltimes.next_cloudflare_run && store.state.hostnames.cloudflare_shorthands !== 'Nicht gesetzt!'">
-                Wartezeit ({{ store.state.hostnames.cloudflare_shorthands }}) bis: {{
-                  getTimestamp(store.state.crawltimes.next_cloudflare_run)
+                  v-if="store.crawltimes.next_cloudflare_run && store.hostnames.cloudflare_shorthands !== 'Nicht gesetzt!'">
+                Wartezeit ({{ store.hostnames.cloudflare_shorthands }}) bis: {{
+                  getTimestamp(store.crawltimes.next_cloudflare_run)
                 }}
               </div>
-              <div v-if="typeof store.state.crawltimes.total_time === 'string'">
-                Dauer des letzten Suchlaufs: {{ store.state.crawltimes.total_time }}
+              <div v-if="typeof store.crawltimes.total_time === 'string'">
+                Dauer des letzten Suchlaufs: {{ store.crawltimes.total_time }}
               </div>
             </div>
             <div v-else>
@@ -172,7 +172,7 @@ function showSiteStatusHelp() {
             <div class="border-top mt-2"></div>
 
             <div class="row justify-content-center mt-2">
-              <div v-if="store.state.hostnames.search !== 'Nicht gesetzt!'" class="col-md-auto p-1">
+              <div v-if="store.hostnames.search !== 'Nicht gesetzt!'" class="col-md-auto p-1">
                 <button aria-controls="offcanvasBottomSearch" class="btn btn-outline-primary"
                         data-bs-target="#offcanvasBottomSearch"
                         data-bs-toggle="offcanvas"
@@ -212,9 +212,9 @@ function showSiteStatusHelp() {
             <div class="row justify-content-center">
               <div class="col-md-auto p-1">
                 <button
-                    :class="{ 'btn-outline-success': store.state.misc.no_site_blocked === 0,
-                              'btn-outline-warning': store.state.misc.no_site_blocked === 1,
-                              'btn-outline-danger': store.state.misc.no_site_blocked === 2
+                    :class="{ 'btn-outline-success': store.misc.no_site_blocked === 0,
+                              'btn-outline-warning': store.misc.no_site_blocked === 1,
+                              'btn-outline-danger': store.misc.no_site_blocked === 2
                     }"
                     class="btn"
                     type="button" @click="showSiteStatusHelp">
@@ -224,7 +224,7 @@ function showSiteStatusHelp() {
               </div>
 
               <div class="col-md-auto p-1">
-                <a v-if="!store.state.misc.helper_active"
+                <a v-if="!store.misc.helper_active"
                    v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
                    class="btn btn-outline-danger"
                    href="https://github.com/users/rix1337/sponsorship"

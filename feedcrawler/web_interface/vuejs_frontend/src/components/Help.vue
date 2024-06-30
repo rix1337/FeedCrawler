@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {computed} from 'vue'
 import {Collapse} from "bootstrap"
 
@@ -27,8 +27,8 @@ function getTimestamp(ms) {
 }
 
 const waitTimeActive = computed(() => {
-      if (store.state.crawltimes.next_cloudflare_run !== "undefined" && !isNaN(store.state.crawltimes.next_cloudflare_run) && !isNaN(store.state.misc.now)) {
-        return store.state.crawltimes.next_cloudflare_run > store.state.misc.now
+      if (store.crawltimes.next_cloudflare_run !== "undefined" && !isNaN(store.crawltimes.next_cloudflare_run) && !isNaN(store.misc.now)) {
+        return store.crawltimes.next_cloudflare_run > store.misc.now
       } else {
         return false
       }
@@ -60,247 +60,247 @@ const waitTimeActive = computed(() => {
               <div class="accordion-body">
                 <div class="row">
                   <div
-                      v-if="store.state.hostnames.fx !== 'Nicht gesetzt!' || store.state.hostnames.dw !== 'Nicht gesetzt!' || store.state.hostnames.hw !== 'Nicht gesetzt!' || store.state.hostnames.ff !== 'Nicht gesetzt!' || store.state.hostnames.by !== 'Nicht gesetzt!' || store.state.hostnames.nk !== 'Nicht gesetzt!'  || store.state.hostnames.nx !== 'Nicht gesetzt!'  || store.state.hostnames.ww !== 'Nicht gesetzt!' "
+                      v-if="store.hostnames.fx !== 'Nicht gesetzt!' || store.hostnames.dw !== 'Nicht gesetzt!' || store.hostnames.hw !== 'Nicht gesetzt!' || store.hostnames.ff !== 'Nicht gesetzt!' || store.hostnames.by !== 'Nicht gesetzt!' || store.hostnames.nk !== 'Nicht gesetzt!'  || store.hostnames.nx !== 'Nicht gesetzt!'  || store.hostnames.ww !== 'Nicht gesetzt!' "
                       class="col">
                     <ul class="list-group">
-                      <li v-if="store.state.hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.fx
+                      <li v-if="store.hostnames.fx !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.fx
                         }}
                         (FX)
-                        <i v-if="store.state.blocked_sites.normal.FX"
+                        <i v-if="store.blocked_sites.normal.FX"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.FX" v-tippy="'Seite verfügbar'"
+                        <i v-if="!store.blocked_sites.normal.FX" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.FX && store.state.blocked_sites.normal.FX"
+                        <i v-if="store.blocked_sites.advanced.FX && store.blocked_sites.normal.FX"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.FX && store.state.blocked_sites.normal.FX"
+                        <i v-if="!store.blocked_sites.advanced.FX && store.blocked_sites.normal.FX"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
-                      <li v-if="store.state.hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.dw
+                      <li v-if="store.hostnames.dw !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.dw
                         }}
                         (DW)
-                        <i v-if="store.state.blocked_sites.normal.DW"
+                        <i v-if="store.blocked_sites.normal.DW"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.DW" v-tippy="'Seite verfügbar'"
+                        <i v-if="!store.blocked_sites.normal.DW" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.DW && store.state.blocked_sites.normal.DW"
+                        <i v-if="store.blocked_sites.advanced.DW && store.blocked_sites.normal.DW"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.DW && store.state.blocked_sites.normal.DW"
+                        <i v-if="!store.blocked_sites.advanced.DW && store.blocked_sites.normal.DW"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
-                      <li v-if="store.state.hostnames.hw !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.hw
+                      <li v-if="store.hostnames.hw !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.hw
                         }}
                         (HW)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.HW"
+                          <i v-if="!store.blocked_sites.normal.HW"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.HW"
+                        <i v-if="store.blocked_sites.normal.HW"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.HW && store.state.blocked_sites.normal.HW"
+                        <i v-if="store.blocked_sites.advanced.HW && store.blocked_sites.normal.HW"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.HW && store.state.blocked_sites.normal.HW"
+                        <i v-if="!store.blocked_sites.advanced.HW && store.blocked_sites.normal.HW"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine HW-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine HW-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
-                      <li v-if="store.state.hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.ff
+                      <li v-if="store.hostnames.ff !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.ff
                         }}
                         (FF)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.FF"
+                          <i v-if="!store.blocked_sites.normal.FF"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.FF"
+                        <i v-if="store.blocked_sites.normal.FF"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.FF && store.state.blocked_sites.normal.FF"
+                        <i v-if="store.blocked_sites.advanced.FF && store.blocked_sites.normal.FF"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.FF && store.state.blocked_sites.normal.FF"
+                        <i v-if="!store.blocked_sites.advanced.FF && store.blocked_sites.normal.FF"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine FF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine FF-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
-                      <li v-if="store.state.hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.by
+                      <li v-if="store.hostnames.by !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.by
                         }}
                         (BY)
-                        <i v-if="store.state.blocked_sites.normal.BY"
+                        <i v-if="store.blocked_sites.normal.BY"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.BY" v-tippy="'Seite verfügbar'"
+                        <i v-if="!store.blocked_sites.normal.BY" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.BY && store.state.blocked_sites.normal.BY"
+                        <i v-if="store.blocked_sites.advanced.BY && store.blocked_sites.normal.BY"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.BY && store.state.blocked_sites.normal.BY"
+                        <i v-if="!store.blocked_sites.advanced.BY && store.blocked_sites.normal.BY"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
-                      <li v-if="store.state.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.nk
+                      <li v-if="store.hostnames.nk !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.nk
                         }}
                         (NK)
-                        <i v-if="store.state.blocked_sites.normal.NK"
+                        <i v-if="store.blocked_sites.normal.NK"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.NK" v-tippy="'Seite verfügbar'"
+                        <i v-if="!store.blocked_sites.normal.NK" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.NK && store.state.blocked_sites.normal.NK"
+                        <i v-if="store.blocked_sites.advanced.NK && store.blocked_sites.normal.NK"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.NK && store.state.blocked_sites.normal.NK"
+                        <i v-if="!store.blocked_sites.advanced.NK && store.blocked_sites.normal.NK"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
-                      <li v-if="store.state.hostnames.nx !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.nx
+                      <li v-if="store.hostnames.nx !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.nx
                         }}
                         (NX)
-                        <i v-if="store.state.blocked_sites.normal.NX && !store.state.settings.general.flaresolverr"
+                        <i v-if="store.blocked_sites.normal.NX && !store.settings.general.flaresolverr"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.NX && !store.state.settings.general.flaresolverr"
+                        <i v-if="!store.blocked_sites.normal.NX && !store.settings.general.flaresolverr"
                            v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.NX && store.state.blocked_sites.normal.NX"
+                        <i v-if="store.blocked_sites.advanced.NX && store.blocked_sites.normal.NX"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.NX && store.state.blocked_sites.normal.NX"
+                        <i v-if="!store.blocked_sites.advanced.NX && store.blocked_sites.normal.NX"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
-                      <li v-if="store.state.hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.ww
+                      <li v-if="store.hostnames.ww !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.ww
                         }}
                         (WW)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.WW"
+                          <i v-if="!store.blocked_sites.normal.WW"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.WW"
+                        <i v-if="store.blocked_sites.normal.WW"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.WW && store.state.blocked_sites.normal.WW"
+                        <i v-if="store.blocked_sites.advanced.WW && store.blocked_sites.normal.WW"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.WW && store.state.blocked_sites.normal.WW"
+                        <i v-if="!store.blocked_sites.advanced.WW && store.blocked_sites.normal.WW"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine WW-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine WW-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
                     </ul>
                   </div>
                   <div
-                      v-if="store.state.hostnames.sj !== 'Nicht gesetzt!' || store.state.hostnames.dj !== 'Nicht gesetzt!' || store.state.hostnames.dd !== 'Nicht gesetzt!' || store.state.hostnames.sf !== 'Nicht gesetzt!'"
+                      v-if="store.hostnames.sj !== 'Nicht gesetzt!' || store.hostnames.dj !== 'Nicht gesetzt!' || store.hostnames.dd !== 'Nicht gesetzt!' || store.hostnames.sf !== 'Nicht gesetzt!'"
                       class="col">
                     <ul class="list-group">
-                      <li v-if="store.state.hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.sj
+                      <li v-if="store.hostnames.sj !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.sj
                         }}
                         (SJ)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.SJ"
+                          <i v-if="!store.blocked_sites.normal.SJ"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.SJ"
+                        <i v-if="store.blocked_sites.normal.SJ"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.SJ && store.state.blocked_sites.normal.SJ"
+                        <i v-if="store.blocked_sites.advanced.SJ && store.blocked_sites.normal.SJ"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.SJ && store.state.blocked_sites.normal.SJ"
+                        <i v-if="!store.blocked_sites.advanced.SJ && store.blocked_sites.normal.SJ"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine SJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine SJ-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
-                      <li v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.dj
+                      <li v-if="store.hostnames.dj !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.dj
                         }}
                         (DJ)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.DJ"
+                          <i v-if="!store.blocked_sites.normal.DJ"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.DJ"
+                        <i v-if="store.blocked_sites.normal.DJ"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.DJ && store.state.blocked_sites.normal.DJ"
+                        <i v-if="store.blocked_sites.advanced.DJ && store.blocked_sites.normal.DJ"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.DJ && store.state.blocked_sites.normal.DJ"
+                        <i v-if="!store.blocked_sites.advanced.DJ && store.blocked_sites.normal.DJ"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine DJ-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine DJ-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
-                      <li v-if="store.state.hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.sf
+                      <li v-if="store.hostnames.sf !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.sf
                         }}
                         (SF)
                         <span v-if="!waitTimeActive">
-                          <i v-if="!store.state.blocked_sites.normal.SF"
+                          <i v-if="!store.blocked_sites.normal.SF"
                              v-tippy="'Seite verfügbar'"
                              class="bi bi-check-square-fill text-success"></i>
                         </span>
-                        <i v-if="store.state.blocked_sites.normal.SF"
+                        <i v-if="store.blocked_sites.normal.SF"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="store.state.blocked_sites.advanced.SF && store.state.blocked_sites.normal.SF"
+                        <i v-if="store.blocked_sites.advanced.SF && store.blocked_sites.normal.SF"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.SF && store.state.blocked_sites.normal.SF"
+                        <i v-if="!store.blocked_sites.advanced.SF && store.blocked_sites.normal.SF"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                         <span v-if="waitTimeActive">
-                        <i v-tippy="'Keine SF-Suchläufe bis: ' + getTimestamp(store.state.crawltimes.next_cloudflare_run)"
+                        <i v-tippy="'Keine SF-Suchläufe bis: ' + getTimestamp(store.crawltimes.next_cloudflare_run)"
                            class="bi bi-clock-fill text-warning"></i>
                       </span>
                       </li>
-                      <li v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{
-                          store.state.hostnames.dd
+                      <li v-if="store.hostnames.dd !== 'Nicht gesetzt!'" class="list-group-item">{{
+                          store.hostnames.dd
                         }}
                         (DD)
-                        <i v-if="store.state.blocked_sites.normal.DD"
+                        <i v-if="store.blocked_sites.normal.DD"
                            v-tippy="'Seite gesperrt'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.normal.DD" v-tippy="'Seite verfügbar'"
+                        <i v-if="!store.blocked_sites.normal.DD" v-tippy="'Seite verfügbar'"
                            class="bi bi-check-square-fill text-success"></i>
-                        <i v-if="store.state.blocked_sites.advanced.DD && store.state.blocked_sites.normal.DD"
+                        <i v-if="store.blocked_sites.advanced.DD && store.blocked_sites.normal.DD"
                            v-tippy="'Cloudflare-Blockade nicht umgangen'"
                            class="bi bi-exclamation-square-fill text-danger"></i>
-                        <i v-if="!store.state.blocked_sites.advanced.DD && store.state.blocked_sites.normal.DD"
+                        <i v-if="!store.blocked_sites.advanced.DD && store.blocked_sites.normal.DD"
                            v-tippy="'Cloudflare-Blockade erfolgreich umgangen'"
                            class="bi bi-check-square-fill text-success"></i>
                       </li>
@@ -375,7 +375,7 @@ const waitTimeActive = computed(() => {
               </div>
             </div>
           </div>
-          <div v-if="(store.state.hostnames.bl !== 'Nicht gesetzt!') || (store.state.hostnames.s !== 'Nicht gesetzt!')"
+          <div v-if="(store.hostnames.bl !== 'Nicht gesetzt!') || (store.hostnames.s !== 'Nicht gesetzt!')"
                class="accordion-item">
             <h2 id="headingRegEx" class="accordion-header">
               <button aria-controls="collapseRegEx" aria-expanded="false" class="accordion-button collapsed"
@@ -403,7 +403,7 @@ const waitTimeActive = computed(() => {
                       <th scope="col">Bedeutung</th>
                     </tr>
                     </thead>
-                    <tbody v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'">
+                    <tbody v-if="store.hostnames.bl !== 'Nicht gesetzt!'">
                     <tr>
                       <td>Film.*.Titel.*</td>
                       <td>akzeptiert alle Filmen die mit <i>Film</i> beginnen und <i>Titel</i> enthalten</td>
@@ -421,7 +421,7 @@ const waitTimeActive = computed(() => {
                       <td>akzeptiert alle zweisprachigen HD-BluRay-Releases von <i>Film Titel</i> der <i>GROUP</i></td>
                     </tr>
                     </tbody>
-                    <tbody v-if="store.state.hostnames.s !== 'Nicht gesetzt!'">
+                    <tbody v-if="store.hostnames.s !== 'Nicht gesetzt!'">
                     <tr>
                       <td>Serien.Titel.*.S01.*.German.*.720p.*-GROUP</td>
                       <td>akzeptiert alle deutschsprachigen HD-Releases von Staffel 1 des <i>Serien Titel</i> der

@@ -5,7 +5,7 @@
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 [![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/rix1337/FeedCrawler/CreateRelease.yml?branch=main)](https://github.com/rix1337/FeedCrawler/actions/workflows/CreateRelease.yml)
-[![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/rix1337/FeedCrawler?style=flat)](https://github.com/rix1337/FeedCrawler/stargazers)
 [![GitHub all releases](https://img.shields.io/github/downloads/rix1337/feedcrawler/total?label=github%20downloads)](https://github.com/rix1337/FeedCrawler/releases)
 
 [![PyPI](https://img.shields.io/pypi/v/feedcrawler?label=pypi%20package)](https://pypi.org/project/feedcrawler/)
@@ -19,7 +19,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![Vue.js 3 Frontend](https://img.shields.io/badge/frontend-vue.js%203-brightgreen.svg)](https://github.com/rix1337/FeedCrawler/tree/main/feedcrawler/web_interface/vuejs_frontend)
 [![GitHub last commit](https://img.shields.io/github/last-commit/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/commits/main)
 [![GitHub commit activity](https://img.shields.io/github/commit-activity/y/rix1337/feedcrawler)](https://github.com/rix1337/FeedCrawler/graphs/commit-activity)
-[![Lines of code](https://img.shields.io/tokei/lines/github/rix1337/FeedCrawler)](https://github.com/rix1337/FeedCrawler/pulse)
+[![Lines of code](https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/rix1337/FeedCrawler/badge?filter=.py$,.vue$,js$,scss$,yml$&style=flat&logoColor=white&label=Lines%20of%20Code)](https://github.com/rix1337/FeedCrawler/pulse)
 
 [![GitHub Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
 [![Discord](https://img.shields.io/discord/1075348594225315891)](https://discord.gg/enn4AG3VnM)

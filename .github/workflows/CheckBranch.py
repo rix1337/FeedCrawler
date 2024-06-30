@@ -7,8 +7,26 @@ import json
 import re
 import subprocess
 import sys
-from distutils.version import StrictVersion
 from urllib.request import urlopen
+
+
+def semver_to_number(semver):
+    number_parts = []
+    alpha_parts = []
+
+    parts = semver.split('.')
+    for part in parts:
+        alpha_string = "".join(filter(str.isalpha, part))
+        numeric_string = "".join(filter(str.isdigit, part))
+
+        if numeric_string:
+            number_parts.append(int(numeric_string))
+
+        if alpha_string:
+            alpha_parts.append(sum(ord(char) for char in alpha_string))
+    # Use negative values for alpha paarts to ensure stable versions are prioritized over pre-release versions
+    return (number_parts, [-value for value in alpha_parts])
+
 
 if __name__ == '__main__':
     python_version = ""
@@ -40,8 +58,9 @@ if __name__ == '__main__':
     latest_title = latest.decode("utf-8")
     latest_title_text = re.findall(r'<title>(.+)</title>', latest_title)[0]
     onlineversion = re.search(r'(\d{1,3}\.\d{1,3}\.\d{1,3})', latest_title_text).group()
-    if StrictVersion(python_version) > StrictVersion(onlineversion) and StrictVersion(vue_version) > StrictVersion(
-            onlineversion):
+    if semver_to_number(python_version) > semver_to_number(onlineversion) and semver_to_number(
+            vue_version) > semver_to_number(
+        onlineversion):
         print("Proper version increase in branch detected.")
         sys.exit(0)
     else:
