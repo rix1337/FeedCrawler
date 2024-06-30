@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {computed, inject, ref} from 'vue'
 import {submitForm} from '@formkit/vue'
 import {Collapse, Offcanvas} from 'bootstrap'
@@ -42,14 +42,14 @@ const sources = [
 
 function saveSettings() {
   spin_settings.value = true
-  axios.post('api/settings/', store.state.settings)
+  axios.post('api/settings/', store.settings)
       .then(function () {
         console.log('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
         toast.success('Einstellungen gespeichert! Neustart des FeedCrawlers wird dringend empfohlen!')
-        store.commit("getSettings")
+        store.getSettings()
         spin_settings.value = false
       }, function () {
-        store.commit("getSettings")
+        store.getSettings()
         spin_settings.value = false
         console.log('Konnte Einstellungen nicht speichern! Bitte die angegebenen Werte auf Richtigkeit prüfen.')
         toast.error('Konnte Einstellungen nicht speichern! Bitte die angegebenen Werte auf Richtigkeit prüfen.')
@@ -65,7 +65,7 @@ function showMultiHosterHelp() {
   })
 }
 
-const password_changed = computed(() => (store.state.settings.general.auth_hash.length > 0))
+const password_changed = computed(() => (store.settings.general.auth_hash.length > 0))
 
 function submitSettings() {
   submitForm('settings')
@@ -101,7 +101,7 @@ function getPlexServersInfo() {
 }
 
 function updatePlexUrl() {
-  store.state.settings.plex.url = selectedPlexServer.value
+  store.settings.plex.url = selectedPlexServer.value
 }
 </script>
 
@@ -115,8 +115,8 @@ function updatePlexUrl() {
         <button aria-label="Close" class="btn-close text-reset" data-bs-dismiss="offcanvas" type="button"></button>
       </div>
       <div class="offcanvas-body">
-        <h4 v-if="!store.state.misc.loaded_settings">Einstellungen werden geladen...</h4>
-        <div v-if="store.state.misc.loaded_settings" id="accordionSettings" class="accordion">
+        <h4 v-if="!store.misc.loaded_settings">Einstellungen werden geladen...</h4>
+        <div v-if="store.misc.loaded_settings" id="accordionSettings" class="accordion">
           <FormKit id="settings" #default="{ value }"
                    :actions="false"
                    incomplete-message="Es müssen alle Felder korrekt ausgefüllt werden! Fehler sind rot markiert."
@@ -135,7 +135,7 @@ function updatePlexUrl() {
               <div id="collapseSettingsMyJd" aria-labelledby="headingSettingsMyJd" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.general.myjd_user"
+                  <FormKit v-model="store.settings.general.myjd_user"
                            help="Hier die E-Mail Adresse des Kontos bei My JDownloader angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -146,7 +146,7 @@ function updatePlexUrl() {
                            type="email"
                            validation="required|length:5|*email"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.general.myjd_pass"
+                  <FormKit v-model="store.settings.general.myjd_pass"
                            help="Hier das Passwort von My JDownloader angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -157,7 +157,7 @@ function updatePlexUrl() {
                            type="password"
                            validation="required"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.general.myjd_device"
+                  <FormKit v-model="store.settings.general.myjd_device"
                            help="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -168,7 +168,7 @@ function updatePlexUrl() {
                            type="text"/>
                   <h5>Autostart</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.crawljobs.autostart"
+                    <FormKit v-model="store.settings.crawljobs.autostart"
                              help="Wenn aktiviert, werden Downloads automatisch gestartet, sobald diese entschlüsselt vorliegen."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -178,7 +178,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Automatische Updates</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.general.myjd_auto_update"
+                    <FormKit v-model="store.settings.general.myjd_auto_update"
                              help="Wenn aktiviert, wird am Ende jedes Suchlaufs geprüft, ob ein Update verfügbar ist. Verfügbare Updates werden bei inaktivem JDownloader sofort ausgeführt und der JDownloader dafür neugestartet."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -188,7 +188,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Unterordner bei Download</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.crawljobs.subdir"
+                    <FormKit v-model="store.settings.crawljobs.subdir"
                              :validation="value.subdir_type ? 'accepted' : ''"
                              :validation-messages="{
                               accepted: 'Unterordner nach Typ setzt voraus, dass Unterordner bei Download aktiviert ist!'
@@ -203,7 +203,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Unterordner nach Typ</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.crawljobs.subdir_by_type"
+                    <FormKit v-model="store.settings.crawljobs.subdir_by_type"
                              help="Wenn aktiviert, werden Serien und Filme in getrennte Unterordner sortiert"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -212,7 +212,7 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <FormKit v-model="store.state.settings.general.packages_per_myjd_page"
+                  <FormKit v-model="store.settings.general.packages_per_myjd_page"
                            help="Pakete ab dieser Anzahl werden auf Folgeseiten umgebrochen, was unnötiges Scrollen verhindert."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -237,8 +237,8 @@ function updatePlexUrl() {
               <div id="collapseGeneral" aria-labelledby="headingGeneral" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <div v-if="!store.state.misc.docker">
-                    <FormKit v-model="store.state.settings.general.port"
+                  <div v-if="!store.misc.docker">
+                    <FormKit v-model="store.settings.general.port"
                              help="Hier den Port des Webservers wählen."
                              help-class="text-muted"
                              input-class="form-control bg-light mb-2"
@@ -250,7 +250,7 @@ function updatePlexUrl() {
                              validation="required|between:1024,65535"
                              validation-visibility="live"/>
                   </div>
-                  <FormKit v-model="store.state.settings.general.prefix"
+                  <FormKit v-model="store.settings.general.prefix"
                            help="Hier den Prefix des Webservers wählen (nützlich für Reverse-Proxies)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -261,7 +261,7 @@ function updatePlexUrl() {
                            type="text"
                            validation="alpha"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.general.auth_user"
+                  <FormKit v-model="store.settings.general.auth_user"
                            :validation="value.auth_hash ? 'required' : ''"
                            help="Hier den Nutzernamen für FeedCrawler eingeben."
                            help-class="text-muted"
@@ -272,7 +272,7 @@ function updatePlexUrl() {
                            outer-class="mb-4"
                            placeholder="Bspw. rix1337"
                            type="text"/>
-                  <FormKit v-model="store.state.settings.general.auth_hash"
+                  <FormKit v-model="store.settings.general.auth_hash"
                            :validation="(password_changed && value.auth_user) ? 'required|length:6' : ''"
                            help="Hier das Passwort für FeedCrawler angeben."
                            help-class="text-muted"
@@ -284,7 +284,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. ●●●●●●●●"
                            type="password"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.general.interval"
+                  <FormKit v-model="store.settings.general.interval"
                            help="Das Suchintervall in Minuten sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren. Aus Sicherheitsgründen wird das Intervall zufällig um bis zu 25% erhöht."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -297,7 +297,7 @@ function updatePlexUrl() {
                            validation-visibility="live"/>
                   <h5>Ein Mirror genügt</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.general.one_mirror_policy"
+                    <FormKit v-model="store.settings.general.one_mirror_policy"
                              help="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -307,7 +307,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Filterliste in Web-Suche erzwingen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.general.force_ignore_in_web_search"
+                    <FormKit v-model="store.settings.general.force_ignore_in_web_search"
                              help="Die Web-Suche erlaubt, wenn keine anderen Releases verfügbar sind, auch Releases, die nicht der für die Feed-Suche gesetzten Filterliste entsprechen. Wenn aktiviert, werden betroffene Releases, analog zur Feed-Suche ignoriert."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -317,7 +317,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Englische Releases hinzufügen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.general.english"
+                    <FormKit v-model="store.settings.general.english"
                              help="Wenn aktiviert, werden auch englischsprachige Titel gesucht."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -327,7 +327,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Mehrkanalton erzwingen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.general.surround"
+                    <FormKit v-model="store.settings.general.surround"
                              help="Wenn aktiviert, werden ausschließlich Titel mit Mehrkanalton-Tags hinzugefügt."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -349,7 +349,7 @@ function updatePlexUrl() {
               <div id="collapseSolvers" aria-labelledby="headingSolvers" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.general.sponsors_helper"
+                  <FormKit v-model="store.settings.general.sponsors_helper"
                            help="Hier die URL des durch FeedCrawler erreichbaren Sponsors Helpers (Port 9700) angeben. Der Sponsors Helper wird für jede Seite genutzt, auf der eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -370,7 +370,7 @@ function updatePlexUrl() {
                       Um Kosten zu sparen, kann parallel ein FlareSolverr betrieben werden.
                     </mark>
                   </div>
-                  <FormKit v-model="store.state.settings.general.flaresolverr"
+                  <FormKit v-model="store.settings.general.flaresolverr"
                            help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr wird für jede Seite genutzt, auf der eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -393,9 +393,9 @@ function updatePlexUrl() {
                       Dafür den FlareSolverr-Container mit --sysctl net.ipv6.conf.all.disable_ipv6=1 starten.
                     </mark>
                   </div>
-                  <h5>Wartezeit ({{ store.state.hostnames.cloudflare }})</h5>
+                  <h5>Wartezeit ({{ store.hostnames.cloudflare }})</h5>
                   <!-- Setting variables in label is unsupported -->
-                  <FormKit v-model="store.state.settings.cloudflare.wait_time"
+                  <FormKit v-model="store.settings.cloudflare.wait_time"
                            help="Die Wartezeit in Stunden sollte nicht zu niedrig angesetzt werden, um keinen Ban zu riskieren."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -425,7 +425,7 @@ function updatePlexUrl() {
                     <div class="col-sm">
                       <h5>DDownload</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.ddl"
+                        <FormKit v-model="store.settings.hosters.ddl"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -434,7 +434,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Rapidgator</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.rapidgator"
+                        <FormKit v-model="store.settings.hosters.rapidgator"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -443,7 +443,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>1Fichier</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.onefichier"
+                        <FormKit v-model="store.settings.hosters.onefichier"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -452,7 +452,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Filer</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.filer"
+                        <FormKit v-model="store.settings.hosters.filer"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -461,7 +461,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Turbobit</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.turbobit"
+                        <FormKit v-model="store.settings.hosters.turbobit"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -472,7 +472,7 @@ function updatePlexUrl() {
                     <div class="col-sm">
                       <h5>FileFactory</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.filefactory"
+                        <FormKit v-model="store.settings.hosters.filefactory"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -481,7 +481,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Uptobox</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.uptobox"
+                        <FormKit v-model="store.settings.hosters.uptobox"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -490,7 +490,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Nitroflare</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.nitroflare"
+                        <FormKit v-model="store.settings.hosters.nitroflare"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -499,7 +499,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>Keep2Share</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.k2s"
+                        <FormKit v-model="store.settings.hosters.k2s"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -508,7 +508,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>KatFile</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.katfile"
+                        <FormKit v-model="store.settings.hosters.katfile"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -517,7 +517,7 @@ function updatePlexUrl() {
                       </label>
                       <h5>IronFiles</h5> <!-- Checkbox labels are not placed above -->
                       <label class="form-check form-switch">
-                        <FormKit v-model="store.state.settings.hosters.ironfiles"
+                        <FormKit v-model="store.settings.hosters.ironfiles"
                                  help-class="text-muted"
                                  input-class="form-check-input"
                                  messages-class="text-danger"
@@ -545,7 +545,7 @@ function updatePlexUrl() {
               <div id="collapseNotifications" aria-labelledby="headingNotifications" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.alerts.discord"
+                  <FormKit v-model="store.settings.alerts.discord"
                            :validation="[['matches', /^\d+?,\S+?$/]]"
                            :validation-messages="{
                               matches: 'Bitte die Webhook-ID und dann kommagetrennt den Webhook-Token eines Discord-Kanals angeben (ohne Leerzeichen).'
@@ -564,7 +564,7 @@ function updatePlexUrl() {
                       einzurichten und Discord unterstützt den Versand von Postern.
                     </mark>
                   </div>
-                  <FormKit v-model="store.state.settings.alerts.telegram"
+                  <FormKit v-model="store.settings.alerts.telegram"
                            :validation="[['matches', /^\d+?:[^\s]+?,\d+?$/]]"
                            :validation-messages="{
                               matches: 'Bitte den Token des eigenen Bots und dann kommagetrennt die Chat-ID des Ziel-Chats angeben (ohne Leerzeichen).'
@@ -581,7 +581,7 @@ function updatePlexUrl() {
                   <div class="mb-4">
                     <mark>Telegram unterstützt ebenfalls den Versand von Postern.</mark>
                   </div>
-                  <FormKit v-model="store.state.settings.alerts.pushbullet"
+                  <FormKit v-model="store.settings.alerts.pushbullet"
                            :validation="[['matches', /^o\.[A-Za-z0-9]+$/]]"
                            :validation-messages="{
                               matches: 'Bitte einen validen Access-Token angeben.'
@@ -595,7 +595,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. o.12345ABCBCQJMmfhpWkkNFby7Z7qd6Rj"
                            type="text"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.alerts.pushover"
+                  <FormKit v-model="store.settings.alerts.pushover"
                            :validation="[['matches', /^[A-Za-z0-9]{30},[A-Za-z0-9]{30}$/]]"
                            :validation-messages="{
                               matches: 'Bitte den User-Key und dann kommagetrennt einen API-Token angeben (ohne Leerzeichen).'
@@ -609,7 +609,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. uQiRzpo4DXghDmr9QzzfQu27cmVRsG,azGDORePK8gMaC0QOYAMyEEuzJnyUi"
                            type="text"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.alerts.homeassistant"
+                  <FormKit v-model="store.settings.alerts.homeassistant"
                            help="Hier kommagetrennt die URL zur API und danach das Passwort angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -638,7 +638,7 @@ function updatePlexUrl() {
                 <div class="accordion-body">
                   <h5>Plex-API freischalten</h5>
                   <div class="mb-4">
-                    <div v-if="!store.state.settings.plex.api">
+                    <div v-if="!store.settings.plex.api">
                       <mark>
                         <a href="./api/plex_auth/">Hier</a> freischalten.
                       </mark>
@@ -649,7 +649,7 @@ function updatePlexUrl() {
                         </span>
                     </div>
                   </div>
-                  <FormKit v-model="store.state.settings.plex.url"
+                  <FormKit v-model="store.settings.plex.url"
                            :validation="[['matches', /^https:\/\/.*\.plex.direct:\d{1,6}$/]]"
                            :validation-messages="{
                               matches: 'Bitte die Plex-Direct-URL inklusive https:// und Port angeben!'
@@ -674,7 +674,7 @@ function updatePlexUrl() {
                       </option>
                     </select>
                   </div>
-                  <FormKit v-model="store.state.settings.overseerr.url"
+                  <FormKit v-model="store.settings.overseerr.url"
                            :validation="value.overseerr_api ? 'required|url' : 'url'"
                            help="Hier die URL von Overseerr angeben."
                            help-class="text-muted"
@@ -686,7 +686,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. http://192.168.0.1:5055"
                            type="url"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.overseerr.api"
+                  <FormKit v-model="store.settings.overseerr.api"
                            :validation="value.overseerr_url ? 'required|length:10' : 'length:10'"
                            :validation-messages="{
                               matches: 'Bitte einen validen API-Key angeben.'
@@ -701,7 +701,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. V2hhdCB3ZXJlIHlvdSBsb29raW5nIGZvcj8KV2h5IGFyZSB5b3UgZXZlbiBoZXJlPw=="
                            type="text"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.ombi.url"
+                  <FormKit v-model="store.settings.ombi.url"
                            :validation="value.ombi_api ? 'required|url' : 'url'"
                            help="Hier die URL von Ombi angeben."
                            help-class="text-muted"
@@ -713,7 +713,7 @@ function updatePlexUrl() {
                            placeholder="Bspw. http://192.168.0.1:5000/ombi"
                            type="url"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.ombi.api"
+                  <FormKit v-model="store.settings.ombi.api"
                            :validation="value.ombi_url ? 'required|length:10' : 'length:10'"
                            :validation-messages="{
                               matches: 'Bitte einen validen API-Key angeben.'
@@ -731,18 +731,18 @@ function updatePlexUrl() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingSettingsBl" class="accordion-header">
                 <button aria-controls="collapseSettingsBl" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsBl"
                         data-bs-toggle="collapse" type="button">
-                  Filme ({{ store.state.hostnames.bl }})
+                  Filme ({{ store.hostnames.bl }})
                 </button>
               </h2>
               <div id="collapseSettingsBl" aria-labelledby="headingSettingsBl" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.mb.quality"
+                  <FormKit v-model="store.settings.mb.quality"
                            help="Die Release-Auflösung, nach der gesucht wird."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -754,7 +754,7 @@ function updatePlexUrl() {
                       {{ option.label }}
                     </option>
                   </FormKit>
-                  <FormKit v-model="store.state.settings.mb.search"
+                  <FormKit v-model="store.settings.mb.search"
                            help="Hier wählen, wie weit die Suche in die Vergangenheit gehen soll (Je weiter, desto länger dauert der Suchlauf)!"
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -766,7 +766,7 @@ function updatePlexUrl() {
                       {{ option.label }}
                     </option>
                   </FormKit>
-                  <FormKit v-model="store.state.settings.mb.ignore"
+                  <FormKit v-model="store.settings.mb.ignore"
                            help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -777,7 +777,7 @@ function updatePlexUrl() {
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.regex"
+                    <FormKit v-model="store.settings.mb.regex"
                              help="Wenn aktiviert, werden Filme aus der Filme (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -785,7 +785,7 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <FormKit v-model="store.state.settings.mb.imdb_score"
+                  <FormKit v-model="store.settings.mb.imdb_score"
                            help="Alle Filme die im Feed über der genannten Wertung auftauchen, werden hinzugefügt - Wert unter 6,5 nicht empfehlenswert, 0 zum Deaktivieren."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -798,7 +798,7 @@ function updatePlexUrl() {
                            type="number"
                            validation="required|between:0.0,10.0"
                            validation-visibility="live"/>
-                  <FormKit v-model="store.state.settings.mb.imdb_year"
+                  <FormKit v-model="store.settings.mb.imdb_year"
                            help="Berücksichtige Filme bei IMDb-Suche erst ab diesem Erscheinungsjahr."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -811,7 +811,7 @@ function updatePlexUrl() {
                            validation-visibility="live"/>
                   <h5>Zweisprachige Releases erzwingen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.force_dl"
+                    <FormKit v-model="store.settings.mb.force_dl"
                              help="Wenn aktiviert, sucht das Script zu jedem nicht zweisprachigen Release (kein DL-Tag im Titel), das nicht O-Ton Deutsch ist, ein passendes Release in 1080p mit DL-Tag. Findet das Script kein Release wird dies im DEBUG-Log vermerkt. Bei der nächsten Ausführung versucht das Script dann erneut ein passendes Release zu finden. Diese Funktion ist nützlich um (durch späteres Remuxen) eine zweisprachige Bibliothek in 720p zu erhalten."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -821,7 +821,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Nur Retail hinzufügen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.retail_only"
+                    <FormKit v-model="store.settings.mb.retail_only"
                              help="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -831,7 +831,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Listeneintrag bei Retail streichen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.cutoff"
+                    <FormKit v-model="store.settings.mb.cutoff"
                              help="Wenn aktiviert, werden Filme aus der Filme-Liste gestrichen, sobald ein Retail-Release gefunden wurde."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -841,7 +841,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>1080p-HEVC bevorzugen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.hevc_retail"
+                    <FormKit v-model="store.settings.mb.hevc_retail"
                              help="Wenn aktiviert, werden Retail-Releases von Filmen in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen. Entspricht außerdem ein beliebiges Filmrelease den Retail-Kriterien, wir ad hoc nach einem Retail-Release in 1080p mit den Tags HEVC, h265 oder x265 gesucht. Wird ein solches gefunden, wird nur dieses hinzugefügt (das andere ignoriert). Für alle anderen Releases greifen die Einstellungen der Auflösung und Filterliste."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -851,7 +851,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Hoster-Fallback</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mb.hoster_fallback"
+                    <FormKit v-model="store.settings.mb.hoster_fallback"
                              help="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -859,10 +859,10 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <div v-if="store.state.hostnames.s === 'Nicht gesetzt!'">
+                  <div v-if="store.hostnames.s === 'Nicht gesetzt!'">
                     <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->
                     <label class="form-check form-switch">
-                      <FormKit v-model="store.state.settings.mbsj.enabled"
+                      <FormKit v-model="store.settings.mbsj.enabled"
                                help="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                                help-class="text-muted"
                                input-class="form-check-input"
@@ -870,7 +870,7 @@ function updatePlexUrl() {
                                outer-class="mb-4"
                                type="checkbox"/>
                     </label>
-                    <FormKit v-model="store.state.settings.mbsj.quality"
+                    <FormKit v-model="store.settings.mbsj.quality"
                              help="Die Release-Auflösung der Staffeln, nach der gesucht wird."
                              help-class="text-muted"
                              input-class="form-control bg-light mb-2"
@@ -884,7 +884,7 @@ function updatePlexUrl() {
                     </FormKit>
                     <h5>Staffelpakete erlauben</h5> <!-- Checkbox labels are not placed above -->
                     <label class="form-check form-switch">
-                      <FormKit v-model="store.state.settings.mbsj.packs"
+                      <FormKit v-model="store.settings.mbsj.packs"
                                help="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                                help-class="text-muted"
                                input-class="form-check-input"
@@ -892,7 +892,7 @@ function updatePlexUrl() {
                                outer-class="mb-4"
                                type="checkbox"/>
                     </label>
-                    <FormKit v-model="store.state.settings.mbsj.source"
+                    <FormKit v-model="store.settings.mbsj.source"
                              help="Die Quellart der Staffeln, nach der gesucht wird."
                              help-class="text-muted"
                              input-class="form-control bg-light mb-2"
@@ -908,18 +908,18 @@ function updatePlexUrl() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingSettingsS" class="accordion-header">
                 <button aria-controls="collapseSettingsS" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsS"
                         data-bs-toggle="collapse" type="button">
-                  Folgen ({{ store.state.hostnames.s }})
+                  Folgen ({{ store.hostnames.s }})
                 </button>
               </h2>
               <div id="collapseSettingsS" aria-labelledby="headingSettingsS" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.sj.quality"
+                  <FormKit v-model="store.settings.sj.quality"
                            help="Die Release-Auflösung, nach der gesucht wird."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -931,7 +931,7 @@ function updatePlexUrl() {
                       {{ option.label }}
                     </option>
                   </FormKit>
-                  <FormKit v-model="store.state.settings.sj.ignore"
+                  <FormKit v-model="store.settings.sj.ignore"
                            help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -942,7 +942,7 @@ function updatePlexUrl() {
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.sj.regex"
+                    <FormKit v-model="store.settings.sj.regex"
                              help="Wenn aktiviert, werden Serien aus der Serien (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -952,7 +952,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Nur Retail hinzufügen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.sj.retail_only"
+                    <FormKit v-model="store.settings.sj.retail_only"
                              help="Wenn aktiviert, werden nur Retail-Releases hinzugefügt."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -962,7 +962,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>1080p-HEVC bevorzugen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.sj.hevc_retail"
+                    <FormKit v-model="store.settings.sj.hevc_retail"
                              help="Wenn aktiviert, werden Retail-Releases von Serien in 1080p und dem HEVC-Codec bevorzugt (ein Download erfolgt, auch wenn in anderen Codecs bereits ein Release gefunden wurde). Dadurch werden Qualitäts- und Ignore-Einstellungen bei Retail-Releases im Feed ignoriert, solange diese in 1080p und im HEVC Codec vorliegen."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -972,7 +972,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Hoster-Fallback</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.sj.hoster_fallback"
+                    <FormKit v-model="store.settings.sj.hoster_fallback"
                              help="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -980,10 +980,10 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <div v-if="store.state.hostnames.bl === 'Nicht gesetzt!'">
+                  <div v-if="store.hostnames.bl === 'Nicht gesetzt!'">
                     <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->
                     <label class="form-check form-switch">
-                      <FormKit v-model="store.state.settings.mbsj.enabled"
+                      <FormKit v-model="store.settings.mbsj.enabled"
                                help="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                                help-class="text-muted"
                                input-class="form-check-input"
@@ -991,7 +991,7 @@ function updatePlexUrl() {
                                outer-class="mb-4"
                                type="checkbox"/>
                     </label>
-                    <FormKit v-model="store.state.settings.mbsj.quality"
+                    <FormKit v-model="store.settings.mbsj.quality"
                              help="Die Release-Auflösung der Staffeln, nach der gesucht wird."
                              help-class="text-muted"
                              input-class="form-control bg-light mb-2"
@@ -1005,7 +1005,7 @@ function updatePlexUrl() {
                     </FormKit>
                     <h5>Staffelpakete erlauben</h5> <!-- Checkbox labels are not placed above -->
                     <label class="form-check form-switch">
-                      <FormKit v-model="store.state.settings.mbsj.packs"
+                      <FormKit v-model="store.settings.mbsj.packs"
                                help="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                                help-class="text-muted"
                                input-class="form-check-input"
@@ -1013,7 +1013,7 @@ function updatePlexUrl() {
                                outer-class="mb-4"
                                type="checkbox"/>
                     </label>
-                    <FormKit v-model="store.state.settings.mbsj.source"
+                    <FormKit v-model="store.settings.mbsj.source"
                              help="Die Quellart der Staffeln, nach der gesucht wird."
                              help-class="text-muted"
                              input-class="form-control bg-light mb-2"
@@ -1026,8 +1026,8 @@ function updatePlexUrl() {
                       </option>
                     </FormKit>
                     <div
-                        v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.s">
-                      <FormKit v-model="store.state.settings.f.search"
+                        v-if="store.hostnames.f !== 'Nicht gesetzt!' && store.hostnames.f === store.hostnames.s">
+                      <FormKit v-model="store.settings.f.search"
                                help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
                                help-class="text-muted"
                                input-class=" form-control bg-light mb-2"
@@ -1044,14 +1044,14 @@ function updatePlexUrl() {
               </div>
             </div>
             <div
-                v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
+                v-if="store.hostnames.sjbl !== 'Nicht gesetzt!' && store.settings.mbsj.enabled && store.misc.sjbl_enabled"
                 class="accordion-item">
               <h2 id="headingSettingsSjBl" class="accordion-header">
                 <button aria-controls="collapseSettingsSjBl" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsSjBl"
                         data-bs-toggle="collapse" type="button">
-                  Staffeln ({{ store.state.hostnames.sjbl }})
+                  Staffeln ({{ store.hostnames.sjbl }})
                 </button>
               </h2>
               <div id="collapseSettingsSjBl" aria-labelledby="headingSettingsSjBl"
@@ -1060,7 +1060,7 @@ function updatePlexUrl() {
                 <div class="accordion-body">
                   <h5>Staffeln suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mbsj.enabled"
+                    <FormKit v-model="store.settings.mbsj.enabled"
                              help="Wenn aktiviert, werden komplette Staffeln entsprechend der Staffel-Liste gesucht."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1068,7 +1068,7 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <FormKit v-model="store.state.settings.mbsj.quality"
+                  <FormKit v-model="store.settings.mbsj.quality"
                            help="Die Release-Auflösung der Staffeln, nach der gesucht wird."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -1082,7 +1082,7 @@ function updatePlexUrl() {
                   </FormKit>
                   <h5>Staffelpakete erlauben</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.mbsj.packs"
+                    <FormKit v-model="store.settings.mbsj.packs"
                              help="Wenn aktiviert, werden auch Staffelpakete hinzugefügt, die häufig mehrere hundert Gigabyte groß sind."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1090,7 +1090,7 @@ function updatePlexUrl() {
                              outer-class="mb-4"
                              type="checkbox"/>
                   </label>
-                  <FormKit v-model="store.state.settings.mbsj.source"
+                  <FormKit v-model="store.settings.mbsj.source"
                            help="Die Quellart der Staffeln, nach der gesucht wird."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -1103,8 +1103,8 @@ function updatePlexUrl() {
                     </option>
                   </FormKit>
                   <div
-                      v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f === store.state.hostnames.sjbl">
-                    <FormKit v-model="store.state.settings.f.search"
+                      v-if="store.hostnames.f !== 'Nicht gesetzt!' && store.hostnames.f === store.hostnames.sjbl">
+                    <FormKit v-model="store.settings.f.search"
                              help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
                              help-class="text-muted"
                              input-class=" form-control bg-light mb-2"
@@ -1119,18 +1119,18 @@ function updatePlexUrl() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingSettingsDj" class="accordion-header">
                 <button aria-controls="collapseSettingsDj" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsDj"
                         data-bs-toggle="collapse" type="button">
-                  Dokus ({{ store.state.hostnames.dj }})
+                  Dokus ({{ store.hostnames.dj }})
                 </button>
               </h2>
               <div id="collapseSettingsDj" aria-labelledby="headingSettingsDj" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.dj.quality"
+                  <FormKit v-model="store.settings.dj.quality"
                            help="Die Release-Auflösung, nach der gesucht wird."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -1142,7 +1142,7 @@ function updatePlexUrl() {
                       {{ option.label }}
                     </option>
                   </FormKit>
-                  <FormKit v-model="store.state.settings.dj.ignore"
+                  <FormKit v-model="store.settings.dj.ignore"
                            help="Releases mit diesen Begriffen werden nicht durch die Feed-Suche hinzugefügt (kommagetrennt)."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
@@ -1153,7 +1153,7 @@ function updatePlexUrl() {
                            type="text"/>
                   <h5>Auch per RegEx suchen</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.dj.regex"
+                    <FormKit v-model="store.settings.dj.regex"
                              help="Wenn aktiviert, werden Serien aus der Dokus (RegEx)-Liste nach den entsprechenden Regeln gesucht."
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1163,7 +1163,7 @@ function updatePlexUrl() {
                   </label>
                   <h5>Hoster-Fallback</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.dj.hoster_fallback"
+                    <FormKit v-model="store.settings.dj.hoster_fallback"
                              help="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1174,12 +1174,12 @@ function updatePlexUrl() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingSettingsDd" class="accordion-header">
                 <button aria-controls="collapseSettingsDd" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsDd"
                         data-bs-toggle="collapse" type="button">
-                  Folgen ({{ store.state.hostnames.dd }})
+                  Folgen ({{ store.hostnames.dd }})
                 </button>
               </h2>
               <div id="collapseSettingsDd" aria-labelledby="headingSettingsDd" class="accordion-collapse collapse"
@@ -1187,7 +1187,7 @@ function updatePlexUrl() {
                 <div class="accordion-body">
                   <h5>Hoster-Fallback</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.dd.hoster_fallback"
+                    <FormKit v-model="store.settings.dd.hoster_fallback"
                              help="Wenn aktiviert, und sofern kein anderer Link gefunden werden konnte, werden alle gefundenen Hoster akzeptiert!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1199,19 +1199,19 @@ function updatePlexUrl() {
               </div>
             </div>
             <div
-                v-if="store.state.hostnames.f !== 'Nicht gesetzt!' && store.state.hostnames.f !== store.state.hostnames.sjbl"
+                v-if="store.hostnames.f !== 'Nicht gesetzt!' && store.hostnames.f !== store.hostnames.sjbl"
                 class="accordion-item">
               <h2 id="headingSettingsF" class="accordion-header">
                 <button aria-controls="collapseSettingsF" aria-expanded="false" class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsF"
                         data-bs-toggle="collapse" type="button">
-                  Sonstiges ({{ store.state.hostnames.f }})
+                  Sonstiges ({{ store.hostnames.f }})
                 </button>
               </h2>
               <div id="collapseSettingsF" aria-labelledby="headingSettingsF" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.f.search"
+                  <FormKit v-model="store.settings.f.search"
                            help="Die Suchtiefe in Tagen sollte nicht zu hoch angesetzt werden, um keinen Ban zu riskieren."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -1226,7 +1226,7 @@ function updatePlexUrl() {
               </div>
             </div>
             <div
-                v-if="store.state.misc.helper_active"
+                v-if="store.misc.helper_active"
                 class="accordion-item">
               <h2 id="headingSettingsHelper" class="accordion-header">
                 <button aria-controls="collapseSettingsHelper" aria-expanded="false"
@@ -1240,7 +1240,7 @@ function updatePlexUrl() {
                    class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.state.settings.sponsors_helper.max_attempts"
+                  <FormKit v-model="store.settings.sponsors_helper.max_attempts"
                            help="Um keine CAPTCHA-Credits zu verschwenden, überspringt der FeedCrawler Sponsor Helper ein Paket, nachdem dieser Schwellwert erreicht wurde."
                            help-class="text-muted"
                            input-class=" form-control bg-light mb-2"
@@ -1253,7 +1253,7 @@ function updatePlexUrl() {
                            validation-visibility="live"/>
                   <h5>Spenden-Banner automatisch ausblenden</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
-                    <FormKit v-model="store.state.settings.sponsors_helper.hide_donation_banner"
+                    <FormKit v-model="store.settings.sponsors_helper.hide_donation_banner"
                              help="Wenn aktiviert, wird das Spenden-Banner im JDownloader automatisch ausgeblendet!"
                              help-class="text-muted"
                              input-class="form-check-input"
@@ -1267,7 +1267,7 @@ function updatePlexUrl() {
           </FormKit>
         </div>
         <div>
-          <button v-if="store.state.misc.loaded_settings" class="btn btn-primary mt-4" type="submit"
+          <button v-if="store.misc.loaded_settings" class="btn btn-primary mt-4" type="submit"
                   @click="submitSettings">
             <span v-if="spin_settings" class="spinner-border spinner-border-sm" role="status"></span>
             <i v-if="!spin_settings" class="bi bi-save"></i> Speichern

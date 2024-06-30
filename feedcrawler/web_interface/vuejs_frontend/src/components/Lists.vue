@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {inject, ref} from 'vue'
 import {Collapse, Offcanvas} from 'bootstrap'
 import {submitForm} from "@formkit/vue"
@@ -12,7 +12,7 @@ const toast = inject('toast')
 function getLists() {
   axios.get('api/lists/')
       .then(function (res) {
-        store.commit('getLists', res.data.lists)
+        store.getLists(res.data.lists)
       }, function () {
         console.log('Konnte Listen nicht abrufen!')
         toast.error('Konnte Listen nicht abrufen!')
@@ -21,7 +21,7 @@ function getLists() {
 
 function saveLists() {
   spinLists()
-  axios.post('api/lists/', store.state.lists)
+  axios.post('api/lists/', store.lists)
       .then(function () {
         console.log('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
         toast.success('Listen gespeichert! Änderungen werden im nächsten Suchlauf berücksichtigt.')
@@ -73,15 +73,15 @@ function submitLists() {
                  type="form"
                  @submit="saveLists()"
         >
-          <h4 v-if="!store.state.misc.loaded_lists">Listen werden geladen...</h4>
-          <div v-if="store.state.misc.loaded_lists" id="accordionLists" class="accordion">
-            <div v-if="store.state.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
+          <h4 v-if="!store.misc.loaded_lists">Listen werden geladen...</h4>
+          <div v-if="store.misc.loaded_lists" id="accordionLists" class="accordion">
+            <div v-if="store.hostnames.bl !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingHostnamesBl" class="accordion-header">
                 <button aria-controls="collapseHostnamesBl" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseHostnamesBl"
                         data-bs-toggle="collapse" type="button">
-                  Filme ({{ store.state.hostnames.bl }})
+                  Filme ({{ store.hostnames.bl }})
                 </button>
               </h2>
               <div id="collapseHostnamesBl" aria-labelledby="headingHostnamesBl"
@@ -89,7 +89,7 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Film-Titel'">
-                    <FormKit v-model="store.state.lists.mb.filme"
+                    <FormKit v-model="store.lists.mb.filme"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -105,13 +105,13 @@ function submitLists() {
                              validation-visibility="live"
                     />
                   </div>
-                  <div v-if="store.state.settings.mb.regex"
+                  <div v-if="store.settings.mb.regex"
                        v-tippy="'Pro Zeile ein Film-/Serien-Titel im RegEx-Format (Filterliste wird hier ignoriert)'">
                     <h5><span v-tippy="'Hilfe zu RegEx öffnen'"
                               class="link-primary"
                               @click="showRegExHelp">RegEx-Suche</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.mb.regex"
+                    <FormKit v-model="store.lists.mb.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
@@ -127,9 +127,9 @@ function submitLists() {
                     />
                   </div>
                   <div
-                      v-if="store.state.settings.mbsj.enabled && store.state.hostnames.s === 'Nicht gesetzt!'"
+                      v-if="store.settings.mbsj.enabled && store.hostnames.s === 'Nicht gesetzt!'"
                       v-tippy="'Pro Zeile ein Serien-Titel (gesucht werden vollständige Staffeln)'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln"
+                    <FormKit v-model="store.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -148,12 +148,12 @@ function submitLists() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.s !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingHostnamesS" class="accordion-header">
                 <button aria-controls="collapseHostnamesS" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseHostnamesS" data-bs-toggle="collapse" type="button">
-                  Folgen ({{ store.state.hostnames.s }})
+                  Folgen ({{ store.hostnames.s }})
                 </button>
               </h2>
               <div id="collapseHostnamesS" aria-labelledby="headingHostnamesS"
@@ -161,7 +161,7 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Serien-Titel (gesucht werden Folgen)'">
-                    <FormKit v-model="store.state.lists.sj.serien"
+                    <FormKit v-model="store.lists.sj.serien"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -177,13 +177,13 @@ function submitLists() {
                              validation-visibility="live"
                     />
                   </div>
-                  <div v-if="store.state.settings.sj.regex"
+                  <div v-if="store.settings.sj.regex"
                        v-tippy="'Pro Zeile ein Serien-Titel im RegEx-Format (Filterliste wird hier ignoriert)'">
                     <h5><span v-tippy="'Hilfe zu RegEx öffnen'"
                               class="link-primary"
                               @click="showRegExHelp">RegEx-Suche</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.sj.regex"
+                    <FormKit v-model="store.lists.sj.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
@@ -198,13 +198,13 @@ function submitLists() {
                              validation-visibility="live"
                     />
                   </div>
-                  <div v-if="store.state.lists.sj.staffeln_regex"
+                  <div v-if="store.lists.sj.staffeln_regex"
                        v-tippy="'Pro Zeile ein Serien-Titel im RegEx-Format für Staffeln (Filterliste wird hier ignoriert)'">
                     <h5><span v-tippy="'Hilfe zu RegEx öffnen'"
                               class="link-primary"
                               @click="showRegExHelp">RegEx-Suche</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-if="store.state.lists.sj.staffeln_regex"
+                    <FormKit v-if="store.lists.sj.staffeln_regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
@@ -220,9 +220,9 @@ function submitLists() {
                     />
                   </div>
                   <div
-                      v-if="store.state.settings.mbsj.enabled && store.state.hostnames.bl === 'Nicht gesetzt!'"
+                      v-if="store.settings.mbsj.enabled && store.hostnames.bl === 'Nicht gesetzt!'"
                       v-tippy="'Pro Zeile ein Serien-Titel (gesucht werden vollständige Staffeln)'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln"
+                    <FormKit v-model="store.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -242,14 +242,14 @@ function submitLists() {
               </div>
             </div>
             <div
-                v-if="store.state.hostnames.sjbl !== 'Nicht gesetzt!' && store.state.settings.mbsj.enabled && store.state.misc.sjbl_enabled"
+                v-if="store.hostnames.sjbl !== 'Nicht gesetzt!' && store.settings.mbsj.enabled && store.misc.sjbl_enabled"
                 class="accordion-item">
               <h2 id="headingHostnamesSjBl" class="accordion-header">
                 <button aria-controls="collapseHostnamesSjBl" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseHostnamesSjBl" data-bs-toggle="collapse"
                         type="button">
-                  Staffeln ({{ store.state.hostnames.sjbl }})
+                  Staffeln ({{ store.hostnames.sjbl }})
                 </button>
               </h2>
               <div id="collapseHostnamesSjBl" aria-labelledby="headingHostnamesSjBl"
@@ -257,7 +257,7 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Serien-Titel (gesucht werden vollständige Staffeln)'">
-                    <FormKit v-model="store.state.lists.mbsj.staffeln"
+                    <FormKit v-model="store.lists.mbsj.staffeln"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -276,13 +276,13 @@ function submitLists() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.dj !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingHostnamesDj" class="accordion-header">
                 <button aria-controls="collapseHostnamesDj" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseHostnamesDj" data-bs-toggle="collapse"
                         type="button">
-                  Dokus ({{ store.state.hostnames.dj }})
+                  Dokus ({{ store.hostnames.dj }})
                 </button>
               </h2>
               <div id="collapseHostnamesDj" aria-labelledby="headingHostnamesDj"
@@ -290,7 +290,7 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile ein Doku-Titel'">
-                    <FormKit v-model="store.state.lists.dj.dokus"
+                    <FormKit v-model="store.lists.dj.dokus"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-+&\s]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: - + &'
@@ -306,13 +306,13 @@ function submitLists() {
                              validation-visibility="live"
                     />
                   </div>
-                  <div v-if="store.state.settings.dj.regex"
+                  <div v-if="store.settings.dj.regex"
                        v-tippy="'Pro Zeile ein Doku-Titel im RegEx-Format (Filterliste wird hier ignoriert)'">
                     <h5><span v-tippy="'Hilfe zu RegEx öffnen'"
                               class="link-primary"
                               @click="showRegExHelp">RegEx-Suche</span>
                     </h5><!-- Setting variables in label is unsupported -->
-                    <FormKit v-model="store.state.lists.dj.regex"
+                    <FormKit v-model="store.lists.dj.regex"
                              :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
@@ -330,13 +330,13 @@ function submitLists() {
                 </div>
               </div>
             </div>
-            <div v-if="store.state.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
+            <div v-if="store.hostnames.dd !== 'Nicht gesetzt!'" class="accordion-item">
               <h2 id="headingHostnamesDd" class="accordion-header">
                 <button aria-controls="collapseHostnamesDd" aria-expanded="false"
                         class="accordion-button collapsed"
                         data-bs-target="#collapseHostnamesDd" data-bs-toggle="collapse"
                         type="button">
-                  Folgen ({{ store.state.hostnames.dd }})
+                  Folgen ({{ store.hostnames.dd }})
                 </button>
               </h2>
               <div id="collapseHostnamesDd" aria-labelledby="headingHostnamesDd"
@@ -344,7 +344,7 @@ function submitLists() {
                    data-bs-parent="#accordionLists">
                 <div class="accordion-body">
                   <div v-tippy="'Pro Zeile eine numerische RSS-Feed-ID'">
-                    <FormKit v-model="store.state.lists.dd.feeds"
+                    <FormKit v-model="store.lists.dd.feeds"
                              :validation="[['?matches', /^[0-9\n]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Zahlen eingeben.'
@@ -366,7 +366,7 @@ function submitLists() {
           </div>
         </FormKit>
         <div>
-          <button v-if="store.state.misc.loaded_lists" class="btn btn-primary mt-4" type="submit"
+          <button v-if="store.misc.loaded_lists" class="btn btn-primary mt-4" type="submit"
                   @click="submitLists()">
             <div v-if="spin_lists" class="spinner-border spinner-border-sm" role="status"></div>
             <i v-if="!spin_lists" class="bi bi-save"></i> Speichern

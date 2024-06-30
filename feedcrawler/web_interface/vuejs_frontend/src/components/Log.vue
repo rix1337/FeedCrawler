@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {computed, inject, onMounted, ref} from 'vue'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
@@ -19,7 +19,7 @@ function getLog() {
   axios.get('api/log/')
       .then(function (res) {
         log.value = res.data.log
-        store.state.misc.loaded_log = true
+        store.misc.loaded_log = true
         getLogPages()
       }, function () {
         console.log('Konnte Log nicht abrufen!')
@@ -128,7 +128,7 @@ function spinLog() {
           </div>
           <div class="card-body">
             <div class="row">
-              <div v-if="!store.state.misc.loaded_log" class="text-center">
+              <div v-if="!store.misc.loaded_log" class="text-center">
                 <h4>Log wird geladen...</h4>
                 <div class="spinner-border text-primary" role="status"></div>
               </div>

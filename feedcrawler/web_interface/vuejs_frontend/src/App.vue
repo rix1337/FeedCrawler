@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import "bootstrap"
@@ -16,10 +16,10 @@ import Help from './components/Help.vue'
 
 const store = useStore()
 
-store.commit("setNow", Date.now())
-store.commit("getCrawlTimes")
-store.commit("getHostNames")
-store.commit('getBlockedSites')
+store.setNow(Date.now())
+store.getCrawlTimes()
+store.getHostNames()
+store.getBlockedSites()
 
 const isDark = useDark()
 const toggleDark = useToggle(isDark)

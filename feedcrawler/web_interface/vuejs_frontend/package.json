@@ -14,11 +14,11 @@
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
+    "pinia": "^2.1.7",
     "sass": "^1.77.6",
     "vue": "^3.4.31",
     "vue-tippy": "^6.4.4",
-    "vuejs-paginate-next": "^1.0.2",
-    "vuex": "^4.1.0"
+    "vuejs-paginate-next": "^1.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.5",

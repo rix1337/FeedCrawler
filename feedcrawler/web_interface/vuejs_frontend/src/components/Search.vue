@@ -1,5 +1,5 @@
 <script setup>
-import {useStore} from 'vuex'
+import {useStore} from '@/main.js'
 import {computed, inject, onMounted, ref, watch} from 'vue'
 import Paginate from "vuejs-paginate-next"
 import {submitForm} from '@formkit/vue'
@@ -161,7 +161,7 @@ function submitSearch() {
       </div>
       <div class="offcanvas-body">
         <div
-            v-tippy="'Bequeme Suchfunktion für ' + store.state.hostnames.search + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Folgen hinzugefügt. Komplette Serien landen auch in der Suchliste für die Feed-Suche. Alternativ kann eine einzelne Staffel/Folge per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die für die Feed-Suche gesetzte Auflösung und Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
+            v-tippy="'Bequeme Suchfunktion für ' + store.hostnames.search + '. Bei hellblau hinterlegten Serien werden alle verfügbaren Staffeln/Folgen hinzugefügt. Komplette Serien landen auch in der Suchliste für die Feed-Suche. Alternativ kann eine einzelne Staffel/Folge per Komma am Titel ergänzt werden: \'Serien Titel,S01\' oder \'Serien Titel,S01E01\'. Die für die Feed-Suche gesetzte Auflösung und Filterliste werden berücksichtigt, aber nicht forciert. Bereits geladene Releases werden hier nicht ignoriert!'"
             class="row">
           <FormKit id="search" #default="{ value }"
                    :actions="false"
@@ -199,7 +199,7 @@ function submitSearch() {
             </button>
           </div>
         </div>
-        <div class="row justify-content-center" v-if="store.state.misc.no_site_blocked === 1 && spin_search">
+        <div class="row justify-content-center" v-if="store.misc.no_site_blocked === 1 && spin_search">
           <div class="col-sm-4">
             <mark>
               Aufgrund aktiver Cloudflare-Blockaden dauert die Suche etwas länger!
