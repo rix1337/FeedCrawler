@@ -77,7 +77,7 @@ def search_imdb(self, desired_rating, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = replace_with_stripped_ascii(post.title)
+            post.title = replace_with_stripped_ascii(post.title).replace(" ", ".")
 
         if self.search_imdb_done:
             shared_state.logger.debug(
@@ -208,7 +208,7 @@ def search_feed(self, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = replace_with_stripped_ascii(post.title)
+            post.title = replace_with_stripped_ascii(post.title).replace(" ", ".")
 
         if self.search_regular_done:
             shared_state.logger.debug(

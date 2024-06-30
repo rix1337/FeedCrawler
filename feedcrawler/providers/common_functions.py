@@ -627,7 +627,6 @@ def replace_with_stripped_ascii(string):
     string = string.strip()
 
     replacements = {
-        " ": ".",
         "Ä": "Ae",
         "Ö": "Oe",
         "Ü": "Ue",
