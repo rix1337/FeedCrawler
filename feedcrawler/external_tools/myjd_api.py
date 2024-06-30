@@ -859,8 +859,8 @@ class Jddevice:
                         self.__direct_connection_consecutive_failures = 0
                         return response['data']
                     else:
-                        # We don't try to use this connection for a decade.
-                        conn['cooldown'] = time.time() + 315360000
+                        # We don't try to use this connection for an hour.
+                        conn['cooldown'] = time.time() + 3600
                         self.__direct_connection_info.remove(conn)
                         self.__direct_connection_info.append(conn)
             # None of the direct connections worked, we set a cooldown for direct connections
