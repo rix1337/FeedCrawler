@@ -81,6 +81,9 @@ class NoLoggingWSGIRequestHandler(WSGIRequestHandler):
         pass
 
 
+temp_server_success = False
+
+
 class Server:
     def __init__(self, wsgi_app, listen='127.0.0.1', port=8080):
         self.wsgi_app = wsgi_app
@@ -88,6 +91,21 @@ class Server:
         self.port = port
         self.server = make_server(self.listen, self.port, self.wsgi_app,
                                   ThreadingWSGIServer, handler_class=NoLoggingWSGIRequestHandler)
+
+    def serve_temporarily(self):
+        global temp_server_success
+        self.server.timeout = 1
+        try:
+            while not temp_server_success:
+                self.server.handle_request()
+            self.server.handle_request()  # handle the last request
+        except KeyboardInterrupt:
+            self.server.server_close()
+            return False
+        time.sleep(1)
+        self.server.server_close()
+        temp_server_success = False
+        return True
 
     def serve_forever(self):
         try:
@@ -2072,13 +2090,266 @@ def attempt_download(package_name, links, password, ids):
             return abort(500, package_name + " konnte nicht hinzugefügt werden!")
 
 
-def start():
-    if version.update_check()[0]:
-        updateversion = version.update_check()[1]
-        print('Update steht bereit (' + updateversion +
-              ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
+def hostnames_config(port, local_address):
+    app = Bottle()
 
-    app_container()
+    @app.get('/')
+    def hostname_form():
+        # Serve an HTML form for the user to enter the hostnames
+        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                    <h1>FeedCrawler</h1>
+                    <h3>Mindestens einen Hostnamen konfigurieren</h3>
+                    <form action="/api/hostnames" method="post">
+                        <label for="fx">FX</label><br>
+                        <input type="text" id="fx" name="fx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="sf">SF</label><br>
+                        <input type="text" id="sf" name="sf" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="dw">DW</label><br>
+                        <input type="text" id="dw" name="dw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="hw">HW</label><br>
+                        <input type="text" id="hw" name="hw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="ff">FF</label><br>
+                        <input type="text" id="ff" name="ff" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="by">BY</label><br>
+                        <input type="text" id="by" name="by" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="nk">NK</label><br>
+                        <input type="text" id="nk" name="nk" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="nx">NX</label><br>
+                        <input type="text" id="nx" name="nx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="ww">WW</label><br>
+                        <input type="text" id="ww" name="ww" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="sj">SJ</label><br>
+                        <input type="text" id="sj" name="sj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="dj">DJ</label><br>
+                        <input type="text" id="dj" name="dj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="dd">DD</label><br>
+                        <input type="text" id="dd" name="dd" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+                        <button type="submit">Speichern</button>
+                    </form>
+                </div>
+            </div>
+        '''
+
+    @app.post("/api/hostnames")
+    def set_hostnames():
+        hostnames = CrawlerConfig('Hostnames')
+        hostname_keys = ['fx', 'sf', 'dw', 'hw', 'ff', 'by', 'nk', 'nx', 'ww', 'sj', 'dj', 'dd']
+
+        hostname_set = False
+
+        for key in hostname_keys:
+            hostname = request.forms.get(key)
+            try:
+                hostname = extract_domain(hostname)
+            except Exception as e:
+                print(f"Error extracting domain from {hostname}: {e}")
+                continue
+
+            if hostname:
+                hostnames.save(key, hostname)
+                hostname_set = True
+
+        if hostname_set:
+            global temp_server_success
+            temp_server_success = True
+            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                    <h1>FeedCrawler</h1>
+                    <h3>Mindestens ein Hostnamen konfiguriert! Fahre fort...</h3>
+                    <button id="weiterButton" disabled>Wartezeit... 10</button>
+                    <script>
+                        var counter = 10;
+                        var interval = setInterval(function() {
+                            counter--;
+                            document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
+                            if (counter === 0) {
+                                clearInterval(interval);
+                                document.getElementById('weiterButton').innerText = 'Weiter';
+                                document.getElementById('weiterButton').disabled = false;
+                                document.getElementById('weiterButton').onclick = function() {
+                                    window.location.href='/';
+                                }
+                            }
+                        }, 1000);
+                    </script>
+                </div>
+            </div>"""
+        else:
+            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                        <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                            <h1>FeedCrawler</h1>
+                            <h3>Es wurde kein valider Hostnamen konfiguriert!</h3>
+                            <button onclick="window.location.href='/'">Zurück</button>
+                        </div>
+                    </div>"""
+
+    def extract_domain(url):
+        try:
+            if '://' not in url:
+                url = 'http://' + url
+            result = parse.urlparse(url)
+            return result.netloc
+        except Exception as e:
+            print(f"Error parsing URL {url}: {e}")
+            return None
+
+    print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
+    print("Bitte im Webserver oder lokal in der FeedCrawler.ini die Hostnamen konfigurieren!")
+    print("Erst nach erfolgreicher Konfiguration der Hostnamen wird der FeedCrawler starten.")
+    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
+
+
+def myjd_config(port, local_address):
+    app = Bottle()
+
+    @app.get('/')
+    def hostname_form():
+        # Serve an HTML form for the user to enter the hostnames
+        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                    <h1>FeedCrawler</h1>
+                    <h3>My JDownloader Zugangsdaten konfigurieren</h3>
+                    <form id="verifyForm" action="/api/verify_myjd" method="post">
+                        <label for="user">Nutzername/Email</label><br>
+                        <input type="text" id="user" name="user" placeholder="Username" style="width: 80%; margin-bottom: 10px;"><br>
+                        <label for="pass">Passwort</label><br>
+                        <input type="password" id="pass" name="pass" placeholder="Password" style="width: 80%; margin-bottom: 10px;"><br>
+                        <button id="verifyButton" type="button" onclick="verifyCredentials()">Geräte abrufen</button>
+                    </form>
+                    <form action="/api/store_myjd" method="post" id="deviceForm" style="display: none;">
+                        <input type="hidden" id="hiddenUser" name="user">
+                        <input type="hidden" id="hiddenPass" name="pass">
+                        <label for="device">Gerät</label><br>
+                        <select id="device" name="device" style="width: 80%; margin-bottom: 10px;"></select><br>
+                        <button type="submit">Speichern</button>
+                    </form>
+                </div>
+            </div>
+            <script>
+            function verifyCredentials() {
+                var user = document.getElementById('user').value;
+                var pass = document.getElementById('pass').value;
+                fetch('/api/verify_myjd', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({user: user, pass: pass}),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        var select = document.getElementById('device');
+                        data.devices.forEach(device => {
+                            var opt = document.createElement('option');
+                            opt.value = device;
+                            opt.innerHTML = device;
+                            select.appendChild(opt);
+                        });
+                        document.getElementById('hiddenUser').value = document.getElementById('user').value;
+                        document.getElementById('hiddenPass').value = document.getElementById('pass').value;
+                        document.getElementById("verifyButton").style.display = "none";
+                        document.getElementById('deviceForm').style.display = 'block';
+                    } else {
+                        alert('Fehler! Bitte die Zugangsdaten überprüfen.');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            }
+            </script>'''
+
+    def get_devices(myjd_user, myjd_pass):
+        import feedcrawler.external_tools.myjd_api
+        from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
+
+        jd = feedcrawler.external_tools.myjd_api.Myjdapi()
+        jd.set_app_key('FeedCrawler')
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            devices = jd.list_devices()
+            return devices
+        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
+            print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
+            return []
+
+    @app.post("/api/verify_myjd")
+    def verify_myjd():
+        data = request.json
+        username = data['user']
+        password = data['pass']
+
+        devices = get_devices(username, password)
+        device_names = []
+
+        if devices:
+            for device in devices:
+                device_names.append(device['name'])
+
+        if device_names:
+            return {"success": True, "devices": device_names}
+        else:
+            return {"success": False}
+
+    @app.post("/api/store_myjd")
+    def store_myjd():
+        username = request.forms.get('user')
+        password = request.forms.get('pass')
+        device = request.forms.get('device')
+
+        config = CrawlerConfig('FeedCrawler')
+
+        if username and password and device:
+            config.save('myjd_user', username)
+            config.save('myjd_pass', password)
+            config.save('myjd_device', device)
+
+            if not set_device_from_config():
+                config.save('myjd_user', "")
+                config.save('myjd_pass', "")
+                config.save('myjd_device', "")
+            else:
+                global temp_server_success
+                temp_server_success = True
+                return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                            <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                                <h1>FeedCrawler</h1>
+                                <h3>Zugangsdaten erfolgreich gespeichert! Fahre fort...</h3>
+                                <button id="weiterButton" disabled>Wartezeit... 10</button>
+                                <script>
+                                    var counter = 10;
+                                    var interval = setInterval(function() {
+                                        counter--;
+                                        document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
+                                        if (counter === 0) {
+                                            clearInterval(interval);
+                                            document.getElementById('weiterButton').innerText = 'Weiter';
+                                            document.getElementById('weiterButton').disabled = false;
+                                            document.getElementById('weiterButton').onclick = function() {
+                                                window.location.href='/';
+                                            }
+                                        }
+                                    }, 1000);
+                                </script>
+                            </div>
+                        </div>"""
+
+        return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
+                    <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
+                        <h1>FeedCrawler</h1>
+                        <h3>Zugangsdaten fehlerhaft!</h3>
+                        <button onclick="window.location.href='/'">Zurück</button>
+                    </div>
+                </div>"""
+
+    print(
+        f'My JDownloader Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
+    print("Bitte im Webserver die My JDownloader Zugangsdaten konfigurieren!")
+    print("Erst nach erfolgreicher Konfiguration der My JDownloader Zugangsdaten wird der FeedCrawler starten.")
+    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
 
 
 def web_server(shared_state_dict, shared_state_lock):
@@ -2090,4 +2361,9 @@ def web_server(shared_state_dict, shared_state_lock):
     shared_state.set_state(shared_state_dict, shared_state_lock)
     shared_state.set_logger()
 
-    start()
+    if version.update_check()[0]:
+        updateversion = version.update_check()[1]
+        print('Update steht bereit (' + updateversion +
+              ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
+
+    app_container()

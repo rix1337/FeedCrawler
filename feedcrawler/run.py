@@ -21,7 +21,7 @@ from feedcrawler.providers.common_functions import Unbuffered, check_ip, configp
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import set_device_from_config, get_if_one_device, myjd_input
 from feedcrawler.providers.sqlite_database import FeedDb, remove_redundant_db_tables
-from feedcrawler.web_interface.web_server import web_server
+from feedcrawler.web_interface.web_server import hostnames_config, myjd_config, web_server
 
 version = "v." + version.get_version()
 
@@ -82,6 +82,14 @@ def main():
         shared_state.update("log_level", log_level)
         shared_state.set_logger()
 
+        local_address = 'http://' + check_ip()
+        port = int('9090')
+        docker = False
+        if shared_state.values["docker"]:
+            docker = True
+        elif arguments.port:
+            port = int(arguments.port)
+
         hostnames = CrawlerConfig('Hostnames')
 
         def clean_up_hostname(host, string):
@@ -106,18 +114,21 @@ def main():
         if not shared_state.values["test_run"] and not set_hostnames:
             if shared_state.values["gui"]:
                 gui.no_hostnames_gui(shared_state.values["configfile"])
+                sys.exit(1)
             else:
-                print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
-                time.sleep(10)
-            sys.exit(1)
+                if not hostnames_config(port, local_address):
+                    print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
+                    time.sleep(10)
+                    sys.exit(1)
 
         if not shared_state.values["test_run"]:
+            myjd_input_required = False
             if not os.path.exists(shared_state.values["configfile"]):
                 if shared_state.values["docker"]:
                     if arguments.jd_user and arguments.jd_pass:
-                        myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
+                        myjd_input_required = True
                 else:
-                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
+                    myjd_input_required = True
             else:
                 feedcrawler = CrawlerConfig('FeedCrawler')
                 user = feedcrawler.get('myjd_user')
@@ -132,8 +143,11 @@ def main():
                                 feedcrawler.save('myjd_device', one_device)
                                 set_device_from_config()
                 else:
-                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass,
-                               arguments.jd_device)
+                    myjd_input_required = True
+
+            if myjd_input_required:
+                if not myjd_config(port, local_address):
+                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
 
         if not shared_state.values["test_run"]:
             if shared_state.get_device() and shared_state.get_device().name:
@@ -171,21 +185,16 @@ def main():
                 sys.exit(1)
 
         feedcrawler = CrawlerConfig('FeedCrawler')
-        port = int(feedcrawler.get("port"))
-        docker = False
-        if shared_state.values["docker"]:
-            port = int('9090')
-            docker = True
-        elif arguments.port:
-            port = int(arguments.port)
+        if not arguments.docker and not arguments.port:
+            port = int(feedcrawler.get("port"))
 
         if feedcrawler.get("prefix"):
             prefix = '/' + feedcrawler.get("prefix")
         else:
             prefix = ''
-        local_address = 'http://' + check_ip() + ':' + str(port) + prefix
+
         if not shared_state.values["docker"]:
-            print('Der Webserver ist erreichbar unter "' + local_address + '"')
+            print(f'Der Webserver ist erreichbar unter "{local_address}:{port}{prefix}"')
 
         shared_state.set_connection_info(local_address, port, prefix, docker)
 
@@ -202,7 +211,7 @@ def main():
 
         if arguments.delay:
             delay = int(arguments.delay)
-            print("Verzögere den ersten Suchlauf um " + str(delay) + " Sekunden")
+            print(f"Verzögere den ersten Suchlauf um {delay} Sekunden")
             time.sleep(delay)
 
         if not shared_state.values["test_run"]:

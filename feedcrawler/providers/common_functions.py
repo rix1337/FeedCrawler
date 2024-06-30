@@ -10,6 +10,8 @@ import re
 import socket
 import sys
 from urllib.parse import urlparse
+import signal
+import platform
 
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
@@ -557,7 +559,7 @@ def rreplace(s, old, new, occurrence):
 
 def configpath(configpath):
     pathfile = "FeedCrawler.conf"
-    current_path = os.path.dirname(sys.argv[0])
+    current_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     if configpath:
         f = open(pathfile, "w")
         f.write(configpath)
@@ -569,8 +571,24 @@ def configpath(configpath):
         if shared_state.values["gui"]:
             configpath = gui.configpath_gui(current_path)
         else:
-            print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-            configpath = input("Pfad angeben:")
+            def handler(signum, frame):
+                raise Exception("Timeout!")
+
+            signal.signal(signal.SIGALRM, handler)
+            if platform.system() != "Windows":
+                print("Wo sollen Einstellungen und Logs abgelegt werden?")
+                print("30 Sekunden warten oder leer lassen, um den aktuellen Pfad zu nutzen.")
+                signal.alarm(30)
+
+                try:
+                    configpath = input("Pfad angeben:")
+                    signal.alarm(0)
+                except Exception:
+                    print(" ... 30 Sekunden verstrichen! Nutze aktuellen Pfad.")
+                    configpath = ""
+            else:
+                print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+                configpath = input("Pfad angeben:")
         if len(configpath) > 0:
             f = open(pathfile, "w")
             f.write(configpath)
