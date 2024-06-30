@@ -584,7 +584,7 @@ def configpath(configpath):
                     configpath = input("Pfad angeben:")
                     signal.alarm(0)
                 except Exception:
-                    print("30 Sekunden verstrichen! Nutze aktuellen Pfad.")
+                    print(" ... 30 Sekunden verstrichen! Nutze aktuellen Pfad.")
                     configpath = ""
             else:
                 print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
