@@ -22,6 +22,7 @@ from feedcrawler.providers.common_functions import check_valid_release
 from feedcrawler.providers.common_functions import fullhd_title
 from feedcrawler.providers.common_functions import is_hevc
 from feedcrawler.providers.common_functions import is_retail
+from feedcrawler.providers.common_functions import remove_suffix
 from feedcrawler.providers.common_functions import replace_with_stripped_ascii
 from feedcrawler.providers.myjd_connection import myjd_download
 from feedcrawler.providers.notifications import notify
@@ -77,7 +78,7 @@ def search_imdb(self, desired_rating, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = replace_with_stripped_ascii(post.title).replace(" ", ".")
+            post.title = remove_suffix(replace_with_stripped_ascii(post.title).replace(" ", "."), "_MIRROR")
 
         if self.search_imdb_done:
             shared_state.logger.debug(
@@ -208,7 +209,7 @@ def search_feed(self, feed):
             shared_state.logger.debug("Fehler beim Abruf von " + post.title + ": Kein Durchsuchbarer Inhalt gefunden.")
             content = False
         if content:
-            post.title = replace_with_stripped_ascii(post.title).replace(" ", ".")
+            post.title = remove_suffix(replace_with_stripped_ascii(post.title).replace(" ", "."), "_MIRROR")
 
         if self.search_regular_done:
             shared_state.logger.debug(
@@ -641,7 +642,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
                     f"{'/Englisch/Retail' if englisch and retail else ''}"
                     f"{'/Retail' if not englisch and retail else ''}"
                     f"{'/HEVC' if hevc_retail else ''}"
-                    f"] - {key} -"
+                    f"] - {key} - "
                     f"[{site}] - {size} - {source}"
                 )
                 shared_state.logger.info(log_entry)

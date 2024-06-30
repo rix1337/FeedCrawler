@@ -101,10 +101,10 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                     allow_sponsors_helper_run = True
 
             if method == 'post':
-                response = request(url, method="POST", data=params, timeout=10, headers=headers,
+                response = request(url, method="POST", data=params, timeout=60, headers=headers,
                                    cookiejar=cookiejar, proxies=proxies, force_ipv4=force_ipv4)
             else:
-                response = request(url, timeout=10, headers=headers, cookiejar=cookiejar, proxies=proxies,
+                response = request(url, timeout=60, headers=headers, cookiejar=cookiejar, proxies=proxies,
                                    force_ipv4=force_ipv4)
 
             if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
