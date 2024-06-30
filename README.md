@@ -103,8 +103,8 @@ Beispiel:
 
 ## Hostnamen
 
-FeedCrawler kann zum Durchsuchen beliebiger Webseiten verwendet werden. Welche das sind, entscheiden Anwender durch das
-Befüllen der _FeedCrawler.ini_ in der Kategorie _[Hostnames]_. Eingetragen werden dort Hostnamen, bspw. _ab = xyz.com_.
+FeedCrawler kann zum Durchsuchen beliebiger Webseiten verwendet werden.
+Welche das sind, entscheiden Anwender selbständig bei der Einrichtung. Es gilt dabei:
 
 * Welche Hostname aufgerufen werden entscheidet allein der Anwender.
 * Ist nicht mindestens ein Hostname gesetzt, wird der FeedCrawler nicht starten.
