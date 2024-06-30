@@ -62,7 +62,7 @@ def set_device(myjd_user, myjd_pass, myjd_device):
         device.downloadcontroller.get_current_state()  # request forces direct_connection info update
         connection_info = device.check_direct_connection()
         if connection_info["status"]:
-            print("Nutze direkte Verbindung zu JDownloader: " + connection_info["ip"])
+            print(f"JDownloader direkt über {connection_info['ip']} verfügbar.")
         else:
             print("Keine direkte Verbindung zu JDownloader möglich")
         shared_state.set_device(device)

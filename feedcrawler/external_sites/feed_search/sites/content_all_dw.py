@@ -102,6 +102,13 @@ def dw_get_download_links(self, content, title):
             response = json.loads(post_url(ajax_url, payload))
             if response["success"]:
                 link = response["data"].split(",")[0]
+
+                if dw in link:
+                    match = re.search(r'https://' + dw + r'/azn/af\.php\?v=([A-Z0-9]+)(#.*)?', link)
+                    if match:
+                        link = 'https://filecrypt.cc/' + 'Container/' + match.group(1) + '.html' + (
+                            match.group(2) if match.group(2) else '')
+
                 hoster = button.nextSibling.img["src"].split("/")[-1].replace(".png", "")
                 download_links.append([link, hoster])
     except:

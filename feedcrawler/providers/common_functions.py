@@ -623,6 +623,12 @@ def simplified_search_term_in_title(search_term, release_title, no_numbers=False
     return search_term in release_title
 
 
+def remove_suffix(input_string, suffix):
+    if input_string.endswith(suffix):
+        return input_string[:-len(suffix)]
+    return input_string
+
+
 def replace_with_stripped_ascii(string):
     string = string.strip()
 
