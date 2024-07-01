@@ -28,6 +28,7 @@ EXPOSE 9090
 
 # Set environment variables.
 ENV PYTHONUNBUFFERED=1
+ENV DOCKER="true"
 ENV USER=""
 ENV PASS=""
 ENV DEVICE=""
@@ -36,4 +37,4 @@ ENV VERSION=""
 ENV DELAY=""
 
 # Run command
-ENTRYPOINT ["sh", "-c", "feedcrawler --docker --log-level=$LOGLEVEL --jd-user=$USER --jd-pass=$PASS --jd-device=$DEVICE --delay=$DELAY"]
+ENTRYPOINT ["sh", "-c", "feedcrawler --log-level=$LOGLEVEL --delay=$DELAY"]

@@ -117,9 +117,6 @@ Welche das sind, entscheiden Anwender selbständig bei der Einrichtung. Es gilt 
 | ```--log-level=<LOGLEVEL>```   | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
 | ```--config="<PFAD>"```        | Legt den Ablageort für Einstellungen und Logs fest |
 | ```--port=<PORT>```            | Legt den Port des Webservers fest |
-| ```--jd-user=<NUTZERNAME>```   | Legt den Nutzernamen für My JDownloader fest |
-| ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
-| ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
 | ```--delay=<SEKUNDEN>``` | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional) |
 | ```--no-gui``` | Startet FeedCrawler ohne GUI (optional) |
 

@@ -3,6 +3,7 @@
 # Projekt von https://github.com/rix1337
 # Dieses Modul ist das Herzstück des FeedCrawlers. Es durchsucht zyklisch die Feeds der konfigurierten Hostnamen.
 
+import os
 import random
 import sys
 import time
@@ -97,14 +98,9 @@ def feed_crawler(shared_state_dict, shared_state_lock):
     crawltimes = FeedDb("crawltimes")
     feedcrawler = CrawlerConfig('FeedCrawler')
 
-    if shared_state.values["remove_cloudflare_time"]:
-        logger.debug("-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
-        print("-----------Entferne Zeitpunkt des letzten Cloudflare-Umgehungs-Suchlaufes!-----------")
-        FeedDb('crawltimes').delete("last_cloudflare_run")
-
     while True:
         try:
-            if not shared_state.values["test_run"]:
+            if not os.environ.get('GITHUB_ACTION_PR'):
                 if not shared_state.get_device():
                     set_device_from_config()
             shared_state.clear_request_cache()
@@ -272,7 +268,7 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                                                          'DonateButtonState', "CUSTOM_HIDDEN")
 
             # Clean exit if test run active
-            if shared_state.values["test_run"]:
+            if os.environ.get('GITHUB_ACTION_PR'):
                 logger.debug("-----------Testlauf beendet!-----------")
                 print("-----------Testlauf beendet!-----------")
                 return

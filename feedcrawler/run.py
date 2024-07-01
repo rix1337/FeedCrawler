@@ -19,8 +19,8 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers import version
 from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import set_device_from_config, get_if_one_device, myjd_input
-from feedcrawler.providers.sqlite_database import FeedDb, remove_redundant_db_tables
+from feedcrawler.providers.myjd_connection import set_device_from_config
+from feedcrawler.providers.sqlite_database import remove_redundant_db_tables
 from feedcrawler.web_interface.web_server import hostnames_config, myjd_config, web_server
 
 version = "v." + version.get_version()
@@ -36,25 +36,11 @@ def main():
         parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
         parser.add_argument("--config", help="Legt den Ablageort für Einstellungen und Logs fest")
         parser.add_argument("--port", help="Legt den Port des Webservers fest")
-        parser.add_argument("--jd-user", help="Legt den Nutzernamen für My JDownloader fest")
-        parser.add_argument("--jd-pass", help="Legt das Passwort für My JDownloader fest")
-        parser.add_argument("--jd-device", help="Legt den Gerätenamen für My JDownloader fest")
         parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
         parser.add_argument("--no-gui", action='store_true', help="Startet FeedCrawler ohne GUI")
-        parser.add_argument("--keep-cdc", action='store_true',
-                            help="Intern: Vergisst 'Feed ab hier bereits gecrawlt' nicht vor dem ersten Suchlauf")
-        parser.add_argument("--remove_cloudflare_time", action='store_true',
-                            help="Intern: Leere die Zeit des letzten Cloudflare-Umgehungs-Laufes vor dem ersten Suchlauf")
-        parser.add_argument("--test_run", action='store_true', help="Intern: Führt einen Testlauf durch")
-        parser.add_argument("--docker", action='store_true',
-                            help="Intern: Sperre Pfad und Port auf Docker-Standardwerte")
         arguments = parser.parse_args()
 
-        shared_state.set_initial_values(arguments.docker,
-                                        arguments.no_gui,
-                                        arguments.test_run,
-                                        arguments.remove_cloudflare_time
-                                        )
+        shared_state.set_initial_values(arguments.no_gui)
 
         if shared_state.values["gui"]:
             window, icon = gui.create_main_window()
@@ -62,19 +48,23 @@ def main():
         else:
             sys.stdout = Unbuffered(sys.stdout)
 
-        print("┌──────────────────────────────────────────────┐")
-        print("  FeedCrawler " + version + " von RiX")
-        print("  https://github.com/rix1337/FeedCrawler")
-        print("└──────────────────────────────────────────────┘")
+        print(f"""
+        ┌──────────────────────────────────────────────┐
+          FeedCrawler {version} von RiX
+          https://github.com/rix1337/FeedCrawler
+        └──────────────────────────────────────────────┘
+        """)
 
-        if shared_state.values["docker"]:
+        if os.environ.get('DOCKER'):
             config_path = "/config"
+        elif os.environ.get('GITHUB_ACTION_PR'):
+            config_path = "/home/runner/work/_temp/_github_home"
         else:
             config_path = configpath(arguments.config)
 
         shared_state.set_files(config_path)
 
-        print('Nutze das Verzeichnis "' + config_path + '" für Einstellungen/Logs')
+        print(f'Nutze das Verzeichnis "{config_path}" für Einstellungen/Logs')
 
         log_level = logging.__dict__[
             arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
@@ -84,10 +74,7 @@ def main():
 
         local_address = 'http://' + check_ip()
         port = int('9090')
-        docker = False
-        if shared_state.values["docker"]:
-            docker = True
-        elif arguments.port:
+        if arguments.port:
             port = int(arguments.port)
 
         hostnames = CrawlerConfig('Hostnames')
@@ -111,7 +98,7 @@ def main():
             if hostname:
                 set_hostnames[name] = hostname
 
-        if not shared_state.values["test_run"] and not set_hostnames:
+        if not os.environ.get('GITHUB_ACTION_PR') and not set_hostnames:
             if shared_state.values["gui"]:
                 gui.no_hostnames_gui(shared_state.values["configfile"])
                 sys.exit(1)
@@ -121,71 +108,38 @@ def main():
                     time.sleep(10)
                     sys.exit(1)
 
-        if not shared_state.values["test_run"]:
-            myjd_input_required = False
-            if not os.path.exists(shared_state.values["configfile"]):
-                if shared_state.values["docker"]:
-                    if arguments.jd_user and arguments.jd_pass:
-                        myjd_input_required = True
-                else:
-                    myjd_input_required = True
-            else:
-                feedcrawler = CrawlerConfig('FeedCrawler')
-                user = feedcrawler.get('myjd_user')
-                password = feedcrawler.get('myjd_pass')
-                if user and password:
-                    if not set_device_from_config():
-                        device_set = feedcrawler.get('myjd_device')
-                        if not device_set:
-                            one_device = get_if_one_device(user, password)
-                            if one_device:
-                                print('Gerätename "' + one_device + '" automatisch ermittelt.')
-                                feedcrawler.save('myjd_device', one_device)
-                                set_device_from_config()
-                else:
-                    myjd_input_required = True
+        if not os.environ.get('GITHUB_ACTION_PR'):
+            set_device_from_config()
+            if not shared_state.get_device() and not shared_state.get_device().name:
+                myjd_config(port, local_address)
 
-            if myjd_input_required:
-                if not myjd_config(port, local_address):
-                    myjd_input(arguments.port, arguments.jd_user, arguments.jd_pass, arguments.jd_device)
+            connection_established = False
 
-        if not shared_state.values["test_run"]:
-            if shared_state.get_device() and shared_state.get_device().name:
-                success = True
-            else:
-                success = False
-                feedcrawler = CrawlerConfig('FeedCrawler')
+            feedcrawler = CrawlerConfig('FeedCrawler')
+            device = feedcrawler.get('myjd_device')
 
-                device_name = feedcrawler.get('myjd_device')
-                if not device_name:
-                    user = feedcrawler.get('myjd_user')
-                    password = feedcrawler.get('myjd_pass')
-                    one_device = get_if_one_device(user, password)
-                    if one_device:
-                        print('Gerätename "' + one_device + '" automatisch ermittelt.')
-                        feedcrawler.save('myjd_device', one_device)
-                        set_device_from_config()
-                        success = shared_state.get_device() and shared_state.get_device().name
-                if not success:
+            if device:
+                shared_state.set_device(device)
+                connection_established = shared_state.get_device() and shared_state.get_device().name
+                if not connection_established:
                     i = 0
                     while i < 10:
                         i += 1
-                        print(
-                            'Verbindungsversuch %s mit My JDownloader gescheitert. Gerätename: "%s"' % (
-                                i, device_name))
+                        print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
                         time.sleep(60)
                         set_device_from_config()
-                        success = shared_state.get_device() and shared_state.get_device().name
-                        if success:
+                        connection_established = shared_state.get_device() and shared_state.get_device().name
+                        if connection_established:
                             break
-            if success:
-                print('Erfolgreich mit My JDownloader verbunden. Gerätename: "' + shared_state.get_device().name + '"')
+
+            if connection_established:
+                print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
             else:
                 print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
                 sys.exit(1)
 
         feedcrawler = CrawlerConfig('FeedCrawler')
-        if not arguments.docker and not arguments.port:
+        if not os.environ.get('DOCKER') and not arguments.port:
             port = int(feedcrawler.get("port"))
 
         if feedcrawler.get("prefix"):
@@ -193,18 +147,13 @@ def main():
         else:
             prefix = ''
 
-        if not shared_state.values["docker"]:
+        if not os.environ.get('DOCKER'):
             print(f'Der Webserver ist erreichbar unter "{local_address}:{port}{prefix}"')
 
-        shared_state.set_connection_info(local_address, port, prefix, docker)
+        shared_state.set_connection_info(local_address, port, prefix)
 
         CrawlerConfig("FeedCrawler").remove_redundant_entries()
         remove_redundant_db_tables(shared_state.values["dbfile"])
-
-        if arguments.keep_cdc:
-            print("CDC-Tabelle nicht geleert!")
-        else:
-            FeedDb('cdc').reset()
 
         process_web_server = multiprocessing.Process(target=web_server, args=(shared_state_dict, shared_state_lock,))
         process_web_server.start()
@@ -214,7 +163,7 @@ def main():
             print(f"Verzögere den ersten Suchlauf um {delay} Sekunden")
             time.sleep(delay)
 
-        if not shared_state.values["test_run"]:
+        if not os.environ.get('GITHUB_ACTION_PR'):
             process_feed_crawler = multiprocessing.Process(target=feed_crawler,
                                                            args=(shared_state_dict, shared_state_lock,))
             process_feed_crawler.start()

@@ -36,15 +36,12 @@ def update(key, value):
         lock.release()
 
 
-def set_initial_values(docker, no_gui, test_run, remove_cloudflare_time):
-    update("docker", docker)
-    if docker or no_gui or (not platform.system() == 'Windows' and not os.environ.get('DISPLAY')):
+def set_initial_values(no_gui):
+    if os.environ.get('DOCKER') or no_gui or (not platform.system() == 'Windows' and not os.environ.get('DISPLAY')):
         gui_enabled = False
     else:
         gui_enabled = True
     update("gui", gui_enabled)
-    update("test_run", test_run)
-    update("remove_cloudflare_time", remove_cloudflare_time)
     update("ww_blocked", False)
     update("sf_blocked", False)
     update("user_agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
@@ -151,11 +148,10 @@ def get_device():
     return values["device"]
 
 
-def set_connection_info(local_address, port, prefix, docker):
+def set_connection_info(local_address, port, prefix):
     update("local_address", local_address)
     update("port", port)
     update("prefix", prefix)
-    update("docker", docker)
 
 
 def clear_request_cache():
