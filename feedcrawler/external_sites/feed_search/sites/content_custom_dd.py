@@ -18,7 +18,7 @@ from feedcrawler.providers.url_functions import get_url
 
 
 class DD:
-    _SITE = 'DD'
+    SITE = 'DD'
 
     def __init__(self, filename):
         self.url = ''
@@ -67,7 +67,7 @@ class DD:
                         else:
                             if myjd_download(post.title, "FeedCrawler", links, self.url):
                                 self.db.store(post.title, 'added')
-                                log_entry = '[Folge/Englisch] - ' + post.title + ' - [' + self._SITE + '] - ' \
+                                log_entry = '[Folge/Englisch] - ' + post.title + ' - [' + self.SITE + '] - ' \
                                             + post.size + ' - ' + post.source
                                 shared_state.logger.info(log_entry)
                                 notify([{"text": log_entry, 'imdb_id': post.imdb_id}])

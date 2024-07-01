@@ -26,7 +26,7 @@ def cache(func):
         else:
             caching_allowed = True
 
-        function_arguments_hash = str(hash(str(args) + str(kwargs)))
+        function_arguments_hash = str(hash(f"{args}{kwargs}"))
 
         try:
             cached_response = shared_state.values["request_" + function_arguments_hash]

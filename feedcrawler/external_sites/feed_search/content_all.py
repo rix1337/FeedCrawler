@@ -82,7 +82,7 @@ def search_imdb(self, desired_rating, feed):
 
         if self.search_imdb_done:
             shared_state.logger.debug(
-                self._SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche " + self._SITE + "-Suche ab!")
+                self.SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche " + self.SITE + "-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + score
@@ -213,7 +213,7 @@ def search_feed(self, feed):
 
         if self.search_regular_done:
             shared_state.logger.debug(
-                f"{self._SITE}-Feed ab hier bereits gecrawlt ({post.title}) - breche {self._SITE}-Suche ab!")
+                f"{self.SITE}-Feed ab hier bereits gecrawlt ({post.title}) - breche {self.SITE}-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + liste
@@ -283,7 +283,7 @@ def search_feed(self, feed):
                             shared_state.logger.debug(post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in self._SITE and "DW" not in self._SITE:
+                            if "FX" not in self.SITE and "DW" not in self.SITE:
                                 shared_state.logger.debug(post.title + " - Staffel noch nicht komplett")
                                 continue
                         season = re.search(r"\.s\d", post.title.lower())
@@ -584,7 +584,7 @@ def download_dual_language(self, title, original_imdb_id):
 
 
 def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail, score, download_method):
-    site = self._SITE
+    site = self.SITE
 
     added_items = []
     if not hevc_retail:
@@ -651,7 +651,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self.SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -662,7 +662,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
 
 
 def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
-    site = self._SITE
+    site = self.SITE
 
     added_items = []
     if not hevc_retail:
@@ -770,7 +770,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self.SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -827,7 +827,7 @@ def periodical_task(self):
     except:
         loading_304 = True
         first_page_content = False
-        shared_state.logger.debug("Fehler beim Abruf von " + self._SITE + " - breche " + self._SITE + "-Suche ab!")
+        shared_state.logger.debug("Fehler beim Abruf von " + self.SITE + " - breche " + self.SITE + "-Suche ab!")
 
     set_all = settings_hash(self, False)
 
@@ -835,7 +835,7 @@ def periodical_task(self):
         if loading_304:
             urls = []
             shared_state.logger.debug(
-                self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche " + self._SITE + "-Suche ab!")
+                self.SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche " + self.SITE + "-Suche ab!")
 
     sha = None
 
@@ -891,20 +891,20 @@ def periodical_task(self):
             settings_changed = True
     if sha:
         if not self.dl_unsatisfied and not settings_changed:
-            self.cdc.delete(self._SITE + "-" + self.filename)
-            self.cdc.store(self._SITE + "-" + self.filename, sha)
+            self.cdc.delete(self.SITE + "-" + self.filename)
+            self.cdc.store(self.SITE + "-" + self.filename, sha)
         else:
             shared_state.logger.debug(
-                "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self._SITE + "-CDC!")
+                "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self.SITE + "-CDC!")
     if not loading_304:
         try:
             header = first_page_raw['headers']['Last-Modified']
         except:
             header = False
             shared_state.logger.debug(
-                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
+                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self.SITE + ".")
         if header:
-            self.cdc.delete(self._SITE + "Headers-" + self.filename)
-            self.cdc.store(self._SITE + "Headers-" + self.filename, header)
+            self.cdc.delete(self.SITE + "Headers-" + self.filename)
+            self.cdc.store(self.SITE + "Headers-" + self.filename, header)
 
     return

@@ -18,7 +18,7 @@ from feedcrawler.providers.url_functions import get_url
 
 class SJ:
     _INTERNAL_NAME = 'SJ'
-    _SITE = 'SJ'
+    SITE = 'SJ'
 
     def __init__(self, filename):
         self.hostnames = CrawlerConfig('Hostnames')

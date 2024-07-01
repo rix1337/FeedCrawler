@@ -91,7 +91,7 @@ def watch_packages(shared_state_dict, shared_state_lock):
                                                     episodes = [episodes]
 
                                                 try:
-                                                    season_string = title[0].split("E" + str(episodes[0]))[0]
+                                                    season_string = title[0].split(f"E{episodes[0]}")[0]
                                                 except:
                                                     season_string = False
 

@@ -12,7 +12,7 @@ from feedcrawler.providers.sqlite_database import FeedDb
 
 class DJ:
     _INTERNAL_NAME = 'DJ'
-    _SITE = 'DJ'
+    SITE = 'DJ'
 
     def __init__(self, filename):
         self.hostnames = CrawlerConfig('Hostnames')
