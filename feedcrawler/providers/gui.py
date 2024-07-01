@@ -8,7 +8,7 @@ import platform
 import sys
 import tkinter as tk
 import webbrowser
-from tkinter import filedialog, messagebox
+from tkinter import messagebox
 
 from feedcrawler.providers.version import get_version
 
@@ -19,7 +19,7 @@ elif platform.system() == 'Linux':
 else:
     font = ('Monaco', 12)
 
-title = 'FeedCrawler v.' + get_version()
+title = f'FeedCrawler v.{get_version()}'
 
 
 def get_icon_path():
@@ -27,7 +27,7 @@ def get_icon_path():
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
 
-    icon_path = base_dir + '/web_interface/vuejs_frontend/dist/favicon.ico'
+    icon_path = f"{base_dir}/web_interface/vuejs_frontend/dist/favicon.ico"
     return icon_path
 
 
@@ -43,7 +43,7 @@ def get_tray_icon(show_function, quit_function):
         pystray.MenuItem('Beenden', quit_function)
     )
 
-    return pystray.Icon("name", image, "FeedCrawler " + get_version(), menu)
+    return pystray.Icon("name", image, f"FeedCrawler {get_version()}", menu)
 
 
 def set_up_window(window):
@@ -132,165 +132,6 @@ def main_gui(root, icon, shared_state_dict, shared_state_lock):
 
     except KeyboardInterrupt:
         pass
-
-
-def no_hostnames_gui(configfile):
-    root = tk.Tk()
-    root.title("Warnung")
-    set_up_window(root)
-
-    text_label = tk.Label(root, text="Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!")
-    text_label.pack(padx=10, pady=10)
-
-    ok_button = tk.Button(root, text="OK", command=lambda: root.quit())
-    ok_button.pack(padx=10, pady=10)
-
-    root.protocol("WM_DELETE_WINDOW", lambda: root.quit())
-
-    webbrowser.open(configfile)
-
-    center_window(root)
-    root.mainloop()
-
-
-def configpath_gui(current_path):
-    root = tk.Tk()
-    root.title('Wo sollen Einstellungen und Logs abgelegt werden?')
-    set_up_window(root)
-
-    configpath = ""
-
-    def use_current_path():
-        nonlocal configpath
-        configpath = current_path
-        root.quit()
-
-    current_path_button = tk.Button(root, text='Aktuellen Pfad "' + current_path + '" verwenden',
-                                    command=use_current_path, padx=10, pady=10)
-    current_path_button.pack()
-
-    def select_path():
-        nonlocal configpath
-        folder_selected = filedialog.askdirectory(initialdir=current_path)
-        if folder_selected:
-            configpath = folder_selected
-            root.quit()
-
-    select_path_button = tk.Button(root, text='Anderen Pfad wählen', command=select_path, padx=10, pady=10)
-    select_path_button.pack()
-
-    center_window(root)
-    root.mainloop()
-    root.destroy()
-
-    return configpath
-
-
-def get_devices(myjd_user, myjd_pass):
-    import feedcrawler.external_tools.myjd_api
-    from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-
-    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
-    jd.set_app_key('FeedCrawler')
-    try:
-        jd.connect(myjd_user, myjd_pass)
-        jd.update_devices()
-        devices = jd.list_devices()
-        return devices
-    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
-        return []
-
-
-def myjd_credentials_gui():
-    user = ''
-    password = ''
-    device = ''
-
-    def on_ok_clicked():
-        nonlocal user, password, device
-
-        user = user_entry.get()
-        password = password_entry.get()
-        if not user or not password:
-            messagebox.showerror('Fehler', 'Bitte sowohl Benutzername als auch Passwort angeben.')
-            return
-        devices = get_devices(user, password)
-        if not devices:
-            messagebox.showerror('Fehler', 'Keine Geräte gefunden. Bitte überprüfe deine Zugangsdaten.')
-            return
-
-        device_list = [dv['name'] for dv in devices]
-
-        device_selection_window = tk.Toplevel(root)
-        device_selection_window.title('My JDownloader Gerät')
-        set_up_window(device_selection_window)
-
-        tk.Label(device_selection_window, text='Bitte den gewünschten JDownloader auswählen:').pack(pady=10)
-        device_listbox = tk.Listbox(device_selection_window, height=5, width=20, activestyle='none')
-        for dv in device_list:
-            device_listbox.insert(tk.END, dv)
-        device_listbox.pack(pady=10)
-
-        def on_device_selected():
-            nonlocal device
-            selection = device_listbox.curselection()
-            if selection:
-                device = device_list[selection[0]]
-            device_selection_window.quit()
-            root.quit()
-
-        def on_device_cancel():
-            messagebox.showerror('Fehler', 'My JDownloader Geräteauswahl abgebrochen.')
-            print("My JDownloader Geräteauswahl abgebrochen.")
-            sys.exit(1)
-
-        ok_button = tk.Button(device_selection_window, text='OK', command=on_device_selected)
-        ok_button.pack(side=tk.LEFT, padx=10, pady=10)
-        cancel_button = tk.Button(device_selection_window, text='Abbrechen', command=on_device_cancel)
-        cancel_button.pack(side=tk.RIGHT, padx=10, pady=10)
-        root.withdraw()
-        center_window(device_selection_window)
-
-    def on_cancel_clicked():
-        messagebox.showerror('Fehler', 'My JDownloader Login abgebrochen.')
-        print("My JDownloader Login abgebrochen.")
-        sys.exit(1)
-
-    root = tk.Tk()
-    root.title('My JDownloader Login')
-    set_up_window(root)
-
-    tk.Label(root, text='Bitte die Zugangsdaten für My JDownloader angeben:').pack(pady=10)
-
-    user_label = tk.Label(root, text='Benutzername', width=15)
-    user_label.pack(side=tk.TOP, padx=10, pady=5)
-    user_entry = tk.Entry(root, width=30)
-    user_entry.pack(side=tk.TOP, padx=10, pady=5)
-
-    password_label = tk.Label(root, text='Passwort', width=15)
-    password_label.pack(side=tk.TOP, padx=10, pady=5)
-    password_entry = tk.Entry(root, show='●', width=30)
-    password_entry.pack(side=tk.TOP, padx=10, pady=5)
-
-    button_frame = tk.Frame(root)
-    button_frame.pack(side=tk.BOTTOM, pady=10)
-
-    ok_button = tk.Button(button_frame, text='OK', command=on_ok_clicked)
-    ok_button.pack(side=tk.LEFT, padx=20)
-
-    cancel_button = tk.Button(button_frame, text='Abbrechen', command=on_cancel_clicked)
-    cancel_button.pack(side=tk.LEFT, padx=20)
-
-    center_window(root)
-    root.mainloop()
-    root.destroy()
-
-    if not user or not password or not device:
-        user = ""
-        password = ""
-        device = ""
-    return user, password, device
 
 
 class PrintToGui(object):

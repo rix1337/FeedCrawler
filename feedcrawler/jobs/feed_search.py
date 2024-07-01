@@ -119,15 +119,16 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                 requested_shows = plex_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    plex_string = "Die Plex-Suche lief für: "
+                    parts = ["Die Plex-Suche lief für:"]
                     if requested_movies:
-                        plex_string = plex_string + str(requested_movies) + " Filme"
-                        if requested_shows:
-                            plex_string = plex_string + " und "
+                        parts.append(f"{requested_movies} Filme")
                     if requested_shows:
-                        plex_string = plex_string + str(requested_shows) + " Serien"
+                        if requested_movies:
+                            parts.append("und")
+                        parts.append(f"{requested_shows} Serien")
+                    plex_string = " ".join(parts)
             except Exception as e:
-                print("Fehler bei der Plex-Suche: " + str(e))
+                print(f"Fehler bei der Plex-Suche: {e}")
 
             overseerr_string = ""
             try:
@@ -136,15 +137,16 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                 requested_shows = overseerr_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    overseerr_string = "Die Overseerr-Suche lief für: "
+                    parts = ["Die Overseerr-Suche lief für:"]
                     if requested_movies:
-                        overseerr_string = overseerr_string + str(requested_movies) + " Filme"
-                        if requested_shows:
-                            overseerr_string = overseerr_string + " und "
+                        parts.append(f"{requested_movies} Filme")
                     if requested_shows:
-                        overseerr_string = overseerr_string + str(requested_shows) + " Serien"
+                        if requested_movies:
+                            parts.append("und")
+                        parts.append(f"{requested_shows} Serien")
+                    overseerr_string = " ".join(parts)
             except Exception as e:
-                print("Fehler bei der Overseerr-Suche: " + str(e))
+                print(f"Fehler bei der Overseerr-Suche: {e}")
             ombi_string = ""
 
             try:
@@ -153,31 +155,32 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                 requested_shows = ombi_results[1]
                 request_management_first_run = False
                 if requested_movies or requested_shows:
-                    ombi_string = "Die Ombi-Suche lief für: "
+                    parts = ["Die Ombi-Suche lief für:"]
                     if requested_movies:
-                        ombi_string = ombi_string + str(requested_movies) + " Filme"
-                        if requested_shows:
-                            ombi_string = ombi_string + " und "
+                        parts.append(f"{requested_movies} Filme")
                     if requested_shows:
-                        ombi_string = ombi_string + str(requested_shows) + " Serien"
+                        if requested_movies:
+                            parts.append("und")
+                        parts.append(f"{requested_shows} Serien")
+                    ombi_string = " ".join(parts)
             except Exception as e:
-                print("Fehler bei der Ombi-Suche: " + str(e))
+                print(f"Fehler bei der Ombi-Suche: {e}")
 
             # Start feed search
             current_cloudflare_run = False
             last_cloudflare_run = FeedDb('crawltimes').retrieve("last_cloudflare_run")
             for task in search_pool():
-                name = task._SITE
+                name = task.SITE
                 try:
-                    file = " - Liste: " + task.filename
+                    file = f" - Liste: {task.filename}"
                 except AttributeError:
                     file = ""
                 if name in ["SJ", "DJ", "SF", "FF", "HW", "WW"]:  # all sites know to use cloudflare
                     cloudflare_wait_time = int(CrawlerConfig('Cloudflare').get('wait_time'))
                     if last_cloudflare_run and start_time < float(
                             last_cloudflare_run) // 1000 + cloudflare_wait_time * 60 * 60:
-                        logger.debug(
-                            "-----------Wartezeit bei " + name + " (6h) nicht verstrichen - überspringe Suchlauf!-----------")
+                        logger.debug(f"-----------Wartezeit bei {name} (6h) nicht verstrichen - "
+                                     f"überspringe Suchlauf!-----------")
                         continue
                     else:
                         current_cloudflare_run = time.time()
@@ -185,7 +188,7 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                 if FeedDb('site_status').retrieve(name + "_normal"):
                     if (not get_solver_url("sponsors_helper") and not get_solver_url("flaresolverr")) or FeedDb(
                             'site_status').retrieve(name + "_advanced"):
-                        logger.debug("-----------Suchlauf (" + name + file + ") übersprungen!-----------")
+                        logger.debug(f"-----------Suchlauf ({name}{file}) übersprungen!-----------")
                         continue
 
                 logger.debug("-----------Suchlauf (" + name + file + ") gestartet!-----------")

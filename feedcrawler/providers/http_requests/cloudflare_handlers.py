@@ -68,10 +68,10 @@ def create_cookie(name, value, **kwargs):
         rest={'HttpOnly': None},
         rfc2109=False, )
 
-    badargs = set(kwargs) - set(result)
-    if badargs:
-        err = 'create_cookie() got unexpected keyword arguments: %s'
-        raise TypeError(err % list(badargs))
+    bad_args = set(kwargs) - set(result)
+    if bad_args:
+        err = f'create_cookie() got unexpected keyword arguments: {list(bad_args)}'
+        raise TypeError(err)
 
     result.update(kwargs)
     result['port_specified'] = bool(result['port'])
@@ -160,8 +160,7 @@ def sponsors_helper_task(solver_url, url):
             pass
 
     if test_solver_url("sponsors_helper", solver_url + "/status"):
-        shared_state.logger.debug(
-            "Versuche Cloudflare auf der Seite %s mit Sponsors Helper zu umgehen..." % url)
+        shared_state.logger.debug(f"Versuche Cloudflare auf der Seite {url} mit Sponsors Helper zu umgehen...")
 
         solver_endpoint = "/cloudflare_cookie/"
         solver_payload = {
@@ -222,8 +221,7 @@ def flaresolverr_task(solver_url, url):
             pass
 
     if test_solver_url("flaresolverr", solver_url):
-        shared_state.logger.debug(
-            "Versuche Cloudflare auf der Seite %s mit  FlareSolverr zu umgehen..." % url)
+        shared_state.logger.debug(f"Versuche Cloudflare auf der Seite {url} mit  FlareSolverr zu umgehen...")
 
         solver_endpoint = "/v1"
         solver_payload = {
