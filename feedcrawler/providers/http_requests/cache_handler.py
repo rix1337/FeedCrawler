@@ -26,7 +26,7 @@ def cache(func):
         else:
             caching_allowed = True
 
-        function_arguments_hash = str(hash(str(args) + str(kwargs)))
+        function_arguments_hash = str(hash(f"{args}{kwargs}"))
 
         try:
             cached_response = shared_state.values["request_" + function_arguments_hash]
@@ -85,7 +85,7 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
         try:
             if site_blocked(url):
                 if site_blocked_with_advanced_methods(url):
-                    print("Der Aufruf von %s wurde blockiert!" % url)
+                    print(f"Der Aufruf von {url} wurde blockiert!")
                     return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
                 if allow_sponsors_helper_run:  # will only be used when flaresolverr is not available or not working
                     cookiejar, user_agent, proxy = sponsors_helper_task(sponsors_helper_url, url)
@@ -108,7 +108,7 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                                    force_ipv4=force_ipv4)
 
             if response.status_code == 403 or 'id="challenge-body-text"' in response.text:
-                print("Die Cloudflare-Umgehung auf %s war nicht erfolgreich." % url)
+                print(f"Die Cloudflare-Umgehung auf {url} war nicht erfolgreich.")
                 site = check_is_site(url)
                 if site:
                     db_status = FeedDb('site_status')

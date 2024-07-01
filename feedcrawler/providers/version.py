@@ -8,12 +8,12 @@ from urllib.request import urlopen
 
 
 def get_version():
-    return "20.0.2"
+    return "20.0.3"
 
 
 def create_version_file():
     version = get_version()
-    version_clean = re.sub('[^\d\.]', '', version)
+    version_clean = re.sub(r'[^\d.]', '', version)
     if "a" in version:
         suffix = version.split("a")[1]
     else:

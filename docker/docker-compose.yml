@@ -1,17 +1,15 @@
 version: '3.3'
 services:
     docker-feedcrawler:
-        container_name: FeedCrawler
+        container_name: 'FeedCrawler'
         ports:
-            - 'port:9090'
+            - '9090:9090'
         volumes:
             - '/path/to/config/:/config:rw'
         environment:
-            - USER=NUTZERNAME
-            - PASS=PASSWORT
-            - DEVICE=GERÄTENAME
+            - 'DELAY=60'
             - 'LOGLEVEL=[INFO/DEBUG/WARNING/ERROR/CRITICAL/NOTSET]'
         logging:
             options:
-                max-size: 50m
-        image: rix1337/docker-feedcrawler:latest
+                max-size: '50m'
+        image: 'rix1337/docker-feedcrawler:latest'

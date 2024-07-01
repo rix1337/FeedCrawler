@@ -557,54 +557,53 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
-def configpath(configpath):
-    pathfile = "FeedCrawler.conf"
+def set_config_path(config_path):
+    config_path_file = "FeedCrawler.conf"
     current_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-    if configpath:
-        f = open(pathfile, "w")
-        f.write(configpath)
-        f.close()
-    elif os.path.exists(pathfile):
-        f = open(pathfile, "r")
-        configpath = f.readline()
+    if config_path:
+        with open(config_path_file, "w") as f:
+            f.write(config_path)
+    elif os.path.exists(config_path_file):
+        with open(config_path_file, "r") as f:
+            config_path = f.readline()
     else:
-        if shared_state.values["gui"]:
-            configpath = gui.configpath_gui(current_path)
+        def handler(signum, frame):
+            raise Exception("Timeout!")
+
+        signal.signal(signal.SIGALRM, handler)
+        if platform.system() != "Windows":
+            print("Wo sollen Einstellungen und Logs abgelegt werden?")
+            print("Leer lassen oder 30 Sekunden warten, um den aktuellen Pfad zu nutzen.")
+            signal.alarm(30)
+
+            try:
+                config_path = input("Pfad angeben:")
+                signal.alarm(0)
+            except Exception:
+                print(" ... 30 Sekunden verstrichen! Nutze aktuellen Pfad.")
+                config_path = ""
+
         else:
-            def handler(signum, frame):
-                raise Exception("Timeout!")
+            print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
+            config_path = input("Pfad angeben:")
 
-            signal.signal(signal.SIGALRM, handler)
-            if platform.system() != "Windows":
-                print("Wo sollen Einstellungen und Logs abgelegt werden?")
-                print("30 Sekunden warten oder leer lassen, um den aktuellen Pfad zu nutzen.")
-                signal.alarm(30)
-
-                try:
-                    configpath = input("Pfad angeben:")
-                    signal.alarm(0)
-                except Exception:
-                    print(" ... 30 Sekunden verstrichen! Nutze aktuellen Pfad.")
-                    configpath = ""
-            else:
-                print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-                configpath = input("Pfad angeben:")
-        if len(configpath) > 0:
-            f = open(pathfile, "w")
-            f.write(configpath)
+        if len(config_path) > 0:
+            f = open(config_path_file, "w")
+            f.write(config_path)
             f.close()
-    if len(configpath) == 0:
-        configpath = current_path
-        configpath = configpath.replace("\\", "/")
-        configpath = configpath[:-1] if configpath.endswith('/') else configpath
-        f = open(pathfile, "w")
-        f.write(configpath)
+
+    if len(config_path) == 0:
+        config_path = current_path
+        config_path = config_path.replace("\\", "/")
+        config_path = config_path[:-1] if config_path.endswith('/') else config_path
+        f = open(config_path_file, "w")
+        f.write(config_path)
         f.close()
-    configpath = configpath.replace("\\", "/")
-    configpath = configpath[:-1] if configpath.endswith('/') else configpath
-    if not os.path.exists(configpath):
-        os.makedirs(configpath)
-    return configpath
+    config_path = config_path.replace("\\", "/")
+    config_path = config_path[:-1] if config_path.endswith('/') else config_path
+    if not os.path.exists(config_path):
+        os.makedirs(config_path)
+    return config_path
 
 
 def site_blocked(url):
@@ -670,12 +669,12 @@ def replace_with_stripped_ascii(string):
 
 def keep_alphanumeric_with_special_characters(string):
     string = replace_with_stripped_ascii(string)
-    return re.sub('[^0-9a-zA-Z\s\-+&]', '', string)
+    return re.sub(r'[^0-9a-zA-Z\s\-+&]', '', string)
 
 
 def keep_alphanumeric_with_regex_characters(string):
     string = replace_with_stripped_ascii(string)
-    return re.sub('[^0-9a-zA-Z\s\-.*+()|\[\]?!]', '', string)
+    return re.sub(r'[^0-9a-zA-Z\s\-.*+()|\[\]?!]', '', string)
 
 
 def keep_numbers(string):

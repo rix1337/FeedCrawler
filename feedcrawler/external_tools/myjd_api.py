@@ -1156,9 +1156,9 @@ class Myjdapi:
             if params is not None:
                 for param in params:
                     if param[0] != "encryptedLoginSecret":
-                        query += ["%s=%s" % (param[0], quote(param[1]))]
+                        query += [f"{param[0]}={quote(param[1])}"]
                     else:
-                        query += ["&%s=%s" % (param[0], param[1])]
+                        query += [f"&{param[0]}={param[1]}"]
             query += ["rid=" + str(self.__request_id)]
             if self.__server_encryption_token is None:
                 query += [

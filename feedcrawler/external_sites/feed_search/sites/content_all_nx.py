@@ -16,7 +16,7 @@ from feedcrawler.providers.url_functions import get_url, get_url_headers
 
 
 class BL:
-    _SITE = 'NX'
+    SITE = 'NX'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -51,9 +51,9 @@ class BL:
         self.cdc = FeedDb('cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self.SITE + "Headers-" + self.filename))}
 
-        self.last_sha = self.cdc.retrieve(self._SITE + "-" + self.filename)
+        self.last_sha = self.cdc.retrieve(self.SITE + "-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
                     "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
