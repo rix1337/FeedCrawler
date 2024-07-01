@@ -7,7 +7,6 @@ import argparse
 import logging
 import multiprocessing
 import os
-import re
 import signal
 import sys
 import time
@@ -17,13 +16,14 @@ from feedcrawler.jobs.package_watcher import watch_packages
 from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers import version
-from feedcrawler.providers.common_functions import Unbuffered, check_ip, configpath
+from feedcrawler.providers.common_functions import Unbuffered, check_ip, get_clean_hostnames
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.providers.sqlite_database import remove_redundant_db_tables
-from feedcrawler.web_interface.web_server import hostnames_config, myjd_config, web_server
+from feedcrawler.web_interface.feedcrawler_api import web_server
+from feedcrawler.web_interface.feedcrawler_setup import hostnames_config, myjd_config, path_config
 
-version = "v." + version.get_version()
+version = f"v.{version.get_version()}"
 
 
 def main():
@@ -34,7 +34,6 @@ def main():
 
         parser = argparse.ArgumentParser()
         parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
-        parser.add_argument("--config", help="Legt den Ablageort für Einstellungen und Logs fest")
         parser.add_argument("--port", help="Legt den Port des Webservers fest")
         parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
         parser.add_argument("--no-gui", action='store_true', help="Startet FeedCrawler ohne GUI")
@@ -42,25 +41,34 @@ def main():
 
         shared_state.set_initial_values(arguments.no_gui)
 
-        if shared_state.values["gui"]:
+        if shared_state.values["gui"]:  # todo broken on macos
             window, icon = gui.create_main_window()
             sys.stdout = gui.PrintToConsoleAndGui(window)
         else:
             sys.stdout = Unbuffered(sys.stdout)
 
         print(f"""
-        ┌──────────────────────────────────────────────┐
-          FeedCrawler {version} von RiX
-          https://github.com/rix1337/FeedCrawler
-        └──────────────────────────────────────────────┘
+            ┌──────────────────────────────────────────────┐
+              FeedCrawler {version} von RiX
+              https://github.com/rix1337/FeedCrawler
+            └──────────────────────────────────────────────┘
         """)
+
+        local_address = f'http://{check_ip()}'
+        port = int('9090')
+        if arguments.port:
+            port = int(arguments.port)
 
         if os.environ.get('DOCKER'):
             config_path = "/config"
         elif os.environ.get('GITHUB_ACTION_PR'):
             config_path = "/home/runner/work/_temp/_github_home"
         else:
-            config_path = configpath(arguments.config)
+            config_path_file = "FeedCrawler.conf"
+            if not os.path.exists(config_path_file):
+                path_config(port, local_address)
+            with open(config_path_file, "r") as f:
+                config_path = f.readline()
 
         shared_state.set_files(config_path)
 
@@ -71,66 +79,35 @@ def main():
 
         shared_state.update("log_level", log_level)
         shared_state.set_logger()
-
-        local_address = 'http://' + check_ip()
-        port = int('9090')
-        if arguments.port:
-            port = int(arguments.port)
-
-        hostnames = CrawlerConfig('Hostnames')
-
-        def clean_up_hostname(host, string):
-            if string and '/' in string:
-                string = string.replace('https://', '').replace('http://', '')
-                string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
-                hostnames.save(host, string)
-            if string and re.match(r'.*[A-Z].*', string):
-                hostnames.save(host, string.lower())
-            if string:
-                print('Hostname für ' + host.upper() + ": " + string)
-            return string
-
-        set_hostnames = {}
         shared_state.set_sites()
-        for name in shared_state.values["sites"]:
-            name = name.lower()
-            hostname = clean_up_hostname(name, hostnames.get(name))
-            if hostname:
-                set_hostnames[name] = hostname
 
-        if not os.environ.get('GITHUB_ACTION_PR') and not set_hostnames:
-            if shared_state.values["gui"]:
-                gui.no_hostnames_gui(shared_state.values["configfile"])
-                sys.exit(1)
-            else:
-                if not hostnames_config(port, local_address):
-                    print('Keine Hostnamen in der FeedCrawler.ini gefunden! Beende FeedCrawler!')
-                    time.sleep(10)
-                    sys.exit(1)
+        if not os.environ.get('GITHUB_ACTION_PR') and not get_clean_hostnames(shared_state):
+            hostnames_config(port, local_address, shared_state)
+            get_clean_hostnames(shared_state)
 
         if not os.environ.get('GITHUB_ACTION_PR'):
-            set_device_from_config()
-            if not shared_state.get_device() and not shared_state.get_device().name:
-                myjd_config(port, local_address)
-
-            connection_established = False
-
             feedcrawler = CrawlerConfig('FeedCrawler')
+            user = feedcrawler.get('myjd_user')
+            password = feedcrawler.get('myjd_pass')
             device = feedcrawler.get('myjd_device')
 
-            if device:
-                shared_state.set_device(device)
-                connection_established = shared_state.get_device() and shared_state.get_device().name
-                if not connection_established:
-                    i = 0
-                    while i < 10:
-                        i += 1
-                        print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
-                        time.sleep(60)
-                        set_device_from_config()
-                        connection_established = shared_state.get_device() and shared_state.get_device().name
-                        if connection_established:
-                            break
+            if user and password and device:
+                set_device_from_config()
+            else:
+                myjd_config(port, local_address)
+
+            shared_state.set_device(device)
+            connection_established = shared_state.get_device() and shared_state.get_device().name
+            if not connection_established:
+                i = 0
+                while i < 10:
+                    i += 1
+                    print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
+                    time.sleep(60)
+                    set_device_from_config()
+                    connection_established = shared_state.get_device() and shared_state.get_device().name
+                    if connection_established:
+                        break
 
             if connection_established:
                 print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
@@ -143,7 +120,7 @@ def main():
             port = int(feedcrawler.get("port"))
 
         if feedcrawler.get("prefix"):
-            prefix = '/' + feedcrawler.get("prefix")
+            prefix = f"/{feedcrawler.get('prefix')}"
         else:
             prefix = ''
 

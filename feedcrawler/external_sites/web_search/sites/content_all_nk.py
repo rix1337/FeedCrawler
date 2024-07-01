@@ -19,7 +19,7 @@ def nk_search_results(content, base_url, resolution, search_term):
         try:
             title = link.parent.parent.parent.find("span", {"class": "subtitle"}).text.replace(" ", ".")
             if ".xxx." not in title.lower() and simplified_search_term_in_title(search_term, title):
-                link = base_url + link["href"]
+                link = f"{base_url}{link['href']}"
                 if "#comments-title" not in link:
                     if resolution and resolution.lower() not in title.lower():
                         if "480p" in resolution:

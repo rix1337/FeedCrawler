@@ -158,7 +158,7 @@ function updatePlexUrl() {
                            validation="required"
                            validation-visibility="live"/>
                   <FormKit v-model="store.settings.general.myjd_device"
-                           help="Hier den Gerätenamen des mit dem obigen My JDownloader-Konto verbundenen JDownloaders angeben."
+                           help="Hier den Gerätenamen des mit dem obigen My-JDownloader-Konto verbundenen JDownloaders angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="Gerätename"
@@ -665,9 +665,10 @@ function updatePlexUrl() {
                            validation="url"
                            validation-visibility="live"/>
                   <div class="mt-2 mb-4">
-                    <div @click="getPlexServersInfo" class="btn btn-primary mb-2">Plex-Direct-URLs abrufen</div>
-                    <select v-if="plexServers.length" v-model="selectedPlexServer" @change="updatePlexUrl"
-                            class="form-control border-info border-2 mt-2">
+                    <div class="btn btn-primary mb-2" @click="getPlexServersInfo">Plex-Direct-URLs abrufen</div>
+                    <select v-if="plexServers.length" v-model="selectedPlexServer"
+                            class="form-control border-info border-2 mt-2"
+                            @change="updatePlexUrl">
                       <option disabled value="">{{ placeholderText }}</option>
                       <option v-for="server in plexServers" :key="server.url" :value="server.url">{{ server.url }}
                         ({{ server.is_local ? 'Lokal' : 'Remote' }})

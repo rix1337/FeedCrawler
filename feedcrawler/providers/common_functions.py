@@ -5,15 +5,10 @@
 
 import base64
 import datetime
-import os
 import re
 import socket
-import sys
 from urllib.parse import urlparse
-import signal
-import platform
 
-from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.sqlite_database import FeedDb
@@ -557,55 +552,6 @@ def rreplace(s, old, new, occurrence):
     return new.join(li)
 
 
-def set_config_path(config_path):
-    config_path_file = "FeedCrawler.conf"
-    current_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-    if config_path:
-        with open(config_path_file, "w") as f:
-            f.write(config_path)
-    elif os.path.exists(config_path_file):
-        with open(config_path_file, "r") as f:
-            config_path = f.readline()
-    else:
-        def handler(signum, frame):
-            raise Exception("Timeout!")
-
-        signal.signal(signal.SIGALRM, handler)
-        if platform.system() != "Windows":
-            print("Wo sollen Einstellungen und Logs abgelegt werden?")
-            print("Leer lassen oder 30 Sekunden warten, um den aktuellen Pfad zu nutzen.")
-            signal.alarm(30)
-
-            try:
-                config_path = input("Pfad angeben:")
-                signal.alarm(0)
-            except Exception:
-                print(" ... 30 Sekunden verstrichen! Nutze aktuellen Pfad.")
-                config_path = ""
-
-        else:
-            print("Wo sollen Einstellungen und Logs abgelegt werden? Leer lassen, um den aktuellen Pfad zu nutzen.")
-            config_path = input("Pfad angeben:")
-
-        if len(config_path) > 0:
-            f = open(config_path_file, "w")
-            f.write(config_path)
-            f.close()
-
-    if len(config_path) == 0:
-        config_path = current_path
-        config_path = config_path.replace("\\", "/")
-        config_path = config_path[:-1] if config_path.endswith('/') else config_path
-        f = open(config_path_file, "w")
-        f.write(config_path)
-        f.close()
-    config_path = config_path.replace("\\", "/")
-    config_path = config_path[:-1] if config_path.endswith('/') else config_path
-    if not os.path.exists(config_path):
-        os.makedirs(config_path)
-    return config_path
-
-
 def site_blocked(url):
     db_status = FeedDb('site_status')
     site = check_is_site(url)
@@ -679,3 +625,27 @@ def keep_alphanumeric_with_regex_characters(string):
 
 def keep_numbers(string):
     return re.sub(r'\D', '', string)
+
+
+def get_clean_hostnames(shared_state):
+    hostnames = CrawlerConfig('Hostnames')
+    set_hostnames = {}
+
+    def clean_up_hostname(host, string, hostnames):
+        if string and '/' in string:
+            string = string.replace('https://', '').replace('http://', '')
+            string = re.findall(r'([a-z-.]*\.[a-z]*)', string)[0]
+            hostnames.save(host, string)
+        if string and re.match(r'.*[A-Z].*', string):
+            hostnames.save(host, string.lower())
+        if string:
+            print(f'Hostname für {host.upper()}: {string}')
+        return string
+
+    for name in shared_state.values["sites"]:
+        name = name.lower()
+        hostname = clean_up_hostname(name, hostnames.get(name), hostnames)
+        if hostname:
+            set_hostnames[name] = hostname
+
+    return set_hostnames

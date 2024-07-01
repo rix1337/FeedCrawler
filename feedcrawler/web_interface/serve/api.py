@@ -1,118 +1,41 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt den Webserver und sämtliche APIs des FeedCrawlers bereit.
-
-import sys
-from io import StringIO
-
-if sys.stdout is None:  # required to allow pyinstaller --noconsole to work
-    sys.stdout = StringIO()
-if sys.stderr is None:  # required to allow pyinstaller --noconsole to work
-    sys.stderr = StringIO()
+# Dieses Modul stellt die API des FeedCrawlers bereit.
 
 import ast
 import json
 import os
 import re
 import site
+import sys
 import time
 from functools import wraps
-from socketserver import ThreadingMixIn
 from urllib import parse
-from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 from xml.etree import ElementTree
 
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
-from bottle import Bottle, abort, redirect, request, static_file, HTTPError
+from bottle import Bottle, request, HTTPError, static_file, redirect, abort
 from bs4 import BeautifulSoup
 
-import feedcrawler.external_tools.myjd_api
+import feedcrawler.external_sites
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.web_search.shared import search_web
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-from feedcrawler.external_tools.plex_api import get_client_id
-from feedcrawler.external_tools.plex_api import get_plex_headers
-from feedcrawler.providers import gui
-from feedcrawler.providers import version, shared_state
-from feedcrawler.providers.common_functions import Unbuffered
-from feedcrawler.providers.common_functions import check_is_site
-from feedcrawler.providers.common_functions import decode_base64
-from feedcrawler.providers.common_functions import get_to_decrypt
-from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_characters
-from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
-from feedcrawler.providers.common_functions import keep_numbers
-from feedcrawler.providers.common_functions import remove_decrypt
-from feedcrawler.providers.common_functions import enable_decrypt
-from feedcrawler.providers.common_functions import disable_decrypt
-from feedcrawler.providers.common_functions import rreplace
+from feedcrawler.external_tools.plex_api import get_plex_headers, get_client_id
+from feedcrawler.providers import shared_state, version
+from feedcrawler.providers.common_functions import decode_base64, check_is_site, get_to_decrypt, remove_decrypt, \
+    enable_decrypt, keep_alphanumeric_with_special_characters, keep_alphanumeric_with_regex_characters, keep_numbers, \
+    disable_decrypt, rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import set_device
-from feedcrawler.providers.myjd_connection import do_add_decrypted
-from feedcrawler.providers.myjd_connection import download
-from feedcrawler.providers.myjd_connection import set_device_from_config
-from feedcrawler.providers.myjd_connection import get_info
-from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
-from feedcrawler.providers.myjd_connection import get_state
-from feedcrawler.providers.myjd_connection import jdownloader_pause
-from feedcrawler.providers.myjd_connection import jdownloader_start
-from feedcrawler.providers.myjd_connection import jdownloader_stop
-from feedcrawler.providers.myjd_connection import jdownloader_update
-from feedcrawler.providers.myjd_connection import move_to_downloads
-from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
-from feedcrawler.providers.myjd_connection import reset_in_downloads
-from feedcrawler.providers.myjd_connection import retry_decrypt
-from feedcrawler.providers.myjd_connection import set_enabled
+from feedcrawler.providers.myjd_connection import set_device, get_info, set_device_from_config, get_state, set_enabled, \
+    move_to_downloads, remove_from_linkgrabber, reset_in_downloads, retry_decrypt, jdownloader_start, jdownloader_pause, \
+    jdownloader_stop, jdownloader_update, do_add_decrypted, get_packages_in_linkgrabber, download
 from feedcrawler.providers.notifications import notify
-from feedcrawler.providers.sqlite_database import FeedDb
-from feedcrawler.providers.sqlite_database import ListDb
-from feedcrawler.providers.url_functions import get_url_headers, get_url
-from feedcrawler.providers.url_functions import post_url_headers
-
-
-class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
-    daemon_threads = True
-
-
-class NoLoggingWSGIRequestHandler(WSGIRequestHandler):
-    def log_message(self, format, *args):
-        pass
-
-
-temp_server_success = False
-
-
-class Server:
-    def __init__(self, wsgi_app, listen='127.0.0.1', port=8080):
-        self.wsgi_app = wsgi_app
-        self.listen = listen
-        self.port = port
-        self.server = make_server(self.listen, self.port, self.wsgi_app,
-                                  ThreadingWSGIServer, handler_class=NoLoggingWSGIRequestHandler)
-
-    def serve_temporarily(self):
-        global temp_server_success
-        self.server.timeout = 1
-        try:
-            while not temp_server_success:
-                self.server.handle_request()
-            self.server.handle_request()  # handle the last request
-        except KeyboardInterrupt:
-            self.server.server_close()
-            return False
-        time.sleep(1)
-        self.server.server_close()
-        temp_server_success = False
-        return True
-
-    def serve_forever(self):
-        try:
-            self.server.serve_forever()
-        except KeyboardInterrupt:
-            self.server.shutdown()
-            self.server.server_close()
-
+from feedcrawler.providers.sqlite_database import FeedDb, ListDb
+from feedcrawler.providers.url_functions import get_url_headers, post_url_headers, get_url
+from feedcrawler.web_interface.serve.server import Server
 
 helper_active = False
 already_added = []
@@ -478,7 +401,7 @@ def app_container():
             if myjd_user and myjd_pass and myjd_device:
                 device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
-                    print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                    print("Fehlerhafte My-JDownloader-Zugangsdaten. Bitte vor dem Speichern prüfen!")
                     return abort(400, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
@@ -1870,6 +1793,157 @@ def app_container():
                        "[Link ersetzt] - " + package_name
         return abort(400, "Failed")
 
+    def attempt_download(package_name, links, password, ids):
+        global already_added
+
+        FeedDb('crawldog').store(package_name, 'added')
+        if shared_state.get_device():
+            if ids:
+                try:
+                    ids = ids.replace("%20", "").split(";")
+                    linkids = ids[0]
+                    uuids = ids[1]
+                except:
+                    linkids = False
+                    uuids = False
+                if ids and uuids:
+                    linkids_raw = ast.literal_eval(linkids)
+                    linkids = []
+                    if isinstance(linkids_raw, (list, tuple)):
+                        for linkid in linkids_raw:
+                            linkids.append(linkid)
+                    else:
+                        linkids.append(linkids_raw)
+                    uuids_raw = ast.literal_eval(uuids)
+                    uuids = []
+                    if isinstance(uuids_raw, (list, tuple)):
+                        for uuid in uuids_raw:
+                            uuids.append(uuid)
+                    else:
+                        uuids.append(uuids_raw)
+
+                    remove_from_linkgrabber(linkids, uuids)
+                    remove_decrypt(package_name)
+                    remove_decrypt(package_name, disabled=True)
+            else:
+                is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
+                if not is_episode:
+                    re_name = rreplace(package_name.lower(), "-", ".*", 1)
+                    re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
+                    season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                    if season_string:
+                        re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                    codec_tags = [".h264", ".x264", ".x265", ".h265", ".hevc", ".h.264", ".h.265"]
+                    for tag in codec_tags:
+                        re_name = re_name.replace(tag, ".*264")
+                    web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                    for tag in web_tags:
+                        re_name = re_name.replace(tag, ".web.*")
+                    multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
+                    if multigroup:
+                        re_name = re_name.replace(multigroup[0][0],
+                                                  '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+                else:
+                    re_name = package_name
+                    season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+
+                if season_string:
+                    season_string = season_string[0].replace("s", "S")
+                else:
+                    season_string = "^unmatchable$"
+                try:
+                    packages = get_packages_in_linkgrabber()
+                except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                    set_device_from_config()
+                    if not shared_state.get_device():
+                        return abort(500, "Failed")
+                    packages = get_packages_in_linkgrabber()
+
+                if packages:
+                    failed = packages[0]
+                    offline = packages[1]
+
+                    def check_if_broken(check_packages):
+                        if check_packages:
+                            for check_package in check_packages:
+                                if re.match(re.compile(re_name), check_package['name'].lower()):
+                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
+                                                         check_package['name'])
+                                    if episode:
+                                        FeedDb('episode_remover').store(package_name,
+                                                                        str(int(episode[0])))
+                                    linkids = check_package['linkids']
+                                    uuids = [check_package['uuid']]
+                                    remove_from_linkgrabber(linkids, uuids)
+                                    remove_decrypt(package_name)
+                                    remove_decrypt(package_name, disabled=True)
+                                    return "<script type='text/javascript'>" \
+                                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                           "[CAPTCHA gelöst] - " + package_name
+
+                    try:
+                        check_if_broken(failed)
+                        check_if_broken(offline)
+                    except:
+                        pass
+
+                packages = get_to_decrypt()
+                if packages:
+                    for package in packages:
+                        if package_name == package["name"].strip():
+                            package_name = package["name"]
+                        elif re.match(re.compile(re_name),
+                                      package['name'].lower().strip().replace(".untouched",
+                                                                              ".*").replace(
+                                          "dd+51",
+                                          "dd.51")):
+                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                            remove_decrypt(package['name'])
+                            remove_decrypt(package['name'], disabled=True)
+                            if episode:
+                                episode_to_keep = str(int(episode[0]))
+                                episode = str(episode[0])
+                                if len(episode) == 1:
+                                    episode = "0" + episode
+                                package_name = package_name.replace(season_string + ".",
+                                                                    season_string + "E" + episode + ".")
+                                episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
+                                if episode_in_remover:
+                                    episode_to_keep = episode_in_remover + "|" + episode_to_keep
+                                    FeedDb('episode_remover').delete(package_name)
+                                    time.sleep(1)
+                                FeedDb('episode_remover').store(package_name, episode_to_keep)
+                                break
+                time.sleep(1)
+                remove_decrypt(package_name)
+                remove_decrypt(package_name, disabled=True)
+            try:
+                epoch = int(time.time())
+                for item in already_added:
+                    if item[0] == package_name:
+                        if int(item[1]) + 5 > epoch:
+                            print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                            return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        else:
+                            already_added.remove(item)
+
+                download(package_name, "FeedCrawler", links, password)
+                db = FeedDb('FeedCrawler')
+                if not db.retrieve(package_name):
+                    db.store(package_name, 'added')
+                try:
+                    notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
+                except:
+                    print("Benachrichtigung konnte nicht versendet werden!")
+                print("[CAPTCHA gelöst] - " + package_name)
+                already_added.append([package_name, str(epoch)])
+                return "<script type='text/javascript'>" \
+                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                       "[CAPTCHA gelöst] - " + package_name
+            except:
+                print(package_name + " konnte nicht hinzugefügt werden!")
+                return abort(500, package_name + " konnte nicht hinzugefügt werden!")
+
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
     def to_download(payload):
         try:
@@ -1922,434 +1996,3 @@ def app_container():
         return abort(400, "Failed")
 
     Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()
-
-
-def attempt_download(package_name, links, password, ids):
-    global already_added
-
-    FeedDb('crawldog').store(package_name, 'added')
-    if shared_state.get_device():
-        if ids:
-            try:
-                ids = ids.replace("%20", "").split(";")
-                linkids = ids[0]
-                uuids = ids[1]
-            except:
-                linkids = False
-                uuids = False
-            if ids and uuids:
-                linkids_raw = ast.literal_eval(linkids)
-                linkids = []
-                if isinstance(linkids_raw, (list, tuple)):
-                    for linkid in linkids_raw:
-                        linkids.append(linkid)
-                else:
-                    linkids.append(linkids_raw)
-                uuids_raw = ast.literal_eval(uuids)
-                uuids = []
-                if isinstance(uuids_raw, (list, tuple)):
-                    for uuid in uuids_raw:
-                        uuids.append(uuid)
-                else:
-                    uuids.append(uuids_raw)
-
-                remove_from_linkgrabber(linkids, uuids)
-                remove_decrypt(package_name)
-                remove_decrypt(package_name, disabled=True)
-        else:
-            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
-            if not is_episode:
-                re_name = rreplace(package_name.lower(), "-", ".*", 1)
-                re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
-                season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
-                if season_string:
-                    re_name = re_name.replace(season_string[0], season_string[0] + '.*')
-                codec_tags = [".h264", ".x264", ".x265", ".h265", ".hevc", ".h.264", ".h.265"]
-                for tag in codec_tags:
-                    re_name = re_name.replace(tag, ".*264")
-                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
-                for tag in web_tags:
-                    re_name = re_name.replace(tag, ".web.*")
-                multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
-                if multigroup:
-                    re_name = re_name.replace(multigroup[0][0],
-                                              '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
-            else:
-                re_name = package_name
-                season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
-
-            if season_string:
-                season_string = season_string[0].replace("s", "S")
-            else:
-                season_string = "^unmatchable$"
-            try:
-                packages = get_packages_in_linkgrabber()
-            except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                set_device_from_config()
-                if not shared_state.get_device():
-                    return abort(500, "Failed")
-                packages = get_packages_in_linkgrabber()
-
-            if packages:
-                failed = packages[0]
-                offline = packages[1]
-
-                def check_if_broken(check_packages):
-                    if check_packages:
-                        for check_package in check_packages:
-                            if re.match(re.compile(re_name), check_package['name'].lower()):
-                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
-                                                     check_package['name'])
-                                if episode:
-                                    FeedDb('episode_remover').store(package_name,
-                                                                    str(int(episode[0])))
-                                linkids = check_package['linkids']
-                                uuids = [check_package['uuid']]
-                                remove_from_linkgrabber(linkids, uuids)
-                                remove_decrypt(package_name)
-                                remove_decrypt(package_name, disabled=True)
-                                return "<script type='text/javascript'>" \
-                                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                       "[CAPTCHA gelöst] - " + package_name
-
-                try:
-                    check_if_broken(failed)
-                    check_if_broken(offline)
-                except:
-                    pass
-
-            packages = get_to_decrypt()
-            if packages:
-                for package in packages:
-                    if package_name == package["name"].strip():
-                        package_name = package["name"]
-                    elif re.match(re.compile(re_name),
-                                  package['name'].lower().strip().replace(".untouched",
-                                                                          ".*").replace(
-                                      "dd+51",
-                                      "dd.51")):
-                        episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                        remove_decrypt(package['name'])
-                        remove_decrypt(package['name'], disabled=True)
-                        if episode:
-                            episode_to_keep = str(int(episode[0]))
-                            episode = str(episode[0])
-                            if len(episode) == 1:
-                                episode = "0" + episode
-                            package_name = package_name.replace(season_string + ".",
-                                                                season_string + "E" + episode + ".")
-                            episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
-                            if episode_in_remover:
-                                episode_to_keep = episode_in_remover + "|" + episode_to_keep
-                                FeedDb('episode_remover').delete(package_name)
-                                time.sleep(1)
-                            FeedDb('episode_remover').store(package_name, episode_to_keep)
-                            break
-            time.sleep(1)
-            remove_decrypt(package_name)
-            remove_decrypt(package_name, disabled=True)
-        try:
-            epoch = int(time.time())
-            for item in already_added:
-                if item[0] == package_name:
-                    if int(item[1]) + 5 > epoch:
-                        print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                        return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                    else:
-                        already_added.remove(item)
-
-            download(package_name, "FeedCrawler", links, password)
-            db = FeedDb('FeedCrawler')
-            if not db.retrieve(package_name):
-                db.store(package_name, 'added')
-            try:
-                notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
-            except:
-                print("Benachrichtigung konnte nicht versendet werden!")
-            print("[CAPTCHA gelöst] - " + package_name)
-            already_added.append([package_name, str(epoch)])
-            return "<script type='text/javascript'>" \
-                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                   "[CAPTCHA gelöst] - " + package_name
-        except:
-            print(package_name + " konnte nicht hinzugefügt werden!")
-            return abort(500, package_name + " konnte nicht hinzugefügt werden!")
-
-
-def hostnames_config(port, local_address):
-    app = Bottle()
-
-    @app.get('/')
-    def hostname_form():
-        # Serve an HTML form for the user to enter the hostnames
-        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>Mindestens einen Hostnamen konfigurieren</h3>
-                    <form action="/api/hostnames" method="post">
-                        <label for="fx">FX</label><br>
-                        <input type="text" id="fx" name="fx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="sf">SF</label><br>
-                        <input type="text" id="sf" name="sf" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dw">DW</label><br>
-                        <input type="text" id="dw" name="dw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="hw">HW</label><br>
-                        <input type="text" id="hw" name="hw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="ff">FF</label><br>
-                        <input type="text" id="ff" name="ff" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="by">BY</label><br>
-                        <input type="text" id="by" name="by" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="nk">NK</label><br>
-                        <input type="text" id="nk" name="nk" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="nx">NX</label><br>
-                        <input type="text" id="nx" name="nx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="ww">WW</label><br>
-                        <input type="text" id="ww" name="ww" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="sj">SJ</label><br>
-                        <input type="text" id="sj" name="sj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dj">DJ</label><br>
-                        <input type="text" id="dj" name="dj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dd">DD</label><br>
-                        <input type="text" id="dd" name="dd" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <button type="submit">Speichern</button>
-                    </form>
-                </div>
-            </div>
-        '''
-
-    @app.post("/api/hostnames")
-    def set_hostnames():
-        hostnames = CrawlerConfig('Hostnames')
-        hostname_keys = ['fx', 'sf', 'dw', 'hw', 'ff', 'by', 'nk', 'nx', 'ww', 'sj', 'dj', 'dd']
-
-        hostname_set = False
-
-        for key in hostname_keys:
-            hostname = request.forms.get(key)
-            try:
-                hostname = extract_domain(hostname)
-            except Exception as e:
-                print(f"Error extracting domain from {hostname}: {e}")
-                continue
-
-            if hostname:
-                hostnames.save(key, hostname)
-                hostname_set = True
-
-        if hostname_set:
-            global temp_server_success
-            temp_server_success = True
-            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>Mindestens ein Hostnamen konfiguriert! Fahre fort...</h3>
-                    <button id="weiterButton" disabled>Wartezeit... 10</button>
-                    <script>
-                        var counter = 10;
-                        var interval = setInterval(function() {
-                            counter--;
-                            document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
-                            if (counter === 0) {
-                                clearInterval(interval);
-                                document.getElementById('weiterButton').innerText = 'Weiter';
-                                document.getElementById('weiterButton').disabled = false;
-                                document.getElementById('weiterButton').onclick = function() {
-                                    window.location.href='/';
-                                }
-                            }
-                        }, 1000);
-                    </script>
-                </div>
-            </div>"""
-        else:
-            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                        <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                            <h1>FeedCrawler</h1>
-                            <h3>Es wurde kein valider Hostnamen konfiguriert!</h3>
-                            <button onclick="window.location.href='/'">Zurück</button>
-                        </div>
-                    </div>"""
-
-    def extract_domain(url):
-        try:
-            if '://' not in url:
-                url = 'http://' + url
-            result = parse.urlparse(url)
-            return result.netloc
-        except Exception as e:
-            print(f"Error parsing URL {url}: {e}")
-            return None
-
-    print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver oder lokal in der FeedCrawler.ini die Hostnamen konfigurieren!")
-    print("Erst nach erfolgreicher Konfiguration der Hostnamen wird der FeedCrawler starten.")
-    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
-
-
-def myjd_config(port, local_address):
-    app = Bottle()
-
-    @app.get('/')
-    def hostname_form():
-        # Serve an HTML form for the user to enter the hostnames
-        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>My JDownloader Zugangsdaten konfigurieren</h3>
-                    <form id="verifyForm" action="/api/verify_myjd" method="post">
-                        <label for="user">Nutzername/Email</label><br>
-                        <input type="text" id="user" name="user" placeholder="Username" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="pass">Passwort</label><br>
-                        <input type="password" id="pass" name="pass" placeholder="Password" style="width: 80%; margin-bottom: 10px;"><br>
-                        <button id="verifyButton" type="button" onclick="verifyCredentials()">Geräte abrufen</button>
-                    </form>
-                    <form action="/api/store_myjd" method="post" id="deviceForm" style="display: none;">
-                        <input type="hidden" id="hiddenUser" name="user">
-                        <input type="hidden" id="hiddenPass" name="pass">
-                        <label for="device">Gerät</label><br>
-                        <select id="device" name="device" style="width: 80%; margin-bottom: 10px;"></select><br>
-                        <button type="submit">Speichern</button>
-                    </form>
-                </div>
-            </div>
-            <script>
-            function verifyCredentials() {
-                var user = document.getElementById('user').value;
-                var pass = document.getElementById('pass').value;
-                fetch('/api/verify_myjd', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({user: user, pass: pass}),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        var select = document.getElementById('device');
-                        data.devices.forEach(device => {
-                            var opt = document.createElement('option');
-                            opt.value = device;
-                            opt.innerHTML = device;
-                            select.appendChild(opt);
-                        });
-                        document.getElementById('hiddenUser').value = document.getElementById('user').value;
-                        document.getElementById('hiddenPass').value = document.getElementById('pass').value;
-                        document.getElementById("verifyButton").style.display = "none";
-                        document.getElementById('deviceForm').style.display = 'block';
-                    } else {
-                        alert('Fehler! Bitte die Zugangsdaten überprüfen.');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
-            </script>'''
-
-    def get_devices(myjd_user, myjd_pass):
-        import feedcrawler.external_tools.myjd_api
-        from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-
-        jd = feedcrawler.external_tools.myjd_api.Myjdapi()
-        jd.set_app_key('FeedCrawler')
-        try:
-            jd.connect(myjd_user, myjd_pass)
-            jd.update_devices()
-            devices = jd.list_devices()
-            return devices
-        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
-            return []
-
-    @app.post("/api/verify_myjd")
-    def verify_myjd():
-        data = request.json
-        username = data['user']
-        password = data['pass']
-
-        devices = get_devices(username, password)
-        device_names = []
-
-        if devices:
-            for device in devices:
-                device_names.append(device['name'])
-
-        if device_names:
-            return {"success": True, "devices": device_names}
-        else:
-            return {"success": False}
-
-    @app.post("/api/store_myjd")
-    def store_myjd():
-        username = request.forms.get('user')
-        password = request.forms.get('pass')
-        device = request.forms.get('device')
-
-        config = CrawlerConfig('FeedCrawler')
-
-        if username and password and device:
-            config.save('myjd_user', username)
-            config.save('myjd_pass', password)
-            config.save('myjd_device', device)
-
-            if not set_device_from_config():
-                config.save('myjd_user', "")
-                config.save('myjd_pass', "")
-                config.save('myjd_device', "")
-            else:
-                global temp_server_success
-                temp_server_success = True
-                return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                            <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                                <h1>FeedCrawler</h1>
-                                <h3>Zugangsdaten erfolgreich gespeichert! Fahre fort...</h3>
-                                <button id="weiterButton" disabled>Wartezeit... 10</button>
-                                <script>
-                                    var counter = 10;
-                                    var interval = setInterval(function() {
-                                        counter--;
-                                        document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
-                                        if (counter === 0) {
-                                            clearInterval(interval);
-                                            document.getElementById('weiterButton').innerText = 'Weiter';
-                                            document.getElementById('weiterButton').disabled = false;
-                                            document.getElementById('weiterButton').onclick = function() {
-                                                window.location.href='/';
-                                            }
-                                        }
-                                    }, 1000);
-                                </script>
-                            </div>
-                        </div>"""
-
-        return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                    <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                        <h1>FeedCrawler</h1>
-                        <h3>Zugangsdaten fehlerhaft!</h3>
-                        <button onclick="window.location.href='/'">Zurück</button>
-                    </div>
-                </div>"""
-
-    print(
-        f'My JDownloader Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver die My JDownloader Zugangsdaten konfigurieren!")
-    print("Erst nach erfolgreicher Konfiguration der My JDownloader Zugangsdaten wird der FeedCrawler starten.")
-    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
-
-
-def web_server(shared_state_dict, shared_state_lock):
-    if shared_state_dict["gui"]:
-        sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
-    else:
-        sys.stdout = Unbuffered(sys.stdout)
-
-    shared_state.set_state(shared_state_dict, shared_state_lock)
-    shared_state.set_logger()
-
-    if version.update_check()[0]:
-        updateversion = version.update_check()[1]
-        print('Update steht bereit (' + updateversion +
-              ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-
-    app_container()

@@ -29,12 +29,8 @@ EXPOSE 9090
 # Set environment variables.
 ENV PYTHONUNBUFFERED=1
 ENV DOCKER="true"
-ENV USER=""
-ENV PASS=""
-ENV DEVICE=""
-ENV LOGLEVEL=""
-ENV VERSION=""
 ENV DELAY=""
+ENV LOGLEVEL=""
 
 # Run command
 ENTRYPOINT ["sh", "-c", "feedcrawler --log-level=$LOGLEVEL --delay=$DELAY"]

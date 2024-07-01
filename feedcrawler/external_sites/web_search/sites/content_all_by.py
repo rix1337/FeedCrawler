@@ -19,7 +19,7 @@ def by_search_results(content, base_url, resolution, search_term):
         try:
             title = link.text.replace(" ", ".").strip()
             if ".xxx." not in title.lower() and simplified_search_term_in_title(search_term, title):
-                link = "https://" + base_url + link['href']
+                link = f"https://{base_url}{link['href']}"
                 if resolution and resolution.lower() not in title.lower():
                     if "480p" in resolution:
                         if check_release_not_sd(title):

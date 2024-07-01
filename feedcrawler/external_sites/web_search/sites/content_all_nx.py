@@ -22,7 +22,7 @@ def nx_search_results(content, resolution, search_term):
             if any(s in item['type'] for s in valid_types):
                 title = item['name'].replace(" ", ".").strip()
                 if ".xxx." not in title.lower() and simplified_search_term_in_title(search_term, title):
-                    link = "https://" + nx + "/api/frontend/releases/" + item['slug']
+                    link = f"https://{nx}/api/frontend/releases/{item['slug']}"
                     if "#comments-title" not in link:
                         if resolution and resolution.lower() not in title.lower():
                             if "480p" in resolution:
