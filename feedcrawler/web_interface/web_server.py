@@ -52,7 +52,6 @@ from feedcrawler.providers.myjd_connection import set_device
 from feedcrawler.providers.myjd_connection import do_add_decrypted
 from feedcrawler.providers.myjd_connection import download
 from feedcrawler.providers.myjd_connection import set_device_from_config
-from feedcrawler.providers.myjd_connection import get_if_one_device
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
 from feedcrawler.providers.myjd_connection import get_state
@@ -132,7 +131,7 @@ def app_container():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
-    elif shared_state.values["docker"]:
+    elif os.environ.get('DOCKER'):
         static_location = site.getsitepackages()[0]
         base_dir = static_location + "/feedcrawler"
 
@@ -342,6 +341,10 @@ def app_container():
             f_conf = CrawlerConfig('CustomF')
             cloudflare_conf = CrawlerConfig('Cloudflare')
             helper_conf = CrawlerConfig('SponsorsHelper')
+            if os.environ.get('DOCKER'):
+                port = 9090
+            else:
+                port = to_int(general_conf.get("port"))
             return {
                 "settings": {
                     "general": {
@@ -351,7 +354,7 @@ def app_container():
                         "myjd_pass": general_conf.get("myjd_pass"),
                         "myjd_device": general_conf.get("myjd_device"),
                         "myjd_auto_update": general_conf.get("myjd_auto_update"),
-                        "port": to_int(general_conf.get("port")),
+                        "port": port,
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
                         "sponsors_helper": general_conf.get("sponsors_helper"),
@@ -472,20 +475,11 @@ def app_container():
             myjd_pass = to_str(data['general']['myjd_pass'])
             myjd_device = to_str(data['general']['myjd_device'])
 
-            if myjd_user and myjd_pass and not myjd_device:
-                myjd_device = get_if_one_device(myjd_user, myjd_pass)
-                if myjd_device:
-                    print("Gerätename " + myjd_device + " automatisch ermittelt.")
-
             if myjd_user and myjd_pass and myjd_device:
                 device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
-                    myjd_device = get_if_one_device(myjd_user, myjd_pass)
-                    if myjd_device:
-                        print("Gerätename " + myjd_device + " automatisch ermittelt.")
-                    else:
-                        print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
-                        return abort(400, "Failed")
+                    print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                    return abort(400, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
 
@@ -493,7 +487,11 @@ def app_container():
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
             section.save("myjd_auto_update", myjd_auto_update)
-            section.save("port", to_str(data['general']['port']))
+            if os.environ.get('DOCKER'):
+                port = "9090"
+            else:
+                port = to_str(data['general']['port'])
+            section.save("port", port)
             section.save("prefix", to_str(data['general']['prefix']).lower())
             interval = to_str(data['general']['interval'])
             if to_int(interval) < 5:
@@ -743,19 +741,17 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def get_version():
         try:
-            ver = "v." + version.get_version()
-            if version.update_check()[0]:
-                updateready = True
-                updateversion = version.update_check()[1]
-                print('Update steht bereit (' + updateversion +
-                      ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-            else:
-                updateready = False
+            is_update_ready = False
+            update_check = version.update_check()
+            if update_check[0]:
+                is_update_ready = True
+                print(f'Update steht bereit ({update_check[1]})! '
+                      f'Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
             return {
                 "version": {
-                    "ver": ver,
-                    "update_ready": updateready,
-                    "docker": shared_state.values["docker"],
+                    "ver": "v." + version.get_version(),
+                    "update_ready": is_update_ready,
+                    "docker": bool(os.environ.get('DOCKER')),
                     "helper_active": helper_active
                 }
             }

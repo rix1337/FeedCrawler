@@ -10,7 +10,6 @@ from bs4 import BeautifulSoup
 
 import feedcrawler.external_tools.myjd_api
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException, Jddevice
-from feedcrawler.providers import gui
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_hoster
 from feedcrawler.providers.common_functions import check_is_site
@@ -77,27 +76,7 @@ def set_device_from_config():
 
     if myjd_user and myjd_pass and myjd_device:
         return set_device(myjd_user, myjd_pass, myjd_device)
-    elif myjd_user and myjd_pass:
-        myjd_device = get_if_one_device(myjd_user, myjd_pass)
-        if myjd_device:
-            return set_device(myjd_user, myjd_pass, myjd_device)
     return False
-
-
-def get_if_one_device(myjd_user, myjd_pass):
-    jd = feedcrawler.external_tools.myjd_api.Myjdapi()
-    jd.set_app_key('FeedCrawler')
-    try:
-        jd.connect(myjd_user, myjd_pass)
-        jd.update_devices()
-        devices = jd.list_devices()
-        if len(devices) == 1:
-            return devices[0].get('name')
-        else:
-            return False
-    except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
-        return False
 
 
 def get_devices(myjd_user, myjd_pass):
@@ -1039,45 +1018,6 @@ def do_add_decrypted(title, password, cnl_packages):
             print("[Click'n'Load-Automatik erfolgreich] - " + title)
             return [True, title]
     return False
-
-
-def myjd_input(port, user, password, device):
-    if user and password and device:
-        print("Zugangsdaten aus den Parametern übernommen.")
-    elif user and password and not device:
-        one_device = get_if_one_device(user, password)
-        if one_device:
-            print("Gerätename " + one_device + " automatisch ermittelt.")
-    else:
-        if shared_state.values["gui"]:
-            user, password, device = gui.myjd_credentials_gui()
-        else:
-            print("Bitte die Zugangsdaten für My JDownloader angeben:")
-            user = input("Nutzername/Email:")
-            password = input("Passwort:")
-            one_device = get_if_one_device(user, password)
-            if one_device:
-                print("Gerätename " + one_device + " automatisch ermittelt.")
-            else:
-                device = input("Gerätename:")
-
-    if not port:
-        port = '9090'
-
-    sections = ['FeedCrawler', 'Hostnames', 'Crawljobs', 'Notifications', 'Hosters', 'Ombi', 'ContentAll',
-                'ContentShows', 'CustomDJ']
-    for section in sections:
-        CrawlerConfig(section)
-    if port:
-        CrawlerConfig('FeedCrawler').save("port", port)
-
-    CrawlerConfig('FeedCrawler').save("myjd_user", user)
-    CrawlerConfig('FeedCrawler').save("myjd_pass", password)
-    CrawlerConfig('FeedCrawler').save("myjd_device", device)
-    if set_device_from_config():
-        return
-    else:
-        return False
 
 
 def add_decrypt(title, link, password, replace=False):

@@ -8,7 +8,7 @@ from urllib.request import urlopen
 
 
 def get_version():
-    return "20.0.2"
+    return "20.0.3"
 
 
 def create_version_file():
