@@ -13,7 +13,7 @@ def get_version():
 
 def create_version_file():
     version = get_version()
-    version_clean = re.sub('[^\d\.]', '', version)
+    version_clean = re.sub(r'[^\d.]', '', version)
     if "a" in version:
         suffix = version.split("a")[1]
     else:

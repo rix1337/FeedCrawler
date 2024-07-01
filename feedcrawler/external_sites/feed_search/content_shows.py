@@ -77,7 +77,7 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
     try:
         storage = self.db.retrieve_all(title)
     except Exception as e:
-        shared_state.logger.debug("Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+        shared_state.logger.debug(f"Fehler bei Datenbankzugriff: {e}, Grund: {title}")
 
     if 'added' in storage or 'notdl' in storage:
         shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
@@ -230,7 +230,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
+                            shared_state.logger.debug(f"{title} - Englische Releases deaktiviert")
 
                     else:
                         continue
@@ -273,7 +273,7 @@ def periodical_task(self):
                                     send_package(self, title, download_link, language_id, season, episode, site,
                                                  post.source, size, imdb_id)
                         else:
-                            shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
+                            shared_state.logger.debug(f"{title} - Englische Releases deaktiviert")
 
                     else:
                         continue
@@ -303,8 +303,7 @@ def periodical_task(self):
                                     try:
                                         storage = self.db.retrieve_all(title)
                                     except Exception as e:
-                                        shared_state.logger.debug(
-                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                        shared_state.logger.debug(f"Fehler bei Datenbankzugriff: {e}, Grund: {title}")
                                         return
                                     if 'added' in storage:
                                         shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
@@ -322,7 +321,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                             else:
-                                shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
+                                shared_state.logger.debug(f"{title} - Englische Releases deaktiviert")
 
                         else:
                             match = re.search(self.pattern, title.lower())
@@ -350,8 +349,7 @@ def periodical_task(self):
                                     try:
                                         storage = self.db.retrieve_all(title)
                                     except Exception as e:
-                                        shared_state.logger.debug(
-                                            "Fehler bei Datenbankzugriff: %s, Grund: %s" % (e, title))
+                                        shared_state.logger.debug(f"Fehler bei Datenbankzugriff: {e}, Grund: {title}")
                                         return
                                     if 'added' in storage:
                                         shared_state.logger.debug(title + " - Release ignoriert (bereits gefunden)")
@@ -369,7 +367,7 @@ def periodical_task(self):
                                         send_package(self, title, download_link, language_id, season, episode, site,
                                                      post.source, size, imdb_id)
                                 else:
-                                    shared_state.logger.debug("%s - Englische Releases deaktiviert" % title)
+                                    shared_state.logger.debug(f"{title} - Englische Releases deaktiviert")
 
     if current_set and sha:
         new_set = settings_hash(self, True)

@@ -125,7 +125,7 @@ def ff_feed_enricher(releases):
                     clean_response_content = BeautifulSoup(response, "html.parser").body.text
                     info = BeautifulSoup(json.loads(clean_response_content)["html"], "html.parser")
 
-                releases = movie.findAll("a", href=re.compile("^(?!.*(genre))"), text=re.compile("\S"))
+                releases = movie.findAll("a", href=re.compile(r"^(?!.*(genre))"), text=re.compile(r"\S"))
                 for release in releases:
                     title = release.text.strip()
                     time = movie.find("span", {"class": "lsf-icon timed"}).text

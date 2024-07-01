@@ -133,7 +133,7 @@ def download(payload):
             links = get_urls_async(async_link_results)
             for link in links:
                 if link[0]:
-                    link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
+                    link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile(r"/go\.php\?"))
                     if link:
                         url_hosters.append([link["href"], link.text.replace(" ", "")])
         elif "DW" in site:

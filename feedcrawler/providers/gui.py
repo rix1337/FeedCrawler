@@ -19,7 +19,7 @@ elif platform.system() == 'Linux':
 else:
     font = ('Monaco', 12)
 
-title = 'FeedCrawler v.' + get_version()
+title = f'FeedCrawler v.{get_version()}'
 
 
 def get_icon_path():

@@ -29,9 +29,9 @@ class BL:
         self.password = self.url.split('.')[0]
 
         if "List_ContentAll_Seasons" not in filename:
-            self.URL = 'https://' + self.url + "/ajax" + "|/cat/movies|p=1&t=c&q=5"
+            self.URL = f'https://{self.url}/ajax|/cat/movies|p=1&t=c&q=5'
         else:
-            self.URL = 'https://' + self.url + "/ajax" + "|/cat/series|p=1&t=c&q=9"
+            self.URL = f'https://{self.url}/ajax|/cat/series|p=1&t=c&q=9'
         self.FEED_URLS = [self.URL]
 
         self.config = CrawlerConfig("ContentAll")
