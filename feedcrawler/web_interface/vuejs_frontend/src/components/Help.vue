@@ -335,7 +335,7 @@ const waitTimeActive = computed(() => {
                 <span>
               <br>
               <a class="btn btn-outline-success"
-                 href="https://github.com/rix1337/FeedCrawler/wiki/5.-FeedCrawler-Sponsors-Helper"
+                 href="https://github.com/rix1337/FeedCrawler/wiki/FeedCrawler-Sponsors-Helper"
                  target="_blank">Weitere Hinweise gibt es im Wiki.</a>
                 </span>
               </div>

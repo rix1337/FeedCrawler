@@ -43,8 +43,6 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ```pip install -U feedcrawler```
 
-Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
-
 ### Lokaler Build
 
 Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
