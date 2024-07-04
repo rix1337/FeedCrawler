@@ -136,7 +136,7 @@ function updatePlexUrl() {
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
                   <FormKit v-model="store.settings.general.myjd_user"
-                           help="Hier die E-Mail Adresse des Kontos bei My JDownloader angeben."
+                           help="Hier die E-Mail-Adresse des Kontos bei My JDownloader angeben."
                            help-class="text-muted"
                            input-class="form-control bg-light mb-2"
                            label="E-Mail Adresse"

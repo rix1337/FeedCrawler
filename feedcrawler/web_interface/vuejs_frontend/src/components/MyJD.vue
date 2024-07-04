@@ -1,4 +1,4 @@
-<script setup xmlns="http://www.w3.org/1999/html">
+<script setup>
 import {useStore} from '@/main.js'
 import {computed, inject, onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from 'bootstrap'

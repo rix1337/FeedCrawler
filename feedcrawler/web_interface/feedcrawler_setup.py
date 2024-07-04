@@ -27,12 +27,12 @@ def path_config(port, local_address):
     def config_form():
         config_form_html = f'''
             <form action="/api/config" method="post">
-                <label for="config_path">Pfad:</label><br>
+                <label for="config_path">Pfad</label><br>
                 <input type="text" id="config_path" name="config_path" placeholder="{current_path}" style="width: 80%; margin-bottom: 10px;"><br>
                 <button type="submit">Speichern</button>
             </form>
             '''
-        return render_html_template("Wo sollen Einstellungen und Logs abgelegt werden?", config_form_html)
+        return render_html_template("Wo sollen Einstellungen und Logs abgelegt werden? Im Zweifel einfach speichern.", config_form_html)
 
     def set_config_path(config_path):
         config_path_file = "FeedCrawler.conf"
@@ -59,7 +59,7 @@ def path_config(port, local_address):
         return generate_html_response(f"Konfigurationspfad gesetzt auf: {config_path}", True)
 
     print(f'Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver den Konfigurationspfad einstellen!")
+    print("Bitte dort den Konfigurationspfad einstellen!")
     return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
 
 
@@ -124,7 +124,7 @@ def hostnames_config(port, local_address, shared_state):
                                           False)
 
     print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver die Hostnamen konfigurieren!")
+    print("Bitte dort die Hostnamen konfigurieren!")
     return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
 
 
@@ -135,7 +135,7 @@ def myjd_config(port, local_address):
     def hostname_form():
         verify_form_html = '''
         <form id="verifyForm" action="/api/verify_myjd" method="post">
-            <label for="user">Nutzername/Email</label><br>
+            <label for="user">E-Mail-Adresse</label><br>
             <input type="text" id="user" name="user" placeholder="Username" style="width: 80%; margin-bottom: 10px;"><br>
             <label for="pass">Passwort</label><br>
             <input type="password" id="pass" name="pass" placeholder="Password" style="width: 80%; margin-bottom: 10px;"><br>
@@ -234,5 +234,5 @@ def myjd_config(port, local_address):
 
     print(
         f'My-JDownloader-Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver die My-JDownloader-Zugangsdaten konfigurieren!")
+    print("Bitte dort die My-JDownloader-Zugangsdaten konfigurieren!")
     return Server(app, listen='0.0.0.0', port=port).serve_temporarily()

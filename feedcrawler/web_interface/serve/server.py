@@ -35,7 +35,7 @@ class Server:
             while not temp_server_success:
                 self.server.handle_request()
             self.server.handle_request()  # handle the last request
-        except KeyboardInterrupt:
+        except Exception:
             self.server.server_close()
             return False
         time.sleep(1)
