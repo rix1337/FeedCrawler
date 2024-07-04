@@ -15,7 +15,7 @@ from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import get_devices
 from feedcrawler.providers.myjd_connection import set_device_from_config
 from feedcrawler.web_interface.serve.server import Server
-from feedcrawler.web_interface.serve.setup import generate_html_response, render_html_template
+from feedcrawler.web_interface.serve.setup import render_form, render_button, render_success, render_fail
 
 
 def path_config(port, local_address):
@@ -28,11 +28,12 @@ def path_config(port, local_address):
         config_form_html = f'''
             <form action="/api/config" method="post">
                 <label for="config_path">Pfad</label><br>
-                <input type="text" id="config_path" name="config_path" placeholder="{current_path}" style="width: 80%; margin-bottom: 10px;"><br>
-                <button type="submit">Speichern</button>
+                <input type="text" id="config_path" name="config_path" placeholder="{current_path}"><br>
+                {render_button("Speichern", "primary", {"type": "submit"})}
             </form>
             '''
-        return render_html_template("Wo sollen Einstellungen und Logs abgelegt werden? Im Zweifel einfach speichern.", config_form_html)
+        return render_form("Wo sollen Einstellungen und Logs abgelegt werden? Im Zweifel einfach speichern.",
+                           config_form_html)
 
     def set_config_path(config_path):
         config_path_file = "FeedCrawler.conf"
@@ -56,7 +57,8 @@ def path_config(port, local_address):
         config_path = request.forms.get("config_path")
         config_path = set_config_path(config_path)
         feedcrawler.web_interface.serve.server.temp_server_success = True
-        return generate_html_response(f"Konfigurationspfad gesetzt auf: {config_path}", True)
+        return render_success(f"Konfigurationspfad gesetzt auf: {config_path}",
+                              5)
 
     print(f'Starte temporären Webserver unter "{local_address}:{port}".')
     print("Bitte dort den Konfigurationspfad einstellen!")
@@ -68,24 +70,22 @@ def hostnames_config(port, local_address, shared_state):
 
     @app.get('/')
     def hostname_form():
-        hostname_form_html = '''
-        <form action="/api/hostnames" method="post">
-            {fields}
-            <button type="submit">Speichern</button>
-        </form>
-        '''
-
         hostname_fields = '''
         <label for="{id}">{label}</label><br>
-        <input type="text" id="{id}" name="{id}" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
+        <input type="text" id="{id}" name="{id}" placeholder="example.com"><br>
         '''
 
         hostname_form_content = "".join(
             [hostname_fields.format(id=label.lower(), label=label) for label in shared_state.values["sites"]])
 
-        form_html = hostname_form_html.format(fields=hostname_form_content)
+        hostname_form_html = f'''
+        <form action="/api/hostnames" method="post">
+            {hostname_form_content}
+            {render_button("Speichern", "primary", {"type": "submit"})}
+        </form>
+        '''
 
-        return render_html_template("Mindestens einen Hostnamen konfigurieren", form_html)
+        return render_form("Mindestens einen Hostnamen konfigurieren", hostname_form_html)
 
     @app.post("/api/hostnames")
     def set_hostnames():
@@ -117,11 +117,10 @@ def hostnames_config(port, local_address, shared_state):
 
         if hostname_set:
             feedcrawler.web_interface.serve.server.temp_server_success = True
-            return generate_html_response("Mindestens ein Hostnamen konfiguriert!",
-                                          True)
+            return render_success("Mindestens ein Hostnamen konfiguriert!",
+                                  5)
         else:
-            return generate_html_response("Es wurde kein valider Hostnamen konfiguriert!",
-                                          False)
+            return render_fail("Es wurde kein valider Hostnamen konfiguriert!")
 
     print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
     print("Bitte dort die Hostnamen konfigurieren!")
@@ -133,20 +132,22 @@ def myjd_config(port, local_address):
 
     @app.get('/')
     def hostname_form():
-        verify_form_html = '''
+        verify_form_html = f'''
         <form id="verifyForm" action="/api/verify_myjd" method="post">
             <label for="user">E-Mail-Adresse</label><br>
-            <input type="text" id="user" name="user" placeholder="Username" style="width: 80%; margin-bottom: 10px;"><br>
+            <input type="text" id="user" name="user" placeholder="Username"><br>
             <label for="pass">Passwort</label><br>
-            <input type="password" id="pass" name="pass" placeholder="Password" style="width: 80%; margin-bottom: 10px;"><br>
-            <button id="verifyButton" type="button" onclick="verifyCredentials()">Geräte abrufen</button>
+            <input type="password" id="pass" name="pass" placeholder="Password"><br>
+            {render_button("Geräte abrufen",
+                           "secondary",
+                           {"id": "verifyButton", "type": "button", "onclick": "verifyCredentials()"})}
         </form>
         <form action="/api/store_myjd" method="post" id="deviceForm" style="display: none;">
             <input type="hidden" id="hiddenUser" name="user">
             <input type="hidden" id="hiddenPass" name="pass">
             <label for="device">JDownloader</label><br>
-            <select id="device" name="device" style="width: 80%; margin-bottom: 10px;"></select><br>
-            <button type="submit">Speichern</button>
+            <select id="device" name="device"></select><br>
+            {render_button("Speichern", "primary", {"type": "submit"})}
         </form>
         '''
 
@@ -187,7 +188,7 @@ def myjd_config(port, local_address):
         </script>
         '''
 
-        return render_html_template("My-JDownloader-Zugangsdaten konfigurieren", verify_form_html, verify_script)
+        return render_form("My-JDownloader-Zugangsdaten konfigurieren", verify_form_html, verify_script)
 
     @app.post("/api/verify_myjd")
     def verify_myjd():
@@ -226,11 +227,10 @@ def myjd_config(port, local_address):
                 config.save('myjd_device', "")
             else:
                 feedcrawler.web_interface.serve.server.temp_server_success = True
-                return generate_html_response("Zugangsdaten erfolgreich gespeichert!",
-                                              True)
+                return render_success("Zugangsdaten erfolgreich gespeichert!",
+                                      15)
 
-        return generate_html_response("Zugangsdaten fehlerhaft!",
-                                      False)
+        return render_fail("Zugangsdaten fehlerhaft!")
 
     print(
         f'My-JDownloader-Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
