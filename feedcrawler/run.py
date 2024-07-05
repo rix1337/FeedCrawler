@@ -37,23 +37,20 @@ def main():
         parser.add_argument("--log-level", help="Legt fest, wie genau geloggt wird (INFO, DEBUG)")
         parser.add_argument("--port", help="Legt den Port des Webservers fest")
         parser.add_argument("--delay", help="Verzögere Suchlauf nach Start um ganze Zahl in Sekunden")
-        parser.add_argument("--no-gui", action='store_true', help="Startet FeedCrawler ohne GUI")
         arguments = parser.parse_args()
 
-        shared_state.set_initial_values(arguments.no_gui)
+        shared_state.set_initial_values()
 
-        if shared_state.values["gui"]:  # todo broken on macos
-            window, icon = gui.create_main_window()
+        if shared_state.values["gui"]:
+            window = gui.create_main_window()
             sys.stdout = gui.PrintToConsoleAndGui(window)
         else:
             sys.stdout = Unbuffered(sys.stdout)
 
-        print(f"""
-            ┌──────────────────────────────────────────────┐
-              FeedCrawler {version} von RiX
-              https://github.com/rix1337/FeedCrawler
-            └──────────────────────────────────────────────┘
-        """)
+        print(f"""┌──────────────────────────────────────────────┐
+  FeedCrawler {version} von RiX
+  https://github.com/rix1337/FeedCrawler
+└──────────────────────────────────────────────┘""")
 
         local_address = f'http://{check_ip()}'
         port = int('9090')
@@ -62,12 +59,13 @@ def main():
 
         if os.environ.get('DOCKER'):
             config_path = "/config"
+            local_address = f'http://[HOST_IP]'
         elif os.environ.get('GITHUB_ACTION_PR'):
             config_path = "/home/runner/work/_temp/feedcrawler"
         else:
             config_path_file = "FeedCrawler.conf"
             if not os.path.exists(config_path_file):
-                path_config(port, local_address)
+                path_config(port, local_address, shared_state)
             with open(config_path_file, "r") as f:
                 config_path = f.readline()
 
@@ -105,7 +103,7 @@ def main():
             if user and password and device:
                 set_device_from_config()
             else:
-                myjd_config(port, local_address)
+                myjd_config(port, local_address, shared_state)
 
             shared_state.set_device(device)
             connection_established = shared_state.get_device() and shared_state.get_device().name
@@ -135,8 +133,7 @@ def main():
         else:
             prefix = ''
 
-        if not os.environ.get('DOCKER'):
-            print(f'Der Webserver ist erreichbar unter "{local_address}:{port}{prefix}"')
+        print(f'Der Webserver ist erreichbar unter "{local_address}:{port}{prefix}"')
 
         shared_state.set_connection_info(local_address, port, prefix)
 
@@ -161,7 +158,7 @@ def main():
             process_watch_packages.start()
 
             if shared_state.values["gui"]:
-                gui.main_gui(window, icon, shared_state_dict, shared_state_lock)
+                gui.main_gui(window, shared_state_dict, shared_state_lock)
 
                 sys.stdout = sys.__stdout__
                 process_web_server.terminate()

@@ -5,6 +5,7 @@
 
 import os
 import platform
+import signal
 import sys
 import tkinter as tk
 import webbrowser
@@ -74,6 +75,10 @@ def center_window(window):
 
 def create_main_window():
     root = tk.Tk()
+    signal.signal(signal.SIGINT, lambda x, y: root.destroy())
+    tk_check = lambda: root.after(500, tk_check)
+    root.after(500, tk_check)
+
     root.withdraw()
 
     root.title(title)
@@ -106,32 +111,27 @@ def create_main_window():
             root.deiconify()
             root.lift()
 
+    center_window(root)
+
+    root.protocol("WM_DELETE_WINDOW", show_window)
+
     icon = get_tray_icon(show_window, quit_window)
+    icon.run_detached()
 
-    return root, icon
+    return root
 
 
-def main_gui(root, icon, shared_state_dict, shared_state_lock):
-    def to_tray():
-        root.withdraw()
-
+def main_gui(root, shared_state_dict, shared_state_lock):
     try:
-        root.deiconify()
-        root.protocol("WM_DELETE_WINDOW", to_tray)
-
-        to_tray()
-        icon.run_detached()
-
         def print_from_queue_periodically(shared_state_dict, shared_state_lock):
             print_from_queue(shared_state_dict, shared_state_lock)
             root.after(500, lambda: print_from_queue_periodically(shared_state_dict, shared_state_lock))
 
         print_from_queue_periodically(shared_state_dict, shared_state_lock)
-        center_window(root)
         root.mainloop()
 
     except KeyboardInterrupt:
-        pass
+        root.destroy()
 
 
 class PrintToGui(object):

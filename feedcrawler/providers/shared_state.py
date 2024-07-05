@@ -8,6 +8,7 @@ import os
 import platform
 import sys
 import time
+import webbrowser
 from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import Jddevice, Myjdapi
@@ -36,16 +37,15 @@ def update(key, value):
         lock.release()
 
 
-def set_initial_values(do_not_use_gui):
-    if (os.environ.get('DOCKER') or
-            do_not_use_gui or
-            (not platform.system() == 'Windows' and
-             not os.environ.get('DISPLAY'))
-    ):
+def set_initial_values():
+    if (os.environ.get('DOCKER') or (
+            not platform.system() == 'Windows' and not platform.system() == 'Darwin' and not os.environ.get(
+        'DISPLAY'))):
         gui_enabled = False
     else:
         gui_enabled = True
     update("gui", gui_enabled)
+    update("gui_active_in_tray_and_browser_opened_for_config_once", False)
     update("ww_blocked", False)
     update("sf_blocked", False)
     update("user_agent",
@@ -90,6 +90,13 @@ def set_logger():
 
 def set_sites():
     update("sites", ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"])
+
+
+def gui_active_in_tray_and_browser_opened_for_config_once():
+    if values["gui"] and not values["gui_active_in_tray_and_browser_opened_for_config_once"]:
+        webbrowser.open(f"http://localhost:9090?cache_bust={int(time.time())}")
+        update("gui_active_in_tray_and_browser_opened_for_config_once", True)
+        return True
 
 
 def set_device(new_device):

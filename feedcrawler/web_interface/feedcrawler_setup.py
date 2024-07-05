@@ -18,7 +18,7 @@ from feedcrawler.web_interface.serve.server import Server
 from feedcrawler.web_interface.serve.setup import render_form, render_button, render_success, render_fail
 
 
-def path_config(port, local_address):
+def path_config(port, local_address, shared_state):
     app = Bottle()
 
     current_path = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -60,6 +60,7 @@ def path_config(port, local_address):
         return render_success(f"Konfigurationspfad gesetzt auf: {config_path}",
                               5)
 
+    shared_state.gui_active_in_tray_and_browser_opened_for_config_once()
     print(f'Starte temporären Webserver unter "{local_address}:{port}".')
     print("Bitte dort den Konfigurationspfad einstellen!")
     return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
@@ -122,12 +123,13 @@ def hostnames_config(port, local_address, shared_state):
         else:
             return render_fail("Es wurde kein valider Hostnamen konfiguriert!")
 
+    shared_state.gui_active_in_tray_and_browser_opened_for_config_once()
     print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
     print("Bitte dort die Hostnamen konfigurieren!")
     return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
 
 
-def myjd_config(port, local_address):
+def myjd_config(port, local_address, shared_state):
     app = Bottle()
 
     @app.get('/')
@@ -232,6 +234,7 @@ def myjd_config(port, local_address):
 
         return render_fail("Zugangsdaten fehlerhaft!")
 
+    shared_state.gui_active_in_tray_and_browser_opened_for_config_once()
     print(
         f'My-JDownloader-Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
     print("Bitte dort die My-JDownloader-Zugangsdaten konfigurieren!")

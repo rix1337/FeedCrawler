@@ -113,7 +113,6 @@ Welche das sind, entscheiden Anwender selbständig bei der Einrichtung. Es gilt 
 | ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
 | ```--port=<PORT>```          | Legt den Port des Webservers fest                                                             |
 | ```--delay=<SEKUNDEN>```     | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional)                            |
-| ```--no-gui```               | Startet FeedCrawler ohne GUI (optional)                                                       |
 
 ## Sicherheitshinweis
 
