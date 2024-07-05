@@ -21,9 +21,9 @@ def imdb_id_not_none(f):
     def check_imdb_id_not_none(imdb_id=None):
         if not type(imdb_id) == str or not imdb_id.startswith('tt'):
             caller = traceback.extract_stack(f=None, limit=None)[-2]
-            detailed_trace = "In " + str(caller.name) + ":" + str(caller.lineno) + ", Aufruf: " + str(caller.line)
-            print("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
-            shared_state.logger.debug("Ein Aufruf ohne IMDb-ID ist nicht möglich! - " + detailed_trace)
+            detailed_trace = f"In {caller.name}:{caller.lineno}, Aufruf: {caller.line}"
+            print(f"Ein Aufruf ohne IMDb-ID ist nicht möglich! - {detailed_trace}")
+            shared_state.logger.debug(f"Ein Aufruf ohne IMDb-ID ist nicht möglich! - {detailed_trace}")
             return False
         return f(imdb_id)
 
@@ -78,14 +78,12 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
 
     query = quote(title)
 
-    if current_list == 'List_ContentAll_Seasons':
-        query = query + "&s=tt&ttype=tv&ref_=fn_tv"
-    else:
-        query = query + "&s=tt&ttype=ft&ref_=fn_ft"
+    ttype = 'tv' if current_list == 'List_ContentAll_Seasons' else 'ft'
+    query += f"&s=tt&ttype={ttype}&ref_=fn_{ttype}"
 
     imdb_id = False
 
-    request = get_url_headers("https://www.imdb.com/find/?q=" + query, headers={'Accept-Language': language})
+    request = get_url_headers(f"https://www.imdb.com/find/?q={query}", headers={'Accept-Language': language})
 
     if request["status_code"] == 200:
         soup = BeautifulSoup(request["text"], "html.parser")
@@ -98,24 +96,24 @@ def get_imdb_id_from_title(title, current_list="NoList", language="de", year_in_
                 year = ""
                 if year_in_title:
                     try:
-                        year = ' ' + result['titleReleaseText']
+                        year = f" {result['titleReleaseText']}"
                     except KeyError:
                         year = " 9999"
-                if simplified_search_term_in_title(title, result['titleNameText'] + year):
+                if simplified_search_term_in_title(title, f"{result['titleNameText']}{year}"):
                     imdb_id = result['id']
                     break
     else:
-        print("IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
-        shared_state.logger.debug("IMDb-Abfrage fehlgeschlagen: " + str(request["status_code"]))
+        print(f"IMDb-Abfrage fehlgeschlagen: {request['status_code']}")
+        shared_state.logger.debug(f"IMDb-Abfrage fehlgeschlagen: {request['status_code']}")
 
     if not imdb_id:
-        shared_state.logger.debug("[IMDb] - %s - Keine ID gefunden" % title.replace("+", " "))
+        shared_state.logger.debug(f"[IMDb] - {title.replace('+', ' ')} - Keine ID gefunden")
     return imdb_id
 
 
 @imdb_id_not_none
 def get_poster_link(imdb_id):
-    request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+    request = get_url(f"https://www.imdb.com/title/{imdb_id}/")
     soup = BeautifulSoup(request, "html.parser")
     try:
         poster_set = soup.find('div', class_='ipc-poster').div.img[
@@ -133,7 +131,7 @@ def original_language_not_german(imdb_id):
     original_language = False
 
     try:
-        request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+        request = get_url(f"https://www.imdb.com/title/{imdb_id}/")
         soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
@@ -144,12 +142,12 @@ def original_language_not_german(imdb_id):
 
     if original_language and original_language == "de":
         shared_state.logger.debug(
-            "[IMDb] - %s - Original-Sprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!" % imdb_id)
+            f"[IMDb] - {imdb_id} - Original-Sprache ist Deutsch. Breche Suche nach zweisprachigem Release ab!")
         return False
 
     if not original_language:
-        print("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Original-Sprache nicht ermittelbar" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Original-Sprache nicht ermittelbar")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Original-Sprache nicht ermittelbar")
 
     return original_language
 
@@ -159,7 +157,7 @@ def get_episodes(imdb_id):
     episodes = False
 
     try:
-        request = get_url("https://www.imdb.com/title/%s/episodes?ref_=tt_eps_sm" % imdb_id)
+        request = get_url(f"https://www.imdb.com/title/{imdb_id}/episodes?ref_=tt_eps_sm")
         soup = BeautifulSoup(request, "html.parser")
         seasons = soup.find("select", {"id": "bySeason"}).findAll("option")
         if len(seasons) > 0:
@@ -168,7 +166,7 @@ def get_episodes(imdb_id):
                 i = 1
                 sn = sn["value"]
                 eps = []
-                request = get_url("https://www.imdb.com/title/" + imdb_id + "/episodes?season=" + sn)
+                request = get_url(f"https://www.imdb.com/title/{imdb_id}/episodes?season={sn}")
                 soup = BeautifulSoup(request, "html.parser")
                 details = soup.findAll("div", {"itemprop": "episodes"})
                 for _ in details:
@@ -179,8 +177,8 @@ def get_episodes(imdb_id):
         pass
 
     if not episodes:
-        print("[IMDb] - %s - Keine Folgen gefunden" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Keine Folgen gefunden" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Keine Folgen gefunden")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Keine Folgen gefunden")
 
     return episodes
 
@@ -190,7 +188,7 @@ def get_localized_title(imdb_id):
     localized_title = False
 
     try:
-        request = get_url_headers("https://www.imdb.com/title/%s/" % imdb_id, headers={'Accept-Language': 'de'})
+        request = get_url_headers(f"https://www.imdb.com/title/{imdb_id}/", headers={'Accept-Language': 'de'})
         match = re.findall(r'<title>(.*?) \(.*?</title>', request["text"])
         localized_title = match[0]
     except:
@@ -201,8 +199,8 @@ def get_localized_title(imdb_id):
             pass
 
     if not localized_title:
-        print("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Deutscher Titel nicht ermittelbar" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Deutscher Titel nicht ermittelbar")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Deutscher Titel nicht ermittelbar")
 
     return localized_title
 
@@ -212,7 +210,7 @@ def get_rating(imdb_id):
     rating = False
 
     try:
-        request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+        request = get_url(f"https://www.imdb.com/title/{imdb_id}/")
         soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
@@ -221,8 +219,8 @@ def get_rating(imdb_id):
         pass
 
     if not rating:
-        print("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Bewertungen nicht ermittelbar" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Bewertungen nicht ermittelbar")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Bewertungen nicht ermittelbar")
 
     return rating
 
@@ -232,7 +230,7 @@ def get_votes(imdb_id):
     votes = False
 
     try:
-        request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+        request = get_url(f"https://www.imdb.com/title/{imdb_id}/")
         soup = BeautifulSoup(request, "html.parser")
         props = soup.find("script", text=re.compile("props"))
         details = loads(props.string)
@@ -241,8 +239,8 @@ def get_votes(imdb_id):
         pass
 
     if not votes:
-        print("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Anzahl der Bewertungen nicht ermittelbar" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Anzahl der Bewertungen nicht ermittelbar")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Anzahl der Bewertungen nicht ermittelbar")
 
     return votes
 
@@ -252,14 +250,14 @@ def get_year(imdb_id):
     year = False
 
     try:
-        request = get_url("https://www.imdb.com/title/%s/" % imdb_id)
+        request = get_url(f"https://www.imdb.com/title/{imdb_id}/")
         match = re.findall(r'<title>(?:.*?) \(.*?(\d{4}).*</title>', request)
         year = int("".join(re.findall(r'\d+', str(match[0]))))
     except:
         pass
 
     if not year:
-        print("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
-        shared_state.logger.debug("[IMDb] - %s - Erscheinungsjahr nicht ermittelbar" % imdb_id)
+        print(f"[IMDb] - {imdb_id} - Erscheinungsjahr nicht ermittelbar")
+        shared_state.logger.debug(f"[IMDb] - {imdb_id} - Erscheinungsjahr nicht ermittelbar")
 
     return year

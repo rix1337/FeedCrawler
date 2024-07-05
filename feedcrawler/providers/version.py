@@ -8,12 +8,12 @@ from urllib.request import urlopen
 
 
 def get_version():
-    return "20.0.2"
+    return "20.0.3"
 
 
 def create_version_file():
     version = get_version()
-    version_clean = re.sub('[^\d\.]', '', version)
+    version_clean = re.sub(r'[^\d.]', '', version)
     if "a" in version:
         suffix = version.split("a")[1]
     else:
@@ -22,10 +22,8 @@ def create_version_file():
     version_info = [
         "VSVersionInfo(",
         "  ffi=FixedFileInfo(",
-        "    filevers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(
-            int(version_split[2])) + ", " + str(int(suffix)) + "),",
-        "    prodvers=(" + str(int(version_split[0])) + ", " + str(int(version_split[1])) + ", " + str(
-            int(version_split[2])) + ", " + str(int(suffix)) + "),",
+        f"    filevers=({int(version_split[0])}, {int(version_split[1])}, {int(version_split[2])}, {int(suffix)}),",
+        f"    prodvers=({int(version_split[0])}, {int(version_split[1])}, {int(version_split[2])}, {int(suffix)}),",
         "    mask=0x3f,",
         "    flags=0x0,",
         "    OS=0x4,",
@@ -40,14 +38,14 @@ def create_version_file():
         "        u'040704b0',",
         "        [StringStruct(u'CompanyName', u'RiX'),",
         "        StringStruct(u'FileDescription', u'FeedCrawler'),",
-        "        StringStruct(u'FileVersion', u'" + str(int(version_split[0])) + "." + str(
-            int(version_split[1])) + "." + str(int(version_split[2])) + "." + str(int(suffix)) + "'),",
+        f"        StringStruct(u'FileVersion', u'{int(version_split[0])}.{int(version_split[1])}."
+        f"{int(version_split[2])}.{int(suffix)}'),",
         "        StringStruct(u'InternalName', u'FeedCrawler'),",
         "        StringStruct(u'LegalCopyright', u'Copyright © RiX'),",
         "        StringStruct(u'OriginalFilename', u'FeedCrawler.exe'),",
         "        StringStruct(u'ProductName', u'FeedCrawler'),",
-        "        StringStruct(u'ProductVersion', u'" + str(int(version_split[0])) + "." + str(
-            int(version_split[1])) + "." + str(int(version_split[2])) + "." + str(int(suffix)) + "')])",
+        f"        StringStruct(u'ProductVersion', u'{int(version_split[0])}.{int(version_split[1])}."
+        f"{int(version_split[2])}.{int(suffix)}')])",
         "      ]),",
         "    VarFileInfo([VarStruct(u'Translation', [1031, 1200])])",
         "  ]",
@@ -86,9 +84,9 @@ def update_check():
         else:
             update = False
         if update:
-            return True, "v." + "".join(onlineversion)
+            return True, f"v.{onlineversion}"
         else:
-            return False, "v." + "".join(localversion)
+            return False, f"v.{localversion}"
     except:
         return False, "Error"
 

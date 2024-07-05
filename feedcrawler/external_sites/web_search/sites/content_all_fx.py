@@ -29,7 +29,8 @@ def fx_search_results(content, search_term):
 
     for link in links:
         article = BeautifulSoup(str(link), "html.parser")
-        titles = article.find_all("a", href=re.compile("(filecrypt|safe." + fx + ")"))
+        pattern = re.compile(f"(filecrypt|safe.{fx})")
+        titles = article.find_all("a", href=pattern)
         for title in titles:
             try:
                 link = article.find("link", rel="canonical")["href"]

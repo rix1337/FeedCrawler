@@ -1,119 +1,41 @@
 # -*- coding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt den Webserver und sämtliche APIs des FeedCrawlers bereit.
-
-import sys
-from io import StringIO
-
-if sys.stdout is None:  # required to allow pyinstaller --noconsole to work
-    sys.stdout = StringIO()
-if sys.stderr is None:  # required to allow pyinstaller --noconsole to work
-    sys.stderr = StringIO()
+# Dieses Modul stellt die API des FeedCrawlers bereit.
 
 import ast
 import json
 import os
 import re
 import site
+import sys
 import time
 from functools import wraps
-from socketserver import ThreadingMixIn
 from urllib import parse
-from wsgiref.simple_server import make_server, WSGIServer, WSGIRequestHandler
 from xml.etree import ElementTree
 
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
-from bottle import Bottle, abort, redirect, request, static_file, HTTPError
+from bottle import Bottle, request, HTTPError, static_file, redirect, abort
 from bs4 import BeautifulSoup
 
-import feedcrawler.external_tools.myjd_api
+import feedcrawler.external_sites
 from feedcrawler.external_sites.feed_search.shared import add_decrypt_instead_of_download
 from feedcrawler.external_sites.web_search.shared import search_web
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-from feedcrawler.external_tools.plex_api import get_client_id
-from feedcrawler.external_tools.plex_api import get_plex_headers
-from feedcrawler.providers import gui
-from feedcrawler.providers import version, shared_state
-from feedcrawler.providers.common_functions import Unbuffered
-from feedcrawler.providers.common_functions import check_is_site
-from feedcrawler.providers.common_functions import decode_base64
-from feedcrawler.providers.common_functions import get_to_decrypt
-from feedcrawler.providers.common_functions import keep_alphanumeric_with_regex_characters
-from feedcrawler.providers.common_functions import keep_alphanumeric_with_special_characters
-from feedcrawler.providers.common_functions import keep_numbers
-from feedcrawler.providers.common_functions import remove_decrypt
-from feedcrawler.providers.common_functions import enable_decrypt
-from feedcrawler.providers.common_functions import disable_decrypt
-from feedcrawler.providers.common_functions import rreplace
+from feedcrawler.external_tools.plex_api import get_plex_headers, get_client_id
+from feedcrawler.providers import shared_state, version
+from feedcrawler.providers.common_functions import decode_base64, check_is_site, get_to_decrypt, remove_decrypt, \
+    enable_decrypt, keep_alphanumeric_with_special_characters, keep_alphanumeric_with_regex_characters, keep_numbers, \
+    disable_decrypt, rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import set_device
-from feedcrawler.providers.myjd_connection import do_add_decrypted
-from feedcrawler.providers.myjd_connection import download
-from feedcrawler.providers.myjd_connection import set_device_from_config
-from feedcrawler.providers.myjd_connection import get_if_one_device
-from feedcrawler.providers.myjd_connection import get_info
-from feedcrawler.providers.myjd_connection import get_packages_in_linkgrabber
-from feedcrawler.providers.myjd_connection import get_state
-from feedcrawler.providers.myjd_connection import jdownloader_pause
-from feedcrawler.providers.myjd_connection import jdownloader_start
-from feedcrawler.providers.myjd_connection import jdownloader_stop
-from feedcrawler.providers.myjd_connection import jdownloader_update
-from feedcrawler.providers.myjd_connection import move_to_downloads
-from feedcrawler.providers.myjd_connection import remove_from_linkgrabber
-from feedcrawler.providers.myjd_connection import reset_in_downloads
-from feedcrawler.providers.myjd_connection import retry_decrypt
-from feedcrawler.providers.myjd_connection import set_enabled
+from feedcrawler.providers.myjd_connection import set_device, get_info, set_device_from_config, get_state, set_enabled, \
+    move_to_downloads, remove_from_linkgrabber, reset_in_downloads, retry_decrypt, jdownloader_start, jdownloader_pause, \
+    jdownloader_stop, jdownloader_update, do_add_decrypted, get_packages_in_linkgrabber, download
 from feedcrawler.providers.notifications import notify
-from feedcrawler.providers.sqlite_database import FeedDb
-from feedcrawler.providers.sqlite_database import ListDb
-from feedcrawler.providers.url_functions import get_url_headers, get_url
-from feedcrawler.providers.url_functions import post_url_headers
-
-
-class ThreadingWSGIServer(ThreadingMixIn, WSGIServer):
-    daemon_threads = True
-
-
-class NoLoggingWSGIRequestHandler(WSGIRequestHandler):
-    def log_message(self, format, *args):
-        pass
-
-
-temp_server_success = False
-
-
-class Server:
-    def __init__(self, wsgi_app, listen='127.0.0.1', port=8080):
-        self.wsgi_app = wsgi_app
-        self.listen = listen
-        self.port = port
-        self.server = make_server(self.listen, self.port, self.wsgi_app,
-                                  ThreadingWSGIServer, handler_class=NoLoggingWSGIRequestHandler)
-
-    def serve_temporarily(self):
-        global temp_server_success
-        self.server.timeout = 1
-        try:
-            while not temp_server_success:
-                self.server.handle_request()
-            self.server.handle_request()  # handle the last request
-        except KeyboardInterrupt:
-            self.server.server_close()
-            return False
-        time.sleep(1)
-        self.server.server_close()
-        temp_server_success = False
-        return True
-
-    def serve_forever(self):
-        try:
-            self.server.serve_forever()
-        except KeyboardInterrupt:
-            self.server.shutdown()
-            self.server.server_close()
-
+from feedcrawler.providers.sqlite_database import FeedDb, ListDb
+from feedcrawler.providers.url_functions import get_url_headers, post_url_headers, get_url
+from feedcrawler.web_interface.serve.server import Server
 
 helper_active = False
 already_added = []
@@ -132,7 +54,7 @@ def app_container():
     base_dir = './feedcrawler'
     if getattr(sys, 'frozen', False):
         base_dir = os.path.join(sys._MEIPASS).replace("\\", "/")
-    elif shared_state.values["docker"]:
+    elif os.environ.get('DOCKER'):
         static_location = site.getsitepackages()[0]
         base_dir = static_location + "/feedcrawler"
 
@@ -161,7 +83,7 @@ def app_container():
                 if auth_user and auth_hash:
                     if user is None or not check_func(user, password):
                         err = HTTPError(401, text)
-                        err.add_header('WWW-Authenticate', 'Basic realm="%s"' % realm)
+                        err.add_header('WWW-Authenticate', f'Basic realm="{realm}"')
                         return err
                 return func(*a, **ka)
 
@@ -342,6 +264,10 @@ def app_container():
             f_conf = CrawlerConfig('CustomF')
             cloudflare_conf = CrawlerConfig('Cloudflare')
             helper_conf = CrawlerConfig('SponsorsHelper')
+            if os.environ.get('DOCKER'):
+                port = 9090
+            else:
+                port = to_int(general_conf.get("port"))
             return {
                 "settings": {
                     "general": {
@@ -351,7 +277,7 @@ def app_container():
                         "myjd_pass": general_conf.get("myjd_pass"),
                         "myjd_device": general_conf.get("myjd_device"),
                         "myjd_auto_update": general_conf.get("myjd_auto_update"),
-                        "port": to_int(general_conf.get("port")),
+                        "port": port,
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
                         "sponsors_helper": general_conf.get("sponsors_helper"),
@@ -472,20 +398,11 @@ def app_container():
             myjd_pass = to_str(data['general']['myjd_pass'])
             myjd_device = to_str(data['general']['myjd_device'])
 
-            if myjd_user and myjd_pass and not myjd_device:
-                myjd_device = get_if_one_device(myjd_user, myjd_pass)
-                if myjd_device:
-                    print("Gerätename " + myjd_device + " automatisch ermittelt.")
-
             if myjd_user and myjd_pass and myjd_device:
                 device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
-                    myjd_device = get_if_one_device(myjd_user, myjd_pass)
-                    if myjd_device:
-                        print("Gerätename " + myjd_device + " automatisch ermittelt.")
-                    else:
-                        print("Fehlerhafte My JDownloader Zugangsdaten. Bitte vor dem Speichern prüfen!")
-                        return abort(400, "Failed")
+                    print("Fehlerhafte My-JDownloader-Zugangsdaten. Bitte vor dem Speichern prüfen!")
+                    return abort(400, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
 
@@ -493,7 +410,11 @@ def app_container():
             section.save("myjd_pass", myjd_pass)
             section.save("myjd_device", myjd_device)
             section.save("myjd_auto_update", myjd_auto_update)
-            section.save("port", to_str(data['general']['port']))
+            if os.environ.get('DOCKER'):
+                port = "9090"
+            else:
+                port = to_str(data['general']['port'])
+            section.save("port", port)
             section.save("prefix", to_str(data['general']['prefix']).lower())
             interval = to_str(data['general']['interval'])
             if to_int(interval) < 5:
@@ -743,19 +664,17 @@ def app_container():
     @auth_basic(is_authenticated_user)
     def get_version():
         try:
-            ver = "v." + version.get_version()
-            if version.update_check()[0]:
-                updateready = True
-                updateversion = version.update_check()[1]
-                print('Update steht bereit (' + updateversion +
-                      ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-            else:
-                updateready = False
+            is_update_ready = False
+            update_check = version.update_check()
+            if update_check[0]:
+                is_update_ready = True
+                print(f'Update steht bereit ({update_check[1]})! '
+                      f'Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
             return {
                 "version": {
-                    "ver": ver,
-                    "update_ready": updateready,
-                    "docker": shared_state.values["docker"],
+                    "ver": "v." + version.get_version(),
+                    "update_ready": is_update_ready,
+                    "docker": bool(os.environ.get('DOCKER')),
                     "helper_active": helper_active
                 }
             }
@@ -1421,44 +1340,42 @@ def app_container():
             hostnames = CrawlerConfig('Hostnames')
             sj = hostnames.get('sj')
             dj = hostnames.get('dj')
-            return """// ==UserScript==
-// @name            FeedCrawler Helper (SJ/DJ)
-// @author          rix1337
-// @description     Forwards decrypted SJ/DJ Download links to FeedCrawler
-// @version         0.3.0
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + sj + """/*
-// @match           https://""" + dj + """/*
-// @exclude         https://""" + sj + """/serie/search?q=*
-// @exclude         https://""" + dj + """/serie/search?q=*
-// ==/UserScript==
-
-document.body.addEventListener('mousedown', function (e) {
-if (e.target.tagName != "A") return;
-var anchor = e.target;
-if (anchor.href.search(/""" + sj + """\/serie\//i) != -1) {
-    anchor.href = anchor.href + '#' + anchor.text;
-} else if (anchor.href.search(/""" + dj + """\/serie\//i) != -1) {
-    anchor.href = anchor.href + '#' + anchor.text;
-}
-});
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0];
-var password = tag[1];
-if (title) {
-$('.wrapper').prepend('<h3>[FeedCrawler Helper] ' + title + '</h3>');
-$(".container").hide();
-var checkExist = setInterval(async function () {
-    if ($("tr:contains('" + title + "')").length) {
-        $(".container").show();
-        $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-        clearInterval(checkExist);
-    }
-}, 100);
-}
-
-"""
+            return f"""// ==UserScript==
+            // @name            FeedCrawler Helper (SJ/DJ)
+            // @author          rix1337
+            // @description     Forwards decrypted SJ/DJ Download links to FeedCrawler
+            // @version         0.3.0
+            // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+            // @match           https://{sj}/*
+            // @match           https://{dj}/*
+            // @exclude         https://{sj}/serie/search?q=*
+            // @exclude         https://{dj}/serie/search?q=*
+            // ==/UserScript==
+            
+            document.body.addEventListener('mousedown', function (e) {{
+            if (e.target.tagName != "A") return;
+            var anchor = e.target;
+            if (anchor.href.search(new RegExp('{sj}/serie//i')) != -1) {{
+                anchor.href = anchor.href + '#' + anchor.text;
+            }} else if (anchor.href.search(new RegExp('{dj}/serie//i')) != -1) {{
+                anchor.href = anchor.href + '#' + anchor.text;
+            }}
+            }});
+            
+            var tag = window.location.hash.replace("#", "").split('|');
+            var title = tag[0];
+            var password = tag[1];
+            if (title) {{
+            $('.wrapper').prepend('<h3>[FeedCrawler Helper] ' + title + '</h3>');
+            $(".container").hide();
+            var checkExist = setInterval(async function () {{
+                if ($("tr:contains('" + title + "')").length) {{
+                    $(".container").show();
+                    $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
+                    clearInterval(checkExist);
+                }}
+            }}, 100);
+            }}"""
         except:
             return abort(400, "Failed")
 
@@ -1471,102 +1388,100 @@ var checkExist = setInterval(async function () {
             hostnames = CrawlerConfig('Hostnames')
             sj = hostnames.get('sj')
             dj = hostnames.get('dj')
-            return """// ==UserScript==
-// @name            FeedCrawler Sponsors Helper (SJ/DJ)
-// @author          rix1337
-// @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
-// @version         0.5.2
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + sj + """/*
-// @match           https://""" + dj + """/*
-// @exclude         https://""" + sj + """/serie/search?q=*
-// @exclude         https://""" + dj + """/serie/search?q=*
-// @grant           window.close
-// ==/UserScript==
-
-// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.values["local_address"] + """';
-// Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
-const sponsorsHoster = '';
-
-$.extend($.expr[':'], {
-'containsi': function(elem, i, match, array) {
-return (elem.textContent || elem.innerText || '').toLowerCase()
-    .indexOf((match[3] || "").toLowerCase()) >= 0;
-}
-});
-
-document.body.addEventListener('mousedown', function (e) {
-if (e.target.tagName != "A") return;
-var anchor = e.target;
-if (anchor.href.search(/""" + sj + """\/serie\//i) != -1) {
-    anchor.href = anchor.href + '#' + anchor.text;
-} else if (anchor.href.search(/""" + dj + """\/serie\//i) != -1) {
-    anchor.href = anchor.href + '#' + anchor.text;
-}
-});
-
-const tag = window.location.hash.replace("#", "").split('|');
-const title = tag[0];
-const password = tag[1];
-if (title && title !== "login") {
-$('.wrapper').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
-$(".container").hide();
-let i = 0;
-const checkExist = setInterval(function () {
-    i++;
-    if ($("tr:contains('" + title + "')").length) {
-        $(".container").show();
-        $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
-        if (i > 24) {
-            const requiresLogin = $(".alert-warning").length;
-            if (requiresLogin) {
-                console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
-                clearInterval(checkExist);
-                window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
-                window.close();
-            }
-            clearInterval(checkExist);
-        } else {
-            console.log("miss")
-        }
-    }
-}, 100);
-
-let j = 0;
-let dl = false;
-const dlExists = setInterval(function () {
-    j++;
-    if ($("tr:contains('Download Part')").length) {
-        const items = $("tr:contains('Download Part')").find("a");
-        const links = [];
-        items.each(function (index) {
-            links.push(items[index].href);
-        });
-        console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
-        clearInterval(dlExists);
-        window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-        window.close();
-    } else if (j > 24 && !dl) {
-        if (sponsorsHoster && $("button:containsi('" + sponsorsHoster + "')").length) {
-            $("button:containsi('" + sponsorsHoster + "')").click();
-        } else if ($("button:containsi('1fichier')").length) {
-            $("button:containsi('1fichier')").click();
-        } else if ($("button:containsi('ddownload')").length) {
-            $("button:containsi('ddownload')").click();
-        } else if ($("button:containsi('turbo')").length) {
-            $("button:containsi('turbo')").click();
-        } else if ($("button:containsi('filer')").length) {
-            $("button:containsi('filer')").click();
-        } else {
-            $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
-        }
-        console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
-        dl = true;
-    }
-}, 100);
-}
-"""
+            return f"""// ==UserScript==
+            // @name            FeedCrawler Sponsors Helper (SJ/DJ)
+            // @version         0.5.2
+            // @description     Clicks the correct download button on SJ/DJ sub pages to speed up Click'n'Load
+            // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+            // @match           https://{sj}/*
+            // @match           https://{dj}/*
+            // @exclude         https://{sj}/serie/search?q=*
+            // @exclude         https://{dj}/serie/search?q=*
+            // @grant           window.close
+            // ==/UserScript==
+            
+            // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
+            const sponsorsURL = '{shared_state.values["local_address"]}';
+            // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
+            const sponsorsHoster = '';
+            
+            $.extend($.expr[':'], {{
+                'containsi': function(elem, i, match, array) {{
+                    return (elem.textContent || elem.innerText || '').toLowerCase()
+                        .indexOf((match[3] || "").toLowerCase()) >= 0;
+                }}
+            }});
+            
+            document.body.addEventListener('mousedown', function (e) {{
+                if (e.target.tagName != "A") return;
+                var anchor = e.target;
+                if (anchor.href.search(new RegExp('{sj}/serie//i')) != -1) {{
+                    anchor.href = anchor.href + '#' + anchor.text;
+                }} else if (anchor.href.search(new RegExp('{dj}/serie//i')) != -1) {{
+                    anchor.href = anchor.href + '#' + anchor.text;
+                }}
+            }});
+            
+            const tag = window.location.hash.replace("#", "").split('|');
+            const title = tag[0];
+            const password = tag[1];
+            if (title && title !== "login") {{
+                $('.wrapper').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
+                $(".container").hide();
+                let i = 0;
+                const checkExist = setInterval(function () {{
+                    i++;
+                    if ($("tr:contains('" + title + "')").length) {{
+                        $(".container").show();
+                        $("tr:contains('" + title + "')")[0].lastChild.firstChild.click();
+                        if (i > 24) {{
+                            const requiresLogin = $(".alert-warning").length;
+                            if (requiresLogin) {{
+                                console.log("[FeedCrawler Sponsors Helper] Login required for: " + title);
+                                clearInterval(checkExist);
+                                window.open("https://" + $(location).attr('hostname') + "#login|" + btoa(window.location));
+                                window.close();
+                            }}
+                            clearInterval(checkExist);
+                        }} else {{
+                            console.log("miss")
+                        }}
+                    }}
+                }}, 100);
+            
+                let j = 0;
+                let dl = false;
+                const dlExists = setInterval(function () {{
+                    j++;
+                    if ($("tr:contains('Download Part')").length) {{
+                        const items = $("tr:contains('Download Part')").find("a");
+                        const links = [];
+                        items.each(function (index) {{
+                            links.push(items[index].href);
+                        }});
+                        console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
+                        clearInterval(dlExists);
+                        window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+                        window.close();
+                    }} else if (j > 24 && !dl) {{
+                        if (sponsorsHoster && $("button:containsi('" + sponsorsHoster + "')").length) {{
+                            $("button:containsi('" + sponsorsHoster + "')").click();
+                        }} else if ($("button:containsi('1fichier')").length) {{
+                            $("button:containsi('1fichier')").click();
+                        }} else if ($("button:containsi('ddownload')").length) {{
+                            $("button:containsi('ddownload')").click();
+                        }} else if ($("button:containsi('turbo')").length) {{
+                            $("button:containsi('turbo')").click();
+                        }} else if ($("button:containsi('filer')").length) {{
+                            $("button:containsi('filer')").click();
+                        }} else {{
+                            $("div.modal-body").find("button.btn.btn-secondary.btn-block").click();
+                        }}
+                        console.log("[FeedCrawler Sponsors Helper] Clicked Download button to trigger reCAPTCHA");
+                        dl = true;
+                    }}
+                }}, 100);
+            }}"""
         except:
             return abort(400, "Failed")
 
@@ -1579,129 +1494,123 @@ const dlExists = setInterval(function () {
         fx = hostnames.get('fx')
         sf = hostnames.get('sf')
         try:
-            return """// ==UserScript==
-// @name            FeedCrawler Sponsors Helper (FC)
-// @author          rix1337
-// @description     Forwards Click'n'Load to FeedCrawler
-// @version         0.7.4
-// @match           *.filecrypt.cc/*
-// @match           *.filecrypt.co/*
-// @match           *.filecrypt.to/*
-// @exclude         http://filecrypt.cc/helper.html*
-// @exclude         http://filecrypt.co/helper.html*
-// @exclude         http://filecrypt.to/helper.html*
-// @grant           window.close
-// ==/UserScript==
-
-// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.values["local_address"] + """';
-// Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
-const sponsorsHoster = '';
-
-const tag = window.location.hash.replace("#", "").split('|');
-const title = tag[0];
-const password = tag[1];
-const ids = tag[2];
-const urlParams = new URLSearchParams(window.location.search);
-
-
-function Sleep(milliseconds) {
-return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-
-let pw = "";
-
-
-let fx = false
-try {
-fx = (document.getElementById("customlogo").getAttribute('src') === '/css/custom/f38ed.png')
-} catch {
-}
-
-const checkPass = setInterval(function () {
-if (document.getElementById("p4assw0rt")) {
-    if (password) {
-        pw = password;
-    } else if (fx) {
-        pw = '""" + fx.split('.')[0] + """';
-    } else {
-        pw = '""" + sf + """';
-    }
-} else {
-    pw = "";
-}
-clearInterval(checkPass);
-}, 100);
-
-const enterPass = setInterval(function () {
-if (pw) {
-    console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
-    try {
-        document.getElementById("p4assw0rt").value = pw;
-        document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
-    } catch (e) {
-        console.log("[FeedCrawler Sponsors Helper] Password set Error: " + e);
-    }
-    clearInterval(enterPass);
-}
-}, 100);
-
-const checkAd = setInterval(function () {
-if (document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)') !== null) {
-    document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)').style.display = 'none';
-    clearInterval(checkAd);
-}
-}, 100);
-
-let mirrorsAvailable = false;
-try {
-mirrorsAvailable = document.querySelector('.mirror').querySelectorAll("a");
-} catch {
-}
-let cnlAllowed = false;
-
-if (mirrorsAvailable && sponsorsHoster) {
-const currentURL = window.location.href;
-let desiredMirror = "";
-let i;
-for (i = 0; i < mirrorsAvailable.length; i++) {
-    if (mirrorsAvailable[i].text.includes(sponsorsHoster)) {
-        let ep = "";
-        const cur_ep = urlParams.get('episode');
-        if (cur_ep) {
-            ep = "&episode=" + cur_ep;
-        }
-        desiredMirror = mirrorsAvailable[i].href + ep + window.location.hash;
-    }
-}
-
-if (desiredMirror) {
-    if (!currentURL.toLowerCase().includes(desiredMirror.toLowerCase())) {
-        console.log("[FeedCrawler Sponsors Helper] switching to desired Mirror: " + sponsorsHoster);
-        window.location = desiredMirror;
-    } else {
-        console.log("[FeedCrawler Sponsors Helper] already at the desired Mirror: " + sponsorsHoster);
-        cnlAllowed = true;
-    }
-} else {
-    console.log("[FeedCrawler Sponsors Helper] desired Mirror not available: " + sponsorsHoster);
-    cnlAllowed = true;
-}
-} else {
-cnlAllowed = true;
-}
-
-
-const cnlExists = setInterval(async function () {
-if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
-    clearInterval(cnlExists);
-    document.getElementById("cnl_btn").click();
-    console.log("[FeedCrawler Sponsors Helper] attempting Click'n'Load");
-    await Sleep(10000);
-    window.close();
-}
-}, 100);
-"""
+            return f"""// ==UserScript==
+            // @name            FeedCrawler Sponsors Helper (FC)
+            // @author          rix1337
+            // @description     Forwards Click'n'Load to FeedCrawler
+            // @version         0.7.4
+            // @match           *.filecrypt.cc/*
+            // @match           *.filecrypt.co/*
+            // @match           *.filecrypt.to/*
+            // @exclude         http://filecrypt.cc/helper.html*
+            // @exclude         http://filecrypt.co/helper.html*
+            // @exclude         http://filecrypt.to/helper.html*
+            // @grant           window.close
+            // ==/UserScript==
+            
+            // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
+            const sponsorsURL = '{shared_state.values["local_address"]}';
+            // Hier kann ein Wunschhoster eingetragen werden (ohne www. und .tld):
+            const sponsorsHoster = '';
+            
+            const tag = window.location.hash.replace("#", "").split('|');
+            const title = tag[0];
+            const password = tag[1];
+            const ids = tag[2];
+            const urlParams = new URLSearchParams(window.location.search);
+            
+            function Sleep(milliseconds) {{
+                return new Promise(resolve => setTimeout(resolve, milliseconds));
+            }}
+            
+            let pw = "";
+            
+            let fx = false;
+            try {{
+                fx = (document.getElementById("customlogo").getAttribute('src') === '/css/custom/f38ed.png')
+            }} catch {{}}
+            
+            const checkPass = setInterval(function () {{
+                if (document.getElementById("p4assw0rt")) {{
+                    if (password) {{
+                        pw = password;
+                    }} else if (fx) {{
+                        pw = '{fx.split('.')[0]}';
+                    }} else {{
+                        pw = '{sf}';
+                    }}
+                }} else {{
+                    pw = "";
+                }}
+                clearInterval(checkPass);
+            }}, 100);
+            
+            const enterPass = setInterval(function () {{
+                if (pw) {{
+                    console.log("[FeedCrawler Sponsors Helper] entering Password: " + pw);
+                    try {{
+                        document.getElementById("p4assw0rt").value = pw;
+                        document.getElementById("p4assw0rt").parentNode.nextElementSibling.click();
+                    }} catch (e) {{
+                        console.log("[FeedCrawler Sponsors Helper] Password set Error: " + e);
+                    }}
+                    clearInterval(enterPass);
+                }}
+            }}, 100);
+            
+            const checkAd = setInterval(function () {{
+                if (document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)') !== null) {{
+                    document.querySelector('#cform > div > div > div > div > ul > li:nth-child(2)').style.display = 'none';
+                    clearInterval(checkAd);
+                }}
+            }}, 100);
+            
+            let mirrorsAvailable = false;
+            try {{
+                mirrorsAvailable = document.querySelector('.mirror').querySelectorAll("a");
+            }} catch {{}}
+            let cnlAllowed = false;
+            
+            if (mirrorsAvailable && sponsorsHoster) {{
+                const currentURL = window.location.href;
+                let desiredMirror = "";
+                let i;
+                for (i = 0; i < mirrorsAvailable.length; i++) {{
+                    if (mirrorsAvailable[i].text.includes(sponsorsHoster)) {{
+                        let ep = "";
+                        const cur_ep = urlParams.get('episode');
+                        if (cur_ep) {{
+                            ep = "&episode=" + cur_ep;
+                        }}
+                        desiredMirror = mirrorsAvailable[i].href + ep + window.location.hash;
+                    }}
+                }}
+            
+                if (desiredMirror) {{
+                    if (!currentURL.toLowerCase().includes(desiredMirror.toLowerCase())) {{
+                        console.log("[FeedCrawler Sponsors Helper] switching to desired Mirror: " + sponsorsHoster);
+                        window.location = desiredMirror;
+                    }} else {{
+                        console.log("[FeedCrawler Sponsors Helper] already at the desired Mirror: " + sponsorsHoster);
+                        cnlAllowed = true;
+                    }}
+                }} else {{
+                    console.log("[FeedCrawler Sponsors Helper] desired Mirror not available: " + sponsorsHoster);
+                    cnlAllowed = true;
+                }}
+            }} else {{
+                cnlAllowed = true;
+            }}
+            
+            const cnlExists = setInterval(async function () {{
+                if (cnlAllowed && document.getElementsByClassName("cnlform").length) {{
+                    clearInterval(cnlExists);
+                    document.getElementById("cnl_btn").click();
+                    console.log("[FeedCrawler Sponsors Helper] attempting Click'n'Load");
+                    await Sleep(10000);
+                    window.close();
+                }}
+            }}, 100);"""
         except:
             return abort(400, "Failed")
 
@@ -1713,53 +1622,53 @@ if (cnlAllowed && document.getElementsByClassName("cnlform").length) {
         hostnames = CrawlerConfig('Hostnames')
         nx = hostnames.get('nx')
         try:
-            return """// ==UserScript==
-// @name            FeedCrawler Sponsors Helper (NX)
-// @author          rix1337
-// @description     Forwards decrypted links to FeedCrawler
-// @version         0.1.1
-// @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
-// @match           https://""" + nx + """/release/*
-// @grant           window.close
-// ==/UserScript==
-// Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
-const sponsorsURL = '""" + shared_state.values["local_address"] + """';
-
-function Sleep(milliseconds) {
-    return new Promise(resolve => setTimeout(resolve, milliseconds));
-}
-
-var tag = window.location.hash.replace("#", "").split('|');
-var title = tag[0];
-var password = '""" + nx + """';
-
-if (title) {
-    await Sleep(3000);
-    $('h2').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
-    var dl = false;
-    var dlExists = setInterval(function() {
-        console.log($("tr:contains("+ title +")").find("a[href*=filer]").length)
-        if ($("tr:contains("+ title +")").find("a[href*=filer]").length) {
-            var link = $("tr:contains("+ title +")").find("a[href*=filer]")[0]["href"].replace("https://referer.to/?", "");
-            var links = [link];
-            console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
-            clearInterval(dlExists);
-            window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
-            window.close();
-        }
-    }, 1000);
-    var tolinkExists = setInterval(function() {
-        console.log($("tr:contains("+ title +")").find("a[href*=tolink]").length)
-        if ($("tr:contains("+ title +")").find("a[href*=tolink]").length) {
-            var link = $("tr:contains("+ title +")").find("a[href*=tolink]")[0]["href"].replace("https://referer.to/?", "");
-            var links = [link];
-            console.log("[FeedCrawler Sponsors Helper] found encrypted download links: " + links);
-            clearInterval(tolinkExists);
-            window.open(sponsorsURL + '/sponsors_helper/replace_decrypt/' + btoa(links + '|' + title + '|' + password));
-            window.close();
-        }
-    }, 1000);
-}"""
+            return f"""// ==UserScript==
+            // @name            FeedCrawler Sponsors Helper (NX)
+            // @author          rix1337
+            // @description     Forwards decrypted links to FeedCrawler
+            // @version         0.1.1
+            // @require         https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js
+            // @match           https://{nx}/release/*
+            // @grant           window.close
+            // ==/UserScript==
+            // Hier muss die von außen erreichbare Adresse des FeedCrawlers stehen (nicht bspw. die Docker-interne):
+            const sponsorsURL = '{shared_state.values["local_address"]}';
+            
+            function Sleep(milliseconds) {{
+                return new Promise(resolve => setTimeout(resolve, milliseconds));
+            }}
+            
+            var tag = window.location.hash.replace("#", "").split('|');
+            var title = tag[0];
+            var password = '{nx}';
+            
+            if (title) {{
+                await Sleep(3000);
+                $('h2').prepend('<h3>[FeedCrawler Sponsors Helper] ' + title + '</h3>');
+                var dl = false;
+                var dlExists = setInterval(function() {{
+                    console.log($("tr:contains("+ title +")").find("a[href*=filer]").length)
+                    if ($("tr:contains("+ title +")").find("a[href*=filer]").length) {{
+                        var link = $("tr:contains("+ title +")").find("a[href*=filer]")[0]["href"].replace("https://referer.to/?", "");
+                        var links = [link];
+                        console.log("[FeedCrawler Sponsors Helper] found download links: " + links);
+                        clearInterval(dlExists);
+                        window.open(sponsorsURL + '/sponsors_helper/to_download/' + btoa(links + '|' + title + '|' + password));
+                        window.close();
+                    }}
+                }}, 1000);
+                var tolinkExists = setInterval(function() {{
+                    console.log($("tr:contains("+ title +")").find("a[href*=tolink]").length)
+                    if ($("tr:contains("+ title +")").find("a[href*=tolink]").length) {{
+                        var link = $("tr:contains("+ title +")").find("a[href*=tolink]")[0]["href"].replace("https://referer.to/?", "");
+                        var links = [link];
+                        console.log("[FeedCrawler Sponsors Helper] found encrypted download links: " + links);
+                        clearInterval(tolinkExists);
+                        window.open(sponsorsURL + '/sponsors_helper/replace_decrypt/' + btoa(links + '|' + title + '|' + password));
+                        window.close();
+                    }}
+                }}, 1000);
+            }}"""
         except:
             return abort(400, "Failed")
 
@@ -1884,6 +1793,157 @@ if (title) {
                        "[Link ersetzt] - " + package_name
         return abort(400, "Failed")
 
+    def attempt_download(package_name, links, password, ids):
+        global already_added
+
+        FeedDb('crawldog').store(package_name, 'added')
+        if shared_state.get_device():
+            if ids:
+                try:
+                    ids = ids.replace("%20", "").split(";")
+                    linkids = ids[0]
+                    uuids = ids[1]
+                except:
+                    linkids = False
+                    uuids = False
+                if ids and uuids:
+                    linkids_raw = ast.literal_eval(linkids)
+                    linkids = []
+                    if isinstance(linkids_raw, (list, tuple)):
+                        for linkid in linkids_raw:
+                            linkids.append(linkid)
+                    else:
+                        linkids.append(linkids_raw)
+                    uuids_raw = ast.literal_eval(uuids)
+                    uuids = []
+                    if isinstance(uuids_raw, (list, tuple)):
+                        for uuid in uuids_raw:
+                            uuids.append(uuid)
+                    else:
+                        uuids.append(uuids_raw)
+
+                    remove_from_linkgrabber(linkids, uuids)
+                    remove_decrypt(package_name)
+                    remove_decrypt(package_name, disabled=True)
+            else:
+                is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
+                if not is_episode:
+                    re_name = rreplace(package_name.lower(), "-", ".*", 1)
+                    re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
+                    season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
+                    if season_string:
+                        re_name = re_name.replace(season_string[0], season_string[0] + '.*')
+                    codec_tags = [".h264", ".x264", ".x265", ".h265", ".hevc", ".h.264", ".h.265"]
+                    for tag in codec_tags:
+                        re_name = re_name.replace(tag, ".*264")
+                    web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
+                    for tag in web_tags:
+                        re_name = re_name.replace(tag, ".web.*")
+                    multigroup = re.findall(r'.*-((.*)/(.*))', package_name.lower())
+                    if multigroup:
+                        re_name = re_name.replace(multigroup[0][0],
+                                                  '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
+                else:
+                    re_name = package_name
+                    season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
+
+                if season_string:
+                    season_string = season_string[0].replace("s", "S")
+                else:
+                    season_string = "^unmatchable$"
+                try:
+                    packages = get_packages_in_linkgrabber()
+                except (TokenExpiredException, RequestTimeoutException, MYJDException):
+                    set_device_from_config()
+                    if not shared_state.get_device():
+                        return abort(500, "Failed")
+                    packages = get_packages_in_linkgrabber()
+
+                if packages:
+                    failed = packages[0]
+                    offline = packages[1]
+
+                    def check_if_broken(check_packages):
+                        if check_packages:
+                            for check_package in check_packages:
+                                if re.match(re.compile(re_name), check_package['name'].lower()):
+                                    episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
+                                                         check_package['name'])
+                                    if episode:
+                                        FeedDb('episode_remover').store(package_name,
+                                                                        str(int(episode[0])))
+                                    linkids = check_package['linkids']
+                                    uuids = [check_package['uuid']]
+                                    remove_from_linkgrabber(linkids, uuids)
+                                    remove_decrypt(package_name)
+                                    remove_decrypt(package_name, disabled=True)
+                                    return "<script type='text/javascript'>" \
+                                           "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                                           "[CAPTCHA gelöst] - " + package_name
+
+                    try:
+                        check_if_broken(failed)
+                        check_if_broken(offline)
+                    except:
+                        pass
+
+                packages = get_to_decrypt()
+                if packages:
+                    for package in packages:
+                        if package_name == package["name"].strip():
+                            package_name = package["name"]
+                        elif re.match(re.compile(re_name),
+                                      package['name'].lower().strip().replace(".untouched",
+                                                                              ".*").replace(
+                                          "dd+51",
+                                          "dd.51")):
+                            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
+                            remove_decrypt(package['name'])
+                            remove_decrypt(package['name'], disabled=True)
+                            if episode:
+                                episode_to_keep = str(int(episode[0]))
+                                episode = str(episode[0])
+                                if len(episode) == 1:
+                                    episode = "0" + episode
+                                package_name = package_name.replace(season_string + ".",
+                                                                    season_string + "E" + episode + ".")
+                                episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
+                                if episode_in_remover:
+                                    episode_to_keep = episode_in_remover + "|" + episode_to_keep
+                                    FeedDb('episode_remover').delete(package_name)
+                                    time.sleep(1)
+                                FeedDb('episode_remover').store(package_name, episode_to_keep)
+                                break
+                time.sleep(1)
+                remove_decrypt(package_name)
+                remove_decrypt(package_name, disabled=True)
+            try:
+                epoch = int(time.time())
+                for item in already_added:
+                    if item[0] == package_name:
+                        if int(item[1]) + 5 > epoch:
+                            print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                            return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
+                        else:
+                            already_added.remove(item)
+
+                download(package_name, "FeedCrawler", links, password)
+                db = FeedDb('FeedCrawler')
+                if not db.retrieve(package_name):
+                    db.store(package_name, 'added')
+                try:
+                    notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
+                except:
+                    print("Benachrichtigung konnte nicht versendet werden!")
+                print("[CAPTCHA gelöst] - " + package_name)
+                already_added.append([package_name, str(epoch)])
+                return "<script type='text/javascript'>" \
+                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
+                       "[CAPTCHA gelöst] - " + package_name
+            except:
+                print(package_name + " konnte nicht hinzugefügt werden!")
+                return abort(500, package_name + " konnte nicht hinzugefügt werden!")
+
     @app.get(prefix + "/sponsors_helper/to_download/<payload>")
     def to_download(payload):
         try:
@@ -1936,434 +1996,3 @@ if (title) {
         return abort(400, "Failed")
 
     Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()
-
-
-def attempt_download(package_name, links, password, ids):
-    global already_added
-
-    FeedDb('crawldog').store(package_name, 'added')
-    if shared_state.get_device():
-        if ids:
-            try:
-                ids = ids.replace("%20", "").split(";")
-                linkids = ids[0]
-                uuids = ids[1]
-            except:
-                linkids = False
-                uuids = False
-            if ids and uuids:
-                linkids_raw = ast.literal_eval(linkids)
-                linkids = []
-                if isinstance(linkids_raw, (list, tuple)):
-                    for linkid in linkids_raw:
-                        linkids.append(linkid)
-                else:
-                    linkids.append(linkids_raw)
-                uuids_raw = ast.literal_eval(uuids)
-                uuids = []
-                if isinstance(uuids_raw, (list, tuple)):
-                    for uuid in uuids_raw:
-                        uuids.append(uuid)
-                else:
-                    uuids.append(uuids_raw)
-
-                remove_from_linkgrabber(linkids, uuids)
-                remove_decrypt(package_name)
-                remove_decrypt(package_name, disabled=True)
-        else:
-            is_episode = re.findall(r'.*\.(S\d{1,3}E\d{1,3})\..*', package_name)
-            if not is_episode:
-                re_name = rreplace(package_name.lower(), "-", ".*", 1)
-                re_name = re_name.replace(".untouched", ".*").replace("dd+51", "dd.51")
-                season_string = re.findall(r'.*(s\d{1,3}).*', re_name)
-                if season_string:
-                    re_name = re_name.replace(season_string[0], season_string[0] + '.*')
-                codec_tags = [".h264", ".x264", ".x265", ".h265", ".hevc", ".h.264", ".h.265"]
-                for tag in codec_tags:
-                    re_name = re_name.replace(tag, ".*264")
-                web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
-                for tag in web_tags:
-                    re_name = re_name.replace(tag, ".web.*")
-                multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
-                if multigroup:
-                    re_name = re_name.replace(multigroup[0][0],
-                                              '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')
-            else:
-                re_name = package_name
-                season_string = re.findall(r'.*(s\d{1,3}).*', re_name.lower())
-
-            if season_string:
-                season_string = season_string[0].replace("s", "S")
-            else:
-                season_string = "^unmatchable$"
-            try:
-                packages = get_packages_in_linkgrabber()
-            except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                set_device_from_config()
-                if not shared_state.get_device():
-                    return abort(500, "Failed")
-                packages = get_packages_in_linkgrabber()
-
-            if packages:
-                failed = packages[0]
-                offline = packages[1]
-
-                def check_if_broken(check_packages):
-                    if check_packages:
-                        for check_package in check_packages:
-                            if re.match(re.compile(re_name), check_package['name'].lower()):
-                                episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*',
-                                                     check_package['name'])
-                                if episode:
-                                    FeedDb('episode_remover').store(package_name,
-                                                                    str(int(episode[0])))
-                                linkids = check_package['linkids']
-                                uuids = [check_package['uuid']]
-                                remove_from_linkgrabber(linkids, uuids)
-                                remove_decrypt(package_name)
-                                remove_decrypt(package_name, disabled=True)
-                                return "<script type='text/javascript'>" \
-                                       "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                                       "[CAPTCHA gelöst] - " + package_name
-
-                try:
-                    check_if_broken(failed)
-                    check_if_broken(offline)
-                except:
-                    pass
-
-            packages = get_to_decrypt()
-            if packages:
-                for package in packages:
-                    if package_name == package["name"].strip():
-                        package_name = package["name"]
-                    elif re.match(re.compile(re_name),
-                                  package['name'].lower().strip().replace(".untouched",
-                                                                          ".*").replace(
-                                      "dd+51",
-                                      "dd.51")):
-                        episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', package['name'])
-                        remove_decrypt(package['name'])
-                        remove_decrypt(package['name'], disabled=True)
-                        if episode:
-                            episode_to_keep = str(int(episode[0]))
-                            episode = str(episode[0])
-                            if len(episode) == 1:
-                                episode = "0" + episode
-                            package_name = package_name.replace(season_string + ".",
-                                                                season_string + "E" + episode + ".")
-                            episode_in_remover = FeedDb('episode_remover').retrieve(package_name)
-                            if episode_in_remover:
-                                episode_to_keep = episode_in_remover + "|" + episode_to_keep
-                                FeedDb('episode_remover').delete(package_name)
-                                time.sleep(1)
-                            FeedDb('episode_remover').store(package_name, episode_to_keep)
-                            break
-            time.sleep(1)
-            remove_decrypt(package_name)
-            remove_decrypt(package_name, disabled=True)
-        try:
-            epoch = int(time.time())
-            for item in already_added:
-                if item[0] == package_name:
-                    if int(item[1]) + 5 > epoch:
-                        print(package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                        return abort(500, package_name + " wurde in den letzten 5 Sekunden bereits hinzugefügt")
-                    else:
-                        already_added.remove(item)
-
-            download(package_name, "FeedCrawler", links, password)
-            db = FeedDb('FeedCrawler')
-            if not db.retrieve(package_name):
-                db.store(package_name, 'added')
-            try:
-                notify([{"text": "[CAPTCHA gelöst] - " + package_name}])
-            except:
-                print("Benachrichtigung konnte nicht versendet werden!")
-            print("[CAPTCHA gelöst] - " + package_name)
-            already_added.append([package_name, str(epoch)])
-            return "<script type='text/javascript'>" \
-                   "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
-                   "[CAPTCHA gelöst] - " + package_name
-        except:
-            print(package_name + " konnte nicht hinzugefügt werden!")
-            return abort(500, package_name + " konnte nicht hinzugefügt werden!")
-
-
-def hostnames_config(port, local_address):
-    app = Bottle()
-
-    @app.get('/')
-    def hostname_form():
-        # Serve an HTML form for the user to enter the hostnames
-        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>Mindestens einen Hostnamen konfigurieren</h3>
-                    <form action="/api/hostnames" method="post">
-                        <label for="fx">FX</label><br>
-                        <input type="text" id="fx" name="fx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="sf">SF</label><br>
-                        <input type="text" id="sf" name="sf" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dw">DW</label><br>
-                        <input type="text" id="dw" name="dw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="hw">HW</label><br>
-                        <input type="text" id="hw" name="hw" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="ff">FF</label><br>
-                        <input type="text" id="ff" name="ff" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="by">BY</label><br>
-                        <input type="text" id="by" name="by" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="nk">NK</label><br>
-                        <input type="text" id="nk" name="nk" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="nx">NX</label><br>
-                        <input type="text" id="nx" name="nx" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="ww">WW</label><br>
-                        <input type="text" id="ww" name="ww" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="sj">SJ</label><br>
-                        <input type="text" id="sj" name="sj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dj">DJ</label><br>
-                        <input type="text" id="dj" name="dj" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="dd">DD</label><br>
-                        <input type="text" id="dd" name="dd" placeholder="example.com" style="width: 80%; margin-bottom: 10px;"><br>
-                        <button type="submit">Speichern</button>
-                    </form>
-                </div>
-            </div>
-        '''
-
-    @app.post("/api/hostnames")
-    def set_hostnames():
-        hostnames = CrawlerConfig('Hostnames')
-        hostname_keys = ['fx', 'sf', 'dw', 'hw', 'ff', 'by', 'nk', 'nx', 'ww', 'sj', 'dj', 'dd']
-
-        hostname_set = False
-
-        for key in hostname_keys:
-            hostname = request.forms.get(key)
-            try:
-                hostname = extract_domain(hostname)
-            except Exception as e:
-                print(f"Error extracting domain from {hostname}: {e}")
-                continue
-
-            if hostname:
-                hostnames.save(key, hostname)
-                hostname_set = True
-
-        if hostname_set:
-            global temp_server_success
-            temp_server_success = True
-            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>Mindestens ein Hostnamen konfiguriert! Fahre fort...</h3>
-                    <button id="weiterButton" disabled>Wartezeit... 10</button>
-                    <script>
-                        var counter = 10;
-                        var interval = setInterval(function() {
-                            counter--;
-                            document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
-                            if (counter === 0) {
-                                clearInterval(interval);
-                                document.getElementById('weiterButton').innerText = 'Weiter';
-                                document.getElementById('weiterButton').disabled = false;
-                                document.getElementById('weiterButton').onclick = function() {
-                                    window.location.href='/';
-                                }
-                            }
-                        }, 1000);
-                    </script>
-                </div>
-            </div>"""
-        else:
-            return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                        <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                            <h1>FeedCrawler</h1>
-                            <h3>Es wurde kein valider Hostnamen konfiguriert!</h3>
-                            <button onclick="window.location.href='/'">Zurück</button>
-                        </div>
-                    </div>"""
-
-    def extract_domain(url):
-        try:
-            if '://' not in url:
-                url = 'http://' + url
-            result = parse.urlparse(url)
-            return result.netloc
-        except Exception as e:
-            print(f"Error parsing URL {url}: {e}")
-            return None
-
-    print(f'Hostnamen nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver oder lokal in der FeedCrawler.ini die Hostnamen konfigurieren!")
-    print("Erst nach erfolgreicher Konfiguration der Hostnamen wird der FeedCrawler starten.")
-    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
-
-
-def myjd_config(port, local_address):
-    app = Bottle()
-
-    @app.get('/')
-    def hostname_form():
-        # Serve an HTML form for the user to enter the hostnames
-        return '''<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                    <h1>FeedCrawler</h1>
-                    <h3>My JDownloader Zugangsdaten konfigurieren</h3>
-                    <form id="verifyForm" action="/api/verify_myjd" method="post">
-                        <label for="user">Nutzername/Email</label><br>
-                        <input type="text" id="user" name="user" placeholder="Username" style="width: 80%; margin-bottom: 10px;"><br>
-                        <label for="pass">Passwort</label><br>
-                        <input type="password" id="pass" name="pass" placeholder="Password" style="width: 80%; margin-bottom: 10px;"><br>
-                        <button id="verifyButton" type="button" onclick="verifyCredentials()">Geräte abrufen</button>
-                    </form>
-                    <form action="/api/store_myjd" method="post" id="deviceForm" style="display: none;">
-                        <input type="hidden" id="hiddenUser" name="user">
-                        <input type="hidden" id="hiddenPass" name="pass">
-                        <label for="device">Gerät</label><br>
-                        <select id="device" name="device" style="width: 80%; margin-bottom: 10px;"></select><br>
-                        <button type="submit">Speichern</button>
-                    </form>
-                </div>
-            </div>
-            <script>
-            function verifyCredentials() {
-                var user = document.getElementById('user').value;
-                var pass = document.getElementById('pass').value;
-                fetch('/api/verify_myjd', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({user: user, pass: pass}),
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        var select = document.getElementById('device');
-                        data.devices.forEach(device => {
-                            var opt = document.createElement('option');
-                            opt.value = device;
-                            opt.innerHTML = device;
-                            select.appendChild(opt);
-                        });
-                        document.getElementById('hiddenUser').value = document.getElementById('user').value;
-                        document.getElementById('hiddenPass').value = document.getElementById('pass').value;
-                        document.getElementById("verifyButton").style.display = "none";
-                        document.getElementById('deviceForm').style.display = 'block';
-                    } else {
-                        alert('Fehler! Bitte die Zugangsdaten überprüfen.');
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
-            }
-            </script>'''
-
-    def get_devices(myjd_user, myjd_pass):
-        import feedcrawler.external_tools.myjd_api
-        from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
-
-        jd = feedcrawler.external_tools.myjd_api.Myjdapi()
-        jd.set_app_key('FeedCrawler')
-        try:
-            jd.connect(myjd_user, myjd_pass)
-            jd.update_devices()
-            devices = jd.list_devices()
-            return devices
-        except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-            print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
-            return []
-
-    @app.post("/api/verify_myjd")
-    def verify_myjd():
-        data = request.json
-        username = data['user']
-        password = data['pass']
-
-        devices = get_devices(username, password)
-        device_names = []
-
-        if devices:
-            for device in devices:
-                device_names.append(device['name'])
-
-        if device_names:
-            return {"success": True, "devices": device_names}
-        else:
-            return {"success": False}
-
-    @app.post("/api/store_myjd")
-    def store_myjd():
-        username = request.forms.get('user')
-        password = request.forms.get('pass')
-        device = request.forms.get('device')
-
-        config = CrawlerConfig('FeedCrawler')
-
-        if username and password and device:
-            config.save('myjd_user', username)
-            config.save('myjd_pass', password)
-            config.save('myjd_device', device)
-
-            if not set_device_from_config():
-                config.save('myjd_user', "")
-                config.save('myjd_pass', "")
-                config.save('myjd_device', "")
-            else:
-                global temp_server_success
-                temp_server_success = True
-                return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                            <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                                <h1>FeedCrawler</h1>
-                                <h3>Zugangsdaten erfolgreich gespeichert! Fahre fort...</h3>
-                                <button id="weiterButton" disabled>Wartezeit... 10</button>
-                                <script>
-                                    var counter = 10;
-                                    var interval = setInterval(function() {
-                                        counter--;
-                                        document.getElementById('weiterButton').innerText = 'Wartezeit... ' + counter;
-                                        if (counter === 0) {
-                                            clearInterval(interval);
-                                            document.getElementById('weiterButton').innerText = 'Weiter';
-                                            document.getElementById('weiterButton').disabled = false;
-                                            document.getElementById('weiterButton').onclick = function() {
-                                                window.location.href='/';
-                                            }
-                                        }
-                                    }, 1000);
-                                </script>
-                            </div>
-                        </div>"""
-
-        return """<div style="display: flex; justify-content: center; align-items: center; height: 100vh; background-color: rgb(33, 37, 41);">
-                    <div style="background-color: white; border-radius: 10px; box-shadow: 0px 0px 10px 2px rgba(0,0,0,0.1); padding: 20px; text-align: center;">
-                        <h1>FeedCrawler</h1>
-                        <h3>Zugangsdaten fehlerhaft!</h3>
-                        <button onclick="window.location.href='/'">Zurück</button>
-                    </div>
-                </div>"""
-
-    print(
-        f'My JDownloader Zugangsdaten nicht konfiguriert. Starte temporären Webserver unter "{local_address}:{port}".')
-    print("Bitte im Webserver die My JDownloader Zugangsdaten konfigurieren!")
-    print("Erst nach erfolgreicher Konfiguration der My JDownloader Zugangsdaten wird der FeedCrawler starten.")
-    return Server(app, listen='0.0.0.0', port=port).serve_temporarily()
-
-
-def web_server(shared_state_dict, shared_state_lock):
-    if shared_state_dict["gui"]:
-        sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
-    else:
-        sys.stdout = Unbuffered(sys.stdout)
-
-    shared_state.set_state(shared_state_dict, shared_state_lock)
-    shared_state.set_logger()
-
-    if version.update_check()[0]:
-        updateversion = version.update_check()[1]
-        print('Update steht bereit (' + updateversion +
-              ')! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
-
-    app_container()

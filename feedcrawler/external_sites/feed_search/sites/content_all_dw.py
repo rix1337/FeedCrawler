@@ -21,7 +21,7 @@ from feedcrawler.providers.url_functions import get_url, get_url_headers, get_ur
 
 
 class BL:
-    _SITE = 'DW'
+    SITE = 'DW'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -51,9 +51,9 @@ class BL:
         self.cdc = FeedDb('cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self.SITE + "Headers-" + self.filename))}
 
-        self.last_sha = self.cdc.retrieve(self._SITE + "-" + self.filename)
+        self.last_sha = self.cdc.retrieve(self.SITE + "-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
                     "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
@@ -106,8 +106,8 @@ def dw_get_download_links(self, content, title):
                 if dw in link:
                     match = re.search(r'https://' + dw + r'/azn/af\.php\?v=([A-Z0-9]+)(#.*)?', link)
                     if match:
-                        link = 'https://filecrypt.cc/' + 'Container/' + match.group(1) + '.html' + (
-                            match.group(2) if match.group(2) else '')
+                        link = (f'https://filecrypt.cc/Container/{match.group(1)}'
+                                f'.html{match.group(2) if match.group(2) else ""}')
 
                 hoster = button.nextSibling.img["src"].split("/")[-1].replace(".png", "")
                 download_links.append([link, hoster])

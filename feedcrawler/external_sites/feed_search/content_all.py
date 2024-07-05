@@ -82,7 +82,7 @@ def search_imdb(self, desired_rating, feed):
 
         if self.search_imdb_done:
             shared_state.logger.debug(
-                self._SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche " + self._SITE + "-Suche ab!")
+                self.SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") - breche " + self.SITE + "-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + score
@@ -98,15 +98,15 @@ def search_imdb(self, desired_rating, feed):
                 storage_replaced = self.db.retrieve_all(
                     post.title.replace(".COMPLETE", "").replace(".Complete", ""))
                 if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
-                    shared_state.logger.debug("%s - Release ignoriert (bereits gefunden)" % post.title)
+                    shared_state.logger.debug(f"{post.title} - Release ignoriert (bereits gefunden)")
                     continue
                 elif not check_valid_release(post.title, self.retail_only, self.hevc_retail):
                     shared_state.logger.debug(
-                        "%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % post.title)
+                        f"{post.title} - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
                     continue
                 quality_set = self.config.get('quality')
                 if '.3d.' in post.title.lower():
-                    shared_state.logger.debug("%s - Release ignoriert (3D-Film)" % post.title)
+                    shared_state.logger.debug(f"{post.title} - Release ignoriert (3D-Film)")
                     return
                 else:
                     if quality_set == "480p":
@@ -122,11 +122,11 @@ def search_imdb(self, desired_rating, feed):
                             if is_hevc(post.title) and "1080p" in post.title:
                                 if is_retail(post.title, False):
                                     shared_state.logger.debug(
-                                        "%s - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
+                                        f"{post.title} - Qualität ignoriert (Release ist 1080p-HEVC-Retail)")
                                     hevc_retail = True
                                     quality_match = True
                     if not quality_match:
-                        shared_state.logger.debug("%s - Release ignoriert (falsche Auflösung)" % post.title)
+                        shared_state.logger.debug(f"{post.title} - Release ignoriert (falsche Auflösung)")
                         continue
 
                 found = check_is_ignored(post.title, self.config.get("ignore"))
@@ -135,11 +135,11 @@ def search_imdb(self, desired_rating, feed):
                         if is_hevc(post.title) and "1080p" in post.title:
                             if is_retail(post.title, False):
                                 shared_state.logger.debug(
-                                    "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
+                                    f"{post.title} - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)")
                                 hevc_retail = True
                                 found = False
                 if found:
-                    shared_state.logger.debug("%s - Release ignoriert (aufgrund der Filterliste)" % post.title)
+                    shared_state.logger.debug(f"{post.title} - Release ignoriert (aufgrund der Filterliste)")
                     continue
                 if self.feedcrawler.get("surround"):
                     if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
@@ -147,7 +147,7 @@ def search_imdb(self, desired_rating, feed):
                         continue
                 season = re.search(r'\.S(\d{1,3})(\.|-|E)', post.title)
                 if season:
-                    shared_state.logger.debug("%s - Release ignoriert (IMDb sucht nur Filme)" % post.title)
+                    shared_state.logger.debug(f"{post.title} - Release ignoriert (IMDb sucht nur Filme)")
                     continue
 
                 if post.imdb_id:
@@ -156,10 +156,10 @@ def search_imdb(self, desired_rating, feed):
                         year = get_year(post.imdb_id)
                         if year:
                             if year < min_year:
-                                shared_state.logger.debug("%s - Release ignoriert (Film zu alt)" % post.title)
+                                shared_state.logger.debug(f"{post.title} - Release ignoriert (Film zu alt)")
                                 continue
                         else:
-                            shared_state.logger.debug("%s - Release ignoriert (Alter nicht ermittelbar)" % post.title)
+                            shared_state.logger.debug(f"{post.title} - Release ignoriert (Alter nicht ermittelbar)")
                             continue
                     votes = get_votes(post.imdb_id)
                     if votes:
@@ -213,7 +213,7 @@ def search_feed(self, feed):
 
         if self.search_regular_done:
             shared_state.logger.debug(
-                self._SITE + "-Feed ab hier bereits gecrawlt (" + post.title + ") " + "- breche " + self._SITE + "-Suche ab!")
+                f"{self.SITE}-Feed ab hier bereits gecrawlt ({post.title}) - breche {self.SITE}-Suche ab!")
             return added_items
 
         concat = post.title + post.published + settings + liste
@@ -234,11 +234,11 @@ def search_feed(self, feed):
                             if is_hevc(post.title) and "1080p" in post.title:
                                 if is_retail(post.title, False):
                                     shared_state.logger.debug(
-                                        "%s - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
+                                        f"{post.title} - Filterliste ignoriert (Release ist 1080p-HEVC-Retail)")
                                     hevc_retail = True
                                     found = False
                     if found:
-                        shared_state.logger.debug("%s - Release ignoriert (aufgrund der Filterliste)" % post.title)
+                        shared_state.logger.debug(f"{post.title} - Release ignoriert (aufgrund der Filterliste)")
                         continue
                     if self.feedcrawler.get("surround"):
                         if not re.match(r'.*\.(DTS|DD\+*51|DD\+*71|AC3\.5\.*1)\..*', post.title):
@@ -262,14 +262,14 @@ def search_feed(self, feed):
                                 if is_hevc(post.title) and "1080p" in post.title:
                                     if is_retail(post.title, False):
                                         shared_state.logger.debug(
-                                            "%s  - Qualität ignoriert (Release ist 1080p-HEVC-Retail)" % post.title)
+                                            f"{post.title}  - Qualität ignoriert (Release ist 1080p-HEVC-Retail)")
                                         hevc_retail = True
                                         found = True
                         if found:
                             episode = re.search(
                                 r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
                             if episode:
-                                shared_state.logger.debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                shared_state.logger.debug(f"{post.title} - Release ignoriert (Serienepisode)")
                                 continue
                             found = download_feed(self, post.title, content, post.source, post.imdb_id, post.size,
                                                   hevc_retail)
@@ -283,7 +283,7 @@ def search_feed(self, feed):
                             shared_state.logger.debug(post.title + " - Release hat falsche Quelle")
                             continue
                         if ".complete." not in post.title.lower():
-                            if "FX" not in self._SITE and "DW" not in self._SITE:
+                            if "FX" not in self.SITE and "DW" not in self.SITE:
                                 shared_state.logger.debug(post.title + " - Staffel noch nicht komplett")
                                 continue
                         season = re.search(r"\.s\d", post.title.lower())
@@ -294,7 +294,7 @@ def search_feed(self, feed):
                             staffelpack = re.search(
                                 r"s\d.*(-|\.).*s\d", post.title.lower())
                             if staffelpack:
-                                shared_state.logger.debug("%s - Release ignoriert (Staffelpaket)" % post.title)
+                                shared_state.logger.debug(f"{post.title} - Release ignoriert (Staffelpaket)")
                                 continue
                         if self.filename == 'List_ContentAll_Seasons':
                             ss = self.config.get('seasonsquality')
@@ -312,7 +312,7 @@ def search_feed(self, feed):
                             episode = re.search(
                                 r'([\w\.\s]*s\d{1,2}e\d{1,2})[\w\.\s]*', post.title.lower())
                             if episode:
-                                shared_state.logger.debug("%s - Release ignoriert (Serienepisode)" % post.title)
+                                shared_state.logger.debug(f"{post.title} - Release ignoriert (Serienepisode)")
                                 continue
                             found = download_feed(self, post.title, content, post.source, post.imdb_id, post.size,
                                                   hevc_retail)
@@ -365,7 +365,7 @@ def download_hevc(self, title, original_imdb_id):
                 continue
 
             if original_imdb_id and imdb_id and imdb_id != original_imdb_id:
-                shared_state.logger.debug("%s - Abweichende IMDb-IDs identifiziert! Breche ab." % key)
+                shared_state.logger.debug(f"{key} - Abweichende IMDb-IDs identifiziert! Breche ab.")
                 continue
 
             if is_hevc(key) and "1080p" in key:
@@ -376,7 +376,7 @@ def download_hevc(self, title, original_imdb_id):
                     storage = self.db.retrieve_all(key)
                     storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                     if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
-                        shared_state.logger.debug("%s - HEVC Release ignoriert (bereits gefunden)" % key)
+                        shared_state.logger.debug(f"{key} - HEVC Release ignoriert (bereits gefunden)")
                         return True
 
                     englisch = False
@@ -387,7 +387,7 @@ def download_hevc(self, title, original_imdb_id):
                             "*", "")
                         englisch = True
                         if not self.feedcrawler.get('english'):
-                            shared_state.logger.debug("%s - Englische Releases deaktiviert" % key)
+                            shared_state.logger.debug(f"{key} - Englische Releases deaktiviert")
                             continue
 
                     if self.config.get('enforcedl') and '.dl.' not in key.lower():
@@ -396,7 +396,7 @@ def download_hevc(self, title, original_imdb_id):
                             if dual_found and ".1080p." in key:
                                 continue
                             elif not dual_found and not englisch:
-                                shared_state.logger.debug("%s - Kein zweisprachiges HEVC-Release gefunden." % key)
+                                shared_state.logger.debug(f"{key} - Kein zweisprachiges HEVC-Release gefunden.")
                                 self.dl_unsatisfied = True
                         else:
                             if original_language_not_german(imdb_id):
@@ -405,7 +405,7 @@ def download_hevc(self, title, original_imdb_id):
                                     continue
                                 elif not dual_found and not englisch:
                                     shared_state.logger.debug(
-                                        "%s - Kein zweisprachiges HEVC-Release gefunden! Breche ab." % key)
+                                        f"{key} - Kein zweisprachiges HEVC-Release gefunden! Breche ab.")
                                     self.dl_unsatisfied = True
                                     continue
 
@@ -511,13 +511,13 @@ def download_dual_language(self, title, original_imdb_id):
                 continue
 
             if original_imdb_id and imdb_id and imdb_id != original_imdb_id:
-                shared_state.logger.debug("%s - Abweichende IMDb-IDs identifiziert! Breche ab." % key)
+                shared_state.logger.debug(f"{key} - Abweichende IMDb-IDs identifiziert! Breche ab.")
                 continue
             if ".dl." not in key.lower():
-                shared_state.logger.debug("%s - Release ignoriert (nicht zweisprachig)" % key)
+                shared_state.logger.debug(f"{key} - Release ignoriert (nicht zweisprachig)")
                 continue
             if hevc and hevc_found and not is_hevc(key):
-                shared_state.logger.debug("%s - zweisprachiges Release ignoriert (nicht HEVC)" % key)
+                shared_state.logger.debug(f"{key} - zweisprachiges Release ignoriert (nicht HEVC)")
                 continue
             if ".720p." in key.lower():
                 path_suffix = "/Remux"
@@ -531,7 +531,7 @@ def download_dual_language(self, title, original_imdb_id):
                 storage = self.db.retrieve_all(key)
                 storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
                 if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
-                    shared_state.logger.debug("%s - zweisprachiges Release ignoriert (bereits gefunden)" % key)
+                    shared_state.logger.debug(f"{key} - zweisprachiges Release ignoriert (bereits gefunden)")
                     return True
                 elif self.filename == 'List_ContentAll_Movies' or self.filename == 'IMDb':
                     retail = False
@@ -584,14 +584,14 @@ def download_dual_language(self, title, original_imdb_id):
 
 
 def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail, score, download_method):
-    site = self._SITE
+    site = self.SITE
 
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False):
                 if download_hevc(self, key, imdb_id):
-                    shared_state.logger.debug("%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                    shared_state.logger.debug(f"{key} - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)")
                     return
     if download_links:
         englisch = False
@@ -602,7 +602,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
                 "*", "")
             englisch = True
             if not self.feedcrawler.get('english'):
-                shared_state.logger.debug("%s - Englische Releases deaktiviert" % key)
+                shared_state.logger.debug(f"{key} - Englische Releases deaktiviert")
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
             if original_language_not_german(imdb_id):
@@ -612,11 +612,11 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
                     if ".1080p." in key:
                         return added_items
                 elif not dual_found and not englisch:
-                    shared_state.logger.debug("%s - Kein zweisprachiges Release gefunden!" % key)
+                    shared_state.logger.debug(f"{key} - Kein zweisprachiges Release gefunden!")
                     return
 
         if '.3d.' in key.lower():
-            shared_state.logger.debug("%s - Release ignoriert (3D-Film)" % key.title)
+            shared_state.logger.debug(f"{key.title} - Release ignoriert (3D-Film)")
             return
         else:
             retail = False
@@ -651,7 +651,7 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self.SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -662,14 +662,14 @@ def download_imdb(self, key, download_links, source, imdb_id, size, hevc_retail,
 
 
 def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
-    site = self._SITE
+    site = self.SITE
 
     added_items = []
     if not hevc_retail:
         if self.hevc_retail:
             if not is_hevc(key) and is_retail(key, False):
                 if download_hevc(self, key, imdb_id):
-                    shared_state.logger.debug("%s - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)" % key)
+                    shared_state.logger.debug(f"{key} - Release ignoriert (stattdessen 1080p-HEVC-Retail gefunden)")
                     return
 
     download_method = self.download_method
@@ -680,10 +680,10 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
         storage = self.db.retrieve_all(key)
         storage_replaced = self.db.retrieve_all(key.replace(".COMPLETE", "").replace(".Complete", ""))
         if 'added' in storage or 'notdl' in storage or 'added' in storage_replaced or 'notdl' in storage_replaced:
-            shared_state.logger.debug("%s - Release ignoriert (bereits gefunden)" % key)
+            shared_state.logger.debug(f"{key} - Release ignoriert (bereits gefunden)")
             return
         elif not check_valid_release(key, self.retail_only, self.hevc_retail):
-            shared_state.logger.debug("%s - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)" % key)
+            shared_state.logger.debug(f"{key} - Release ignoriert (Gleiche oder bessere Quelle bereits vorhanden)")
             return
         englisch = False
         if "*englisch*" in key.lower() or "*english*" in key.lower():
@@ -691,7 +691,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                 '*ENGLISCH*', '').replace("*Englisch*", "").replace("*ENGLISH*", "").replace("*English*", "")
             englisch = True
             if not self.feedcrawler.get('english'):
-                shared_state.logger.debug("%s - Englische Releases deaktiviert" % key)
+                shared_state.logger.debug(f"{key} - Englische Releases deaktiviert")
                 return
         if self.config.get('enforcedl') and '.dl.' not in key.lower():
             if not imdb_id:
@@ -701,7 +701,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                     if ".1080p." in key:
                         return added_items
                 else:
-                    shared_state.logger.debug("%s - Kein zweisprachiges Release gefunden." % key)
+                    shared_state.logger.debug(f"{key} - Kein zweisprachiges Release gefunden.")
                     self.dl_unsatisfied = True
             else:
                 if original_language_not_german(imdb_id):
@@ -711,7 +711,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
                         if ".1080p." in key:
                             return added_items
                     elif not dual_found and not englisch:
-                        shared_state.logger.debug("%s - Kein zweisprachiges Release gefunden! Breche ab." % key)
+                        shared_state.logger.debug(f"{key} - Kein zweisprachiges Release gefunden! Breche ab.")
                         self.dl_unsatisfied = True
                         return
         if self.filename == 'List_ContentAll_Movies':
@@ -770,7 +770,7 @@ def download_feed(self, key, content, source, imdb_id, size, hevc_retail):
     else:
         storage = self.db.retrieve_all(key)
         if 'added' not in storage and 'notdl' not in storage:
-            wrong_hoster = '[' + self._SITE + '/Hoster fehlt] - ' + key
+            wrong_hoster = '[' + self.SITE + '/Hoster fehlt] - ' + key
             if 'wrong_hoster' not in storage:
                 print(wrong_hoster)
                 self.db.store(key, 'wrong_hoster')
@@ -827,7 +827,7 @@ def periodical_task(self):
     except:
         loading_304 = True
         first_page_content = False
-        shared_state.logger.debug("Fehler beim Abruf von " + self._SITE + " - breche " + self._SITE + "-Suche ab!")
+        shared_state.logger.debug("Fehler beim Abruf von " + self.SITE + " - breche " + self.SITE + "-Suche ab!")
 
     set_all = settings_hash(self, False)
 
@@ -835,7 +835,7 @@ def periodical_task(self):
         if loading_304:
             urls = []
             shared_state.logger.debug(
-                self._SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche " + self._SITE + "-Suche ab!")
+                self.SITE + "-Feed seit letztem Aufruf nicht aktualisiert - breche " + self.SITE + "-Suche ab!")
 
     sha = None
 
@@ -891,20 +891,20 @@ def periodical_task(self):
             settings_changed = True
     if sha:
         if not self.dl_unsatisfied and not settings_changed:
-            self.cdc.delete(self._SITE + "-" + self.filename)
-            self.cdc.store(self._SITE + "-" + self.filename, sha)
+            self.cdc.delete(self.SITE + "-" + self.filename)
+            self.cdc.store(self.SITE + "-" + self.filename, sha)
         else:
             shared_state.logger.debug(
-                "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self._SITE + "-CDC!")
+                "Für ein oder mehrere Release(s) wurde kein zweisprachiges gefunden. Setze kein neues " + self.SITE + "-CDC!")
     if not loading_304:
         try:
             header = first_page_raw['headers']['Last-Modified']
         except:
             header = False
             shared_state.logger.debug(
-                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self._SITE + ".")
+                "Keine Header für das Abkürzen des nächsten Suchlaufs verfügbar auf " + self.SITE + ".")
         if header:
-            self.cdc.delete(self._SITE + "Headers-" + self.filename)
-            self.cdc.store(self._SITE + "Headers-" + self.filename, header)
+            self.cdc.delete(self.SITE + "Headers-" + self.filename)
+            self.cdc.store(self.SITE + "Headers-" + self.filename, header)
 
     return

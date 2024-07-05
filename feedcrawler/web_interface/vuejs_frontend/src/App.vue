@@ -1,11 +1,10 @@
 <script setup>
 import {useStore} from '@/main.js'
+import {ref, watchEffect} from 'vue'
 import "bootstrap/dist/css/bootstrap.min.css"
 import 'bootstrap-icons/font/bootstrap-icons.css'
 import "bootstrap"
 import "@/assets/scss/app.scss"
-import {useDark, useToggle} from "@vueuse/core"
-
 import Head from './components/Head.vue'
 import Log from './components/Log.vue'
 import MyJD from './components/MyJD.vue'
@@ -21,8 +20,23 @@ store.getCrawlTimes()
 store.getHostNames()
 store.getBlockedSites()
 
-const isDark = useDark()
-const toggleDark = useToggle(isDark)
+const isDarkMode = ref(window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+  isDarkMode.value = event.matches
+})
+
+const toggleDarkMode = () => {
+  isDarkMode.value = !isDarkMode.value
+}
+
+watchEffect(() => {
+  if (isDarkMode.value) {
+    document.body.classList.add('dark')
+  } else {
+    document.body.classList.remove('dark')
+  }
+})
 </script>
 
 <template>
@@ -38,8 +52,8 @@ const toggleDark = useToggle(isDark)
     <Help/>
   </main>
   <div class="sticky-bottom float-end">
-    <button type="button" class="btn btn-outline-secondary bg-dark m-3 text-warning" @click="toggleDark()">
-      <i v-if="isDark" class="bi bi-sun"></i>
+    <button class="btn btn-outline-secondary bg-dark m-3 text-warning" type="button" @click="toggleDarkMode()">
+      <i v-if="isDarkMode" class="bi bi-sun"></i>
       <i v-else class="bi bi-moon-stars"></i>
     </button>
   </div>

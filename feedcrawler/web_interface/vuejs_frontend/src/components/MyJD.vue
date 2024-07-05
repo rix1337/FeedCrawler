@@ -1,4 +1,4 @@
-<script setup xmlns="http://www.w3.org/1999/html">
+<script setup>
 import {useStore} from '@/main.js'
 import {computed, inject, onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from 'bootstrap'
@@ -516,10 +516,10 @@ function showSponsorsHelp() {
                       <div v-for="x in currentMyJDPage" class="myjd-items">
                         <div class="row m-2">
                           <div class="myjd-downloads">
-                            <div v-if="x.type==='online'" class="card"
-                                 :class="{ 'bg-success': x.enabled,
+                            <div v-if="x.type==='online'" :class="{ 'bg-success': x.enabled,
                                            'bg-secondary': !x.enabled
-                                        }">
+                                        }"
+                                 class="card">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>
@@ -584,10 +584,10 @@ function showSponsorsHelp() {
                           </div>
 
                           <div class="myjd-decrypted">
-                            <div v-if="x.type==='decrypted'" class="card"
-                                 :class="{ 'bg-warning': x.enabled,
+                            <div v-if="x.type==='decrypted'" :class="{ 'bg-warning': x.enabled,
                                            'bg-secondary': !x.enabled
-                                        }">
+                                        }"
+                                 class="card">
                               <div class="card-header">
                                 <strong>{{ x.name }}</strong> (<span v-text="x.links"></span>)
                               </div>

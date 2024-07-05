@@ -17,13 +17,6 @@ body:
           required: true
   - type: checkboxes
     attributes:
-      label: Hast du die Discussions überprüft?
-      description: Bitte lies unsere <a href="https://github.com/rix1337/FeedCrawler/discussions">Discussions</a>, bevor du ein Issue erstellst, da dort einige Fragen bereits beantwortet wurden.
-      options:
-        - label: Ich habe die Diskussionen gelesen
-          required: true
-  - type: checkboxes
-    attributes:
       label: Enthält die Problembeschreibung einen oder mehrere Hostnamen?
       description: Weder FeedCrawler noch der Autor benennen oder befürworten spezifische Hostnamen. Fragen hierzu werden kommentarlos geschlossen!
       options:
@@ -36,8 +29,8 @@ body:
       value: |
         - FeedCrawler Version:
         - Letzte funktionierende FeedCrawler-Version:
-        - Betriebssystem:
-        - Docker: [ja/nein]
+        - Installation: [Docker/Windows-Exe/Manuell]
+        - Betriebssystem: [Docker/Windows/Linux/macOS]
         - Sponsors-Helper-URL: [ja/nein]
         - FlareSolverr-URL: [ja/nein]
       render: markdown
@@ -57,7 +50,7 @@ body:
         Hostnamen aus dem Log sind zu entfernen.
         Wenn im Log keine Fehlermeldung auftaucht, bitte Screenshots oder den DEBUG-Log zur Verfügung stellen.
         Zur Aktivierung des DEBUG-Loglevels steht ein <a
-        href="https://github.com/rix1337/FeedCrawler/wiki/2.-Startparameter">Startparameter</a> zur Verfügung.
+        href="https://github.com/rix1337/FeedCrawler?tab=readme-ov-file#startparameter">Startparameter</a> zur Verfügung.
       render: text
     validations:
       required: true

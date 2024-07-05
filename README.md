@@ -33,18 +33,20 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
 ### Voraussetzungen
 
-* [Python 3.8](https://www.python.org/downloads/) oder neuer (nur 4 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
-* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit aktivem [My JDownloader-Konto](https://my.jdownloader.org)
+* [Python 3.8](https://www.python.org/downloads/) oder neuer (nur
+  4 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
+* [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit
+  aktivem [My JDownloader-Konto](https://my.jdownloader.org)
 * _optional: [FlareSolverr 3](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen_
 
 ### Installation / Update durch [pip](https://pip.pypa.io/en/stable/installation/)
 
 ```pip install -U feedcrawler```
 
-Hinweise zur manuellen Installation und Einrichtung finden sich im [Wiki](https://github.com/rix1337/FeedCrawler/wiki)!
-
 ### Lokaler Build
-Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) und [pip](https://pip.pypa.io/en/stable/installation/):
+
+Benötigt [Node.js](https://nodejs.org/en/download/), [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
+und [pip](https://pip.pypa.io/en/stable/installation/):
 
 1. Frontend-Pfad aufrufen: `cd feedcrawler/web_interface/vuejs_frontend`
 2. Dependencies installieren: `npm ci`
@@ -63,9 +65,6 @@ docker run -d \
   --name="FeedCrawler" \
   -p port:9090 \
   -v /path/to/config/:/config:rw \
-  -e USER=NUTZERNAME \ 
-  -e PASS=PASSWORT \
-  -e DEVICE=GERÄTENAME \
   -e DELAY=30 \
   -e LOGLEVEL=[INFO/DEBUG/WARNING/ERROR/CRITICAL/NOTSET] \
   --log-opt max-size=50m \
@@ -80,19 +79,16 @@ docker run -d \
 * Für UNRAID-Server kann das Image direkt über die Community Applications bezogen und der Container so eingerichtet
   werden.
 
-##### Optionale Parameter
- - `-e USER` (ab dem ersten Start, sofern unverändert)
- - `-e PASS` (ab dem ersten Start, sofern unverändert)
- - `-e DEVICE` (immer, sofern nur ein Gerät im MyJD-Konto vorhanden ist, sonst ab dem ersten Start, sofern unverändert)
- - `-e DELAY` (immer, sofern der erste Suchlauf nach Start nicht um diese ganze Zahl in Sekunden verzögert werden soll)
-
 ##### Spezifische Version nutzen
 
-Das Image `rix1377/docker-feedcrawler` wird standardmäßig auf das `:latest`-Tag aufgelöst. Dieses wird mit jedem Release auf die neue Version aktualisiert. Mit jedem Release wird ebenfalls eine getaggte Version des Images erzeugt. Auf letztere kann man wechseln, um beispielsweise bei Fehlern in der neuen Version auf einen funktionierenden Stand zurück zu kehren.
+Das Image `rix1377/docker-feedcrawler` wird standardmäßig auf das `:latest`-Tag aufgelöst. Dieses wird mit jedem Release
+auf die neue Version aktualisiert. Mit jedem Release wird ebenfalls eine getaggte Version des Images erzeugt. Auf
+letztere kann man wechseln, um beispielsweise bei Fehlern in der neuen Version auf einen funktionierenden Stand zurück
+zu kehren.
 
 Beispiel:
 
-`docker pull rix1337/docker-feedcrawler:13.0.3`
+`docker pull rix1337/docker-feedcrawler:13.3.7`
 
 ### Windows Build
 
@@ -112,16 +108,11 @@ Welche das sind, entscheiden Anwender selbständig bei der Einrichtung. Es gilt 
 
 ## Startparameter
 
-| Parameter                      | Erläuterung |
-|--------------------------------|---|
-| ```--log-level=<LOGLEVEL>```   | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
-| ```--config="<PFAD>"```        | Legt den Ablageort für Einstellungen und Logs fest |
-| ```--port=<PORT>```            | Legt den Port des Webservers fest |
-| ```--jd-user=<NUTZERNAME>```   | Legt den Nutzernamen für My JDownloader fest |
-| ```--jd-pass=<PASSWORT>```     | Legt das Passwort für My JDownloader fest |
-| ```--jd-device=<GERÄTENAME>``` | Legt den Gerätenamen für My JDownloader fest (optional, wenn nur ein Gerät vorhanden ist) |
-| ```--delay=<SEKUNDEN>``` | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional) |
-| ```--no-gui``` | Startet FeedCrawler ohne GUI (optional) |
+| Parameter                    | Erläuterung                                                                                   |
+|------------------------------|-----------------------------------------------------------------------------------------------|
+| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
+| ```--port=<PORT>```          | Legt den Port des Webservers fest                                                             |
+| ```--delay=<SEKUNDEN>```     | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional)                            |
 
 ## Sicherheitshinweis
 
@@ -133,4 +124,4 @@ bspw. [kostenlos von letsencrypt](https://letsencrypt.org/), zu verwenden.
 
 ## Credits
 
-* [mmarquezs](https://github.com/mmarquezs/) (My JDownloader-API für Python)
+* [mmarquezs](https://github.com/mmarquezs/) (My-JDownloader-API für Python)

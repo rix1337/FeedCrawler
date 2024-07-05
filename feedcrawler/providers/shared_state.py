@@ -8,6 +8,7 @@ import os
 import platform
 import sys
 import time
+import webbrowser
 from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import Jddevice, Myjdapi
@@ -36,19 +37,20 @@ def update(key, value):
         lock.release()
 
 
-def set_initial_values(docker, no_gui, test_run, remove_cloudflare_time):
-    update("docker", docker)
-    if docker or no_gui or (not platform.system() == 'Windows' and not os.environ.get('DISPLAY')):
+def set_initial_values():
+    if (os.environ.get('DOCKER') or (
+            not platform.system() == 'Windows' and not platform.system() == 'Darwin' and not os.environ.get(
+        'DISPLAY'))):
         gui_enabled = False
     else:
         gui_enabled = True
     update("gui", gui_enabled)
-    update("test_run", test_run)
-    update("remove_cloudflare_time", remove_cloudflare_time)
+    update("gui_active_in_tray_and_browser_opened_for_config_once", False)
     update("ww_blocked", False)
     update("sf_blocked", False)
-    update("user_agent", 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) ' \
-                         'Chrome/111.0.0.0 Safari/537.36')
+    update("user_agent",
+           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 "
+           "Safari/537.36")
 
 
 def set_files(config_path):
@@ -88,6 +90,13 @@ def set_logger():
 
 def set_sites():
     update("sites", ["FX", "SF", "DW", "HW", "FF", "BY", "NK", "NX", "WW", "SJ", "DJ", "DD"])
+
+
+def gui_active_in_tray_and_browser_opened_for_config_once():
+    if values["gui"] and not values["gui_active_in_tray_and_browser_opened_for_config_once"]:
+        webbrowser.open(f"http://localhost:9090?cache_bust={int(time.time())}")
+        update("gui_active_in_tray_and_browser_opened_for_config_once", True)
+        return True
 
 
 def set_device(new_device):
@@ -151,11 +160,10 @@ def get_device():
     return values["device"]
 
 
-def set_connection_info(local_address, port, prefix, docker):
+def set_connection_info(local_address, port, prefix):
     update("local_address", local_address)
     update("port", port)
     update("prefix", prefix)
-    update("docker", docker)
 
 
 def clear_request_cache():

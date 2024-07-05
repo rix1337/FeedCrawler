@@ -16,7 +16,7 @@ class FakeFeedParserDict(dict):
         if name in self:
             return self[name]
         else:
-            raise AttributeError("No such attribute: " + name)
+            raise AttributeError(f"No such attribute: {name}")
 
 
 def unused_get_feed_parameter(param):
@@ -32,7 +32,8 @@ def get_download_links(self, content, title):
 def check_download_links(self, url_hosters):
     links = {}
     for url_hoster in reversed(url_hosters):
-        hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+        hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace("ddownload",
+                                                                                                         "ddl")
         if check_hoster(hoster):
             link = url_hoster[0]
             if self.url in link:
@@ -42,7 +43,8 @@ def check_download_links(self, url_hosters):
             links[hoster] = link
     if self.hoster_fallback and not links:
         for url_hoster in reversed(url_hosters):
-            hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace("ddownload", "ddl")
+            hoster = url_hoster[1].lower().strip().replace('target="_blank">', '').replace(" ", "-").replace(
+                "ddownload", "ddl")
             link = url_hoster[0]
             if self.url in link:
                 demasked_link = get_redirected_url(link)
@@ -78,7 +80,7 @@ def standardize_size_value(size):
     elif size_unit == 'TB':
         size = readable_size(size_value * 1024 * 1024 * 1024 * 1024)
     else:
-        size = str(size_value) + " " + str(size_unit)
+        size = f"{size_value} {size_unit}"
 
     return size
 

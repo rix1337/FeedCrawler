@@ -22,7 +22,7 @@ from feedcrawler.providers.url_functions import get_url, get_url_headers, get_ur
 
 
 class BL:
-    _SITE = 'BY'
+    SITE = 'BY'
     SUBSTITUTE = r"[&#\s/]"
 
     def __init__(self, filename):
@@ -56,9 +56,9 @@ class BL:
         self.cdc = FeedDb('cdc')
 
         self.last_set_all = self.cdc.retrieve("ALLSet-" + self.filename)
-        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self._SITE + "Headers-" + self.filename))}
+        self.headers = {'If-Modified-Since': str(self.cdc.retrieve(self.SITE + "Headers-" + self.filename))}
 
-        self.last_sha = self.cdc.retrieve(self._SITE + "-" + self.filename)
+        self.last_sha = self.cdc.retrieve(self.SITE + "-" + self.filename)
         settings = ["quality", "search", "ignore", "regex", "cutoff", "enforcedl", "crawlseasons", "seasonsquality",
                     "seasonpacks", "seasonssource", "imdbyear", "imdb", "hevc_retail", "retail_only", "hoster_fallback"]
         self.settings = []
@@ -93,7 +93,7 @@ def by_get_download_links(self, content, title):
     content = []
     for link in links:
         if link[0]:
-            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
+            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile(r"/go\.php\?"))
             try:
                 content.append('href="' + link["href"] + '">' + link.text.replace(" ", "") + '<')
             except:
@@ -255,7 +255,7 @@ def by_page_download_link(self, download_link, key):
     url_hosters = []
     for link in links:
         if link[0]:
-            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile("/go\.php\?"))
+            link = BeautifulSoup(link[0], "html.parser").find("a", href=re.compile(r"/go\.php\?"))
             if link:
                 url_hosters.append([link["href"], link.text.replace(" ", "")])
     return check_download_links(self, url_hosters)

@@ -181,11 +181,11 @@ function submitSearch() {
         </div>
         <div class="row justify-content-center mx-2">
           <div class="col-sm-1 form-check form-check-inline form-switch">
-            <input class="form-check-input" type="checkbox" id="flexSwitchMovies" v-model="search_movies">
+            <input id="flexSwitchMovies" v-model="search_movies" class="form-check-input" type="checkbox">
             <label class="form-check-label" for="flexSwitchMovies">Filme</label>
           </div>
           <div class="col-sm-1 form-check form-check-inline form-switch">
-            <input class="form-check-input" type="checkbox" id="flexSwitchShows" v-model="search_shows">
+            <input id="flexSwitchShows" v-model="search_shows" class="form-check-input" type="checkbox">
             <label class="form-check-label" for="flexSwitchShows">Serien</label>
           </div>
         </div>
@@ -199,7 +199,7 @@ function submitSearch() {
             </button>
           </div>
         </div>
-        <div class="row justify-content-center" v-if="store.misc.no_site_blocked === 1 && spin_search">
+        <div v-if="store.misc.no_site_blocked === 1 && spin_search" class="row justify-content-center">
           <div class="col-sm-4">
             <mark>
               Aufgrund aktiver Cloudflare-Blockaden dauert die Suche etwas länger!
@@ -209,7 +209,7 @@ function submitSearch() {
 
         <div class="row">
           <div v-if="results" class="results">
-            <div class="border-top mt-2 mb-2" v-if="results.sf.length > 0 || results.sj.length > 0"></div>
+            <div v-if="results.sf.length > 0 || results.sj.length > 0" class="border-top mt-2 mb-2"></div>
             <p v-for="x in results.sf">
               <button class="btn btn-outline-info" type="submit" @click="downloadS(x.payload, x.title)"><i
                   class="bi bi-download"></i> Serie: <span v-text="x.title"></span> (SF)
