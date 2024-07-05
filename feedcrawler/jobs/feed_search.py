@@ -272,8 +272,7 @@ def feed_crawler(shared_state_dict, shared_state_lock):
 
             # Clean exit if test run active
             if os.environ.get('GITHUB_ACTION_PR'):
-                logger.debug("-----------Testlauf beendet!-----------")
-                print("-----------Testlauf beendet!-----------")
+                logger.debug("-----------Pull Request Testlauf erfolgreich!-----------")
                 return
 
             # Wait until next start

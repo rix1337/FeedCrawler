@@ -1355,9 +1355,9 @@ def app_container():
             document.body.addEventListener('mousedown', function (e) {{
             if (e.target.tagName != "A") return;
             var anchor = e.target;
-            if (anchor.href.search(/{sj}\/serie\//i) != -1) {{
+            if (anchor.href.search(new RegExp('{sj}/serie//i')) != -1) {{
                 anchor.href = anchor.href + '#' + anchor.text;
-            }} else if (anchor.href.search(/{dj}\/serie\//i) != -1) {{
+            }} else if (anchor.href.search(new RegExp('{dj}/serie//i')) != -1) {{
                 anchor.href = anchor.href + '#' + anchor.text;
             }}
             }});
@@ -1415,9 +1415,9 @@ def app_container():
             document.body.addEventListener('mousedown', function (e) {{
                 if (e.target.tagName != "A") return;
                 var anchor = e.target;
-                if (anchor.href.search(/{sj}\\/serie\\//i) != -1) {{
+                if (anchor.href.search(new RegExp('{sj}/serie//i')) != -1) {{
                     anchor.href = anchor.href + '#' + anchor.text;
-                }} else if (anchor.href.search(/{dj}\\/serie\\//i) != -1) {{
+                }} else if (anchor.href.search(new RegExp('{dj}/serie//i')) != -1) {{
                     anchor.href = anchor.href + '#' + anchor.text;
                 }}
             }});
@@ -1839,7 +1839,7 @@ def app_container():
                     web_tags = [".web-rip", ".webrip", ".webdl", ".web-dl"]
                     for tag in web_tags:
                         re_name = re_name.replace(tag, ".web.*")
-                    multigroup = re.findall(r'.*-((.*)\/(.*))', package_name.lower())
+                    multigroup = re.findall(r'.*-((.*)/(.*))', package_name.lower())
                     if multigroup:
                         re_name = re_name.replace(multigroup[0][0],
                                                   '(' + multigroup[0][1] + '|' + multigroup[0][2] + ')')

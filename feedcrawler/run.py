@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import signal
 import sys
+import tempfile
 import time
 
 from feedcrawler.jobs.feed_search import feed_crawler
@@ -62,13 +63,23 @@ def main():
         if os.environ.get('DOCKER'):
             config_path = "/config"
         elif os.environ.get('GITHUB_ACTION_PR'):
-            config_path = "/home/runner/work/_temp/_github_home"
+            config_path = "/home/runner/work/_temp/feedcrawler"
         else:
             config_path_file = "FeedCrawler.conf"
             if not os.path.exists(config_path_file):
                 path_config(port, local_address)
             with open(config_path_file, "r") as f:
                 config_path = f.readline()
+
+        os.makedirs(config_path, exist_ok=True)
+
+        try:
+            temp_file = tempfile.TemporaryFile(dir=config_path)
+            temp_file.close()
+        except Exception as e:
+            print(f'Auf das Verzeichnis "{config_path}" konnte nicht zugegriffen werden: {e}"'
+                  f'Beende FeedCrawler!')
+            sys.exit(1)
 
         shared_state.set_files(config_path)
 
