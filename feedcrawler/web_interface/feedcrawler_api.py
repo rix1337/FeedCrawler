@@ -4,18 +4,11 @@
 # Dieses Modul stellt den Webserver der API des FeedCrawlers bereit.
 
 import sys
-from io import StringIO
-
-from feedcrawler.providers.common_functions import Unbuffered
-from feedcrawler.web_interface.serve.api import app_container
-
-if sys.stdout is None:  # required to allow pyinstaller --noconsole to work
-    sys.stdout = StringIO()
-if sys.stderr is None:  # required to allow pyinstaller --noconsole to work
-    sys.stderr = StringIO()
 
 from feedcrawler.providers import gui
 from feedcrawler.providers import version, shared_state
+from feedcrawler.providers.common_functions import Unbuffered
+from feedcrawler.web_interface.serve.api import app_container
 
 
 def web_server(shared_state_dict, shared_state_lock):
