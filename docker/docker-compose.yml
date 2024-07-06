@@ -8,7 +8,7 @@ services:
       - '/path/to/config/:/config:rw'
     environment:
       - 'DELAY=60'
-      - 'LOGLEVEL=[INFO/DEBUG/WARNING/ERROR/CRITICAL/NOTSET]'
+      - 'LOGLEVEL=[INFO/DEBUG]'
     logging:
       options:
         max-size: '50m'

@@ -66,7 +66,7 @@ docker run -d \
   -p port:9090 \
   -v /path/to/config/:/config:rw \
   -e DELAY=30 \
-  -e LOGLEVEL=[INFO/DEBUG/WARNING/ERROR/CRITICAL/NOTSET] \
+  -e LOGLEVEL=[INFO/DEBUG] \
   --log-opt max-size=50m \
   rix1337/docker-feedcrawler
   ```
