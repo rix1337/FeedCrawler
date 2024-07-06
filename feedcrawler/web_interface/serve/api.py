@@ -14,6 +14,12 @@ from functools import wraps
 from urllib import parse
 from xml.etree import ElementTree
 
+if sys.stdout is None or sys.stderr is None:  # required to allow pyinstaller --noconsole to work with bottle
+    from io import StringIO
+
+    sys.stdout = StringIO()
+    sys.stderr = StringIO()
+
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
 from bottle import Bottle, request, HTTPError, static_file, redirect, abort
