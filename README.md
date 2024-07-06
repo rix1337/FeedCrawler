@@ -108,11 +108,11 @@ Welche das sind, entscheiden Anwender selbständig bei der Einrichtung. Es gilt 
 
 ## Startparameter
 
-| Parameter                    | Erläuterung                                                                                   |
-|------------------------------|-----------------------------------------------------------------------------------------------|
-| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`CRITICAL`, `ERROR`, `WARNING`, `INFO`, `DEBUG`, `NOTSET`) |
-| ```--port=<PORT>```          | Legt den Port des Webservers fest                                                             |
-| ```--delay=<SEKUNDEN>```     | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional)                            |
+| Parameter                    | Erläuterung                                                        |
+|------------------------------|--------------------------------------------------------------------|
+| ```--log-level=<LOGLEVEL>``` | Legt fest, wie genau geloggt wird (`INFO` oder `DEBUG`)            |
+| ```--port=<PORT>```          | Legt den Port des Webservers fest                                  |
+| ```--delay=<SEKUNDEN>```     | Verzögere Suchlauf nach Start um ganze Zahl in Sekunden (optional) |
 
 ## Sicherheitshinweis
 

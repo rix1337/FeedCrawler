@@ -8,12 +8,12 @@ import os
 import platform
 import sys
 import time
-import webbrowser
 from logging import handlers
 
 from feedcrawler.external_tools.myjd_api import Jddevice, Myjdapi
 from feedcrawler.external_tools.myjd_api import TokenExpiredException, RequestTimeoutException, MYJDException
 from feedcrawler.providers.config import CrawlerConfig
+from feedcrawler.providers.gui import message_box_open_browser
 
 values = {}
 lock = None
@@ -82,6 +82,7 @@ def set_logger():
         logger.addHandler(console)
 
         if log_level == 10:
+            print("DEBUG Modus aktiviert. DEBUG-Log wird in 'FeedCrawler_DEBUG.log' gespeichert.")
             logfile_debug = logging.handlers.RotatingFileHandler(values["log_file_debug"])
             logfile_debug.setFormatter(formatter)
             logfile_debug.setLevel(10)
@@ -94,7 +95,7 @@ def set_sites():
 
 def gui_active_in_tray_and_browser_opened_for_config_once():
     if values["gui"] and not values["gui_active_in_tray_and_browser_opened_for_config_once"]:
-        webbrowser.open(f"http://localhost:9090?cache_bust={int(time.time())}")
+        message_box_open_browser(f"http://localhost:9090?cache_bust={int(time.time())}")
         update("gui_active_in_tray_and_browser_opened_for_config_once", True)
         return True
 

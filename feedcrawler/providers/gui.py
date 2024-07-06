@@ -5,6 +5,7 @@
 
 import os
 import platform
+import re
 import signal
 import sys
 import tkinter as tk
@@ -30,6 +31,17 @@ def get_icon_path():
 
     icon_path = f"{base_dir}/web_interface/vuejs_frontend/dist/favicon.ico"
     return icon_path
+
+
+def message_box_open_browser(url):
+    trimmed_url = re.sub(r"\?cache_bust=[^ ]*", "", url)
+    message = (f'''FeedCrawler muss im Browser eingerichtet werden!
+Klicke auf 'OK', um den Standard-Browser zu öffnen.
+
+Sollte der Browser nicht automatisch öffnen, gehe manuell auf:
+"{trimmed_url}"''')
+    messagebox.showinfo("FeedCrawler", message)
+    webbrowser.open(url)
 
 
 def get_tray_icon(show_function, quit_function):
