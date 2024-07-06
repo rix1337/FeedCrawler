@@ -83,8 +83,7 @@ def main():
 
         print(f'Nutze das Verzeichnis "{config_path}" für Einstellungen/Logs')
 
-        log_level = logging.__dict__[
-            arguments.log_level] if arguments.log_level in logging.__dict__ else logging.INFO
+        log_level = logging.DEBUG if arguments.log_level == "DEBUG" else logging.INFO
 
         shared_state.update("log_level", log_level)
         shared_state.set_logger()
