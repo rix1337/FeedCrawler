@@ -196,6 +196,8 @@ def feed_crawler(shared_state_dict, shared_state_lock):
                     task.periodical_task()
                 except Exception as e:
                     print("Fehler bei der Feed-Suche: " + str(e))
+                    error_trace = traceback.format_exc()
+                    print(error_trace)
                 logger.debug("-----------Suchlauf (" + name + file + ") ausgeführt!-----------")
 
             # Finish feed search and log results

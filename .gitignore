@@ -19,6 +19,7 @@ venv
 # FeedCrawler files
 *.conf
 *.db
+*.db-journal
 *.log
 *.crawljob
 *.ini
