@@ -64,8 +64,8 @@ class FeedDb(object):
             self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=5)
             self._table = table
             if not self._conn.execute(
-                    "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-                self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
+                    f"SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '{self._table}';").fetchall():
+                self._conn.execute(f"CREATE TABLE {self._table} (key, value)")
                 self._conn.commit()
         except sqlite3.OperationalError as e:
             try:
@@ -75,78 +75,78 @@ class FeedDb(object):
                 self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=10)
                 self._table = table
                 if not self._conn.execute(
-                        "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-                    self._conn.execute("CREATE TABLE %s (key, value)" % self._table)
+                        f"SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '{self._table}';").fetchall():
+                    self._conn.execute(f"CREATE TABLE {self._table} (key, value)")
                     self._conn.commit()
                     shared_state.logger.debug("Zugriff auf FeedCrawler.db nach Wartezeit war erfolgreich.")
             except sqlite3.OperationalError as e:
                 print("Fehler bei Zugriff auf FeedCrawler.db: ", str(e))
 
     def count(self):
-        res = self._conn.execute("SELECT Count() FROM %s" % self._table).fetchone()
+        res = self._conn.execute(f"SELECT Count() FROM {self._table}").fetchone()
         return res[0] if res else None
 
     def retrieve(self, key):
-        res = self._conn.execute(
-            "SELECT value FROM %s WHERE key='%s'" % (self._table, key)).fetchone()
+        query = f"SELECT value FROM {self._table} WHERE key=?"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        res = self._conn.execute(query, (key,)).fetchone()
         return res[0] if res else None
 
     def retrieve_all(self, key):
-        res = self._conn.execute(
-            "SELECT distinct value FROM %s WHERE key='%s' ORDER BY value" % (self._table, key))
-        items = []
-        for r in res:
-            items.append(str(r[0]))
+        query = f"SELECT distinct value FROM {self._table} WHERE key=? ORDER BY value"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        res = self._conn.execute(query, (key,))
+        items = [str(r[0]) for r in res]
         return items
 
     def retrieve_all_beginning_with(self, key):
-        res = self._conn.execute(
-            "SELECT distinct key FROM " + self._table + " WHERE key LIKE '" + key + "%'")
-        items = []
-        for r in res:
-            items.append(str(r[0]))
+        query = f"SELECT distinct key FROM {self._table} WHERE key LIKE ?"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        res = self._conn.execute(query, (f"{key}%",))
+        items = [str(r[0]) for r in res]
         return items
 
     def retrieve_all_titles(self):
-        res = self._conn.execute(
-            "SELECT distinct key, value FROM %s ORDER BY key" % self._table)
-        items = []
-        for r in res:
-            items.append([str(r[0]), str(r[1])])
+        query = f"SELECT distinct key, value FROM {self._table} ORDER BY key"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        res = self._conn.execute(query)
+        items = [[str(r[0]), str(r[1])] for r in res]
         return items if items else None
 
     def retrieve_all_titles_unordered(self):
-        res = self._conn.execute(
-            "SELECT distinct key, value FROM %s" % self._table)
-        items = []
-        for r in res:
-            items.append([str(r[0]), str(r[1])])
+        query = f"SELECT distinct key, value FROM {self._table}"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        res = self._conn.execute(query)
+        items = [[str(r[0]), str(r[1])] for r in res]
         return items if items else None
 
     def store(self, key, value):
-        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %
-                           (self._table, key, value))
+        query = f"INSERT INTO {self._table} VALUES (?, ?)"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(query, (key, value))
         self._conn.commit()
 
     def update_store(self, key, value):
-        self._conn.execute("DELETE FROM %s WHERE key='%s'" %
-                           (self._table, key))
-        self._conn.execute("INSERT INTO '%s' VALUES ('%s', '%s')" %
-                           (self._table, key, value))
+        delete_query = f"DELETE FROM {self._table} WHERE key=?"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(delete_query, (key,))
+        insert_query = f"INSERT INTO {self._table} VALUES (?, ?)"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(insert_query, (key, value))
         self._conn.commit()
 
     def delete(self, key):
-        self._conn.execute("DELETE FROM %s WHERE key='%s'" %
-                           (self._table, key))
+        query = f"DELETE FROM {self._table} WHERE key=?"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(query, (key,))
         self._conn.commit()
 
     def reset(self):
-        self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
+        self._conn.execute(f"DROP TABLE IF EXISTS {self._table}")
         self._conn.commit()
 
     def rename_table(self, new_name):
-        self._conn.execute("ALTER TABLE '%s' RENAME TO '%s'" %
-                           (self._table, new_name))
+        self._conn.execute(f"ALTER TABLE '{self._table}' RENAME TO '{new_name}'")
         self._conn.commit()
 
 
@@ -155,14 +155,12 @@ class ListDb(object):
         self._conn = sqlite3.connect(shared_state.values["dbfile"], check_same_thread=False, timeout=10)
         self._table = table
         if not self._conn.execute(
-                "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '%s';" % self._table).fetchall():
-            self._conn.execute(
-                '''CREATE TABLE %s (key)''' % self._table)
+                f"SELECT sql FROM sqlite_master WHERE type = 'table' AND name = '{self._table}';").fetchall():
+            self._conn.execute(f"CREATE TABLE {self._table} (key)")
             self._conn.commit()
 
     def retrieve(self):
-        res = self._conn.execute(
-            "SELECT distinct key FROM %s ORDER BY key" % self._table)
+        res = self._conn.execute(f"SELECT distinct key FROM {self._table} ORDER BY key")
         items = []
         for r in res:
             items.append(str(r[0]))
@@ -170,8 +168,9 @@ class ListDb(object):
 
     def store(self, key):
         key = feedcrawler.providers.common_functions.keep_alphanumeric_with_special_characters(key)
-        self._conn.execute("INSERT INTO '%s' VALUES ('%s')" %
-                           (self._table, key))
+        query = f"INSERT INTO {self._table} VALUES (?)"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(query, (key,))
         self._conn.commit()
 
     def store_list(self, keys):
@@ -196,10 +195,11 @@ class ListDb(object):
         self._conn.commit()
 
     def delete(self, key):
-        self._conn.execute("DELETE FROM %s WHERE key='%s'" %
-                           (self._table, key))
+        query = f"DELETE FROM {self._table} WHERE key=?"
+        # using this parameterized query to prevent SQL injection, which requires a tuple as second argument
+        self._conn.execute(query, (key,))
         self._conn.commit()
 
     def reset(self):
-        self._conn.execute("DROP TABLE IF EXISTS %s" % self._table)
+        self._conn.execute(f"DROP TABLE IF EXISTS {self._table}")
         self._conn.commit()
