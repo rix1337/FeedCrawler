@@ -11,12 +11,16 @@ function showCaptchasHelp() {
   })
 }
 
+function openSponsorsLink() {
+  window.open('/redirect_sponsors/', '_blank')
+}
+
 function openCaptchaLink() {
-  window.open('http://getcaptchasolution.com/zuoo67f5cq', '_blank')
+  window.open('/redirect_captcha/', '_blank')
 }
 
 function openHosterLink() {
-  window.open('http://linksnappy.com/?ref=397097', '_blank')
+  window.open('/redirect_hoster/', '_blank')
 }
 
 function getTimestamp(ms) {
@@ -323,7 +327,7 @@ const waitTimeActive = computed(() => {
               <div class="accordion-body">
                 <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
                   vollautomatisch löst, und dem FeedCrawler entschlüsselt übergibt.</p>
-                <p>Das Image steht ausschließlich aktiven <a href="https://github.com/users/rix1337/sponsorship"
+                <p>Das Image steht ausschließlich aktiven <a href="#" @click="openSponsorsLink()"
                                                              target="_blank">Sponsoren</a> zur Verfügung (daher
                   der
                   Name).<br>
