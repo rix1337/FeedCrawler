@@ -27,6 +27,31 @@ from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb
 
 
+def match_package_name(title, package_name):
+    if title in package_name or title.replace(".", " ") in package_name:
+        return True
+    else:
+        try:
+            title = title.lower()
+            package_name = package_name.lower()
+            pattern = re.compile(r'(\d{3,4}p)')
+            match = pattern.search(package_name)
+            if match:
+                split_result = package_name.split(match.group(1))
+                if len(split_result) < 2 or not split_result[0] or not split_result[1]:
+                    return False
+
+                base_string = split_result[0]
+                resolution_and_beyond = match.group(1) + split_result[1]
+
+                if base_string and resolution_and_beyond and title.startswith(base_string):
+                    if resolution_and_beyond in title:
+                        return True
+        except:
+            pass
+        return False
+
+
 def watch_packages(shared_state_dict, shared_state_lock):
     if shared_state_dict["gui"]:
         sys.stdout = gui.AppendToPrintQueue(shared_state_dict, shared_state_lock)
@@ -67,13 +92,15 @@ def watch_packages(shared_state_dict, shared_state_lock):
 
                     notify_list = []
 
-                    if packages_in_downloader_decrypted or packages_in_linkgrabber_decrypted or offline_packages or encrypted_packages:
-
+                    if (packages_in_downloader_decrypted or
+                            packages_in_linkgrabber_decrypted or
+                            offline_packages or
+                            encrypted_packages):
                         if watched_titles:
                             for title in watched_titles:
                                 if packages_in_downloader_decrypted:
                                     for package in packages_in_downloader_decrypted:
-                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                        if match_package_name(title[0], package['name']):
                                             check = hoster_check([package], title[0], [0])
                                             remove = check[0]
                                             if remove:
@@ -81,7 +108,7 @@ def watch_packages(shared_state_dict, shared_state_lock):
 
                                 if packages_in_linkgrabber_decrypted:
                                     for package in packages_in_linkgrabber_decrypted:
-                                        if title[0] in package['name'] or title[0].replace(".", " ") in package['name']:
+                                        if match_package_name(title[0], package['name']):
                                             hoster_check([package], title[0], [0])
                                             episodes = FeedDb('episode_remover').retrieve(title[0])
                                             if episodes:
@@ -288,9 +315,6 @@ def watch_packages(shared_state_dict, shared_state_lock):
                                     if autostart:
                                         time.sleep(5)
                                         jdownloader_start()
-                    else:
-                        if not grabber_collecting:
-                            db.reset()
 
                     if notify_list:
                         notify(notify_list)
