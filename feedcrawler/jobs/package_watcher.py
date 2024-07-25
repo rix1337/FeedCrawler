@@ -38,15 +38,15 @@ def match_package_name(title, package_name):
             match = pattern.search(package_name)
             if match:
                 split_result = package_name.split(match.group(1))
-                if len(split_result) < 2 or not split_result[0] or not split_result[1]:
-                    return False
 
-                base_string = split_result[0]
+                release_name = split_result[0]
                 resolution_and_beyond = match.group(1) + split_result[1]
 
-                if base_string and resolution_and_beyond and title.startswith(base_string):
-                    if resolution_and_beyond in title:
-                        return True
+                if release_name and resolution_and_beyond:
+                    if title.startswith(release_name):
+                        resolution_parts = resolution_and_beyond.split('.')
+                        if all(part in title for part in resolution_parts):
+                            return True
         except:
             pass
         return False
