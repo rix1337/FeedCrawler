@@ -35,9 +35,10 @@ from feedcrawler.providers.common_functions import decode_base64, check_is_site,
     enable_decrypt, keep_alphanumeric_with_special_characters, keep_alphanumeric_with_regex_characters, keep_numbers, \
     disable_decrypt, rreplace
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import set_device, get_info, set_device_from_config, get_state, set_enabled, \
-    move_to_downloads, remove_from_linkgrabber, reset_in_downloads, retry_decrypt, jdownloader_start, jdownloader_pause, \
-    jdownloader_stop, jdownloader_update, do_add_decrypted, get_packages_in_linkgrabber, download
+from feedcrawler.providers.myjd_connection import set_device, get_info, set_device_from_config, get_state, \
+    set_enabled, move_to_downloads, remove_from_linkgrabber, reset_in_downloads, retry_decrypt, jdownloader_start, \
+    jdownloader_pause, jdownloader_stop, jdownloader_update, download_decrypted_links_from_cnl, \
+    get_packages_in_linkgrabber, download
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb, ListDb
 from feedcrawler.providers.url_functions import get_url_headers, post_url_headers, get_url
@@ -1273,7 +1274,7 @@ def app_container():
             if not cnl_packages:
                 return abort(504, "No Package added through Click'n'Load in time!")
 
-            if do_add_decrypted(name, password, cnl_packages):
+            if download_decrypted_links_from_cnl(name, password, cnl_packages):
                 remove_decrypt(name)
                 remove_decrypt(name, disabled=True)
                 return "Success"

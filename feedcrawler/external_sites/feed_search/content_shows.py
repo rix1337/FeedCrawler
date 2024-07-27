@@ -9,7 +9,7 @@ import re
 
 from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import check_is_ignored
-from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.myjd_connection import add_for_manual_decryption
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import ListDb
 from feedcrawler.providers.url_functions import get_url
@@ -84,7 +84,7 @@ def send_package(self, title, link, language_id, season, episode, site, source, 
     else:
         if season and episode:
             link = link.replace('&_=', '&season=' + str(season) + '&episode=' + str(episode) + '&_=')
-        download = add_decrypt(title, link, self.url)
+        download = add_for_manual_decryption(title, link, self.url)
         if download:
             self.db.store(title, 'added')
             log_entry = release_type + title + ' - [' + site + '] - ' + size + ' - ' + source
