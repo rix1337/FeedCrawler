@@ -13,7 +13,7 @@ from feedcrawler.providers import shared_state
 from feedcrawler.providers.common_functions import Unbuffered
 from feedcrawler.providers.common_functions import longest_substr
 from feedcrawler.providers.config import CrawlerConfig
-from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.myjd_connection import add_for_manual_decryption
 from feedcrawler.providers.myjd_connection import get_info
 from feedcrawler.providers.myjd_connection import hoster_check
 from feedcrawler.providers.myjd_connection import jdownloader_start
@@ -32,8 +32,8 @@ def match_package_name(title, package_name):
         return True
     else:
         try:
-            title = title.lower()
-            package_name = package_name.lower()
+            title = title.replace(" ", ".").lower()
+            package_name = package_name.replace(" ", ".").lower()
             pattern = re.compile(r'(\d{3,4}p)')
             match = pattern.search(package_name)
             if match:
@@ -101,6 +101,8 @@ def watch_packages(shared_state_dict, shared_state_lock):
                                 if packages_in_downloader_decrypted:
                                     for package in packages_in_downloader_decrypted:
                                         if match_package_name(title[0], package['name']):
+                                            if not title[0] == package['name']:
+                                                rename_package_in_linkgrabber(package['uuid'], title[0])
                                             check = hoster_check([package], title[0], [0])
                                             remove = check[0]
                                             if remove:
@@ -109,6 +111,8 @@ def watch_packages(shared_state_dict, shared_state_lock):
                                 if packages_in_linkgrabber_decrypted:
                                     for package in packages_in_linkgrabber_decrypted:
                                         if match_package_name(title[0], package['name']):
+                                            if not title[0] == package['name']:
+                                                rename_package_in_linkgrabber(package['uuid'], title[0])
                                             hoster_check([package], title[0], [0])
                                             episodes = FeedDb('episode_remover').retrieve(title[0])
                                             if episodes:
@@ -299,7 +303,7 @@ def watch_packages(shared_state_dict, shared_state_lock):
                                                     db.delete(title[0])
                                                     db.store(title[0], 'retried')
                                             else:
-                                                add_decrypt(package['name'], package['url'], "")
+                                                add_for_manual_decryption(package['name'], package['url'], "")
                                                 remove_from_linkgrabber(package['linkids'],
                                                                         [package['uuid']])
                                                 notify_list.append({"text": "[CAPTCHA zu lösen] - " + title[0]})

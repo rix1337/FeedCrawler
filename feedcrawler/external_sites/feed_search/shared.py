@@ -7,7 +7,7 @@ import re
 
 from feedcrawler.providers.common_functions import check_hoster
 from feedcrawler.providers.common_functions import readable_size
-from feedcrawler.providers.myjd_connection import add_decrypt
+from feedcrawler.providers.myjd_connection import add_for_manual_decryption
 from feedcrawler.providers.url_functions import get_redirected_url
 
 
@@ -88,7 +88,7 @@ def standardize_size_value(size):
 def add_decrypt_instead_of_download(key, path, download_links, password, replace=False):
     unused_get_feed_parameter(path)
 
-    if add_decrypt(key.strip(), download_links[0], password, replace):
+    if add_for_manual_decryption(key.strip(), download_links[0], password, replace):
         return True
     else:
         return False

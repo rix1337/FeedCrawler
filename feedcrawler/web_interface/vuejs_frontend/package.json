@@ -1,6 +1,6 @@
 {
   "name": "feedcrawler-web",
-  "version": "20.1.5",
+  "version": "20.1.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,14 +14,14 @@
     "axios": "^1.7.2",
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
-    "pinia": "^2.1.7",
+    "pinia": "^2.2.0",
     "sass": "^1.77.8",
-    "vue": "^3.4.33",
+    "vue": "^3.4.34",
     "vue-tippy": "^6.4.4",
     "vuejs-paginate-next": "^1.0.2"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.5",
-    "vite": "^5.3.4"
+    "@vitejs/plugin-vue": "^5.1.1",
+    "vite": "^5.3.5"
   }
 }

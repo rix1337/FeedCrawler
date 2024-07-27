@@ -327,8 +327,9 @@ const waitTimeActive = computed(() => {
               <div class="accordion-body">
                 <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
                   vollautomatisch löst, und dem FeedCrawler entschlüsselt übergibt.</p>
-                <p>Das Image steht ausschließlich aktiven <a href="#" @click="openSponsorsLink()"
-                                                             target="_blank">Sponsoren</a> zur Verfügung (daher
+                <p>Das Image steht ausschließlich aktiven <a href="#" target="_blank"
+                                                             @click="openSponsorsLink()">Sponsoren</a> zur Verfügung
+                  (daher
                   der
                   Name).<br>
                   Die Freischaltung erfolgt automatisch für aktive Sponsoren im dafür eingerichteten

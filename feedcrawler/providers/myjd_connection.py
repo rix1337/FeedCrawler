@@ -339,98 +339,77 @@ def cryptor_url_first(failed_package):
 
 
 def get_info():
+    def fetch_device_info():
+        state = shared_state.get_device().downloadcontroller.get_current_state()
+        collecting = shared_state.get_device().linkgrabber.is_collecting()
+        shared_state.get_device().update.run_update_check()
+        updatable = shared_state.get_device().update.is_update_available()
+
+        downloader = get_packages_in_downloader()
+        linkgrabber = get_packages_in_linkgrabber()
+
+        return state, collecting, updatable, downloader, linkgrabber
+
+    def process_packages(downloader, linkgrabber):
+        packages_in_downloader_failed, packages_in_downloader_offline, packages_in_downloader_decrypted = downloader
+        packages_in_linkgrabber_failed, packages_in_linkgrabber_offline, packages_in_linkgrabber_decrypted = linkgrabber
+
+        if packages_in_linkgrabber_failed:
+            packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
+        if packages_in_downloader_failed:
+            packages_in_downloader_failed = cryptor_url_first(packages_in_downloader_failed)
+
+        packages_failed = (packages_in_downloader_failed + packages_in_linkgrabber_failed
+                           if packages_in_downloader_failed and packages_in_linkgrabber_failed
+                           else packages_in_downloader_failed or packages_in_linkgrabber_failed)
+
+        packages_offline = (packages_in_downloader_offline + packages_in_linkgrabber_offline
+                            if packages_in_downloader_offline and packages_in_linkgrabber_offline
+                            else packages_in_downloader_offline or packages_in_linkgrabber_offline)
+
+        return [packages_in_downloader_decrypted, packages_in_linkgrabber_decrypted, packages_offline, packages_failed]
+
     try:
         if not shared_state.get_device():
             set_device_from_config()
         if shared_state.get_device():
             try:
-                downloader_state = shared_state.get_device().downloadcontroller.get_current_state()
-                grabber_collecting = shared_state.get_device().linkgrabber.is_collecting()
-                shared_state.get_device().update.run_update_check()
-                update_ready = shared_state.get_device().update.is_update_available()
-
-                packages_in_downloader = get_packages_in_downloader()
-                packages_in_downloader_failed = packages_in_downloader[0]
-                packages_in_downloader_offline = packages_in_downloader[1]
-                packages_in_downloader_decrypted = packages_in_downloader[2]
-
-                packages_in_linkgrabber = get_packages_in_linkgrabber()
-                packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
+                jd_state, jd_collecting, jd_updatable, jd_downloader, jd_linkgrabber = fetch_device_info()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
                 if not shared_state.get_device():
                     return False
-                downloader_state = shared_state.get_device().downloadcontroller.get_current_state()
-                grabber_collecting = shared_state.get_device().linkgrabber.is_collecting()
-                shared_state.get_device().update.run_update_check()
-                update_ready = shared_state.get_device().update.is_update_available()
+                jd_state, jd_collecting, jd_updatable, jd_downloader, jd_linkgrabber = fetch_device_info()
 
-                packages_in_downloader = get_packages_in_downloader()
-                packages_in_downloader_failed = packages_in_downloader[0]
-                packages_in_downloader_offline = packages_in_downloader[1]
-                packages_in_downloader_decrypted = packages_in_downloader[2]
-
-                packages_in_linkgrabber = get_packages_in_linkgrabber()
-                packages_in_linkgrabber_failed = packages_in_linkgrabber[0]
-                packages_in_linkgrabber_offline = packages_in_linkgrabber[1]
-                packages_in_linkgrabber_decrypted = packages_in_linkgrabber[2]
-
-            if packages_in_linkgrabber_failed:
-                packages_in_linkgrabber_failed = cryptor_url_first(packages_in_linkgrabber_failed)
-            if packages_in_downloader_failed:
-                packages_in_downloader_failed = cryptor_url_first(packages_in_downloader_failed)
-
-            if packages_in_downloader_failed and packages_in_linkgrabber_failed:
-                packages_failed = packages_in_downloader_failed + packages_in_linkgrabber_failed
-            elif packages_in_downloader_failed:
-                packages_failed = packages_in_downloader_failed
-            else:
-                packages_failed = packages_in_linkgrabber_failed
-
-            if packages_in_downloader_offline and packages_in_linkgrabber_offline:
-                packages_offline = packages_in_downloader_offline + packages_in_linkgrabber_offline
-            elif packages_in_downloader_offline:
-                packages_offline = packages_in_downloader_offline
-            else:
-                packages_offline = packages_in_linkgrabber_offline
-
-            return [True, downloader_state, grabber_collecting, update_ready,
-                    [packages_in_downloader_decrypted, packages_in_linkgrabber_decrypted,
-                     packages_offline,
-                     packages_failed]]
+            packages_info = process_packages(jd_downloader, jd_linkgrabber)
+            return [True, jd_state, jd_collecting, jd_updatable, packages_info]
         else:
             return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print(f"Fehler bei der Verbindung mit My JDownloader: {e}")
         return False
 
 
 def set_enabled(enable, linkids, uuid):
+    def set_enabled_for_device():
+        shared_state.get_device().downloads.set_enabled(enable, linkids, uuid)
+        shared_state.get_device().linkgrabber.set_enabled(enable, linkids, uuid)
+
     try:
         if not shared_state.get_device():
             set_device_from_config()
         if shared_state.get_device():
             try:
-                shared_state.get_device().downloads.set_enabled(enable, linkids, uuid)
+                set_enabled_for_device()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
                 if not shared_state.get_device():
                     return False
-                shared_state.get_device().downloads.set_enabled(enable, linkids, uuid)
-            try:
-                shared_state.get_device().linkgrabber.set_enabled(enable, linkids, uuid)
-            except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                set_device_from_config()
-                if not shared_state.get_device():
-                    return False
-                shared_state.get_device().linkgrabber.set_enabled(enable, linkids, uuid)
+                set_enabled_for_device()
             return True
-        else:
-            return False
+        return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print(f"Fehler bei der Verbindung mit My JDownloader: {e}")
         return False
 
 
@@ -539,69 +518,45 @@ def move_to_new_package(linkids, package_id, new_title, new_path):
 
 
 def download(title, subdir, old_links, password, full_path=None, autostart=False):
+    def add_links_to_linkgrabber(links, path):
+        shared_state.get_device().linkgrabber.add_links(params=[
+            {
+                "autostart": autostart,
+                "links": links,
+                "packageName": title,
+                "extractPassword": password,
+                "priority": "DEFAULT",
+                "downloadPassword": password,
+                "destinationFolder": path,
+                "comment": "FeedCrawler by rix1337",
+                "overwritePackagizerRules": True
+            }
+        ])
+
     try:
         if not shared_state.get_device():
             set_device_from_config()
 
-        if isinstance(old_links, list):
-            links = []
-            for link in old_links:
-                if link not in links:
-                    links.append(link)
-        else:
-            links = [old_links]
+        download_links = list(set(old_links)) if isinstance(old_links, list) else [old_links]
+        download_links = str(download_links).replace(" ", "")
 
-        links = str(links).replace(" ", "")
         crawljobs = CrawlerConfig('Crawljobs')
         usesubdir = crawljobs.get("subdir")
         subdir_by_type = crawljobs.get("subdir_by_type")
+
         if subdir_by_type:
-            if is_show(title):
-                subdir += "/Serien"
-            else:
-                subdir += "/Filme"
+            subdir += "/Serien" if is_show(title) else "/Filme"
 
-        priority = "DEFAULT"
-
-        if full_path:
-            path = full_path
-        else:
-            if usesubdir:
-                path = subdir + "/<jd:packagename>"
-            else:
-                path = "<jd:packagename>"
-        if "Remux" in path:
-            priority = "LOWER"
+        download_path = full_path if full_path else f"{subdir}/<jd:packagename>" if usesubdir else "<jd:packagename>"
 
         try:
-            shared_state.get_device().linkgrabber.add_links(params=[
-                {
-                    "autostart": autostart,
-                    "links": links,
-                    "packageName": title,
-                    "extractPassword": password,
-                    "priority": priority,
-                    "downloadPassword": password,
-                    "destinationFolder": path,
-                    "comment": "FeedCrawler by rix1337",
-                    "overwritePackagizerRules": False
-                }])
+            add_links_to_linkgrabber(download_links, download_path)
         except (TokenExpiredException, RequestTimeoutException, MYJDException):
             set_device_from_config()
             if not shared_state.get_device():
                 return False
-            shared_state.get_device().linkgrabber.add_links(params=[
-                {
-                    "autostart": autostart,
-                    "links": links,
-                    "packageName": title,
-                    "extractPassword": password,
-                    "priority": priority,
-                    "downloadPassword": password,
-                    "destinationFolder": path,
-                    "comment": "FeedCrawler by rix1337",
-                    "overwritePackagizerRules": False
-                }])
+            add_links_to_linkgrabber(download_links, download_path)
+
         db = FeedDb('crawldog')
         if db.retrieve(title):
             db.delete(title)
@@ -610,112 +565,89 @@ def download(title, subdir, old_links, password, full_path=None, autostart=False
             db.store(title, 'added')
         return True
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print(f"Fehler bei der Verbindung mit My JDownloader: {e}")
         return False
 
 
 def retry_decrypt(linkids, uuid, links):
+    def query_packages_from_linkgrabber():
+        return shared_state.get_device().linkgrabber.query_packages(params=[
+            {
+                "availableOfflineCount": True,
+                "availableOnlineCount": True,
+                "availableTempUnknownCount": True,
+                "availableUnknownCount": True,
+                "bytesTotal": True,
+                "childCount": True,
+                "comment": True,
+                "enabled": True,
+                "hosts": True,
+                "maxResults": -1,
+                "packageUUIDs": uuid,
+                "priority": True,
+                "saveTo": True,
+                "startAt": 0,
+                "status": True
+            }
+        ])
+
+    def query_packages_from_downloads():
+        return shared_state.get_device().downloads.query_packages(params=[
+            {
+                "bytesLoaded": True,
+                "bytesTotal": True,
+                "comment": True,
+                "enabled": True,
+                "eta": True,
+                "priority": True,
+                "finished": True,
+                "running": True,
+                "speed": True,
+                "status": True,
+                "childCount": True,
+                "hosts": True,
+                "saveTo": True,
+                "maxResults": -1,
+                "packageUUIDs": uuid,
+                "startAt": 0,
+            }
+        ])
+
+    def handle_exception():
+        set_device_from_config()
+        if not shared_state.get_device():
+            return False
+        return True
+
     try:
         if not shared_state.get_device():
             set_device_from_config()
         if shared_state.get_device():
             try:
-                package = shared_state.get_device().linkgrabber.query_packages(params=[
-                    {
-                        "availableOfflineCount": True,
-                        "availableOnlineCount": True,
-                        "availableTempUnknownCount": True,
-                        "availableUnknownCount": True,
-                        "bytesTotal": True,
-                        "childCount": True,
-                        "comment": True,
-                        "enabled": True,
-                        "hosts": True,
-                        "maxResults": -1,
-                        "packageUUIDs": uuid,
-                        "priority": True,
-                        "saveTo": True,
-                        "startAt": 0,
-                        "status": True
-                    }])
+                package = query_packages_from_linkgrabber()
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                set_device_from_config()
-                if not shared_state.get_device():
+                if not handle_exception():
                     return False
-                package = shared_state.get_device().linkgrabber.query_packages(params=[
-                    {
-                        "availableOfflineCount": True,
-                        "availableOnlineCount": True,
-                        "availableTempUnknownCount": True,
-                        "availableUnknownCount": True,
-                        "bytesTotal": True,
-                        "childCount": True,
-                        "comment": True,
-                        "enabled": True,
-                        "hosts": True,
-                        "maxResults": -1,
-                        "packageUUIDs": uuid,
-                        "priority": True,
-                        "saveTo": True,
-                        "startAt": 0,
-                        "status": True
-                    }])
+                package = query_packages_from_linkgrabber()
+
             if not package:
                 try:
-                    package = shared_state.get_device().downloads.query_packages(params=[
-                        {
-                            "bytesLoaded": True,
-                            "bytesTotal": True,
-                            "comment": True,
-                            "enabled": True,
-                            "eta": True,
-                            "priority": True,
-                            "finished": True,
-                            "running": True,
-                            "speed": True,
-                            "status": True,
-                            "childCount": True,
-                            "hosts": True,
-                            "saveTo": True,
-                            "maxResults": -1,
-                            "packageUUIDs": uuid,
-                            "startAt": 0,
-                        }])
+                    package = query_packages_from_downloads()
                 except (TokenExpiredException, RequestTimeoutException, MYJDException):
-                    set_device_from_config()
-                    if not shared_state.get_device():
+                    if not handle_exception():
                         return False
-                    package = shared_state.get_device().downloads.query_packages(params=[
-                        {
-                            "bytesLoaded": True,
-                            "bytesTotal": True,
-                            "comment": True,
-                            "enabled": True,
-                            "eta": True,
-                            "priority": True,
-                            "finished": True,
-                            "running": True,
-                            "speed": True,
-                            "status": True,
-                            "childCount": True,
-                            "hosts": True,
-                            "saveTo": True,
-                            "maxResults": -1,
-                            "packageUUIDs": uuid,
-                            "startAt": 0,
-                        }])
+                    package = query_packages_from_downloads()
+
             if package:
                 remove_from_linkgrabber(linkids, uuid)
                 title = package[0].get('name')
                 full_path = package[0].get('saveTo')
                 if download(title, None, links, None, full_path):
                     return True
-            else:
-                return False
-        else:
             return False
+        return False
     except (TokenExpiredException, RequestTimeoutException, MYJDException) as e:
-        print("Fehler bei der Verbindung mit My JDownloader: " + str(e))
+        print(f"Fehler bei der Verbindung mit My JDownloader: {e}")
         return False
 
 
@@ -759,18 +691,18 @@ def jdownloader_start():
         return False
 
 
-def jdownloader_pause(bl):
+def jdownloader_pause(boolean):
     try:
         if not shared_state.get_device():
             set_device_from_config()
         if shared_state.get_device():
             try:
-                shared_state.get_device().downloadcontroller.pause_downloads(bl)
+                shared_state.get_device().downloadcontroller.pause_downloads(boolean)
             except (TokenExpiredException, RequestTimeoutException, MYJDException):
                 set_device_from_config()
                 if not shared_state.get_device():
                     return False
-                shared_state.get_device().downloadcontroller.pause_downloads(bl)
+                shared_state.get_device().downloadcontroller.pause_downloads(boolean)
             return True
         else:
             return False
@@ -999,7 +931,7 @@ def do_package_merge(title, uuids, linkids):
         return False
 
 
-def do_add_decrypted(title, password, cnl_packages):
+def download_decrypted_links_from_cnl(title, password, cnl_packages):
     linkids = []
     uuids = []
     urls = ""
@@ -1020,7 +952,7 @@ def do_add_decrypted(title, password, cnl_packages):
     return False
 
 
-def add_decrypt(title, link, password, replace=False):
+def add_for_manual_decryption(title, link, password, replace=False):
     try:
         if check_is_site(link):
             hostnames = CrawlerConfig('Hostnames')
