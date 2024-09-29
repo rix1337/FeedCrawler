@@ -1679,7 +1679,7 @@ def app_container():
         try:
             payload = decode_base64(payload.replace("%3D", "=")).split("|")
         except:
-            return abort(400, "Failed")
+            return abort(400, f"Failed to decode payload: {payload}")
         if payload:
             links = clean_links(payload[0])
 
@@ -1697,32 +1697,41 @@ def app_container():
 
             result = attempt_download(package_name, links, password, ids)
             return result
-        return abort(400, "Failed")
+        return abort(400, "Request was missing payload")
 
     @app.post(prefix + "/sponsors_helper/to_download/")
     def to_download():
         try:
             data = request.body.read().decode("utf-8")
+        except:
+            abort(400, "Could not get data from request body")
+        try:
             payload = json.loads(data)
+        except:
+            abort(400, "Could not decode payload from request data")
 
+        try:
             package_name = payload["package_name"] \
                 .encode("ascii", errors="ignore").decode().replace("/", "").replace(" ", ".")
             links = clean_links(payload["links"])
+        except:
+            abort(400, f"Request payload missing package_name or links: {payload}")
 
-            try:
-                password = payload["password"]
-            except:
-                password = ""
+        try:
+            password = payload["password"]
+        except:
+            password = ""
 
-            try:
-                ids = payload["ids"]
-            except:
-                ids = False
+        try:
+            ids = payload["ids"]
+        except:
+            ids = False
 
+        try:
             result = attempt_download(package_name, links, password, ids)
             return result
         except:
-            pass
-        return abort(400, "Failed")
+            abort(400, f"Download attempt failed for payload: {payload}")
+        return abort(400, "Request failed for unknown reason")
 
     Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()
