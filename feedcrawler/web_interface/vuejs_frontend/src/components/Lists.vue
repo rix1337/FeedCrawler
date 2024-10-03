@@ -112,7 +112,7 @@ function submitLists() {
                               @click="showRegExHelp">RegEx-Suche</span>
                     </h5><!-- Setting variables in label is unsupported -->
                     <FormKit v-model="store.lists.mb.regex"
-                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]?!]+$/]]"
+                             :validation="[['?matches', /^[a-zA-Z0-9ÄäÖöÜüß\-\s.*+()|\[\]\\{},?!]+$/]]"
                              :validation-messages="{
                                 matches: 'Bitte nur Buchstaben, Zahlen, Leerzeichen oder folgende Sonderzeichen eingeben: . * + ( ) | [ ] ? !'
                              }"

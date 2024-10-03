@@ -30,11 +30,15 @@ class BL:
         self.url = self.hostnames.get('by')
         self.password = self.url.split('.')[0]
 
-        if "List_ContentAll_Seasons" not in filename:
+        if "_Regex" in filename:
+            self.URL = 'https://' + self.url + "/?cat="
+            self.FEED_URLS = [self.URL + "1", self.URL + "2"]
+        elif "List_ContentAll_Seasons" not in filename:
             self.URL = 'https://' + self.url + "/?cat=1"
+            self.FEED_URLS = [self.URL]
         else:
             self.URL = 'https://' + self.url + "/?cat=2"
-        self.FEED_URLS = [self.URL]
+            self.FEED_URLS = [self.URL]
 
         self.config = CrawlerConfig("ContentAll")
         self.feedcrawler = CrawlerConfig("FeedCrawler")
@@ -49,9 +53,17 @@ class BL:
         search = int(CrawlerConfig("ContentAll").get("search"))
         i = 2
         while i <= search:
-            page_url = self.URL + "&start=" + str(i)
-            if page_url not in self.FEED_URLS:
-                self.FEED_URLS.append(page_url)
+            if "_Regex" in filename:
+                page_url_1 = self.URL + "1&start=" + str(i)
+                page_url_2 = self.URL + "2&start=" + str(i)
+                if page_url_1 not in self.FEED_URLS:
+                    self.FEED_URLS.append(page_url_1)
+                if page_url_2 not in self.FEED_URLS:
+                    self.FEED_URLS.append(page_url_2)
+            else:
+                page_url = self.URL + "&start=" + str(i)
+                if page_url not in self.FEED_URLS:
+                    self.FEED_URLS.append(page_url)
             i += 1
         self.cdc = FeedDb('cdc')
 
