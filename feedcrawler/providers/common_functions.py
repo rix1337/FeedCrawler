@@ -620,7 +620,7 @@ def keep_alphanumeric_with_special_characters(string):
 
 def keep_alphanumeric_with_regex_characters(string):
     string = replace_with_stripped_ascii(string)
-    return re.sub(r'[^0-9a-zA-Z\s\-.*+()|\[\]?!]', '', string)
+    return re.sub(r'[^0-9a-zA-Z\s\-.*+()|\[\]\\{},?!]', '', string)
 
 
 def keep_numbers(string):
