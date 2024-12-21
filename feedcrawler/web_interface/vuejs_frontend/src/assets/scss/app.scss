@@ -46,3 +46,12 @@ input {
   margin-right: auto;
   text-align: center;
 }
+
+/* CAPTCHA centered */
+#captcha {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: max-content;
+  margin: auto;
+}

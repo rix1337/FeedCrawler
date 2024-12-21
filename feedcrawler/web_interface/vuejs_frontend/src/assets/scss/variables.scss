@@ -1,110 +1,109 @@
 // Import Bootstrap SCSS
-@import "../node_modules/bootstrap/scss/functions";
-@import "../node_modules/bootstrap/scss/variables";
+@use 'bootstrap/scss/bootstrap' as bs;
 
 // Toast styles
 .c-toast-container .c-toast--success {
-  background-color: $success;
-  font-family: $font-family-sans-serif;
+  background-color: bs.$success;
+  font-family: bs.$font-family-sans-serif;
 }
 
 .c-toast-container .c-toast--info {
-  background-color: $primary;
-  font-family: $font-family-sans-serif;
+  background-color: bs.$primary;
+  font-family: bs.$font-family-sans-serif;
 }
 
 .c-toast-container .c-toast--warning {
-  background-color: $warning;
-  font-family: $font-family-sans-serif;
+  background-color: bs.$warning;
+  font-family: bs.$font-family-sans-serif;
 }
 
 .c-toast-container .c-toast--error {
-  background-color: $danger;
-  font-family: $font-family-sans-serif;
+  background-color: bs.$danger;
+  font-family: bs.$font-family-sans-serif;
 }
 
 .c-toast-container .c-toast--default {
-  background-color: $secondary;
-  font-family: $font-family-sans-serif;
+  background-color: bs.$secondary;
+  font-family: bs.$font-family-sans-serif;
 }
 
 // Formkit Validation styles
 [data-invalid] .formkit-inner {
-  border-color: $danger !important;
+  border-color: bs.$danger !important;
   border-radius: .25rem;
-  box-shadow: 0 0 0 0.25rem $danger !important;
+  box-shadow: 0 0 0 0.25rem bs.$danger !important;
 }
 
 .dark {
   .card, .offcanvas, .modal-content {
-    background-color: $dark;
-    color: $white;
-    border-color: $secondary;
+    background-color: bs.$dark;
+    color: bs.$white;
+    border-color: bs.$secondary;
   }
 
   .card-header {
-    border-bottom-color: $secondary;
+    border-bottom-color: bs.$secondary;
   }
 
   .border-top {
-    border-top-color: $secondary !important;
+    border-top-color: bs.$secondary !important;
   }
 
   .modal-header {
-    border-bottom-color: $secondary;
+    border-bottom-color: bs.$secondary;
   }
 
   .modal-footer {
-    border-top-color: $secondary;
+    border-top-color: bs.$secondary;
   }
 
   .table > :not(caption) > * > * {
-    background-color: $dark;
-    color: $white;
+    background-color: bs.$dark;
+    color: bs.$white;
   }
 
   tbody, td, tfoot, th, thead, tr {
-    border-color: $secondary;
+    border-color: bs.$secondary;
   }
 
   .table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
-    background-color: $warning;
+    background-color: bs.$warning;
   }
 
   .list-group-item {
-    background-color: $dark;
-    color: $white;
+    background-color: bs.$dark;
+    color: bs.$white;
   }
 
   .accordion-item {
-    color: $white;
+    color: bs.$white;
   }
 
   .accordion {
     background-color: black !important;
-    color: $white !important;
-    border-color: $secondary !important;
-    --bs-accordion-bg: $dark !important;
+    color: bs.$white !important;
+    border-color: bs.$secondary !important;
+    --bs-accordion-bg: bs.$dark !important;
   }
 
   .accordion-button {
-    background-color: $gray-800 !important;
-    color: $warning !important;
+    background-color: bs.$gray-800 !important;
+    color: bs.$warning !important;
   }
 
 
   .form-control {
-    border-color: $secondary;
+    border-color: bs.$secondary;
   }
 
   .form-control.bg-light {
-    background-color: $dark !important;
-    color: $white;
+    background-color: bs.$dark !important;
+    color: bs.$white;
   }
 
   ul.pagination li {
-    --bs-pagination-bg: $dark !important;
-    --bs-pagination-disabled-bg: $white !important;
+    --bs-pagination-bg: bs.$dark !important;
+    --bs-pagination-disabled-bg: bs.$white !important;
   }
 
   svg {
@@ -113,16 +112,16 @@
   }
 
   mark {
-    background-color: $secondary;
-    color: $white;
+    background-color: bs.$secondary;
+    color: bs.$white;
   }
 
   mark a {
-    color: $warning;
+    color: bs.$warning;
   }
 
   mark a {
-    color: $warning !important;
+    color: bs.$warning !important;
   }
 
   .percentage {

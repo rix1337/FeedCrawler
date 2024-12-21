@@ -82,7 +82,6 @@ def set_logger():
         logger.addHandler(console)
 
         if log_level == 10:
-            print("DEBUG Modus aktiviert. DEBUG-Log wird in 'FeedCrawler_DEBUG.log' gespeichert.")
             logfile_debug = logging.handlers.RotatingFileHandler(values["log_file_debug"])
             logfile_debug.setFormatter(formatter)
             logfile_debug.setLevel(10)

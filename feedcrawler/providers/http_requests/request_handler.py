@@ -242,3 +242,56 @@ def request(
         resp_url = url
 
     return Response(req, content, text, json, status_code, resp_url, headers, cookiejar)
+
+
+class Session:
+    def __init__(self):
+        # Create a single CookieJar to manage session cookies
+        self.cookiejar = CookieJar()
+        # Shared headers for all requests
+        self.headers = {}
+
+    def request(self, url, method="GET", **kwargs):
+        """
+        Make a request while persisting cookies and printing cookie operations.
+        """
+        # Merge session headers with request-specific headers
+        kwargs["headers"] = {**self.headers, **kwargs.get("headers", {})}
+
+        # Provide the persistent CookieJar to the request
+        kwargs["cookiejar"] = self.cookiejar
+
+        # Perform the HTTP request
+        response = request(url, method=method, **kwargs)
+
+        # Persist cookies from the response into the shared CookieJar
+        if response.cookiejar:
+            for cookie in response.cookiejar:
+                self.cookiejar.set_cookie(cookie)
+
+        return response
+
+    def get(self, url, **kwargs):
+        """
+        Convenience method for GET requests.
+        """
+        return self.request(url, method="GET", **kwargs)
+
+    def post(self, url, **kwargs):
+        """
+        Convenience method for POST requests.
+        """
+        return self.request(url, method="POST", **kwargs)
+
+    def update_headers(self, headers):
+        """
+        Update shared headers for all requests in this session.
+        """
+        self.headers.update(headers)
+
+    def clear_cookies(self):
+        """
+        Clear all cookies stored in the session.
+        """
+        self.cookiejar.clear()
+        print("All session cookies cleared.")

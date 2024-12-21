@@ -14,6 +14,8 @@ from functools import wraps
 from urllib import parse
 from xml.etree import ElementTree
 
+from feedcrawler.providers.http_requests.request_handler import request as internal_request
+
 if sys.stdout is None or sys.stderr is None:  # required to allow pyinstaller --noconsole to work with bottle
     from io import StringIO
 
@@ -22,7 +24,7 @@ if sys.stdout is None or sys.stderr is None:  # required to allow pyinstaller --
 
 from Cryptodome.Protocol.KDF import scrypt
 from Cryptodome.Random import get_random_bytes
-from bottle import Bottle, request, HTTPError, static_file, redirect, abort
+from bottle import Bottle, request, response, HTTPError, static_file, redirect, abort
 from bs4 import BeautifulSoup
 
 import feedcrawler.external_sites
@@ -42,6 +44,7 @@ from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb, ListDb
 from feedcrawler.providers.url_functions import get_url_headers, post_url_headers, get_url
 from feedcrawler.web_interface.serve.server import Server
+from feedcrawler.external_sites.captcha.filecrypt import get_filecrypt_links
 
 helper_active = False
 already_added = []
@@ -159,7 +162,8 @@ def app_container():
             "/sponsors_helper/api/to_decrypt/",
             "/sponsors_helper/api/to_decrypt_disable/",
             "/sponsors_helper/replace_decrypt/",
-            "/sponsors_helper/to_download/"
+            "/sponsors_helper/to_download/",
+            "/captcha/"
         ]
         if not request.path.endswith('/') and not any(s in request.path for s in no_trailing_slash):
             raise redirect(request.url + '/')
@@ -1622,5 +1626,94 @@ def app_container():
         except:
             abort(400, f"Download attempt failed for payload: {payload}")
         return abort(400, "Request failed for unknown reason")
+
+    obfuscated_captcha_url = decode_base64('aHR0cHM6Ly92Mi5jdXRjYXB0Y2hhLm5ldA==')
+
+    @app.post(prefix + "/api/captcha_token/")
+    def captcha_token():
+        try:
+            data = request.body.read().decode("utf-8")
+        except:
+            abort(400, "Could not get data from request body")
+        try:
+            payload = json.loads(data)
+            token = payload["token"]
+            title = payload["title"]
+            link = clean_links(payload["link"])
+            password = payload["password"]
+            decrypted_links = get_filecrypt_links(shared_state, token, title, link, password)
+            success = len(decrypted_links) > 0
+            if success:
+                if attempt_download(title, decrypted_links, password, []):
+                    return f"CAPTCHA solved successfully! Decrypted {decrypted_links} links for {title}"
+                else:
+                    abort(400, f"Starting Download failed for {title} using {decrypted_links} links.")
+            abort(400, f"CAPTCHA solving failed for {title} using token {token}.")
+        except:
+            abort(400, f"CAPTCHA solving failed for payload: {payload}")
+
+    @app.post(prefix + '/captcha/<captcha_id>.html')
+    def proxy(captcha_id):
+        target_url = f"{obfuscated_captcha_url}/captcha/{captcha_id}.html"
+
+        headers = {key: value for key, value in request.headers.items() if key != 'Host'}
+        data = request.body.read()
+        resp = internal_request(target_url, method='POST', headers=headers, data=data.decode("utf-8"))
+
+        content = resp.text
+        content = re.sub(r'<script src="/(.*?)"></script>',
+                         f'<script src="{obfuscated_captcha_url}/\\1"></script>', content)
+        response.content_type = 'text/html'
+        return content
+
+    @app.post(prefix + '/captcha/<captcha_id>.json')
+    def specific_proxy(captcha_id):
+        target_url = f"{obfuscated_captcha_url}/captcha/{captcha_id}.json"
+
+        headers = {key: value for key, value in request.headers.items() if key != 'Host'}
+        data = request.body.read()
+        resp = internal_request(target_url, method='POST', headers=headers, data=data.decode("utf-8"))
+
+        response.content_type = "application/json; charset=utf-8"
+        return resp.content
+
+    @app.get(prefix + '/captcha/<captcha_id>/<uuid>/<filename>')
+    def captcha_proxy(captcha_id, uuid, filename):
+        new_url = f"{obfuscated_captcha_url}/captcha/{captcha_id}/{uuid}/{filename}"
+
+        try:
+            external_response = internal_request(new_url, method="GET")
+
+            if external_response.status_code >= 400:
+                raise Exception(
+                    f"Request failed with status code {external_response.status_code}: {external_response.text}")
+
+            response.content_type = 'image/png'
+            response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
+
+            def generate_chunks(chunk_size=8192):
+                content = external_response.content
+                for i in range(0, len(content), chunk_size):
+                    yield content[i:i + chunk_size]
+
+            return generate_chunks()
+
+        except Exception as e:
+            response.status = 502
+            return f"Error fetching resource: {e}"
+
+    @app.post(prefix + '/captcha/<captcha_id>/check')
+    def captcha_check_proxy(captcha_id):
+        new_url = f"{obfuscated_captcha_url}/captcha/{captcha_id}/check"
+        headers = {key: value for key, value in request.headers.items()}
+
+        data = request.body.read()
+        resp = internal_request(new_url, method='POST', headers=headers, data=data.decode("utf-8"))
+
+        response.status = resp.status_code
+        for header in resp.headers:
+            if header.lower() not in ['content-encoding', 'transfer-encoding', 'content-length', 'connection']:
+                response.set_header(header, resp.headers[header])
+        return resp.text
 
     Server(app, listen='0.0.0.0', port=shared_state.values["port"]).serve_forever()

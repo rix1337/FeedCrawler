@@ -4,6 +4,7 @@ import {computed, inject, onMounted, ref} from 'vue'
 import {Collapse, Offcanvas} from 'bootstrap'
 import axios from 'axios'
 import Paginate from "vuejs-paginate-next"
+import Captcha from "@/components/Captcha.vue";
 
 const store = useStore()
 const toast = inject('toast')
@@ -130,7 +131,6 @@ function getMyJD() {
         myjd_failed.value = null
         store.setMyJDConnectionError(true)
         console.log('Konnte JDownloader nicht erreichen!')
-        toast.error('Konnte JDownloader nicht erreichen!')
       })
 }
 
@@ -434,6 +434,17 @@ function showSponsorsHelp() {
     toggle: true
   })
 }
+
+const activeCaptchaIndex = ref(null); // Null = no active Captcha
+
+function openCaptcha(index) {
+  if (activeCaptchaIndex.value === index) {
+    activeCaptchaIndex.value = null; // Reset to ensure it can re-trigger
+  }
+  setTimeout(() => {
+    activeCaptchaIndex.value = index; // Set the new index
+  }, 0); // Allow the DOM to notice the change
+}
 </script>
 
 
@@ -470,7 +481,7 @@ function showSponsorsHelp() {
                      data-bs-parent="#accordionMyJD">
                   <div class="accordion-body">
                     <div v-if="!store.misc.myjd_connection_error">
-                      <div v-for="x in currentMyJDPage" class="myjd-items">
+                      <div v-for="(x, index) in currentMyJDPage" class="myjd-items" :key="index">
                         <div class="row m-2">
                           <div class="myjd-downloads">
                             <div v-if="x.type==='online'" :class="{ 'bg-success': x.enabled,
@@ -595,10 +606,10 @@ function showSponsorsHelp() {
                               </div>
                               <ul class="list-group list-group-flush">
                                 <li class="list-group-item">
-                      <span
-                          v-tippy="'Dies tritt auf, wenn das Entpacken fehlschlägt, oder Teile des Paketes offline sind.'">
-                        Download fehlgeschlagen!
-                      </span>
+                                <span
+                                    v-tippy="'Dies tritt auf, wenn das Entpacken fehlschlägt, oder Teile des Paketes offline sind.'">
+                                  Download fehlgeschlagen!
+                                </span>
                                 </li>
                                 <li class="list-group-item">
                                   <button class="btn btn-outline-danger m-1"
@@ -622,7 +633,18 @@ function showSponsorsHelp() {
                               </div>
                               <ul class="list-group list-group-flush">
                                 <li v-if="x[1].url" class="list-group-item">
-                                  <!-- TODO add captcha helper -->
+                                  <button class="btn btn-outline-primary mb-2"
+                                          type="button"
+                                          @click='openCaptcha(index)'><i class="bi bi-puzzle"></i> CAPTCHA
+                                    abrufen
+                                  </button>
+                                  <div v-if="activeCaptchaIndex === index">
+                                    <Captcha
+                                        :title="x[1].name"
+                                        :link="x[1].url"
+                                        :password="x[1].password"
+                                    />
+                                  </div>
                                   <span v-if="!store.misc.helper_active"><br>
                                         <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
                                             v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
