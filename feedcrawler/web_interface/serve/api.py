@@ -37,13 +37,11 @@ from feedcrawler.providers.common_functions import decode_base64, check_is_site,
 from feedcrawler.providers.config import CrawlerConfig
 from feedcrawler.providers.myjd_connection import set_device, get_info, set_device_from_config, get_state, \
     set_enabled, move_to_downloads, remove_from_linkgrabber, reset_in_downloads, retry_decrypt, jdownloader_start, \
-    jdownloader_pause, jdownloader_stop, jdownloader_update, download_decrypted_links_from_cnl, \
-    get_packages_in_linkgrabber, download
+    jdownloader_pause, jdownloader_stop, jdownloader_update, get_packages_in_linkgrabber, download
 from feedcrawler.providers.notifications import notify
 from feedcrawler.providers.sqlite_database import FeedDb, ListDb
 from feedcrawler.providers.url_functions import get_url_headers, post_url_headers, get_url
 from feedcrawler.web_interface.serve.server import Server
-from feedcrawler.web_interface.serve import tampermonkey_scripts
 
 helper_active = False
 already_added = []
@@ -158,7 +156,6 @@ def app_container():
             "/api/myjd_reset/",
             "/api/myjd_retry/",
             "/api/myjd_pause/",
-            "/api/internal_cnl/",
             "/sponsors_helper/api/to_decrypt/",
             "/sponsors_helper/api/to_decrypt_disable/",
             "/sponsors_helper/replace_decrypt/",
@@ -1223,65 +1220,6 @@ def app_container():
             pass
         return abort(400, "Failed")
 
-    @app.post(prefix + "/api/internal_cnl/<name>&<password>")
-    @auth_basic(is_authenticated_user)
-    def internal_cnl(name, password):
-        try:
-            packages = get_info()
-            if packages:
-                decrypted_packages = packages[4][1]
-                offline_packages = packages[4][2]
-            else:
-                decrypted_packages = False
-                offline_packages = False
-
-            known_packages = []
-            if decrypted_packages:
-                for dp in decrypted_packages:
-                    known_packages.append(dp['uuid'])
-            if offline_packages:
-                for op in offline_packages:
-                    known_packages.append(op['uuid'])
-
-            cnl_packages = []
-            grabber_was_collecting = False
-            i = 12
-            while i > 0:
-                i -= 1
-                time.sleep(5)
-                packages = get_info()
-                if packages:
-                    grabber_collecting = packages[2]
-                    if grabber_was_collecting or grabber_collecting:
-                        grabber_was_collecting = grabber_collecting
-                        i -= 1
-                        time.sleep(5)
-                    else:
-                        if not grabber_collecting:
-                            decrypted_packages = packages[4][1]
-                            offline_packages = packages[4][2]
-                            if not grabber_collecting and decrypted_packages:
-                                for dp in decrypted_packages:
-                                    if dp['uuid'] not in known_packages:
-                                        cnl_packages.append(dp)
-                                        i = 0
-                            if not grabber_collecting and offline_packages:
-                                for op in offline_packages:
-                                    if op['uuid'] not in known_packages:
-                                        cnl_packages.append(op)
-                                        i = 0
-
-            if not cnl_packages:
-                return abort(504, "No Package added through Click'n'Load in time!")
-
-            if download_decrypted_links_from_cnl(name, password, cnl_packages):
-                remove_decrypt(name)
-                remove_decrypt(name, disabled=True)
-                return "Success"
-        except:
-            pass
-        return abort(400, "Failed")
-
     @app.get(prefix + "/api/lists/")
     @auth_basic(is_authenticated_user)
     def get_lists():
@@ -1350,55 +1288,6 @@ def app_container():
             ListDb("List_CustomDD_Feeds").store_list(dd_feeds)
 
             return "Success"
-        except:
-            return abort(400, "Failed")
-
-    @app.get(prefix + "/tampermonkey/feedcrawler_helper_sj.user.js")
-    @auth_basic(is_authenticated_user)
-    def feedcrawler_helper_sj():
-        try:
-            hostnames = CrawlerConfig('Hostnames')
-            sj = hostnames.get('sj')
-            dj = hostnames.get('dj')
-            return tampermonkey_scripts.get_feedcrawler_helper_sj(sj, dj)
-        except:
-            return abort(400, "Failed")
-
-    @app.get(prefix + "/tampermonkey/feedcrawler_sponsors_helper_sj.user.js")
-    @auth_basic(is_authenticated_user)
-    def feedcrawler_sponsors_helper_sj():
-        if not helper_active:
-            redirect_sponsors()
-        try:
-            hostnames = CrawlerConfig('Hostnames')
-            sj = hostnames.get('sj')
-            dj = hostnames.get('dj')
-            return tampermonkey_scripts.get_feedcrawler_sponsors_helper_sj(sj, dj, shared_state.values["local_address"])
-        except:
-            return abort(400, "Failed")
-
-    @app.get(prefix + "/tampermonkey/feedcrawler_sponsors_helper_fc.user.js")
-    @auth_basic(is_authenticated_user)
-    def feedcrawler_sponsors_helper_fc():
-        if not helper_active:
-            redirect_sponsors()
-        try:
-            hostnames = CrawlerConfig('Hostnames')
-            fx = hostnames.get('fx')
-            sf = hostnames.get('sf')
-            return tampermonkey_scripts.get_feedcrawler_sponsors_helper_fc(fx, sf, shared_state.values["local_address"])
-        except:
-            return abort(400, "Failed")
-
-    @app.get(prefix + "/tampermonkey/feedcrawler_sponsors_helper_nx.user.js")
-    @auth_basic(is_authenticated_user)
-    def feedcrawler_sponsors_helper_nx():
-        if not helper_active:
-            redirect_sponsors()
-        try:
-            hostnames = CrawlerConfig('Hostnames')
-            nx = hostnames.get('nx')
-            return tampermonkey_scripts.get_feedcrawler_sponsors_helper_nx(nx, shared_state.values["local_address"])
         except:
             return abort(400, "Failed")
 

@@ -931,27 +931,6 @@ def do_package_merge(title, uuids, linkids):
         return False
 
 
-def download_decrypted_links_from_cnl(title, password, cnl_packages):
-    linkids = []
-    uuids = []
-    urls = ""
-    for cnl_package in cnl_packages:
-        for linkid in cnl_package['linkids']:
-            linkids.append(linkid)
-        uuids.append(cnl_package['uuid'])
-        urls = urls + ensure_string(cnl_package['urls']).replace("\n\n", "\n")
-
-    links = ensure_string(urls).replace("\n\n", "\n")
-    if remove_from_linkgrabber(linkids, uuids):
-        if download(title, "FeedCrawler", links, password):
-            episode = re.findall(r'.*\.S\d{1,3}E(\d{1,3})\..*', title)
-            if episode:
-                FeedDb('episode_remover').store(title, str(int(episode[0])))
-            print("[Click'n'Load-Automatik erfolgreich] - " + title)
-            return [True, title]
-    return False
-
-
 def add_for_manual_decryption(title, link, password, replace=False):
     try:
         if check_is_site(link):

@@ -32,18 +32,7 @@ function getVersion() {
         console.info("%c ❤ Projekt unterstützen %c ".concat("https://github.com/sponsors/rix1337 ❤", " "), "color: white; background: #dc3545; font-weight: 700;", "color: #dc3545; background: white; font-weight: 700;")
         update.value = res.data.version.update_ready
         store.setDocker(res.data.version.docker)
-        let helper_active = res.data.version.helper_active
-        if (helper_active) {
-          store.setHelperActive(true)
-          axios.get("http://127.0.0.1:9666/")
-              .then(function (res) {
-                let jd_cnl_available = (res.data === 'JDownloader')
-                if (jd_cnl_available) {
-                  store.setHelperAvailable(true)
-                  console.log("Click'n'Load des FeedCrawler Sponsors Helper ist verfügbar!")
-                }
-              })
-        }
+        store.setHelperActive(res.data.version.helper_active)
         if (update.value) {
           scrollingTitle("FeedCrawler - Update verfügbar! - ")
           console.log('Update steht bereit! Weitere Informationen unter https://github.com/rix1337/FeedCrawler/releases/latest')
