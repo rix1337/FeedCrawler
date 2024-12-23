@@ -160,6 +160,27 @@ def get_device():
     return values["device"]
 
 
+def set_device_from_config():
+    config = CrawlerConfig('FeedCrawler')
+    myjd_user = str(config.get('myjd_user'))
+    myjd_pass = str(config.get('myjd_pass'))
+    myjd_device = str(config.get('myjd_device'))
+
+    update("device", myjd_device)
+
+    jd = Myjdapi()
+    jd.set_app_key('FeedCrawler')
+
+    if myjd_user and myjd_pass and myjd_device:
+        try:
+            jd.connect(myjd_user, myjd_pass)
+            jd.update_devices()
+            return jd.get_device(myjd_device)
+        except (TokenExpiredException, RequestTimeoutException, MYJDException):
+            pass
+    return False
+
+
 def set_connection_info(local_address, port, prefix):
     update("local_address", local_address)
     update("port", port)

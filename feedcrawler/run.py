@@ -104,24 +104,9 @@ def main():
             else:
                 myjd_config(port, local_address, shared_state)
 
-            shared_state.set_device(device)
-            connection_established = shared_state.get_device() and shared_state.get_device().name
-            if not connection_established:
-                i = 0
-                while i < 10:
-                    i += 1
-                    print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
-                    time.sleep(60)
-                    set_device_from_config()
-                    connection_established = shared_state.get_device() and shared_state.get_device().name
-                    if connection_established:
-                        break
-
-            if connection_established:
-                print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
-            else:
-                print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
-                sys.exit(1)
+        process_jdownloader = multiprocessing.Process(target=jdownloader_connection,
+                                                      args=(shared_state_dict, shared_state_lock))
+        process_jdownloader.start()
 
         feedcrawler = CrawlerConfig('FeedCrawler')
         if not os.environ.get('DOCKER') and not arguments.port:
@@ -160,6 +145,7 @@ def main():
                 gui.main_gui(window, shared_state_dict, shared_state_lock)
 
                 sys.stdout = sys.__stdout__
+                process_jdownloader.terminate()
                 process_web_server.terminate()
                 process_feed_crawler.terminate()
                 process_watch_packages.terminate()
@@ -167,6 +153,7 @@ def main():
 
             else:  # regular console
                 def signal_handler(sig, frame):
+                    process_jdownloader.terminate()
                     process_web_server.terminate()
                     process_feed_crawler.terminate()
                     process_watch_packages.terminate()
@@ -184,6 +171,29 @@ def main():
             feed_crawler(shared_state_dict, shared_state_lock)
             process_web_server.terminate()
             sys.exit(0)
+
+
+def jdownloader_connection(shared_state_dict, shared_state_lock):
+    shared_state.set_state(shared_state_dict, shared_state_lock)
+
+    shared_state.set_device_from_config()
+    connection_established = shared_state.get_device() and shared_state.get_device().name
+    if not connection_established:
+        i = 0
+        while i < 10:
+            i += 1
+            print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
+            time.sleep(60)
+            set_device_from_config()
+            connection_established = shared_state.get_device() and shared_state.get_device().name
+            if connection_established:
+                break
+
+    if connection_established:
+        print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
+    else:
+        print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
+        sys.exit(1)
 
 
 if __name__ == "__main__":
