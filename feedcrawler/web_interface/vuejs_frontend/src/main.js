@@ -153,7 +153,6 @@ export const useStore = defineStore({
                     this.crawltimes = res.data.crawltimes
                 }, () => {
                     console.log('Konnte Laufzeiten nicht abrufen!')
-                    toast.error('Konnte Laufzeiten nicht abrufen!')
                 })
         }, getHostNames() {
             axios.get('api/hostnames/')

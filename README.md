@@ -34,7 +34,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 ### Voraussetzungen
 
 * [Python 3.8](https://www.python.org/downloads/) oder neuer (nur
-  4 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
+  5 [externe Abhängigkeiten](https://github.com/rix1337/FeedCrawler/blob/main/requirements.txt)!)
 * [JDownloader 2](http://www.jdownloader.org/jdownloader2) mit
   aktivem [My JDownloader-Konto](https://my.jdownloader.org)
 * _optional: [FlareSolverr 3](https://github.com/FlareSolverr/FlareSolverr) um Cloudflare-Blockaden zu umgehen_

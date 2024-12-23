@@ -298,7 +298,7 @@ function updatePlexUrl() {
                   <h5>Ein Mirror genügt</h5> <!-- Checkbox labels are not placed above -->
                   <label class="form-check form-switch">
                     <FormKit v-model="store.settings.general.one_mirror_policy"
-                             help="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Das ermöglicht den sofortigen Start ohne Click'n'Load-Automatik - betrifft aber alle Pakete im JDownloader!"
+                             help="Wenn aktiviert, und sofern mindestens ein entschlüsselter Link im Paket vorhanden ist, werden vor dem Download alle Links aus einem Paket entfernt die offline oder verschlüsselt sind. Gilt für alle Pakete im JDownloader!"
                              help-class="text-muted"
                              input-class="form-check-input"
                              messages-class="text-danger"
