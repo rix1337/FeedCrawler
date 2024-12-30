@@ -358,7 +358,7 @@ const waitTimeActive = computed(() => {
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
                 <button class="btn btn-outline-success" @click="openCaptchaLink">
-                  Anti-Captcha.com (schnelles Lösen von reCAPTCHA, cutcaptcha, etc. - auch im Browser)
+                  DeathByCaptcha.com (schnelles Lösen von reCAPTCHA, cutcaptcha, etc. - auch im Browser)
                 </button>
               </div>
             </div>

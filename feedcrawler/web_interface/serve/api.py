@@ -261,7 +261,7 @@ def app_container():
 
     @app.get(prefix + "/redirect_captcha/")
     def redirect_captcha():
-        redirect("https://getcaptchasolution.com/zuoo67f5cq")
+        redirect("https://deathbycaptcha.com/register?refid=6184288242b")
 
     @app.get(prefix + "/redirect_hoster/")
     def redirect_captcha():
