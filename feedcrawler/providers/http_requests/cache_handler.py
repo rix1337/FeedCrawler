@@ -11,7 +11,6 @@ from feedcrawler.providers.common_functions import check_is_site
 from feedcrawler.providers.common_functions import site_blocked, site_blocked_with_advanced_methods
 from feedcrawler.providers.http_requests.cloudflare_handlers import flaresolverr_task
 from feedcrawler.providers.http_requests.cloudflare_handlers import get_solver_url
-from feedcrawler.providers.http_requests.cloudflare_handlers import sponsors_helper_task
 from feedcrawler.providers.http_requests.request_handler import request
 from feedcrawler.providers.sqlite_database import FeedDb
 
@@ -53,7 +52,6 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     if dont_cache:
         shared_state.logger.debug("Aufruf ohne HTTP-Cache: " + url)
 
-    sponsors_helper_url = get_solver_url("sponsors_helper")
     flaresolverr_url = get_solver_url("flaresolverr")
 
     if not headers:
@@ -76,29 +74,16 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
     proxies = {}
     force_ipv4 = False
 
-    flaresolverr_run = False
-    allow_sponsors_helper_run = False
-    if sponsors_helper_url and not flaresolverr_url:
-        allow_sponsors_helper_run = True
-
     while True:
         try:
             if site_blocked(url):
                 if site_blocked_with_advanced_methods(url):
                     print(f"Der Aufruf von {url} wurde blockiert!")
                     return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
-                if allow_sponsors_helper_run:  # will only be used when flaresolverr is not available or not working
-                    cookiejar, user_agent, proxy = sponsors_helper_task(sponsors_helper_url, url)
-                    proxies = {"http": proxy, "https": proxy}
-                    headers['User-Agent'] = user_agent
-                    force_ipv4 = False
-                    flaresolverr_run = False
-                elif flaresolverr_url:
+                if flaresolverr_url:
                     cookiejar, user_agent = flaresolverr_task(flaresolverr_url, url)
                     headers['User-Agent'] = user_agent
                     force_ipv4 = True
-                    flaresolverr_run = True
-                    allow_sponsors_helper_run = True
 
             if method == 'post':
                 response = request(url, method="POST", data=params, timeout=60, headers=headers,
@@ -115,16 +100,13 @@ def cached_request(url, method='get', params=None, headers=None, redirect_url=Fa
                     normal_blocked = db_status.retrieve(site + "_normal")
                     if not normal_blocked:
                         db_status.store(site + "_normal", "Blocked")
-                        if sponsors_helper_url or flaresolverr_url:
+                        if flaresolverr_url:
                             print("Versuche es mit Cloudfare-Umgehung erneut...")
                             continue  # try again with any solver
                     else:
                         advanced_blocked = db_status.retrieve(site + "_advanced")
                         if not advanced_blocked:
                             db_status.store(site + "_advanced", "Blocked")
-                if flaresolverr_run and allow_sponsors_helper_run:
-                    print("Lösung mit FlareSolverr gescheitert. Versuche es mit Sponsors Helper...")
-                    continue  # try again with sponsors helper
                 return {'status_code': status_code, 'text': text, 'headers': response_headers, 'url': url}
 
             if redirect_url:

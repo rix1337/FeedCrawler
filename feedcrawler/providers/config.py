@@ -27,7 +27,6 @@ class CrawlerConfig(object):
             ("port", "int", "9090"),
             ("prefix", "str", ""),
             ("interval", "int", "60"),
-            ("sponsors_helper", "str", ""),
             ("flaresolverr", "str", ""),
             ("english", "bool", "False"),
             ("surround", "bool", ""),

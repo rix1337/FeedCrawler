@@ -349,27 +349,6 @@ function updatePlexUrl() {
               <div id="collapseSolvers" aria-labelledby="headingSolvers" class="accordion-collapse collapse"
                    data-bs-parent="#accordionSettings">
                 <div class="accordion-body">
-                  <FormKit v-model="store.settings.general.sponsors_helper"
-                           help="Hier die URL des durch FeedCrawler erreichbaren Sponsors Helpers (Port 9700) angeben. Der Sponsors Helper wird für jede Seite genutzt, auf der eine Blockade durch Cloudflare erkannt wurde."
-                           help-class="text-muted"
-                           input-class="form-control bg-light mb-2"
-                           label="Sponsors-Helper-URL"
-                           messages-class="text-danger"
-                           outer-class="mb-4"
-                           placeholder="Bspw. http://192.168.0.1:9700"
-                           type="url"
-                           validation="url"
-                           validation-visibility="live"/>
-                  <div class="mb-4">
-                    <mark>
-                      Die zuverlässigste Möglichkeit, Cloudflare-Blockaden zu umgehen, ist dafür zu bezahlen.<br>
-                      Über den Sponsors Helper ist es möglich, vor dem Suchlauf erkannte Cloudflare-Blockaden zu
-                      umgehen.
-                      Dabei wird pro blockierter Seite ein kurzfristig gültiger Cloudflare-Cookie erzeugt, der dann für
-                      den Suchlauf verwendet wird. Die Kosten pro Seite und Suchlauf liegen im Sub-Cent-Bereich.<br>
-                      Um Kosten zu sparen, kann parallel ein FlareSolverr betrieben werden.
-                    </mark>
-                  </div>
                   <FormKit v-model="store.settings.general.flaresolverr"
                            help="Hier die URL eines durch FeedCrawler erreichbaren FlareSolverrs angeben. FlareSolverr wird für jede Seite genutzt, auf der eine Blockade durch Cloudflare erkannt wurde."
                            help-class="text-muted"

@@ -133,14 +133,14 @@ def main():
         else:
             delay = 60
 
-        try:
-            while not shared_state.values["connected"]:
-                print(f"Verbindung zu JDownloader noch nicht hergestellt - verzögere Suchlauf um {delay} Sekunden")
-                time.sleep(60)
-        except KeyboardInterrupt:
-            sys.exit(1)
-
         if not os.environ.get('GITHUB_ACTION_PR'):
+            try:
+                while not shared_state.values["connected"]:
+                    print(f"Verbindung zu JDownloader noch nicht hergestellt - verzögere Suchlauf um {delay} Sekunden")
+                    time.sleep(60)
+            except KeyboardInterrupt:
+                sys.exit(1)
+
             process_feed_crawler = multiprocessing.Process(target=feed_crawler,
                                                            args=(shared_state_dict, shared_state_lock,))
             process_feed_crawler.start()
