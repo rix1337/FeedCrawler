@@ -142,67 +142,6 @@ def test_challenge_path(url):
         return "/"
 
 
-def sponsors_helper_task(solver_url, url):
-    base_domain = url.split("/")[2]
-    last_solution = unpickle_db("sponsors_helper", base_domain)
-    if last_solution:
-        try:
-            if last_solution["valid_until"] > int(time.time()):
-                cookiejar = cookie_dict_to_cookiejar(last_solution["cookies"])
-                user_agent = last_solution["user_agent"]
-                proxy = get_local_proxy_url(solver_url, last_solution["proxy"])
-                if cookiejar:
-                    shared_state.logger.debug("Bestehende Cloudflare-Cookies werden für " + url + " verwendet.")
-                    return cookiejar, user_agent, proxy
-            else:
-                clean_db("sponsors_helper", base_domain)
-        except:
-            pass
-
-    if test_solver_url("sponsors_helper", solver_url + "/status"):
-        shared_state.logger.debug(f"Versuche Cloudflare auf der Seite {url} mit Sponsors Helper zu umgehen...")
-
-        solver_endpoint = "/cloudflare_cookie/"
-        solver_payload = {
-            'url': "https://" + base_domain + test_challenge_path(url)
-        }
-
-        response = request(
-            solver_url + solver_endpoint,
-            method="POST",
-            json=solver_payload,
-            timeout=180)
-
-        if response.status_code == 200:
-            try:
-                response = loads(response.text)
-                cookies = response["cookies"]
-                if cookies:
-                    cookiejar = cookie_dict_to_cookiejar(cookies)
-                    user_agent = response["user_agent"]
-                    proxy = get_local_proxy_url(solver_url, response["proxy"])
-                    valid_until = int(time.time()) + 1800 - 60
-
-                    pickle_db("sponsors_helper",
-                              base_domain,
-                              {
-                                  "cookies": cookies,
-                                  "user_agent": user_agent,
-                                  "proxy": proxy,
-                                  "valid_until": valid_until
-                              })
-
-                    shared_state.logger.debug(
-                        "Die Erzeugung von Cloudflare-Cookies für " + url + " war mit Sponsors Helper erfolgreich.")
-                    return cookiejar, user_agent, proxy
-            except:
-                pass
-        else:
-            shared_state.logger.debug(
-                "Die Erzeugung von Cloudflare-Cookies für " + url + " ist mit Sponsors Helper fehlgeschlagen.")
-    return False, False
-
-
 def flaresolverr_task(solver_url, url):
     base_domain = url.split("/")[2]
     last_solution = unpickle_db("flaresolverr", base_domain)

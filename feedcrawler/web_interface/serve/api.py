@@ -261,7 +261,7 @@ def app_container():
 
     @app.get(prefix + "/redirect_captcha/")
     def redirect_captcha():
-        redirect("https://getcaptchasolution.com/zuoo67f5cq")
+        redirect("https://deathbycaptcha.com/register?refid=6184288242b")
 
     @app.get(prefix + "/redirect_hoster/")
     def redirect_captcha():
@@ -301,7 +301,6 @@ def app_container():
                         "port": port,
                         "prefix": general_conf.get("prefix"),
                         "interval": to_int(general_conf.get("interval")),
-                        "sponsors_helper": general_conf.get("sponsors_helper"),
                         "flaresolverr": general_conf.get("flaresolverr"),
                         "english": general_conf.get("english"),
                         "surround": general_conf.get("surround"),
@@ -441,7 +440,6 @@ def app_container():
             if to_int(interval) < 5:
                 interval = '5'
             section.save("interval", interval)
-            section.save("sponsors_helper", to_str(data['general']['sponsors_helper']))
             section.save("flaresolverr", to_str(data['general']['flaresolverr']))
             section.save("english", to_str(data['general']['english']))
             section.save("surround", to_str(data['general']['surround']))

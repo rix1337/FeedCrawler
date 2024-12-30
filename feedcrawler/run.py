@@ -104,6 +104,7 @@ def main():
             else:
                 myjd_config(port, local_address, shared_state)
 
+        shared_state.update("connected", False)
         process_jdownloader = multiprocessing.Process(target=jdownloader_connection,
                                                       args=(shared_state_dict, shared_state_lock))
         process_jdownloader.start()
@@ -129,10 +130,17 @@ def main():
 
         if arguments.delay:
             delay = int(arguments.delay)
-            print(f"Verzögere den ersten Suchlauf um {delay} Sekunden")
-            time.sleep(delay)
+        else:
+            delay = 60
 
         if not os.environ.get('GITHUB_ACTION_PR'):
+            try:
+                while not shared_state.values["connected"]:
+                    print(f"Verbindung zu JDownloader noch nicht hergestellt - verzögere Suchlauf um {delay} Sekunden")
+                    time.sleep(60)
+            except KeyboardInterrupt:
+                sys.exit(1)
+
             process_feed_crawler = multiprocessing.Process(target=feed_crawler,
                                                            args=(shared_state_dict, shared_state_lock,))
             process_feed_crawler.start()
@@ -178,16 +186,21 @@ def jdownloader_connection(shared_state_dict, shared_state_lock):
 
     shared_state.set_device_from_config()
     connection_established = shared_state.get_device() and shared_state.get_device().name
-    if not connection_established:
-        i = 0
-        while i < 10:
-            i += 1
-            print(f'Verbindungsversuch {i} mit My JDownloader gescheitert. Gerätename: "{device}"')
-            time.sleep(60)
-            set_device_from_config()
-            connection_established = shared_state.get_device() and shared_state.get_device().name
-            if connection_established:
-                break
+
+    try:
+        if not connection_established:
+            i = 0
+            while i < 10:
+                i += 1
+                print(f'Verbindungsversuch {i} mit My JDownloader gescheitert.')
+                time.sleep(60)
+                set_device_from_config()
+                connection_established = shared_state.get_device() and shared_state.get_device().name
+                if connection_established:
+                    shared_state.update("connected", True)
+                    break
+    except KeyboardInterrupt:
+        sys.exit(1)
 
     if connection_established:
         print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
