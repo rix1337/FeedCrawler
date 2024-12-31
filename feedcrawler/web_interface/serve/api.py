@@ -225,7 +225,7 @@ def app_container():
             }
 
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.delete(prefix + "/api/log/")
     @auth_basic(is_authenticated_user)
@@ -234,7 +234,7 @@ def app_container():
             open(shared_state.values["log_file"], 'w').close()
             return "Success"
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.delete(prefix + "/api/log_entry/<b64_entry>")
     @auth_basic(is_authenticated_user)
@@ -253,7 +253,7 @@ def app_container():
                     file.write(log)
             return "Success"
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/redirect_sponsors/")
     def redirect_sponsors():
@@ -394,7 +394,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/api/settings/")
     @auth_basic(is_authenticated_user)
@@ -422,7 +422,7 @@ def app_container():
                 device_check = set_device(myjd_user, myjd_pass, myjd_device)
                 if not device_check:
                     print("Fehlerhafte My-JDownloader-Zugangsdaten. Bitte vor dem Speichern prüfen!")
-                    return abort(400, "Failed")
+                    return abort(500, "Failed")
 
             myjd_auto_update = to_str(data['general']['myjd_auto_update'])
 
@@ -559,7 +559,7 @@ def app_container():
 
             return "Success"
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/api/plex_auth/")
     @auth_basic(is_authenticated_user)
@@ -616,7 +616,7 @@ def app_container():
         if auth_url:
             redirect(auth_url)
         else:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/api/plex_pin/")
     @auth_basic(is_authenticated_user)
@@ -698,7 +698,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/api/crawltimes/")
     @auth_basic(is_authenticated_user)
@@ -725,7 +725,7 @@ def app_container():
             }
         except:
             time.sleep(3)
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/api/hostnames/")
     @auth_basic(is_authenticated_user)
@@ -790,7 +790,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/api/blocked_sites/")
     @auth_basic(is_authenticated_user)
@@ -826,7 +826,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/api/start_now/")
     @auth_basic(is_authenticated_user)
@@ -844,9 +844,9 @@ def app_container():
             if started:
                 return "Success"
             else:
-                return abort(400, "Failed")
+                return abort(500, "Failed")
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/api/search/<title>")
     @auth_basic(is_authenticated_user)
@@ -870,7 +870,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/api/download_movie/<title>")
     @auth_basic(is_authenticated_user)
@@ -883,7 +883,7 @@ def app_container():
         except Exception as e:
             shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/download_show/<title>")
     @auth_basic(is_authenticated_user)
@@ -899,7 +899,7 @@ def app_container():
         except Exception as e:
             shared_state.logger.debug("An exception was thrown: " + str(e))
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/download_bl/<payload>")
     @auth_basic(is_authenticated_user)
@@ -909,7 +909,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/download_s/<payload>")
     @auth_basic(is_authenticated_user)
@@ -919,7 +919,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.get(prefix + "/api/myjd/")
     @auth_basic(is_authenticated_user)
@@ -956,7 +956,7 @@ def app_container():
                 }
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.get(prefix + "/api/myjd_state/")
     @auth_basic(is_authenticated_user)
@@ -976,7 +976,7 @@ def app_container():
                 }
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_enable/<linkids>&<uuids>")
     @auth_basic(is_authenticated_user)
@@ -1000,7 +1000,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_disable/<linkids>&<uuids>")
     @auth_basic(is_authenticated_user)
@@ -1024,7 +1024,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_move/<linkids>&<uuids>")
     @auth_basic(is_authenticated_user)
@@ -1048,7 +1048,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_remove/<linkids>&<uuids>")
     @auth_basic(is_authenticated_user)
@@ -1072,7 +1072,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_reset/<linkids>&<uuids>")
     @auth_basic(is_authenticated_user)
@@ -1096,7 +1096,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/internal_remove/")
     @auth_basic(is_authenticated_user)
@@ -1111,7 +1111,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/internal_retry/")
     @auth_basic(is_authenticated_user)
@@ -1125,7 +1125,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_retry/<linkids>&<uuids>&<b64_links>")
     @auth_basic(is_authenticated_user)
@@ -1151,7 +1151,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_start/")
     @auth_basic(is_authenticated_user)
@@ -1168,7 +1168,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_pause/<bl>/")
     @auth_basic(is_authenticated_user)
@@ -1186,7 +1186,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_stop/")
     @auth_basic(is_authenticated_user)
@@ -1203,7 +1203,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.post(prefix + "/api/myjd_update/")
     @auth_basic(is_authenticated_user)
@@ -1220,7 +1220,7 @@ def app_container():
                 return "Success"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.get(prefix + "/api/lists/")
     @auth_basic(is_authenticated_user)
@@ -1254,7 +1254,7 @@ def app_container():
                 },
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/api/lists/")
     @auth_basic(is_authenticated_user)
@@ -1291,7 +1291,7 @@ def app_container():
 
             return "Success"
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.get(prefix + "/sponsors_helper/api/to_decrypt/")
     def to_decrypt_api():
@@ -1323,7 +1323,7 @@ def app_container():
                 }
             }
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
 
     @app.post(prefix + "/sponsors_helper/api/to_decrypt_disable/<name>")
     def to_decrypt_disable(name):
@@ -1344,7 +1344,7 @@ def app_container():
                            "[CAPTCHA nicht gelöst] - " + name + " (Paket nach " + max_attempts + " Versuchen deaktiviert)"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     @app.put(prefix + "/sponsors_helper/api/activate_sponsor_status/")
     def activate_sponsor_status():
@@ -1357,7 +1357,7 @@ def app_container():
                 return "Sponsor status activated successfully!"
         except:
             pass
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     def get_filer_folder_links(url):
         try:
@@ -1395,7 +1395,7 @@ def app_container():
         try:
             payload = decode_base64(payload.replace("%3D", "=")).split("|")
         except:
-            return abort(400, "Failed")
+            return abort(500, "Failed")
         if payload:
             links = clean_links(payload[0])
 
@@ -1412,7 +1412,7 @@ def app_container():
                 return "<script type='text/javascript'>" \
                        "function closeWindow(){window.close()}window.onload=closeWindow;</script>" \
                        "[Link ersetzt] - " + package_name
-        return abort(400, "Failed")
+        return abort(500, "Failed")
 
     def attempt_download(package_name, links, password, ids):
         global already_added

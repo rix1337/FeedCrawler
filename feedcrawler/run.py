@@ -104,7 +104,6 @@ def main():
             else:
                 myjd_config(port, local_address, shared_state)
 
-        shared_state.update("connected", False)
         process_jdownloader = multiprocessing.Process(target=jdownloader_connection,
                                                       args=(shared_state_dict, shared_state_lock))
         process_jdownloader.start()
@@ -131,13 +130,14 @@ def main():
         if arguments.delay:
             delay = int(arguments.delay)
         else:
-            delay = 60
+            delay = 10
 
         if not os.environ.get('GITHUB_ACTION_PR'):
             try:
+                time.sleep(delay)
                 while not shared_state.values["connected"]:
                     print(f"Verbindung zu JDownloader noch nicht hergestellt - verzögere Suchlauf um {delay} Sekunden")
-                    time.sleep(60)
+                    time.sleep(delay)
             except KeyboardInterrupt:
                 sys.exit(1)
 
@@ -197,13 +197,13 @@ def jdownloader_connection(shared_state_dict, shared_state_lock):
                 set_device_from_config()
                 connection_established = shared_state.get_device() and shared_state.get_device().name
                 if connection_established:
-                    shared_state.update("connected", True)
                     break
     except KeyboardInterrupt:
         sys.exit(1)
 
     if connection_established:
         print(f'Erfolgreich mit My JDownloader verbunden. Gerätename: "{shared_state.get_device().name}"')
+        shared_state.update("connected", True)
     else:
         print('My JDownloader Zugangsversuche nicht erfolgreich! Beende FeedCrawler!')
         sys.exit(1)
