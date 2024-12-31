@@ -650,7 +650,7 @@ function openCaptcha(index) {
                                             v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
                                             href="https://github.com/users/rix1337/sponsorship"
                                             target="_blank">Sponsor werden</a> und den <a
-                                            href="#" @click="showSponsorsHelp()">den Sponsors Helper</a> für dich arbeiten lassen.</div>
+                                            href="#" @click="showSponsorsHelp()">den SponsorsHelper</a> für dich arbeiten lassen.</div>
                                     </span>
                                 </li>
                                 <li class="list-group-item">
