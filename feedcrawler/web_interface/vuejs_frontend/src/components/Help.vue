@@ -319,13 +319,13 @@ const waitTimeActive = computed(() => {
               <button aria-controls="collapseSponsorsHelper" aria-expanded="false" class="accordion-button collapsed"
                       data-bs-target="#collapseSponsorsHelper"
                       data-bs-toggle="collapse" type="button">
-                FeedCrawler Sponsors Helper
+                SponsorsHelper
               </button>
             </h2>
             <div id="collapseSponsorsHelper" aria-labelledby="headingSponsorsHelper" class="accordion-collapse collapse"
                  data-bs-parent="#accordionHelp">
               <div class="accordion-body">
-                <p>Der FeedCrawler Sponsors Helper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
+                <p>Der SponsorsHelper ist ein Docker-Image, das alle derzeit bekannten CAPTCHAs
                   vollautomatisch löst, und dem FeedCrawler entschlüsselt übergibt.</p>
                 <p>Das Image steht ausschließlich aktiven <a href="#" target="_blank"
                                                              @click="openSponsorsLink()">Sponsoren</a> zur Verfügung
@@ -340,7 +340,7 @@ const waitTimeActive = computed(() => {
                 <span>
               <br>
               <a class="btn btn-outline-success"
-                 href="https://github.com/rix1337/FeedCrawler/wiki/FeedCrawler-Sponsors-Helper"
+                 href="https://github.com/rix1337/FeedCrawler/wiki/SponsorsHelper"
                  target="_blank">Weitere Hinweise gibt es im Wiki.</a>
                 </span>
               </div>

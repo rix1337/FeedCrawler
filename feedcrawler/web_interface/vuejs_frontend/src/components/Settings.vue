@@ -1213,7 +1213,7 @@ function updatePlexUrl() {
                         class="accordion-button collapsed"
                         data-bs-target="#collapseSettingsHelper"
                         data-bs-toggle="collapse" type="button">
-                  FeedCrawler Sponsors Helper
+                  SponsorsHelper
                 </button>
               </h2>
               <div id="collapseSettingsHelper" aria-labelledby="headingSettingsHelper"

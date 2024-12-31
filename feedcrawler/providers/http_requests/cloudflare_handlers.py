@@ -95,7 +95,7 @@ def get_solver_url(solver_internal_name):
 
 def test_solver_url(solver_internal_name, solver_status_endpoint):
     if solver_internal_name == "sponsors_helper":
-        solver_log_name = "Sponsors Helper"
+        solver_log_name = "SponsorsHelper"
     elif solver_internal_name == "flaresolverr":
         solver_log_name = "FlareSolverr"
     else:

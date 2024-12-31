@@ -46,16 +46,16 @@ def check_url(start_time):
                 print("Der Zugriff auf " + site + " funktioniert!")
             else:
                 if skip_normal_ip:
-                    print("Der Zugriff auf " + site + " ist nur mit FlareSolverr bzw. Sponsors Helper möglich!")
+                    print("Der Zugriff auf " + site + " ist nur mit FlareSolverr möglich!")
                 else:
                     print("Der Zugriff auf " + site + " ist gesperrt!")
                 db_status.update_store(site + "_normal", "Blocked")
-                if not sponsors_helper_url and not flaresolverr_url:
+                if not flaresolverr_url:
                     print(
-                        "Der Zugriff auf " + site + " ist ohne FlareSolverr bzw. Sponsors Helper derzeit nicht möglich!")
+                        "Der Zugriff auf " + site + " ist ohne FlareSolverr derzeit nicht möglich!")
                     db_status.update_store(site + "_advanced", "Blocked")
                 else:
-                    # Since we are aware this site is blocked Sponsors Helper/FlareSolverr will be used for subsequent requests
+                    # Since we are aware this site is blocked SponsorsHelper/FlareSolverr will be used for subsequent requests
                     still_blocked = check_if_blocked(site, "https://" + hostname)
                     if not still_blocked:
                         print("Die Cloudflare-Blockade auf " + site + " wurde erfolgreich umgangen!")
