@@ -243,12 +243,28 @@ def sf_parse_download(self, series_url, title, language_id):
                 pass
 
         links = release_info.findAll("div", {'class': 'row'})[1].findAll('a')
+
         download_link = False
         for link in links:
-            if check_hoster(link.text.replace('\n', '')):
-                download_link = "https://" + self.url + link['href']
-                break
-        if not download_link and not self.hoster_fallback:
+            hoster_name = link.text.replace('\n', '')
+            if hoster_name:
+                if check_hoster(hoster_name):
+                    download_link = "https://" + self.url + link['href']
+                    break
+            else:
+                if self.hoster_fallback:
+                    download_link = "https://" + self.url + link['href']
+                    shared_state.logger.debug(f"Hoster-Beschriftung der Links fehlt für {title}, falle auf Link zurück: {download_link}")
+                    break
+
+        if not download_link and self.hoster_fallback:
+            try:
+                download_link = "https://" + self.url + links[0]['href']
+                shared_state.logger.debug(f"Kein passender Link für {title} gefunden, falle auf ersten Link zurück: {download_link}")
+            except:
+                shared_state.logger.debug(f"Kein passender Link für {title} gefunden - auch mit Fallback!")
+
+        if not download_link:
             storage = self.db.retrieve_all(title)
             if 'added' not in storage and 'notdl' not in storage:
                 wrong_hoster = '[SF/Hoster fehlt] - ' + title
