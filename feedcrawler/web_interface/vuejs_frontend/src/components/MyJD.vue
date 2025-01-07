@@ -632,7 +632,7 @@ function openCaptcha(index) {
                                 <strong>{{ x[1].name }}</strong>
                               </div>
                               <ul class="list-group list-group-flush">
-                                <li v-if="x[1].url" class="list-group-item">
+                                <li v-if="x[1].url && x[1].url.includes('filecrypt.')" class="list-group-item">
                                   <button class="btn btn-outline-primary mb-2"
                                           type="button"
                                           @click='openCaptcha(index)'><i class="bi bi-puzzle"></i> CAPTCHA
@@ -645,12 +645,30 @@ function openCaptcha(index) {
                                         :password="x[1].password"
                                     />
                                   </div>
-                                  <span v-if="!store.misc.helper_active"><br>
-                                        <div class="">Genervt davon, CAPTCHAs manuell zu lösen? Jetzt <a
-                                            v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
-                                            href="https://github.com/users/rix1337/sponsorship"
-                                            target="_blank">Sponsor werden</a> und den <a
-                                            href="#" @click="showSponsorsHelp()">den SponsorsHelper</a> für dich arbeiten lassen.</div>
+                                  <span v-if="!store.misc.helper_active" class="mt-2"><br>
+                                    Genervt davon, CAPTCHAs manuell zu lösen?<br>
+                                    Jetzt <a
+                                        v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
+                                        href="https://github.com/users/rix1337/sponsorship"
+                                        target="_blank">Sponsor werden</a> und den <a
+                                        href="#" @click="showSponsorsHelp()">den SponsorsHelper</a> für dich arbeiten lassen!
+                                    </span>
+                                </li>
+                                <li v-else class="list-group-item">
+                                  <a class="btn btn-outline-primary mb-2"
+                                     type="button"
+                                     target="_blank"
+                                     :href="x[1].url"
+                                  ><i class="bi bi-download"></i> Manuell herunterladen
+                                  </a>
+                                  <span v-if="!store.misc.helper_active" class="mt-2"><br>
+                                    Genervt davon, CAPTCHAs manuell zu lösen?<br>
+                                    Jetzt <a
+                                        v-tippy="'Bitte unterstütze die Weiterentwicklung über eine aktive GitHub Sponsorship!'"
+                                        href="https://github.com/users/rix1337/sponsorship"
+                                        target="_blank">Sponsor werden</a> und den <a
+                                        href="#" @click="showSponsorsHelp()">den SponsorsHelper</a> für dich arbeiten lassen!<br>
+                                    Nur <a href="#" @click="showSponsorsHelp()">der SponsorsHelper</a> übergibt diese Links fehlerfrei an JDownloader.
                                     </span>
                                 </li>
                                 <li class="list-group-item">

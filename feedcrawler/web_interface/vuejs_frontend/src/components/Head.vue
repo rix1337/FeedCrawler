@@ -114,8 +114,6 @@ function showSiteStatusHelp() {
     toggle: true
   })
 }
-
-import Captcha from './Captcha.vue'
 </script>
 
 

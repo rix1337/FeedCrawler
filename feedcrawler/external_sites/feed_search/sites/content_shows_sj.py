@@ -88,15 +88,15 @@ def sj_releases_to_feedparser_dict(releases, list_type, base_url, check_seasons_
                     continue
             except:
                 continue
-        title = release['name']
-        series_url = base_url + '/serie/' + release["_media"]['slug']
+        title = release['name'].rstrip('.')
+        series_url = f"{base_url}/serie/{release['_media']['slug']}/{title}"
         published = release['createdAt']
 
         entries.append(FakeFeedParserDict({
             "title": title,
             "series_url": series_url,
             "published": published,
-            "source": series_url + "#" + title,
+            "source": series_url,
             "size": "",
             "imdb_id": ""
         }))
@@ -129,7 +129,7 @@ def sj_parse_download(self, series_url, title, language_id):
         for season in seasons:
             season = seasons[season]
             for item in season['items']:
-                if item['name'] == title:
+                if title in item['name']:
                     valid = False
                     for hoster in item['hoster']:
                         if hoster:
