@@ -1,6 +1,6 @@
 # FeedCrawler
 
-<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/feedcrawler/web_interface/vuejs_frontend/public/favicon.ico" width="64" height="64" />
+<img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png" width="64" height="64" />
 
 FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 
@@ -22,7 +22,7 @@ FeedCrawler automatisiert bequem das Hinzufügen von Links für den JDownloader.
 [![Lines of code](https://img.shields.io/endpoint?url=https://ghloc.vercel.app/api/rix1337/FeedCrawler/badge?filter=.py$,.vue$,js$,scss$,yml$&style=flat&logoColor=white&label=Lines%20of%20Code)](https://github.com/rix1337/FeedCrawler/pulse)
 
 [![GitHub Sponsorship](https://img.shields.io/badge/support-me-red.svg)](https://github.com/users/rix1337/sponsorship)
-[![Discord](https://img.shields.io/discord/1075348594225315891)](https://discord.gg/enn4AG3VnM)
+[![Discord](https://img.shields.io/discord/1075348594225315891)](https://discord.gg/eM4zA2wWQb)
 [![GitHub issues](https://img.shields.io/github/issues/rix1337/FeedCrawler.svg)](https://github.com/rix1337/FeedCrawler/issues)
 
 ***

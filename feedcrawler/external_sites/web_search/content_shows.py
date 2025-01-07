@@ -352,6 +352,7 @@ def download(payload):
 
     notify_array = []
     for title in matches:
+        title = title.rstrip('.')
         size = ""
         incomplete = False
 

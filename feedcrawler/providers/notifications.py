@@ -89,7 +89,7 @@ def discord(items, webhook_id, webhook_token):
 
         data = {
             'username': 'FeedCrawler',
-            'avatar_url': 'https://imgur.com/tEi4qtb.png',
+            'avatar_url': 'https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png',
             'embeds': [{
                 'title': notification_dict["release"],
                 'description': notification_dict["event"]
@@ -101,7 +101,7 @@ def discord(items, webhook_id, webhook_token):
             if poster_link:
                 data = {
                     'username': 'FeedCrawler',
-                    'avatar_url': 'https://imgur.com/tEi4qtb.png',
+                    'avatar_url': 'https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png',
                     'embeds': [{
                         'title': notification_dict["release"],
                         'description': notification_dict["event"],
