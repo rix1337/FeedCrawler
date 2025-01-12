@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 # FeedCrawler
 # Projekt von https://github.com/rix1337
-# Dieses Modul stellt die API von My JDownloader in Form eines Python-Moduls zur Verfügung.
+# Dieses Modul stellt die API von My-JDownloader in Form eines Python-Moduls zur Verfügung.
 #
 # Enthält Code von:
 # https://github.com/mmarquezs/My.Jdownloader-API-Python-Library/
