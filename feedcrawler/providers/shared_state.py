@@ -45,6 +45,7 @@ def set_initial_values():
     else:
         gui_enabled = True
     update("connected", False)
+    update("exiting", False)
     update("gui", gui_enabled)
     update("gui_active_in_tray_and_browser_opened_for_config_once", False)
     update("ww_blocked", False)
@@ -151,7 +152,7 @@ def get_device():
 
         if attempts % 10 == 0:
             print(
-                f"WARNUNG: {attempts} aufeinanderfolgende My JDownloader Verbindungsfehler. Bitte prüfen und ggf. neu starten!")
+                f"WARNUNG: {attempts} aufeinanderfolgende My-JDownloader-Verbindungsfehler. Bitte prüfen und ggf. neu starten!")
         time.sleep(3)
 
         if connect_device():
