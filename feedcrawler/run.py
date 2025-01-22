@@ -65,7 +65,7 @@ def main():
 
             if os.environ.get('DOCKER'):
                 config_path = "/config"
-                local_address = f'http://<<<HOST_IP>>>]'
+                local_address = f'http://<<<HOST_IP>>>'
             elif os.environ.get('GITHUB_ACTION_PR'):
                 config_path = "/home/runner/work/_temp/feedcrawler"
             else:
