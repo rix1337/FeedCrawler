@@ -24,6 +24,8 @@ setuptools.setup(
     author="rix1337",
     author_email="",
     description="Automate downloads using predefined sites and the My-JDownloader-API",
+    license="MIT",
+    license_files=['LICENSE.md'],
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/rix1337/FeedCrawler",
