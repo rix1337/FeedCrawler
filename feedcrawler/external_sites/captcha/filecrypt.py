@@ -176,11 +176,15 @@ def get_filecrypt_links(shared_state, token, title, url, password=None):
         output = session.post(url, data="cap_token=" + token, headers={'User-Agent': shared_state.values["user_agent"],
                                                                        'Content-Type': 'application/x-www-form-urlencoded'})
     url = output.url
+
+    if "/404.html" in url:
+        print("Filecrypt-Fehler 404 - aktuelle IP wurde gebannt, oder das Paket ist offline!")
+
     soup = BeautifulSoup(output.text, 'html.parser')
 
     solved = bool(soup.findAll("div", {"class": "container"}))
     if not solved:
-        shared_state.logger.debug(f"Filecrypt did did not accept the token! Could not get links for {title}")
+        print("CAPTCHA-Token von Filecrypt abgelehnt! Neuer Token notwendig um fortzufahren...")
         return False
     else:
         season_number = ""
