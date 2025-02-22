@@ -1,3 +1,15 @@
+> ## Important Notice / Wichtiger Hinweis
+> 
+> **English:**  
+> This project is now a public archive and is no longer under active development.  
+> It is recommended to switch to the much more streamlined [Quasarr](https://github.com/rix1337/Quasarr). 😃🚀
+> 
+> **Deutsch:**  
+> Dieses Projekt ist nun ein öffentliches Archiv und wird nicht mehr aktiv weiterentwickelt.  
+> Es empfiehlt sich, zum wesentlich schlankeren [Quasarr](https://github.com/rix1337/Quasarr) zu wechseln. 😃🚀
+
+
+
 # FeedCrawler
 
 <img src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png" data-canonical-src="https://raw.githubusercontent.com/rix1337/FeedCrawler/main/FeedCrawler.png" width="64" height="64" />
